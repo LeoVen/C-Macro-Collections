@@ -1,5 +1,5 @@
 /**
- * @file stack.h
+ * @file for_each.h
  *
  * Last Update: 22/03/2019
  *
@@ -7,6 +7,13 @@
  * Leonardo Vencovsky (https://github.com/LeoVen)
  *
  */
+
+#ifndef CMC_FOR_EACH
+#define CMC_FOR_EACH
+
+#include <stdlib.h>
+#include <stdbool.h>
+#include <stdint.h>
 
 #define FOR_EACH(PFX, SNAME, K, T, TARGET, BODY)     \
     do                                               \
@@ -34,3 +41,5 @@
             BODY;                                    \
         }                                            \
     } while (0);
+
+#endif /* CMC_FOR_EACH */

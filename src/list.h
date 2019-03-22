@@ -15,6 +15,10 @@
 #ifndef CMC_LIST_H
 #define CMC_LIST_H
 
+#include <stdlib.h>
+#include <stdbool.h>
+#include <stdint.h>
+
 /* PRIVATE *******************************************************************/
 #define LIST_GENERATE_HEADER_PRIVATE(PFX, SNAME, FMOD, K, T) \
     LIST_GENERATE_HEADER(PFX, SNAME, FMOD, K, T)

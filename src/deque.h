@@ -15,6 +15,10 @@
 #ifndef CMC_DEQUE_H
 #define CMC_DEQUE_H
 
+#include <stdlib.h>
+#include <stdbool.h>
+#include <stdint.h>
+
 /* PRIVATE *******************************************************************/
 #define DEQUE_GENERATE_HEADER_PRIVATE(PFX, SNAME, FMOD, K, T) \
     DEQUE_GENERATE_HEADER(PFX, SNAME, FMOD, K, T)

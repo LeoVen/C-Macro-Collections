@@ -15,6 +15,10 @@
 #ifndef CMC_QUEUE_H
 #define CMC_QUEUE_H
 
+#include <stdlib.h>
+#include <stdbool.h>
+#include <stdint.h>
+
 /* PRIVATE *******************************************************************/
 #define QUEUE_GENERATE_HEADER_PRIVATE(PFX, SNAME, FMOD, K, T) \
     QUEUE_GENERATE_HEADER(PFX, SNAME, FMOD, K, T)

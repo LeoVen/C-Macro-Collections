@@ -15,6 +15,10 @@
 #ifndef CMC_STACK_H
 #define CMC_STACK_H
 
+#include <stdlib.h>
+#include <stdbool.h>
+#include <stdint.h>
+
 /* PRIVATE *******************************************************************/
 #define STACK_GENERATE_HEADER_PRIVATE(PFX, SNAME, FMOD, K, T) \
     STACK_GENERATE_HEADER(PFX, SNAME, FMOD, K, T)
