@@ -1,6 +1,24 @@
-# C-Macro-Containers
+# C-Macro-Collections
 
-Generate Simple Containers of any type in C for you to use in your projects.
+Generate Simple Data Structures of any type in C for you to use in your projects.
+
+## How to use
+
+All macros have a series of default parameters. Some might not be required or might not be used by the data structure.
+
+* \*__C__ - Container type (*LIST*, *LINKEDLIST*, *STACK*, *QUEUE*, *DEQUE*, *HASHMAP*, *TREEMAP*, *HASHSET*, *TREESET*, *HEAP*).
+* \*__P__ - Permission (PRIVATE, PUBLIC). Only matters when header and source are declared in separate files.
+	* *PRIVATE* - Members of a struct are hidden in source file and only accessible through functions.
+	* *PUBLIC* - Members of a struct are visible.
+* \*__PFX__ - Functions prefix or namespace.
+* \*__SNAME__ - Structure name (`typedef struct SNAME##_s SNAME`).
+* __FMOD__ - Function modifier (static). Useful when declaring header and source in the same file.
+* \*\*__K__ - Key type. Only used in *HASHMAP* and *TREEMAP*; ignored by others.
+* \*__V__ - Value type. Primary type for most data structures, or value to be mapped by *HASHMAP* and *TREEMAP*.
+
+\* Required parameters
+
+\*\* Required only by *HASHMAP* and *TREEMAP*
 
 ## List
 
@@ -34,7 +52,7 @@ A balanced binary tree that maps a key `K` to a value `V`. The difference from a
 
 A hashtable that contains only unique elements to the set. Its elements are not ordered.
 
-## TreeMap
+## TreeSet
 
 A balanced binary tree that contains only unique elements to the set. Its elements are ordered.
 
