@@ -33,6 +33,7 @@
     (PFX, SNAME, FMOD, K, V)
 
 #include "list.h"
+#include "linkedlist.h"
 #include "stack.h"
 #include "queue.h"
 #include "deque.h"
