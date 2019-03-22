@@ -1,5 +1,5 @@
 /**
- * @file stack.h
+ * stack.h
  *
  * Last Update: 22/03/2019
  *

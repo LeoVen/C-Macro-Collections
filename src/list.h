@@ -1,5 +1,5 @@
 /**
- * @file list.h
+ * list.h
  *
  * Last Update: 22/03/2019
  *

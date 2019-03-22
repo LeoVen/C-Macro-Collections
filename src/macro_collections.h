@@ -1,15 +1,15 @@
 /**
- * @file macro_containers.h
+ * macro_collections.h
  *
- * @author Leonardo Vencovsky (https://github.com/LeoVen)
- * @date 11/02/2019
+ * Last Update: 22/03/2019
  *
- * Macro based generic containers.
+ * Authors:
+ * Leonardo Vencovsky (https://github.com/LeoVen)
  *
  */
 
-#ifndef MACRO_CONTAINERS
-#define MACRO_CONTAINERS
+#ifndef CMC_MACRO_COLLECTIONS
+#define CMC_MACRO_COLLECTIONS
 
 #include <stdlib.h>
 #include <stdbool.h>
@@ -21,16 +21,16 @@
 #define CONCATC(C, P) CONCATC_(C, P)
 
 #define CONTAINER_GENERATE(C, P, PFX, SNAME, FMOD, K, V)    \
-	CONTAINER_GENERATE_HEADER(C, P, PFX, SNAME, FMOD, K, V) \
-	CONTAINER_GENERATE_SOURCE(C, P, PFX, SNAME, FMOD, K, V)
+    CONTAINER_GENERATE_HEADER(C, P, PFX, SNAME, FMOD, K, V) \
+    CONTAINER_GENERATE_SOURCE(C, P, PFX, SNAME, FMOD, K, V)
 
 #define CONTAINER_GENERATE_HEADER(C, P, PFX, SNAME, FMOD, K, V) \
-	CONCATH(C, P)                                               \
-	(PFX, SNAME, FMOD, K, V)
+    CONCATH(C, P)                                               \
+    (PFX, SNAME, FMOD, K, V)
 
 #define CONTAINER_GENERATE_SOURCE(C, P, PFX, SNAME, FMOD, K, V) \
-	CONCATC(C, P)                                               \
-	(PFX, SNAME, FMOD, K, V)
+    CONCATC(C, P)                                               \
+    (PFX, SNAME, FMOD, K, V)
 
 #include "list.h"
 #include "stack.h"
@@ -38,4 +38,4 @@
 #include "deque.h"
 #include "foreach.h"
 
-#endif /* MACRO_CONTAINERS */
+#endif /* CMC_MACRO_COLLECTIONS */

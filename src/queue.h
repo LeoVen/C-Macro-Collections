@@ -1,5 +1,5 @@
 /**
- * @file queue.h
+ * queue.h
  *
  * Last Update: 22/03/2019
  *

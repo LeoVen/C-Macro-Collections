@@ -8,15 +8,15 @@
  *
  */
 
-#define FOR_EACH(PFX, SNAME, K, T, TARGET, BODY)       \
-    do                                                 \
-    {                                                  \
-        size_t index;                                  \
-        T var;                                         \
-        SNAME##_iter _iter_;                           \
-        PFX##_iter(&_iter_, TARGET);                   \
-        while (PFX##_iter_next(&_iter_, &var, &index)) \
-        {                                              \
-            BODY;                                      \
-        }                                              \
+#define FOR_EACH(PFX, SNAME, K, T, TARGET, BODY)     \
+    do                                               \
+    {                                                \
+        size_t index;                                \
+        T var;                                       \
+        SNAME##_iter iter;                           \
+        PFX##_iter(&iter, TARGET);                   \
+        while (PFX##_iter_next(&iter, &var, &index)) \
+        {                                            \
+            BODY;                                    \
+        }                                            \
     } while (0);

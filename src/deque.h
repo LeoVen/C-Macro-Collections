@@ -1,5 +1,5 @@
 /**
- * @file deque.h
+ * deque.h
  *
  * Last Update: 22/03/2019
  *
