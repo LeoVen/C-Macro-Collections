@@ -59,27 +59,49 @@ int main(int argc, char const *argv[])
 
     if (sum0 == 50005000)
         printf("%10s PASSED\n", "LIST");
-    if (sum4 == 50005000)
-        printf("%10s PASSED\n", "LINKEDLIST");
     if (sum1 == 50005000)
         printf("%10s PASSED\n", "STACK");
     if (sum2 == 50005000)
         printf("%10s PASSED\n", "QUEUE");
     if (sum3 == 50005000)
         printf("%10s PASSED\n", "DEQUE");
+    if (sum4 == 50005000)
+        printf("%10s PASSED\n", "LINKEDLIST");
 
     printf("\n\n");
 
     sum0 = 0, sum1 = 0, sum2 = 0, sum3 = 0, sum4 = 0;
 
+    FOR_EACH_REV(l, list, , int, l, {
+        sum0 += var;
+    })
+
+    FOR_EACH_REV(s, stack, , int, s, {
+        sum1 += var;
+    })
+
+    // FOR_EACH_REV(q, queue, , int, q, {
+    //     sum2 += var;
+    // })
+
+    // FOR_EACH_REV(d, deque, , int, d, {
+    //     sum3 += var;
+    // })
+
     FOR_EACH_REV(ll, linked, , int, ll, {
         sum4 += var;
     })
 
+    if (sum0 == 50005000)
+        printf("%10s PASSED\n", "LIST");
+    if (sum1 == 50005000)
+        printf("%10s PASSED\n", "STACK");
+    // if (sum2 == 50005000)
+    //     printf("%10s PASSED\n", "QUEUE");
+    // if (sum3 == 50005000)
+    //     printf("%10s PASSED\n", "DEQUE");
     if (sum4 == 50005000)
         printf("%10s PASSED\n", "LINKEDLIST");
-    else
-        printf("%10s ERROR %d", "LINKEDLIST", sum4);
 
     l_free(l);
     ll_free(ll);

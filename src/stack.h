@@ -50,6 +50,8 @@
     {                                                 \
         struct SNAME##_s *target;                     \
         size_t cursor;                                \
+        bool start;                                   \
+        bool end;                                     \
     };                                                \
                                                       \
 /* HEADER ********************************************************************/
@@ -71,7 +73,12 @@
     FMOD size_t PFX##_capacity(SNAME *_stack_);                              \
                                                                              \
     FMOD void PFX##_iter(SNAME##_iter *iter, SNAME *target);                 \
+    FMOD bool PFX##_iter_start(SNAME##_iter *iter);                          \
+    FMOD bool PFX##_iter_end(SNAME##_iter *iter);                            \
+    FMOD void PFX##_iter_tostart(SNAME##_iter *iter);                        \
+    FMOD void PFX##_iter_toend(SNAME##_iter *iter);                          \
     FMOD bool PFX##_iter_next(SNAME##_iter *iter, T *result, size_t *index); \
+    FMOD bool PFX##_iter_prev(SNAME##_iter *iter, T *result, size_t *index); \
                                                                              \
 /* SOURCE ********************************************************************/
 #define STACK_GENERATE_SOURCE(PFX, SNAME, FMOD, K, T)                       \
@@ -198,19 +205,67 @@
     FMOD void PFX##_iter(SNAME##_iter *iter, SNAME *target)                 \
     {                                                                       \
         iter->target = target;                                              \
+        iter->cursor = iter->target->count - 1;                             \
+        iter->start = true;                                                 \
+        iter->end = false;                                                  \
+    }                                                                       \
+                                                                            \
+    FMOD bool PFX##_iter_start(SNAME##_iter *iter)                          \
+    {                                                                       \
+        return iter->cursor == iter->target->count - 1 && iter->start;      \
+    }                                                                       \
+                                                                            \
+    FMOD bool PFX##_iter_end(SNAME##_iter *iter)                            \
+    {                                                                       \
+        return iter->cursor == 0 && iter->end;                              \
+    }                                                                       \
+                                                                            \
+    FMOD void PFX##_iter_tostart(SNAME##_iter *iter)                        \
+    {                                                                       \
+        iter->cursor = iter->target->count - 1;                             \
+        iter->start = true;                                                 \
+        iter->end = false;                                                  \
+    }                                                                       \
+                                                                            \
+    FMOD void PFX##_iter_toend(SNAME##_iter *iter)                          \
+    {                                                                       \
         iter->cursor = 0;                                                   \
+        iter->start = false;                                                \
+        iter->end = true;                                                   \
     }                                                                       \
                                                                             \
     FMOD bool PFX##_iter_next(SNAME##_iter *iter, T *result, size_t *index) \
     {                                                                       \
-        if (iter->cursor < iter->target->count)                             \
-        {                                                                   \
-            *index = iter->cursor;                                          \
-            *result = iter->target->buffer[iter->cursor++];                 \
-            return true;                                                    \
-        }                                                                   \
+        if (iter->end)                                                      \
+            return false;                                                   \
                                                                             \
-        return false;                                                       \
+        *index = iter->cursor;                                              \
+        *result = iter->target->buffer[iter->cursor];                       \
+        iter->start = false;                                                \
+                                                                            \
+        if (iter->cursor == 0)                                              \
+            iter->end = true;                                               \
+        else                                                                \
+            iter->cursor--;                                                 \
+                                                                            \
+        return true;                                                        \
+    }                                                                       \
+                                                                            \
+    FMOD bool PFX##_iter_prev(SNAME##_iter *iter, T *result, size_t *index) \
+    {                                                                       \
+        if (iter->start)                                                    \
+            return false;                                                   \
+                                                                            \
+        *index = iter->cursor;                                              \
+        *result = iter->target->buffer[iter->cursor];                       \
+        iter->end = false;                                                  \
+                                                                            \
+        if (iter->cursor == iter->target->count - 1)                        \
+            iter->start = true;                                             \
+        else                                                                \
+            iter->cursor++;                                                 \
+                                                                            \
+        return true;                                                        \
     }
 
 #endif /* CMC_STACK_H */
