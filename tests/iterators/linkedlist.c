@@ -4,9 +4,9 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
-#include "../../src/macro_collections.h"
+#include "../../src/linkedlist.h"
 
-CONTAINER_GENERATE(LINKEDLIST, PUBLIC, ll, linked, static, , int)
+LINKEDLIST_GENERATE(ll, linked, static, , int)
 
 int main(int argc, char const *argv[])
 {
@@ -26,10 +26,10 @@ int main(int argc, char const *argv[])
     for (int j = 0; j < 4; j++)
     {
         while (ll_iter_next(&iter, &r, &i))
-            printf("list[%2d] = %2d\n", i, r);
+            printf("C[%2d] = %2d\n", i, r);
         printf("\n");
         while (ll_iter_prev(&iter, &r, &i))
-            printf("list[%2d] = %2d\n", i, r);
+            printf("C[%2d] = %2d\n", i, r);
         printf("\n\n");
     }
 

@@ -57,7 +57,7 @@
     {                                                      \
         struct SNAME##_s *target;                          \
         struct SNAME##_node_s *cursor;                     \
-        intmax_t count;                                    \
+        size_t index;                                      \
         bool start;                                        \
         bool end;                                          \
     };                                                     \
@@ -379,7 +379,7 @@
     {                                                                                 \
         iter->target = target;                                                        \
         iter->cursor = target->head;                                                  \
-        iter->count = 0;                                                              \
+        iter->index = 0;                                                              \
         iter->start = true;                                                           \
         iter->end = false;                                                            \
     }                                                                                 \
@@ -397,7 +397,7 @@
     FMOD void PFX##_iter_tostart(SNAME##_iter *iter)                                  \
     {                                                                                 \
         iter->cursor = iter->target->head;                                            \
-        iter->count = 0;                                                              \
+        iter->index = 0;                                                              \
         iter->start = true;                                                           \
         iter->end = false;                                                            \
     }                                                                                 \
@@ -405,7 +405,7 @@
     FMOD void PFX##_iter_toend(SNAME##_iter *iter)                                    \
     {                                                                                 \
         iter->cursor = iter->target->tail;                                            \
-        iter->count = iter->target->count - 1;                                        \
+        iter->index = iter->target->count - 1;                                        \
         iter->start = false;                                                          \
         iter->end = true;                                                             \
     }                                                                                 \
@@ -415,7 +415,7 @@
         if (iter->end)                                                                \
             return false;                                                             \
                                                                                       \
-        *index = iter->count;                                                         \
+        *index = iter->index;                                                         \
         *result = iter->cursor->data;                                                 \
         iter->start = false;                                                          \
                                                                                       \
@@ -424,7 +424,7 @@
         else                                                                          \
         {                                                                             \
             iter->cursor = iter->cursor->next;                                        \
-            iter->count++;                                                            \
+            iter->index++;                                                            \
         }                                                                             \
                                                                                       \
         return true;                                                                  \
@@ -435,7 +435,7 @@
         if (iter->start)                                                              \
             return false;                                                             \
                                                                                       \
-        *index = iter->count;                                                         \
+        *index = iter->index;                                                         \
         *result = iter->cursor->data;                                                 \
         iter->end = false;                                                            \
                                                                                       \
@@ -444,7 +444,7 @@
         else                                                                          \
         {                                                                             \
             iter->cursor = iter->cursor->prev;                                        \
-            iter->count--;                                                            \
+            iter->index--;                                                            \
         }                                                                             \
                                                                                       \
         return true;                                                                  \
