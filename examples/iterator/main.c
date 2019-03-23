@@ -24,13 +24,15 @@ int main(int argc, char const *argv[])
     ll_iter_toend(&iter);
     // While there is a previous element on the list
     while (ll_iter_prev(&iter, &r, &i))
-        printf("list[%d] = %d\n", i, r);
+        printf("list[%2d] = %2d\n", i, r);
+
+    printf("\n");
 
     // Move cursor to the start of the list
     ll_iter_tostart(&iter);
     // While there is a next element on the list
     while (ll_iter_next(&iter, &r, &i))
-        printf("list[%d] = %d\n", i, r);
+        printf("list[%2d] = %2d\n", i, r);
 
     ll_free(ll);
 
