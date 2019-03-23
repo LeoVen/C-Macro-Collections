@@ -19,6 +19,11 @@
 #include <stdbool.h>
 #include <stdint.h>
 
+#define STACK_GENERATE(PFX, SNAME, FMOD, K, T)    \
+    STACK_GENERATE_STRUCT(PFX, SNAME, FMOD, K, T) \
+    STACK_GENERATE_HEADER(PFX, SNAME, FMOD, K, T) \
+    STACK_GENERATE_SOURCE(PFX, SNAME, FMOD, K, T)
+
 /* PRIVATE *******************************************************************/
 #define STACK_GENERATE_HEADER_PRIVATE(PFX, SNAME, FMOD, K, T) \
     STACK_GENERATE_HEADER(PFX, SNAME, FMOD, K, T)

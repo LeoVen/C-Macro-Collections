@@ -19,6 +19,11 @@
 #include <stdbool.h>
 #include <stdint.h>
 
+#define DEQUE_GENERATE(PFX, SNAME, FMOD, K, T)    \
+    DEQUE_GENERATE_STRUCT(PFX, SNAME, FMOD, K, T) \
+    DEQUE_GENERATE_HEADER(PFX, SNAME, FMOD, K, T) \
+    DEQUE_GENERATE_SOURCE(PFX, SNAME, FMOD, K, T)
+
 /* PRIVATE *******************************************************************/
 #define DEQUE_GENERATE_HEADER_PRIVATE(PFX, SNAME, FMOD, K, T) \
     DEQUE_GENERATE_HEADER(PFX, SNAME, FMOD, K, T)
