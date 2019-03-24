@@ -80,9 +80,9 @@ int main(int argc, char const *argv[])
         sum1 += var;
     })
 
-    // FOR_EACH_REV(q, queue, , int, q, {
-    //     sum2 += var;
-    // })
+    FOR_EACH_REV(q, queue, , int, q, {
+        sum2 += var;
+    })
 
     // FOR_EACH_REV(d, deque, , int, d, {
     //     sum3 += var;
@@ -96,8 +96,8 @@ int main(int argc, char const *argv[])
         printf("%10s PASSED\n", "LIST");
     if (sum1 == 50005000)
         printf("%10s PASSED\n", "STACK");
-    // if (sum2 == 50005000)
-    //     printf("%10s PASSED\n", "QUEUE");
+    if (sum2 == 50005000)
+        printf("%10s PASSED\n", "QUEUE");
     // if (sum3 == 50005000)
     //     printf("%10s PASSED\n", "DEQUE");
     if (sum4 == 50005000)
