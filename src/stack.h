@@ -1,7 +1,7 @@
 /**
  * stack.h
  *
- * Last Update: 22/03/2019
+ * Creation Date: 14/02/2019
  *
  * Authors:
  * Leonardo Vencovsky (https://github.com/LeoVen)

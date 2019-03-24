@@ -1,7 +1,7 @@
 /**
  * deque.h
  *
- * Last Update: 22/03/2019
+ * Creation Date: 20/03/2019
  *
  * Authors:
  * Leonardo Vencovsky (https://github.com/LeoVen)
