@@ -33,6 +33,20 @@ int main(int argc, char const *argv[])
         printf("\n\n");
     }
 
+    for (ll_iter_tostart(&iter); !ll_iter_end(&iter); /**/)
+    {
+        ll_iter_next(&iter, &r, &i);
+        printf("LL[%2d] = %2d\n", i, r);
+    }
+
+    printf("\n");
+
+    for (ll_iter_toend(&iter); !ll_iter_start(&iter); /**/)
+    {
+        ll_iter_prev(&iter, &r, &i);
+        printf("LL[%2d] = %2d\n", i, r);
+    }
+
     ll_free(ll);
 
     return 0;

@@ -1,5 +1,5 @@
 // Checks if the list iterator can go back and forward in the list without
-// hitting invalid states or a nul pointer. Check is done visually.
+// hitting invalid states or a null pointer. Check is done visually.
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdint.h>
@@ -31,6 +31,20 @@ int main(int argc, char const *argv[])
         while (l_iter_prev(&iter, &r, &i))
             printf("C[%2d] = %2d\n", i, r);
         printf("\n\n");
+    }
+
+    for (l_iter_tostart(&iter); !l_iter_end(&iter); /**/)
+    {
+        l_iter_next(&iter, &r, &i);
+        printf("L[%2d] = %2d\n", i, r);
+    }
+
+    printf("\n");
+
+    for (l_iter_toend(&iter); !l_iter_start(&iter); /**/)
+    {
+        l_iter_prev(&iter, &r, &i);
+        printf("L[%2d] = %2d\n", i, r);
     }
 
     l_free(l);

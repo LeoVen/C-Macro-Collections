@@ -1,5 +1,5 @@
 // Checks if the stack iterator can go back and forward in the stack without
-// hitting invalid states or a nul pointer. Check is done visually.
+// hitting invalid states or a null pointer. Check is done visually.
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdint.h>
@@ -31,6 +31,20 @@ int main(int argc, char const *argv[])
         while (s_iter_prev(&iter, &r, &i))
             printf("C[%2d] = %2d\n", i, r);
         printf("\n\n");
+    }
+
+    for (s_iter_tostart(&iter); !s_iter_end(&iter); /**/)
+    {
+        s_iter_next(&iter, &r, &i);
+        printf("S[%2d] = %2d\n", i, r);
+    }
+
+    printf("\n");
+
+    for (s_iter_toend(&iter); !s_iter_start(&iter); /**/)
+    {
+        s_iter_prev(&iter, &r, &i);
+        printf("S[%2d] = %2d\n", i, r);
     }
 
     s_free(s);

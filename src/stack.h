@@ -207,7 +207,7 @@
         iter->target = target;                                              \
         iter->cursor = iter->target->count - 1;                             \
         iter->start = true;                                                 \
-        iter->end = false;                                                  \
+        iter->end = PFX##_empty(target);                                    \
     }                                                                       \
                                                                             \
     FMOD bool PFX##_iter_start(SNAME##_iter *iter)                          \
