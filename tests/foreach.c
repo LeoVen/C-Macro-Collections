@@ -84,9 +84,9 @@ int main(int argc, char const *argv[])
         sum2 += var;
     })
 
-    // FOR_EACH_REV(d, deque, , int, d, {
-    //     sum3 += var;
-    // })
+    FOR_EACH_REV(d, deque, , int, d, {
+        sum3 += var;
+    })
 
     FOR_EACH_REV(ll, linked, , int, ll, {
         sum4 += var;
@@ -98,8 +98,8 @@ int main(int argc, char const *argv[])
         printf("%10s PASSED\n", "STACK");
     if (sum2 == 50005000)
         printf("%10s PASSED\n", "QUEUE");
-    // if (sum3 == 50005000)
-    //     printf("%10s PASSED\n", "DEQUE");
+    if (sum3 == 50005000)
+        printf("%10s PASSED\n", "DEQUE");
     if (sum4 == 50005000)
         printf("%10s PASSED\n", "LINKEDLIST");
 
