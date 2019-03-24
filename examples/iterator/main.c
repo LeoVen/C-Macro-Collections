@@ -13,7 +13,7 @@ int main(int argc, char const *argv[])
 
     // Initliazie linked list and add some elements
     linked *ll = ll_new();
-    for (int i = 0; i < 100; i++)
+    for (int i = 0; i < 20; i++)
         ll_push_back(ll, i);
 
     // Initialize iterator

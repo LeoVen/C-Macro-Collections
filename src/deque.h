@@ -17,7 +17,6 @@
 
 #include <stdlib.h>
 #include <stdbool.h>
-#include <stdint.h>
 
 #define DEQUE_GENERATE(PFX, SNAME, FMOD, K, T)    \
     DEQUE_GENERATE_STRUCT(PFX, SNAME, FMOD, K, T) \

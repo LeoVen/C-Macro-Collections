@@ -13,7 +13,6 @@
 
 #include <stdlib.h>
 #include <stdbool.h>
-#include <stdint.h>
 
 #define FOR_EACH(PFX, SNAME, K, T, TARGET, BODY)     \
     do                                               \

@@ -41,16 +41,16 @@ int main(int argc, char const *argv[])
     FOR_EACH(l, list, , int, l, {
         if (index == 0)
             printf("[ %d, ", var);
-        else if (index == l_count(l) - 1)
+        else if (index == iter.target->count - 1)
             printf("%d ]\n", var);
         else
             printf("%d, ", var);
     })
 
     FOR_EACH(s, stack, , int, s, {
-        if (index == 0)
+        if (index == iter.target->count - 1)
             printf("[ %d, ", var);
-        else if (index == s_count(s) - 1)
+        else if (index == 0)
             printf("%d ]\n", var);
         else
             printf("%d, ", var);
@@ -59,7 +59,7 @@ int main(int argc, char const *argv[])
     FOR_EACH(q, queue, , int, q, {
         if (index == 0)
             printf("[ %d, ", var);
-        else if (index == q_count(q) - 1)
+        else if (index == iter.target->count - 1)
             printf("%d ]\n", var);
         else
             printf("%d, ", var);
@@ -68,7 +68,7 @@ int main(int argc, char const *argv[])
     FOR_EACH(d, deque, , int, d, {
         if (index == 0)
             printf("[ %d, ", var);
-        else if (index == d_count(d) - 1)
+        else if (index == iter.target->count - 1)
             printf("%d ]\n", var);
         else
             printf("%d, ", var);

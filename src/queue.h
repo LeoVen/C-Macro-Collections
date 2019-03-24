@@ -17,7 +17,6 @@
 
 #include <stdlib.h>
 #include <stdbool.h>
-#include <stdint.h>
 
 #define QUEUE_GENERATE(PFX, SNAME, FMOD, K, T)    \
     QUEUE_GENERATE_STRUCT(PFX, SNAME, FMOD, K, T) \
