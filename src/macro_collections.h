@@ -37,6 +37,7 @@
 #include "stack.h"
 #include "queue.h"
 #include "deque.h"
+#include "heap.h"
 #include "foreach.h"
 
 #endif /* CMC_MACRO_COLLECTIONS */

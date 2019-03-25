@@ -40,6 +40,10 @@ A FIFO/LILO structure backed by a circular buffer. Elements are added in one end
 
 A double-ended queue backed by a circular buffer. Elements can be added and removed from both ends but not in the middle. Can also be used as a queue.
 
+## Heap
+
+A heap is a nearly complete binary tree backed by a growable array. The first element of the array (or the root element of the tree) is the highest/lowest element. The min-heap is commonly used as a priority-queue and a max-heap is commonly used to sort an array of elements.
+
 ## HashMap
 
 A hashtable that maps a key `K` to a value `V`.
@@ -55,7 +59,3 @@ A hashtable that contains only unique elements to the set. Its elements are not 
 ## TreeSet
 
 A balanced binary tree that contains only unique elements to the set. Its elements are ordered.
-
-## Heap
-
-A heap is a nearly complete binary tree backed by a growable array. The first element of the array (or the root element of the tree) is the highest/lowest element. The min-heap is commonly used as a priority-queue and a max-heap is commonly used to sort an array of elements.
