@@ -18,29 +18,29 @@
 #include <stdlib.h>
 #include <stdbool.h>
 
-#define LIST_GENERATE(PFX, SNAME, FMOD, K, T)    \
-    LIST_GENERATE_STRUCT(PFX, SNAME, FMOD, K, T) \
-    LIST_GENERATE_HEADER(PFX, SNAME, FMOD, K, T) \
-    LIST_GENERATE_SOURCE(PFX, SNAME, FMOD, K, T)
+#define LIST_GENERATE(PFX, SNAME, FMOD, K, V)    \
+    LIST_GENERATE_STRUCT(PFX, SNAME, FMOD, K, V) \
+    LIST_GENERATE_HEADER(PFX, SNAME, FMOD, K, V) \
+    LIST_GENERATE_SOURCE(PFX, SNAME, FMOD, K, V)
 
 /* PRIVATE *******************************************************************/
-#define LIST_GENERATE_HEADER_PRIVATE(PFX, SNAME, FMOD, K, T) \
-    LIST_GENERATE_HEADER(PFX, SNAME, FMOD, K, T)
-#define LIST_GENERATE_SOURCE_PRIVATE(PFX, SNAME, FMOD, K, T) \
-    LIST_GENERATE_STRUCT(PFX, SNAME, FMOD, K, T)             \
-    LIST_GENERATE_SOURCE(PFX, SNAME, FMOD, K, T)
+#define LIST_GENERATE_HEADER_PRIVATE(PFX, SNAME, FMOD, K, V) \
+    LIST_GENERATE_HEADER(PFX, SNAME, FMOD, K, V)
+#define LIST_GENERATE_SOURCE_PRIVATE(PFX, SNAME, FMOD, K, V) \
+    LIST_GENERATE_STRUCT(PFX, SNAME, FMOD, K, V)             \
+    LIST_GENERATE_SOURCE(PFX, SNAME, FMOD, K, V)
 /* PUBLIC ********************************************************************/
-#define LIST_GENERATE_HEADER_PUBLIC(PFX, SNAME, FMOD, K, T) \
-    LIST_GENERATE_STRUCT(PFX, SNAME, FMOD, K, T)            \
-    LIST_GENERATE_HEADER(PFX, SNAME, FMOD, K, T)
-#define LIST_GENERATE_SOURCE_PUBLIC(PFX, SNAME, FMOD, K, T) \
-    LIST_GENERATE_SOURCE(PFX, SNAME, FMOD, K, T)
+#define LIST_GENERATE_HEADER_PUBLIC(PFX, SNAME, FMOD, K, V) \
+    LIST_GENERATE_STRUCT(PFX, SNAME, FMOD, K, V)            \
+    LIST_GENERATE_HEADER(PFX, SNAME, FMOD, K, V)
+#define LIST_GENERATE_SOURCE_PUBLIC(PFX, SNAME, FMOD, K, V) \
+    LIST_GENERATE_SOURCE(PFX, SNAME, FMOD, K, V)
 /* STRUCT ********************************************************************/
-#define LIST_GENERATE_STRUCT(PFX, SNAME, FMOD, K, T) \
+#define LIST_GENERATE_STRUCT(PFX, SNAME, FMOD, K, V) \
                                                      \
     struct SNAME##_s                                 \
     {                                                \
-        T *buffer;                                   \
+        V *buffer;                                   \
         size_t capacity;                             \
         size_t count;                                \
     };                                               \
@@ -54,24 +54,24 @@
     };                                               \
                                                      \
 /* HEADER ********************************************************************/
-#define LIST_GENERATE_HEADER(PFX, SNAME, FMOD, K, T)                                 \
+#define LIST_GENERATE_HEADER(PFX, SNAME, FMOD, K, V)                                 \
                                                                                      \
     typedef struct SNAME##_s SNAME;                                                  \
     typedef struct SNAME##_iter_s SNAME##_iter;                                      \
                                                                                      \
     FMOD SNAME *PFX##_new(size_t size);                                              \
     FMOD void PFX##_free(SNAME *_list_);                                             \
-    FMOD bool PFX##_push_front(SNAME *_list_, T element);                            \
-    FMOD bool PFX##_push(SNAME *_list_, T element, size_t index);                    \
-    FMOD bool PFX##_push_back(SNAME *_list_, T element);                             \
+    FMOD bool PFX##_push_front(SNAME *_list_, V element);                            \
+    FMOD bool PFX##_push(SNAME *_list_, V element, size_t index);                    \
+    FMOD bool PFX##_push_back(SNAME *_list_, V element);                             \
     FMOD bool PFX##_pop_front(SNAME *_list_);                                        \
     FMOD bool PFX##_pop(SNAME *_list_, size_t index);                                \
     FMOD bool PFX##_pop_back(SNAME *_list_);                                         \
-    FMOD bool PFX##_push_if(SNAME *_list_, T element, size_t index, bool condition); \
+    FMOD bool PFX##_push_if(SNAME *_list_, V element, size_t index, bool condition); \
     FMOD bool PFX##_pop_if(SNAME *_list_, size_t index, bool condition);             \
-    FMOD T PFX##_back(SNAME *_list_);                                                \
-    FMOD T PFX##_get(SNAME *_list_, size_t index);                                   \
-    FMOD T PFX##_front(SNAME *_list_);                                               \
+    FMOD V PFX##_back(SNAME *_list_);                                                \
+    FMOD V PFX##_get(SNAME *_list_, size_t index);                                   \
+    FMOD V PFX##_front(SNAME *_list_);                                               \
     FMOD bool PFX##_empty(SNAME *_list_);                                            \
     FMOD bool PFX##_full(SNAME *_list_);                                             \
     FMOD size_t PFX##_count(SNAME *_list_);                                          \
@@ -82,11 +82,11 @@
     FMOD bool PFX##_iter_end(SNAME##_iter *iter);                                    \
     FMOD void PFX##_iter_tostart(SNAME##_iter *iter);                                \
     FMOD void PFX##_iter_toend(SNAME##_iter *iter);                                  \
-    FMOD bool PFX##_iter_next(SNAME##_iter *iter, T *result, size_t *index);         \
-    FMOD bool PFX##_iter_prev(SNAME##_iter *iter, T *result, size_t *index);         \
+    FMOD bool PFX##_iter_next(SNAME##_iter *iter, V *result, size_t *index);         \
+    FMOD bool PFX##_iter_prev(SNAME##_iter *iter, V *result, size_t *index);         \
                                                                                      \
 /* SOURCE ********************************************************************/
-#define LIST_GENERATE_SOURCE(PFX, SNAME, FMOD, K, T)                                \
+#define LIST_GENERATE_SOURCE(PFX, SNAME, FMOD, K, V)                                \
                                                                                     \
     FMOD bool PFX##_grow(SNAME *_list_);                                            \
                                                                                     \
@@ -100,7 +100,7 @@
         if (!_list_)                                                                \
             return NULL;                                                            \
                                                                                     \
-        _list_->buffer = malloc(sizeof(T) * size);                                  \
+        _list_->buffer = malloc(sizeof(V) * size);                                  \
                                                                                     \
         if (!_list_->buffer)                                                        \
         {                                                                           \
@@ -125,7 +125,7 @@
         free(_list_);                                                               \
     }                                                                               \
                                                                                     \
-    FMOD bool PFX##_push_front(SNAME *_list_, T element)                            \
+    FMOD bool PFX##_push_front(SNAME *_list_, V element)                            \
     {                                                                               \
         if (PFX##_full(_list_))                                                     \
         {                                                                           \
@@ -148,7 +148,7 @@
         return true;                                                                \
     }                                                                               \
                                                                                     \
-    FMOD bool PFX##_push(SNAME *_list_, T element, size_t index)                    \
+    FMOD bool PFX##_push(SNAME *_list_, V element, size_t index)                    \
     {                                                                               \
         if (index > _list_->count)                                                  \
             return false;                                                           \
@@ -180,7 +180,7 @@
         return true;                                                                \
     }                                                                               \
                                                                                     \
-    FMOD bool PFX##_push_back(SNAME *_list_, T element)                             \
+    FMOD bool PFX##_push_back(SNAME *_list_, V element)                             \
     {                                                                               \
         if (PFX##_full(_list_))                                                     \
         {                                                                           \
@@ -242,7 +242,7 @@
         return true;                                                                \
     }                                                                               \
                                                                                     \
-    FMOD bool PFX##_push_if(SNAME *_list_, T element, size_t index, bool condition) \
+    FMOD bool PFX##_push_if(SNAME *_list_, V element, size_t index, bool condition) \
     {                                                                               \
         if (condition)                                                              \
             return PFX##_push(_list_, element, index);                              \
@@ -258,7 +258,7 @@
         return false;                                                               \
     }                                                                               \
                                                                                     \
-    FMOD T PFX##_front(SNAME *_list_)                                               \
+    FMOD V PFX##_front(SNAME *_list_)                                               \
     {                                                                               \
         if (PFX##_empty(_list_))                                                    \
             return 0;                                                               \
@@ -266,7 +266,7 @@
         return _list_->buffer[0];                                                   \
     }                                                                               \
                                                                                     \
-    FMOD T PFX##_get(SNAME *_list_, size_t index)                                   \
+    FMOD V PFX##_get(SNAME *_list_, size_t index)                                   \
     {                                                                               \
         if (index >= _list_->count)                                                 \
             return 0;                                                               \
@@ -277,7 +277,7 @@
         return _list_->buffer[index];                                               \
     }                                                                               \
                                                                                     \
-    FMOD T PFX##_back(SNAME *_list_)                                                \
+    FMOD V PFX##_back(SNAME *_list_)                                                \
     {                                                                               \
         if (PFX##_empty(_list_))                                                    \
             return 0;                                                               \
@@ -309,7 +309,7 @@
     {                                                                               \
         size_t new_capacity = _list_->capacity * 2;                                 \
                                                                                     \
-        T *new_buffer = realloc(_list_->buffer, sizeof(T) * new_capacity);          \
+        V *new_buffer = realloc(_list_->buffer, sizeof(V) * new_capacity);          \
                                                                                     \
         if (!new_buffer)                                                            \
             return false;                                                           \
@@ -352,7 +352,7 @@
         iter->end = true;                                                           \
     }                                                                               \
                                                                                     \
-    FMOD bool PFX##_iter_next(SNAME##_iter *iter, T *result, size_t *index)         \
+    FMOD bool PFX##_iter_next(SNAME##_iter *iter, V *result, size_t *index)         \
     {                                                                               \
         if (iter->end)                                                              \
             return false;                                                           \
@@ -369,7 +369,7 @@
         return true;                                                                \
     }                                                                               \
                                                                                     \
-    FMOD bool PFX##_iter_prev(SNAME##_iter *iter, T *result, size_t *index)         \
+    FMOD bool PFX##_iter_prev(SNAME##_iter *iter, V *result, size_t *index)         \
     {                                                                               \
         if (iter->start)                                                            \
             return false;                                                           \

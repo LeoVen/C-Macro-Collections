@@ -18,29 +18,29 @@
 #include <stdlib.h>
 #include <stdbool.h>
 
-#define STACK_GENERATE(PFX, SNAME, FMOD, K, T)    \
-    STACK_GENERATE_STRUCT(PFX, SNAME, FMOD, K, T) \
-    STACK_GENERATE_HEADER(PFX, SNAME, FMOD, K, T) \
-    STACK_GENERATE_SOURCE(PFX, SNAME, FMOD, K, T)
+#define STACK_GENERATE(PFX, SNAME, FMOD, K, V)    \
+    STACK_GENERATE_STRUCT(PFX, SNAME, FMOD, K, V) \
+    STACK_GENERATE_HEADER(PFX, SNAME, FMOD, K, V) \
+    STACK_GENERATE_SOURCE(PFX, SNAME, FMOD, K, V)
 
 /* PRIVATE *******************************************************************/
-#define STACK_GENERATE_HEADER_PRIVATE(PFX, SNAME, FMOD, K, T) \
-    STACK_GENERATE_HEADER(PFX, SNAME, FMOD, K, T)
-#define STACK_GENERATE_SOURCE_PRIVATE(PFX, SNAME, FMOD, K, T) \
-    STACK_GENERATE_STRUCT(PFX, SNAME, FMOD, K, T)             \
-    STACK_GENERATE_SOURCE(PFX, SNAME, FMOD, K, T)
+#define STACK_GENERATE_HEADER_PRIVATE(PFX, SNAME, FMOD, K, V) \
+    STACK_GENERATE_HEADER(PFX, SNAME, FMOD, K, V)
+#define STACK_GENERATE_SOURCE_PRIVATE(PFX, SNAME, FMOD, K, V) \
+    STACK_GENERATE_STRUCT(PFX, SNAME, FMOD, K, V)             \
+    STACK_GENERATE_SOURCE(PFX, SNAME, FMOD, K, V)
 /* PUBLIC ********************************************************************/
-#define STACK_GENERATE_HEADER_PUBLIC(PFX, SNAME, FMOD, K, T) \
-    STACK_GENERATE_STRUCT(PFX, SNAME, FMOD, K, T)            \
-    STACK_GENERATE_HEADER(PFX, SNAME, FMOD, K, T)
-#define STACK_GENERATE_SOURCE_PUBLIC(PFX, SNAME, FMOD, K, T) \
-    STACK_GENERATE_SOURCE(PFX, SNAME, FMOD, K, T)
+#define STACK_GENERATE_HEADER_PUBLIC(PFX, SNAME, FMOD, K, V) \
+    STACK_GENERATE_STRUCT(PFX, SNAME, FMOD, K, V)            \
+    STACK_GENERATE_HEADER(PFX, SNAME, FMOD, K, V)
+#define STACK_GENERATE_SOURCE_PUBLIC(PFX, SNAME, FMOD, K, V) \
+    STACK_GENERATE_SOURCE(PFX, SNAME, FMOD, K, V)
 /* STRUCT ********************************************************************/
-#define STACK_GENERATE_STRUCT(PFX, SNAME, FMOD, K, T) \
+#define STACK_GENERATE_STRUCT(PFX, SNAME, FMOD, K, V) \
                                                       \
     struct SNAME##_s                                  \
     {                                                 \
-        T *buffer;                                    \
+        V *buffer;                                    \
         size_t capacity;                              \
         size_t count;                                 \
     };                                                \
@@ -54,17 +54,17 @@
     };                                                \
                                                       \
 /* HEADER ********************************************************************/
-#define STACK_GENERATE_HEADER(PFX, SNAME, FMOD, K, T)                        \
+#define STACK_GENERATE_HEADER(PFX, SNAME, FMOD, K, V)                        \
                                                                              \
     typedef struct SNAME##_s SNAME;                                          \
     typedef struct SNAME##_iter_s SNAME##_iter;                              \
                                                                              \
     FMOD SNAME *PFX##_new(size_t size);                                      \
     FMOD void PFX##_free(SNAME *_stack_);                                    \
-    FMOD bool PFX##_push(SNAME *_stack_, T element);                         \
+    FMOD bool PFX##_push(SNAME *_stack_, V element);                         \
     FMOD bool PFX##_pop(SNAME *_stack_);                                     \
-    FMOD T PFX##_top(SNAME *_stack_);                                        \
-    FMOD bool PFX##_push_if(SNAME *_stack_, T element, bool condition);      \
+    FMOD V PFX##_top(SNAME *_stack_);                                        \
+    FMOD bool PFX##_push_if(SNAME *_stack_, V element, bool condition);      \
     FMOD bool PFX##_pop_if(SNAME *_stack_, bool condition);                  \
     FMOD bool PFX##_empty(SNAME *_stack_);                                   \
     FMOD bool PFX##_full(SNAME *_stack_);                                    \
@@ -76,11 +76,11 @@
     FMOD bool PFX##_iter_end(SNAME##_iter *iter);                            \
     FMOD void PFX##_iter_tostart(SNAME##_iter *iter);                        \
     FMOD void PFX##_iter_toend(SNAME##_iter *iter);                          \
-    FMOD bool PFX##_iter_next(SNAME##_iter *iter, T *result, size_t *index); \
-    FMOD bool PFX##_iter_prev(SNAME##_iter *iter, T *result, size_t *index); \
+    FMOD bool PFX##_iter_next(SNAME##_iter *iter, V *result, size_t *index); \
+    FMOD bool PFX##_iter_prev(SNAME##_iter *iter, V *result, size_t *index); \
                                                                              \
 /* SOURCE ********************************************************************/
-#define STACK_GENERATE_SOURCE(PFX, SNAME, FMOD, K, T)                       \
+#define STACK_GENERATE_SOURCE(PFX, SNAME, FMOD, K, V)                       \
                                                                             \
     FMOD bool PFX##_grow(SNAME *_stack_);                                   \
                                                                             \
@@ -94,7 +94,7 @@
         if (!_stack_)                                                       \
             return NULL;                                                    \
                                                                             \
-        _stack_->buffer = malloc(sizeof(T) * size);                         \
+        _stack_->buffer = malloc(sizeof(V) * size);                         \
                                                                             \
         if (!_stack_->buffer)                                               \
         {                                                                   \
@@ -119,7 +119,7 @@
         free(_stack_);                                                      \
     }                                                                       \
                                                                             \
-    FMOD bool PFX##_push(SNAME *_stack_, T element)                         \
+    FMOD bool PFX##_push(SNAME *_stack_, V element)                         \
     {                                                                       \
         if (PFX##_full(_stack_))                                            \
         {                                                                   \
@@ -142,7 +142,7 @@
         return true;                                                        \
     }                                                                       \
                                                                             \
-    FMOD T PFX##_top(SNAME *_stack_)                                        \
+    FMOD V PFX##_top(SNAME *_stack_)                                        \
     {                                                                       \
         if (PFX##_empty(_stack_))                                           \
             return 0;                                                       \
@@ -150,7 +150,7 @@
         return _stack_->buffer[_stack_->count - 1];                         \
     }                                                                       \
                                                                             \
-    FMOD bool PFX##_push_if(SNAME *_stack_, T element, bool condition)      \
+    FMOD bool PFX##_push_if(SNAME *_stack_, V element, bool condition)      \
     {                                                                       \
         if (condition)                                                      \
             return PFX##_push(_stack_, element);                            \
@@ -190,7 +190,7 @@
     {                                                                       \
         size_t new_capacity = _stack_->capacity * 2;                        \
                                                                             \
-        T *new_buffer = realloc(_stack_->buffer, sizeof(T) * new_capacity); \
+        V *new_buffer = realloc(_stack_->buffer, sizeof(V) * new_capacity); \
                                                                             \
         if (!new_buffer)                                                    \
             return false;                                                   \
@@ -233,7 +233,7 @@
         iter->end = true;                                                   \
     }                                                                       \
                                                                             \
-    FMOD bool PFX##_iter_next(SNAME##_iter *iter, T *result, size_t *index) \
+    FMOD bool PFX##_iter_next(SNAME##_iter *iter, V *result, size_t *index) \
     {                                                                       \
         if (iter->end)                                                      \
             return false;                                                   \
@@ -250,7 +250,7 @@
         return true;                                                        \
     }                                                                       \
                                                                             \
-    FMOD bool PFX##_iter_prev(SNAME##_iter *iter, T *result, size_t *index) \
+    FMOD bool PFX##_iter_prev(SNAME##_iter *iter, V *result, size_t *index) \
     {                                                                       \
         if (iter->start)                                                    \
             return false;                                                   \

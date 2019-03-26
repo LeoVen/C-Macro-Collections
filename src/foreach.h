@@ -14,11 +14,11 @@
 #include <stdlib.h>
 #include <stdbool.h>
 
-#define FOR_EACH(PFX, SNAME, K, T, TARGET, BODY)     \
+#define FOR_EACH(PFX, SNAME, K, V, TARGET, BODY)     \
     do                                               \
     {                                                \
         size_t index;                                \
-        T var;                                       \
+        V var;                                       \
         SNAME##_iter iter;                           \
         PFX##_iter(&iter, TARGET);                   \
         while (PFX##_iter_next(&iter, &var, &index)) \
@@ -27,11 +27,11 @@
         }                                            \
     } while (0);
 
-#define FOR_EACH_REV(PFX, SNAME, K, T, TARGET, BODY) \
+#define FOR_EACH_REV(PFX, SNAME, K, V, TARGET, BODY) \
     do                                               \
     {                                                \
         size_t index;                                \
-        T var;                                       \
+        V var;                                       \
         SNAME##_iter iter;                           \
         PFX##_iter(&iter, TARGET);                   \
         PFX##_iter_toend(&iter);                     \
