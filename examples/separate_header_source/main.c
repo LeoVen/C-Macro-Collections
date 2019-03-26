@@ -98,7 +98,7 @@ int main(void)
 
     for (int i = 0; i < 1000; i++)
     {
-        il_insert_if(list, i, list->count, i % 2 == 0);
+        il_push_if(list, i, list->count, i % 2 == 0);
     }
 
     // Print all even numbers

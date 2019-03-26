@@ -1,7 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../../src/macro_collections.h"
+#include "../src/macro_collections.h"
 
 // Create containers to use only in this file
 CONTAINER_GENERATE(LIST, PUBLIC, l, list, static, , int)
