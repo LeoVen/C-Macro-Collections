@@ -2,11 +2,17 @@
 #include <assert.h>
 #include "../src/macro_collections.h"
 
+int cmp(int a, int b)
+{
+    return a - b;
+}
+
 CONTAINER_GENERATE(LIST, PUBLIC, l, list, /**/, /**/, int)
 CONTAINER_GENERATE(STACK, PUBLIC, s, stack, /**/, /**/, int)
 CONTAINER_GENERATE(QUEUE, PUBLIC, q, queue, /**/, /**/, int)
 CONTAINER_GENERATE(DEQUE, PUBLIC, d, deque, /**/, /**/, int)
 CONTAINER_GENERATE(LINKEDLIST, PUBLIC, ll, linked, /**/, /**/, int)
+CONTAINER_GENERATE(HEAP, PUBLIC, h, heap, /**/, /**/, int)
 
 int main(int argc, char const *argv[])
 {
@@ -15,6 +21,7 @@ int main(int argc, char const *argv[])
     queue *q = q_new(1000);
     deque *d = d_new(1000);
     linked *ll = ll_new();
+    heap *h = h_new(1000, MaxHeap, cmp);
 
     for (int i = 1; i < 10001; i++)
     {
@@ -33,9 +40,10 @@ int main(int argc, char const *argv[])
 
         s_push(s, i);
         q_enqueue(q, i);
+        h_insert(h, i);
     }
 
-    int sum0 = 0, sum1 = 0, sum2 = 0, sum3 = 0, sum4 = 0;
+    int sum0 = 0, sum1 = 0, sum2 = 0, sum3 = 0, sum4 = 0, sum5 = 0;
 
     FOR_EACH(l, list, , int, l, {
         sum0 += var;
@@ -57,6 +65,10 @@ int main(int argc, char const *argv[])
         sum4 += var;
     })
 
+    FOR_EACH(h, heap, , int, h, {
+        sum5 += var;
+    })
+
     if (sum0 == 50005000)
         printf("%10s PASSED\n", "LIST");
     if (sum1 == 50005000)
@@ -67,10 +79,12 @@ int main(int argc, char const *argv[])
         printf("%10s PASSED\n", "DEQUE");
     if (sum4 == 50005000)
         printf("%10s PASSED\n", "LINKEDLIST");
+    if (sum5 == 50005000)
+        printf("%10s PASSED\n", "HEAP");
 
     printf("\n\n");
 
-    sum0 = 0, sum1 = 0, sum2 = 0, sum3 = 0, sum4 = 0;
+    sum0 = 0, sum1 = 0, sum2 = 0, sum3 = 0, sum4 = 0, sum5 = 0;
 
     FOR_EACH_REV(l, list, , int, l, {
         sum0 += var;
@@ -92,6 +106,10 @@ int main(int argc, char const *argv[])
         sum4 += var;
     })
 
+    FOR_EACH_REV(h, heap, , int, h, {
+        sum5 += var;
+    })
+
     if (sum0 == 50005000)
         printf("%10s PASSED\n", "LIST");
     if (sum1 == 50005000)
@@ -102,6 +120,8 @@ int main(int argc, char const *argv[])
         printf("%10s PASSED\n", "DEQUE");
     if (sum4 == 50005000)
         printf("%10s PASSED\n", "LINKEDLIST");
+    if (sum5 == 50005000)
+        printf("%10s PASSED\n", "HEAP");
 
     l_free(l);
     ll_free(ll);
