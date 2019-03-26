@@ -2,7 +2,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
-#include "../../src/macro_collections.h"
+#include "../src/macro_collections.h"
 
 CONTAINER_GENERATE(LINKEDLIST, PUBLIC, ll, linked, static, , int)
 
