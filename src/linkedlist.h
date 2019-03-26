@@ -47,6 +47,7 @@
                                                            \
     struct SNAME##_node_s                                  \
     {                                                      \
+        struct SNAME##_s *owner;                           \
         struct SNAME##_node_s *next;                       \
         struct SNAME##_node_s *prev;                       \
         T data;                                            \
@@ -84,6 +85,14 @@
     FMOD bool PFX##_empty(SNAME *_list_);                                              \
     FMOD size_t PFX##_count(SNAME *_list_);                                            \
                                                                                        \
+    FMOD SNAME##_node *PFX##_new_node(SNAME *_owner_, T element);                      \
+    FMOD SNAME##_node *PFX##_get_node(SNAME *_list_, size_t index);                    \
+    FMOD bool PFX##_insert_nxt(SNAME##_node *node, T element);                         \
+    FMOD bool PFX##_insert_prv(SNAME##_node *node, T element);                         \
+    FMOD bool PFX##_remove_nxt(SNAME##_node *node);                                    \
+    FMOD bool PFX##_remove_cur(SNAME##_node *node);                                    \
+    FMOD bool PFX##_remove_prv(SNAME##_node *node);                                    \
+                                                                                       \
     FMOD void PFX##_iter(SNAME##_iter *iter, SNAME *target);                           \
     FMOD bool PFX##_iter_start(SNAME##_iter *iter);                                    \
     FMOD bool PFX##_iter_end(SNAME##_iter *iter);                                      \
@@ -94,9 +103,6 @@
                                                                                        \
 /* SOURCE ********************************************************************/
 #define LINKEDLIST_GENERATE_SOURCE(PFX, SNAME, FMOD, K, T)                            \
-                                                                                      \
-    FMOD SNAME##_node *PFX##_new_node(T element);                                     \
-    FMOD SNAME##_node *PFX##_get_node(SNAME *_list_, size_t index);                   \
                                                                                       \
     FMOD SNAME *PFX##_new(void)                                                       \
     {                                                                                 \
@@ -126,7 +132,7 @@
                                                                                       \
     FMOD bool PFX##_push_front(SNAME *_list_, T element)                              \
     {                                                                                 \
-        SNAME##_node *node = PFX##_new_node(element);                                 \
+        SNAME##_node *node = PFX##_new_node(_list_, element);                         \
                                                                                       \
         if (!node)                                                                    \
             return false;                                                             \
@@ -162,7 +168,7 @@
             return PFX##_push_back(_list_, element);                                  \
         }                                                                             \
                                                                                       \
-        SNAME##_node *node = PFX##_new_node(element);                                 \
+        SNAME##_node *node = PFX##_new_node(_list_, element);                         \
                                                                                       \
         if (!node)                                                                    \
             return false;                                                             \
@@ -181,7 +187,7 @@
                                                                                       \
     FMOD bool PFX##_push_back(SNAME *_list_, T element)                               \
     {                                                                                 \
-        SNAME##_node *node = PFX##_new_node(element);                                 \
+        SNAME##_node *node = PFX##_new_node(_list_, element);                         \
                                                                                       \
         if (!node)                                                                    \
             return false;                                                             \
@@ -330,13 +336,117 @@
         return _list_->count;                                                         \
     }                                                                                 \
                                                                                       \
-    FMOD SNAME##_node *PFX##_new_node(T element)                                      \
+    FMOD bool PFX##_insert_nxt(SNAME##_node *node, T element)                         \
+    {                                                                                 \
+        SNAME##_node *new_node = PFX##_new_node(node->owner, element);                \
+                                                                                      \
+        if (!new_node)                                                                \
+            return false;                                                             \
+                                                                                      \
+        new_node->next = node->next;                                                  \
+        if (node->next != NULL)                                                       \
+            node->next->prev = new_node;                                              \
+        else                                                                          \
+            node->owner->tail = new_node;                                             \
+                                                                                      \
+        new_node->prev = node;                                                        \
+        node->next = new_node;                                                        \
+                                                                                      \
+        node->owner->count++;                                                         \
+                                                                                      \
+        return true;                                                                  \
+    }                                                                                 \
+                                                                                      \
+    FMOD bool PFX##_insert_prv(SNAME##_node *node, T element)                         \
+    {                                                                                 \
+        SNAME##_node *new_node = PFX##_new_node(node->owner, element);                \
+                                                                                      \
+        if (!new_node)                                                                \
+            return false;                                                             \
+                                                                                      \
+        new_node->prev = node->prev;                                                  \
+        if (node->prev != NULL)                                                       \
+            node->prev->next = new_node;                                              \
+        else                                                                          \
+            node->owner->head = new_node;                                             \
+                                                                                      \
+        new_node->next = node;                                                        \
+        node->prev = new_node;                                                        \
+                                                                                      \
+        node->owner->count++;                                                         \
+                                                                                      \
+        return true;                                                                  \
+    }                                                                                 \
+                                                                                      \
+    FMOD bool PFX##_remove_nxt(SNAME##_node *node)                                    \
+    {                                                                                 \
+        if (node->next == NULL)                                                       \
+            return false;                                                             \
+                                                                                      \
+        SNAME##_node *tmp = node->next;                                               \
+                                                                                      \
+        if (node->next != NULL)                                                       \
+        {                                                                             \
+            node->next = node->next->next;                                            \
+            node->next->prev = node;                                                  \
+        }                                                                             \
+        else                                                                          \
+            node->owner->tail = node;                                                 \
+                                                                                      \
+        node->owner->count--;                                                         \
+                                                                                      \
+        free(tmp);                                                                    \
+                                                                                      \
+        return true;                                                                  \
+    }                                                                                 \
+                                                                                      \
+    FMOD bool PFX##_remove_cur(SNAME##_node *node)                                    \
+    {                                                                                 \
+        if (node->prev != NULL)                                                       \
+            node->prev->next = node->next;                                            \
+        else                                                                          \
+            node->owner->head = node->next;                                           \
+                                                                                      \
+        if (node->next != NULL)                                                       \
+            node->next->prev = node->prev;                                            \
+        else                                                                          \
+            node->owner->tail = node->prev;                                           \
+                                                                                      \
+        node->owner->count--;                                                         \
+                                                                                      \
+        free(node);                                                                   \
+                                                                                      \
+        return true;                                                                  \
+    }                                                                                 \
+                                                                                      \
+    FMOD bool PFX##_remove_prv(SNAME##_node *node)                                    \
+    {                                                                                 \
+        if (node->prev == NULL)                                                       \
+            return false;                                                             \
+                                                                                      \
+        SNAME##_node *tmp = node->prev;                                               \
+                                                                                      \
+        if (node->prev != NULL)                                                       \
+        {                                                                             \
+            node->prev = node->prev->prev;                                            \
+            node->prev->next = node;                                                  \
+        }                                                                             \
+        else                                                                          \
+            node->owner->head = node;                                                 \
+                                                                                      \
+        free(tmp);                                                                    \
+                                                                                      \
+        return true;                                                                  \
+    }                                                                                 \
+                                                                                      \
+    FMOD SNAME##_node *PFX##_new_node(SNAME *_owner_, T element)                      \
     {                                                                                 \
         SNAME##_node *node = malloc(sizeof(SNAME##_node));                            \
                                                                                       \
         if (!node)                                                                    \
             return NULL;                                                              \
                                                                                       \
+        node->owner = _owner_;                                                        \
         node->data = element;                                                         \
         node->next = NULL;                                                            \
         node->prev = NULL;                                                            \
