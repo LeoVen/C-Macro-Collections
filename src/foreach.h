@@ -14,7 +14,7 @@
 #include <stdlib.h>
 #include <stdbool.h>
 
-#define FOR_EACH(PFX, SNAME, K, V, TARGET, BODY)     \
+#define FOR_EACH(PFX, SNAME, V, TARGET, BODY)        \
     do                                               \
     {                                                \
         size_t index;                                \
@@ -27,7 +27,7 @@
         }                                            \
     } while (0);
 
-#define FOR_EACH_REV(PFX, SNAME, K, V, TARGET, BODY) \
+#define FOR_EACH_REV(PFX, SNAME, V, TARGET, BODY)    \
     do                                               \
     {                                                \
         size_t index;                                \

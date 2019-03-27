@@ -38,7 +38,7 @@ int main(int argc, char const *argv[])
     // - var : the elements that changes with each iteration
     // - index : iteration index (first iteration is 0 and last is count - 1)
     // - iter : iterator struct
-    FOR_EACH(l, list, , int, l, {
+    FOR_EACH(l, list, int, l, {
         if (index == 0)
             printf("[ %d, ", var);
         else if (index == iter.target->count - 1)
@@ -47,7 +47,7 @@ int main(int argc, char const *argv[])
             printf("%d, ", var);
     })
 
-    FOR_EACH(s, stack, , int, s, {
+    FOR_EACH(s, stack, int, s, {
         if (index == iter.target->count - 1)
             printf("[ %d, ", var);
         else if (index == 0)
@@ -56,7 +56,7 @@ int main(int argc, char const *argv[])
             printf("%d, ", var);
     })
 
-    FOR_EACH(q, queue, , int, q, {
+    FOR_EACH(q, queue, int, q, {
         if (index == 0)
             printf("[ %d, ", var);
         else if (index == iter.target->count - 1)
@@ -65,7 +65,7 @@ int main(int argc, char const *argv[])
             printf("%d, ", var);
     })
 
-    FOR_EACH(d, deque, , int, d, {
+    FOR_EACH(d, deque, int, d, {
         if (index == 0)
             printf("[ %d, ", var);
         else if (index == iter.target->count - 1)
