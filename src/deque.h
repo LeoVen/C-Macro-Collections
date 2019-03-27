@@ -79,7 +79,7 @@
     FMOD size_t PFX##_count(SNAME *_deque_);                                  \
     FMOD size_t PFX##_capacity(SNAME *_deque_);                               \
                                                                               \
-    FMOD void PFX##_iter(SNAME##_iter *iter, SNAME *target);                  \
+    FMOD void PFX##_iter_new(SNAME##_iter *iter, SNAME *target);              \
     FMOD bool PFX##_iter_start(SNAME##_iter *iter);                           \
     FMOD bool PFX##_iter_end(SNAME##_iter *iter);                             \
     FMOD void PFX##_iter_tostart(SNAME##_iter *iter);                         \
@@ -282,7 +282,7 @@
         return true;                                                                                      \
     }                                                                                                     \
                                                                                                           \
-    FMOD void PFX##_iter(SNAME##_iter *iter, SNAME *target)                                               \
+    FMOD void PFX##_iter_new(SNAME##_iter *iter, SNAME *target)                                           \
     {                                                                                                     \
         iter->target = target;                                                                            \
         iter->cursor = target->front;                                                                     \

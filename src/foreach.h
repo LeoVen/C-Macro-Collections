@@ -20,7 +20,7 @@
         size_t index;                                \
         V var;                                       \
         SNAME##_iter iter;                           \
-        PFX##_iter(&iter, TARGET);                   \
+        PFX##_iter_new(&iter, TARGET);               \
         while (PFX##_iter_next(&iter, &var, &index)) \
         {                                            \
             BODY;                                    \
@@ -33,7 +33,7 @@
         size_t index;                                \
         V var;                                       \
         SNAME##_iter iter;                           \
-        PFX##_iter(&iter, TARGET);                   \
+        PFX##_iter_new(&iter, TARGET);               \
         PFX##_iter_toend(&iter);                     \
         while (PFX##_iter_prev(&iter, &var, &index)) \
         {                                            \

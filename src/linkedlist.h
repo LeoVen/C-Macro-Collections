@@ -93,7 +93,7 @@
     FMOD bool PFX##_remove_cur(SNAME##_node *node);                                  \
     FMOD bool PFX##_remove_prv(SNAME##_node *node);                                  \
                                                                                      \
-    FMOD void PFX##_iter(SNAME##_iter *iter, SNAME *target);                         \
+    FMOD void PFX##_iter_new(SNAME##_iter *iter, SNAME *target);                     \
     FMOD bool PFX##_iter_start(SNAME##_iter *iter);                                  \
     FMOD bool PFX##_iter_end(SNAME##_iter *iter);                                    \
     FMOD void PFX##_iter_tostart(SNAME##_iter *iter);                                \
@@ -484,7 +484,7 @@
         return scan;                                                                \
     }                                                                               \
                                                                                     \
-    FMOD void PFX##_iter(SNAME##_iter *iter, SNAME *target)                         \
+    FMOD void PFX##_iter_new(SNAME##_iter *iter, SNAME *target)                     \
     {                                                                               \
         iter->target = target;                                                      \
         iter->cursor = target->head;                                                \
