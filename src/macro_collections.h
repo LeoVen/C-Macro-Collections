@@ -20,16 +20,16 @@
 #define CONCATH(C, P) CONCATH_(C, P)
 #define CONCATC(C, P) CONCATC_(C, P)
 
-#define CONTAINER_GENERATE(C, P, PFX, SNAME, FMOD, K, V)    \
-    CONTAINER_GENERATE_HEADER(C, P, PFX, SNAME, FMOD, K, V) \
-    CONTAINER_GENERATE_SOURCE(C, P, PFX, SNAME, FMOD, K, V)
+#define COLLECTION_GENERATE(C, P, PFX, SNAME, FMOD, K, V)    \
+    COLLECTION_GENERATE_HEADER(C, P, PFX, SNAME, FMOD, K, V) \
+    COLLECTION_GENERATE_SOURCE(C, P, PFX, SNAME, FMOD, K, V)
 
-#define CONTAINER_GENERATE_HEADER(C, P, PFX, SNAME, FMOD, K, V) \
-    CONCATH(C, P)                                               \
+#define COLLECTION_GENERATE_HEADER(C, P, PFX, SNAME, FMOD, K, V) \
+    CONCATH(C, P)                                                \
     (PFX, SNAME, FMOD, K, V)
 
-#define CONTAINER_GENERATE_SOURCE(C, P, PFX, SNAME, FMOD, K, V) \
-    CONCATC(C, P)                                               \
+#define COLLECTION_GENERATE_SOURCE(C, P, PFX, SNAME, FMOD, K, V) \
+    CONCATC(C, P)                                                \
     (PFX, SNAME, FMOD, K, V)
 
 #include "list.h"

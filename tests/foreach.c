@@ -7,13 +7,13 @@ int cmp(int a, int b)
     return a - b;
 }
 
-CONTAINER_GENERATE(LIST, PUBLIC, l, list, /**/, /**/, int)
-CONTAINER_GENERATE(STACK, PUBLIC, s, stack, /**/, /**/, int)
-CONTAINER_GENERATE(QUEUE, PUBLIC, q, queue, /**/, /**/, int)
-CONTAINER_GENERATE(DEQUE, PUBLIC, d, deque, /**/, /**/, int)
-CONTAINER_GENERATE(LINKEDLIST, PUBLIC, ll, linked, /**/, /**/, int)
-CONTAINER_GENERATE(HEAP, PUBLIC, h, heap, /**/, /**/, int)
-CONTAINER_GENERATE(TREESET, PUBLIC, ts, tset, /**/, /**/, int)
+COLLECTION_GENERATE(LIST, PUBLIC, l, list, /**/, /**/, int)
+COLLECTION_GENERATE(STACK, PUBLIC, s, stack, /**/, /**/, int)
+COLLECTION_GENERATE(QUEUE, PUBLIC, q, queue, /**/, /**/, int)
+COLLECTION_GENERATE(DEQUE, PUBLIC, d, deque, /**/, /**/, int)
+COLLECTION_GENERATE(LINKEDLIST, PUBLIC, ll, linked, /**/, /**/, int)
+COLLECTION_GENERATE(HEAP, PUBLIC, h, heap, /**/, /**/, int)
+COLLECTION_GENERATE(TREESET, PUBLIC, ts, tset, /**/, /**/, int)
 
 int main(int argc, char const *argv[])
 {

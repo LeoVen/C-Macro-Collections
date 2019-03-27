@@ -4,10 +4,10 @@
 #include "../src/macro_collections.h"
 
 // Create containers to use only in this file
-CONTAINER_GENERATE(LIST, PUBLIC, l, list, static, , int)
-CONTAINER_GENERATE(STACK, PUBLIC, s, stack, static, , int)
-CONTAINER_GENERATE(QUEUE, PUBLIC, q, queue, static, , int)
-CONTAINER_GENERATE(DEQUE, PUBLIC, d, deque, static, , int)
+COLLECTION_GENERATE(LIST, PUBLIC, l, list, static, , int)
+COLLECTION_GENERATE(STACK, PUBLIC, s, stack, static, , int)
+COLLECTION_GENERATE(QUEUE, PUBLIC, q, queue, static, , int)
+COLLECTION_GENERATE(DEQUE, PUBLIC, d, deque, static, , int)
 
 int main(int argc, char const *argv[])
 {

@@ -4,7 +4,7 @@
 #include <stdbool.h>
 #include "../src/macro_collections.h"
 
-CONTAINER_GENERATE(LINKEDLIST, PUBLIC, ll, linked, static, , int)
+COLLECTION_GENERATE(LINKEDLIST, PUBLIC, ll, linked, static, , int)
 
 int main(int argc, char const *argv[])
 {

@@ -27,7 +27,6 @@ int intcmp(int a, int b)
 
 int main(int argc, char const *argv[])
 {
-    srand((unsigned)time(NULL));
     set *set1 = set_new(intcmp);
 
     for (int i = 0; i < 31; i++)
