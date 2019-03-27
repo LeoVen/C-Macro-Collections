@@ -13,6 +13,7 @@ CONTAINER_GENERATE(QUEUE, PUBLIC, q, queue, /**/, /**/, int)
 CONTAINER_GENERATE(DEQUE, PUBLIC, d, deque, /**/, /**/, int)
 CONTAINER_GENERATE(LINKEDLIST, PUBLIC, ll, linked, /**/, /**/, int)
 CONTAINER_GENERATE(HEAP, PUBLIC, h, heap, /**/, /**/, int)
+CONTAINER_GENERATE(TREESET, PUBLIC, ts, tset, /**/, /**/, int)
 
 int main(int argc, char const *argv[])
 {
@@ -22,6 +23,7 @@ int main(int argc, char const *argv[])
     deque *d = d_new(1000);
     linked *ll = ll_new();
     heap *h = h_new(1000, MaxHeap, cmp);
+    tset *ts = ts_new(cmp);
 
     for (int i = 1; i < 10001; i++)
     {
@@ -41,9 +43,10 @@ int main(int argc, char const *argv[])
         s_push(s, i);
         q_enqueue(q, i);
         h_insert(h, i);
+        ts_insert(ts, i);
     }
 
-    int sum0 = 0, sum1 = 0, sum2 = 0, sum3 = 0, sum4 = 0, sum5 = 0;
+    int sum0 = 0, sum1 = 0, sum2 = 0, sum3 = 0, sum4 = 0, sum5 = 0, sum6 = 0;
 
     FOR_EACH(l, list, , int, l, {
         sum0 += var;
@@ -69,6 +72,10 @@ int main(int argc, char const *argv[])
         sum5 += var;
     })
 
+    FOR_EACH(ts, tset, , int, ts, {
+        sum6 += var;
+    })
+
     if (sum0 == 50005000)
         printf("%10s PASSED\n", "LIST");
     if (sum1 == 50005000)
@@ -81,10 +88,12 @@ int main(int argc, char const *argv[])
         printf("%10s PASSED\n", "LINKEDLIST");
     if (sum5 == 50005000)
         printf("%10s PASSED\n", "HEAP");
+    if (sum6 == 50005000)
+        printf("%10s PASSED\n", "TREESET");
 
     printf("\n\n");
 
-    sum0 = 0, sum1 = 0, sum2 = 0, sum3 = 0, sum4 = 0, sum5 = 0;
+    sum0 = 0, sum1 = 0, sum2 = 0, sum3 = 0, sum4 = 0, sum5 = 0, sum6 = 0;
 
     FOR_EACH_REV(l, list, , int, l, {
         sum0 += var;
@@ -110,6 +119,10 @@ int main(int argc, char const *argv[])
         sum5 += var;
     })
 
+    FOR_EACH_REV(ts, tset, , int, ts, {
+        sum6 += var;
+    })
+
     if (sum0 == 50005000)
         printf("%10s PASSED\n", "LIST");
     if (sum1 == 50005000)
@@ -122,6 +135,8 @@ int main(int argc, char const *argv[])
         printf("%10s PASSED\n", "LINKEDLIST");
     if (sum5 == 50005000)
         printf("%10s PASSED\n", "HEAP");
+    if (sum6 == 50005000)
+        printf("%10s PASSED\n", "TREESET");
 
     l_free(l);
     ll_free(ll);

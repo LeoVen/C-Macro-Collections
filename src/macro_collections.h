@@ -38,6 +38,7 @@
 #include "queue.h"
 #include "deque.h"
 #include "heap.h"
+#include "treeset.h"
 #include "foreach.h"
 
 #endif /* CMC_MACRO_COLLECTIONS */
