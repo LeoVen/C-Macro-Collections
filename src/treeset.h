@@ -558,10 +558,101 @@
         }                                                                   \
     }                                                                       \
                                                                             \
-    FMOD SNAME *PFX##_union(SNAME *_set1_, SNAME *_set2_);                  \
-    FMOD SNAME *PFX##_intersection(SNAME *_set1_, SNAME *_set2_);           \
-    FMOD SNAME *PFX##_difference(SNAME *_set1_, SNAME *_set2_);             \
-    FMOD SNAME *PFX##_symmetric_difference(SNAME *_set1_, SNAME *_set2_);   \
+    FMOD SNAME *PFX##_union(SNAME *_set1_, SNAME *_set2_)                   \
+    {                                                                       \
+        SNAME##_iter iter1, iter2;                                          \
+        size_t index;                                                       \
+        V var;                                                              \
+                                                                            \
+        SNAME *_set_r_ = PFX##_new(_set1_->cmp);                            \
+                                                                            \
+        PFX##_iter_new(&iter1, _set1_);                                     \
+        PFX##_iter_new(&iter2, _set2_);                                     \
+                                                                            \
+        for (PFX##_iter_tostart(&iter1); !PFX##_iter_end(&iter1);)          \
+        {                                                                   \
+            PFX##_iter_next(&iter1, &var, &index);                          \
+            PFX##_insert(_set_r_, var);                                     \
+        }                                                                   \
+                                                                            \
+        for (PFX##_iter_tostart(&iter2); !PFX##_iter_end(&iter2);)          \
+        {                                                                   \
+            PFX##_iter_next(&iter2, &var, &index);                          \
+            PFX##_insert(_set_r_, var);                                     \
+        }                                                                   \
+                                                                            \
+        return _set_r_;                                                     \
+    }                                                                       \
+                                                                            \
+    FMOD SNAME *PFX##_intersection(SNAME *_set1_, SNAME *_set2_)            \
+    {                                                                       \
+        SNAME##_iter iter;                                                  \
+        size_t index;                                                       \
+        V var;                                                              \
+                                                                            \
+        SNAME *_set_r_ = PFX##_new(_set1_->cmp);                            \
+        SNAME *_set_A_ = _set1_->count < _set2_->count ? _set1_ : _set2_;   \
+        SNAME *_set_B_ = _set_A_ == _set1_ ? _set2_ : _set1_;               \
+                                                                            \
+        PFX##_iter_new(&iter, _set_A_);                                     \
+                                                                            \
+        for (PFX##_iter_tostart(&iter); !PFX##_iter_end(&iter);)            \
+        {                                                                   \
+            PFX##_iter_next(&iter, &var, &index);                           \
+            if (PFX##_get_node(_set_B_, var) != NULL)                       \
+                PFX##_insert(_set_r_, var);                                 \
+        }                                                                   \
+                                                                            \
+        return _set_r_;                                                     \
+    }                                                                       \
+                                                                            \
+    FMOD SNAME *PFX##_difference(SNAME *_set1_, SNAME *_set2_)              \
+    {                                                                       \
+        SNAME##_iter iter;                                                  \
+        size_t index;                                                       \
+        V var;                                                              \
+                                                                            \
+        SNAME *_set_r_ = PFX##_new(_set1_->cmp);                            \
+                                                                            \
+        PFX##_iter_new(&iter, _set1_);                                      \
+                                                                            \
+        for (PFX##_iter_tostart(&iter); !PFX##_iter_end(&iter);)            \
+        {                                                                   \
+            PFX##_iter_next(&iter, &var, &index);                           \
+            if (PFX##_get_node(_set2_, var) == NULL)                        \
+                PFX##_insert(_set_r_, var);                                 \
+        }                                                                   \
+                                                                            \
+        return _set_r_;                                                     \
+    }                                                                       \
+                                                                            \
+    FMOD SNAME *PFX##_symmetric_difference(SNAME *_set1_, SNAME *_set2_)    \
+    {                                                                       \
+        SNAME##_iter iter1, iter2;                                          \
+        size_t index;                                                       \
+        V var;                                                              \
+                                                                            \
+        SNAME *_set_r_ = PFX##_new(_set1_->cmp);                            \
+                                                                            \
+        PFX##_iter_new(&iter1, _set1_);                                     \
+        PFX##_iter_new(&iter2, _set2_);                                     \
+                                                                            \
+        for (PFX##_iter_tostart(&iter1); !PFX##_iter_end(&iter1);)          \
+        {                                                                   \
+            PFX##_iter_next(&iter1, &var, &index);                          \
+            if (PFX##_get_node(_set2_, var) == NULL)                        \
+                PFX##_insert(_set_r_, var);                                 \
+        }                                                                   \
+                                                                            \
+        for (PFX##_iter_tostart(&iter2); !PFX##_iter_end(&iter2);)          \
+        {                                                                   \
+            PFX##_iter_next(&iter2, &var, &index);                          \
+            if (PFX##_get_node(_set1_, var) == NULL)                        \
+                PFX##_insert(_set_r_, var);                                 \
+        }                                                                   \
+                                                                            \
+        return _set_r_;                                                     \
+    }                                                                       \
                                                                             \
     FMOD void PFX##_iter_new(SNAME##_iter *iter, SNAME *target)             \
     {                                                                       \
