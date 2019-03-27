@@ -20,7 +20,7 @@ int main(int argc, char const *argv[])
 
     // Initialize iterator
     queue_iter iter;
-    q_iter(&iter, q);
+    q_iter_new(&iter, q);
 
     // Make the iterator go back and forward
     for (int j = 0; j < 4; j++)

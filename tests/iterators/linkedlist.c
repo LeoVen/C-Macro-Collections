@@ -20,7 +20,7 @@ int main(int argc, char const *argv[])
 
     // Initialize iterator
     linked_iter iter;
-    ll_iter(&iter, ll);
+    ll_iter_new(&iter, ll);
 
     // Make the iterator go back and forward
     for (int j = 0; j < 4; j++)

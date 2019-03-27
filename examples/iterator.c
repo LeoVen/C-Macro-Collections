@@ -18,7 +18,7 @@ int main(int argc, char const *argv[])
 
     // Initialize iterator
     linked_iter iter;
-    ll_iter(&iter, ll);
+    ll_iter_new(&iter, ll);
 
     // Move cursor to the end of the list
     ll_iter_toend(&iter);

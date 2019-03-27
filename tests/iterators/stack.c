@@ -20,7 +20,7 @@ int main(int argc, char const *argv[])
 
     // Initialize iterator
     stack_iter iter;
-    s_iter(&iter, s);
+    s_iter_new(&iter, s);
 
     // Make the iterator go back and forward
     for (int j = 0; j < 4; j++)
