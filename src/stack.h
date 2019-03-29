@@ -238,7 +238,7 @@
         if (iter->end)                                                      \
             return false;                                                   \
                                                                             \
-        *index = iter->cursor;                                              \
+        *index = iter->target->count - iter->cursor - 1;                    \
         *result = iter->target->buffer[iter->cursor];                       \
         iter->start = false;                                                \
                                                                             \
@@ -255,7 +255,7 @@
         if (iter->start)                                                    \
             return false;                                                   \
                                                                             \
-        *index = iter->cursor;                                              \
+        *index = iter->target->count - iter->cursor - 1;                    \
         *result = iter->target->buffer[iter->cursor];                       \
         iter->end = false;                                                  \
                                                                             \
