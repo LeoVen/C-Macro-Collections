@@ -55,17 +55,17 @@ int main(int argc, char const *argv[])
             q_dequeue(shelf);
         }
 
-        q_enqueue(shelf, var);
+        q_enqueue(shelf, value);
 
-        map_insert(library, var->isbn, var->name);
-        set_insert(counter, var->name);
+        map_insert(library, value->isbn, value->name);
+        set_insert(counter, value->name);
     })
 
     printf("Library Size: %d\n", map_count(library));
     printf("Unique book titles: %d\n\n", set_count(counter));
     printf("Showcase Books:\n");
     FOR_EACH(q, queue, book *, shelf, {
-        printf("[ %d : %-45s ]\n", var->isbn, var->name);
+        printf("[ %d : %-45s ]\n", value->isbn, value->name);
     })
     printf("\n");
 
@@ -119,7 +119,7 @@ int main(int argc, char const *argv[])
             })
 
             FOR_EACH(il, intlist, int, search_list, {
-                printf("[ %d ]\n", var);
+                printf("[ %d ]\n", value);
             })
 
             il_free(search_list);
@@ -128,8 +128,8 @@ int main(int argc, char const *argv[])
 
     // Free all memory used by struct book
     FOR_EACH(l, list, book *, books, {
-        free(var->name);
-        free(var);
+        free(value->name);
+        free(value);
     })
 
     l_free(books);

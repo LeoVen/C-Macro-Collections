@@ -52,31 +52,31 @@ int main(int argc, char const *argv[])
     int sum0 = 0, sum1 = 0, sum2 = 0, sum3 = 0, sum4 = 0, sum5 = 0, sum6 = 0, sum7 = 0, sum8 = 0;
 
     FOR_EACH(l, list, int, l, {
-        sum0 += var;
+        sum0 += value;
     })
 
     FOR_EACH(s, stack, int, s, {
-        sum1 += var;
+        sum1 += value;
     })
 
     FOR_EACH(q, queue, int, q, {
-        sum2 += var;
+        sum2 += value;
     })
 
     FOR_EACH(d, deque, int, d, {
-        sum3 += var;
+        sum3 += value;
     })
 
     FOR_EACH(ll, linked, int, ll, {
-        sum4 += var;
+        sum4 += value;
     })
 
     FOR_EACH(h, heap, int, h, {
-        sum5 += var;
+        sum5 += value;
     })
 
     FOR_EACH(ts, tset, int, ts, {
-        sum6 += var;
+        sum6 += value;
     })
 
     FOR_EACH_MAP(tm, tmap, int, int, tm, {
@@ -106,31 +106,31 @@ int main(int argc, char const *argv[])
     sum0 = 0, sum1 = 0, sum2 = 0, sum3 = 0, sum4 = 0, sum5 = 0, sum6 = 0, sum7 = 0, sum8 = 0;
 
     FOR_EACH_REV(l, list, int, l, {
-        sum0 += var;
+        sum0 += value;
     })
 
     FOR_EACH_REV(s, stack, int, s, {
-        sum1 += var;
+        sum1 += value;
     })
 
     FOR_EACH_REV(q, queue, int, q, {
-        sum2 += var;
+        sum2 += value;
     })
 
     FOR_EACH_REV(d, deque, int, d, {
-        sum3 += var;
+        sum3 += value;
     })
 
     FOR_EACH_REV(ll, linked, int, ll, {
-        sum4 += var;
+        sum4 += value;
     })
 
     FOR_EACH_REV(h, heap, int, h, {
-        sum5 += var;
+        sum5 += value;
     })
 
     FOR_EACH_REV(ts, tset, int, ts, {
-        sum6 += var;
+        sum6 += value;
     })
 
     FOR_EACH_MAP_REV(tm, tmap, int, int, tm, {

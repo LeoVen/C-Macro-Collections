@@ -55,61 +55,61 @@ int main(int argc, char const *argv[])
     ts_insert(ts, 25);
 
     // All FOR_EACH macros contains three available variables:
-    // - var : the elements that changes with each iteration
+    // - value : the elements that changes with each iteration
     // - index : iteration index (first iteration is 0 and last is count - 1)
     // - iter : iterator struct
     FOR_EACH(l, list, int, l, {
         if (index == 0)
-            printf("[ %d, ", var);
+            printf("[ %d, ", value);
         else if (index == iter.target->count - 1)
-            printf("%d ]\n", var);
+            printf("%d ]\n", value);
         else
-            printf("%d, ", var);
+            printf("%d, ", value);
     })
 
     FOR_EACH(s, stack, int, s, {
         if (index == 0)
-            printf("[ %d, ", var);
+            printf("[ %d, ", value);
         else if (index == iter.target->count - 1)
-            printf("%d ]\n", var);
+            printf("%d ]\n", value);
         else
-            printf("%d, ", var);
+            printf("%d, ", value);
     })
 
     FOR_EACH(q, queue, int, q, {
         if (index == 0)
-            printf("[ %d, ", var);
+            printf("[ %d, ", value);
         else if (index == iter.target->count - 1)
-            printf("%d ]\n", var);
+            printf("%d ]\n", value);
         else
-            printf("%d, ", var);
+            printf("%d, ", value);
     })
 
     FOR_EACH(d, deque, int, d, {
         if (index == 0)
-            printf("[ %d, ", var);
+            printf("[ %d, ", value);
         else if (index == iter.target->count - 1)
-            printf("%d ]\n", var);
+            printf("%d ]\n", value);
         else
-            printf("%d, ", var);
+            printf("%d, ", value);
     })
 
     FOR_EACH(ll, llist, int, ll, {
         if (index == 0)
-            printf("[ %d, ", var);
+            printf("[ %d, ", value);
         else if (index == iter.target->count - 1)
-            printf("%d ]\n", var);
+            printf("%d ]\n", value);
         else
-            printf("%d, ", var);
+            printf("%d, ", value);
     })
 
     FOR_EACH(ts, tset, int, ts, {
         if (index == 0)
-            printf("[ %d, ", var);
+            printf("[ %d, ", value);
         else if (index == iter.target->count - 1)
-            printf("%d ]\n", var);
+            printf("%d ]\n", value);
         else
-            printf("%d, ", var);
+            printf("%d, ", value);
     })
 
     l_free(l);
