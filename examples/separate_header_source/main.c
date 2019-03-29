@@ -184,7 +184,7 @@ int main(void)
         il_push_back(integers, i);
 
     int sum = 0;
-    FOR_EACH(il, int_list, , int, integers, {
+    FOR_EACH(il, int_list, int, integers, {
         printf("%d, ", var);
         sum += var;
     })
