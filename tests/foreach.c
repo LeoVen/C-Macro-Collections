@@ -14,6 +14,7 @@ COLLECTION_GENERATE(DEQUE, PUBLIC, d, deque, /**/, /**/, int)
 COLLECTION_GENERATE(LINKEDLIST, PUBLIC, ll, linked, /**/, /**/, int)
 COLLECTION_GENERATE(HEAP, PUBLIC, h, heap, /**/, /**/, int)
 COLLECTION_GENERATE(TREESET, PUBLIC, ts, tset, /**/, /**/, int)
+COLLECTION_GENERATE(TREEMAP, PUBLIC, tm, tmap, /**/, int, int)
 
 int main(int argc, char const *argv[])
 {
@@ -24,6 +25,7 @@ int main(int argc, char const *argv[])
     linked *ll = ll_new();
     heap *h = h_new(1000, MaxHeap, cmp);
     tset *ts = ts_new(cmp);
+    tmap *tm = tm_new(cmp);
 
     for (int i = 1; i < 10001; i++)
     {
@@ -44,9 +46,10 @@ int main(int argc, char const *argv[])
         q_enqueue(q, i);
         h_insert(h, i);
         ts_insert(ts, i);
+        tm_insert(tm, i, i);
     }
 
-    int sum0 = 0, sum1 = 0, sum2 = 0, sum3 = 0, sum4 = 0, sum5 = 0, sum6 = 0;
+    int sum0 = 0, sum1 = 0, sum2 = 0, sum3 = 0, sum4 = 0, sum5 = 0, sum6 = 0, sum7 = 0, sum8 = 0;
 
     FOR_EACH(l, list, int, l, {
         sum0 += var;
@@ -76,6 +79,11 @@ int main(int argc, char const *argv[])
         sum6 += var;
     })
 
+    FOR_EACH_MAP(tm, tmap, int, int, tm, {
+        sum7 += key;
+        sum8 += value;
+    })
+
     if (sum0 == 50005000)
         printf("%10s PASSED\n", "LIST");
     if (sum1 == 50005000)
@@ -90,10 +98,12 @@ int main(int argc, char const *argv[])
         printf("%10s PASSED\n", "HEAP");
     if (sum6 == 50005000)
         printf("%10s PASSED\n", "TREESET");
+    if (sum7 == 50005000 && sum8 == 50005000)
+        printf("%10s PASSED\n", "TREEMAP");
 
     printf("\n\n");
 
-    sum0 = 0, sum1 = 0, sum2 = 0, sum3 = 0, sum4 = 0, sum5 = 0, sum6 = 0;
+    sum0 = 0, sum1 = 0, sum2 = 0, sum3 = 0, sum4 = 0, sum5 = 0, sum6 = 0, sum7 = 0, sum8 = 0;
 
     FOR_EACH_REV(l, list, int, l, {
         sum0 += var;
@@ -123,6 +133,11 @@ int main(int argc, char const *argv[])
         sum6 += var;
     })
 
+    FOR_EACH_MAP_REV(tm, tmap, int, int, tm, {
+        sum7 += key;
+        sum8 += value;
+    })
+
     if (sum0 == 50005000)
         printf("%10s PASSED\n", "LIST");
     if (sum1 == 50005000)
@@ -137,12 +152,16 @@ int main(int argc, char const *argv[])
         printf("%10s PASSED\n", "HEAP");
     if (sum6 == 50005000)
         printf("%10s PASSED\n", "TREESET");
+    if (sum7 == 50005000 && sum8 == 50005000)
+        printf("%10s PASSED\n", "TREEMAP");
 
     l_free(l);
     ll_free(ll);
     s_free(s);
     q_free(q);
     d_free(d);
+    ts_free(ts);
+    tm_free(tm);
 
     return 0;
 }
