@@ -10,6 +10,7 @@
 #include "random.c"
 
 COLLECTION_GENERATE(LIST, PUBLIC, l, list, , , book *)
+COLLECTION_GENERATE(LIST, PUBLIC, il, intlist, , , int)
 COLLECTION_GENERATE(QUEUE, PUBLIC, q, queue, , , book *)
 COLLECTION_GENERATE(TREEMAP, PUBLIC, map, map, , int, char *)
 COLLECTION_GENERATE(TREESET, PUBLIC, set, set, , , char *)
@@ -67,23 +68,62 @@ int main(int argc, char const *argv[])
         printf("[ %d : %-45s ]\n", var->isbn, var->name);
     })
     printf("\n");
-    printf("[0 to exit]\n\n");
 
+    set_free(counter);
+
+    int c, isbn;
+    char buffer[100];
     while (true)
     {
-        int isbn;
-        printf("Query ISBN:\n> ");
-        scanf("%d", &isbn);
+        printf("\n[0] [ Exit           ]\n");
+        printf("[1] [ Search by ISBN ]\n");
+        printf("[2] [ Search by Name ]\n");
+        printf("> ");
+        scanf("%d", &c);
 
-        if (isbn == 0)
+        if (c == 0)
             break;
 
-        char *search = map_get(library, isbn);
+        if (c == 1)
+        {
+            while (true)
+            {
+                printf("[0] [ Exit ]\n");
+                printf("ISBN:\n> ");
+                scanf("%d", &isbn);
 
-        if (search == NULL)
-            printf("Not found\n");
-        else
-            printf("%s\n", search);
+                if (isbn == 0)
+                    break;
+
+                char *search = map_get(library, isbn);
+
+                if (search == NULL)
+                    printf("No book found\n");
+                else
+                    printf("%s\n", search);
+            }
+        }
+        else if (c == 2)
+        {
+            printf("Name:\n> ");
+            fflush(stdin);
+            fgets(buffer, 100, stdin);
+            // Remove newline character
+            buffer[strcspn(buffer, "\n")] = 0;
+
+            intlist *search_list = il_new(32);
+
+            FOR_EACH_MAP(map, map, int, char *, library, {
+                if (chrcmp(buffer, value) == 0)
+                    il_push_back(search_list, key);
+            })
+
+            FOR_EACH(il, intlist, int, search_list, {
+                printf("[ %d ]\n", var);
+            })
+
+            il_free(search_list);
+        }
     }
 
     // Free all memory used by struct book
@@ -95,7 +135,6 @@ int main(int argc, char const *argv[])
     l_free(books);
     q_free(shelf);
     map_free(library);
-    set_free(counter);
 
     return 0;
 }
