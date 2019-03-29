@@ -39,6 +39,8 @@
 #include "deque.h"
 #include "heap.h"
 #include "treeset.h"
+#include "treemap.h"
+
 #include "foreach.h"
 
 #endif /* CMC_MACRO_COLLECTIONS */
