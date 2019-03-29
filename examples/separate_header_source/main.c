@@ -255,7 +255,7 @@ int main(void)
 
     int sum3 = 0;
 
-    FOR_EACH(dq, deque, , int, d, {
+    FOR_EACH(dq, deque, int, d, {
         sum3 += var;
     })
 
