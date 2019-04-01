@@ -40,6 +40,7 @@
 #include "heap.h"
 #include "treeset.h"
 #include "treemap.h"
+#include "hashset.h"
 
 #include "foreach.h"
 
