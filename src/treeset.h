@@ -18,55 +18,55 @@
 #include <stdlib.h>
 #include <stdbool.h>
 
-#define TREESET_GENERATE(PFX, SNAME, FMOD, K, V)    \
-    TREESET_GENERATE_STRUCT(PFX, SNAME, FMOD, K, V) \
-    TREESET_GENERATE_HEADER(PFX, SNAME, FMOD, K, V) \
-    TREESET_GENERATE_SOURCE(PFX, SNAME, FMOD, K, V)
+#define TREESET_GENERATE(PFX, SNAME, FMOD, V)    \
+    TREESET_GENERATE_STRUCT(PFX, SNAME, FMOD, V) \
+    TREESET_GENERATE_HEADER(PFX, SNAME, FMOD, V) \
+    TREESET_GENERATE_SOURCE(PFX, SNAME, FMOD, V)
 
 /* PRIVATE *******************************************************************/
 #define TREESET_GENERATE_HEADER_PRIVATE(PFX, SNAME, FMOD, K, V) \
-    TREESET_GENERATE_HEADER(PFX, SNAME, FMOD, K, V)
+    TREESET_GENERATE_HEADER(PFX, SNAME, FMOD, V)
 #define TREESET_GENERATE_SOURCE_PRIVATE(PFX, SNAME, FMOD, K, V) \
-    TREESET_GENERATE_STRUCT(PFX, SNAME, FMOD, K, V)             \
-    TREESET_GENERATE_SOURCE(PFX, SNAME, FMOD, K, V)
+    TREESET_GENERATE_STRUCT(PFX, SNAME, FMOD, V)                \
+    TREESET_GENERATE_SOURCE(PFX, SNAME, FMOD, V)
 /* PUBLIC ********************************************************************/
 #define TREESET_GENERATE_HEADER_PUBLIC(PFX, SNAME, FMOD, K, V) \
-    TREESET_GENERATE_STRUCT(PFX, SNAME, FMOD, K, V)            \
-    TREESET_GENERATE_HEADER(PFX, SNAME, FMOD, K, V)
+    TREESET_GENERATE_STRUCT(PFX, SNAME, FMOD, V)               \
+    TREESET_GENERATE_HEADER(PFX, SNAME, FMOD, V)
 #define TREESET_GENERATE_SOURCE_PUBLIC(PFX, SNAME, FMOD, K, V) \
-    TREESET_GENERATE_SOURCE(PFX, SNAME, FMOD, K, V)
+    TREESET_GENERATE_SOURCE(PFX, SNAME, FMOD, V)
 /* STRUCT ********************************************************************/
-#define TREESET_GENERATE_STRUCT(PFX, SNAME, FMOD, K, V) \
-                                                        \
-    struct SNAME##_s                                    \
-    {                                                   \
-        struct SNAME##_node_s *root;                    \
-        size_t count;                                   \
-        int (*cmp)(V, V);                               \
-    };                                                  \
-                                                        \
-    struct SNAME##_node_s                               \
-    {                                                   \
-        struct SNAME##_node_s *right;                   \
-        struct SNAME##_node_s *left;                    \
-        struct SNAME##_node_s *parent;                  \
-        unsigned char height;                           \
-        V key;                                          \
-    };                                                  \
-                                                        \
-    struct SNAME##_iter_s                               \
-    {                                                   \
-        struct SNAME##_s *target;                       \
-        struct SNAME##_node_s *cursor;                  \
-        struct SNAME##_node_s *first;                   \
-        struct SNAME##_node_s *last;                    \
-        size_t index;                                   \
-        bool start;                                     \
-        bool end;                                       \
-    };                                                  \
-                                                        \
+#define TREESET_GENERATE_STRUCT(PFX, SNAME, FMOD, V) \
+                                                     \
+    struct SNAME##_s                                 \
+    {                                                \
+        struct SNAME##_node_s *root;                 \
+        size_t count;                                \
+        int (*cmp)(V, V);                            \
+    };                                               \
+                                                     \
+    struct SNAME##_node_s                            \
+    {                                                \
+        struct SNAME##_node_s *right;                \
+        struct SNAME##_node_s *left;                 \
+        struct SNAME##_node_s *parent;               \
+        unsigned char height;                        \
+        V key;                                       \
+    };                                               \
+                                                     \
+    struct SNAME##_iter_s                            \
+    {                                                \
+        struct SNAME##_s *target;                    \
+        struct SNAME##_node_s *cursor;               \
+        struct SNAME##_node_s *first;                \
+        struct SNAME##_node_s *last;                 \
+        size_t index;                                \
+        bool start;                                  \
+        bool end;                                    \
+    };                                               \
+                                                     \
 /* HEADER ********************************************************************/
-#define TREESET_GENERATE_HEADER(PFX, SNAME, FMOD, K, V)                      \
+#define TREESET_GENERATE_HEADER(PFX, SNAME, FMOD, V)                         \
                                                                              \
     typedef struct SNAME##_s SNAME;                                          \
     typedef struct SNAME##_node_s SNAME##_node;                              \
@@ -97,7 +97,7 @@
     FMOD bool PFX##_iter_prev(SNAME##_iter *iter, V *result, size_t *index); \
                                                                              \
 /* SOURCE ********************************************************************/
-#define TREESET_GENERATE_SOURCE(PFX, SNAME, FMOD, K, V)                     \
+#define TREESET_GENERATE_SOURCE(PFX, SNAME, FMOD, V)                        \
                                                                             \
     FMOD SNAME##_node *PFX##_new_node(V element);                           \
     FMOD SNAME##_node *PFX##_get_node(SNAME *_set_, V element);             \

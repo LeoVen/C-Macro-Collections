@@ -6,7 +6,7 @@
 #include <stdbool.h>
 #include "../../src/list.h"
 
-LIST_GENERATE(l, list, static, , int)
+LIST_GENERATE(l, list, static, int)
 
 int main(int argc, char const *argv[])
 {

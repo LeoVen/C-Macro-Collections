@@ -11,7 +11,7 @@ int intcmp(int a, int b)
     return a - b;
 }
 
-HEAP_GENERATE(h, heap, static, , int)
+HEAP_GENERATE(h, heap, static, int)
 
 int main(int argc, char const *argv[])
 {

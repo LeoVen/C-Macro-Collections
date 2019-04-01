@@ -6,7 +6,7 @@
 #include <stdbool.h>
 #include "../../src/queue.h"
 
-QUEUE_GENERATE(q, queue, static, , int)
+QUEUE_GENERATE(q, queue, static, int)
 
 int main(int argc, char const *argv[])
 {

@@ -6,7 +6,7 @@
 #include <stdbool.h>
 #include "../../src/hashset.h"
 
-HASHSET_GENERATE(hs, hash_set, static, , int)
+HASHSET_GENERATE(hs, hash_set, static, int)
 
 size_t inthash(int t)
 {

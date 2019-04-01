@@ -2,7 +2,7 @@
 #include <assert.h>
 #include "../src/linkedlist.h"
 
-LINKEDLIST_GENERATE(l, list, , , int)
+LINKEDLIST_GENERATE(l, list, , int)
 
 int main(int argc, char const *argv[])
 {

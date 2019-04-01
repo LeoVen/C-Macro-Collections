@@ -25,45 +25,45 @@ typedef enum HeapOrder
     MinHeap = -1
 } HeapOrder;
 
-#define HEAP_GENERATE(PFX, SNAME, FMOD, K, V)    \
-    HEAP_GENERATE_STRUCT(PFX, SNAME, FMOD, K, V) \
-    HEAP_GENERATE_HEADER(PFX, SNAME, FMOD, K, V) \
-    HEAP_GENERATE_SOURCE(PFX, SNAME, FMOD, K, V)
+#define HEAP_GENERATE(PFX, SNAME, FMOD, V)    \
+    HEAP_GENERATE_STRUCT(PFX, SNAME, FMOD, V) \
+    HEAP_GENERATE_HEADER(PFX, SNAME, FMOD, V) \
+    HEAP_GENERATE_SOURCE(PFX, SNAME, FMOD, V)
 
 /* PRIVATE *******************************************************************/
 #define HEAP_GENERATE_HEADER_PRIVATE(PFX, SNAME, FMOD, K, V) \
-    HEAP_GENERATE_HEADER(PFX, SNAME, FMOD, K, V)
+    HEAP_GENERATE_HEADER(PFX, SNAME, FMOD, V)
 #define HEAP_GENERATE_SOURCE_PRIVATE(PFX, SNAME, FMOD, K, V) \
-    HEAP_GENERATE_STRUCT(PFX, SNAME, FMOD, K, V)             \
-    HEAP_GENERATE_SOURCE(PFX, SNAME, FMOD, K, V)
+    HEAP_GENERATE_STRUCT(PFX, SNAME, FMOD, V)                \
+    HEAP_GENERATE_SOURCE(PFX, SNAME, FMOD, V)
 /* PUBLIC ********************************************************************/
 #define HEAP_GENERATE_HEADER_PUBLIC(PFX, SNAME, FMOD, K, V) \
-    HEAP_GENERATE_STRUCT(PFX, SNAME, FMOD, K, V)            \
-    HEAP_GENERATE_HEADER(PFX, SNAME, FMOD, K, V)
+    HEAP_GENERATE_STRUCT(PFX, SNAME, FMOD, V)               \
+    HEAP_GENERATE_HEADER(PFX, SNAME, FMOD, V)
 #define HEAP_GENERATE_SOURCE_PUBLIC(PFX, SNAME, FMOD, K, V) \
-    HEAP_GENERATE_SOURCE(PFX, SNAME, FMOD, K, V)
+    HEAP_GENERATE_SOURCE(PFX, SNAME, FMOD, V)
 /* STRUCT ********************************************************************/
-#define HEAP_GENERATE_STRUCT(PFX, SNAME, FMOD, K, V) \
-                                                     \
-    struct SNAME##_s                                 \
-    {                                                \
-        V *buffer;                                   \
-        size_t capacity;                             \
-        size_t count;                                \
-        enum HeapOrder HO;                           \
-        int (*cmp)(V, V);                            \
-    };                                               \
-                                                     \
-    struct SNAME##_iter_s                            \
-    {                                                \
-        struct SNAME##_s *target;                    \
-        size_t cursor;                               \
-        bool start;                                  \
-        bool end;                                    \
-    };                                               \
-                                                     \
+#define HEAP_GENERATE_STRUCT(PFX, SNAME, FMOD, V) \
+                                                  \
+    struct SNAME##_s                              \
+    {                                             \
+        V *buffer;                                \
+        size_t capacity;                          \
+        size_t count;                             \
+        enum HeapOrder HO;                        \
+        int (*cmp)(V, V);                         \
+    };                                            \
+                                                  \
+    struct SNAME##_iter_s                         \
+    {                                             \
+        struct SNAME##_s *target;                 \
+        size_t cursor;                            \
+        bool start;                               \
+        bool end;                                 \
+    };                                            \
+                                                  \
 /* HEADER ********************************************************************/
-#define HEAP_GENERATE_HEADER(PFX, SNAME, FMOD, K, V)                         \
+#define HEAP_GENERATE_HEADER(PFX, SNAME, FMOD, V)                            \
                                                                              \
     typedef struct SNAME##_s SNAME;                                          \
     typedef struct SNAME##_iter_s SNAME##_iter;                              \
@@ -89,7 +89,7 @@ typedef enum HeapOrder
     FMOD bool PFX##_iter_prev(SNAME##_iter *iter, V *result, size_t *index); \
                                                                              \
 /* SOURCE ********************************************************************/
-#define HEAP_GENERATE_SOURCE(PFX, SNAME, FMOD, K, V)                                              \
+#define HEAP_GENERATE_SOURCE(PFX, SNAME, FMOD, V)                                                 \
                                                                                                   \
     FMOD bool PFX##_grow(SNAME *_heap_);                                                          \
     FMOD size_t PFX##_p(size_t index);                                                            \

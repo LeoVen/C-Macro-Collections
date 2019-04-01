@@ -39,56 +39,56 @@ static const size_t cmc_hashtable_primes[] = {53, 97, 193, 389, 769, 1543, 3079,
 
 #endif /* CMC_HASH_TABLE_SETUP */
 
-#define HASHSET_GENERATE(PFX, SNAME, FMOD, K, V)    \
-    HASHSET_GENERATE_STRUCT(PFX, SNAME, FMOD, K, V) \
-    HASHSET_GENERATE_HEADER(PFX, SNAME, FMOD, K, V) \
-    HASHSET_GENERATE_SOURCE(PFX, SNAME, FMOD, K, V)
+#define HASHSET_GENERATE(PFX, SNAME, FMOD, V)    \
+    HASHSET_GENERATE_STRUCT(PFX, SNAME, FMOD, V) \
+    HASHSET_GENERATE_HEADER(PFX, SNAME, FMOD, V) \
+    HASHSET_GENERATE_SOURCE(PFX, SNAME, FMOD, V)
 
 /* PRIVATE *******************************************************************/
 #define HASHSET_GENERATE_HEADER_PRIVATE(PFX, SNAME, FMOD, K, V) \
-    HASHSET_GENERATE_HEADER(PFX, SNAME, FMOD, K, V)
+    HASHSET_GENERATE_HEADER(PFX, SNAME, FMOD, V)
 #define HASHSET_GENERATE_SOURCE_PRIVATE(PFX, SNAME, FMOD, K, V) \
-    HASHSET_GENERATE_STRUCT(PFX, SNAME, FMOD, K, V)             \
-    HASHSET_GENERATE_SOURCE(PFX, SNAME, FMOD, K, V)
+    HASHSET_GENERATE_STRUCT(PFX, SNAME, FMOD, V)                \
+    HASHSET_GENERATE_SOURCE(PFX, SNAME, FMOD, V)
 /* PUBLIC ********************************************************************/
 #define HASHSET_GENERATE_HEADER_PUBLIC(PFX, SNAME, FMOD, K, V) \
-    HASHSET_GENERATE_STRUCT(PFX, SNAME, FMOD, K, V)            \
-    HASHSET_GENERATE_HEADER(PFX, SNAME, FMOD, K, V)
+    HASHSET_GENERATE_STRUCT(PFX, SNAME, FMOD, V)               \
+    HASHSET_GENERATE_HEADER(PFX, SNAME, FMOD, V)
 #define HASHSET_GENERATE_SOURCE_PUBLIC(PFX, SNAME, FMOD, K, V) \
-    HASHSET_GENERATE_SOURCE(PFX, SNAME, FMOD, K, V)
+    HASHSET_GENERATE_SOURCE(PFX, SNAME, FMOD, V)
 /* STRUCT ********************************************************************/
-#define HASHSET_GENERATE_STRUCT(PFX, SNAME, FMOD, K, V) \
-                                                        \
-    struct SNAME##_s                                    \
-    {                                                   \
-        struct SNAME##_entry_s *buffer;                 \
-        size_t capacity;                                \
-        size_t count;                                   \
-        double load;                                    \
-        int (*cmp)(V, V);                               \
-        size_t (*hash)(V);                              \
-    };                                                  \
-                                                        \
-    struct SNAME##_entry_s                              \
-    {                                                   \
-        V value;                                        \
-        size_t dist;                                    \
-        enum EntryState_e state;                        \
-    };                                                  \
-                                                        \
-    struct SNAME##_iter_s                               \
-    {                                                   \
-        struct SNAME##_s *target;                       \
-        size_t cursor;                                  \
-        size_t index;                                   \
-        size_t first;                                   \
-        size_t last;                                    \
-        bool start;                                     \
-        bool end;                                       \
-    };                                                  \
-                                                        \
+#define HASHSET_GENERATE_STRUCT(PFX, SNAME, FMOD, V) \
+                                                     \
+    struct SNAME##_s                                 \
+    {                                                \
+        struct SNAME##_entry_s *buffer;              \
+        size_t capacity;                             \
+        size_t count;                                \
+        double load;                                 \
+        int (*cmp)(V, V);                            \
+        size_t (*hash)(V);                           \
+    };                                               \
+                                                     \
+    struct SNAME##_entry_s                           \
+    {                                                \
+        V value;                                     \
+        size_t dist;                                 \
+        enum EntryState_e state;                     \
+    };                                               \
+                                                     \
+    struct SNAME##_iter_s                            \
+    {                                                \
+        struct SNAME##_s *target;                    \
+        size_t cursor;                               \
+        size_t index;                                \
+        size_t first;                                \
+        size_t last;                                 \
+        bool start;                                  \
+        bool end;                                    \
+    };                                               \
+                                                     \
 /* HEADER ********************************************************************/
-#define HASHSET_GENERATE_HEADER(PFX, SNAME, FMOD, K, V)                                       \
+#define HASHSET_GENERATE_HEADER(PFX, SNAME, FMOD, V)                                          \
                                                                                               \
     typedef struct SNAME##_s SNAME;                                                           \
     typedef struct SNAME##_entry_s SNAME##_entry;                                             \
@@ -119,7 +119,7 @@ static const size_t cmc_hashtable_primes[] = {53, 97, 193, 389, 769, 1543, 3079,
     FMOD bool PFX##_iter_prev(SNAME##_iter *iter, V *result, size_t *index);                  \
                                                                                               \
 /* SOURCE ********************************************************************/
-#define HASHSET_GENERATE_SOURCE(PFX, SNAME, FMOD, K, V)                                      \
+#define HASHSET_GENERATE_SOURCE(PFX, SNAME, FMOD, V)                                         \
                                                                                              \
     FMOD bool PFX##_grow(SNAME *_set_);                                                      \
     FMOD SNAME##_entry *PFX##_get_entry(SNAME *_set_, V element);                            \

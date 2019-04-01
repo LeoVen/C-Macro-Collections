@@ -3,7 +3,7 @@
 #include <time.h>
 #include "../src/treeset.h"
 
-TREESET_GENERATE(set, set, , , int)
+TREESET_GENERATE(set, set, , int)
 
 void print_tree(set_node *root, int height)
 {

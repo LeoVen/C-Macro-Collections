@@ -11,7 +11,7 @@ int intcmp(int a, int b)
     return a - b;
 }
 
-TREESET_GENERATE(ts, tset, static, , int)
+TREESET_GENERATE(ts, tset, static, int)
 
 int main(int argc, char const *argv[])
 {

@@ -17,47 +17,48 @@
 
 #include <stdlib.h>
 #include <stdbool.h>
+#include <string.h>
 
-#define DEQUE_GENERATE(PFX, SNAME, FMOD, K, V)    \
-    DEQUE_GENERATE_STRUCT(PFX, SNAME, FMOD, K, V) \
-    DEQUE_GENERATE_HEADER(PFX, SNAME, FMOD, K, V) \
-    DEQUE_GENERATE_SOURCE(PFX, SNAME, FMOD, K, V)
+#define DEQUE_GENERATE(PFX, SNAME, FMOD, V)    \
+    DEQUE_GENERATE_STRUCT(PFX, SNAME, FMOD, V) \
+    DEQUE_GENERATE_HEADER(PFX, SNAME, FMOD, V) \
+    DEQUE_GENERATE_SOURCE(PFX, SNAME, FMOD, V)
 
 /* PRIVATE *******************************************************************/
 #define DEQUE_GENERATE_HEADER_PRIVATE(PFX, SNAME, FMOD, K, V) \
-    DEQUE_GENERATE_HEADER(PFX, SNAME, FMOD, K, V)
+    DEQUE_GENERATE_HEADER(PFX, SNAME, FMOD, V)
 #define DEQUE_GENERATE_SOURCE_PRIVATE(PFX, SNAME, FMOD, K, V) \
-    DEQUE_GENERATE_STRUCT(PFX, SNAME, FMOD, K, V)             \
-    DEQUE_GENERATE_SOURCE(PFX, SNAME, FMOD, K, V)
+    DEQUE_GENERATE_STRUCT(PFX, SNAME, FMOD, V)                \
+    DEQUE_GENERATE_SOURCE(PFX, SNAME, FMOD, V)
 /* PUBLIC ********************************************************************/
 #define DEQUE_GENERATE_HEADER_PUBLIC(PFX, SNAME, FMOD, K, V) \
-    DEQUE_GENERATE_STRUCT(PFX, SNAME, FMOD, K, V)            \
-    DEQUE_GENERATE_HEADER(PFX, SNAME, FMOD, K, V)
+    DEQUE_GENERATE_STRUCT(PFX, SNAME, FMOD, V)               \
+    DEQUE_GENERATE_HEADER(PFX, SNAME, FMOD, V)
 #define DEQUE_GENERATE_SOURCE_PUBLIC(PFX, SNAME, FMOD, K, V) \
-    DEQUE_GENERATE_SOURCE(PFX, SNAME, FMOD, K, V)
+    DEQUE_GENERATE_SOURCE(PFX, SNAME, FMOD, V)
 /* STRUCT ********************************************************************/
-#define DEQUE_GENERATE_STRUCT(PFX, SNAME, FMOD, K, V) \
-                                                      \
-    struct SNAME##_s                                  \
-    {                                                 \
-        V *buffer;                                    \
-        size_t capacity;                              \
-        size_t count;                                 \
-        size_t front;                                 \
-        size_t rear;                                  \
-    };                                                \
-                                                      \
-    struct SNAME##_iter_s                             \
-    {                                                 \
-        struct SNAME##_s *target;                     \
-        size_t cursor;                                \
-        size_t count;                                 \
-        bool start;                                   \
-        bool end;                                     \
-    };                                                \
-                                                      \
+#define DEQUE_GENERATE_STRUCT(PFX, SNAME, FMOD, V) \
+                                                   \
+    struct SNAME##_s                               \
+    {                                              \
+        V *buffer;                                 \
+        size_t capacity;                           \
+        size_t count;                              \
+        size_t front;                              \
+        size_t rear;                               \
+    };                                             \
+                                                   \
+    struct SNAME##_iter_s                          \
+    {                                              \
+        struct SNAME##_s *target;                  \
+        size_t cursor;                             \
+        size_t count;                              \
+        bool start;                                \
+        bool end;                                  \
+    };                                             \
+                                                   \
 /* HEADER ********************************************************************/
-#define DEQUE_GENERATE_HEADER(PFX, SNAME, FMOD, K, V)                         \
+#define DEQUE_GENERATE_HEADER(PFX, SNAME, FMOD, V)                            \
                                                                               \
     typedef struct SNAME##_s SNAME;                                           \
     typedef struct SNAME##_iter_s SNAME##_iter;                               \
@@ -88,7 +89,7 @@
     FMOD bool PFX##_iter_prev(SNAME##_iter *iter, V *result, size_t *index);  \
                                                                               \
 /* SOURCE ********************************************************************/
-#define DEQUE_GENERATE_SOURCE(PFX, SNAME, FMOD, K, V)                                                     \
+#define DEQUE_GENERATE_SOURCE(PFX, SNAME, FMOD, V)                                                        \
                                                                                                           \
     FMOD bool PFX##_grow(SNAME *_deque_);                                                                 \
                                                                                                           \

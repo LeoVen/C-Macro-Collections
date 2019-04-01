@@ -6,7 +6,7 @@
 #include <stdbool.h>
 #include "../../src/deque.h"
 
-DEQUE_GENERATE(d, deque, static, , int)
+DEQUE_GENERATE(d, deque, static, int)
 
 int main(int argc, char const *argv[])
 {

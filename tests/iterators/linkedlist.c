@@ -6,7 +6,7 @@
 #include <stdbool.h>
 #include "../../src/linkedlist.h"
 
-LINKEDLIST_GENERATE(ll, linked, static, , int)
+LINKEDLIST_GENERATE(ll, linked, static, int)
 
 int main(int argc, char const *argv[])
 {

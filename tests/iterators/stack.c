@@ -6,7 +6,7 @@
 #include <stdbool.h>
 #include "../../src/stack.h"
 
-STACK_GENERATE(s, stack, static, , int)
+STACK_GENERATE(s, stack, static, int)
 
 int main(int argc, char const *argv[])
 {

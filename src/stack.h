@@ -19,43 +19,43 @@
 #include <stdbool.h>
 #include <string.h>
 
-#define STACK_GENERATE(PFX, SNAME, FMOD, K, V)    \
-    STACK_GENERATE_STRUCT(PFX, SNAME, FMOD, K, V) \
-    STACK_GENERATE_HEADER(PFX, SNAME, FMOD, K, V) \
-    STACK_GENERATE_SOURCE(PFX, SNAME, FMOD, K, V)
+#define STACK_GENERATE(PFX, SNAME, FMOD, V)    \
+    STACK_GENERATE_STRUCT(PFX, SNAME, FMOD, V) \
+    STACK_GENERATE_HEADER(PFX, SNAME, FMOD, V) \
+    STACK_GENERATE_SOURCE(PFX, SNAME, FMOD, V)
 
 /* PRIVATE *******************************************************************/
 #define STACK_GENERATE_HEADER_PRIVATE(PFX, SNAME, FMOD, K, V) \
-    STACK_GENERATE_HEADER(PFX, SNAME, FMOD, K, V)
+    STACK_GENERATE_HEADER(PFX, SNAME, FMOD, V)
 #define STACK_GENERATE_SOURCE_PRIVATE(PFX, SNAME, FMOD, K, V) \
-    STACK_GENERATE_STRUCT(PFX, SNAME, FMOD, K, V)             \
-    STACK_GENERATE_SOURCE(PFX, SNAME, FMOD, K, V)
+    STACK_GENERATE_STRUCT(PFX, SNAME, FMOD, V)                \
+    STACK_GENERATE_SOURCE(PFX, SNAME, FMOD, V)
 /* PUBLIC ********************************************************************/
 #define STACK_GENERATE_HEADER_PUBLIC(PFX, SNAME, FMOD, K, V) \
-    STACK_GENERATE_STRUCT(PFX, SNAME, FMOD, K, V)            \
-    STACK_GENERATE_HEADER(PFX, SNAME, FMOD, K, V)
+    STACK_GENERATE_STRUCT(PFX, SNAME, FMOD, V)               \
+    STACK_GENERATE_HEADER(PFX, SNAME, FMOD, V)
 #define STACK_GENERATE_SOURCE_PUBLIC(PFX, SNAME, FMOD, K, V) \
-    STACK_GENERATE_SOURCE(PFX, SNAME, FMOD, K, V)
+    STACK_GENERATE_SOURCE(PFX, SNAME, FMOD, V)
 /* STRUCT ********************************************************************/
-#define STACK_GENERATE_STRUCT(PFX, SNAME, FMOD, K, V) \
-                                                      \
-    struct SNAME##_s                                  \
-    {                                                 \
-        V *buffer;                                    \
-        size_t capacity;                              \
-        size_t count;                                 \
-    };                                                \
-                                                      \
-    struct SNAME##_iter_s                             \
-    {                                                 \
-        struct SNAME##_s *target;                     \
-        size_t cursor;                                \
-        bool start;                                   \
-        bool end;                                     \
-    };                                                \
-                                                      \
+#define STACK_GENERATE_STRUCT(PFX, SNAME, FMOD, V) \
+                                                   \
+    struct SNAME##_s                               \
+    {                                              \
+        V *buffer;                                 \
+        size_t capacity;                           \
+        size_t count;                              \
+    };                                             \
+                                                   \
+    struct SNAME##_iter_s                          \
+    {                                              \
+        struct SNAME##_s *target;                  \
+        size_t cursor;                             \
+        bool start;                                \
+        bool end;                                  \
+    };                                             \
+                                                   \
 /* HEADER ********************************************************************/
-#define STACK_GENERATE_HEADER(PFX, SNAME, FMOD, K, V)                        \
+#define STACK_GENERATE_HEADER(PFX, SNAME, FMOD, V)                           \
                                                                              \
     typedef struct SNAME##_s SNAME;                                          \
     typedef struct SNAME##_iter_s SNAME##_iter;                              \
@@ -81,7 +81,7 @@
     FMOD bool PFX##_iter_prev(SNAME##_iter *iter, V *result, size_t *index); \
                                                                              \
 /* SOURCE ********************************************************************/
-#define STACK_GENERATE_SOURCE(PFX, SNAME, FMOD, K, V)                       \
+#define STACK_GENERATE_SOURCE(PFX, SNAME, FMOD, V)                          \
                                                                             \
     FMOD bool PFX##_grow(SNAME *_stack_);                                   \
                                                                             \
