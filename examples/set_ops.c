@@ -28,10 +28,24 @@ int intcmp(int a, int b)
     return a - b;
 }
 
+size_t inthash(int t)
+{
+    size_t a = t;
+    a += ~(a << 15);
+    a ^= (a >> 10);
+    a += (a << 3);
+    a ^= (a >> 6);
+    a += ~(a << 11);
+    a ^= (a >> 16);
+    return a;
+}
+
 int main(int argc, char const *argv[])
 {
     set *set1 = set_new(intcmp);
     set *set2 = set_new(intcmp);
+    //set *set1 = set_new(50, 0.9, intcmp, inthash);
+    //set *set2 = set_new(50, 0.9, intcmp, inthash);
 
     for (int i = 1; i <= 20; i++)
         set_insert(set1, i);
