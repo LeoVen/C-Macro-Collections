@@ -17,6 +17,7 @@
 
 #include <stdlib.h>
 #include <stdbool.h>
+#include <string.h>
 
 #define STACK_GENERATE(PFX, SNAME, FMOD, K, V)    \
     STACK_GENERATE_STRUCT(PFX, SNAME, FMOD, K, V) \
@@ -102,10 +103,7 @@
             return NULL;                                                    \
         }                                                                   \
                                                                             \
-        for (size_t i = 0; i < size; i++)                                   \
-        {                                                                   \
-            _stack_->buffer[i] = 0;                                         \
-        }                                                                   \
+        memset(_stack_->buffer, 0, sizeof(V) * size);                       \
                                                                             \
         _stack_->capacity = size;                                           \
         _stack_->count = 0;                                                 \
@@ -223,13 +221,13 @@
     {                                                                       \
         iter->cursor = iter->target->count - 1;                             \
         iter->start = true;                                                 \
-        iter->end = false;                                                  \
+        iter->end = PFX##_empty(iter->target);                              \
     }                                                                       \
                                                                             \
     FMOD void PFX##_iter_toend(SNAME##_iter *iter)                          \
     {                                                                       \
         iter->cursor = 0;                                                   \
-        iter->start = false;                                                \
+        iter->start = PFX##_empty(iter->target);                            \
         iter->end = true;                                                   \
     }                                                                       \
                                                                             \

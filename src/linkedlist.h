@@ -508,14 +508,14 @@
         iter->cursor = iter->target->head;                                          \
         iter->index = 0;                                                            \
         iter->start = true;                                                         \
-        iter->end = false;                                                          \
+        iter->end = PFX##_empty(iter->target);                                      \
     }                                                                               \
                                                                                     \
     FMOD void PFX##_iter_toend(SNAME##_iter *iter)                                  \
     {                                                                               \
         iter->cursor = iter->target->tail;                                          \
         iter->index = iter->target->count - 1;                                      \
-        iter->start = false;                                                        \
+        iter->start = PFX##_empty(iter->target);                                    \
         iter->end = true;                                                           \
     }                                                                               \
                                                                                     \

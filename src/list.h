@@ -17,6 +17,7 @@
 
 #include <stdlib.h>
 #include <stdbool.h>
+#include <string.h>
 
 #define LIST_GENERATE(PFX, SNAME, FMOD, K, V)    \
     LIST_GENERATE_STRUCT(PFX, SNAME, FMOD, K, V) \
@@ -107,6 +108,8 @@
             free(_list_);                                                           \
             return NULL;                                                            \
         }                                                                           \
+                                                                                    \
+        memset(_list_->buffer, 0, sizeof(V) * size);                                \
                                                                                     \
         for (size_t i = 0; i < size; i++)                                           \
         {                                                                           \
@@ -342,13 +345,13 @@
     {                                                                               \
         iter->cursor = 0;                                                           \
         iter->start = true;                                                         \
-        iter->end = false;                                                          \
+        iter->end = PFX##_empty(iter->target);                                      \
     }                                                                               \
                                                                                     \
     FMOD void PFX##_iter_toend(SNAME##_iter *iter)                                  \
     {                                                                               \
         iter->cursor = iter->target->count - 1;                                     \
-        iter->start = false;                                                        \
+        iter->start = PFX##_empty(iter->target);                                    \
         iter->end = true;                                                           \
     }                                                                               \
                                                                                     \

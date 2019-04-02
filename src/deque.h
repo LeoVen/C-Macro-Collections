@@ -110,8 +110,7 @@
             return NULL;                                                                                  \
         }                                                                                                 \
                                                                                                           \
-        for (size_t i = 0; i < size; i++)                                                                 \
-            _deque_->buffer[i] = 0;                                                                       \
+        memset(_deque_->buffer, 0, sizeof(V) * size);                                                     \
                                                                                                           \
         _deque_->capacity = size;                                                                         \
         _deque_->count = 0;                                                                               \
@@ -307,7 +306,7 @@
         iter->cursor = iter->target->front;                                                               \
         iter->count = 0;                                                                                  \
         iter->start = true;                                                                               \
-        iter->end = false;                                                                                \
+        iter->end = PFX##_empty(iter->target);                                                            \
     }                                                                                                     \
                                                                                                           \
     FMOD void PFX##_iter_toend(SNAME##_iter *iter)                                                        \
@@ -318,7 +317,7 @@
             iter->cursor = (iter->target->rear == 0) ? iter->target->count - 1 : iter->target->rear - 1;  \
                                                                                                           \
         iter->count = iter->target->count - 1;                                                            \
-        iter->start = false;                                                                              \
+        iter->start = PFX##_empty(iter->target);                                                          \
         iter->end = true;                                                                                 \
     }                                                                                                     \
                                                                                                           \

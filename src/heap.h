@@ -17,7 +17,7 @@
 
 #include <stdlib.h>
 #include <stdbool.h>
-#include <stdint.h>
+#include <string.h>
 
 typedef enum HeapOrder
 {
@@ -119,10 +119,7 @@ typedef enum HeapOrder
             return NULL;                                                                          \
         }                                                                                         \
                                                                                                   \
-        for (size_t i = 0; i < size; i++)                                                         \
-        {                                                                                         \
-            _heap_->buffer[i] = 0;                                                                \
-        }                                                                                         \
+        memset(_heap_->buffer, 0, sizeof(V) * size);                                              \
                                                                                                   \
         _heap_->capacity = size;                                                                  \
         _heap_->count = 0;                                                                        \
@@ -334,13 +331,13 @@ typedef enum HeapOrder
     {                                                                                             \
         iter->cursor = 0;                                                                         \
         iter->start = true;                                                                       \
-        iter->end = false;                                                                        \
+        iter->end = PFX##_empty(iter->target);                                                    \
     }                                                                                             \
                                                                                                   \
     FMOD void PFX##_iter_toend(SNAME##_iter *iter)                                                \
     {                                                                                             \
         iter->cursor = iter->target->count - 1;                                                   \
-        iter->start = false;                                                                      \
+        iter->start = PFX##_empty(iter->target);                                                  \
         iter->end = true;                                                                         \
     }                                                                                             \
                                                                                                   \
