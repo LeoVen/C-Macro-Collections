@@ -23,7 +23,7 @@ int main(int argc, char const *argv[])
     }
 
     size_t s = 0;
-    for (list_node *node = l->head; node != NULL; node = node->next, s++)
+    for (list_node *node = l_front_node(l); node != NULL; node = l_next_node(node), s++)
     {
         if (node->prev == NULL)
             printf("[ %d, ", node->data);

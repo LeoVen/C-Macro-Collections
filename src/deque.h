@@ -73,8 +73,8 @@
     FMOD bool PFX##_push_back_if(SNAME *_deque_, V element, bool condition);  \
     FMOD bool PFX##_pop_front_if(SNAME *_deque_, bool condition);             \
     FMOD bool PFX##_pop_back_if(SNAME *_deque_, bool condition);              \
-    FMOD V PFX##_back(SNAME *_deque_);                                        \
     FMOD V PFX##_front(SNAME *_deque_);                                       \
+    FMOD V PFX##_back(SNAME *_deque_);                                        \
     FMOD bool PFX##_empty(SNAME *_deque_);                                    \
     FMOD bool PFX##_full(SNAME *_deque_);                                     \
     FMOD size_t PFX##_count(SNAME *_deque_);                                  \
@@ -221,20 +221,20 @@
         return false;                                                                                     \
     }                                                                                                     \
                                                                                                           \
-    FMOD V PFX##_back(SNAME *_deque_)                                                                     \
-    {                                                                                                     \
-        if (PFX##_empty(_deque_))                                                                         \
-            return 0;                                                                                     \
-                                                                                                          \
-        return _deque_->buffer[(_deque_->rear == 0) ? _deque_->capacity - 1 : _deque_->rear - 1];         \
-    }                                                                                                     \
-                                                                                                          \
     FMOD V PFX##_front(SNAME *_deque_)                                                                    \
     {                                                                                                     \
         if (PFX##_empty(_deque_))                                                                         \
             return 0;                                                                                     \
                                                                                                           \
         return _deque_->buffer[_deque_->front];                                                           \
+    }                                                                                                     \
+                                                                                                          \
+    FMOD V PFX##_back(SNAME *_deque_)                                                                     \
+    {                                                                                                     \
+        if (PFX##_empty(_deque_))                                                                         \
+            return 0;                                                                                     \
+                                                                                                          \
+        return _deque_->buffer[(_deque_->rear == 0) ? _deque_->capacity - 1 : _deque_->rear - 1];         \
     }                                                                                                     \
                                                                                                           \
     FMOD bool PFX##_empty(SNAME *_deque_)                                                                 \

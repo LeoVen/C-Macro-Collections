@@ -79,19 +79,23 @@
     FMOD bool PFX##_pop_back(SNAME *_list_);                                         \
     FMOD bool PFX##_push_if(SNAME *_list_, V element, size_t index, bool condition); \
     FMOD bool PFX##_pop_if(SNAME *_list_, size_t index, bool condition);             \
-    FMOD V PFX##_back(SNAME *_list_);                                                \
-    FMOD V PFX##_get(SNAME *_list_, size_t index);                                   \
     FMOD V PFX##_front(SNAME *_list_);                                               \
+    FMOD V PFX##_get(SNAME *_list_, size_t index);                                   \
+    FMOD V PFX##_back(SNAME *_list_);                                                \
     FMOD bool PFX##_empty(SNAME *_list_);                                            \
     FMOD size_t PFX##_count(SNAME *_list_);                                          \
                                                                                      \
     FMOD SNAME##_node *PFX##_new_node(SNAME *_owner_, V element);                    \
+    FMOD SNAME##_node *PFX##_front_node(SNAME *_list_);                              \
     FMOD SNAME##_node *PFX##_get_node(SNAME *_list_, size_t index);                  \
+    FMOD SNAME##_node *PFX##_back_node(SNAME *_list_);                               \
     FMOD bool PFX##_insert_nxt(SNAME##_node *node, V element);                       \
     FMOD bool PFX##_insert_prv(SNAME##_node *node, V element);                       \
     FMOD bool PFX##_remove_nxt(SNAME##_node *node);                                  \
     FMOD bool PFX##_remove_cur(SNAME##_node *node);                                  \
     FMOD bool PFX##_remove_prv(SNAME##_node *node);                                  \
+    FMOD SNAME##_node *PFX##_next_node(SNAME##_node *node);                          \
+    FMOD SNAME##_node *PFX##_prev_node(SNAME##_node *node);                          \
                                                                                      \
     FMOD void PFX##_iter_new(SNAME##_iter *iter, SNAME *target);                     \
     FMOD bool PFX##_iter_start(SNAME##_iter *iter);                                  \
@@ -339,6 +343,61 @@
         return _list_->count;                                                       \
     }                                                                               \
                                                                                     \
+    FMOD SNAME##_node *PFX##_new_node(SNAME *_owner_, V element)                    \
+    {                                                                               \
+        SNAME##_node *node = malloc(sizeof(SNAME##_node));                          \
+                                                                                    \
+        if (!node)                                                                  \
+            return NULL;                                                            \
+                                                                                    \
+        node->owner = _owner_;                                                      \
+        node->data = element;                                                       \
+        node->next = NULL;                                                          \
+        node->prev = NULL;                                                          \
+                                                                                    \
+        return node;                                                                \
+    }                                                                               \
+                                                                                    \
+    FMOD SNAME##_node *PFX##_front_node(SNAME *_list_)                              \
+    {                                                                               \
+        return _list_->head;                                                        \
+    }                                                                               \
+                                                                                    \
+    FMOD SNAME##_node *PFX##_get_node(SNAME *_list_, size_t index)                  \
+    {                                                                               \
+        if (index >= _list_->count)                                                 \
+            return NULL;                                                            \
+                                                                                    \
+        if (PFX##_empty(_list_))                                                    \
+            return NULL;                                                            \
+                                                                                    \
+        SNAME##_node *scan = NULL;                                                  \
+                                                                                    \
+        if (index <= _list_->count / 2)                                             \
+        {                                                                           \
+            scan = _list_->head;                                                    \
+            for (size_t i = 0; i < index; i++)                                      \
+            {                                                                       \
+                scan = scan->next;                                                  \
+            }                                                                       \
+        }                                                                           \
+        else                                                                        \
+        {                                                                           \
+            scan = _list_->tail;                                                    \
+            for (size_t i = _list_->count - 1; i > index; i--)                      \
+            {                                                                       \
+                scan = scan->prev;                                                  \
+            }                                                                       \
+        }                                                                           \
+                                                                                    \
+        return scan;                                                                \
+    }                                                                               \
+                                                                                    \
+    FMOD SNAME##_node *PFX##_back_node(SNAME *_list_)                               \
+    {                                                                               \
+        return _list_->tail;                                                        \
+    }                                                                               \
+                                                                                    \
     FMOD bool PFX##_insert_nxt(SNAME##_node *node, V element)                       \
     {                                                                               \
         SNAME##_node *new_node = PFX##_new_node(node->owner, element);              \
@@ -442,49 +501,14 @@
         return true;                                                                \
     }                                                                               \
                                                                                     \
-    FMOD SNAME##_node *PFX##_new_node(SNAME *_owner_, V element)                    \
+    FMOD SNAME##_node *PFX##_next_node(SNAME##_node *node)                          \
     {                                                                               \
-        SNAME##_node *node = malloc(sizeof(SNAME##_node));                          \
-                                                                                    \
-        if (!node)                                                                  \
-            return NULL;                                                            \
-                                                                                    \
-        node->owner = _owner_;                                                      \
-        node->data = element;                                                       \
-        node->next = NULL;                                                          \
-        node->prev = NULL;                                                          \
-                                                                                    \
-        return node;                                                                \
+        return node->next;                                                          \
     }                                                                               \
                                                                                     \
-    FMOD SNAME##_node *PFX##_get_node(SNAME *_list_, size_t index)                  \
+    FMOD SNAME##_node *PFX##_prev_node(SNAME##_node *node)                          \
     {                                                                               \
-        if (index >= _list_->count)                                                 \
-            return NULL;                                                            \
-                                                                                    \
-        if (PFX##_empty(_list_))                                                    \
-            return NULL;                                                            \
-                                                                                    \
-        SNAME##_node *scan = NULL;                                                  \
-                                                                                    \
-        if (index <= _list_->count / 2)                                             \
-        {                                                                           \
-            scan = _list_->head;                                                    \
-            for (size_t i = 0; i < index; i++)                                      \
-            {                                                                       \
-                scan = scan->next;                                                  \
-            }                                                                       \
-        }                                                                           \
-        else                                                                        \
-        {                                                                           \
-            scan = _list_->tail;                                                    \
-            for (size_t i = _list_->count - 1; i > index; i--)                      \
-            {                                                                       \
-                scan = scan->prev;                                                  \
-            }                                                                       \
-        }                                                                           \
-                                                                                    \
-        return scan;                                                                \
+        return node->prev;                                                          \
     }                                                                               \
                                                                                     \
     FMOD void PFX##_iter_new(SNAME##_iter *iter, SNAME *target)                     \

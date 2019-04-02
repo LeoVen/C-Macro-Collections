@@ -70,9 +70,9 @@
     FMOD bool PFX##_pop_back(SNAME *_list_);                                         \
     FMOD bool PFX##_push_if(SNAME *_list_, V element, size_t index, bool condition); \
     FMOD bool PFX##_pop_if(SNAME *_list_, size_t index, bool condition);             \
-    FMOD V PFX##_back(SNAME *_list_);                                                \
-    FMOD V PFX##_get(SNAME *_list_, size_t index);                                   \
     FMOD V PFX##_front(SNAME *_list_);                                               \
+    FMOD V PFX##_get(SNAME *_list_, size_t index);                                   \
+    FMOD V PFX##_back(SNAME *_list_);                                                \
     FMOD bool PFX##_empty(SNAME *_list_);                                            \
     FMOD bool PFX##_full(SNAME *_list_);                                             \
     FMOD size_t PFX##_count(SNAME *_list_);                                          \
