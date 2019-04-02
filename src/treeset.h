@@ -47,11 +47,11 @@
                                                      \
     struct SNAME##_node_s                            \
     {                                                \
+        V key;                                       \
+        unsigned char height;                        \
         struct SNAME##_node_s *right;                \
         struct SNAME##_node_s *left;                 \
         struct SNAME##_node_s *parent;               \
-        unsigned char height;                        \
-        V key;                                       \
     };                                               \
                                                      \
     struct SNAME##_iter_s                            \

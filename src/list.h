@@ -216,6 +216,9 @@
         if (PFX##_empty(_list_))                                                    \
             return false;                                                           \
                                                                                     \
+        if (index >= _list_->count)                                                 \
+            return false;                                                           \
+                                                                                    \
         if (index == 0)                                                             \
         {                                                                           \
             return PFX##_pop_front(_list_);                                         \

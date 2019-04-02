@@ -364,7 +364,7 @@ static const size_t cmc_hashtable_primes[] = {53, 97, 193, 389, 769, 1543, 3079,
         const size_t count = sizeof(cmc_hashtable_primes) / sizeof(cmc_hashtable_primes[0]); \
                                                                                              \
         if (cmc_hashtable_primes[count - 1] < required)                                      \
-            return required * 2;                                                             \
+            return required;                                                                 \
                                                                                              \
         size_t i = 0;                                                                        \
         while (cmc_hashtable_primes[i] < required)                                           \

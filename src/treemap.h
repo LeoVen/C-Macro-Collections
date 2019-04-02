@@ -47,12 +47,12 @@
                                                         \
     struct SNAME##_node_s                               \
     {                                                   \
+        K key;                                          \
+        V value;                                        \
+        unsigned char height;                           \
         struct SNAME##_node_s *right;                   \
         struct SNAME##_node_s *left;                    \
         struct SNAME##_node_s *parent;                  \
-        unsigned char height;                           \
-        K key;                                          \
-        V value;                                        \
     };                                                  \
                                                         \
     struct SNAME##_iter_s                               \
@@ -67,34 +67,32 @@
     };                                                  \
                                                         \
 /* HEADER ********************************************************************/
-#define TREEMAP_GENERATE_HEADER(PFX, SNAME, FMOD, K, V)                              \
-                                                                                     \
-    typedef struct SNAME##_s SNAME;                                                  \
-    typedef struct SNAME##_node_s SNAME##_node;                                      \
-    typedef struct SNAME##_iter_s SNAME##_iter;                                      \
-                                                                                     \
-    FMOD SNAME *PFX##_new(int (*compare)(K, K));                                     \
-    FMOD void PFX##_free(SNAME *_map_);                                              \
-    FMOD bool PFX##_insert(SNAME *_map_, K key, V value);                            \
-    FMOD bool PFX##_remove(SNAME *_map_, K key, V *value);                           \
-    FMOD bool PFX##_insert_if(SNAME *_map_, K key, V value, bool condition);         \
-    FMOD bool PFX##_remove_if(SNAME *_map_, K key, V *value, bool condition);        \
-    FMOD K PFX##_max_key(SNAME *_map_);                                              \
-    FMOD V PFX##_max_val(SNAME *_map_);                                              \
-    FMOD K PFX##_min_key(SNAME *_map_);                                              \
-    FMOD V PFX##_min_val(SNAME *_map_);                                              \
-    FMOD V PFX##_get(SNAME *_map_, K key);                                           \
-    FMOD bool PFX##_empty(SNAME *_map_);                                             \
-    FMOD size_t PFX##_count(SNAME *_map_);                                           \
-                                                                                     \
-    FMOD void PFX##_iter_new(SNAME##_iter *iter, SNAME *target);                     \
-    FMOD bool PFX##_iter_start(SNAME##_iter *iter);                                  \
-    FMOD bool PFX##_iter_end(SNAME##_iter *iter);                                    \
-    FMOD void PFX##_iter_tostart(SNAME##_iter *iter);                                \
-    FMOD void PFX##_iter_toend(SNAME##_iter *iter);                                  \
-    FMOD bool PFX##_iter_next(SNAME##_iter *iter, K *key, V *result, size_t *index); \
-    FMOD bool PFX##_iter_prev(SNAME##_iter *iter, K *key, V *result, size_t *index); \
-                                                                                     \
+#define TREEMAP_GENERATE_HEADER(PFX, SNAME, FMOD, K, V)                             \
+                                                                                    \
+    typedef struct SNAME##_s SNAME;                                                 \
+    typedef struct SNAME##_node_s SNAME##_node;                                     \
+    typedef struct SNAME##_iter_s SNAME##_iter;                                     \
+                                                                                    \
+    FMOD SNAME *PFX##_new(int (*compare)(K, K));                                    \
+    FMOD void PFX##_free(SNAME *_map_);                                             \
+    FMOD bool PFX##_insert(SNAME *_map_, K key, V value);                           \
+    FMOD bool PFX##_remove(SNAME *_map_, K key, V *value);                          \
+    FMOD bool PFX##_insert_if(SNAME *_map_, K key, V value, bool condition);        \
+    FMOD bool PFX##_remove_if(SNAME *_map_, K key, V *value, bool condition);       \
+    FMOD bool PFX##_max(SNAME *_map_, K *key, V *value);                            \
+    FMOD bool PFX##_min(SNAME *_map_, K *key, V *value);                            \
+    FMOD V PFX##_get(SNAME *_map_, K key);                                          \
+    FMOD bool PFX##_empty(SNAME *_map_);                                            \
+    FMOD size_t PFX##_count(SNAME *_map_);                                          \
+                                                                                    \
+    FMOD void PFX##_iter_new(SNAME##_iter *iter, SNAME *target);                    \
+    FMOD bool PFX##_iter_start(SNAME##_iter *iter);                                 \
+    FMOD bool PFX##_iter_end(SNAME##_iter *iter);                                   \
+    FMOD void PFX##_iter_tostart(SNAME##_iter *iter);                               \
+    FMOD void PFX##_iter_toend(SNAME##_iter *iter);                                 \
+    FMOD bool PFX##_iter_next(SNAME##_iter *iter, K *key, V *value, size_t *index); \
+    FMOD bool PFX##_iter_prev(SNAME##_iter *iter, K *key, V *value, size_t *index); \
+                                                                                    \
 /* SOURCE ********************************************************************/
 #define TREEMAP_GENERATE_SOURCE(PFX, SNAME, FMOD, K, V)                            \
                                                                                    \
@@ -368,56 +366,36 @@
         return false;                                                              \
     }                                                                              \
                                                                                    \
-    FMOD K PFX##_max_key(SNAME *_map_)                                             \
+    FMOD bool PFX##_max(SNAME *_map_, K *key, V *value)                            \
     {                                                                              \
         if (PFX##_empty(_map_))                                                    \
-            return 0;                                                              \
+            return false;                                                          \
                                                                                    \
         SNAME##_node *scan = _map_->root;                                          \
                                                                                    \
         while (scan->right != NULL)                                                \
             scan = scan->right;                                                    \
                                                                                    \
-        return scan->key;                                                          \
+        *key = scan->key;                                                          \
+        *value = scan->value;                                                      \
+                                                                                   \
+        return true;                                                               \
     }                                                                              \
                                                                                    \
-    FMOD V PFX##_max_val(SNAME *_map_)                                             \
+    FMOD bool PFX##_min(SNAME *_map_, K *key, V *value)                            \
     {                                                                              \
         if (PFX##_empty(_map_))                                                    \
-            return 0;                                                              \
-                                                                                   \
-        SNAME##_node *scan = _map_->root;                                          \
-                                                                                   \
-        while (scan->right != NULL)                                                \
-            scan = scan->right;                                                    \
-                                                                                   \
-        return scan->value;                                                        \
-    }                                                                              \
-                                                                                   \
-    FMOD K PFX##_min_key(SNAME *_map_)                                             \
-    {                                                                              \
-        if (PFX##_empty(_map_))                                                    \
-            return 0;                                                              \
+            return false;                                                          \
                                                                                    \
         SNAME##_node *scan = _map_->root;                                          \
                                                                                    \
         while (scan->left != NULL)                                                 \
             scan = scan->left;                                                     \
                                                                                    \
-        return scan->key;                                                          \
-    }                                                                              \
+        *key = scan->key;                                                          \
+        *value = scan->value;                                                      \
                                                                                    \
-    FMOD V PFX##_min_val(SNAME *_map_)                                             \
-    {                                                                              \
-        if (PFX##_empty(_map_))                                                    \
-            return 0;                                                              \
-                                                                                   \
-        SNAME##_node *scan = _map_->root;                                          \
-                                                                                   \
-        while (scan->left != NULL)                                                 \
-            scan = scan->left;                                                     \
-                                                                                   \
-        return scan->value;                                                        \
+        return true;                                                               \
     }                                                                              \
                                                                                    \
     FMOD V PFX##_get(SNAME *_map_, K key)                                          \

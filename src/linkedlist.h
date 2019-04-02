@@ -47,10 +47,10 @@
                                                         \
     struct SNAME##_node_s                               \
     {                                                   \
+        V data;                                         \
         struct SNAME##_s *owner;                        \
         struct SNAME##_node_s *next;                    \
         struct SNAME##_node_s *prev;                    \
-        V data;                                         \
     };                                                  \
                                                         \
     struct SNAME##_iter_s                               \
@@ -232,6 +232,9 @@
     FMOD bool PFX##_pop(SNAME *_list_, size_t index)                                \
     {                                                                               \
         if (PFX##_empty(_list_))                                                    \
+            return false;                                                           \
+                                                                                    \
+        if (index >= _list_->count)                                                 \
             return false;                                                           \
                                                                                     \
         if (index == 0)                                                             \
