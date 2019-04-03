@@ -59,6 +59,13 @@ A contiguous growable array. Elements can be added and removed from both ends of
 * [\_full()](#list_full)
 * [\_count()](#list_count)
 * [\_capacity()](#list_capacity)
+* [\_iter\_new()](#list_iter_new)
+* [\_iter\_start()](#list_iter_start)
+* [\_iter\_end()](#list_iter_end)
+* [\_iter\_tostart()](#list_iter_tostart)
+* [\_iter\_toend()](#list_iter_toend)
+* [\_iter\_next()](#list_iter_next)
+* [\_iter\_prev()](#list_iter_prev)
 
 ## [<span id="list_new"> \_new() </span>](#list_function_index)
 
@@ -248,8 +255,8 @@ Adds an element at a given index if the condition evaluates to true.
 
 #### Returns
 
-1. `true` - If the element was successfully removed from the list.
-2. `false` - If the list is empty.
+1. `true` - If the element was successfully added to the list.
+2. `false` - If the condition evaluated to false, or if `index` is greater than the list `count`.
 
 #### Complexity
 
@@ -273,7 +280,7 @@ Removes an element from a given index if the condition evaluates to true.
 #### Returns
 
 1. `true` - If the element was successfully removed from the list.
-2. `false` - If the list is empty.
+2. `false` - If the condition evaluated to false, if the list is empty, or if the index is greater than or equal to the list `count`.
 
 #### Complexity
 
@@ -421,6 +428,143 @@ Returns the internal buffer's current capacity.
 #### Returns
 
 1. `size_t` - The internal buffer's current capacity.
+
+#### Complexity
+
+* O(1)
+
+## [<span id="list_iter_new"> \_iter\_new() </span>](#list_function_index)
+
+Initializes an iterator with a given target list. The iterator's cursor will be positioned at the beginning of the list.
+
+#### Declaration
+
+> `FMOD void PFX##_iter_new(SNAME##_iter *iter, SNAME *target);`
+
+#### Parameters
+
+1. `SNAME##_iter *iter` - Iterator to be initialized.
+2. `SNAME *_list_` - Target list.
+
+#### Complexity
+
+* O(1)
+
+## [<span id="list_iter_start"> \_iter\_start() </span>](#list_function_index)
+
+Returns true if the iterator has reached the start of the list. If false, the iterator is still possible to iterate to a previous element.
+
+#### Declaration
+
+> `FMOD bool PFX##_iter_start(SNAME##_iter *iter);`
+
+#### Parameters
+
+1. `SNAME##_iter *iter` - Target iterator.
+
+#### Returns 
+
+1. `true` - If the iterator has reached the start of the list.
+2. `false` - If the iterator has not reached the start of the list.
+
+#### Complexity
+
+* O(1)
+
+## [<span id="list_iter_end"> \_iter\_end() </span>](#list_function_index)
+
+Returns true if the iterator has reached the end of the list. If false, the iterator is still possible to iterate to a next element.
+
+#### Declaration
+
+> `FMOD bool PFX##_iter_end(SNAME##_iter *iter);`
+
+#### Parameters
+
+1. `SNAME##_iter *iter` - Target iterator.
+
+#### Returns 
+
+1. `true` - If the iterator has reached the end of the list.
+2. `false` - If the iterator has not reached the end of the list.
+
+#### Complexity
+
+* O(1)
+
+## [<span id="list_iter_tostart"> \_iter\_tostart() </span>](#list_function_index)
+
+Moves the cursor of the target iterator to the start of the list.
+
+#### Declaration
+
+> `FMOD void PFX##_iter_tostart(SNAME##_iter *iter);`
+
+#### Parameters
+
+1. `SNAME##_iter *iter` - Target iterator.
+
+#### Complexity
+
+* O(1)
+
+## [<span id="list_iter_toend"> \_iter\_toend() </span>](#list_function_index)
+
+Moves the cursor of the target iterator to the end of the list.
+
+#### Declaration
+
+> `FMOD void PFX##_iter_toend(SNAME##_iter *iter);`
+
+#### Parameters
+
+1. `SNAME##_iter *iter` - Target iterator.
+
+#### Complexity
+
+* O(1)
+
+## [<span id="list_iter_next"> \_iter\_next() </span>](#list_function_index)
+
+This function is used to iterate to the next element, retrieving the current one, along with an index that represents how many iterations have passed. When the index is `0` it means that the current result is the first element in the list; if it equals `count - 1` then it is the last element in the list.
+
+#### Declaration
+
+> `FMOD bool PFX##_iter_next(SNAME##_iter *iter, V *result, size_t *index);`
+
+#### Parameters
+
+1. `SNAME##_iter *iter` - Target iterator.
+2. `V *result` - Resulting value from the list.
+3. `size_t *index` - Resulting index.
+
+#### Returns 
+
+1. `true` - If the iterator has retrieved a valid `result` and `index`.
+2. `false` - If the iterator has not retrieved a valid `result` and `index`. Here, iteration to the next element has ended.
+
+#### Complexity
+
+* O(1)
+
+## [<span id="list_iter_prev"> \_iter\_prev() </span>](#list_function_index)
+
+This function is used to iterate to the previous element, retrieving the current one, along with an index that represents how many iterations have passed. When the index is `0` it means that the current result is the first element in the list; if it equals `count - 1` then it is the last element in the list.
+
+#### Declaration
+
+> `FMOD bool PFX##_iter_prev(SNAME##_iter *iter, V *result, size_t *index);`
+
+#### Parameters
+
+1. `SNAME##_iter *iter` - Target iterator.
+2. `V *result` - Resulting value from the list.
+3. `size_t *index` - Resulting index.
+
+#### Returns 
+
+1. `true` - If the iterator has retrieved a valid `result` and `index`.
+2. `false` - If the iterator has not retrieved a valid `result` and `index`. Here, iteration to the previous element has ended.
 
 #### Complexity
 

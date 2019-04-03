@@ -31,3 +31,22 @@ Now you can start working on the project.
     * Keep the `src` folder clean from anything that is not source code;
     * Create a new folder for each example with a meaningful name if it has more than one file;
 3. If something looks complicated, explain it as well as possible
+4. All source files (`.c`, `.h`, etc) must contain a header with the following template:
+    * Complete file name.
+    * First commit date in `dd/mm/yyyy`.
+    * Authors name with (optional) github link to his page.
+
+```
+/**
+ * file_name.c
+ *
+ * Creation Date: dd/mm/yyyy
+ *
+ * Authors:
+ * Author 1 Name (https://github.com/AuthorGithubPage)
+ * Author 2 Name
+ *
+ */
+```
+
+**Make sure your name is listed in the AUTHORS file**
