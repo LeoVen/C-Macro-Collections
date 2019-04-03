@@ -18,7 +18,7 @@ int main(int argc, char const *argv[])
     size_t i;
     int r;
 
-    // Initliazie treeset and add some elements
+    // Initialize treeset and add some elements
     tset *ts = ts_new(intcmp);
     for (int i = 0; i < 10; i++)
         ts_insert(ts, i);

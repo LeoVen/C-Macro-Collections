@@ -13,7 +13,7 @@ int main(int argc, char const *argv[])
     size_t i;
     int r;
 
-    // Initliazie queue and add some elements
+    // Initialize queue and add some elements
     queue *q = q_new(10);
     for (int i = 0; i < 10; i++)
         q_enqueue(q, i);

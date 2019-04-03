@@ -30,7 +30,7 @@ int main(int argc, char const *argv[])
     size_t i;
     int r;
 
-    // Initliazie hash set and add some elements
+    // Initialize hash set and add some elements
     hash_set *hs = hs_new(10, 0.9, intcmp, inthash);
     for (int i = 0; i < 10; i++)
         hs_insert(hs, i);

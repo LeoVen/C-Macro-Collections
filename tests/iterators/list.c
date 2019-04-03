@@ -13,7 +13,7 @@ int main(int argc, char const *argv[])
     size_t i;
     int r;
 
-    // Initliazie list and add some elements
+    // Initialize list and add some elements
     list *l = l_new(10);
     for (int i = 0; i < 10; i++)
         l_push_back(l, i);

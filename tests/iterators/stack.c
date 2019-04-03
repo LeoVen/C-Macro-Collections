@@ -13,7 +13,7 @@ int main(int argc, char const *argv[])
     size_t i;
     int r;
 
-    // Initliazie stack and add some elements
+    // Initialize stack and add some elements
     stack *s = s_new(10);
     for (int i = 0; i < 10; i++)
         s_push(s, i);

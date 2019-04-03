@@ -13,7 +13,7 @@ int main(int argc, char const *argv[])
     size_t i;
     int r;
 
-    // Initliazie deque and add some elements
+    // Initialize deque and add some elements
     deque *d = d_new(10);
     for (int i = 0; i < 10; i++)
     {

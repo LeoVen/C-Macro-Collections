@@ -18,7 +18,7 @@ int main(int argc, char const *argv[])
     size_t i;
     int r;
 
-    // Initliazie heap and add some elements
+    // Initialize heap and add some elements
     heap *h = h_new(10, MinHeap, intcmp);
     for (int i = 9; i >= 0; i--)
         h_insert(h, i);

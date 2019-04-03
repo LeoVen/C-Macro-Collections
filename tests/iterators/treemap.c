@@ -19,7 +19,7 @@ int main(int argc, char const *argv[])
     int k;
     double v, varr[10] = {0.0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9};
 
-    // Initliazie treemap and add some elementm
+    // Initialize treemap and add some element
     tmap *tm = tm_new(intcmp);
     for (int i = 0; i < 10; i++)
         tm_insert(tm, i, varr[i]);
