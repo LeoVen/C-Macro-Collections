@@ -1,0 +1,3 @@
+# Hashmap examples
+
+Currently none

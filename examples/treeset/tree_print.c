@@ -1,7 +1,16 @@
+/**
+ * tree_print.c
+ *
+ * Creation Date: 27/03/2019
+ *
+ * Authors:
+ * Leonardo Vencovsky (https://github.com/LeoVen)
+ *
+ */
 #include <stdio.h>
 #include <stdlib.h>
 #include <time.h>
-#include "../src/treeset.h"
+#include "treeset.h"
 
 TREESET_GENERATE(set, set, , int)
 

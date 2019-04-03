@@ -5,7 +5,7 @@
 #include <stdbool.h>
 #include <time.h>
 #include <string.h>
-#include "../../src/macro_collections.h"
+#include "macro_collections.h"
 #include "book.c"
 #include "random.c"
 

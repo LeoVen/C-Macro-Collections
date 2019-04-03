@@ -1,10 +1,16 @@
+/**
+ * iterator.c
+ *
+ * Creation Date: 22/03/2019
+ *
+ * Authors:
+ * Leonardo Vencovsky (https://github.com/LeoVen)
+ *
+ */
 #include <stdio.h>
-#include <stdlib.h>
-#include <stdint.h>
-#include <stdbool.h>
-#include "../src/macro_collections.h"
+#include "linkedlist.h"
 
-COLLECTION_GENERATE(LINKEDLIST, PUBLIC, ll, linked, static, , int)
+LINKEDLIST_GENERATE(ll, linked, static, int)
 
 int main(int argc, char const *argv[])
 {

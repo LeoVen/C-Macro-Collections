@@ -1,8 +1,17 @@
+/**
+ * linked_list_node.c
+ *
+ * Creation Date: 26/03/2019
+ *
+ * Authors:
+ * Leonardo Vencovsky (https://github.com/LeoVen)
+ *
+ */
 #include <stdio.h>
 #include <assert.h>
-#include "../src/linkedlist.h"
+#include "linkedlist.h"
 
-LINKEDLIST_GENERATE(l, list, , int)
+LINKEDLIST_GENERATE(l, list, /* static */, int)
 
 int main(int argc, char const *argv[])
 {

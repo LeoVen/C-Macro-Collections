@@ -1,5 +1,14 @@
+/**
+ * heapsort.c
+ *
+ * Creation Date: 25/03/2019
+ *
+ * Authors:
+ * Leonardo Vencovsky (https://github.com/LeoVen)
+ *
+ */
 #include <stdio.h>
-#include "../src/heap.h"
+#include "heap.h"
 
 static int intcmp(int a, int b)
 {

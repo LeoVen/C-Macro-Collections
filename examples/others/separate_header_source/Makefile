@@ -1,7 +1,7 @@
 CC = gcc
 CFLAGS = -Wall -Wextra
 INCLUDE = ./
-SRC = ../../src
+SRC = ../../../src
 
 main.exe: containers.o main.o $(SRC)/macro_collections.h
 	$(CC) $^ -o $@
