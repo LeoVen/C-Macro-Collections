@@ -41,6 +41,7 @@
 #include "treeset.h"
 #include "treemap.h"
 #include "hashset.h"
+#include "hashmap.h"
 
 #include "foreach.h"
 
