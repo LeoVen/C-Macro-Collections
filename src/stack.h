@@ -64,9 +64,9 @@
     FMOD void PFX##_free(SNAME *_stack_);                                    \
     FMOD bool PFX##_push(SNAME *_stack_, V element);                         \
     FMOD bool PFX##_pop(SNAME *_stack_);                                     \
-    FMOD V PFX##_top(SNAME *_stack_);                                        \
     FMOD bool PFX##_push_if(SNAME *_stack_, V element, bool condition);      \
     FMOD bool PFX##_pop_if(SNAME *_stack_, bool condition);                  \
+    FMOD V PFX##_top(SNAME *_stack_);                                        \
     FMOD bool PFX##_empty(SNAME *_stack_);                                   \
     FMOD bool PFX##_full(SNAME *_stack_);                                    \
     FMOD size_t PFX##_count(SNAME *_stack_);                                 \
@@ -140,14 +140,6 @@
         return true;                                                        \
     }                                                                       \
                                                                             \
-    FMOD V PFX##_top(SNAME *_stack_)                                        \
-    {                                                                       \
-        if (PFX##_empty(_stack_))                                           \
-            return 0;                                                       \
-                                                                            \
-        return _stack_->buffer[_stack_->count - 1];                         \
-    }                                                                       \
-                                                                            \
     FMOD bool PFX##_push_if(SNAME *_stack_, V element, bool condition)      \
     {                                                                       \
         if (condition)                                                      \
@@ -162,6 +154,14 @@
             return PFX##_pop(_stack_);                                      \
                                                                             \
         return false;                                                       \
+    }                                                                       \
+                                                                            \
+    FMOD V PFX##_top(SNAME *_stack_)                                        \
+    {                                                                       \
+        if (PFX##_empty(_stack_))                                           \
+            return 0;                                                       \
+                                                                            \
+        return _stack_->buffer[_stack_->count - 1];                         \
     }                                                                       \
                                                                             \
     FMOD bool PFX##_empty(SNAME *_stack_)                                   \

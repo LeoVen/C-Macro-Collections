@@ -256,7 +256,7 @@ Adds an element at a given index if the condition evaluates to true.
 #### Returns
 
 1. `true` - If the element was successfully added to the list.
-2. `false` - If the condition evaluated to false, or if `index` is greater than the list `count`.
+2. `false` - If the condition evaluated to false, if `index` is greater than the list `count`, or if buffer reallocation failed.
 
 #### Complexity
 
@@ -374,7 +374,7 @@ Returns true if the list is empty, otherwise false.
 
 ## [<span id="list_full"> \_full() </span>](#list_function_index)
 
-Returns true if the list is full, otherwise false. The list is considered full when its internal buffer is filled up, so the next element added to the list will required a resizing of the buffer, but note that the list has no limits to its capacity.
+Returns true if the list is full, otherwise false. The list is considered full when its internal buffer is filled up, so the next element added to the list will required a resizing of the buffer, but note that the list can grow indefinitely.
 
 #### Declaration
 
@@ -444,7 +444,7 @@ Initializes an iterator with a given target list. The iterator's cursor will be 
 #### Parameters
 
 1. `SNAME##_iter *iter` - Iterator to be initialized.
-2. `SNAME *_list_` - Target list.
+2. `SNAME *target` - Target list.
 
 #### Complexity
 
@@ -576,7 +576,418 @@ A list where each element is linked by nodes. Elements can be added and removed 
 
 # [Stack](#collections_index)
 
-A LIFO/FILO structure backed by a growable array. All elements are added and removed from one end.
+A LIFO/FILO structure backed by a growable array. All elements are added and removed from the top of the stack.
+
+### Generation Macro
+
+* `STACK_GENERATE(PFX, SNAME, FMOD, V)`
+    * `PFX` - Functions namespace or prefix.
+    * `SNAME` - Structure name.
+    * `FMOD` - Function modifier (static or empty).
+    * `V` - Element type.
+
+### Defined Structures
+
+* `struct SNAME##_s` - Structure Name (represents a stack structure)
+    * `V *buffer` - Internal storage.
+    * `size_t capacity` - Storage capacity.
+    * `size_t count` - Total elements in the stack.
+* `struct SNAME##_iter_s` - Structure Iterator (represents a stack iterator)
+    * `struct SNAME##_s *target` - Stack being iterated over.
+    * `size_t cursor` - Index pointing to the next or previous element in the iteration.
+    * `bool start` - If the iterator reached the start of the stack.
+    * `bool end` - If the iterator reached the end of the stack.
+
+### Typedefs
+
+* `typedef struct SNAME##_s SNAME`
+* `typedef struct SNAME##_iter_s SNAME##_iter`
+
+### <span id="stack_function_index"> Defined Functions </span>
+
+* [\_new()](#stack_new)
+* [\_free()](#stack_free)
+* [\_push()](#stack_push)
+* [\_pop()](#stack_pop)
+* [\_push\_if()](#stack_push_if)
+* [\_pop\_if()](#stack_pop_if)
+* [\_top()](#stack_top)
+* [\_empty()](#stack_empty)
+* [\_full()](#stack_full)
+* [\_count()](#stack_count)
+* [\_capacity()](#stack_capacity)
+* [\_iter\_new()](#stack_iter_new)
+* [\_iter\_start()](#stack_iter_start)
+* [\_iter\_end()](#stack_iter_end)
+* [\_iter\_tostart()](#stack_iter_tostart)
+* [\_iter\_toend()](#stack_iter_toend)
+* [\_iter\_next()](#stack_iter_next)
+* [\_iter\_prev()](#stack_iter_prev)
+
+## [<span id="stack_new"> \_new() </span>](#stack_function_index)
+
+Allocates and returns a new stack with an internal capacity of `size`. If allocation fails, `NULL` is returned.
+
+#### Declaration
+
+> `FMOD SNAME *PFX##_new(size_t size);`
+
+#### Parameters
+
+1. `size_t size` - The initial capacity for the stack.
+
+#### Returns
+
+1. `SNAME *` - A pointer to a heap allocated stack.
+2. `NULL` - If allocation fails.
+
+#### Complexity
+
+* O(1)
+
+## [<span id="stack_free"> \_free() </span>](#stack_function_index)
+
+Frees from memory the stack internal buffer and the structure itself. Note that if the elements inside the stack are pointers to allocated memory, this function might cause memory leaks as it does not deals with its elements.
+
+#### Declaration
+
+> `FMOD void PFX##_free(SNAME *_stack_);`
+
+#### Parameters
+
+1. `SNAME *_stack_` - Target stack to be freed from memory.
+
+#### Complexity
+
+* O(1)
+
+## [<span id="stack_push"> \_push() </span>](#stack_function_index)
+
+Adds an element on top of the stack.
+
+#### Declaration
+
+> `FMOD bool PFX##_push(SNAME *_stack_, V element);`
+
+#### Parameters
+
+1. `SNAME *_stack_` - Target stack.
+2. `V element` - Element to be added.
+
+#### Returns
+
+1. `true` - If the element was successfully added to the stack.
+2. `false` - If buffer reallocation failed.
+
+#### Complexity
+
+* O(1)
+
+## [<span id="stack_pop"> \_pop() </span>](#stack_function_index)
+
+Removes the top element from the stack.
+
+#### Declaration
+
+> `FMOD bool PFX##_pop(SNAME *_stack_);`
+
+#### Parameters
+
+1. `SNAME *_stack_` - Target stack.
+
+#### Returns
+
+1. `true` - If an element was successfully removed from the stack.
+2. `false` - If the stack is empty.
+
+#### Complexity
+
+* O(1)
+
+## [<span id="stack_push_if"> \_push\_if() </span>](#stack_function_index)
+
+Adds an element on top of the stack if the condition evaluates to true.
+
+#### Declaration
+
+> `FMOD bool PFX##_push_if(SNAME *_stack_, V element, bool condition);`
+
+#### Parameters
+
+1. `SNAME *_stack_` - Target stack.
+2. `V element` - Element to be added.
+3. `bool condition` - Condition for the element to be added.
+
+#### Returns
+
+1. `true` - If the element was successfully added to the stack.
+2. `false` - If the condition evaluated to false, or if buffer reallocation failed.
+
+#### Complexity
+
+* O(1)
+
+## [<span id="stack_pop_if"> \_pop\_if() </span>](#stack_function_index)
+
+Removes the top element from the stack if the condition evaluates to true.
+
+#### Declaration
+
+> `FMOD bool PFX##_pop_if(SNAME *_stack_, bool condition);`
+
+#### Parameters
+
+1. `SNAME *_stack_` - Target stack.
+3. `bool condition` - Condition for the element to be removed.
+
+#### Returns
+
+1. `true` - If the element was successfully added to the stack.
+2. `false` - If the condition evaluated to false, or if the stack is empty.
+
+#### Complexity
+
+* O(1)
+
+## [<span id="stack_top"> \_top() </span>](#stack_function_index)
+
+Returns the element at the top of the stack if available.
+
+#### Declaration
+
+> `FMOD V PFX##_top(SNAME *_stack_);`
+
+#### Parameters
+
+1. `SNAME *_stack_` - Target stack.
+
+#### Returns
+
+1. `V` - The element at the top of the stack.
+2. `0` or `NULL` - If the stack is empty.
+
+#### Complexity
+
+* O(1)
+
+## [<span id="stack_empty"> \_empty() </span>](#stack_function_index)
+
+Returns true if the stack is empty, otherwise false.
+
+#### Declaration
+
+> `FMOD bool PFX##_empty(SNAME *_stack_);`
+
+#### Parameters
+
+1. `SNAME *_stack_` - Target stack.
+
+#### Returns
+
+1. `true` - If the stack is empty.
+2. `false` - If there is at least one element in the stack.
+
+#### Complexity
+
+* O(1)
+
+## [<span id="stack_full"> \_full() </span>](#stack_function_index)
+
+Returns true if the stack is full, otherwise false. The stack is considered full when its internal buffer is filled up, so the next element added to the stack will required a resizing of the buffer, but note that the stack can grow indefinitely.
+
+#### Declaration
+
+> `FMOD bool PFX##_full(SNAME *_stack_);`
+
+#### Parameters
+
+1. `SNAME *_stack_` - Target stack.
+
+#### Returns
+
+1. `true` - If the stack internal buffer is full.
+2. `false` - If the stack internal buffer is not full.
+
+#### Complexity
+
+* O(1)
+
+## [<span id="stack_count"> \_count() </span>](#stack_function_index)
+
+Returns the amount of elements in the stack.
+
+#### Declaration
+
+> `FMOD size_t PFX##_count(SNAME *_stack_);`
+
+#### Parameters
+
+1. `SNAME *_stack_` - Target stack.
+
+#### Returns
+
+1. `size_t` - The amount of elements in the stack.
+
+#### Complexity
+
+* O(1)
+
+## [<span id="stack_capacity"> \_capacity() </span>](#stack_function_index)
+
+Returns the internal buffer's current capacity.
+
+#### Declaration
+
+> `FMOD size_t PFX##_capacity(SNAME *_stack_);`
+
+#### Parameters
+
+1. `SNAME *_stack_` - Target stack.
+
+#### Returns
+
+1. `size_t` - The internal buffer's current capacity.
+
+#### Complexity
+
+* O(1)
+
+## [<span id="stack_iter_new"> \_iter\_new() </span>](#stack_function_index)
+
+Initializes an iterator with a given target stack. The iterator's cursor will be positioned at the top element of the stack.
+
+#### Declaration
+
+> `FMOD void PFX##_iter_new(SNAME##_iter *iter, SNAME *target);`
+
+#### Parameters
+
+1. `SNAME##_iter *iter` - Iterator to be initialized.
+2. `SNAME *target` - Target stack.
+
+#### Complexity
+
+* O(1)
+
+## [<span id="stack_iter_start"> \_iter\_start() </span>](#stack_function_index)
+
+Returns true if the iterator has reached the start of the stack (top element). If false, the iterator is still possible to iterate to a previous element.
+
+#### Declaration
+
+> `FMOD bool PFX##_iter_start(SNAME##_iter *iter);`
+
+#### Parameters
+
+1. `SNAME##_iter *iter` - Target iterator.
+
+#### Returns 
+
+1. `true` - If the iterator has reached the start of the stack.
+2. `false` - If the iterator has not reached the start of the stack.
+
+#### Complexity
+
+* O(1)
+
+## [<span id="stack_iter_end"> \_iter\_end() </span>](#stack_function_index)
+
+Returns true if the iterator has reached the end of the stack (bottom element). If false, the iterator is still possible to iterate to a next element.
+
+#### Declaration
+
+> `FMOD bool PFX##_iter_end(SNAME##_iter *iter);`
+
+#### Parameters
+
+1. `SNAME##_iter *iter` - Target iterator.
+
+#### Returns 
+
+1. `true` - If the iterator has reached the end of the stack.
+2. `false` - If the iterator has not reached the end of the stack.
+
+#### Complexity
+
+* O(1)
+
+## [<span id="stack_iter_tostart"> \_iter\_tostart() </span>](#stack_function_index)
+
+Moves the cursor of the target iterator to the start (top element) of the stack.
+
+#### Declaration
+
+> `FMOD void PFX##_iter_tostart(SNAME##_iter *iter);`
+
+#### Parameters
+
+1. `SNAME##_iter *iter` - Target iterator.
+
+#### Complexity
+
+* O(1)
+
+## [<span id="stack_iter_toend"> \_iter\_toend() </span>](#stack_function_index)
+
+Moves the cursor of the target iterator to the end of the stack (bottom element).
+
+#### Declaration
+
+> `FMOD void PFX##_iter_toend(SNAME##_iter *iter);`
+
+#### Parameters
+
+1. `SNAME##_iter *iter` - Target iterator.
+
+#### Complexity
+
+* O(1)
+
+## [<span id="stack_iter_next"> \_iter\_next() </span>](#stack_function_index)
+
+This function is used to iterate to the next element, retrieving the current one, along with an index that represents how many iterations have passed. When the index is `0` it means that the current result is the top-most element of the stack; if it equals `count - 1` then it is the bottom-most element of the stack.
+
+#### Declaration
+
+> `FMOD bool PFX##_iter_next(SNAME##_iter *iter, V *result, size_t *index);`
+
+#### Parameters
+
+1. `SNAME##_iter *iter` - Target iterator.
+2. `V *result` - Resulting value from the stack.
+3. `size_t *index` - Resulting index.
+
+#### Returns 
+
+1. `true` - If the iterator has retrieved a valid `result` and `index`.
+2. `false` - If the iterator has not retrieved a valid `result` and `index`. Here, iteration to the next element has ended.
+
+#### Complexity
+
+* O(1)
+
+## [<span id="stack_iter_prev"> \_iter\_prev() </span>](#stack_function_index)
+
+This function is used to iterate to the previous element, retrieving the current one, along with an index that represents how many iterations have passed. When the index is `0` it means that the current result is the top-most element of the stack; if it equals `count - 1` then it is the bottom-most element of the stack.
+
+#### Declaration
+
+> `FMOD bool PFX##_iter_prev(SNAME##_iter *iter, V *result, size_t *index);`
+
+#### Parameters
+
+1. `SNAME##_iter *iter` - Target iterator.
+2. `V *result` - Resulting value from the stack.
+3. `size_t *index` - Resulting index.
+
+#### Returns 
+
+1. `true` - If the iterator has retrieved a valid `result` and `index`.
+2. `false` - If the iterator has not retrieved a valid `result` and `index`. Here, iteration to the previous element has ended.
+
+#### Complexity
+
+* O(1)
 
 # [Queue](#collections_index)
 
