@@ -19,16 +19,16 @@ size_t inthash(int t)
     return a;
 }
 
-COLLECTION_GENERATE(LIST, PUBLIC, l, list, /**/, /**/, int)
-COLLECTION_GENERATE(STACK, PUBLIC, s, stack, /**/, /**/, int)
-COLLECTION_GENERATE(QUEUE, PUBLIC, q, queue, /**/, /**/, int)
-COLLECTION_GENERATE(DEQUE, PUBLIC, d, deque, /**/, /**/, int)
-COLLECTION_GENERATE(LINKEDLIST, PUBLIC, ll, linked, /**/, /**/, int)
-COLLECTION_GENERATE(HEAP, PUBLIC, h, heap, /**/, /**/, int)
-COLLECTION_GENERATE(TREESET, PUBLIC, ts, tset, /**/, /**/, int)
-COLLECTION_GENERATE(TREEMAP, PUBLIC, tm, tmap, /**/, int, int)
-COLLECTION_GENERATE(HASHSET, PUBLIC, hs, hset, /**/, /**/, int)
-COLLECTION_GENERATE(HASHMAP, PUBLIC, hm, hmap, /* FMOD */, int, int)
+COLLECTION_GENERATE(      LIST, PUBLIC,  l,   list, /* FMOD */, /* K */, int)
+COLLECTION_GENERATE(     STACK, PUBLIC,  s,  stack, /* FMOD */, /* K */, int)
+COLLECTION_GENERATE(     QUEUE, PUBLIC,  q,  queue, /* FMOD */, /* K */, int)
+COLLECTION_GENERATE(     DEQUE, PUBLIC,  d,  deque, /* FMOD */, /* K */, int)
+COLLECTION_GENERATE(LINKEDLIST, PUBLIC, ll, linked, /* FMOD */, /* K */, int)
+COLLECTION_GENERATE(      HEAP, PUBLIC,  h,   heap, /* FMOD */, /* K */, int)
+COLLECTION_GENERATE(   TREESET, PUBLIC, ts,   tset, /* FMOD */, /* K */, int)
+COLLECTION_GENERATE(   TREEMAP, PUBLIC, tm,   tmap, /* FMOD */,     int, int)
+COLLECTION_GENERATE(   HASHSET, PUBLIC, hs,   hset, /* FMOD */, /* K */, int)
+COLLECTION_GENERATE(   HASHMAP, PUBLIC, hm,   hmap, /* FMOD */,     int, int)
 
 int main(int argc, char const *argv[])
 {
@@ -206,8 +206,11 @@ int main(int argc, char const *argv[])
     s_free(s);
     q_free(q);
     d_free(d);
+    h_free(h);
     ts_free(ts);
     tm_free(tm);
+    hs_free(hs);
+    tm_free(hm);
 
     return 0;
 }
