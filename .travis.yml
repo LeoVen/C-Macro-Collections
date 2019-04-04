@@ -11,8 +11,7 @@ addons:
 script:
   - sudo ln -s /usr/bin/gcc-6 /usr/local/bin/gcc
   - export CC=gcc-7
-  - cd ./C-Macro-Containers/tests
+  - cd ./tests
   - gcc foreach.c -Wall -Wextra -o foreach
   - ./foreach
-after_success:
-  - bash <(curl -s https://codecov.io/bash)
+
