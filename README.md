@@ -3,6 +3,8 @@
 Generate Simple Data Structures of any type in C for you to use in your projects.
 
 ![License](https://img.shields.io/badge/License-MIT-blue.svg)
+![Version](https://img.shields.io/badge/Version-v1.0.0-orange.svg)
+![Build](https://travis-ci.org/LeoVen/C-Macro-Collections.svg?branch=master)
 
 ## Available Collections
 
