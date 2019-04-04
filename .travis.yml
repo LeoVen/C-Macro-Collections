@@ -1,0 +1,18 @@
+dist: trusty
+os: linux
+language: c
+compiler: gcc
+addons:
+  apt:
+    sources:
+      - ubuntu-toolchain-r-test
+    packages:
+      - gcc-7
+script:
+  - sudo ln -s /usr/bin/gcc-6 /usr/local/bin/gcc
+  - export CC=gcc-7
+  - cd ./C-Macro-Containers/tests
+  - gcc foreach.c -Wall -Wextra -o foreach
+  - ./foreach
+after_success:
+  - bash <(curl -s https://codecov.io/bash)
