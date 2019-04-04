@@ -2,6 +2,8 @@
 
 Generate Simple Data Structures of any type in C for you to use in your projects.
 
+![License](https://img.shields.io/badge/License-MIT-blue.svg)
+
 ## Available Collections
 
 * List
@@ -156,3 +158,16 @@ gcc source.o main.o
 
 The container members won't be visible to the file `main.c`. For this to work, all parameters must be identical, with the only difference being the macro name.
 
+## What to use
+
+The following table shows how each data structure is implemented and how well they do when using as common [abstract data types](https://en.wikipedia.org/wiki/Abstract_data_type).
+
+* **Ideal** - The data structure implements correctly the abstract data type;
+* **Not Ideal** - The implementation is fulfilled but some functionalities are either not part of the ADT or not present;
+* **Bad** - It can be done, but its a bad idea.
+
+![DataStructuresDiagram](https://i.imgur.com/hFqBSlC.png)
+
+![GoodColor](https://img.shields.io/badge/Ideal_Implementation-%236abf69.svg)
+![AverageColor](https://img.shields.io/badge/Not_Ideal_Implementation-%2363a4ff.svg)
+![BadColor](https://img.shields.io/badge/Bad_Implementation-%23ff6659.svg)
