@@ -96,6 +96,7 @@ static const size_t cmc_hashtable_primes[] = {53, 97, 193, 389, 769, 1543, 3079,
     typedef struct SNAME##_iter_s SNAME##_iter;                                               \
                                                                                               \
     FMOD SNAME *PFX##_new(size_t size, double load, int (*compare)(K, K), size_t (*hash)(K)); \
+    FMOD void PFX##_clear(SNAME *_map_);                                                      \
     FMOD void PFX##_free(SNAME *_map_);                                                       \
     FMOD bool PFX##_insert(SNAME *_map_, K key, V value);                                     \
     FMOD bool PFX##_remove(SNAME *_map_, K key, V *value);                                    \
@@ -151,6 +152,13 @@ static const size_t cmc_hashtable_primes[] = {53, 97, 193, 389, 769, 1543, 3079,
         _map_->hash = hash;                                                                  \
                                                                                              \
         return _map_;                                                                        \
+    }                                                                                        \
+                                                                                             \
+    FMOD void PFX##_clear(SNAME *_map_)                                                      \
+    {                                                                                        \
+        memset(_map_->buffer, 0, sizeof(SNAME##_entry) * _map_->capacity);                   \
+                                                                                             \
+        _map_->count = 0;                                                                    \
     }                                                                                        \
                                                                                              \
     FMOD void PFX##_free(SNAME *_map_)                                                       \

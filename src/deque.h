@@ -64,6 +64,7 @@
     typedef struct SNAME##_iter_s SNAME##_iter;                               \
                                                                               \
     FMOD SNAME *PFX##_new(size_t size);                                       \
+    FMOD void PFX##_clear(SNAME *_deque_);                                    \
     FMOD void PFX##_free(SNAME *_deque_);                                     \
     FMOD bool PFX##_push_front(SNAME *_deque_, V element);                    \
     FMOD bool PFX##_push_back(SNAME *_deque_, V element);                     \
@@ -119,6 +120,15 @@
         _deque_->rear = 0;                                                                                \
                                                                                                           \
         return _deque_;                                                                                   \
+    }                                                                                                     \
+                                                                                                          \
+    FMOD void PFX##_clear(SNAME *_deque_)                                                                 \
+    {                                                                                                     \
+        memset(_deque_->buffer, 0, sizeof(V) * _deque_->capacity);                                        \
+                                                                                                          \
+        _deque_->count = 0;                                                                               \
+        _deque_->front = 0;                                                                               \
+        _deque_->rear = 0;                                                                                \
     }                                                                                                     \
                                                                                                           \
     FMOD void PFX##_free(SNAME *_deque_)                                                                  \

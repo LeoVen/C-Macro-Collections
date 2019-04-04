@@ -64,6 +64,7 @@
     typedef struct SNAME##_iter_s SNAME##_iter;                              \
                                                                              \
     FMOD SNAME *PFX##_new(size_t size);                                      \
+    FMOD void PFX##_clear(SNAME *_queue_);                                   \
     FMOD void PFX##_free(SNAME *_queue_);                                    \
     FMOD bool PFX##_enqueue(SNAME *_queue_, V element);                      \
     FMOD bool PFX##_dequeue(SNAME *_queue_);                                 \
@@ -114,6 +115,15 @@
         _queue_->rear = 0;                                                                                \
                                                                                                           \
         return _queue_;                                                                                   \
+    }                                                                                                     \
+                                                                                                          \
+    FMOD void PFX##_clear(SNAME *_queue_)                                                                 \
+    {                                                                                                     \
+        memset(_queue_->buffer, 0, sizeof(V) * _queue_->capacity);                                        \
+                                                                                                          \
+        _queue_->count = 0;                                                                               \
+        _queue_->front = 0;                                                                               \
+        _queue_->rear = 0;                                                                                \
     }                                                                                                     \
                                                                                                           \
     FMOD void PFX##_free(SNAME *_queue_)                                                                  \

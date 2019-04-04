@@ -74,6 +74,7 @@
     typedef struct SNAME##_iter_s SNAME##_iter;                                     \
                                                                                     \
     FMOD SNAME *PFX##_new(int (*compare)(K, K));                                    \
+    FMOD void PFX##_clear(SNAME *_map_);                                            \
     FMOD void PFX##_free(SNAME *_map_);                                             \
     FMOD bool PFX##_insert(SNAME *_map_, K key, V value);                           \
     FMOD bool PFX##_remove(SNAME *_map_, K key, V *value);                          \
@@ -118,7 +119,7 @@
         return _map_;                                                              \
     }                                                                              \
                                                                                    \
-    FMOD void PFX##_free(SNAME *_map_)                                             \
+    FMOD void PFX##_clear(SNAME *_map_)                                            \
     {                                                                              \
         SNAME##_node *scan = _map_->root;                                          \
         SNAME##_node *up = NULL;                                                   \
@@ -168,6 +169,14 @@
                 }                                                                  \
             }                                                                      \
         }                                                                          \
+                                                                                   \
+        _map_->count = 0;                                                          \
+        _map_->root = NULL;                                                        \
+    }                                                                              \
+                                                                                   \
+    FMOD void PFX##_free(SNAME *_map_)                                             \
+    {                                                                              \
+        PFX##_clear(_map_);                                                        \
                                                                                    \
         free(_map_);                                                               \
     }                                                                              \

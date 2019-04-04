@@ -73,6 +73,7 @@
     typedef struct SNAME##_iter_s SNAME##_iter;                             \
                                                                             \
     FMOD SNAME *PFX##_new(int (*compare)(V, V));                            \
+    FMOD void PFX##_clear(SNAME *_set_);                                    \
     FMOD void PFX##_free(SNAME *_set_);                                     \
     FMOD bool PFX##_insert(SNAME *_set_, V element);                        \
     FMOD bool PFX##_remove(SNAME *_set_, V element);                        \
@@ -121,7 +122,7 @@
         return _set_;                                                      \
     }                                                                      \
                                                                            \
-    FMOD void PFX##_free(SNAME *_set_)                                     \
+    FMOD void PFX##_clear(SNAME *_set_)                                    \
     {                                                                      \
         SNAME##_node *scan = _set_->root;                                  \
         SNAME##_node *up = NULL;                                           \
@@ -171,6 +172,14 @@
                 }                                                          \
             }                                                              \
         }                                                                  \
+                                                                           \
+        _set_->count = 0;                                                  \
+        _set_->root = NULL;                                                \
+    }                                                                      \
+                                                                           \
+    FMOD void PFX##_free(SNAME *_set_)                                     \
+    {                                                                      \
+        PFX##_clear(_set_);                                                \
                                                                            \
         free(_set_);                                                       \
     }                                                                      \

@@ -61,6 +61,7 @@
     typedef struct SNAME##_iter_s SNAME##_iter;                                      \
                                                                                      \
     FMOD SNAME *PFX##_new(size_t size);                                              \
+    FMOD void PFX##_clear(SNAME *_list_);                                            \
     FMOD void PFX##_free(SNAME *_list_);                                             \
     FMOD bool PFX##_push_front(SNAME *_list_, V element);                            \
     FMOD bool PFX##_push(SNAME *_list_, V element, size_t index);                    \
@@ -120,6 +121,13 @@
         _list_->count = 0;                                                          \
                                                                                     \
         return _list_;                                                              \
+    }                                                                               \
+                                                                                    \
+    FMOD void PFX##_clear(SNAME *_list_)                                            \
+    {                                                                               \
+        memset(_list_->buffer, 0, sizeof(V) * _list_->capacity);                    \
+                                                                                    \
+        _list_->count = 0;                                                          \
     }                                                                               \
                                                                                     \
     FMOD void PFX##_free(SNAME *_list_)                                             \

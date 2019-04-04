@@ -95,6 +95,7 @@ static const size_t cmc_hashtable_primes[] = {53, 97, 193, 389, 769, 1543, 3079,
     typedef struct SNAME##_iter_s SNAME##_iter;                                               \
                                                                                               \
     FMOD SNAME *PFX##_new(size_t size, double load, int (*compare)(V, V), size_t (*hash)(V)); \
+    FMOD void PFX##_clear(SNAME *_set_);                                                      \
     FMOD void PFX##_free(SNAME *_set_);                                                       \
     FMOD bool PFX##_insert(SNAME *_set_, V element);                                          \
     FMOD bool PFX##_remove(SNAME *_set_, V element);                                          \
@@ -154,6 +155,13 @@ static const size_t cmc_hashtable_primes[] = {53, 97, 193, 389, 769, 1543, 3079,
         _set_->hash = hash;                                                                    \
                                                                                                \
         return _set_;                                                                          \
+    }                                                                                          \
+                                                                                               \
+    FMOD void PFX##_clear(SNAME *_set_)                                                        \
+    {                                                                                          \
+        memset(_set_->buffer, 0, sizeof(SNAME##_entry) * _set_->capacity);                     \
+                                                                                               \
+        _set_->count = 0;                                                                      \
     }                                                                                          \
                                                                                                \
     FMOD void PFX##_free(SNAME *_set_)                                                         \

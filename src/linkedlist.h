@@ -70,6 +70,7 @@
     typedef struct SNAME##_iter_s SNAME##_iter;                                      \
                                                                                      \
     FMOD SNAME *PFX##_new(void);                                                     \
+    FMOD void PFX##_clear(SNAME *_list_);                                            \
     FMOD void PFX##_free(SNAME *_list_);                                             \
     FMOD bool PFX##_push_front(SNAME *_list_, V element);                            \
     FMOD bool PFX##_push(SNAME *_list_, V element, size_t index);                    \
@@ -122,15 +123,26 @@
         return _list_;                                                              \
     }                                                                               \
                                                                                     \
-    FMOD void PFX##_free(SNAME *_list_)                                             \
+    FMOD void PFX##_clear(SNAME *_list_)                                            \
     {                                                                               \
         SNAME##_node *scan = _list_->head;                                          \
+                                                                                    \
         while (_list_->head != NULL)                                                \
         {                                                                           \
             _list_->head = _list_->head->next;                                      \
             free(scan);                                                             \
             scan = _list_->head;                                                    \
         }                                                                           \
+                                                                                    \
+        _list_->count = 0;                                                          \
+        _list_->head = NULL;                                                        \
+        _list_->tail = NULL;                                                        \
+    }                                                                               \
+                                                                                    \
+    FMOD void PFX##_free(SNAME *_list_)                                             \
+    {                                                                               \
+        PFX##_clear(_list_);                                                        \
+                                                                                    \
         free(_list_);                                                               \
     }                                                                               \
                                                                                     \

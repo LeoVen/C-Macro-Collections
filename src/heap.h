@@ -69,6 +69,7 @@ typedef enum HeapOrder
     typedef struct SNAME##_iter_s SNAME##_iter;                              \
                                                                              \
     FMOD SNAME *PFX##_new(size_t size, HeapOrder HO, int (*compare)(V, V));  \
+    FMOD void PFX##_clear(SNAME *_heap_);                                    \
     FMOD void PFX##_free(SNAME *_heap_);                                     \
     FMOD bool PFX##_insert(SNAME *_heap_, V element);                        \
     FMOD bool PFX##_remove(SNAME *_heap_, V *result);                        \
@@ -127,6 +128,13 @@ typedef enum HeapOrder
         _heap_->cmp = compare;                                                                    \
                                                                                                   \
         return _heap_;                                                                            \
+    }                                                                                             \
+                                                                                                  \
+    FMOD void PFX##_clear(SNAME *_heap_)                                                          \
+    {                                                                                             \
+        memset(_heap_->buffer, 0, sizeof(V) * _heap_->capacity);                                  \
+                                                                                                  \
+        _heap_->count = 0;                                                                        \
     }                                                                                             \
                                                                                                   \
     FMOD void PFX##_free(SNAME *_heap_)                                                           \

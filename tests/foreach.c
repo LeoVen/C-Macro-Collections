@@ -210,7 +210,7 @@ int main(int argc, char const *argv[])
     ts_free(ts);
     tm_free(tm);
     hs_free(hs);
-    tm_free(hm);
+    hm_free(hm);
 
     return 0;
 }
