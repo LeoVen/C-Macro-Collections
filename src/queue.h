@@ -68,9 +68,9 @@
     FMOD void PFX##_free(SNAME *_queue_);                                    \
     FMOD bool PFX##_enqueue(SNAME *_queue_, V element);                      \
     FMOD bool PFX##_dequeue(SNAME *_queue_);                                 \
-    FMOD V PFX##_peek(SNAME *_queue_);                                       \
     FMOD bool PFX##_enqueue_if(SNAME *_queue_, V element, bool condition);   \
     FMOD bool PFX##_dequeue_if(SNAME *_queue_, bool condition);              \
+    FMOD V PFX##_peek(SNAME *_queue_);                                       \
     FMOD bool PFX##_empty(SNAME *_queue_);                                   \
     FMOD bool PFX##_full(SNAME *_queue_);                                    \
     FMOD size_t PFX##_count(SNAME *_queue_);                                 \
@@ -161,14 +161,6 @@
         return true;                                                                                      \
     }                                                                                                     \
                                                                                                           \
-    FMOD V PFX##_peek(SNAME *_queue_)                                                                     \
-    {                                                                                                     \
-        if (PFX##_empty(_queue_))                                                                         \
-            return 0;                                                                                     \
-                                                                                                          \
-        return _queue_->buffer[_queue_->front];                                                           \
-    }                                                                                                     \
-                                                                                                          \
     FMOD bool PFX##_enqueue_if(SNAME *_queue_, V element, bool condition)                                 \
     {                                                                                                     \
         if (condition)                                                                                    \
@@ -183,6 +175,14 @@
             return PFX##_dequeue(_queue_);                                                                \
                                                                                                           \
         return false;                                                                                     \
+    }                                                                                                     \
+                                                                                                          \
+    FMOD V PFX##_peek(SNAME *_queue_)                                                                     \
+    {                                                                                                     \
+        if (PFX##_empty(_queue_))                                                                         \
+            return 0;                                                                                     \
+                                                                                                          \
+        return _queue_->buffer[_queue_->front];                                                           \
     }                                                                                                     \
                                                                                                           \
     FMOD bool PFX##_empty(SNAME *_queue_)                                                                 \

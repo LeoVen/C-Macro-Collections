@@ -43,6 +43,7 @@ A contiguous growable array. Elements can be added and removed from both ends of
 ### <span id="list_function_index"> Defined Functions </span>
 
 * [\_new()](#list_new)
+* [\_clear()](#list_clear)
 * [\_free()](#list_free)
 * [\_push\_front()](#list_push_front)
 * [\_push()](#list_push)
@@ -83,6 +84,22 @@ Allocates and returns a new list with an internal capacity of `size`. If allocat
 
 1. `SNAME *` - A pointer to a heap allocated list.
 2. `NULL` - If allocation fails.
+
+#### Complexity
+
+* O(1)
+
+## [<span id="list_clear"> \_clear() </span>](#list_function_index)
+
+Removes all elements in the list but does not frees the list structure.
+
+#### Declaration
+
+> `FMOD void PFX##_clear(SNAME *_list_);`
+
+#### Parameters
+
+1. `SNAME *_list_` - Target list to be cleared.
 
 #### Complexity
 
@@ -606,6 +623,7 @@ A LIFO/FILO structure backed by a growable array. All elements are added and rem
 ### <span id="stack_function_index"> Defined Functions </span>
 
 * [\_new()](#stack_new)
+* [\_clear()](#stack_clear)
 * [\_free()](#stack_free)
 * [\_push()](#stack_push)
 * [\_pop()](#stack_pop)
@@ -640,6 +658,22 @@ Allocates and returns a new stack with an internal capacity of `size`. If alloca
 
 1. `SNAME *` - A pointer to a heap allocated stack.
 2. `NULL` - If allocation fails.
+
+#### Complexity
+
+* O(1)
+
+## [<span id="stack_clear"> \_clear() </span>](#stack_function_index)
+
+Removes all elements in the stack but does not frees the stack structure.
+
+#### Declaration
+
+> `FMOD void PFX##_clear(SNAME *_stack_);`
+
+#### Parameters
+
+1. `SNAME *_stack_` - Target stack to be cleared.
 
 #### Complexity
 
@@ -854,7 +888,7 @@ Returns the internal buffer's current capacity.
 
 ## [<span id="stack_iter_new"> \_iter\_new() </span>](#stack_function_index)
 
-Initializes an iterator with a given target stack. The iterator's cursor will be positioned at the top element of the stack.
+Initializes an iterator with a given target stack. The iterator's cursor will be positioned at the top of the stack.
 
 #### Declaration
 
@@ -992,6 +1026,435 @@ This function is used to iterate to the previous element, retrieving the current
 # [Queue](#collections_index)
 
 A FIFO/LILO structure backed by a circular buffer. Elements are added in one end and removed from the other.
+
+### Generation Macro
+
+* `QUEUE_GENERATE(PFX, SNAME, FMOD, V)`
+    * `PFX` - Functions namespace or prefix.
+    * `SNAME` - Structure name.
+    * `FMOD` - Function modifier (static or empty).
+    * `V` - Element type.
+
+### Defined Structures
+
+* `struct SNAME##_s` - Structure Name (represents a queue structure)
+    * `V *buffer` - Internal storage.
+    * `size_t capacity` - Storage capacity.
+    * `size_t count` - Total elements in the queue.
+    * `size_t front` - Front element index.
+    * `size_t rear` - Rear element index.
+* `struct SNAME##_iter_s` - Structure Iterator (represents a queue iterator)
+    * `struct SNAME##_s *target` - Queue being iterated over.
+    * `size_t cursor` - Index pointing to the next or previous element in the iteration.
+    * `size_t index` - How many iterations have passed.
+    * `bool start` - If the iterator reached the start of the queue.
+    * `bool end` - If the iterator reached the end of the queue.
+
+### Typedefs
+
+* `typedef struct SNAME##_s SNAME`
+* `typedef struct SNAME##_iter_s SNAME##_iter`
+
+### <span id="queue_function_index"> Defined Functions </span>
+
+* [\_new()](#queue_new)
+* [\_clear()](#queue_clear)
+* [\_free()](#queue_free)
+* [\_enqueue()](#queue_enqueue)
+* [\_dequeue()](#queue_dequeue)
+* [\_enqueue\_if()](#queue_enqueue_if)
+* [\_dequeue\_if()](#queue_dequeue_if)
+* [\_peek()](#queue_peek)
+* [\_empty()](#queue_empty)
+* [\_full()](#queue_full)
+* [\_count()](#queue_count)
+* [\_capacity()](#queue_capacity)
+* [\_iter\_new()](#queue_iter_new)
+* [\_iter\_start()](#queue_iter_start)
+* [\_iter\_end()](#queue_iter_end)
+* [\_iter\_tostart()](#queue_iter_tostart)
+* [\_iter\_toend()](#queue_iter_toend)
+* [\_iter\_next()](#queue_iter_next)
+* [\_iter\_prev()](#queue_iter_prev)
+
+## [<span id="queue_new"> \_new() </span>](#queue_function_index)
+
+Allocates and returns a new queue with an internal capacity of `size`. If allocation fails, `NULL` is returned.
+
+#### Declaration
+
+> `FMOD SNAME *PFX##_new(size_t size);`
+
+#### Parameters
+
+1. `size_t size` - The initial capacity for the queue.
+
+#### Returns
+
+1. `SNAME *` - A pointer to a heap allocated queue.
+2. `NULL` - If allocation fails.
+
+#### Complexity
+
+* O(1)
+
+## [<span id="queue_clear"> \_clear() </span>](#queue_function_index)
+
+Removes all elements in the queue but does not frees the queue structure.
+
+#### Declaration
+
+> `FMOD void PFX##_clear(SNAME *_queue_);`
+
+#### Parameters
+
+1. `SNAME *_queue_` - Target queue to be cleared.
+
+#### Complexity
+
+* O(1)
+
+## [<span id="queue_free"> \_free() </span>](#queue_function_index)
+
+Frees from memory the queue internal buffer and the structure itself. Note that if the elements inside the queue are pointers to allocated memory, this function might cause memory leaks as it does not deals with its elements.
+
+#### Declaration
+
+> `FMOD void PFX##_free(SNAME *_queue_);`
+
+#### Parameters
+
+1. `SNAME *_queue_` - Target queue to be freed from memory.
+
+#### Complexity
+
+* O(1)
+
+## [<span id="queue_enqueue"> \_enqueue() </span>](#queue_function_index)
+
+Adds an element to the rear of the queue.
+
+#### Declaration
+
+> `FMOD bool PFX##_enqueue(SNAME *_queue_, V element);`
+
+#### Parameters
+
+1. `SNAME *_queue_` - Target queue.
+2. `V element` - Element to be added.
+
+#### Returns
+
+1. `true` - If the element was successfully added to the rear of the queue.
+2. `false` - If buffer reallocation failed.
+
+#### Complexity
+
+* O(1)
+
+## [<span id="queue_dequeue"> \_dequeue() </span>](#queue_function_index)
+
+Removes an element at the front of the queue.
+
+#### Declaration
+
+> `FMOD bool PFX##_dequeue(SNAME *_queue_);`
+
+#### Parameters
+
+1. `SNAME *_queue_` - Target queue.
+
+#### Returns
+
+1. `true` - If the front element was successfully removed from the queue.
+2. `false` - If the queue is empty.
+
+#### Complexity
+
+* O(1)
+
+## [<span id="queue_enqueue_if"> \_enqueue\_if() </span>](#queue_function_index)
+
+Adds an element to the rear of the queue if the condition evaluates to true.
+
+#### Declaration
+
+> `FMOD bool PFX##_enqueue_if(SNAME *_queue_, V element, bool condition);`
+
+#### Parameters
+
+1. `SNAME *_queue_` - Target queue.
+2. `V element` - Element to be added.
+
+#### Returns
+
+1. `true` - If the element was successfully added to the rear of the queue.
+2. `false` - If the condition evaluated to false, or if buffer reallocation failed.
+
+#### Complexity
+
+* O(1)
+
+## [<span id="queue_dequeue_if"> \_dequeue\_if() </span>](#queue_function_index)
+
+Removes an element at the front of the queue if the condition evaluates to true.
+
+#### Declaration
+
+> `FMOD bool PFX##_dequeue_if(SNAME *_queue_, bool condition);`
+
+#### Parameters
+
+1. `SNAME *_queue_` - Target queue.
+
+#### Returns
+
+1. `true` - If the front element was successfully removed from the queue.
+2. `false` - If the condition evaluated to false, or if the queue is empty.
+
+#### Complexity
+
+* O(1)
+
+## [<span id="queue_peek"> \_peek() </span>](#queue_function_index)
+
+Returns the element at the front of the queue if available. This represents the next element to be removed from the queue.
+
+#### Declaration
+
+> `FMOD V PFX##_peek(SNAME *_queue_);`
+
+#### Parameters
+
+1. `SNAME *_queue_` - Target queue.
+
+#### Returns
+
+1. `V` - The element at the front of the queue.
+2. `0` or `NULL` - If the queue is empty.
+
+#### Complexity
+
+* O(1)
+
+## [<span id="queue_empty"> \_empty() </span>](#queue_function_index)
+
+Returns true if the queue is empty, otherwise false.
+
+#### Declaration
+
+> `FMOD bool PFX##_empty(SNAME *_queue_);`
+
+#### Parameters
+
+1. `SNAME *_queue_` - Target queue.
+
+#### Returns
+
+1. `true` - If the queue is empty.
+2. `false` - If there is at least one element in the queue.
+
+#### Complexity
+
+* O(1)
+
+## [<span id="queue_full"> \_full() </span>](#queue_function_index)
+
+Returns true if the queue is full, otherwise false. The queue is considered full when its internal buffer is filled up, so the next element added to the queue will required a resizing of the buffer, but note that the queue can grow indefinitely.
+
+#### Declaration
+
+> `FMOD bool PFX##_full(SNAME *_queue_);`
+
+#### Parameters
+
+1. `SNAME *_queue_` - Target queue.
+
+#### Returns
+
+1. `true` - If the queue internal buffer is full.
+2. `false` - If the queue internal buffer is not full.
+
+#### Complexity
+
+* O(1)
+
+## [<span id="queue_count"> \_count() </span>](#queue_function_index)
+
+Returns the amount of elements in the queue.
+
+#### Declaration
+
+> `FMOD size_t PFX##_count(SNAME *_queue_);`
+
+#### Parameters
+
+1. `SNAME *_queue_` - Target queue.
+
+#### Returns
+
+1. `size_t` - The amount of elements in the queue.
+
+#### Complexity
+
+* O(1)
+
+## [<span id="queue_capacity"> \_capacity() </span>](#queue_function_index)
+
+Returns the internal buffer's current capacity.
+
+#### Declaration
+
+> `FMOD size_t PFX##_capacity(SNAME *_queue_);`
+
+#### Parameters
+
+1. `SNAME *_queue_` - Target queue.
+
+#### Returns
+
+1. `size_t` - The internal buffer's current capacity.
+
+#### Complexity
+
+* O(1)
+
+## [<span id="queue_iter_new"> \_iter\_new() </span>](#queue_function_index)
+
+Initializes an iterator with a given target queue. The iterator's cursor will be positioned at the front of the queue.
+
+#### Declaration
+
+> `FMOD void PFX##_iter_new(SNAME##_iter *iter, SNAME *target);`
+
+#### Parameters
+
+1. `SNAME##_iter *iter` - Iterator to be initialized.
+2. `SNAME *target` - Target queue.
+
+#### Complexity
+
+* O(1)
+
+## [<span id="queue_iter_start"> \_iter\_start() </span>](#queue_function_index)
+
+Returns true if the iterator has reached the start of the queue (front element). If false, the iterator is still possible to iterate to a previous element.
+
+#### Declaration
+
+> `FMOD bool PFX##_iter_start(SNAME##_iter *iter);`
+
+#### Parameters
+
+1. `SNAME##_iter *iter` - Target iterator.
+
+#### Returns 
+
+1. `true` - If the iterator has reached the start of the queue.
+2. `false` - If the iterator has not reached the start of the queue.
+
+#### Complexity
+
+* O(1)
+
+## [<span id="queue_iter_end"> \_iter\_end() </span>](#queue_function_index)
+
+Returns true if the iterator has reached the end of the queue (rear element). If false, the iterator is still possible to iterate to a next element.
+
+#### Declaration
+
+> `FMOD bool PFX##_iter_end(SNAME##_iter *iter);`
+
+#### Parameters
+
+1. `SNAME##_iter *iter` - Target iterator.
+
+#### Returns 
+
+1. `true` - If the iterator has reached the end of the queue.
+2. `false` - If the iterator has not reached the end of the queue.
+
+#### Complexity
+
+* O(1)
+
+## [<span id="queue_iter_tostart"> \_iter\_tostart() </span>](#queue_function_index)
+
+Moves the cursor of the target iterator to the start (front element) of the queue.
+
+#### Declaration
+
+> `FMOD void PFX##_iter_tostart(SNAME##_iter *iter);`
+
+#### Parameters
+
+1. `SNAME##_iter *iter` - Target iterator.
+
+#### Complexity
+
+* O(1)
+
+## [<span id="queue_iter_toend"> \_iter\_toend() </span>](#queue_function_index)
+
+Moves the cursor of the target iterator to the end of the queue (rear element).
+
+#### Declaration
+
+> `FMOD void PFX##_iter_toend(SNAME##_iter *iter);`
+
+#### Parameters
+
+1. `SNAME##_iter *iter` - Target iterator.
+
+#### Complexity
+
+* O(1)
+
+## [<span id="queue_iter_next"> \_iter\_next() </span>](#queue_function_index)
+
+This function is used to iterate to the next element, retrieving the current one, along with an index that represents how many iterations have passed. When the index is `0` it means that the current result is the front element of the queue; if it equals `count - 1` then it is the rear element of the queue.
+
+#### Declaration
+
+> `FMOD bool PFX##_iter_next(SNAME##_iter *iter, V *result, size_t *index);`
+
+#### Parameters
+
+1. `SNAME##_iter *iter` - Target iterator.
+2. `V *result` - Resulting value from the queue.
+3. `size_t *index` - Resulting index.
+
+#### Returns 
+
+1. `true` - If the iterator has retrieved a valid `result` and `index`.
+2. `false` - If the iterator has not retrieved a valid `result` and `index`. Here, iteration to the next element has ended.
+
+#### Complexity
+
+* O(1)
+
+## [<span id="queue_iter_prev"> \_iter\_prev() </span>](#queue_function_index)
+
+This function is used to iterate to the previous element, retrieving the current one, along with an index that represents how many iterations have passed. When the index is `0` it means that the current result is the front element of the queue; if it equals `count - 1` then it is the rear element of the queue.
+
+#### Declaration
+
+> `FMOD bool PFX##_iter_prev(SNAME##_iter *iter, V *result, size_t *index);`
+
+#### Parameters
+
+1. `SNAME##_iter *iter` - Target iterator.
+2. `V *result` - Resulting value from the queue.
+3. `size_t *index` - Resulting index.
+
+#### Returns 
+
+1. `true` - If the iterator has retrieved a valid `result` and `index`.
+2. `false` - If the iterator has not retrieved a valid `result` and `index`. Here, iteration to the previous element has ended.
+
+#### Complexity
+
+* O(1)
 
 # [Deque](#collections_index)
 
