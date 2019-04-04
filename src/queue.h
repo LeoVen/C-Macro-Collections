@@ -52,7 +52,7 @@
     {                                              \
         struct SNAME##_s *target;                  \
         size_t cursor;                             \
-        size_t count;                              \
+        size_t index;                              \
         bool start;                                \
         bool end;                                  \
     };                                             \
@@ -234,7 +234,7 @@
     {                                                                                                     \
         iter->target = target;                                                                            \
         iter->cursor = target->front;                                                                     \
-        iter->count = 0;                                                                                  \
+        iter->index = 0;                                                                                  \
         iter->start = true;                                                                               \
         iter->end = PFX##_empty(target);                                                                  \
     }                                                                                                     \
@@ -253,7 +253,7 @@
     FMOD void PFX##_iter_tostart(SNAME##_iter *iter)                                                      \
     {                                                                                                     \
         iter->cursor = iter->target->front;                                                               \
-        iter->count = 0;                                                                                  \
+        iter->index = 0;                                                                                  \
         iter->start = true;                                                                               \
         iter->end = PFX##_empty(iter->target);                                                            \
     }                                                                                                     \
@@ -265,7 +265,7 @@
         else                                                                                              \
             iter->cursor = (iter->target->rear == 0) ? iter->target->count - 1 : iter->target->rear - 1;  \
                                                                                                           \
-        iter->count = iter->target->count - 1;                                                            \
+        iter->index = iter->target->count - 1;                                                            \
         iter->start = PFX##_empty(iter->target);                                                          \
         iter->end = true;                                                                                 \
     }                                                                                                     \
@@ -275,16 +275,16 @@
         if (iter->end)                                                                                    \
             return false;                                                                                 \
                                                                                                           \
-        *index = iter->count;                                                                             \
+        *index = iter->index;                                                                             \
         *result = iter->target->buffer[iter->cursor];                                                     \
         iter->start = false;                                                                              \
                                                                                                           \
-        if (iter->count == iter->target->count - 1)                                                       \
+        if (iter->index == iter->target->count - 1)                                                       \
             iter->end = true;                                                                             \
         else                                                                                              \
         {                                                                                                 \
             iter->cursor = (iter->cursor + 1) % (iter->target->capacity);                                 \
-            iter->count++;                                                                                \
+            iter->index++;                                                                                \
         }                                                                                                 \
                                                                                                           \
         return true;                                                                                      \
@@ -295,16 +295,16 @@
         if (iter->start)                                                                                  \
             return false;                                                                                 \
                                                                                                           \
-        *index = iter->count;                                                                             \
+        *index = iter->index;                                                                             \
         *result = iter->target->buffer[iter->cursor];                                                     \
         iter->end = false;                                                                                \
                                                                                                           \
-        if (iter->count == 0)                                                                             \
+        if (iter->index == 0)                                                                             \
             iter->start = true;                                                                           \
         else                                                                                              \
         {                                                                                                 \
             iter->cursor = (iter->cursor == 0) ? iter->target->capacity - 1 : iter->cursor - 1;           \
-            iter->count--;                                                                                \
+            iter->index--;                                                                                \
         }                                                                                                 \
                                                                                                           \
         return true;                                                                                      \
