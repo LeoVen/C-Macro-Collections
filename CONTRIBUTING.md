@@ -2,10 +2,14 @@
 
 Two simple steps:
 
-* Fork this repository
+* Fork this repository to your github account
 * Clone it to your machine
 
 Now you can start working on the project.
+
+## Open Issues
+
+Check out `bug_report.md` and `feature_request.md` templates in the `.github` folder to know how to make a bug report or feature request.
 
 ## Here are things you could work on:
 
@@ -34,7 +38,7 @@ Now you can start working on the project.
 4. All source files (`.c`, `.h`, etc) must contain a header with the following template:
     * Complete file name.
     * First commit date in `dd/mm/yyyy`.
-    * Authors name with (optional) github link to his page.
+    * Authors name with (optional) link to github page.
 
 ```
 /**

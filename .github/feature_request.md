@@ -1,5 +1,11 @@
 # Feature Request Template
 
+### What is the nature of this request?
+
+* New functionalities
+* Change in standards
+* Change in source code details (names of variables, functions, parameters, etc)
+
 ### Is your feature request related to a problem? Please describe.
 
 A clear and concise description of what the problem is. Ex. I'm always frustrated when [...]

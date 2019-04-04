@@ -4,7 +4,7 @@
 
 A clear and concise description of what the bug is.
 
-### To Reproduce
+### How to Reproduce
 
 Steps to reproduce the behavior:
 
