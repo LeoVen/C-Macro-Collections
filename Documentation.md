@@ -330,7 +330,7 @@ Returns the element located at the given index if the list is not empty.
 
 #### Declaration
 
-> `FMOD V PFX##_get(SNAME *_list_, size_t index)`
+> `FMOD V PFX##_get(SNAME *_list_, size_t index);`
 
 #### Parameters
 
@@ -353,7 +353,7 @@ Returns the last element (located at index `count - 1`) if the list is not empty
 
 #### Declaration
 
-> `FMOD V PFX##_back(SNAME *_list_)`
+> `FMOD V PFX##_back(SNAME *_list_);`
 
 #### Parameters
 
@@ -772,7 +772,7 @@ Removes the top element from the stack if the condition evaluates to true.
 #### Parameters
 
 1. `SNAME *_stack_` - Target stack.
-3. `bool condition` - Condition for the element to be removed.
+2. `bool condition` - Condition for the element to be removed.
 
 #### Returns
 
@@ -1185,6 +1185,7 @@ Adds an element to the rear of the queue if the condition evaluates to true.
 
 1. `SNAME *_queue_` - Target queue.
 2. `V element` - Element to be added.
+3. `bool condition` - Condition for the element to be added.
 
 #### Returns
 
@@ -1206,6 +1207,7 @@ Removes an element at the front of the queue if the condition evaluates to true.
 #### Parameters
 
 1. `SNAME *_queue_` - Target queue.
+2. `bool condition` - Condition for the element to be removed.
 
 #### Returns
 
@@ -1459,6 +1461,551 @@ This function is used to iterate to the previous element, retrieving the current
 # [Deque](#collections_index)
 
 A double-ended queue backed by a circular buffer. Elements can be added and removed from both ends but not in the middle. Can also be used as a queue.
+
+### Generation Macro
+
+* `DEQUE_GENERATE(PFX, SNAME, FMOD, V)`
+    * `PFX` - Functions namespace or prefix.
+    * `SNAME` - Structure name.
+    * `FMOD` - Function modifier (static or empty).
+    * `V` - Element type.
+
+### Defined Structures
+
+* `struct SNAME##_s` - Structure Name (represents a deque structure)
+    * `V *buffer` - Internal storage.
+    * `size_t capacity` - Storage capacity.
+    * `size_t count` - Total elements in the deque.
+    * `size_t front` - Front element index.
+    * `size_t rear` - Rear element index.
+* `struct SNAME##_iter_s` - Structure Iterator (represents a deque iterator)
+    * `struct SNAME##_s *target` - Deque being iterated over.
+    * `size_t cursor` - Index pointing to the next or previous element in the iteration.
+    * `size_t index` - How many iterations have passed.
+    * `bool start` - If the iterator reached the start of the deque.
+    * `bool end` - If the iterator reached the end of the deque.
+
+### Typedefs
+
+* `typedef struct SNAME##_s SNAME`
+* `typedef struct SNAME##_iter_s SNAME##_iter`
+
+### <span id="deque_function_index"> Defined Functions </span>
+
+* [\_new()](#deque_new)
+* [\_clear()](#deque_clear)
+* [\_free()](#deque_free)
+* [\_push\_front()](#deque_push_front)
+* [\_push\_back()](#deque_push_back)
+* [\_pop\_front()](#deque_pop_front)
+* [\_pop\_back()](#deque_pop_back)
+* [\_push\_front\_if()](#deque_push_front_if)
+* [\_push\_back\_if()](#deque_push_back_if)
+* [\_pop\_front\_if()](#deque_pop_front_if)
+* [\_pop\_back\_if()](#deque_pop_back_if)
+* [\_front()](#deque_front)
+* [\_back()](#deque_back)
+* [\_empty()](#deque_empty)
+* [\_full()](#deque_full)
+* [\_count()](#deque_count)
+* [\_capacity()](#deque_capacity)
+* [\_iter\_new()](#deque_iter_new)
+* [\_iter\_start()](#deque_iter_start)
+* [\_iter\_end()](#deque_iter_end)
+* [\_iter\_tostart()](#deque_iter_tostart)
+* [\_iter\_toend()](#deque_iter_toend)
+* [\_iter\_next()](#deque_iter_next)
+* [\_iter\_prev()](#deque_iter_prev)
+
+## [<span id="deque_new"> \_new() </span>](#deque_function_index)
+
+Allocates and returns a new deque with an internal capacity of `size`. If allocation fails, `NULL` is returned.
+
+#### Declaration
+
+> `FMOD SNAME *PFX##_new(size_t size);`
+
+#### Parameters
+
+1. `size_t size` - The initial capacity for the deque.
+
+#### Returns
+
+1. `SNAME *` - A pointer to a heap allocated deque.
+2. `NULL` - If allocation fails.
+
+#### Complexity
+
+* O(1)
+
+## [<span id="deque_clear"> \_clear() </span>](#deque_function_index)
+
+Removes all elements in the deque but does not frees the deque structure.
+
+#### Declaration
+
+> `FMOD void PFX##_clear(SNAME *_deque_);`
+
+#### Parameters
+
+1. `SNAME *_deque_` - Target deque to be cleared.
+
+#### Complexity
+
+* O(1)
+
+## [<span id="deque_free"> \_free() </span>](#deque_function_index)
+
+Frees from memory the deque internal buffer and the structure itself. Note that if the elements inside the deque are pointers to allocated memory, this function might cause memory leaks as it does not deals with its elements.
+
+#### Declaration
+
+> `FMOD void PFX##_free(SNAME *_deque_);`
+
+#### Parameters
+
+1. `SNAME *_deque_` - Target deque to be freed from memory.
+
+#### Complexity
+
+* O(1)
+
+## [<span id="deque_push_front"> \_push\_front() </span>](#deque_function_index)
+
+Adds an element to the front of the deque.
+
+#### Declaration
+
+> `FMOD bool PFX##_push_front(SNAME *_deque_, V element);`
+
+#### Parameters
+
+1. `SNAME *_deque_` - Target deque.
+2. `V element` - Element to be added.
+
+#### Returns
+
+1. `true` - If the element was successfully added to the front of the deque.
+2. `false` - If buffer reallocation failed.
+
+#### Complexity
+
+* O(1)
+
+## [<span id="deque_push_back"> \_push\_back() </span>](#deque_function_index)
+
+Adds an element to the back of the deque.
+
+#### Declaration
+
+> `FMOD bool PFX##_push_back(SNAME *_deque_, V element);`
+
+#### Parameters
+
+1. `SNAME *_deque_` - Target deque.
+2. `V element` - Element to be added.
+
+#### Returns
+
+1. `true` - If the element was successfully added to the back of the deque.
+2. `false` - If buffer reallocation failed.
+
+#### Complexity
+
+* O(1)
+
+## [<span id="deque_pop_front"> \_pop\_front() </span>](#deque_function_index)
+
+Removes an element from the front of the deque.
+
+#### Declaration
+
+> `FMOD bool PFX##_pop_front(SNAME *_deque_);`
+
+#### Parameters
+
+1. `SNAME *_deque_` - Target deque.
+
+#### Returns
+
+1. `true` - If the element was successfully removed from the front of the deque.
+2. `false` - If the deque is empty.
+
+#### Complexity
+
+* O(1)
+
+## [<span id="deque_pop_back"> \_pop\_back() </span>](#deque_function_index)
+
+Removes an element from the back of the deque.
+
+#### Declaration
+
+> `FMOD bool PFX##_pop_back(SNAME *_deque_);`
+
+#### Parameters
+
+1. `SNAME *_deque_` - Target deque.
+
+#### Returns
+
+1. `true` - If the element was successfully removed from the back of the deque.
+2. `false` - If the deque is empty.
+
+#### Complexity
+
+* O(1)
+
+## [<span id="deque_push_front_if"> \_push\_front\_if() </span>](#deque_function_index)
+
+Adds an element to the front of the deque if the condition evaluates to true.
+
+#### Declaration
+
+> `FMOD bool PFX##_push_front_if(SNAME *_deque_, V element, bool condition);`
+
+#### Parameters
+
+1. `SNAME *_deque_` - Target deque.
+2. `V element` - Element to be added.
+3. `bool condition` - Condition for the element to be added.
+
+#### Returns
+
+1. `true` - If the element was successfully added to the front of the deque.
+2. `false` - If the condition evaluated to false, or if buffer reallocation failed.
+
+#### Complexity
+
+* O(1)
+
+## [<span id="deque_push_back_if"> \_push\_back\_if() </span>](#deque_function_index)
+
+Adds an element to the back of the deque if the condition evaluates to true.
+
+#### Declaration
+
+> `FMOD bool PFX##_push_back_if(SNAME *_deque_, V element, bool condition);`
+
+#### Parameters
+
+1. `SNAME *_deque_` - Target deque.
+2. `V element` - Element to be added.
+3. `bool condition` - Condition for the element to be added.
+
+#### Returns
+
+1. `true` - If the element was successfully added to the back of the deque.
+2. `false` - If the condition evaluated to false, or if buffer reallocation failed.
+
+#### Complexity
+
+* O(1)
+
+## [<span id="deque_pop_front_if"> \_pop\_front\_if() </span>](#deque_function_index)
+
+Removes an element from the front of the deque if the condition evaluates to true.
+
+#### Declaration
+
+> `FMOD bool PFX##_pop_front_if(SNAME *_deque_, bool condition);`
+
+#### Parameters
+
+1. `SNAME *_deque_` - Target deque.
+2. `bool condition` - Condition for the element to be removed.
+
+#### Returns
+
+1. `true` - If the element was successfully removed from the front of the deque.
+2. `false` - If the condition evaluated to false, or if the deque is empty.
+
+#### Complexity
+
+* O(1)
+
+## [<span id="deque_pop_back_if"> \_pop\_back\_if() </span>](#deque_function_index)
+
+Removes an element from the back of the deque if the condition evaluates to true.
+
+#### Declaration
+
+> `FMOD bool PFX##_pop_back_if(SNAME *_deque_, bool condition);`
+
+#### Parameters
+
+1. `SNAME *_deque_` - Target deque.
+2. `bool condition` - Condition for the element to be removed.
+
+#### Returns
+
+1. `true` - If the element was successfully removed from the back of the deque.
+2. `false` - If the condition evaluated to false, or if the deque is empty.
+
+#### Complexity
+
+* O(1)
+
+## [<span id="deque_front"> \_front() </span>](#deque_function_index)
+
+Returns the front element if the specified deque is not empty.
+
+#### Declaration
+
+> `FMOD V PFX##_front(SNAME *_deque_);`
+
+#### Parameters
+
+1. `SNAME *_deque_` - Target deque.
+
+#### Returns
+
+1. `V` - The front element of the deque.
+2. `0` or `NULL` - If the deque is empty.
+
+#### Complexity
+
+* O(1)
+
+## [<span id="deque_back"> \_back() </span>](#deque_function_index)
+
+Returns the rear element if the specified deque is not empty.
+
+#### Declaration
+
+> `FMOD V PFX##_back(SNAME *_deque_);`
+
+#### Parameters
+
+1. `SNAME *_deque_` - Target deque.
+
+#### Returns
+
+1. `V` - The rear element of the deque.
+2. `0` or `NULL` - If the deque is empty.
+
+#### Complexity
+
+* O(1)
+
+## [<span id="deque_empty"> \_empty() </span>](#deque_function_index)
+
+Returns true if the deque is empty, otherwise false.
+
+#### Declaration
+
+> `FMOD bool PFX##_empty(SNAME *_deque_);`
+
+#### Parameters
+
+1. `SNAME *_deque_` - Target deque.
+
+#### Returns
+
+1. `true` - If the deque is empty.
+2. `false` - If there is at least one element in the deque.
+
+#### Complexity
+
+* O(1)
+
+## [<span id="deque_full"> \_full() </span>](#deque_function_index)
+
+Returns true if the deque is full, otherwise false. The deque is considered full when its internal buffer is filled up, so the next element added to the deque will required a resizing of the buffer, but note that the deque can grow indefinitely.
+
+#### Declaration
+
+> `FMOD bool PFX##_full(SNAME *_deque_);`
+
+#### Parameters
+
+1. `SNAME *_deque_` - Target deque.
+
+#### Returns
+
+1. `true` - If the deque internal buffer is full.
+2. `false` - If the deque internal buffer is not full.
+
+#### Complexity
+
+* O(1)
+
+## [<span id="deque_count"> \_count() </span>](#deque_function_index)
+
+Returns the amount of elements in the deque.
+
+#### Declaration
+
+> `FMOD size_t PFX##_count(SNAME *_deque_);`
+
+#### Parameters
+
+1. `SNAME *_deque_` - Target deque.
+
+#### Returns
+
+1. `size_t` - The amount of elements in the deque.
+
+#### Complexity
+
+* O(1)
+
+## [<span id="deque_capacity"> \_capacity() </span>](#deque_function_index)
+
+Returns the internal buffer's current capacity.
+
+#### Declaration
+
+> `FMOD size_t PFX##_capacity(SNAME *_deque_);`
+
+#### Parameters
+
+1. `SNAME *_deque_` - Target deque.
+
+#### Returns
+
+1. `size_t` - The internal buffer's current capacity.
+
+#### Complexity
+
+* O(1)
+
+## [<span id="deque_iter_new"> \_iter\_new() </span>](#deque_function_index)
+
+Initializes an iterator with a given target deque. The iterator's cursor will be positioned at the front of the deque.
+
+#### Declaration
+
+> `FMOD void PFX##_iter_new(SNAME##_iter *iter, SNAME *target);`
+
+#### Parameters
+
+1. `SNAME##_iter *iter` - Iterator to be initialized.
+2. `SNAME *target` - Target deque.
+
+#### Complexity
+
+* O(1)
+
+## [<span id="deque_iter_start"> \_iter\_start() </span>](#deque_function_index)
+
+Returns true if the iterator has reached the start of the deque (front element). If false, the iterator is still possible to iterate to a previous element.
+
+#### Declaration
+
+> `FMOD bool PFX##_iter_start(SNAME##_iter *iter);`
+
+#### Parameters
+
+1. `SNAME##_iter *iter` - Target iterator.
+
+#### Returns 
+
+1. `true` - If the iterator has reached the start of the deque.
+2. `false` - If the iterator has not reached the start of the deque.
+
+#### Complexity
+
+* O(1)
+
+## [<span id="deque_iter_end"> \_iter\_end() </span>](#deque_function_index)
+
+Returns true if the iterator has reached the end of the deque (rear element). If false, the iterator is still possible to iterate to a next element.
+
+#### Declaration
+
+> `FMOD bool PFX##_iter_end(SNAME##_iter *iter);`
+
+#### Parameters
+
+1. `SNAME##_iter *iter` - Target iterator.
+
+#### Returns 
+
+1. `true` - If the iterator has reached the end of the deque.
+2. `false` - If the iterator has not reached the end of the deque.
+
+#### Complexity
+
+* O(1)
+
+## [<span id="deque_iter_tostart"> \_iter\_tostart() </span>](#deque_function_index)
+
+Moves the cursor of the target iterator to the start (front element) of the deque.
+
+#### Declaration
+
+> `FMOD void PFX##_iter_tostart(SNAME##_iter *iter);`
+
+#### Parameters
+
+1. `SNAME##_iter *iter` - Target iterator.
+
+#### Complexity
+
+* O(1)
+
+## [<span id="deque_iter_toend"> \_iter\_toend() </span>](#deque_function_index)
+
+Moves the cursor of the target iterator to the end (rear element) of the deque.
+
+#### Declaration
+
+> `FMOD void PFX##_iter_toend(SNAME##_iter *iter);`
+
+#### Parameters
+
+1. `SNAME##_iter *iter` - Target iterator.
+
+#### Complexity
+
+* O(1)
+
+## [<span id="deque_iter_next"> \_iter\_next() </span>](#deque_function_index)
+
+This function is used to iterate to the next element, retrieving the current one, along with an index that represents how many iterations have passed. When the index is `0` it means that the current result is the front element of the deque; if it equals `count - 1` then it is the rear element of the deque.
+
+#### Declaration
+
+> `FMOD bool PFX##_iter_next(SNAME##_iter *iter, V *result, size_t *index);`
+
+#### Parameters
+
+1. `SNAME##_iter *iter` - Target iterator.
+2. `V *result` - Resulting value from the deque.
+3. `size_t *index` - Resulting index.
+
+#### Returns 
+
+1. `true` - If the iterator has retrieved a valid `result` and `index`.
+2. `false` - If the iterator has not retrieved a valid `result` and `index`. Here, iteration to the next element has ended.
+
+#### Complexity
+
+* O(1)
+
+## [<span id="deque_iter_prev"> \_iter\_prev() </span>](#deque_function_index)
+
+This function is used to iterate to the previous element, retrieving the current one, along with an index that represents how many iterations have passed. When the index is `0` it means that the current result is the front element of the deque; if it equals `count - 1` then it is the rear element of the deque.
+
+#### Declaration
+
+> `FMOD bool PFX##_iter_prev(SNAME##_iter *iter, V *result, size_t *index);`
+
+#### Parameters
+
+1. `SNAME##_iter *iter` - Target iterator.
+2. `V *result` - Resulting value from the deque.
+3. `size_t *index` - Resulting index.
+
+#### Returns 
+
+1. `true` - If the iterator has retrieved a valid `result` and `index`.
+2. `false` - If the iterator has not retrieved a valid `result` and `index`. Here, iteration to the previous element has ended.
+
+#### Complexity
+
+* O(1)
 
 # [Heap](#collections_index)
 
