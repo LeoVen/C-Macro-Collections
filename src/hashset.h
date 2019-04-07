@@ -190,7 +190,7 @@ static const size_t cmc_hashtable_primes[] = {53, 97, 193, 389, 769, 1543, 3079,
         if (target->state == ES_EMPTY || target->state == ES_DELETED)                          \
         {                                                                                      \
             target->value = element;                                                           \
-            target->dist = original_pos - pos;                                                 \
+            target->dist = pos - original_pos;                                                 \
             target->state = ES_FILLED;                                                         \
         }                                                                                      \
         else                                                                                   \
@@ -207,7 +207,7 @@ static const size_t cmc_hashtable_primes[] = {53, 97, 193, 389, 769, 1543, 3079,
                     target->state = ES_FILLED;                                                 \
                     break;                                                                     \
                 }                                                                              \
-                else if (target->dist < original_pos - pos)                                    \
+                else if (target->dist < pos - original_pos)                                    \
                 {                                                                              \
                     V tmp = target->value;                                                     \
                     size_t tmp_dist = target->dist;                                            \
