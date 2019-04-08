@@ -43,6 +43,7 @@ A contiguous growable array. Elements can be added and removed from both ends of
 ### <span id="list_function_index"> Defined Functions </span>
 
 * [\_new()](#list_new)
+* [\_new\_from()](#list_new_from)
 * [\_clear()](#list_clear)
 * [\_free()](#list_free)
 * [\_push\_front()](#list_push_front)
@@ -53,12 +54,17 @@ A contiguous growable array. Elements can be added and removed from both ends of
 * [\_pop\_back()](#list_pop_back)
 * [\_push\_if()](#list_push_if)
 * [\_pop\_if()](#list_pop_if)
+* [\_prepend()](#list_prepend)
+* [\_insert()](#list_insert)
+* [\_append()](#list_append)
+* [\_remove()](#list_remove)
 * [\_front()](#list_front)
 * [\_get()](#list_get)
 * [\_back()](#list_back)
 * [\_empty()](#list_empty)
 * [\_full()](#list_full)
 * [\_count()](#list_count)
+* [\_fits()](#list_fits)
 * [\_capacity()](#list_capacity)
 * [\_iter\_new()](#list_iter_new)
 * [\_iter\_start()](#list_iter_start)
@@ -84,6 +90,28 @@ Allocates and returns a new list with an internal capacity of `size`. If allocat
 
 1. `SNAME *` - A pointer to a heap allocated list.
 2. `NULL` - If allocation fails.
+
+#### Complexity
+
+* O(1)
+
+## [<span id="list_new_from"> \_new\_from() </span>](#list_function_index)
+
+Allocates and returns a new list from an already existing array. The list internal buffer's size will match the size of the given array.
+
+#### Declaration
+
+> `FMOD SNAME *PFX##_new_from(V *elements, size_t size);`
+
+#### Parameters
+
+1. `V *elements` - Array of elements to be added to the list.
+2. `size_t size` - Size of the array of elements.
+
+#### Returns
+
+1. `SNAME *` - A pointer to a heap allocated list with the given elements.
+2. `NULL` - If allocation fails, or if size equals `0`.
 
 #### Complexity
 
@@ -303,6 +331,99 @@ Removes an element from a given index if the condition evaluates to true.
 
 * O(n)
 
+## [<span id="list_prepend"> \_prepend() </span>](#list_function_index)
+
+Adds to the front of the list an array of elements with a given size.
+
+#### Declaration
+
+> `FMOD bool PFX##_prepend(SNAME *_list_, V *elements, size_t size);`
+
+#### Parameters
+
+1. `SNAME *_list_` - Target list.
+2. `V *elements` - Array of elements to be added.
+3. `size_t size` - The size of the array of elements.
+
+#### Returns
+
+1. `true` - If the elements were successfully added to the list.
+2. `false` - If buffer reallocation failed, or if `size` parameter equals `0`.
+
+#### Complexity
+
+* O(n<sup>2</sup>)
+
+## [<span id="list_insert"> \_insert() </span>](#list_function_index)
+
+Adds to the specified list an array of elements with a given size to a specific index. The first element of the array of elements will be positioned at that index.
+
+#### Declaration
+
+> `FMOD bool PFX##_insert(SNAME *_list_, V *elements, size_t size, size_t index);`
+
+#### Parameters
+
+1. `SNAME *_list_` - Target list.
+2. `V *elements` - Array of elements to be added.
+3. `size_t size` - The size of the array of elements.
+4. `size_t index` - Where the array of elements are to be inserted.
+
+#### Returns
+
+1. `true` - If the elements were successfully added to the list.
+2. `false` - If buffer reallocation failed, if `size` parameter equals `0`, or if the index is greater than `count`.
+
+#### Complexity
+
+* O(n<sup>2</sup>)
+
+## [<span id="list_append"> \_append() </span>](#list_function_index)
+
+Adds to the back of the list an array of elements with a given size.
+
+#### Declaration
+
+> `FMOD bool PFX##_append(SNAME *_list_, V *elements, size_t size);`
+
+#### Parameters
+
+1. `SNAME *_list_` - Target list.
+2. `V *elements` - Array of elements to be added.
+3. `size_t size` - The size of the array of elements.
+
+#### Returns
+
+1. `true` - If the elements were successfully added to the list.
+2. `false` - If buffer reallocation failed, or if `size` parameter equals `0`.
+
+#### Complexity
+
+* O(n)
+
+## [<span id="list_remove"> \_remove() </span>](#list_function_index)
+
+Removes a sequence of elements starting at `from` up to `to`. Both indexes are inclusive.
+
+#### Declaration
+
+> `FMOD bool PFX##_remove(SNAME *_list_, size_t from, size_t to);`
+
+#### Parameters
+
+1. `SNAME *_list_` - Target list.
+2. `V *elements` - Array of elements to be added.
+3. `size_t size` - The size of the array of elements.
+
+#### Returns
+
+1. `true` - If the elements were successfully removed from the list.
+2. `false` - If `from` is greater than `to`, or if `to` is greater than or equal to `count`.
+
+#### Complexity
+
+* O(n)
+
 ## [<span id="list_front"> \_front() </span>](#list_function_index)
 
 Returns the first element (located at index `0`) if the list is not empty.
@@ -425,6 +546,28 @@ Returns the amount of elements in the list.
 #### Returns
 
 1. `size_t` - The amount of elements in the list.
+
+#### Complexity
+
+* O(1)
+
+## [<span id="list_fits"> \_fits() </span>](#list_function_index)
+
+Returns true if a given size fits into the list internal buffer without triggering it to be reallocated.
+
+#### Declaration
+
+> `FMOD bool PFX##_fits(SNAME *_list_, size_t size);`
+
+#### Parameters
+
+1. `SNAME *_list_` - Target list.
+2. `size_t size` - Size of anything.
+
+#### Returns
+
+1. `true` - If the given size fits into the internal buffer of the list.
+2. `false` - If the given size doesn't fit into the internal buffer of the list.
 
 #### Complexity
 
