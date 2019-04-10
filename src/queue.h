@@ -205,31 +205,6 @@
         return _queue_->capacity;                                                                         \
     }                                                                                                     \
                                                                                                           \
-    FMOD bool PFX##_grow(SNAME *_queue_)                                                                  \
-    {                                                                                                     \
-                                                                                                          \
-        size_t new_capacity = _queue_->capacity * 2;                                                      \
-                                                                                                          \
-        V *new_buffer = malloc(sizeof(V) * new_capacity);                                                 \
-                                                                                                          \
-        if (!new_buffer)                                                                                  \
-            return false;                                                                                 \
-                                                                                                          \
-        for (size_t i = _queue_->front, j = 0; j < _queue_->count; i = (i + 1) % _queue_->capacity, j++)  \
-        {                                                                                                 \
-            new_buffer[j] = _queue_->buffer[i];                                                           \
-        }                                                                                                 \
-                                                                                                          \
-        free(_queue_->buffer);                                                                            \
-                                                                                                          \
-        _queue_->buffer = new_buffer;                                                                     \
-        _queue_->capacity = new_capacity;                                                                 \
-        _queue_->front = 0;                                                                               \
-        _queue_->rear = _queue_->count;                                                                   \
-                                                                                                          \
-        return true;                                                                                      \
-    }                                                                                                     \
-                                                                                                          \
     FMOD void PFX##_iter_new(SNAME##_iter *iter, SNAME *target)                                           \
     {                                                                                                     \
         iter->target = target;                                                                            \
@@ -277,6 +252,7 @@
                                                                                                           \
         *index = iter->index;                                                                             \
         *result = iter->target->buffer[iter->cursor];                                                     \
+                                                                                                          \
         iter->start = false;                                                                              \
                                                                                                           \
         if (iter->index == iter->target->count - 1)                                                       \
@@ -297,6 +273,7 @@
                                                                                                           \
         *index = iter->index;                                                                             \
         *result = iter->target->buffer[iter->cursor];                                                     \
+                                                                                                          \
         iter->end = false;                                                                                \
                                                                                                           \
         if (iter->index == 0)                                                                             \
@@ -306,6 +283,31 @@
             iter->cursor = (iter->cursor == 0) ? iter->target->capacity - 1 : iter->cursor - 1;           \
             iter->index--;                                                                                \
         }                                                                                                 \
+                                                                                                          \
+        return true;                                                                                      \
+    }                                                                                                     \
+                                                                                                          \
+    FMOD bool PFX##_grow(SNAME *_queue_)                                                                  \
+    {                                                                                                     \
+                                                                                                          \
+        size_t new_capacity = _queue_->capacity * 2;                                                      \
+                                                                                                          \
+        V *new_buffer = malloc(sizeof(V) * new_capacity);                                                 \
+                                                                                                          \
+        if (!new_buffer)                                                                                  \
+            return false;                                                                                 \
+                                                                                                          \
+        for (size_t i = _queue_->front, j = 0; j < _queue_->count; i = (i + 1) % _queue_->capacity, j++)  \
+        {                                                                                                 \
+            new_buffer[j] = _queue_->buffer[i];                                                           \
+        }                                                                                                 \
+                                                                                                          \
+        free(_queue_->buffer);                                                                            \
+                                                                                                          \
+        _queue_->buffer = new_buffer;                                                                     \
+        _queue_->capacity = new_capacity;                                                                 \
+        _queue_->front = 0;                                                                               \
+        _queue_->rear = _queue_->count;                                                                   \
                                                                                                           \
         return true;                                                                                      \
     }

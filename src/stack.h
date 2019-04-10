@@ -192,21 +192,6 @@
         return _stack_->capacity;                                           \
     }                                                                       \
                                                                             \
-    FMOD bool PFX##_grow(SNAME *_stack_)                                    \
-    {                                                                       \
-        size_t new_capacity = _stack_->capacity * 2;                        \
-                                                                            \
-        V *new_buffer = realloc(_stack_->buffer, sizeof(V) * new_capacity); \
-                                                                            \
-        if (!new_buffer)                                                    \
-            return false;                                                   \
-                                                                            \
-        _stack_->buffer = new_buffer;                                       \
-        _stack_->capacity = new_capacity;                                   \
-                                                                            \
-        return true;                                                        \
-    }                                                                       \
-                                                                            \
     FMOD void PFX##_iter_new(SNAME##_iter *iter, SNAME *target)             \
     {                                                                       \
         iter->target = target;                                              \
@@ -269,6 +254,21 @@
             iter->start = true;                                             \
         else                                                                \
             iter->cursor++;                                                 \
+                                                                            \
+        return true;                                                        \
+    }                                                                       \
+                                                                            \
+    FMOD bool PFX##_grow(SNAME *_stack_)                                    \
+    {                                                                       \
+        size_t new_capacity = _stack_->capacity * 2;                        \
+                                                                            \
+        V *new_buffer = realloc(_stack_->buffer, sizeof(V) * new_capacity); \
+                                                                            \
+        if (!new_buffer)                                                    \
+            return false;                                                   \
+                                                                            \
+        _stack_->buffer = new_buffer;                                       \
+        _stack_->capacity = new_capacity;                                   \
                                                                             \
         return true;                                                        \
     }

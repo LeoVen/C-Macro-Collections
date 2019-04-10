@@ -204,6 +204,7 @@ static const size_t cmc_hashtable_primes[] = {53, 97, 193, 389, 769, 1543, 3079,
                     target->value = value;                                                   \
                     target->dist = pos - original_pos;                                       \
                     target->state = ES_FILLED;                                               \
+                                                                                             \
                     break;                                                                   \
                 }                                                                            \
                 else if (target->dist < original_pos - pos)                                  \
@@ -344,76 +345,6 @@ static const size_t cmc_hashtable_primes[] = {53, 97, 193, 389, 769, 1543, 3079,
         return _map_->count;                                                                 \
     }                                                                                        \
                                                                                              \
-    FMOD bool PFX##_grow(SNAME *_map_)                                                       \
-    {                                                                                        \
-        size_t new_size = PFX##_calculate_size((size_t)((double)_map_->capacity * 1.5));     \
-                                                                                             \
-        SNAME *_new_map_ = PFX##_new(new_size, _map_->load, _map_->cmp, _map_->hash);        \
-                                                                                             \
-        if (!_new_map_)                                                                      \
-            return false;                                                                    \
-                                                                                             \
-        SNAME##_iter iter;                                                                   \
-        K key;                                                                               \
-        V value;                                                                             \
-        size_t index;                                                                        \
-                                                                                             \
-        for (PFX##_iter_new(&iter, _map_); !PFX##_iter_end(&iter);)                          \
-        {                                                                                    \
-            PFX##_iter_next(&iter, &key, &value, &index);                                    \
-            PFX##_insert(_new_map_, key, value);                                             \
-        }                                                                                    \
-                                                                                             \
-        if (_map_->count != _new_map_->count)                                                \
-        {                                                                                    \
-            PFX##_free(_new_map_);                                                           \
-            return false;                                                                    \
-        }                                                                                    \
-                                                                                             \
-        SNAME##_entry *tmp = _map_->buffer;                                                  \
-        _map_->buffer = _new_map_->buffer;                                                   \
-        _new_map_->buffer = tmp;                                                             \
-                                                                                             \
-        _map_->capacity = _new_map_->capacity;                                               \
-                                                                                             \
-        PFX##_free(_new_map_);                                                               \
-                                                                                             \
-        return true;                                                                         \
-    }                                                                                        \
-                                                                                             \
-    FMOD SNAME##_entry *PFX##_get_entry(SNAME *_map_, K key)                                 \
-    {                                                                                        \
-        size_t hash = _map_->hash(key);                                                      \
-        size_t pos = hash % _map_->capacity;                                                 \
-                                                                                             \
-        SNAME##_entry *target = &(_map_->buffer[pos % _map_->capacity]);                     \
-                                                                                             \
-        while (target->state == ES_FILLED || target->state == ES_DELETED)                    \
-        {                                                                                    \
-            if (_map_->cmp(target->key, key) == 0)                                           \
-                return target;                                                               \
-                                                                                             \
-            pos++;                                                                           \
-            target = &(_map_->buffer[pos % _map_->capacity]);                                \
-        }                                                                                    \
-                                                                                             \
-        return NULL;                                                                         \
-    }                                                                                        \
-                                                                                             \
-    FMOD size_t PFX##_calculate_size(size_t required)                                        \
-    {                                                                                        \
-        const size_t count = sizeof(cmc_hashtable_primes) / sizeof(cmc_hashtable_primes[0]); \
-                                                                                             \
-        if (cmc_hashtable_primes[count - 1] < required)                                      \
-            return required;                                                                 \
-                                                                                             \
-        size_t i = 0;                                                                        \
-        while (cmc_hashtable_primes[i] < required)                                           \
-            i++;                                                                             \
-                                                                                             \
-        return cmc_hashtable_primes[i];                                                      \
-    }                                                                                        \
-                                                                                             \
     FMOD void PFX##_iter_new(SNAME##_iter *iter, SNAME *target)                              \
     {                                                                                        \
         iter->target = target;                                                               \
@@ -488,6 +419,7 @@ static const size_t cmc_hashtable_primes[] = {53, 97, 193, 389, 769, 1543, 3079,
         else                                                                                 \
         {                                                                                    \
             iter->index++;                                                                   \
+                                                                                             \
             while (1)                                                                        \
             {                                                                                \
                 iter->cursor++;                                                              \
@@ -519,6 +451,7 @@ static const size_t cmc_hashtable_primes[] = {53, 97, 193, 389, 769, 1543, 3079,
         else                                                                                 \
         {                                                                                    \
             iter->index--;                                                                   \
+                                                                                             \
             while (1)                                                                        \
             {                                                                                \
                 iter->cursor--;                                                              \
@@ -532,6 +465,76 @@ static const size_t cmc_hashtable_primes[] = {53, 97, 193, 389, 769, 1543, 3079,
         iter->end = PFX##_empty(iter->target);                                               \
                                                                                              \
         return true;                                                                         \
+    }                                                                                        \
+                                                                                             \
+    FMOD bool PFX##_grow(SNAME *_map_)                                                       \
+    {                                                                                        \
+        size_t new_size = PFX##_calculate_size((size_t)((double)_map_->capacity * 1.5));     \
+                                                                                             \
+        SNAME *_new_map_ = PFX##_new(new_size, _map_->load, _map_->cmp, _map_->hash);        \
+                                                                                             \
+        if (!_new_map_)                                                                      \
+            return false;                                                                    \
+                                                                                             \
+        K key;                                                                               \
+        V value;                                                                             \
+        size_t index;                                                                        \
+        SNAME##_iter iter;                                                                   \
+                                                                                             \
+        for (PFX##_iter_new(&iter, _map_); !PFX##_iter_end(&iter);)                          \
+        {                                                                                    \
+            PFX##_iter_next(&iter, &key, &value, &index);                                    \
+            PFX##_insert(_new_map_, key, value);                                             \
+        }                                                                                    \
+                                                                                             \
+        if (_map_->count != _new_map_->count)                                                \
+        {                                                                                    \
+            PFX##_free(_new_map_);                                                           \
+            return false;                                                                    \
+        }                                                                                    \
+                                                                                             \
+        SNAME##_entry *tmp = _map_->buffer;                                                  \
+        _map_->buffer = _new_map_->buffer;                                                   \
+        _new_map_->buffer = tmp;                                                             \
+                                                                                             \
+        _map_->capacity = _new_map_->capacity;                                               \
+                                                                                             \
+        PFX##_free(_new_map_);                                                               \
+                                                                                             \
+        return true;                                                                         \
+    }                                                                                        \
+                                                                                             \
+    FMOD SNAME##_entry *PFX##_get_entry(SNAME *_map_, K key)                                 \
+    {                                                                                        \
+        size_t hash = _map_->hash(key);                                                      \
+        size_t pos = hash % _map_->capacity;                                                 \
+                                                                                             \
+        SNAME##_entry *target = &(_map_->buffer[pos % _map_->capacity]);                     \
+                                                                                             \
+        while (target->state == ES_FILLED || target->state == ES_DELETED)                    \
+        {                                                                                    \
+            if (_map_->cmp(target->key, key) == 0)                                           \
+                return target;                                                               \
+                                                                                             \
+            pos++;                                                                           \
+            target = &(_map_->buffer[pos % _map_->capacity]);                                \
+        }                                                                                    \
+                                                                                             \
+        return NULL;                                                                         \
+    }                                                                                        \
+                                                                                             \
+    FMOD size_t PFX##_calculate_size(size_t required)                                        \
+    {                                                                                        \
+        const size_t count = sizeof(cmc_hashtable_primes) / sizeof(cmc_hashtable_primes[0]); \
+                                                                                             \
+        if (cmc_hashtable_primes[count - 1] < required)                                      \
+            return required;                                                                 \
+                                                                                             \
+        size_t i = 0;                                                                        \
+        while (cmc_hashtable_primes[i] < required)                                           \
+            i++;                                                                             \
+                                                                                             \
+        return cmc_hashtable_primes[i];                                                      \
     }
 
 #endif /* CMC_HASHMAP_H */

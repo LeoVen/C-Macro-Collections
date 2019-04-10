@@ -447,24 +447,6 @@
         return _list_->capacity;                                                    \
     }                                                                               \
                                                                                     \
-    FMOD bool PFX##_grow(SNAME *_list_, size_t required)                            \
-    {                                                                               \
-        size_t new_capacity = _list_->capacity * 2;                                 \
-                                                                                    \
-        if (new_capacity < required)                                                \
-            new_capacity = required;                                                \
-                                                                                    \
-        V *new_buffer = realloc(_list_->buffer, sizeof(V) * new_capacity);          \
-                                                                                    \
-        if (!new_buffer)                                                            \
-            return false;                                                           \
-                                                                                    \
-        _list_->buffer = new_buffer;                                                \
-        _list_->capacity = new_capacity;                                            \
-                                                                                    \
-        return true;                                                                \
-    }                                                                               \
-                                                                                    \
     FMOD void PFX##_iter_new(SNAME##_iter *iter, SNAME *target)                     \
     {                                                                               \
         iter->target = target;                                                      \
@@ -527,6 +509,24 @@
             iter->start = true;                                                     \
         else                                                                        \
             iter->cursor--;                                                         \
+                                                                                    \
+        return true;                                                                \
+    }                                                                               \
+                                                                                    \
+    FMOD bool PFX##_grow(SNAME *_list_, size_t required)                            \
+    {                                                                               \
+        size_t new_capacity = _list_->capacity * 2;                                 \
+                                                                                    \
+        if (new_capacity < required)                                                \
+            new_capacity = required;                                                \
+                                                                                    \
+        V *new_buffer = realloc(_list_->buffer, sizeof(V) * new_capacity);          \
+                                                                                    \
+        if (!new_buffer)                                                            \
+            return false;                                                           \
+                                                                                    \
+        _list_->buffer = new_buffer;                                                \
+        _list_->capacity = new_capacity;                                            \
                                                                                     \
         return true;                                                                \
     }

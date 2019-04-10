@@ -226,6 +226,74 @@ typedef enum HeapOrder
         return _heap_->capacity;                                                                  \
     }                                                                                             \
                                                                                                   \
+    FMOD void PFX##_iter_new(SNAME##_iter *iter, SNAME *target)                                   \
+    {                                                                                             \
+        iter->target = target;                                                                    \
+        iter->cursor = 0;                                                                         \
+        iter->start = true;                                                                       \
+        iter->end = PFX##_empty(target);                                                          \
+    }                                                                                             \
+                                                                                                  \
+    FMOD bool PFX##_iter_start(SNAME##_iter *iter)                                                \
+    {                                                                                             \
+        return iter->cursor == 0 && iter->start;                                                  \
+    }                                                                                             \
+                                                                                                  \
+    FMOD bool PFX##_iter_end(SNAME##_iter *iter)                                                  \
+    {                                                                                             \
+        return iter->cursor == iter->target->count - 1 && iter->end;                              \
+    }                                                                                             \
+                                                                                                  \
+    FMOD void PFX##_iter_tostart(SNAME##_iter *iter)                                              \
+    {                                                                                             \
+        iter->cursor = 0;                                                                         \
+        iter->start = true;                                                                       \
+        iter->end = PFX##_empty(iter->target);                                                    \
+    }                                                                                             \
+                                                                                                  \
+    FMOD void PFX##_iter_toend(SNAME##_iter *iter)                                                \
+    {                                                                                             \
+        iter->cursor = iter->target->count - 1;                                                   \
+        iter->start = PFX##_empty(iter->target);                                                  \
+        iter->end = true;                                                                         \
+    }                                                                                             \
+                                                                                                  \
+    FMOD bool PFX##_iter_next(SNAME##_iter *iter, V *result, size_t *index)                       \
+    {                                                                                             \
+        if (iter->end)                                                                            \
+            return false;                                                                         \
+                                                                                                  \
+        *index = iter->cursor;                                                                    \
+        *result = iter->target->buffer[iter->cursor];                                             \
+                                                                                                  \
+        iter->start = false;                                                                      \
+                                                                                                  \
+        if (iter->cursor == iter->target->count - 1)                                              \
+            iter->end = true;                                                                     \
+        else                                                                                      \
+            iter->cursor++;                                                                       \
+                                                                                                  \
+        return true;                                                                              \
+    }                                                                                             \
+                                                                                                  \
+    FMOD bool PFX##_iter_prev(SNAME##_iter *iter, V *result, size_t *index)                       \
+    {                                                                                             \
+        if (iter->start)                                                                          \
+            return false;                                                                         \
+                                                                                                  \
+        *index = iter->cursor;                                                                    \
+        *result = iter->target->buffer[iter->cursor];                                             \
+                                                                                                  \
+        iter->end = false;                                                                        \
+                                                                                                  \
+        if (iter->cursor == 0)                                                                    \
+            iter->start = true;                                                                   \
+        else                                                                                      \
+            iter->cursor--;                                                                       \
+                                                                                                  \
+        return true;                                                                              \
+    }                                                                                             \
+                                                                                                  \
     FMOD bool PFX##_grow(SNAME *_heap_)                                                           \
     {                                                                                             \
         size_t new_capacity = _heap_->capacity * 2;                                               \
@@ -313,72 +381,6 @@ typedef enum HeapOrder
             else                                                                                  \
                 break;                                                                            \
         }                                                                                         \
-                                                                                                  \
-        return true;                                                                              \
-    }                                                                                             \
-                                                                                                  \
-    FMOD void PFX##_iter_new(SNAME##_iter *iter, SNAME *target)                                   \
-    {                                                                                             \
-        iter->target = target;                                                                    \
-        iter->cursor = 0;                                                                         \
-        iter->start = true;                                                                       \
-        iter->end = PFX##_empty(target);                                                          \
-    }                                                                                             \
-                                                                                                  \
-    FMOD bool PFX##_iter_start(SNAME##_iter *iter)                                                \
-    {                                                                                             \
-        return iter->cursor == 0 && iter->start;                                                  \
-    }                                                                                             \
-                                                                                                  \
-    FMOD bool PFX##_iter_end(SNAME##_iter *iter)                                                  \
-    {                                                                                             \
-        return iter->cursor == iter->target->count - 1 && iter->end;                              \
-    }                                                                                             \
-                                                                                                  \
-    FMOD void PFX##_iter_tostart(SNAME##_iter *iter)                                              \
-    {                                                                                             \
-        iter->cursor = 0;                                                                         \
-        iter->start = true;                                                                       \
-        iter->end = PFX##_empty(iter->target);                                                    \
-    }                                                                                             \
-                                                                                                  \
-    FMOD void PFX##_iter_toend(SNAME##_iter *iter)                                                \
-    {                                                                                             \
-        iter->cursor = iter->target->count - 1;                                                   \
-        iter->start = PFX##_empty(iter->target);                                                  \
-        iter->end = true;                                                                         \
-    }                                                                                             \
-                                                                                                  \
-    FMOD bool PFX##_iter_next(SNAME##_iter *iter, V *result, size_t *index)                       \
-    {                                                                                             \
-        if (iter->end)                                                                            \
-            return false;                                                                         \
-                                                                                                  \
-        *index = iter->cursor;                                                                    \
-        *result = iter->target->buffer[iter->cursor];                                             \
-        iter->start = false;                                                                      \
-                                                                                                  \
-        if (iter->cursor == iter->target->count - 1)                                              \
-            iter->end = true;                                                                     \
-        else                                                                                      \
-            iter->cursor++;                                                                       \
-                                                                                                  \
-        return true;                                                                              \
-    }                                                                                             \
-                                                                                                  \
-    FMOD bool PFX##_iter_prev(SNAME##_iter *iter, V *result, size_t *index)                       \
-    {                                                                                             \
-        if (iter->start)                                                                          \
-            return false;                                                                         \
-                                                                                                  \
-        *index = iter->cursor;                                                                    \
-        *result = iter->target->buffer[iter->cursor];                                             \
-        iter->end = false;                                                                        \
-                                                                                                  \
-        if (iter->cursor == 0)                                                                    \
-            iter->start = true;                                                                   \
-        else                                                                                      \
-            iter->cursor--;                                                                       \
                                                                                                   \
         return true;                                                                              \
     }

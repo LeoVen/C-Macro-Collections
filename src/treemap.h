@@ -186,6 +186,7 @@
         if (PFX##_empty(_map_))                                                    \
         {                                                                          \
             _map_->root = PFX##_new_node(key, value);                              \
+                                                                                   \
             if (!_map_->root)                                                      \
                 return false;                                                      \
         }                                                                          \
@@ -427,6 +428,139 @@
         return _map_->count;                                                       \
     }                                                                              \
                                                                                    \
+    FMOD void PFX##_iter_new(SNAME##_iter *iter, SNAME *target)                    \
+    {                                                                              \
+        iter->target = target;                                                     \
+        iter->index = 0;                                                           \
+        iter->start = true;                                                        \
+        iter->end = PFX##_empty(target);                                           \
+                                                                                   \
+        iter->cursor = target->root;                                               \
+        while (iter->cursor->left != NULL)                                         \
+            iter->cursor = iter->cursor->left;                                     \
+                                                                                   \
+        iter->first = iter->cursor;                                                \
+                                                                                   \
+        iter->last = target->root;                                                 \
+        while (iter->last->right != NULL)                                          \
+            iter->last = iter->last->right;                                        \
+    }                                                                              \
+                                                                                   \
+    FMOD bool PFX##_iter_start(SNAME##_iter *iter)                                 \
+    {                                                                              \
+        return iter->start && iter->cursor == iter->first;                         \
+    }                                                                              \
+                                                                                   \
+    FMOD bool PFX##_iter_end(SNAME##_iter *iter)                                   \
+    {                                                                              \
+        return iter->end && iter->cursor == iter->last;                            \
+    }                                                                              \
+                                                                                   \
+    FMOD void PFX##_iter_tostart(SNAME##_iter *iter)                               \
+    {                                                                              \
+        iter->index = 0;                                                           \
+        iter->start = true;                                                        \
+        iter->end = PFX##_empty(iter->target);                                     \
+                                                                                   \
+        iter->cursor = iter->first;                                                \
+    }                                                                              \
+                                                                                   \
+    FMOD void PFX##_iter_toend(SNAME##_iter *iter)                                 \
+    {                                                                              \
+        iter->index = iter->target->count - 1;                                     \
+        iter->start = PFX##_empty(iter->target);                                   \
+        iter->end = true;                                                          \
+                                                                                   \
+        iter->cursor = iter->last;                                                 \
+    }                                                                              \
+                                                                                   \
+    FMOD bool PFX##_iter_next(SNAME##_iter *iter, K *key, V *value, size_t *index) \
+    {                                                                              \
+        if (iter->end)                                                             \
+            return false;                                                          \
+                                                                                   \
+        *key = iter->cursor->key;                                                  \
+        *value = iter->cursor->value;                                              \
+        *index = iter->index;                                                      \
+                                                                                   \
+        iter->start = false;                                                       \
+                                                                                   \
+        if (iter->cursor->right != NULL)                                           \
+        {                                                                          \
+            iter->cursor = iter->cursor->right;                                    \
+            while (iter->cursor->left != NULL)                                     \
+                iter->cursor = iter->cursor->left;                                 \
+                                                                                   \
+            iter->index++;                                                         \
+                                                                                   \
+            return true;                                                           \
+        }                                                                          \
+                                                                                   \
+        while (true)                                                               \
+        {                                                                          \
+            if (iter->cursor == iter->last)                                        \
+            {                                                                      \
+                iter->end = true;                                                  \
+                                                                                   \
+                return true;                                                       \
+            }                                                                      \
+            if (iter->cursor->parent->left == iter->cursor)                        \
+            {                                                                      \
+                iter->cursor = iter->cursor->parent;                               \
+                                                                                   \
+                iter->index++;                                                     \
+                                                                                   \
+                return true;                                                       \
+            }                                                                      \
+                                                                                   \
+            iter->cursor = iter->cursor->parent;                                   \
+        }                                                                          \
+    }                                                                              \
+                                                                                   \
+    FMOD bool PFX##_iter_prev(SNAME##_iter *iter, K *key, V *value, size_t *index) \
+    {                                                                              \
+        if (iter->start)                                                           \
+            return false;                                                          \
+                                                                                   \
+        *key = iter->cursor->key;                                                  \
+        *value = iter->cursor->value;                                              \
+        *index = iter->index;                                                      \
+                                                                                   \
+        iter->end = false;                                                         \
+                                                                                   \
+        if (iter->cursor->left != NULL)                                            \
+        {                                                                          \
+            iter->cursor = iter->cursor->left;                                     \
+                                                                                   \
+            while (iter->cursor->right != NULL)                                    \
+                iter->cursor = iter->cursor->right;                                \
+                                                                                   \
+            iter->index--;                                                         \
+                                                                                   \
+            return true;                                                           \
+        }                                                                          \
+                                                                                   \
+        while (true)                                                               \
+        {                                                                          \
+            if (iter->cursor == iter->first)                                       \
+            {                                                                      \
+                iter->start = true;                                                \
+                                                                                   \
+                return true;                                                       \
+            }                                                                      \
+            if (iter->cursor->parent->right == iter->cursor)                       \
+            {                                                                      \
+                iter->cursor = iter->cursor->parent;                               \
+                                                                                   \
+                iter->index--;                                                     \
+                                                                                   \
+                return true;                                                       \
+            }                                                                      \
+                                                                                   \
+            iter->cursor = iter->cursor->parent;                                   \
+        }                                                                          \
+    }                                                                              \
+                                                                                   \
     FMOD SNAME##_node *PFX##_new_node(K key, V value)                              \
     {                                                                              \
         SNAME##_node *node = malloc(sizeof(SNAME##_node));                         \
@@ -582,136 +716,6 @@
             }                                                                      \
                                                                                    \
             scan = scan->parent;                                                   \
-        }                                                                          \
-    }                                                                              \
-                                                                                   \
-    FMOD void PFX##_iter_new(SNAME##_iter *iter, SNAME *target)                    \
-    {                                                                              \
-        iter->target = target;                                                     \
-        iter->index = 0;                                                           \
-        iter->start = true;                                                        \
-        iter->end = PFX##_empty(target);                                           \
-                                                                                   \
-        iter->cursor = target->root;                                               \
-        while (iter->cursor->left != NULL)                                         \
-            iter->cursor = iter->cursor->left;                                     \
-                                                                                   \
-        iter->first = iter->cursor;                                                \
-                                                                                   \
-        iter->last = target->root;                                                 \
-        while (iter->last->right != NULL)                                          \
-            iter->last = iter->last->right;                                        \
-    }                                                                              \
-                                                                                   \
-    FMOD bool PFX##_iter_start(SNAME##_iter *iter)                                 \
-    {                                                                              \
-        return iter->start && iter->cursor == iter->first;                         \
-    }                                                                              \
-                                                                                   \
-    FMOD bool PFX##_iter_end(SNAME##_iter *iter)                                   \
-    {                                                                              \
-        return iter->end && iter->cursor == iter->last;                            \
-    }                                                                              \
-                                                                                   \
-    FMOD void PFX##_iter_tostart(SNAME##_iter *iter)                               \
-    {                                                                              \
-        iter->index = 0;                                                           \
-        iter->start = true;                                                        \
-        iter->end = PFX##_empty(iter->target);                                     \
-                                                                                   \
-        iter->cursor = iter->first;                                                \
-    }                                                                              \
-                                                                                   \
-    FMOD void PFX##_iter_toend(SNAME##_iter *iter)                                 \
-    {                                                                              \
-        iter->index = iter->target->count - 1;                                     \
-        iter->start = PFX##_empty(iter->target);                                   \
-        iter->end = true;                                                          \
-                                                                                   \
-        iter->cursor = iter->last;                                                 \
-    }                                                                              \
-                                                                                   \
-    FMOD bool PFX##_iter_next(SNAME##_iter *iter, K *key, V *value, size_t *index) \
-    {                                                                              \
-        if (iter->end)                                                             \
-            return false;                                                          \
-                                                                                   \
-        *key = iter->cursor->key;                                                  \
-        *value = iter->cursor->value;                                              \
-        *index = iter->index;                                                      \
-        iter->start = false;                                                       \
-                                                                                   \
-        if (iter->cursor->right != NULL)                                           \
-        {                                                                          \
-            iter->cursor = iter->cursor->right;                                    \
-            while (iter->cursor->left != NULL)                                     \
-                iter->cursor = iter->cursor->left;                                 \
-                                                                                   \
-            iter->index++;                                                         \
-                                                                                   \
-            return true;                                                           \
-        }                                                                          \
-                                                                                   \
-        while (true)                                                               \
-        {                                                                          \
-            if (iter->cursor == iter->last)                                        \
-            {                                                                      \
-                iter->end = true;                                                  \
-                                                                                   \
-                return true;                                                       \
-            }                                                                      \
-            if (iter->cursor->parent->left == iter->cursor)                        \
-            {                                                                      \
-                iter->cursor = iter->cursor->parent;                               \
-                                                                                   \
-                iter->index++;                                                     \
-                                                                                   \
-                return true;                                                       \
-            }                                                                      \
-                                                                                   \
-            iter->cursor = iter->cursor->parent;                                   \
-        }                                                                          \
-    }                                                                              \
-                                                                                   \
-    FMOD bool PFX##_iter_prev(SNAME##_iter *iter, K *key, V *value, size_t *index) \
-    {                                                                              \
-        if (iter->start)                                                           \
-            return false;                                                          \
-                                                                                   \
-        *key = iter->cursor->key;                                                  \
-        *value = iter->cursor->value;                                              \
-        *index = iter->index;                                                      \
-        iter->end = false;                                                         \
-                                                                                   \
-        if (iter->cursor->left != NULL)                                            \
-        {                                                                          \
-            iter->cursor = iter->cursor->left;                                     \
-            while (iter->cursor->right != NULL)                                    \
-                iter->cursor = iter->cursor->right;                                \
-                                                                                   \
-            iter->index--;                                                         \
-                                                                                   \
-            return true;                                                           \
-        }                                                                          \
-                                                                                   \
-        while (true)                                                               \
-        {                                                                          \
-            if (iter->cursor == iter->first)                                       \
-            {                                                                      \
-                iter->start = true;                                                \
-                                                                                   \
-                return true;                                                       \
-            }                                                                      \
-            if (iter->cursor->parent->right == iter->cursor)                       \
-            {                                                                      \
-                iter->cursor = iter->cursor->parent;                               \
-                                                                                   \
-                iter->index--;                                                     \
-                                                                                   \
-                return true;                                                       \
-            }                                                                      \
-                                                                                   \
-            iter->cursor = iter->cursor->parent;                                   \
         }                                                                          \
     }
 

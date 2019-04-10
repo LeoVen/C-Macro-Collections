@@ -267,31 +267,6 @@
         return _deque_->capacity;                                                                         \
     }                                                                                                     \
                                                                                                           \
-    FMOD bool PFX##_grow(SNAME *_deque_)                                                                  \
-    {                                                                                                     \
-                                                                                                          \
-        size_t new_capacity = _deque_->capacity * 2;                                                      \
-                                                                                                          \
-        V *new_buffer = malloc(sizeof(V) * new_capacity);                                                 \
-                                                                                                          \
-        if (!new_buffer)                                                                                  \
-            return false;                                                                                 \
-                                                                                                          \
-        for (size_t i = _deque_->front, j = 0; j < _deque_->count; i = (i + 1) % _deque_->capacity, j++)  \
-        {                                                                                                 \
-            new_buffer[j] = _deque_->buffer[i];                                                           \
-        }                                                                                                 \
-                                                                                                          \
-        free(_deque_->buffer);                                                                            \
-                                                                                                          \
-        _deque_->buffer = new_buffer;                                                                     \
-        _deque_->capacity = new_capacity;                                                                 \
-        _deque_->front = 0;                                                                               \
-        _deque_->rear = _deque_->count;                                                                   \
-                                                                                                          \
-        return true;                                                                                      \
-    }                                                                                                     \
-                                                                                                          \
     FMOD void PFX##_iter_new(SNAME##_iter *iter, SNAME *target)                                           \
     {                                                                                                     \
         iter->target = target;                                                                            \
@@ -309,6 +284,7 @@
     FMOD bool PFX##_iter_end(SNAME##_iter *iter)                                                          \
     {                                                                                                     \
         size_t real_rear = iter->target->rear == 0 ? iter->target->capacity - 1 : iter->target->rear - 1; \
+                                                                                                          \
         return iter->cursor == real_rear && iter->end;                                                    \
     }                                                                                                     \
                                                                                                           \
@@ -339,6 +315,7 @@
                                                                                                           \
         *index = iter->index;                                                                             \
         *result = iter->target->buffer[iter->cursor];                                                     \
+                                                                                                          \
         iter->start = false;                                                                              \
                                                                                                           \
         if (iter->index == iter->target->count - 1)                                                       \
@@ -359,6 +336,7 @@
                                                                                                           \
         *index = iter->index;                                                                             \
         *result = iter->target->buffer[iter->cursor];                                                     \
+                                                                                                          \
         iter->end = false;                                                                                \
                                                                                                           \
         if (iter->index == 0)                                                                             \
@@ -368,6 +346,31 @@
             iter->cursor = (iter->cursor == 0) ? iter->target->capacity - 1 : iter->cursor - 1;           \
             iter->index--;                                                                                \
         }                                                                                                 \
+                                                                                                          \
+        return true;                                                                                      \
+    }                                                                                                     \
+                                                                                                          \
+    FMOD bool PFX##_grow(SNAME *_deque_)                                                                  \
+    {                                                                                                     \
+                                                                                                          \
+        size_t new_capacity = _deque_->capacity * 2;                                                      \
+                                                                                                          \
+        V *new_buffer = malloc(sizeof(V) * new_capacity);                                                 \
+                                                                                                          \
+        if (!new_buffer)                                                                                  \
+            return false;                                                                                 \
+                                                                                                          \
+        for (size_t i = _deque_->front, j = 0; j < _deque_->count; i = (i + 1) % _deque_->capacity, j++)  \
+        {                                                                                                 \
+            new_buffer[j] = _deque_->buffer[i];                                                           \
+        }                                                                                                 \
+                                                                                                          \
+        free(_deque_->buffer);                                                                            \
+                                                                                                          \
+        _deque_->buffer = new_buffer;                                                                     \
+        _deque_->capacity = new_capacity;                                                                 \
+        _deque_->front = 0;                                                                               \
+        _deque_->rear = _deque_->count;                                                                   \
                                                                                                           \
         return true;                                                                                      \
     }

@@ -189,6 +189,7 @@
         if (PFX##_empty(_set_))                                            \
         {                                                                  \
             _set_->root = PFX##_new_node(element);                         \
+                                                                           \
             if (!_set_->root)                                              \
                 return false;                                              \
         }                                                                  \
@@ -408,163 +409,6 @@
     FMOD size_t PFX##_count(SNAME *_set_)                                  \
     {                                                                      \
         return _set_->count;                                               \
-    }                                                                      \
-                                                                           \
-    FMOD SNAME##_node *PFX##_new_node(V element)                           \
-    {                                                                      \
-        SNAME##_node *node = malloc(sizeof(SNAME##_node));                 \
-                                                                           \
-        if (!node)                                                         \
-            return NULL;                                                   \
-                                                                           \
-        node->key = element;                                               \
-        node->right = NULL;                                                \
-        node->left = NULL;                                                 \
-        node->parent = NULL;                                               \
-        node->height = 0;                                                  \
-                                                                           \
-        return node;                                                       \
-    }                                                                      \
-                                                                           \
-    FMOD SNAME##_node *PFX##_get_node(SNAME *_set_, V element)             \
-    {                                                                      \
-        if (PFX##_empty(_set_))                                            \
-            return NULL;                                                   \
-                                                                           \
-        SNAME##_node *scan = _set_->root;                                  \
-                                                                           \
-        while (scan != NULL)                                               \
-        {                                                                  \
-            if (_set_->cmp(scan->key, element) > 0)                        \
-                scan = scan->left;                                         \
-            else if (_set_->cmp(scan->key, element) < 0)                   \
-                scan = scan->right;                                        \
-            else                                                           \
-                return scan;                                               \
-        }                                                                  \
-                                                                           \
-        return NULL;                                                       \
-    }                                                                      \
-                                                                           \
-    FMOD unsigned char PFX##_h(SNAME##_node *node)                         \
-    {                                                                      \
-        if (node == NULL)                                                  \
-            return 0;                                                      \
-                                                                           \
-        return node->height;                                               \
-    }                                                                      \
-                                                                           \
-    FMOD unsigned char PFX##_hupdate(SNAME##_node *node)                   \
-    {                                                                      \
-        if (node == NULL)                                                  \
-            return 0;                                                      \
-                                                                           \
-        unsigned char h_l = PFX##_h(node->left);                           \
-        unsigned char h_r = PFX##_h(node->right);                          \
-                                                                           \
-        return 1 + (h_l > h_r ? h_l : h_r);                                \
-    }                                                                      \
-                                                                           \
-    FMOD void PFX##_rotate_right(SNAME##_node **Z)                         \
-    {                                                                      \
-        SNAME##_node *root = *Z;                                           \
-        SNAME##_node *new_root = root->left;                               \
-                                                                           \
-        if (root->parent != NULL)                                          \
-        {                                                                  \
-            if (root->parent->left == root)                                \
-                root->parent->left = new_root;                             \
-            else                                                           \
-                root->parent->right = new_root;                            \
-        }                                                                  \
-                                                                           \
-        new_root->parent = root->parent;                                   \
-                                                                           \
-        root->parent = new_root;                                           \
-        root->left = new_root->right;                                      \
-                                                                           \
-        if (root->left)                                                    \
-            root->left->parent = root;                                     \
-                                                                           \
-        new_root->right = root;                                            \
-                                                                           \
-        root->height = PFX##_hupdate(root);                                \
-        new_root->height = PFX##_hupdate(new_root);                        \
-                                                                           \
-        *Z = new_root;                                                     \
-    }                                                                      \
-                                                                           \
-    FMOD void PFX##_rotate_left(SNAME##_node **Z)                          \
-    {                                                                      \
-        SNAME##_node *root = *Z;                                           \
-        SNAME##_node *new_root = root->right;                              \
-                                                                           \
-        if (root->parent != NULL)                                          \
-        {                                                                  \
-            if (root->parent->right == root)                               \
-                root->parent->right = new_root;                            \
-            else                                                           \
-                root->parent->left = new_root;                             \
-        }                                                                  \
-                                                                           \
-        new_root->parent = root->parent;                                   \
-                                                                           \
-        root->parent = new_root;                                           \
-        root->right = new_root->left;                                      \
-                                                                           \
-        if (root->right)                                                   \
-            root->right->parent = root;                                    \
-                                                                           \
-        new_root->left = root;                                             \
-                                                                           \
-        root->height = PFX##_hupdate(root);                                \
-        new_root->height = PFX##_hupdate(new_root);                        \
-                                                                           \
-        *Z = new_root;                                                     \
-    }                                                                      \
-                                                                           \
-    FMOD void PFX##_rebalance(SNAME *_set_, SNAME##_node *node)            \
-    {                                                                      \
-        SNAME##_node *scan = node, *child = NULL;                          \
-                                                                           \
-        int balance;                                                       \
-        bool is_root = false;                                              \
-                                                                           \
-        while (scan != NULL)                                               \
-        {                                                                  \
-            if (scan->parent == NULL)                                      \
-                is_root = true;                                            \
-                                                                           \
-            scan->height = PFX##_hupdate(scan);                            \
-            balance = PFX##_h(scan->right) - PFX##_h(scan->left);          \
-                                                                           \
-            if (balance >= 2)                                              \
-            {                                                              \
-                child = scan->right;                                       \
-                                                                           \
-                if (PFX##_h(child->right) < PFX##_h(child->left))          \
-                    PFX##_rotate_right(&(scan->right));                    \
-                                                                           \
-                PFX##_rotate_left(&scan);                                  \
-            }                                                              \
-            else if (balance <= -2)                                        \
-            {                                                              \
-                child = scan->left;                                        \
-                                                                           \
-                if (PFX##_h(child->left) < PFX##_h(child->right))          \
-                    PFX##_rotate_left(&(scan->left));                      \
-                                                                           \
-                PFX##_rotate_right(&scan);                                 \
-            }                                                              \
-                                                                           \
-            if (is_root)                                                   \
-            {                                                              \
-                _set_->root = scan;                                        \
-                is_root = false;                                           \
-            }                                                              \
-                                                                           \
-            scan = scan->parent;                                           \
-        }                                                                  \
     }                                                                      \
                                                                            \
     FMOD SNAME *PFX##_union(SNAME *_set1_, SNAME *_set2_)                  \
@@ -801,6 +645,163 @@
             }                                                              \
                                                                            \
             iter->cursor = iter->cursor->parent;                           \
+        }                                                                  \
+    }                                                                      \
+                                                                           \
+    FMOD SNAME##_node *PFX##_new_node(V element)                           \
+    {                                                                      \
+        SNAME##_node *node = malloc(sizeof(SNAME##_node));                 \
+                                                                           \
+        if (!node)                                                         \
+            return NULL;                                                   \
+                                                                           \
+        node->key = element;                                               \
+        node->right = NULL;                                                \
+        node->left = NULL;                                                 \
+        node->parent = NULL;                                               \
+        node->height = 0;                                                  \
+                                                                           \
+        return node;                                                       \
+    }                                                                      \
+                                                                           \
+    FMOD SNAME##_node *PFX##_get_node(SNAME *_set_, V element)             \
+    {                                                                      \
+        if (PFX##_empty(_set_))                                            \
+            return NULL;                                                   \
+                                                                           \
+        SNAME##_node *scan = _set_->root;                                  \
+                                                                           \
+        while (scan != NULL)                                               \
+        {                                                                  \
+            if (_set_->cmp(scan->key, element) > 0)                        \
+                scan = scan->left;                                         \
+            else if (_set_->cmp(scan->key, element) < 0)                   \
+                scan = scan->right;                                        \
+            else                                                           \
+                return scan;                                               \
+        }                                                                  \
+                                                                           \
+        return NULL;                                                       \
+    }                                                                      \
+                                                                           \
+    FMOD unsigned char PFX##_h(SNAME##_node *node)                         \
+    {                                                                      \
+        if (node == NULL)                                                  \
+            return 0;                                                      \
+                                                                           \
+        return node->height;                                               \
+    }                                                                      \
+                                                                           \
+    FMOD unsigned char PFX##_hupdate(SNAME##_node *node)                   \
+    {                                                                      \
+        if (node == NULL)                                                  \
+            return 0;                                                      \
+                                                                           \
+        unsigned char h_l = PFX##_h(node->left);                           \
+        unsigned char h_r = PFX##_h(node->right);                          \
+                                                                           \
+        return 1 + (h_l > h_r ? h_l : h_r);                                \
+    }                                                                      \
+                                                                           \
+    FMOD void PFX##_rotate_right(SNAME##_node **Z)                         \
+    {                                                                      \
+        SNAME##_node *root = *Z;                                           \
+        SNAME##_node *new_root = root->left;                               \
+                                                                           \
+        if (root->parent != NULL)                                          \
+        {                                                                  \
+            if (root->parent->left == root)                                \
+                root->parent->left = new_root;                             \
+            else                                                           \
+                root->parent->right = new_root;                            \
+        }                                                                  \
+                                                                           \
+        new_root->parent = root->parent;                                   \
+                                                                           \
+        root->parent = new_root;                                           \
+        root->left = new_root->right;                                      \
+                                                                           \
+        if (root->left)                                                    \
+            root->left->parent = root;                                     \
+                                                                           \
+        new_root->right = root;                                            \
+                                                                           \
+        root->height = PFX##_hupdate(root);                                \
+        new_root->height = PFX##_hupdate(new_root);                        \
+                                                                           \
+        *Z = new_root;                                                     \
+    }                                                                      \
+                                                                           \
+    FMOD void PFX##_rotate_left(SNAME##_node **Z)                          \
+    {                                                                      \
+        SNAME##_node *root = *Z;                                           \
+        SNAME##_node *new_root = root->right;                              \
+                                                                           \
+        if (root->parent != NULL)                                          \
+        {                                                                  \
+            if (root->parent->right == root)                               \
+                root->parent->right = new_root;                            \
+            else                                                           \
+                root->parent->left = new_root;                             \
+        }                                                                  \
+                                                                           \
+        new_root->parent = root->parent;                                   \
+                                                                           \
+        root->parent = new_root;                                           \
+        root->right = new_root->left;                                      \
+                                                                           \
+        if (root->right)                                                   \
+            root->right->parent = root;                                    \
+                                                                           \
+        new_root->left = root;                                             \
+                                                                           \
+        root->height = PFX##_hupdate(root);                                \
+        new_root->height = PFX##_hupdate(new_root);                        \
+                                                                           \
+        *Z = new_root;                                                     \
+    }                                                                      \
+                                                                           \
+    FMOD void PFX##_rebalance(SNAME *_set_, SNAME##_node *node)            \
+    {                                                                      \
+        SNAME##_node *scan = node, *child = NULL;                          \
+                                                                           \
+        int balance;                                                       \
+        bool is_root = false;                                              \
+                                                                           \
+        while (scan != NULL)                                               \
+        {                                                                  \
+            if (scan->parent == NULL)                                      \
+                is_root = true;                                            \
+                                                                           \
+            scan->height = PFX##_hupdate(scan);                            \
+            balance = PFX##_h(scan->right) - PFX##_h(scan->left);          \
+                                                                           \
+            if (balance >= 2)                                              \
+            {                                                              \
+                child = scan->right;                                       \
+                                                                           \
+                if (PFX##_h(child->right) < PFX##_h(child->left))          \
+                    PFX##_rotate_right(&(scan->right));                    \
+                                                                           \
+                PFX##_rotate_left(&scan);                                  \
+            }                                                              \
+            else if (balance <= -2)                                        \
+            {                                                              \
+                child = scan->left;                                        \
+                                                                           \
+                if (PFX##_h(child->left) < PFX##_h(child->right))          \
+                    PFX##_rotate_left(&(scan->left));                      \
+                                                                           \
+                PFX##_rotate_right(&scan);                                 \
+            }                                                              \
+                                                                           \
+            if (is_root)                                                   \
+            {                                                              \
+                _set_->root = scan;                                        \
+                is_root = false;                                           \
+            }                                                              \
+                                                                           \
+            scan = scan->parent;                                           \
         }                                                                  \
     }
 
