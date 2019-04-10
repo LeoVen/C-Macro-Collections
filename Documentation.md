@@ -91,10 +91,6 @@ Allocates and returns a new list with an internal capacity of `size`. If allocat
 1. `SNAME *` - A pointer to a heap allocated list.
 2. `NULL` - If allocation fails.
 
-#### Complexity
-
-* O(1)
-
 ## [<span id="list_new_from"> \_new\_from() </span>](#list_function_index)
 
 Allocates and returns a new list from an already existing array. The list internal buffer's size will match the size of the given array.
@@ -113,10 +109,6 @@ Allocates and returns a new list from an already existing array. The list intern
 1. `SNAME *` - A pointer to a heap allocated list with the given elements.
 2. `NULL` - If allocation fails, or if size equals `0`.
 
-#### Complexity
-
-* O(1)
-
 ## [<span id="list_clear"> \_clear() </span>](#list_function_index)
 
 Removes all elements in the list but does not frees the list structure.
@@ -129,10 +121,6 @@ Removes all elements in the list but does not frees the list structure.
 
 1. `SNAME *_list_` - Target list to be cleared.
 
-#### Complexity
-
-* O(1)
-
 ## [<span id="list_free"> \_free() </span>](#list_function_index)
 
 Frees from memory the list internal buffer and the structure itself. Note that if the elements inside the list are pointers to allocated memory, this function might cause memory leaks as it does not deals with its elements.
@@ -144,10 +132,6 @@ Frees from memory the list internal buffer and the structure itself. Note that i
 #### Parameters
 
 1. `SNAME *_list_` - Target list to be freed from memory.
-
-#### Complexity
-
-* O(1)
 
 ## [<span id="list_push_front"> \_push\_front() </span>](#list_function_index)
 
@@ -166,10 +150,6 @@ Shifts all elements one position to the right and adds an element at the front o
 
 1. `true` - If the element was successfully added to the list.
 2. `false` - If buffer reallocation failed.
-
-#### Complexity
-
-* O(n)
 
 ## [<span id="list_push"> \_push() </span>](#list_function_index)
 
@@ -191,10 +171,6 @@ Adds an element at a given index in the list. After it is successfully added to 
 1. `true` - If the element was successfully added to the list.
 2. `false` - If buffer reallocation failed, or if `index` is greater than the list `count`.
 
-#### Complexity
-
-* O(n)
-
 ## [<span id="list_push_back"> \_push\_back() </span>](#list_function_index)
 
 Adds an element at the back of the list (index `count` where count is the amount of elements in the list). No shifts are required.
@@ -213,10 +189,6 @@ Adds an element at the back of the list (index `count` where count is the amount
 1. `true` - If the element was successfully added to the list.
 2. `false` - If buffer reallocation failed.
 
-#### Complexity
-
-* O(1)
-
 ## [<span id="list_pop_front"> \_pop\_front() </span>](#list_function_index)
 
 Removes the first element in the list (located at index `0`) and shifts all remaining elements to the left.
@@ -233,10 +205,6 @@ Removes the first element in the list (located at index `0`) and shifts all rema
 
 1. `true` - If the element was successfully removed from the list.
 2. `false` - If the list is empty.
-
-#### Complexity
-
-* O(n)
 
 ## [<span id="list_pop"> \_pop() </span>](#list_function_index)
 
@@ -257,10 +225,6 @@ Removes the element located at a given index and shifts all the elements to its 
 1. `true` - If the element was successfully removed from the list.
 2. `false` - If the list is empty, or if `index` is greater than or equal to the list `count`.
 
-#### Complexity
-
-* O(n)
-
 ## [<span id="list_pop_back"> \_pop\_back() </span>](#list_function_index)
 
 Removes the last element in the list (located at index `count - 1`). No shifts are required.
@@ -277,10 +241,6 @@ Removes the last element in the list (located at index `count - 1`). No shifts a
 
 1. `true` - If the element was successfully removed from the list.
 2. `false` - If the list is empty.
-
-#### Complexity
-
-* O(1)
 
 ## [<span id="list_push_if"> \_push\_if() </span>](#list_function_index)
 
@@ -303,10 +263,6 @@ Adds an element at a given index if the condition evaluates to true.
 1. `true` - If the element was successfully added to the list.
 2. `false` - If the condition evaluated to false, if `index` is greater than the list `count`, or if buffer reallocation failed.
 
-#### Complexity
-
-* O(n)
-
 ## [<span id="list_pop_if"> \_pop\_if() </span>](#list_function_index)
 
 Removes an element from a given index if the condition evaluates to true.
@@ -327,10 +283,6 @@ Removes an element from a given index if the condition evaluates to true.
 1. `true` - If the element was successfully removed from the list.
 2. `false` - If the condition evaluated to false, if the list is empty, or if the index is greater than or equal to the list `count`.
 
-#### Complexity
-
-* O(n)
-
 ## [<span id="list_prepend"> \_prepend() </span>](#list_function_index)
 
 Adds to the front of the list an array of elements with a given size.
@@ -349,10 +301,6 @@ Adds to the front of the list an array of elements with a given size.
 
 1. `true` - If the elements were successfully added to the list.
 2. `false` - If buffer reallocation failed, or if `size` parameter equals `0`.
-
-#### Complexity
-
-* O(n<sup>2</sup>)
 
 ## [<span id="list_insert"> \_insert() </span>](#list_function_index)
 
@@ -374,10 +322,6 @@ Adds to the specified list an array of elements with a given size to a specific 
 1. `true` - If the elements were successfully added to the list.
 2. `false` - If buffer reallocation failed, if `size` parameter equals `0`, or if the index is greater than `count`.
 
-#### Complexity
-
-* O(n<sup>2</sup>)
-
 ## [<span id="list_append"> \_append() </span>](#list_function_index)
 
 Adds to the back of the list an array of elements with a given size.
@@ -396,10 +340,6 @@ Adds to the back of the list an array of elements with a given size.
 
 1. `true` - If the elements were successfully added to the list.
 2. `false` - If buffer reallocation failed, or if `size` parameter equals `0`.
-
-#### Complexity
-
-* O(n)
 
 ## [<span id="list_remove"> \_remove() </span>](#list_function_index)
 
@@ -420,10 +360,6 @@ Removes a sequence of elements starting at `from` up to `to`. Both indexes are i
 1. `true` - If the elements were successfully removed from the list.
 2. `false` - If `from` is greater than `to`, or if `to` is greater than or equal to `count`.
 
-#### Complexity
-
-* O(n)
-
 ## [<span id="list_front"> \_front() </span>](#list_function_index)
 
 Returns the first element (located at index `0`) if the list is not empty.
@@ -440,10 +376,6 @@ Returns the first element (located at index `0`) if the list is not empty.
 
 1. `V` - The first element in the list.
 2. `0` or `NULL` - If the list is empty.
-
-#### Complexity
-
-* O(1)
 
 ## [<span id="list_get"> \_get() </span>](#list_function_index)
 
@@ -464,10 +396,6 @@ Returns the element located at the given index if the list is not empty.
 1. `V` - The element in the list located at the given index.
 2. `0` or `NULL` - If the list is empty, or if `index` is greater than or equal to the list `count`.
 
-#### Complexity
-
-* O(1)
-
 ## [<span id="list_back"> \_back() </span>](#list_function_index)
 
 Returns the last element (located at index `count - 1`) if the list is not empty.
@@ -484,10 +412,6 @@ Returns the last element (located at index `count - 1`) if the list is not empty
 
 1. `V` - The last element in the list.
 2. `0` or `NULL` - If the list is empty.
-
-#### Complexity
-
-* O(1)
 
 ## [<span id="list_empty"> \_empty() </span>](#list_function_index)
 
@@ -506,10 +430,6 @@ Returns true if the list is empty, otherwise false.
 1. `true` - If the list is empty.
 2. `false` - If there is at least one element in the list.
 
-#### Complexity
-
-* O(1)
-
 ## [<span id="list_full"> \_full() </span>](#list_function_index)
 
 Returns true if the list is full, otherwise false. The list is considered full when its internal buffer is filled up, so the next element added to the list will required a resizing of the buffer, but note that the list can grow indefinitely.
@@ -527,10 +447,6 @@ Returns true if the list is full, otherwise false. The list is considered full w
 1. `true` - If the list internal buffer is full.
 2. `false` - If the list internal buffer is not full.
 
-#### Complexity
-
-* O(1)
-
 ## [<span id="list_count"> \_count() </span>](#list_function_index)
 
 Returns the amount of elements in the list.
@@ -546,10 +462,6 @@ Returns the amount of elements in the list.
 #### Returns
 
 1. `size_t` - The amount of elements in the list.
-
-#### Complexity
-
-* O(1)
 
 ## [<span id="list_fits"> \_fits() </span>](#list_function_index)
 
@@ -569,10 +481,6 @@ Returns true if a given size fits into the list internal buffer without triggeri
 1. `true` - If the given size fits into the internal buffer of the list.
 2. `false` - If the given size doesn't fit into the internal buffer of the list.
 
-#### Complexity
-
-* O(1)
-
 ## [<span id="list_capacity"> \_capacity() </span>](#list_function_index)
 
 Returns the internal buffer's current capacity.
@@ -589,10 +497,6 @@ Returns the internal buffer's current capacity.
 
 1. `size_t` - The internal buffer's current capacity.
 
-#### Complexity
-
-* O(1)
-
 ## [<span id="list_iter_new"> \_iter\_new() </span>](#list_function_index)
 
 Initializes an iterator with a given target list. The iterator's cursor will be positioned at the beginning of the list.
@@ -605,10 +509,6 @@ Initializes an iterator with a given target list. The iterator's cursor will be 
 
 1. `SNAME##_iter *iter` - Iterator to be initialized.
 2. `SNAME *target` - Target list.
-
-#### Complexity
-
-* O(1)
 
 ## [<span id="list_iter_start"> \_iter\_start() </span>](#list_function_index)
 
@@ -627,10 +527,6 @@ Returns true if the iterator has reached the start of the list. If false, the it
 1. `true` - If the iterator has reached the start of the list.
 2. `false` - If the iterator has not reached the start of the list.
 
-#### Complexity
-
-* O(1)
-
 ## [<span id="list_iter_end"> \_iter\_end() </span>](#list_function_index)
 
 Returns true if the iterator has reached the end of the list. If false, the iterator is still possible to iterate to a next element.
@@ -648,10 +544,6 @@ Returns true if the iterator has reached the end of the list. If false, the iter
 1. `true` - If the iterator has reached the end of the list.
 2. `false` - If the iterator has not reached the end of the list.
 
-#### Complexity
-
-* O(1)
-
 ## [<span id="list_iter_tostart"> \_iter\_tostart() </span>](#list_function_index)
 
 Moves the cursor of the target iterator to the start of the list.
@@ -664,10 +556,6 @@ Moves the cursor of the target iterator to the start of the list.
 
 1. `SNAME##_iter *iter` - Target iterator.
 
-#### Complexity
-
-* O(1)
-
 ## [<span id="list_iter_toend"> \_iter\_toend() </span>](#list_function_index)
 
 Moves the cursor of the target iterator to the end of the list.
@@ -679,10 +567,6 @@ Moves the cursor of the target iterator to the end of the list.
 #### Parameters
 
 1. `SNAME##_iter *iter` - Target iterator.
-
-#### Complexity
-
-* O(1)
 
 ## [<span id="list_iter_next"> \_iter\_next() </span>](#list_function_index)
 
@@ -703,10 +587,6 @@ This function is used to iterate to the next element, retrieving the current one
 1. `true` - If the iterator has retrieved a valid `result` and `index`.
 2. `false` - If the iterator has not retrieved a valid `result` and `index`. Here, iteration to the next element has ended.
 
-#### Complexity
-
-* O(1)
-
 ## [<span id="list_iter_prev"> \_iter\_prev() </span>](#list_function_index)
 
 This function is used to iterate to the previous element, retrieving the current one, along with an index that represents how many iterations have passed. When the index is `0` it means that the current result is the first element in the list; if it equals `count - 1` then it is the last element in the list.
@@ -725,10 +605,6 @@ This function is used to iterate to the previous element, retrieving the current
 
 1. `true` - If the iterator has retrieved a valid `result` and `index`.
 2. `false` - If the iterator has not retrieved a valid `result` and `index`. Here, iteration to the previous element has ended.
-
-#### Complexity
-
-* O(1)
 
 # [LinkedList](#collections_index)
 
@@ -802,10 +678,6 @@ Allocates and returns a new stack with an internal capacity of `size`. If alloca
 1. `SNAME *` - A pointer to a heap allocated stack.
 2. `NULL` - If allocation fails.
 
-#### Complexity
-
-* O(1)
-
 ## [<span id="stack_clear"> \_clear() </span>](#stack_function_index)
 
 Removes all elements in the stack but does not frees the stack structure.
@@ -818,10 +690,6 @@ Removes all elements in the stack but does not frees the stack structure.
 
 1. `SNAME *_stack_` - Target stack to be cleared.
 
-#### Complexity
-
-* O(1)
-
 ## [<span id="stack_free"> \_free() </span>](#stack_function_index)
 
 Frees from memory the stack internal buffer and the structure itself. Note that if the elements inside the stack are pointers to allocated memory, this function might cause memory leaks as it does not deals with its elements.
@@ -833,10 +701,6 @@ Frees from memory the stack internal buffer and the structure itself. Note that 
 #### Parameters
 
 1. `SNAME *_stack_` - Target stack to be freed from memory.
-
-#### Complexity
-
-* O(1)
 
 ## [<span id="stack_push"> \_push() </span>](#stack_function_index)
 
@@ -856,10 +720,6 @@ Adds an element on top of the stack.
 1. `true` - If the element was successfully added to the stack.
 2. `false` - If buffer reallocation failed.
 
-#### Complexity
-
-* O(1)
-
 ## [<span id="stack_pop"> \_pop() </span>](#stack_function_index)
 
 Removes the top element from the stack.
@@ -876,10 +736,6 @@ Removes the top element from the stack.
 
 1. `true` - If an element was successfully removed from the stack.
 2. `false` - If the stack is empty.
-
-#### Complexity
-
-* O(1)
 
 ## [<span id="stack_push_if"> \_push\_if() </span>](#stack_function_index)
 
@@ -900,10 +756,6 @@ Adds an element on top of the stack if the condition evaluates to true.
 1. `true` - If the element was successfully added to the stack.
 2. `false` - If the condition evaluated to false, or if buffer reallocation failed.
 
-#### Complexity
-
-* O(1)
-
 ## [<span id="stack_pop_if"> \_pop\_if() </span>](#stack_function_index)
 
 Removes the top element from the stack if the condition evaluates to true.
@@ -922,10 +774,6 @@ Removes the top element from the stack if the condition evaluates to true.
 1. `true` - If the element was successfully added to the stack.
 2. `false` - If the condition evaluated to false, or if the stack is empty.
 
-#### Complexity
-
-* O(1)
-
 ## [<span id="stack_top"> \_top() </span>](#stack_function_index)
 
 Returns the element at the top of the stack if available.
@@ -942,10 +790,6 @@ Returns the element at the top of the stack if available.
 
 1. `V` - The element at the top of the stack.
 2. `0` or `NULL` - If the stack is empty.
-
-#### Complexity
-
-* O(1)
 
 ## [<span id="stack_empty"> \_empty() </span>](#stack_function_index)
 
@@ -964,10 +808,6 @@ Returns true if the stack is empty, otherwise false.
 1. `true` - If the stack is empty.
 2. `false` - If there is at least one element in the stack.
 
-#### Complexity
-
-* O(1)
-
 ## [<span id="stack_full"> \_full() </span>](#stack_function_index)
 
 Returns true if the stack is full, otherwise false. The stack is considered full when its internal buffer is filled up, so the next element added to the stack will required a resizing of the buffer, but note that the stack can grow indefinitely.
@@ -985,10 +825,6 @@ Returns true if the stack is full, otherwise false. The stack is considered full
 1. `true` - If the stack internal buffer is full.
 2. `false` - If the stack internal buffer is not full.
 
-#### Complexity
-
-* O(1)
-
 ## [<span id="stack_count"> \_count() </span>](#stack_function_index)
 
 Returns the amount of elements in the stack.
@@ -1004,10 +840,6 @@ Returns the amount of elements in the stack.
 #### Returns
 
 1. `size_t` - The amount of elements in the stack.
-
-#### Complexity
-
-* O(1)
 
 ## [<span id="stack_capacity"> \_capacity() </span>](#stack_function_index)
 
@@ -1025,10 +857,6 @@ Returns the internal buffer's current capacity.
 
 1. `size_t` - The internal buffer's current capacity.
 
-#### Complexity
-
-* O(1)
-
 ## [<span id="stack_iter_new"> \_iter\_new() </span>](#stack_function_index)
 
 Initializes an iterator with a given target stack. The iterator's cursor will be positioned at the top of the stack.
@@ -1041,10 +869,6 @@ Initializes an iterator with a given target stack. The iterator's cursor will be
 
 1. `SNAME##_iter *iter` - Iterator to be initialized.
 2. `SNAME *target` - Target stack.
-
-#### Complexity
-
-* O(1)
 
 ## [<span id="stack_iter_start"> \_iter\_start() </span>](#stack_function_index)
 
@@ -1063,10 +887,6 @@ Returns true if the iterator has reached the start of the stack (top element). I
 1. `true` - If the iterator has reached the start of the stack.
 2. `false` - If the iterator has not reached the start of the stack.
 
-#### Complexity
-
-* O(1)
-
 ## [<span id="stack_iter_end"> \_iter\_end() </span>](#stack_function_index)
 
 Returns true if the iterator has reached the end of the stack (bottom element). If false, the iterator is still possible to iterate to a next element.
@@ -1084,10 +904,6 @@ Returns true if the iterator has reached the end of the stack (bottom element). 
 1. `true` - If the iterator has reached the end of the stack.
 2. `false` - If the iterator has not reached the end of the stack.
 
-#### Complexity
-
-* O(1)
-
 ## [<span id="stack_iter_tostart"> \_iter\_tostart() </span>](#stack_function_index)
 
 Moves the cursor of the target iterator to the start (top element) of the stack.
@@ -1100,10 +916,6 @@ Moves the cursor of the target iterator to the start (top element) of the stack.
 
 1. `SNAME##_iter *iter` - Target iterator.
 
-#### Complexity
-
-* O(1)
-
 ## [<span id="stack_iter_toend"> \_iter\_toend() </span>](#stack_function_index)
 
 Moves the cursor of the target iterator to the end of the stack (bottom element).
@@ -1115,10 +927,6 @@ Moves the cursor of the target iterator to the end of the stack (bottom element)
 #### Parameters
 
 1. `SNAME##_iter *iter` - Target iterator.
-
-#### Complexity
-
-* O(1)
 
 ## [<span id="stack_iter_next"> \_iter\_next() </span>](#stack_function_index)
 
@@ -1139,10 +947,6 @@ This function is used to iterate to the next element, retrieving the current one
 1. `true` - If the iterator has retrieved a valid `result` and `index`.
 2. `false` - If the iterator has not retrieved a valid `result` and `index`. Here, iteration to the next element has ended.
 
-#### Complexity
-
-* O(1)
-
 ## [<span id="stack_iter_prev"> \_iter\_prev() </span>](#stack_function_index)
 
 This function is used to iterate to the previous element, retrieving the current one, along with an index that represents how many iterations have passed. When the index is `0` it means that the current result is the top-most element of the stack; if it equals `count - 1` then it is the bottom-most element of the stack.
@@ -1161,10 +965,6 @@ This function is used to iterate to the previous element, retrieving the current
 
 1. `true` - If the iterator has retrieved a valid `result` and `index`.
 2. `false` - If the iterator has not retrieved a valid `result` and `index`. Here, iteration to the previous element has ended.
-
-#### Complexity
-
-* O(1)
 
 # [Queue](#collections_index)
 
@@ -1237,10 +1037,6 @@ Allocates and returns a new queue with an internal capacity of `size`. If alloca
 1. `SNAME *` - A pointer to a heap allocated queue.
 2. `NULL` - If allocation fails.
 
-#### Complexity
-
-* O(1)
-
 ## [<span id="queue_clear"> \_clear() </span>](#queue_function_index)
 
 Removes all elements in the queue but does not frees the queue structure.
@@ -1253,10 +1049,6 @@ Removes all elements in the queue but does not frees the queue structure.
 
 1. `SNAME *_queue_` - Target queue to be cleared.
 
-#### Complexity
-
-* O(1)
-
 ## [<span id="queue_free"> \_free() </span>](#queue_function_index)
 
 Frees from memory the queue internal buffer and the structure itself. Note that if the elements inside the queue are pointers to allocated memory, this function might cause memory leaks as it does not deals with its elements.
@@ -1268,10 +1060,6 @@ Frees from memory the queue internal buffer and the structure itself. Note that 
 #### Parameters
 
 1. `SNAME *_queue_` - Target queue to be freed from memory.
-
-#### Complexity
-
-* O(1)
 
 ## [<span id="queue_enqueue"> \_enqueue() </span>](#queue_function_index)
 
@@ -1291,10 +1079,6 @@ Adds an element to the rear of the queue.
 1. `true` - If the element was successfully added to the rear of the queue.
 2. `false` - If buffer reallocation failed.
 
-#### Complexity
-
-* O(1)
-
 ## [<span id="queue_dequeue"> \_dequeue() </span>](#queue_function_index)
 
 Removes an element at the front of the queue.
@@ -1311,10 +1095,6 @@ Removes an element at the front of the queue.
 
 1. `true` - If the front element was successfully removed from the queue.
 2. `false` - If the queue is empty.
-
-#### Complexity
-
-* O(1)
 
 ## [<span id="queue_enqueue_if"> \_enqueue\_if() </span>](#queue_function_index)
 
@@ -1335,10 +1115,6 @@ Adds an element to the rear of the queue if the condition evaluates to true.
 1. `true` - If the element was successfully added to the rear of the queue.
 2. `false` - If the condition evaluated to false, or if buffer reallocation failed.
 
-#### Complexity
-
-* O(1)
-
 ## [<span id="queue_dequeue_if"> \_dequeue\_if() </span>](#queue_function_index)
 
 Removes an element at the front of the queue if the condition evaluates to true.
@@ -1357,10 +1133,6 @@ Removes an element at the front of the queue if the condition evaluates to true.
 1. `true` - If the front element was successfully removed from the queue.
 2. `false` - If the condition evaluated to false, or if the queue is empty.
 
-#### Complexity
-
-* O(1)
-
 ## [<span id="queue_peek"> \_peek() </span>](#queue_function_index)
 
 Returns the element at the front of the queue if available. This represents the next element to be removed from the queue.
@@ -1377,10 +1149,6 @@ Returns the element at the front of the queue if available. This represents the 
 
 1. `V` - The element at the front of the queue.
 2. `0` or `NULL` - If the queue is empty.
-
-#### Complexity
-
-* O(1)
 
 ## [<span id="queue_empty"> \_empty() </span>](#queue_function_index)
 
@@ -1399,10 +1167,6 @@ Returns true if the queue is empty, otherwise false.
 1. `true` - If the queue is empty.
 2. `false` - If there is at least one element in the queue.
 
-#### Complexity
-
-* O(1)
-
 ## [<span id="queue_full"> \_full() </span>](#queue_function_index)
 
 Returns true if the queue is full, otherwise false. The queue is considered full when its internal buffer is filled up, so the next element added to the queue will required a resizing of the buffer, but note that the queue can grow indefinitely.
@@ -1420,10 +1184,6 @@ Returns true if the queue is full, otherwise false. The queue is considered full
 1. `true` - If the queue internal buffer is full.
 2. `false` - If the queue internal buffer is not full.
 
-#### Complexity
-
-* O(1)
-
 ## [<span id="queue_count"> \_count() </span>](#queue_function_index)
 
 Returns the amount of elements in the queue.
@@ -1439,10 +1199,6 @@ Returns the amount of elements in the queue.
 #### Returns
 
 1. `size_t` - The amount of elements in the queue.
-
-#### Complexity
-
-* O(1)
 
 ## [<span id="queue_capacity"> \_capacity() </span>](#queue_function_index)
 
@@ -1460,10 +1216,6 @@ Returns the internal buffer's current capacity.
 
 1. `size_t` - The internal buffer's current capacity.
 
-#### Complexity
-
-* O(1)
-
 ## [<span id="queue_iter_new"> \_iter\_new() </span>](#queue_function_index)
 
 Initializes an iterator with a given target queue. The iterator's cursor will be positioned at the front of the queue.
@@ -1476,10 +1228,6 @@ Initializes an iterator with a given target queue. The iterator's cursor will be
 
 1. `SNAME##_iter *iter` - Iterator to be initialized.
 2. `SNAME *target` - Target queue.
-
-#### Complexity
-
-* O(1)
 
 ## [<span id="queue_iter_start"> \_iter\_start() </span>](#queue_function_index)
 
@@ -1498,10 +1246,6 @@ Returns true if the iterator has reached the start of the queue (front element).
 1. `true` - If the iterator has reached the start of the queue.
 2. `false` - If the iterator has not reached the start of the queue.
 
-#### Complexity
-
-* O(1)
-
 ## [<span id="queue_iter_end"> \_iter\_end() </span>](#queue_function_index)
 
 Returns true if the iterator has reached the end of the queue (rear element). If false, the iterator is still possible to iterate to a next element.
@@ -1519,10 +1263,6 @@ Returns true if the iterator has reached the end of the queue (rear element). If
 1. `true` - If the iterator has reached the end of the queue.
 2. `false` - If the iterator has not reached the end of the queue.
 
-#### Complexity
-
-* O(1)
-
 ## [<span id="queue_iter_tostart"> \_iter\_tostart() </span>](#queue_function_index)
 
 Moves the cursor of the target iterator to the start (front element) of the queue.
@@ -1535,10 +1275,6 @@ Moves the cursor of the target iterator to the start (front element) of the queu
 
 1. `SNAME##_iter *iter` - Target iterator.
 
-#### Complexity
-
-* O(1)
-
 ## [<span id="queue_iter_toend"> \_iter\_toend() </span>](#queue_function_index)
 
 Moves the cursor of the target iterator to the end of the queue (rear element).
@@ -1550,10 +1286,6 @@ Moves the cursor of the target iterator to the end of the queue (rear element).
 #### Parameters
 
 1. `SNAME##_iter *iter` - Target iterator.
-
-#### Complexity
-
-* O(1)
 
 ## [<span id="queue_iter_next"> \_iter\_next() </span>](#queue_function_index)
 
@@ -1574,10 +1306,6 @@ This function is used to iterate to the next element, retrieving the current one
 1. `true` - If the iterator has retrieved a valid `result` and `index`.
 2. `false` - If the iterator has not retrieved a valid `result` and `index`. Here, iteration to the next element has ended.
 
-#### Complexity
-
-* O(1)
-
 ## [<span id="queue_iter_prev"> \_iter\_prev() </span>](#queue_function_index)
 
 This function is used to iterate to the previous element, retrieving the current one, along with an index that represents how many iterations have passed. When the index is `0` it means that the current result is the front element of the queue; if it equals `count - 1` then it is the rear element of the queue.
@@ -1596,10 +1324,6 @@ This function is used to iterate to the previous element, retrieving the current
 
 1. `true` - If the iterator has retrieved a valid `result` and `index`.
 2. `false` - If the iterator has not retrieved a valid `result` and `index`. Here, iteration to the previous element has ended.
-
-#### Complexity
-
-* O(1)
 
 # [Deque](#collections_index)
 
@@ -1677,10 +1401,6 @@ Allocates and returns a new deque with an internal capacity of `size`. If alloca
 1. `SNAME *` - A pointer to a heap allocated deque.
 2. `NULL` - If allocation fails.
 
-#### Complexity
-
-* O(1)
-
 ## [<span id="deque_clear"> \_clear() </span>](#deque_function_index)
 
 Removes all elements in the deque but does not frees the deque structure.
@@ -1693,10 +1413,6 @@ Removes all elements in the deque but does not frees the deque structure.
 
 1. `SNAME *_deque_` - Target deque to be cleared.
 
-#### Complexity
-
-* O(1)
-
 ## [<span id="deque_free"> \_free() </span>](#deque_function_index)
 
 Frees from memory the deque internal buffer and the structure itself. Note that if the elements inside the deque are pointers to allocated memory, this function might cause memory leaks as it does not deals with its elements.
@@ -1708,10 +1424,6 @@ Frees from memory the deque internal buffer and the structure itself. Note that 
 #### Parameters
 
 1. `SNAME *_deque_` - Target deque to be freed from memory.
-
-#### Complexity
-
-* O(1)
 
 ## [<span id="deque_push_front"> \_push\_front() </span>](#deque_function_index)
 
@@ -1731,10 +1443,6 @@ Adds an element to the front of the deque.
 1. `true` - If the element was successfully added to the front of the deque.
 2. `false` - If buffer reallocation failed.
 
-#### Complexity
-
-* O(1)
-
 ## [<span id="deque_push_back"> \_push\_back() </span>](#deque_function_index)
 
 Adds an element to the back of the deque.
@@ -1753,10 +1461,6 @@ Adds an element to the back of the deque.
 1. `true` - If the element was successfully added to the back of the deque.
 2. `false` - If buffer reallocation failed.
 
-#### Complexity
-
-* O(1)
-
 ## [<span id="deque_pop_front"> \_pop\_front() </span>](#deque_function_index)
 
 Removes an element from the front of the deque.
@@ -1774,10 +1478,6 @@ Removes an element from the front of the deque.
 1. `true` - If the element was successfully removed from the front of the deque.
 2. `false` - If the deque is empty.
 
-#### Complexity
-
-* O(1)
-
 ## [<span id="deque_pop_back"> \_pop\_back() </span>](#deque_function_index)
 
 Removes an element from the back of the deque.
@@ -1794,10 +1494,6 @@ Removes an element from the back of the deque.
 
 1. `true` - If the element was successfully removed from the back of the deque.
 2. `false` - If the deque is empty.
-
-#### Complexity
-
-* O(1)
 
 ## [<span id="deque_push_front_if"> \_push\_front\_if() </span>](#deque_function_index)
 
@@ -1818,10 +1514,6 @@ Adds an element to the front of the deque if the condition evaluates to true.
 1. `true` - If the element was successfully added to the front of the deque.
 2. `false` - If the condition evaluated to false, or if buffer reallocation failed.
 
-#### Complexity
-
-* O(1)
-
 ## [<span id="deque_push_back_if"> \_push\_back\_if() </span>](#deque_function_index)
 
 Adds an element to the back of the deque if the condition evaluates to true.
@@ -1841,10 +1533,6 @@ Adds an element to the back of the deque if the condition evaluates to true.
 1. `true` - If the element was successfully added to the back of the deque.
 2. `false` - If the condition evaluated to false, or if buffer reallocation failed.
 
-#### Complexity
-
-* O(1)
-
 ## [<span id="deque_pop_front_if"> \_pop\_front\_if() </span>](#deque_function_index)
 
 Removes an element from the front of the deque if the condition evaluates to true.
@@ -1862,10 +1550,6 @@ Removes an element from the front of the deque if the condition evaluates to tru
 
 1. `true` - If the element was successfully removed from the front of the deque.
 2. `false` - If the condition evaluated to false, or if the deque is empty.
-
-#### Complexity
-
-* O(1)
 
 ## [<span id="deque_pop_back_if"> \_pop\_back\_if() </span>](#deque_function_index)
 
@@ -1885,10 +1569,6 @@ Removes an element from the back of the deque if the condition evaluates to true
 1. `true` - If the element was successfully removed from the back of the deque.
 2. `false` - If the condition evaluated to false, or if the deque is empty.
 
-#### Complexity
-
-* O(1)
-
 ## [<span id="deque_front"> \_front() </span>](#deque_function_index)
 
 Returns the front element if the specified deque is not empty.
@@ -1905,10 +1585,6 @@ Returns the front element if the specified deque is not empty.
 
 1. `V` - The front element of the deque.
 2. `0` or `NULL` - If the deque is empty.
-
-#### Complexity
-
-* O(1)
 
 ## [<span id="deque_back"> \_back() </span>](#deque_function_index)
 
@@ -1927,10 +1603,6 @@ Returns the rear element if the specified deque is not empty.
 1. `V` - The rear element of the deque.
 2. `0` or `NULL` - If the deque is empty.
 
-#### Complexity
-
-* O(1)
-
 ## [<span id="deque_empty"> \_empty() </span>](#deque_function_index)
 
 Returns true if the deque is empty, otherwise false.
@@ -1947,10 +1619,6 @@ Returns true if the deque is empty, otherwise false.
 
 1. `true` - If the deque is empty.
 2. `false` - If there is at least one element in the deque.
-
-#### Complexity
-
-* O(1)
 
 ## [<span id="deque_full"> \_full() </span>](#deque_function_index)
 
@@ -1969,10 +1637,6 @@ Returns true if the deque is full, otherwise false. The deque is considered full
 1. `true` - If the deque internal buffer is full.
 2. `false` - If the deque internal buffer is not full.
 
-#### Complexity
-
-* O(1)
-
 ## [<span id="deque_count"> \_count() </span>](#deque_function_index)
 
 Returns the amount of elements in the deque.
@@ -1988,10 +1652,6 @@ Returns the amount of elements in the deque.
 #### Returns
 
 1. `size_t` - The amount of elements in the deque.
-
-#### Complexity
-
-* O(1)
 
 ## [<span id="deque_capacity"> \_capacity() </span>](#deque_function_index)
 
@@ -2009,10 +1669,6 @@ Returns the internal buffer's current capacity.
 
 1. `size_t` - The internal buffer's current capacity.
 
-#### Complexity
-
-* O(1)
-
 ## [<span id="deque_iter_new"> \_iter\_new() </span>](#deque_function_index)
 
 Initializes an iterator with a given target deque. The iterator's cursor will be positioned at the front of the deque.
@@ -2025,10 +1681,6 @@ Initializes an iterator with a given target deque. The iterator's cursor will be
 
 1. `SNAME##_iter *iter` - Iterator to be initialized.
 2. `SNAME *target` - Target deque.
-
-#### Complexity
-
-* O(1)
 
 ## [<span id="deque_iter_start"> \_iter\_start() </span>](#deque_function_index)
 
@@ -2047,10 +1699,6 @@ Returns true if the iterator has reached the start of the deque (front element).
 1. `true` - If the iterator has reached the start of the deque.
 2. `false` - If the iterator has not reached the start of the deque.
 
-#### Complexity
-
-* O(1)
-
 ## [<span id="deque_iter_end"> \_iter\_end() </span>](#deque_function_index)
 
 Returns true if the iterator has reached the end of the deque (rear element). If false, the iterator is still possible to iterate to a next element.
@@ -2068,10 +1716,6 @@ Returns true if the iterator has reached the end of the deque (rear element). If
 1. `true` - If the iterator has reached the end of the deque.
 2. `false` - If the iterator has not reached the end of the deque.
 
-#### Complexity
-
-* O(1)
-
 ## [<span id="deque_iter_tostart"> \_iter\_tostart() </span>](#deque_function_index)
 
 Moves the cursor of the target iterator to the start (front element) of the deque.
@@ -2084,10 +1728,6 @@ Moves the cursor of the target iterator to the start (front element) of the dequ
 
 1. `SNAME##_iter *iter` - Target iterator.
 
-#### Complexity
-
-* O(1)
-
 ## [<span id="deque_iter_toend"> \_iter\_toend() </span>](#deque_function_index)
 
 Moves the cursor of the target iterator to the end (rear element) of the deque.
@@ -2099,10 +1739,6 @@ Moves the cursor of the target iterator to the end (rear element) of the deque.
 #### Parameters
 
 1. `SNAME##_iter *iter` - Target iterator.
-
-#### Complexity
-
-* O(1)
 
 ## [<span id="deque_iter_next"> \_iter\_next() </span>](#deque_function_index)
 
@@ -2123,10 +1759,6 @@ This function is used to iterate to the next element, retrieving the current one
 1. `true` - If the iterator has retrieved a valid `result` and `index`.
 2. `false` - If the iterator has not retrieved a valid `result` and `index`. Here, iteration to the next element has ended.
 
-#### Complexity
-
-* O(1)
-
 ## [<span id="deque_iter_prev"> \_iter\_prev() </span>](#deque_function_index)
 
 This function is used to iterate to the previous element, retrieving the current one, along with an index that represents how many iterations have passed. When the index is `0` it means that the current result is the front element of the deque; if it equals `count - 1` then it is the rear element of the deque.
@@ -2145,10 +1777,6 @@ This function is used to iterate to the previous element, retrieving the current
 
 1. `true` - If the iterator has retrieved a valid `result` and `index`.
 2. `false` - If the iterator has not retrieved a valid `result` and `index`. Here, iteration to the previous element has ended.
-
-#### Complexity
-
-* O(1)
 
 # [Heap](#collections_index)
 
