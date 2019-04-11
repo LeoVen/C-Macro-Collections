@@ -534,12 +534,12 @@
                                                                                     \
     FMOD bool PFX##_iter_start(SNAME##_iter *iter)                                  \
     {                                                                               \
-        return iter->cursor->prev == NULL && iter->start;                           \
+        return PFX##_empty(iter->target) || iter->start;                            \
     }                                                                               \
                                                                                     \
     FMOD bool PFX##_iter_end(SNAME##_iter *iter)                                    \
     {                                                                               \
-        return iter->cursor->next == NULL && iter->end;                             \
+        return PFX##_empty(iter->target) || iter->end;                              \
     }                                                                               \
                                                                                     \
     FMOD void PFX##_iter_tostart(SNAME##_iter *iter)                                \

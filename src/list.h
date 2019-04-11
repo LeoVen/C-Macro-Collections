@@ -457,12 +457,12 @@
                                                                                     \
     FMOD bool PFX##_iter_start(SNAME##_iter *iter)                                  \
     {                                                                               \
-        return iter->cursor == 0 && iter->start;                                    \
+        return PFX##_empty(iter->target) || iter->start;                            \
     }                                                                               \
                                                                                     \
     FMOD bool PFX##_iter_end(SNAME##_iter *iter)                                    \
     {                                                                               \
-        return iter->cursor == iter->target->count - 1 && iter->end;                \
+        return PFX##_empty(iter->target) || iter->end;                              \
     }                                                                               \
                                                                                     \
     FMOD void PFX##_iter_tostart(SNAME##_iter *iter)                                \

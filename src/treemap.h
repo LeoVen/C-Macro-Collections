@@ -448,12 +448,12 @@
                                                                                    \
     FMOD bool PFX##_iter_start(SNAME##_iter *iter)                                 \
     {                                                                              \
-        return iter->start && iter->cursor == iter->first;                         \
+        return PFX##_empty(iter->target) || iter->start;                           \
     }                                                                              \
                                                                                    \
     FMOD bool PFX##_iter_end(SNAME##_iter *iter)                                   \
     {                                                                              \
-        return iter->end && iter->cursor == iter->last;                            \
+        return PFX##_empty(iter->target) || iter->end;                             \
     }                                                                              \
                                                                                    \
     FMOD void PFX##_iter_tostart(SNAME##_iter *iter)                               \
