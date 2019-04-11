@@ -11,7 +11,7 @@
 #include <stdlib.h>
 #include "hashset.h"
 
-HASHSET_GENERATE(hs, hash_set, static, int)
+HASHSET_GENERATE(hs, hset, static, int)
 
 size_t inthash(int t)
 {
@@ -36,12 +36,12 @@ int main(int argc, char const *argv[])
     int r;
 
     // Initialize hash set and add some elements
-    hash_set *hs = hs_new(10, 0.9, intcmp, inthash);
+    hset *hs = hs_new(10, 0.9, intcmp, inthash);
     for (int i = 0; i < 10; i++)
         hs_insert(hs, i);
 
     // Initialize iterator
-    hash_set_iter iter;
+    hset_iter iter;
     hs_iter_new(&iter, hs);
 
     // Make the iterator go back and forward
