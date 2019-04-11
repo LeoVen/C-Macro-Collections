@@ -1,10 +1,15 @@
-// Checks if the treeset iterator can go back and forward in the treeset without
-// hitting invalid states or a null pointer. Check is done visually.
+/**
+ * treeset.c
+ *
+ * Creation Date: 11/04/2019
+ *
+ * Authors:
+ * Leonardo Vencovsky (https://github.com/LeoVen)
+ *
+ */
 #include <stdio.h>
 #include <stdlib.h>
-#include <stdint.h>
-#include <stdbool.h>
-#include "../../src/treeset.h"
+#include "treeset.h"
 
 int intcmp(int a, int b)
 {

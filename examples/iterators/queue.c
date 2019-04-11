@@ -1,10 +1,15 @@
-// Checks if the queue iterator can go back and forward in the queue without
-// hitting invalid states or a null pointer. Check is done visually.
+/**
+ * queue.c
+ *
+ * Creation Date: 11/04/2019
+ *
+ * Authors:
+ * Leonardo Vencovsky (https://github.com/LeoVen)
+ *
+ */
 #include <stdio.h>
 #include <stdlib.h>
-#include <stdint.h>
-#include <stdbool.h>
-#include "../../src/queue.h"
+#include "queue.h"
 
 QUEUE_GENERATE(q, queue, static, int)
 

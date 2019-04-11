@@ -1,10 +1,15 @@
-// Checks if the stack iterator can go back and forward in the stack without
-// hitting invalid states or a null pointer. Check is done visually.
+/**
+ * stack.c
+ *
+ * Creation Date: 11/04/2019
+ *
+ * Authors:
+ * Leonardo Vencovsky (https://github.com/LeoVen)
+ *
+ */
 #include <stdio.h>
 #include <stdlib.h>
-#include <stdint.h>
-#include <stdbool.h>
-#include "../../src/stack.h"
+#include "stack.h"
 
 STACK_GENERATE(s, stack, static, int)
 

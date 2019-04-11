@@ -1,10 +1,15 @@
-// Checks if the hash set iterator can go back and forward in the hash set without
-// hitting invalid states or a null pointer. Check is done visually.
+/**
+ * hashset.c
+ *
+ * Creation Date: 11/04/2019
+ *
+ * Authors:
+ * Leonardo Vencovsky (https://github.com/LeoVen)
+ *
+ */
 #include <stdio.h>
 #include <stdlib.h>
-#include <stdint.h>
-#include <stdbool.h>
-#include "../../src/hashset.h"
+#include "hashset.h"
 
 HASHSET_GENERATE(hs, hash_set, static, int)
 

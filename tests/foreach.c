@@ -19,18 +19,18 @@ size_t inthash(int t)
     return a;
 }
 
-COLLECTION_GENERATE(      LIST, PUBLIC,  l,   list, /* FMOD */, /* K */, int)
-COLLECTION_GENERATE(     STACK, PUBLIC,  s,  stack, /* FMOD */, /* K */, int)
-COLLECTION_GENERATE(     QUEUE, PUBLIC,  q,  queue, /* FMOD */, /* K */, int)
-COLLECTION_GENERATE(     DEQUE, PUBLIC,  d,  deque, /* FMOD */, /* K */, int)
+COLLECTION_GENERATE(LIST, PUBLIC, l, list, /* FMOD */, /* K */, int)
+COLLECTION_GENERATE(STACK, PUBLIC, s, stack, /* FMOD */, /* K */, int)
+COLLECTION_GENERATE(QUEUE, PUBLIC, q, queue, /* FMOD */, /* K */, int)
+COLLECTION_GENERATE(DEQUE, PUBLIC, d, deque, /* FMOD */, /* K */, int)
 COLLECTION_GENERATE(LINKEDLIST, PUBLIC, ll, linked, /* FMOD */, /* K */, int)
-COLLECTION_GENERATE(      HEAP, PUBLIC,  h,   heap, /* FMOD */, /* K */, int)
-COLLECTION_GENERATE(   TREESET, PUBLIC, ts,   tset, /* FMOD */, /* K */, int)
-COLLECTION_GENERATE(   TREEMAP, PUBLIC, tm,   tmap, /* FMOD */,     int, int)
-COLLECTION_GENERATE(   HASHSET, PUBLIC, hs,   hset, /* FMOD */, /* K */, int)
-COLLECTION_GENERATE(   HASHMAP, PUBLIC, hm,   hmap, /* FMOD */,     int, int)
+COLLECTION_GENERATE(HEAP, PUBLIC, h, heap, /* FMOD */, /* K */, int)
+COLLECTION_GENERATE(TREESET, PUBLIC, ts, tset, /* FMOD */, /* K */, int)
+COLLECTION_GENERATE(TREEMAP, PUBLIC, tm, tmap, /* FMOD */, int, int)
+COLLECTION_GENERATE(HASHSET, PUBLIC, hs, hset, /* FMOD */, /* K */, int)
+COLLECTION_GENERATE(HASHMAP, PUBLIC, hm, hmap, /* FMOD */, int, int)
 
-int main(int argc, char const *argv[])
+int main(void)
 {
     list *l = l_new(1000);
     stack *s = s_new(1000);
@@ -112,6 +112,7 @@ int main(int argc, char const *argv[])
         sum11 += value;
     })
 
+    printf("\n-------------------- FOR_EACH --------------------\n");
     if (sum0 == 50005000)
         printf("%10s PASSED\n", "LIST");
     if (sum1 == 50005000)
@@ -180,6 +181,7 @@ int main(int argc, char const *argv[])
         sum11 += value;
     })
 
+    printf("-------------------- FOR_EACH_REV --------------------\n");
     if (sum0 == 50005000)
         printf("%10s PASSED\n", "LIST");
     if (sum1 == 50005000)

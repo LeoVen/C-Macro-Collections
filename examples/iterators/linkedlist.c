@@ -1,10 +1,15 @@
-// Checks if the linked list iterator can go back and forward in the list
-// without hitting invalid states or a null pointer. Check is done visually.
+/**
+ * linkedlist.c
+ *
+ * Creation Date: 11/04/2019
+ *
+ * Authors:
+ * Leonardo Vencovsky (https://github.com/LeoVen)
+ *
+ */
 #include <stdio.h>
 #include <stdlib.h>
-#include <stdint.h>
-#include <stdbool.h>
-#include "../../src/linkedlist.h"
+#include "linkedlist.h"
 
 LINKEDLIST_GENERATE(ll, linked, static, int)
 

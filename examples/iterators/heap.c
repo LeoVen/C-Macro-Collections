@@ -1,10 +1,15 @@
-// Checks if the heap iterator can go back and forward in the heap without
-// hitting invalid states or a null pointer. Check is done visually.
+/**
+ * heap.c
+ *
+ * Creation Date: 11/04/2019
+ *
+ * Authors:
+ * Leonardo Vencovsky (https://github.com/LeoVen)
+ *
+ */
 #include <stdio.h>
 #include <stdlib.h>
-#include <stdint.h>
-#include <stdbool.h>
-#include "../../src/heap.h"
+#include "heap.h"
 
 int intcmp(int a, int b)
 {
@@ -41,7 +46,7 @@ int main(int argc, char const *argv[])
     for (h_iter_tostart(&iter); !h_iter_end(&iter); /**/)
     {
         h_iter_next(&iter, &r, &i);
-        printf("L[%2d] = %2d\n", i, r);
+        printf("H[%2d] = %2d\n", i, r);
     }
 
     printf("\n");
@@ -49,7 +54,7 @@ int main(int argc, char const *argv[])
     for (h_iter_toend(&iter); !h_iter_start(&iter); /**/)
     {
         h_iter_prev(&iter, &r, &i);
-        printf("L[%2d] = %2d\n", i, r);
+        printf("H[%2d] = %2d\n", i, r);
     }
 
     h_free(h);
