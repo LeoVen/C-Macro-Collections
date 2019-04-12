@@ -45,7 +45,7 @@
         size_t capacity;                           \
         size_t count;                              \
         size_t front;                              \
-        size_t rear;                               \
+        size_t back;                               \
     };                                             \
                                                    \
     struct SNAME##_iter_s                          \
@@ -117,7 +117,7 @@
         _deque_->capacity = size;                                                                        \
         _deque_->count = 0;                                                                              \
         _deque_->front = 0;                                                                              \
-        _deque_->rear = 0;                                                                               \
+        _deque_->back = 0;                                                                               \
                                                                                                          \
         return _deque_;                                                                                  \
     }                                                                                                    \
@@ -128,7 +128,7 @@
                                                                                                          \
         _deque_->count = 0;                                                                              \
         _deque_->front = 0;                                                                              \
-        _deque_->rear = 0;                                                                               \
+        _deque_->back = 0;                                                                               \
     }                                                                                                    \
                                                                                                          \
     FMOD void PFX##_free(SNAME *_deque_)                                                                 \
@@ -162,9 +162,9 @@
                 return false;                                                                            \
         }                                                                                                \
                                                                                                          \
-        _deque_->buffer[_deque_->rear] = element;                                                        \
+        _deque_->buffer[_deque_->back] = element;                                                        \
                                                                                                          \
-        _deque_->rear = (_deque_->rear == _deque_->capacity - 1) ? 0 : _deque_->rear + 1;                \
+        _deque_->back = (_deque_->back == _deque_->capacity - 1) ? 0 : _deque_->back + 1;                \
                                                                                                          \
         _deque_->count++;                                                                                \
                                                                                                          \
@@ -190,9 +190,9 @@
         if (PFX##_empty(_deque_))                                                                        \
             return false;                                                                                \
                                                                                                          \
-        _deque_->rear = (_deque_->rear == 0) ? _deque_->capacity - 1 : _deque_->rear - 1;                \
+        _deque_->back = (_deque_->back == 0) ? _deque_->capacity - 1 : _deque_->back - 1;                \
                                                                                                          \
-        _deque_->buffer[_deque_->rear] = 0;                                                              \
+        _deque_->buffer[_deque_->back] = 0;                                                              \
                                                                                                          \
         _deque_->count--;                                                                                \
                                                                                                          \
@@ -244,7 +244,7 @@
         if (PFX##_empty(_deque_))                                                                        \
             return 0;                                                                                    \
                                                                                                          \
-        return _deque_->buffer[(_deque_->rear == 0) ? _deque_->capacity - 1 : _deque_->rear - 1];        \
+        return _deque_->buffer[(_deque_->back == 0) ? _deque_->capacity - 1 : _deque_->back - 1];        \
     }                                                                                                    \
                                                                                                          \
     FMOD bool PFX##_empty(SNAME *_deque_)                                                                \
@@ -299,7 +299,7 @@
         if (PFX##_empty(iter->target))                                                                   \
             iter->cursor = 0;                                                                            \
         else                                                                                             \
-            iter->cursor = (iter->target->rear == 0) ? iter->target->count - 1 : iter->target->rear - 1; \
+            iter->cursor = (iter->target->back == 0) ? iter->target->count - 1 : iter->target->back - 1; \
                                                                                                          \
         iter->index = iter->target->count - 1;                                                           \
         iter->start = PFX##_empty(iter->target);                                                         \
@@ -368,7 +368,7 @@
         _deque_->buffer = new_buffer;                                                                    \
         _deque_->capacity = new_capacity;                                                                \
         _deque_->front = 0;                                                                              \
-        _deque_->rear = _deque_->count;                                                                  \
+        _deque_->back = _deque_->count;                                                                  \
                                                                                                          \
         return true;                                                                                     \
     }
