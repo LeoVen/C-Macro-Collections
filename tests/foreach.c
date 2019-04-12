@@ -113,26 +113,26 @@ int main(void)
     })
 
     printf("\n-------------------- FOR_EACH --------------------\n");
-    if (sum0 == 50005000)
-        printf("%10s PASSED\n", "LIST");
-    if (sum1 == 50005000)
-        printf("%10s PASSED\n", "STACK");
-    if (sum2 == 50005000)
-        printf("%10s PASSED\n", "QUEUE");
     if (sum3 == 50005000)
         printf("%10s PASSED\n", "DEQUE");
-    if (sum4 == 50005000)
-        printf("%10s PASSED\n", "LINKEDLIST");
-    if (sum5 == 50005000)
-        printf("%10s PASSED\n", "HEAP");
-    if (sum6 == 50005000)
-        printf("%10s PASSED\n", "TREESET");
-    if (sum7 == 50005000 && sum8 == 50005000)
-        printf("%10s PASSED\n", "TREEMAP");
     if (sum9 == 50005000)
         printf("%10s PASSED\n", "HASHSET");
     if (sum10 == 50005000 && sum11 == 50005000)
         printf("%10s PASSED\n", "HASHMAP");
+    if (sum5 == 50005000)
+        printf("%10s PASSED\n", "HEAP");
+    if (sum4 == 50005000)
+        printf("%10s PASSED\n", "LINKEDLIST");
+    if (sum0 == 50005000)
+        printf("%10s PASSED\n", "LIST");
+    if (sum2 == 50005000)
+        printf("%10s PASSED\n", "QUEUE");
+    if (sum1 == 50005000)
+        printf("%10s PASSED\n", "STACK");
+    if (sum7 == 50005000 && sum8 == 50005000)
+        printf("%10s PASSED\n", "TREEMAP");
+    if (sum6 == 50005000)
+        printf("%10s PASSED\n", "TREESET");
 
     printf("\n\n");
 
@@ -182,26 +182,26 @@ int main(void)
     })
 
     printf("-------------------- FOR_EACH_REV --------------------\n");
-    if (sum0 == 50005000)
-        printf("%10s PASSED\n", "LIST");
-    if (sum1 == 50005000)
-        printf("%10s PASSED\n", "STACK");
-    if (sum2 == 50005000)
-        printf("%10s PASSED\n", "QUEUE");
     if (sum3 == 50005000)
         printf("%10s PASSED\n", "DEQUE");
-    if (sum4 == 50005000)
-        printf("%10s PASSED\n", "LINKEDLIST");
-    if (sum5 == 50005000)
-        printf("%10s PASSED\n", "HEAP");
-    if (sum6 == 50005000)
-        printf("%10s PASSED\n", "TREESET");
-    if (sum7 == 50005000 && sum8 == 50005000)
-        printf("%10s PASSED\n", "TREEMAP");
     if (sum9 == 50005000)
         printf("%10s PASSED\n", "HASHSET");
     if (sum10 == 50005000 && sum11 == 50005000)
         printf("%10s PASSED\n", "HASHMAP");
+    if (sum5 == 50005000)
+        printf("%10s PASSED\n", "HEAP");
+    if (sum4 == 50005000)
+        printf("%10s PASSED\n", "LINKEDLIST");
+    if (sum0 == 50005000)
+        printf("%10s PASSED\n", "LIST");
+    if (sum2 == 50005000)
+        printf("%10s PASSED\n", "QUEUE");
+    if (sum1 == 50005000)
+        printf("%10s PASSED\n", "STACK");
+    if (sum7 == 50005000 && sum8 == 50005000)
+        printf("%10s PASSED\n", "TREEMAP");
+    if (sum6 == 50005000)
+        printf("%10s PASSED\n", "TREESET");
 
     l_free(l);
     ll_free(ll);
