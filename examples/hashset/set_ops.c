@@ -18,7 +18,6 @@
 #include <stdlib.h>
 #include "hashset.h"
 
-// change to hashset to have the same effects
 HASHSET_GENERATE(set, set, /* static */, int)
 
 void print_set(set *s)
