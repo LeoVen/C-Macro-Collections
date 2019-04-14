@@ -68,8 +68,8 @@ COLLECTION_GENERATE(TREEMAP, PUBLIC, tm, tmap, /* FMOD */, int, int)
 COLLECTION_GENERATE(HASHSET, PUBLIC, hs, hset, /* FMOD */, /* K */, int)
 COLLECTION_GENERATE(HASHMAP, PUBLIC, hm, hmap, /* FMOD */, int, int)
 
-#define BENCHMARK(NAME, PFX, sname, initfunc, insertbody, removebody, iternext)                         \
-    void NAME##_io_benchmark(int *array)                                                                \
+#define BENCHMARK(NAME, PFX, sname, initfunc, insertbody, removebody, iternext, searchbody)             \
+    void NAME##_io_benchmark(int *array, size_t s)                                                      \
     {                                                                                                   \
         printf("+------------------------------------------------------------ %10s\n", #NAME);          \
         timer_t timer;                                                                                  \
@@ -80,7 +80,7 @@ COLLECTION_GENERATE(HASHMAP, PUBLIC, hm, hmap, /* FMOD */, int, int)
                                                                                                         \
         TIMER_START(timer)                                                                              \
                                                                                                         \
-        for (int i = 0; i < 10000000; i++)                                                              \
+        for (size_t i = 0; i < 10000000; i++)                                                           \
         {                                                                                               \
             insertbody;                                                                                 \
         }                                                                                               \
@@ -92,6 +92,19 @@ COLLECTION_GENERATE(HASHMAP, PUBLIC, hm, hmap, /* FMOD */, int, int)
         size_t s1 = PFX##_count(collection);                                                            \
                                                                                                         \
         printf("    INPUT %10s TOOK %8.0lf milliseconds for %8lu elements\n", #NAME, timer.result, s1); \
+                                                                                                        \
+        TIMER_START(timer)                                                                              \
+                                                                                                        \
+        for (size_t i = 0; i < s; i++)                                                                  \
+        {                                                                                               \
+            searchbody;                                                                                 \
+        }                                                                                               \
+                                                                                                        \
+        TIMER_STOP(timer)                                                                               \
+                                                                                                        \
+        TIMER_CALC(timer)                                                                               \
+                                                                                                        \
+        printf("   SEARCH %10s TOOK %8.0lf milliseconds for %8lu elements\n", #NAME, timer.result, s);  \
                                                                                                         \
         sname##_iter iter;                                                                              \
                                                                                                         \
@@ -110,7 +123,7 @@ COLLECTION_GENERATE(HASHMAP, PUBLIC, hm, hmap, /* FMOD */, int, int)
                                                                                                         \
         TIMER_START(timer);                                                                             \
                                                                                                         \
-        for (int i = 0; i < 10000000; i++)                                                              \
+        for (size_t i = 0; i < 10000000; i++)                                                           \
         {                                                                                               \
             removebody;                                                                                 \
         }                                                                                               \
@@ -130,19 +143,24 @@ COLLECTION_GENERATE(HASHMAP, PUBLIC, hm, hmap, /* FMOD */, int, int)
         printf("+------------------------------------------------------------ %10s\n\n", #NAME);        \
     }
 
-BENCHMARK(DEQUE, d, deque, d_new(10000000), d_push_back(collection, array[i]), d_pop_back(collection), d_iter_next(&iter, &k, &j))
-BENCHMARK(HASHMAP, hm, hmap, hm_new(10000000, 0.8, intcmp, inthash), hm_insert(collection, array[i], array[i]), hm_remove(collection, array[i], &r), hm_iter_next(&iter, &k, &v, &j))
-BENCHMARK(HASHSET, hs, hset, hs_new(10000000, 0.8, intcmp, inthash), hs_insert(collection, array[i]), hs_remove(collection, array[i]), hs_iter_next(&iter, &v, &j))
-BENCHMARK(HEAP, h, heap, h_new(10000000, MaxHeap, intcmp), h_insert(collection, array[i]), h_remove(collection, &r), h_iter_next(&iter, &v, &j))
-BENCHMARK(LINKEDLIST, ll, linked, ll_new(), ll_push_back(collection, array[i]), ll_pop_back(collection), ll_iter_next(&iter, &v, &j))
-BENCHMARK(LIST, l, list, l_new(10000000), l_push_back(collection, array[i]), l_pop_back(collection), l_iter_next(&iter, &v, &j))
-BENCHMARK(QUEUE, q, queue, q_new(10000000), q_enqueue(collection, array[i]), q_dequeue(collection), q_iter_next(&iter, &v, &j))
-BENCHMARK(STACK, s, stack, s_new(10000000), s_push(collection, array[i]), s_pop(collection), s_iter_next(&iter, &v, &j))
-BENCHMARK(TREEMAP, tm, tmap, tm_new(intcmp), tm_insert(collection, array[i], array[i]), tm_remove(collection, array[i], &r), tm_iter_next(&iter, &k, &v, &j))
-BENCHMARK(TREESET, ts, tset, ts_new(intcmp), ts_insert(collection, array[i]), ts_remove(collection, array[i]), ts_iter_next(&iter, &v, &j))
+BENCHMARK(DEQUE, d, deque, d_new(10000000), d_push_back(collection, array[i]), d_pop_back(collection), d_iter_next(&iter, &k, &j), d_contains(collection, array[i], intcmp))
+BENCHMARK(HASHMAP, hm, hmap, hm_new(10000000, 0.8, intcmp, inthash), hm_insert(collection, array[i], array[i]), hm_remove(collection, array[i], &r), hm_iter_next(&iter, &k, &v, &j), hm_contains(collection, array[i]))
+BENCHMARK(HASHSET, hs, hset, hs_new(10000000, 0.8, intcmp, inthash), hs_insert(collection, array[i]), hs_remove(collection, array[i]), hs_iter_next(&iter, &v, &j), hs_contains(collection, array[i]))
+BENCHMARK(HEAP, h, heap, h_new(10000000, MinHeap, intcmp), h_insert(collection, array[i]), h_remove(collection, &r), h_iter_next(&iter, &v, &j), h_contains(collection, array[i]))
+BENCHMARK(LINKEDLIST, ll, linked, ll_new(), ll_push_back(collection, array[i]), ll_pop_back(collection), ll_iter_next(&iter, &v, &j), ll_contains(collection, array[i], intcmp))
+BENCHMARK(LIST, l, list, l_new(10000000), l_push_back(collection, array[i]), l_pop_back(collection), l_iter_next(&iter, &v, &j), l_contains(collection, array[i], intcmp))
+BENCHMARK(QUEUE, q, queue, q_new(10000000), q_enqueue(collection, array[i]), q_dequeue(collection), q_iter_next(&iter, &v, &j), q_contains(collection, array[i], intcmp))
+BENCHMARK(STACK, s, stack, s_new(10000000), s_push(collection, array[i]), s_pop(collection), s_iter_next(&iter, &v, &j), s_contains(collection, array[i], intcmp))
+BENCHMARK(TREEMAP, tm, tmap, tm_new(intcmp), tm_insert(collection, array[i], array[i]), tm_remove(collection, array[i], &r), tm_iter_next(&iter, &k, &v, &j), tm_contains(collection, array[i]))
+BENCHMARK(TREESET, ts, tset, ts_new(intcmp), ts_insert(collection, array[i]), ts_remove(collection, array[i]), ts_iter_next(&iter, &v, &j), ts_contains(collection, array[i]))
 
 int main(void)
 {
+    // If you run this benchmark more than once in the same computer (as long
+    // as the rand() implementation is the same) the contents of the array will
+    // always be shuffled the same way.
+    srand(3111221);
+
     int *array = malloc(10000000 * sizeof(int));
 
     if (!array)
@@ -156,16 +174,18 @@ int main(void)
 
     shuffle(array);
 
-    DEQUE_io_benchmark(array);
-    HASHMAP_io_benchmark(array);
-    HASHSET_io_benchmark(array);
-    HEAP_io_benchmark(array);
-    LINKEDLIST_io_benchmark(array);
-    LIST_io_benchmark(array);
-    QUEUE_io_benchmark(array);
-    STACK_io_benchmark(array);
-    TREEMAP_io_benchmark(array);
-    TREESET_io_benchmark(array);
+    // Linear containers have to search for 10000 elements and non-linear (hash
+    // and tree) have to search for all elements.
+    DEQUE_io_benchmark(array, 10000);
+    HASHMAP_io_benchmark(array, 10000000);
+    HASHSET_io_benchmark(array, 10000000);
+    HEAP_io_benchmark(array, 10000);
+    LINKEDLIST_io_benchmark(array, 10000);
+    LIST_io_benchmark(array, 10000);
+    QUEUE_io_benchmark(array, 10000);
+    STACK_io_benchmark(array, 10000);
+    TREEMAP_io_benchmark(array, 10000000);
+    TREESET_io_benchmark(array, 10000000);
 
     free(array);
 

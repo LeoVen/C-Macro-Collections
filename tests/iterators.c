@@ -1,6 +1,6 @@
+#include "../src/macro_collections.h"
 #include <stdio.h>
 #include <assert.h>
-#include "../src/macro_collections.h"
 
 int intcmp(int a, int b)
 {

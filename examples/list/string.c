@@ -7,9 +7,9 @@
  * Leonardo Vencovsky (https://github.com/LeoVen)
  *
  */
+#include "list.h"
 #include <stdio.h>
 #include <string.h>
-#include "list.h"
 
 LIST_GENERATE(str, string, /* FMOD */, char)
 
@@ -46,7 +46,7 @@ int main(int argc, char const *argv[])
         putchar(result);
     }
 
-    printf("\n");
+    printf("\n\n");
 
     // You can also print it reversed
     for (str_iter_toend(&iter); !str_iter_start(&iter);)
@@ -55,7 +55,7 @@ int main(int argc, char const *argv[])
         putchar(result);
     }
 
-    printf("\n");
+    printf("\n\n");
 
     // Now remove the first letter supposing we don't know where it starts
     for (size_t i = 0; i < str_count(my_str); i++)
@@ -79,7 +79,45 @@ int main(int argc, char const *argv[])
         putchar(result);
     }
 
-    printf("\nString length: %lu\n", str_count(my_str));
+    printf("\nString length: %lu\n\n", str_count(my_str));
+
+    // Remove last word:
+    for (size_t i = str_count(my_str) - 1; i > 0; i--)
+    {
+        // Find first white space
+        if (str_get(my_str, i) == ' ')
+        {
+            index = i;
+            break;
+        }
+    }
+
+    // Extract last word
+    string *str_out = str_extract(my_str, index, str_count(my_str) - 1);
+
+    // Pop white space
+    str_pop_front(str_out);
+
+    if (!str_out)
+        printf("Could not extract string");
+    else
+    {
+        for (str_iter_new(&iter, my_str); !str_iter_end(&iter);)
+        {
+            str_iter_next(&iter, &result, &index);
+            putchar(result);
+        }
+        printf("\nString length: %lu\n\n", str_count(my_str));
+        for (str_iter_new(&iter, str_out); !str_iter_end(&iter);)
+        {
+            str_iter_next(&iter, &result, &index);
+            putchar(result);
+        }
+        printf("\nString length: %lu\n", str_count(str_out));
+    }
+
+    str_free(my_str);
+    str_free(str_out);
 
     return 0;
 }
