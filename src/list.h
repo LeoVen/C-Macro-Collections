@@ -76,9 +76,11 @@
     FMOD bool PFX##_insert(SNAME *_list_, V *elements, size_t size, size_t index);   \
     FMOD bool PFX##_append(SNAME *_list_, V *elements, size_t size);                 \
     FMOD bool PFX##_remove(SNAME *_list_, size_t from, size_t to);                   \
+    FMOD SNAME *PFX##_extract(SNAME *_list_, size_t from, size_t to);                \
     FMOD V PFX##_front(SNAME *_list_);                                               \
     FMOD V PFX##_get(SNAME *_list_, size_t index);                                   \
     FMOD V PFX##_back(SNAME *_list_);                                                \
+    FMOD bool PFX##_contains(SNAME *_list_, V element, int (*comparator)(V, V));     \
     FMOD bool PFX##_empty(SNAME *_list_);                                            \
     FMOD bool PFX##_full(SNAME *_list_);                                             \
     FMOD size_t PFX##_count(SNAME *_list_);                                          \
@@ -395,6 +397,34 @@
         return true;                                                                \
     }                                                                               \
                                                                                     \
+    FMOD SNAME *PFX##_extract(SNAME *_list_, size_t from, size_t to)                \
+    {                                                                               \
+        if (from > to || to >= _list_->count)                                       \
+            return false;                                                           \
+                                                                                    \
+        size_t length = to - from + 1;                                              \
+                                                                                    \
+        SNAME *result = PFX##_new(length);                                          \
+                                                                                    \
+        if (!result)                                                                \
+            return NULL;                                                            \
+                                                                                    \
+        for (size_t i = from; i <= to; i++)                                         \
+        {                                                                           \
+            result->buffer[i - from] = _list_->buffer[i];                           \
+        }                                                                           \
+                                                                                    \
+        for (size_t i = from, j = to + 1; i < _list_->count; i++, j++)              \
+        {                                                                           \
+            _list_->buffer[i] = _list_->buffer[j];                                  \
+        }                                                                           \
+                                                                                    \
+        result->count = length;                                                     \
+        _list_->count -= length;                                                    \
+                                                                                    \
+        return result;                                                              \
+    }                                                                               \
+                                                                                    \
     FMOD V PFX##_front(SNAME *_list_)                                               \
     {                                                                               \
         if (PFX##_empty(_list_))                                                    \
@@ -420,6 +450,17 @@
             return 0;                                                               \
                                                                                     \
         return _list_->buffer[_list_->count - 1];                                   \
+    }                                                                               \
+                                                                                    \
+    FMOD bool PFX##_contains(SNAME *_list_, V element, int (*comparator)(V, V))     \
+    {                                                                               \
+        for (size_t i = 0; i < _list_->count; i++)                                  \
+        {                                                                           \
+            if (comparator(_list_->buffer[i], element) == 0)                        \
+                return true;                                                        \
+        }                                                                           \
+                                                                                    \
+        return false;                                                               \
     }                                                                               \
                                                                                     \
     FMOD bool PFX##_empty(SNAME *_list_)                                            \

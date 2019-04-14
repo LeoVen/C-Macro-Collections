@@ -83,6 +83,7 @@
     FMOD V PFX##_front(SNAME *_list_);                                               \
     FMOD V PFX##_get(SNAME *_list_, size_t index);                                   \
     FMOD V PFX##_back(SNAME *_list_);                                                \
+    FMOD bool PFX##_contains(SNAME *_list_, V element, int (*comparator)(V, V));     \
     FMOD bool PFX##_empty(SNAME *_list_);                                            \
     FMOD size_t PFX##_count(SNAME *_list_);                                          \
                                                                                      \
@@ -343,6 +344,21 @@
             return 0;                                                               \
                                                                                     \
         return _list_->tail->data;                                                  \
+    }                                                                               \
+                                                                                    \
+    FMOD bool PFX##_contains(SNAME *_list_, V element, int (*comparator)(V, V))     \
+    {                                                                               \
+        SNAME##_node *scan = _list_->head;                                          \
+                                                                                    \
+        while (scan != NULL)                                                        \
+        {                                                                           \
+            if (comparator(scan->data, element) == 0)                               \
+                return true;                                                        \
+                                                                                    \
+            scan = scan->next;                                                      \
+        }                                                                           \
+                                                                                    \
+        return false;                                                               \
     }                                                                               \
                                                                                     \
     FMOD bool PFX##_empty(SNAME *_list_)                                            \

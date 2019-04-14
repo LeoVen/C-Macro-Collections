@@ -29,13 +29,37 @@ typedef enum EntryState_e
     ES_FILLED = 1
 } EntryState;
 
-static const size_t cmc_hashtable_primes[] = {53, 97, 193, 389, 769, 1543, 3079,
-                                              6151, 12289, 24593, 49157, 98317,
-                                              196613, 393241, 786433, 1572869,
-                                              3145739, 6291469, 12582917,
-                                              25165843, 50331653, 100663319,
-                                              201326611, 402653189, 805306457,
-                                              1610612741};
+static const size_t cmc_hashtable_primes[] = {53, 97, 191, 383, 769, 1531,
+                                              3067, 6143, 12289, 24571, 49157,
+                                              98299, 196613, 393209, 786431,
+                                              1572869, 3145721, 6291449,
+                                              12582917, 25165813, 50331653,
+                                              100663291, 201326611, 402653189,
+                                              805306357, 1610612741,
+                                              3221225473, 6442450939,
+                                              12884901893, 25769803799,
+                                              51539607551, 103079215111,
+                                              206158430209, 412316860441,
+                                              824633720831, 1649267441651,
+                                              3298534883309, 6597069766657,
+                                              13194139533299, 26388279066623,
+                                              52776558133303, 105553116266489,
+                                              211106232532969, 422212465066001,
+                                              844424930131963,
+                                              1688849860263953,
+                                              3377699720527861,
+                                              6755399441055731,
+                                              13510798882111483,
+                                              27021597764222939,
+                                              54043195528445957,
+                                              108086391056891903,
+                                              216172782113783773,
+                                              432345564227567621,
+                                              864691128455135207,
+                                              1729382256910270481,
+                                              3458764513820540933,
+                                              6917529027641081903,
+                                              13835058055282163729llu};
 
 #endif /* CMC_HASH_TABLE_SETUP */
 
@@ -103,6 +127,7 @@ static const size_t cmc_hashtable_primes[] = {53, 97, 193, 389, 769, 1543, 3079,
     FMOD bool PFX##_remove_if(SNAME *_set_, V element, bool condition);                       \
     FMOD V PFX##_max(SNAME *_set_);                                                           \
     FMOD V PFX##_min(SNAME *_set_);                                                           \
+    FMOD bool PFX##_contains(SNAME *_set_, V element);                                        \
     FMOD bool PFX##_empty(SNAME *_set_);                                                      \
     FMOD size_t PFX##_count(SNAME *_set_);                                                    \
                                                                                               \
@@ -301,6 +326,11 @@ static const size_t cmc_hashtable_primes[] = {53, 97, 193, 389, 769, 1543, 3079,
         }                                                                                      \
                                                                                                \
         return min;                                                                            \
+    }                                                                                          \
+                                                                                               \
+    FMOD bool PFX##_contains(SNAME *_set_, V element)                                          \
+    {                                                                                          \
+        return PFX##_get_entry(_set_, element) != NULL;                                        \
     }                                                                                          \
                                                                                                \
     FMOD bool PFX##_empty(SNAME *_set_)                                                        \
@@ -548,7 +578,7 @@ static const size_t cmc_hashtable_primes[] = {53, 97, 193, 389, 769, 1543, 3079,
                                                                                                \
     FMOD bool PFX##_grow(SNAME *_set_)                                                         \
     {                                                                                          \
-        size_t new_size = PFX##_calculate_size((size_t)((double)_set_->capacity * 1.5));       \
+        size_t new_size = PFX##_calculate_size(_set_->capacity + _set_->capacity / 2);         \
                                                                                                \
         SNAME *_new_set_ = PFX##_new(new_size, _set_->load, _set_->cmp, _set_->hash);          \
                                                                                                \

@@ -58,32 +58,33 @@
     };                                             \
                                                    \
 /* HEADER ********************************************************************/
-#define QUEUE_GENERATE_HEADER(PFX, SNAME, FMOD, V)                           \
-                                                                             \
-    typedef struct SNAME##_s SNAME;                                          \
-    typedef struct SNAME##_iter_s SNAME##_iter;                              \
-                                                                             \
-    FMOD SNAME *PFX##_new(size_t size);                                      \
-    FMOD void PFX##_clear(SNAME *_queue_);                                   \
-    FMOD void PFX##_free(SNAME *_queue_);                                    \
-    FMOD bool PFX##_enqueue(SNAME *_queue_, V element);                      \
-    FMOD bool PFX##_dequeue(SNAME *_queue_);                                 \
-    FMOD bool PFX##_enqueue_if(SNAME *_queue_, V element, bool condition);   \
-    FMOD bool PFX##_dequeue_if(SNAME *_queue_, bool condition);              \
-    FMOD V PFX##_peek(SNAME *_queue_);                                       \
-    FMOD bool PFX##_empty(SNAME *_queue_);                                   \
-    FMOD bool PFX##_full(SNAME *_queue_);                                    \
-    FMOD size_t PFX##_count(SNAME *_queue_);                                 \
-    FMOD size_t PFX##_capacity(SNAME *_queue_);                              \
-                                                                             \
-    FMOD void PFX##_iter_new(SNAME##_iter *iter, SNAME *target);             \
-    FMOD bool PFX##_iter_start(SNAME##_iter *iter);                          \
-    FMOD bool PFX##_iter_end(SNAME##_iter *iter);                            \
-    FMOD void PFX##_iter_tostart(SNAME##_iter *iter);                        \
-    FMOD void PFX##_iter_toend(SNAME##_iter *iter);                          \
-    FMOD bool PFX##_iter_next(SNAME##_iter *iter, V *result, size_t *index); \
-    FMOD bool PFX##_iter_prev(SNAME##_iter *iter, V *result, size_t *index); \
-                                                                             \
+#define QUEUE_GENERATE_HEADER(PFX, SNAME, FMOD, V)                                \
+                                                                                  \
+    typedef struct SNAME##_s SNAME;                                               \
+    typedef struct SNAME##_iter_s SNAME##_iter;                                   \
+                                                                                  \
+    FMOD SNAME *PFX##_new(size_t size);                                           \
+    FMOD void PFX##_clear(SNAME *_queue_);                                        \
+    FMOD void PFX##_free(SNAME *_queue_);                                         \
+    FMOD bool PFX##_enqueue(SNAME *_queue_, V element);                           \
+    FMOD bool PFX##_dequeue(SNAME *_queue_);                                      \
+    FMOD bool PFX##_enqueue_if(SNAME *_queue_, V element, bool condition);        \
+    FMOD bool PFX##_dequeue_if(SNAME *_queue_, bool condition);                   \
+    FMOD V PFX##_peek(SNAME *_queue_);                                            \
+    FMOD bool PFX##_contains(SNAME *_queue_, V element, int (*comparator)(V, V)); \
+    FMOD bool PFX##_empty(SNAME *_queue_);                                        \
+    FMOD bool PFX##_full(SNAME *_queue_);                                         \
+    FMOD size_t PFX##_count(SNAME *_queue_);                                      \
+    FMOD size_t PFX##_capacity(SNAME *_queue_);                                   \
+                                                                                  \
+    FMOD void PFX##_iter_new(SNAME##_iter *iter, SNAME *target);                  \
+    FMOD bool PFX##_iter_start(SNAME##_iter *iter);                               \
+    FMOD bool PFX##_iter_end(SNAME##_iter *iter);                                 \
+    FMOD void PFX##_iter_tostart(SNAME##_iter *iter);                             \
+    FMOD void PFX##_iter_toend(SNAME##_iter *iter);                               \
+    FMOD bool PFX##_iter_next(SNAME##_iter *iter, V *result, size_t *index);      \
+    FMOD bool PFX##_iter_prev(SNAME##_iter *iter, V *result, size_t *index);      \
+                                                                                  \
 /* SOURCE ********************************************************************/
 #define QUEUE_GENERATE_SOURCE(PFX, SNAME, FMOD, V)                                                       \
                                                                                                          \
@@ -183,6 +184,17 @@
             return 0;                                                                                    \
                                                                                                          \
         return _queue_->buffer[_queue_->front];                                                          \
+    }                                                                                                    \
+                                                                                                         \
+    FMOD bool PFX##_contains(SNAME *_queue_, V element, int (*comparator)(V, V))                         \
+    {                                                                                                    \
+        for (size_t i = _queue_->front, j = 0; j < _queue_->count; i = (i + 1) % _queue_->count, j++)    \
+        {                                                                                                \
+            if (comparator(_queue_->buffer[i], element) == 0)                                            \
+                return true;                                                                             \
+        }                                                                                                \
+                                                                                                         \
+        return false;                                                                                    \
     }                                                                                                    \
                                                                                                          \
     FMOD bool PFX##_empty(SNAME *_queue_)                                                                \

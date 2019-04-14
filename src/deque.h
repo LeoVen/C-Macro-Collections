@@ -58,37 +58,38 @@
     };                                             \
                                                    \
 /* HEADER ********************************************************************/
-#define DEQUE_GENERATE_HEADER(PFX, SNAME, FMOD, V)                            \
-                                                                              \
-    typedef struct SNAME##_s SNAME;                                           \
-    typedef struct SNAME##_iter_s SNAME##_iter;                               \
-                                                                              \
-    FMOD SNAME *PFX##_new(size_t size);                                       \
-    FMOD void PFX##_clear(SNAME *_deque_);                                    \
-    FMOD void PFX##_free(SNAME *_deque_);                                     \
-    FMOD bool PFX##_push_front(SNAME *_deque_, V element);                    \
-    FMOD bool PFX##_push_back(SNAME *_deque_, V element);                     \
-    FMOD bool PFX##_pop_front(SNAME *_deque_);                                \
-    FMOD bool PFX##_pop_back(SNAME *_deque_);                                 \
-    FMOD bool PFX##_push_front_if(SNAME *_deque_, V element, bool condition); \
-    FMOD bool PFX##_push_back_if(SNAME *_deque_, V element, bool condition);  \
-    FMOD bool PFX##_pop_front_if(SNAME *_deque_, bool condition);             \
-    FMOD bool PFX##_pop_back_if(SNAME *_deque_, bool condition);              \
-    FMOD V PFX##_front(SNAME *_deque_);                                       \
-    FMOD V PFX##_back(SNAME *_deque_);                                        \
-    FMOD bool PFX##_empty(SNAME *_deque_);                                    \
-    FMOD bool PFX##_full(SNAME *_deque_);                                     \
-    FMOD size_t PFX##_count(SNAME *_deque_);                                  \
-    FMOD size_t PFX##_capacity(SNAME *_deque_);                               \
-                                                                              \
-    FMOD void PFX##_iter_new(SNAME##_iter *iter, SNAME *target);              \
-    FMOD bool PFX##_iter_start(SNAME##_iter *iter);                           \
-    FMOD bool PFX##_iter_end(SNAME##_iter *iter);                             \
-    FMOD void PFX##_iter_tostart(SNAME##_iter *iter);                         \
-    FMOD void PFX##_iter_toend(SNAME##_iter *iter);                           \
-    FMOD bool PFX##_iter_next(SNAME##_iter *iter, V *result, size_t *index);  \
-    FMOD bool PFX##_iter_prev(SNAME##_iter *iter, V *result, size_t *index);  \
-                                                                              \
+#define DEQUE_GENERATE_HEADER(PFX, SNAME, FMOD, V)                                \
+                                                                                  \
+    typedef struct SNAME##_s SNAME;                                               \
+    typedef struct SNAME##_iter_s SNAME##_iter;                                   \
+                                                                                  \
+    FMOD SNAME *PFX##_new(size_t size);                                           \
+    FMOD void PFX##_clear(SNAME *_deque_);                                        \
+    FMOD void PFX##_free(SNAME *_deque_);                                         \
+    FMOD bool PFX##_push_front(SNAME *_deque_, V element);                        \
+    FMOD bool PFX##_push_back(SNAME *_deque_, V element);                         \
+    FMOD bool PFX##_pop_front(SNAME *_deque_);                                    \
+    FMOD bool PFX##_pop_back(SNAME *_deque_);                                     \
+    FMOD bool PFX##_push_front_if(SNAME *_deque_, V element, bool condition);     \
+    FMOD bool PFX##_push_back_if(SNAME *_deque_, V element, bool condition);      \
+    FMOD bool PFX##_pop_front_if(SNAME *_deque_, bool condition);                 \
+    FMOD bool PFX##_pop_back_if(SNAME *_deque_, bool condition);                  \
+    FMOD V PFX##_front(SNAME *_deque_);                                           \
+    FMOD V PFX##_back(SNAME *_deque_);                                            \
+    FMOD bool PFX##_contains(SNAME *_deque_, V element, int (*comparator)(V, V)); \
+    FMOD bool PFX##_empty(SNAME *_deque_);                                        \
+    FMOD bool PFX##_full(SNAME *_deque_);                                         \
+    FMOD size_t PFX##_count(SNAME *_deque_);                                      \
+    FMOD size_t PFX##_capacity(SNAME *_deque_);                                   \
+                                                                                  \
+    FMOD void PFX##_iter_new(SNAME##_iter *iter, SNAME *target);                  \
+    FMOD bool PFX##_iter_start(SNAME##_iter *iter);                               \
+    FMOD bool PFX##_iter_end(SNAME##_iter *iter);                                 \
+    FMOD void PFX##_iter_tostart(SNAME##_iter *iter);                             \
+    FMOD void PFX##_iter_toend(SNAME##_iter *iter);                               \
+    FMOD bool PFX##_iter_next(SNAME##_iter *iter, V *result, size_t *index);      \
+    FMOD bool PFX##_iter_prev(SNAME##_iter *iter, V *result, size_t *index);      \
+                                                                                  \
 /* SOURCE ********************************************************************/
 #define DEQUE_GENERATE_SOURCE(PFX, SNAME, FMOD, V)                                                       \
                                                                                                          \
@@ -245,6 +246,17 @@
             return 0;                                                                                    \
                                                                                                          \
         return _deque_->buffer[(_deque_->back == 0) ? _deque_->capacity - 1 : _deque_->back - 1];        \
+    }                                                                                                    \
+                                                                                                         \
+    FMOD bool PFX##_contains(SNAME *_deque_, V element, int (*comparator)(V, V))                         \
+    {                                                                                                    \
+        for (size_t i = _deque_->front, j = 0; j < _deque_->count; i = (i + 1) % _deque_->count, j++)    \
+        {                                                                                                \
+            if (comparator(_deque_->buffer[i], element) == 0)                                            \
+                return true;                                                                             \
+        }                                                                                                \
+                                                                                                         \
+        return false;                                                                                    \
     }                                                                                                    \
                                                                                                          \
     FMOD bool PFX##_empty(SNAME *_deque_)                                                                \

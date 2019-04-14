@@ -76,6 +76,7 @@ typedef enum HeapOrder
     FMOD bool PFX##_insert_if(SNAME *_heap_, V element, bool condition);     \
     FMOD bool PFX##_remove_if(SNAME *_heap_, V *result, bool condition);     \
     FMOD V PFX##_peek(SNAME *_heap_);                                        \
+    FMOD bool PFX##_contains(SNAME *_heap_, V element);                      \
     FMOD bool PFX##_empty(SNAME *_heap_);                                    \
     FMOD bool PFX##_full(SNAME *_heap_);                                     \
     FMOD size_t PFX##_count(SNAME *_heap_);                                  \
@@ -204,6 +205,17 @@ typedef enum HeapOrder
             return 0;                                                                             \
                                                                                                   \
         return _heap_->buffer[0];                                                                 \
+    }                                                                                             \
+                                                                                                  \
+    FMOD bool PFX##_contains(SNAME *_heap_, V element)                                            \
+    {                                                                                             \
+        for (size_t i = 0; i < _heap_->count; i++)                                                \
+        {                                                                                         \
+            if (_heap_->cmp(_heap_->buffer[i], element) == 0)                                     \
+                return true;                                                                      \
+        }                                                                                         \
+                                                                                                  \
+        return false;                                                                             \
     }                                                                                             \
                                                                                                   \
     FMOD bool PFX##_empty(SNAME *_heap_)                                                          \

@@ -81,6 +81,7 @@
     FMOD bool PFX##_remove_if(SNAME *_set_, V element, bool condition);     \
     FMOD V PFX##_max(SNAME *_set_);                                         \
     FMOD V PFX##_min(SNAME *_set_);                                         \
+    FMOD bool PFX##_contains(SNAME *_set_, V element);                      \
     FMOD bool PFX##_empty(SNAME *_set_);                                    \
     FMOD size_t PFX##_count(SNAME *_set_);                                  \
                                                                             \
@@ -356,6 +357,9 @@
                                                                            \
         _set_->count--;                                                    \
                                                                            \
+        if (_set_->count == 0)                                             \
+            _set_->root = NULL;                                            \
+                                                                           \
         return true;                                                       \
     }                                                                      \
                                                                            \
@@ -399,6 +403,23 @@
             scan = scan->left;                                             \
                                                                            \
         return scan->key;                                                  \
+    }                                                                      \
+                                                                           \
+    FMOD bool PFX##_contains(SNAME *_set_, V element)                      \
+    {                                                                      \
+        SNAME##_node *scan = _set_->root;                                  \
+                                                                           \
+        while (scan != NULL)                                               \
+        {                                                                  \
+            if (_set_->cmp(scan->key, element) > 0)                        \
+                scan = scan->left;                                         \
+            else if (_set_->cmp(scan->key, element) < 0)                   \
+                scan = scan->right;                                        \
+            else                                                           \
+                return true;                                               \
+        }                                                                  \
+                                                                           \
+        return false;                                                      \
     }                                                                      \
                                                                            \
     FMOD bool PFX##_empty(SNAME *_set_)                                    \

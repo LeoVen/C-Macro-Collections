@@ -83,6 +83,7 @@
     FMOD bool PFX##_max(SNAME *_map_, K *key, V *value);                            \
     FMOD bool PFX##_min(SNAME *_map_, K *key, V *value);                            \
     FMOD V PFX##_get(SNAME *_map_, K key);                                          \
+    FMOD bool PFX##_contains(SNAME *_map_, K key);                                  \
     FMOD bool PFX##_empty(SNAME *_map_);                                            \
     FMOD size_t PFX##_count(SNAME *_map_);                                          \
                                                                                     \
@@ -357,6 +358,9 @@
                                                                                    \
         _map_->count--;                                                            \
                                                                                    \
+        if (_map_->count == 0)                                                     \
+            _map_->root = NULL;                                                    \
+                                                                                   \
         return true;                                                               \
     }                                                                              \
                                                                                    \
@@ -416,6 +420,23 @@
             return 0;                                                              \
                                                                                    \
         return node->value;                                                        \
+    }                                                                              \
+                                                                                   \
+    FMOD bool PFX##_contains(SNAME *_map_, K key)                                  \
+    {                                                                              \
+        SNAME##_node *scan = _map_->root;                                          \
+                                                                                   \
+        while (scan != NULL)                                                       \
+        {                                                                          \
+            if (_map_->cmp(scan->key, key) > 0)                                    \
+                scan = scan->left;                                                 \
+            else if (_map_->cmp(scan->key, key) < 0)                               \
+                scan = scan->right;                                                \
+            else                                                                   \
+                return true;                                                       \
+        }                                                                          \
+                                                                                   \
+        return false;                                                              \
     }                                                                              \
                                                                                    \
     FMOD bool PFX##_empty(SNAME *_map_)                                            \
