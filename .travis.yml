@@ -16,4 +16,6 @@ script:
   - ./foreach
   - gcc iterators.c -Wall -Wextra -o iterators -std=c11
   - ./iterators
+  - gcc contains.c -Wall -Wextra -o contains -std=c11
+  - ./contains
 
