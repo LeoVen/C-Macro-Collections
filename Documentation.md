@@ -50,10 +50,18 @@ The iterator is a simple structure that is capable of going back and forwards. A
 
 ### <span id="list_function_index"> Defined Functions </span>
 
+#### Structure Initialization
+
 * [\_new()](#list_new)
 * [\_new\_from()](#list_new_from)
+
+#### Structure Cleanup
+
 * [\_clear()](#list_clear)
 * [\_free()](#list_free)
+
+#### Input / Output
+
 * [\_push\_front()](#list_push_front)
 * [\_push()](#list_push)
 * [\_push\_back()](#list_push_back)
@@ -66,14 +74,26 @@ The iterator is a simple structure that is capable of going back and forwards. A
 * [\_insert()](#list_insert)
 * [\_append()](#list_append)
 * [\_remove()](#list_remove)
+* [\_extract()](#list_extract)
+
+#### Elements Access
+
 * [\_front()](#list_front)
 * [\_get()](#list_get)
 * [\_back()](#list_back)
+* [\_indexof()](#list_indexof)
+* [\_contains()](#list_contains)
+
+#### Structure State
+
 * [\_empty()](#list_empty)
 * [\_full()](#list_full)
 * [\_count()](#list_count)
 * [\_fits()](#list_fits)
 * [\_capacity()](#list_capacity)
+
+#### Iterator
+
 * [\_iter\_new()](#list_iter_new)
 * [\_iter\_start()](#list_iter_start)
 * [\_iter\_end()](#list_iter_end)
@@ -351,7 +371,7 @@ Adds to the back of the list an array of elements with a given size.
 
 ## [<span id="list_remove"> \_remove() </span>](#list_function_index)
 
-Removes a sequence of elements starting at `from` up to `to`. Both indexes are inclusive.
+Removes a range of elements starting at `from` up to `to`. Both indexes are inclusive.
 
 #### Declaration
 
@@ -360,13 +380,32 @@ Removes a sequence of elements starting at `from` up to `to`. Both indexes are i
 #### Parameters
 
 1. `SNAME *_list_` - Target list.
-2. `V *elements` - Array of elements to be added.
-3. `size_t size` - The size of the array of elements.
+2. `size_t from` - Location of the first element.
+3. `size_t to` - Location of the last element.
 
 #### Returns
 
 1. `true` - If the elements were successfully removed from the list.
 2. `false` - If `from` is greater than `to`, or if `to` is greater than or equal to `count`.
+
+## [<span id="list_extract"> \_extract() </span>](#list_function_index)
+
+Removes a range of elements starting at `from` up to `to` and returns a new list containing the removed elements. Both indexes are inclusive.
+
+#### Declaration
+
+> `FMOD SNAME *PFX##_extract(SNAME *_list_, size_t from, size_t to);`
+
+#### Parameters
+
+1. `SNAME *_list_` - Target list.
+2. `size_t from` - Location of the first element.
+3. `size_t to` - Location of the last element.
+
+#### Returns
+
+1. `SNAME *` - A new heap allocated list containing the removed elements.
+2. `NULL` - If `from` is greater than `to`, or if `to` is greater than or equal to `count`.
 
 ## [<span id="list_front"> \_front() </span>](#list_function_index)
 
@@ -420,6 +459,50 @@ Returns the last element (located at index `count - 1`) if the list is not empty
 
 1. `V` - The last element in the list.
 2. `0` or `NULL` - If the list is empty.
+
+## [<span id="list_indexof"> \_indexof() </span>](#list_function_index)
+
+Returns the index at which a given element can be found in the list. Use a comparison function that returns `0` when the element in the list equals the one passed in by argument. Use the flag `from_start` as `true` if you want to find the index of the first matching element or `false` if you want to find the last index of a matching element. Returns `count` if the element is not present in the list.
+
+#### Declaration
+
+> `FMOD size_t PFX##_indexof(SNAME *_list_, V element, int (*comparator)(V, V), bool from_start);`
+
+#### Parameters
+
+1. `SNAME *_list_` - Target list.
+2. `V element` - Element to be located in the list.
+3. `int (*comparator)(V, V)` - Comparison function. Returns:
+    * `-1` - When the first argument is less than the second;
+    * `0` - When both arguments are equal;
+    * `1` - When the first argument is greater than the second.
+4. `bool from_start` - Flag that when true, the function will search for the first occurrence of the given element and when false, will search for the last occurrence.
+
+#### Returns
+
+1. `size_t` - The index of the given element according to `comparator` or returns `count` if the element is not present in the given list.
+
+## [<span id="list_contains"> \_contains() </span>](#list_function_index)
+
+Check if an element is present in the list according to a `comparator` function.
+
+#### Declaration
+
+> `FMOD bool PFX##_contains(SNAME *_list_, V element, int (*comparator)(V, V));`
+
+#### Parameters
+
+1. `SNAME *_list_` - Target list.
+2. `V element` - Element to check its presence in the list.
+3. `int (*comparator)(V, V)` - Comparison function. Returns:
+    * `-1` - When the first argument is less than the second;
+    * `0` - When both arguments are equal;
+    * `1` - When the first argument is greater than the second.
+
+#### Returns
+
+1. `true` - If the element is present in the list.
+2. `false` - If the element is not present in the list.
 
 ## [<span id="list_empty"> \_empty() </span>](#list_function_index)
 
@@ -649,18 +732,35 @@ A LIFO/FILO structure backed by a growable array. All elements are added and rem
 
 ### <span id="stack_function_index"> Defined Functions </span>
 
+#### Structure Initialization
+
 * [\_new()](#stack_new)
+
+#### Structure Cleanup
+
 * [\_clear()](#stack_clear)
 * [\_free()](#stack_free)
+
+#### Input / Output
+
 * [\_push()](#stack_push)
 * [\_pop()](#stack_pop)
 * [\_push\_if()](#stack_push_if)
 * [\_pop\_if()](#stack_pop_if)
+
+#### Elements Access
+
 * [\_top()](#stack_top)
+
+#### Structure State
+
 * [\_empty()](#stack_empty)
 * [\_full()](#stack_full)
 * [\_count()](#stack_count)
 * [\_capacity()](#stack_capacity)
+
+#### Iterator
+
 * [\_iter\_new()](#stack_iter_new)
 * [\_iter\_start()](#stack_iter_start)
 * [\_iter\_end()](#stack_iter_end)
@@ -1008,18 +1108,35 @@ A FIFO/LILO structure backed by a circular buffer. Elements are added in one end
 
 ### <span id="queue_function_index"> Defined Functions </span>
 
+#### Structure Initialization
+
 * [\_new()](#queue_new)
+
+#### Structure Cleanup
+
 * [\_clear()](#queue_clear)
 * [\_free()](#queue_free)
+
+#### Input / Output
+
 * [\_enqueue()](#queue_enqueue)
 * [\_dequeue()](#queue_dequeue)
 * [\_enqueue\_if()](#queue_enqueue_if)
 * [\_dequeue\_if()](#queue_dequeue_if)
+
+#### Elements Access
+
 * [\_peek()](#queue_peek)
+
+#### Structure State
+
 * [\_empty()](#queue_empty)
 * [\_full()](#queue_full)
 * [\_count()](#queue_count)
 * [\_capacity()](#queue_capacity)
+
+#### Iterator
+
 * [\_iter\_new()](#queue_iter_new)
 * [\_iter\_start()](#queue_iter_start)
 * [\_iter\_end()](#queue_iter_end)
@@ -1367,9 +1484,17 @@ A double-ended queue backed by a circular buffer. Elements can be added and remo
 
 ### <span id="deque_function_index"> Defined Functions </span>
 
+#### Structure Initialization
+
 * [\_new()](#deque_new)
+
+#### Structure Cleanup
+
 * [\_clear()](#deque_clear)
 * [\_free()](#deque_free)
+
+#### Input / Output
+
 * [\_push\_front()](#deque_push_front)
 * [\_push\_back()](#deque_push_back)
 * [\_pop\_front()](#deque_pop_front)
@@ -1378,12 +1503,21 @@ A double-ended queue backed by a circular buffer. Elements can be added and remo
 * [\_push\_back\_if()](#deque_push_back_if)
 * [\_pop\_front\_if()](#deque_pop_front_if)
 * [\_pop\_back\_if()](#deque_pop_back_if)
+
+#### Elements Access
+
 * [\_front()](#deque_front)
 * [\_back()](#deque_back)
+
+#### Structure State
+
 * [\_empty()](#deque_empty)
 * [\_full()](#deque_full)
 * [\_count()](#deque_count)
 * [\_capacity()](#deque_capacity)
+
+#### Iterator
+
 * [\_iter\_new()](#deque_iter_new)
 * [\_iter\_start()](#deque_iter_start)
 * [\_iter\_end()](#deque_iter_end)
