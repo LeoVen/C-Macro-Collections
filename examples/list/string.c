@@ -13,6 +13,23 @@
 
 LIST_GENERATE(str, string, /* FMOD */, char)
 
+// Comparison function
+int chrcmp(char a, char b)
+{
+    return (a > b) - (a < b);
+}
+
+void print_str(string *str)
+{
+    // If the buffer is not completely filled, there will be at leas one null
+    // byte in the end of the list's contents. This printf is possible but very
+    // dangerous as you might end up printing something else from memory until
+    // a null byte.
+    printf("%s\n", str->buffer);
+
+    printf("Size: %llu\n", str_count(str));
+}
+
 int main(int argc, char const *argv[])
 {
     // How to treat a list as a mutable string without \0 at the end
@@ -58,15 +75,7 @@ int main(int argc, char const *argv[])
     printf("\n\n");
 
     // Now remove the first letter supposing we don't know where it starts
-    for (size_t i = 0; i < str_count(my_str); i++)
-    {
-        // Find first white space
-        if (str_get(my_str, i) == ' ')
-        {
-            index = i;
-            break;
-        }
-    }
+    index = str_indexof(my_str, ' ', chrcmp, true);
 
     // Now that we know where the first word is, remove it, including the
     // extra space. [from, to] are inclusive.
@@ -81,27 +90,22 @@ int main(int argc, char const *argv[])
 
     printf("\nString length: %lu\n\n", str_count(my_str));
 
-    // Remove last word:
-    for (size_t i = str_count(my_str) - 1; i > 0; i--)
-    {
-        // Find first white space
-        if (str_get(my_str, i) == ' ')
-        {
-            index = i;
-            break;
-        }
-    }
+    print_str(my_str);
 
-    // Extract last word
+    // Removing last word.
+    // Finding last white space:
+    index = str_indexof(my_str, ' ', chrcmp, false);
+
+    // Extract last word including white space
     string *str_out = str_extract(my_str, index, str_count(my_str) - 1);
 
-    // Pop white space
-    str_pop_front(str_out);
-
     if (!str_out)
-        printf("Could not extract string");
+        printf("Could not extract string\n");
     else
     {
+        // Pop white space
+        str_pop_front(str_out);
+
         for (str_iter_new(&iter, my_str); !str_iter_end(&iter);)
         {
             str_iter_next(&iter, &result, &index);
@@ -118,6 +122,36 @@ int main(int argc, char const *argv[])
 
     str_free(my_str);
     str_free(str_out);
+
+    printf("\n----------------------------------------\n\n");
+
+    // Another example follows
+    // Using prepend, insert, append, remove and extract functions
+    string *str = str_new(100);
+
+    str_prepend(str, "Hello World!", 12);
+
+    print_str(str);
+
+    str_insert(str, "Awesome ", 8, 6);
+
+    print_str(str);
+
+    str_append(str, " Indigo.", 8);
+
+    print_str(str);
+
+    str_remove(str, 14, 20);
+
+    print_str(str);
+
+    string *str_res = str_extract(str, 5, 12);
+
+    print_str(str);
+    print_str(str_res);
+
+    str_free(str);
+    str_free(str_res);
 
     return 0;
 }
