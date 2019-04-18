@@ -68,8 +68,14 @@ The iterator is a simple structure that is capable of going back and forwards. A
 * [\_pop\_front()](#list_pop_front)
 * [\_pop()](#list_pop)
 * [\_pop\_back()](#list_pop_back)
+
+Conditional Input / Output
+
 * [\_push\_if()](#list_push_if)
 * [\_pop\_if()](#list_pop_if)
+
+Sequences Input / Output
+
 * [\_prepend()](#list_prepend)
 * [\_insert()](#list_insert)
 * [\_append()](#list_append)
@@ -139,7 +145,7 @@ Allocates and returns a new list from an already existing array. The list intern
 
 ## [<span id="list_clear"> \_clear() </span>](#list_function_index)
 
-Removes all elements in the list but does not frees the list structure.
+Removes all elements in the list but does not frees the list structure. After this function the list is empty and can still be used.
 
 #### Declaration
 
@@ -703,7 +709,11 @@ A list where each element is linked by nodes. Elements can be added and removed 
 
 # [Stack](#collections_index)
 
-A LIFO/FILO structure backed by a growable array. All elements are added and removed from the top of the stack.
+A Stack is a Last-in First-out (or First-in Last-out) data structure used in a variety of algorithms. It is a Dynamic Array that can only add or remove its elements at the end of the buffer, in this case, it represents the top of the stack.
+
+It has three main functions: `push` which adds an element at the top of the stack; `pop` which removes the top element from the stack; and `top` which returns the top element without removing it (it is also sometimes called `peek`).
+
+A Stack is used in algorithms like backtracking, depth-first search, expression evaluation, syntax parsing and many more.
 
 ### Generation Macro
 
@@ -1076,7 +1086,15 @@ This function is used to iterate to the previous element, retrieving the current
 
 # [Queue](#collections_index)
 
-A FIFO/LILO structure backed by a circular buffer. Elements are added in one end and removed from the other.
+A queue is a First-In First-out (or Last-in Last-out) data structure. It is a Dynamic Circular Array where elements are added from one end of the array and removed from the other end. The circular array here (also known as circular buffer or ring buffer) is very important so that both adding and removing elements from the queue are done instantly. The array is linear but with the modulo operator it is treated as a circular sequence of elements.
+
+If the queue was implemented as a regular Dynamic Array, when adding or removing an element at the front, it would be necessary to shift all elements currently present in the queue and this would add up a lot of computing time. Shifting `100000` elements in memory by one position every time an element is added to the queue is simply not efficient.
+
+The queue has two ends. The `front` and `back`. In this implementation all elements are added to the back of the queue and removed from the front, which is more or less how queues work in real life. Unlike a Stack that only has operations at one end of the buffer, the queue needs to be implemented as a circular array in order to quickly add or remove elements.
+
+The queue has three main functions: `enqueue` which adds an element to the queue; `dequeue` which removes an element from the queue; and `peek` which return the element at the front of the queue, that is, the next element to be removed from it.
+
+The queue is used in many applications where a resource is shared among multiple consumers and the queue is responsible for scheduling the access to the resource.
 
 ### Generation Macro
 
