@@ -619,7 +619,7 @@ Returns true if the iterator has reached the start of the list. If false, the it
 
 1. `SNAME##_iter *iter` - Target iterator.
 
-#### Returns 
+#### Returns
 
 1. `true` - If the iterator has reached the start of the list.
 2. `false` - If the iterator has not reached the start of the list.
@@ -636,7 +636,7 @@ Returns true if the iterator has reached the end of the list. If false, the iter
 
 1. `SNAME##_iter *iter` - Target iterator.
 
-#### Returns 
+#### Returns
 
 1. `true` - If the iterator has reached the end of the list.
 2. `false` - If the iterator has not reached the end of the list.
@@ -679,7 +679,7 @@ This function is used to iterate to the next element, retrieving the current one
 2. `V *result` - Resulting value from the list.
 3. `size_t *index` - Resulting index.
 
-#### Returns 
+#### Returns
 
 1. `true` - If the iterator has retrieved a valid `result` and `index`.
 2. `false` - If the iterator has not retrieved a valid `result` and `index`. Here, iteration to the next element has ended.
@@ -698,7 +698,7 @@ This function is used to iterate to the previous element, retrieving the current
 2. `V *result` - Resulting value from the list.
 3. `size_t *index` - Resulting index.
 
-#### Returns 
+#### Returns
 
 1. `true` - If the iterator has retrieved a valid `result` and `index`.
 2. `false` - If the iterator has not retrieved a valid `result` and `index`. Here, iteration to the previous element has ended.
@@ -1000,7 +1000,7 @@ Returns true if the iterator has reached the start of the stack (top element). I
 
 1. `SNAME##_iter *iter` - Target iterator.
 
-#### Returns 
+#### Returns
 
 1. `true` - If the iterator has reached the start of the stack.
 2. `false` - If the iterator has not reached the start of the stack.
@@ -1017,7 +1017,7 @@ Returns true if the iterator has reached the end of the stack (bottom element). 
 
 1. `SNAME##_iter *iter` - Target iterator.
 
-#### Returns 
+#### Returns
 
 1. `true` - If the iterator has reached the end of the stack.
 2. `false` - If the iterator has not reached the end of the stack.
@@ -1060,7 +1060,7 @@ This function is used to iterate to the next element, retrieving the current one
 2. `V *result` - Resulting value from the stack.
 3. `size_t *index` - Resulting index.
 
-#### Returns 
+#### Returns
 
 1. `true` - If the iterator has retrieved a valid `result` and `index`.
 2. `false` - If the iterator has not retrieved a valid `result` and `index`. Here, iteration to the next element has ended.
@@ -1079,7 +1079,7 @@ This function is used to iterate to the previous element, retrieving the current
 2. `V *result` - Resulting value from the stack.
 3. `size_t *index` - Resulting index.
 
-#### Returns 
+#### Returns
 
 1. `true` - If the iterator has retrieved a valid `result` and `index`.
 2. `false` - If the iterator has not retrieved a valid `result` and `index`. Here, iteration to the previous element has ended.
@@ -1384,7 +1384,7 @@ Returns true if the iterator has reached the start of the queue (front element).
 
 1. `SNAME##_iter *iter` - Target iterator.
 
-#### Returns 
+#### Returns
 
 1. `true` - If the iterator has reached the start of the queue.
 2. `false` - If the iterator has not reached the start of the queue.
@@ -1401,7 +1401,7 @@ Returns true if the iterator has reached the end of the queue (rear element). If
 
 1. `SNAME##_iter *iter` - Target iterator.
 
-#### Returns 
+#### Returns
 
 1. `true` - If the iterator has reached the end of the queue.
 2. `false` - If the iterator has not reached the end of the queue.
@@ -1444,7 +1444,7 @@ This function is used to iterate to the next element, retrieving the current one
 2. `V *result` - Resulting value from the queue.
 3. `size_t *index` - Resulting index.
 
-#### Returns 
+#### Returns
 
 1. `true` - If the iterator has retrieved a valid `result` and `index`.
 2. `false` - If the iterator has not retrieved a valid `result` and `index`. Here, iteration to the next element has ended.
@@ -1463,7 +1463,7 @@ This function is used to iterate to the previous element, retrieving the current
 2. `V *result` - Resulting value from the queue.
 3. `size_t *index` - Resulting index.
 
-#### Returns 
+#### Returns
 
 1. `true` - If the iterator has retrieved a valid `result` and `index`.
 2. `false` - If the iterator has not retrieved a valid `result` and `index`. Here, iteration to the previous element has ended.
@@ -1854,7 +1854,7 @@ Returns true if the iterator has reached the start of the deque (front element).
 
 1. `SNAME##_iter *iter` - Target iterator.
 
-#### Returns 
+#### Returns
 
 1. `true` - If the iterator has reached the start of the deque.
 2. `false` - If the iterator has not reached the start of the deque.
@@ -1871,7 +1871,7 @@ Returns true if the iterator has reached the end of the deque (rear element). If
 
 1. `SNAME##_iter *iter` - Target iterator.
 
-#### Returns 
+#### Returns
 
 1. `true` - If the iterator has reached the end of the deque.
 2. `false` - If the iterator has not reached the end of the deque.
@@ -1914,7 +1914,7 @@ This function is used to iterate to the next element, retrieving the current one
 2. `V *result` - Resulting value from the deque.
 3. `size_t *index` - Resulting index.
 
-#### Returns 
+#### Returns
 
 1. `true` - If the iterator has retrieved a valid `result` and `index`.
 2. `false` - If the iterator has not retrieved a valid `result` and `index`. Here, iteration to the next element has ended.
@@ -1933,7 +1933,7 @@ This function is used to iterate to the previous element, retrieving the current
 2. `V *result` - Resulting value from the deque.
 3. `size_t *index` - Resulting index.
 
-#### Returns 
+#### Returns
 
 1. `true` - If the iterator has retrieved a valid `result` and `index`.
 2. `false` - If the iterator has not retrieved a valid `result` and `index`. Here, iteration to the previous element has ended.
@@ -1944,17 +1944,19 @@ A heap is a nearly complete binary tree backed by a growable array. The first el
 
 # [TreeSet](#collections_index)
 
-A balanced binary tree that contains only unique elements to the set. Its elements are ordered.
+A TreeSet is an ordered collection of unique elements implemented as a balanced binary tree. A binary tree is a data structure with a root node and each node has two children, often referred as `left` child and `right` child. It is a balanced tree in order to keep the height of the tree as low as possible. The height determines how fast it takes to look up for an element so there are balanced trees that when adding or removing a node from the tree will try, if needed, to balanced itself.
 
 # [TreeMap](#collections_index)
 
-A balanced binary tree that maps a key `K` to a value `V`. The difference from a hashmap is that its keys are ordered.
+A TreeMap is an associative container that maps a key `K` to a value `V` containing only unique keys. The value is only accessible through the key. The keys are also sorted, unlike a HashMap. The main advantage of this container is that its elements are sorted when using an iterator over the tree and this ordering is based on a comparator function that is passes when the structure is initialized.
 
 # [HashSet](#collections_index)
 
-A hashtable that contains only unique elements to the set. Its elements are not ordered.
+A HashSet is an unordered collection of unique elements implemented as a hash-table. Searching for elements in this collection is almost instantaneous, requiring very few comparisons (at least one) to check if a certain element is present the the set.
 
 # [HashMap](#collections_index)
 
-A hashtable that maps a key `K` to a value `V`.
+A HashMap is an associative container that maps a key `K` to a value `V` containing only unique keys. The value is only accessible through the key. The keys are not sorted, unlike a TreeMap. The main advantage of this container is that lookups are almost instantaneous, requiring very few comparisons (at least one) to get the value corresponding to a key.
+
+HashMaps are one of the most used data structures as they are very useful as lookup tables.
 
