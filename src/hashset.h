@@ -618,7 +618,7 @@ static const size_t cmc_hashtable_primes[] = {53, 97, 191, 383, 769, 1531,
         size_t hash = _set_->hash(element);                                                    \
         size_t pos = hash % _set_->capacity;                                                   \
                                                                                                \
-        SNAME##_entry *target = &(_set_->buffer[pos % _set_->capacity]);                       \
+        SNAME##_entry *target = &(_set_->buffer[pos]);                                         \
                                                                                                \
         while (target->state == ES_FILLED || target->state == ES_DELETED)                      \
         {                                                                                      \
