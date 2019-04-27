@@ -76,6 +76,7 @@ typedef enum HeapOrder
     FMOD bool PFX##_insert_if(SNAME *_heap_, V element, bool condition);     \
     FMOD bool PFX##_remove_if(SNAME *_heap_, V *result, bool condition);     \
     FMOD V PFX##_peek(SNAME *_heap_);                                        \
+    FMOD V *PFX##_peek_ref(SNAME *_heap_);                                   \
     FMOD bool PFX##_contains(SNAME *_heap_, V element);                      \
     FMOD bool PFX##_empty(SNAME *_heap_);                                    \
     FMOD bool PFX##_full(SNAME *_heap_);                                     \
@@ -205,6 +206,14 @@ typedef enum HeapOrder
             return 0;                                                                             \
                                                                                                   \
         return _heap_->buffer[0];                                                                 \
+    }                                                                                             \
+                                                                                                  \
+    FMOD V *PFX##_peek_ref(SNAME *_heap_)                                                         \
+    {                                                                                             \
+        if (PFX##_empty(_heap_))                                                                  \
+            return NULL;                                                                          \
+                                                                                                  \
+        return &(_heap_->buffer[0]);                                                              \
     }                                                                                             \
                                                                                                   \
     FMOD bool PFX##_contains(SNAME *_heap_, V element)                                            \

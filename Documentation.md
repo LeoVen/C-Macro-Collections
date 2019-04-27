@@ -86,6 +86,7 @@ Sequences Input / Output
 
 * [\_front()](#list_front)
 * [\_get()](#list_get)
+* [\_get_ref()](#list_get_ref)
 * [\_back()](#list_back)
 * [\_indexof()](#list_indexof)
 * [\_contains()](#list_contains)
@@ -448,6 +449,25 @@ Returns the element located at the given index if the list is not empty.
 
 1. `V` - The element in the list located at the given index.
 2. `0` or `NULL` - If the list is empty, or if `index` is greater than or equal to the list `count`.
+
+## [<span id="list_get_ref"> \_get\_ref() </span>](#list_function_index)
+
+Returns a reference to the element located at the given index if the list is not empty.
+
+#### Declaration
+
+> `FMOD V *PFX##_get_ref(SNAME *_list_, size_t index);`
+
+#### Parameters
+
+1. `SNAME *_list_` - Target list.
+2. `size_t index` - Index to retrieve a reference to an element.
+    * Can't be greater than or equal to the list `count`.
+
+#### Returns
+
+1. `V*` - A reference to the element in the list located at the given index.
+2. `NULL` - If the list is empty, or if `index` is greater than or equal to the list `count`.
 
 ## [<span id="list_back"> \_back() </span>](#list_function_index)
 

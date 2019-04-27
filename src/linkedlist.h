@@ -82,6 +82,7 @@
     FMOD bool PFX##_pop_if(SNAME *_list_, size_t index, bool condition);             \
     FMOD V PFX##_front(SNAME *_list_);                                               \
     FMOD V PFX##_get(SNAME *_list_, size_t index);                                   \
+    FMOD V *PFX##_get_ref(SNAME *_list_, size_t index);                              \
     FMOD V PFX##_back(SNAME *_list_);                                                \
     FMOD bool PFX##_contains(SNAME *_list_, V element, int (*comparator)(V, V));     \
     FMOD bool PFX##_empty(SNAME *_list_);                                            \
@@ -336,6 +337,22 @@
             return 0;                                                               \
                                                                                     \
         return scan->data;                                                          \
+    }                                                                               \
+                                                                                    \
+    FMOD V *PFX##_get_ref(SNAME *_list_, size_t index)                              \
+    {                                                                               \
+        if (index >= _list_->count)                                                 \
+            return NULL;                                                            \
+                                                                                    \
+        if (PFX##_empty(_list_))                                                    \
+            return NULL;                                                            \
+                                                                                    \
+        SNAME##_node *scan = PFX##_get_node(_list_, index);                         \
+                                                                                    \
+        if (scan == NULL)                                                           \
+            return NULL;                                                            \
+                                                                                    \
+        return &(scan->data);                                                       \
     }                                                                               \
                                                                                     \
     FMOD V PFX##_back(SNAME *_list_)                                                \

@@ -130,6 +130,7 @@ static const size_t cmc_hashtable_primes[] = {53, 97, 191, 383, 769, 1531,
     FMOD bool PFX##_min(SNAME *_map_, K *key, V *value);                                      \
     FMOD bool PFX##_contains(SNAME *_map_, K key);                                            \
     FMOD V PFX##_get(SNAME *_map_, K key);                                                    \
+    FMOD V *PFX##_get_ref(SNAME *_map_, K key);                                               \
     FMOD bool PFX##_empty(SNAME *_map_);                                                      \
     FMOD size_t PFX##_count(SNAME *_map_);                                                    \
                                                                                               \
@@ -363,6 +364,16 @@ static const size_t cmc_hashtable_primes[] = {53, 97, 191, 383, 769, 1531,
             return 0;                                                                        \
                                                                                              \
         return entry->value;                                                                 \
+    }                                                                                        \
+                                                                                             \
+    FMOD V *PFX##_get_ref(SNAME *_map_, K key)                                               \
+    {                                                                                        \
+        SNAME##_entry *entry = PFX##_get_entry(_map_, key);                                  \
+                                                                                             \
+        if (!entry)                                                                          \
+            return NULL;                                                                     \
+                                                                                             \
+        return &(entry->value);                                                              \
     }                                                                                        \
                                                                                              \
     FMOD bool PFX##_empty(SNAME *_map_)                                                      \

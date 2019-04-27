@@ -79,6 +79,7 @@
     FMOD SNAME *PFX##_extract(SNAME *_list_, size_t from, size_t to);                              \
     FMOD V PFX##_front(SNAME *_list_);                                                             \
     FMOD V PFX##_get(SNAME *_list_, size_t index);                                                 \
+    FMOD V *PFX##_get_ref(SNAME *_list_, size_t index);                                            \
     FMOD V PFX##_back(SNAME *_list_);                                                              \
     FMOD size_t PFX##_indexof(SNAME *_list_, V element, int (*comparator)(V, V), bool from_start); \
     FMOD bool PFX##_contains(SNAME *_list_, V element, int (*comparator)(V, V));                   \
@@ -400,6 +401,17 @@
             return 0;                                                                                            \
                                                                                                                  \
         return _list_->buffer[index];                                                                            \
+    }                                                                                                            \
+                                                                                                                 \
+    FMOD V *PFX##_get_ref(SNAME *_list_, size_t index)                                                           \
+    {                                                                                                            \
+        if (index >= _list_->count)                                                                              \
+            return NULL;                                                                                         \
+                                                                                                                 \
+        if (PFX##_empty(_list_))                                                                                 \
+            return NULL;                                                                                         \
+                                                                                                                 \
+        return &(_list_->buffer[index]);                                                                         \
     }                                                                                                            \
                                                                                                                  \
     FMOD V PFX##_back(SNAME *_list_)                                                                             \

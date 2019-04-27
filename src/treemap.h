@@ -83,6 +83,7 @@
     FMOD bool PFX##_max(SNAME *_map_, K *key, V *value);                            \
     FMOD bool PFX##_min(SNAME *_map_, K *key, V *value);                            \
     FMOD V PFX##_get(SNAME *_map_, K key);                                          \
+    FMOD V *PFX##_get_ref(SNAME *_map_, K key);                                     \
     FMOD bool PFX##_contains(SNAME *_map_, K key);                                  \
     FMOD bool PFX##_empty(SNAME *_map_);                                            \
     FMOD size_t PFX##_count(SNAME *_map_);                                          \
@@ -420,6 +421,16 @@
             return 0;                                                              \
                                                                                    \
         return node->value;                                                        \
+    }                                                                              \
+                                                                                   \
+    FMOD V *PFX##_get_ref(SNAME *_map_, K key)                                     \
+    {                                                                              \
+        SNAME##_node *node = PFX##_get_node(_map_, key);                           \
+                                                                                   \
+        if (!node)                                                                 \
+            return NULL;                                                           \
+                                                                                   \
+        return &(node->value);                                                     \
     }                                                                              \
                                                                                    \
     FMOD bool PFX##_contains(SNAME *_map_, K key)                                  \
