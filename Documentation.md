@@ -466,7 +466,7 @@ Returns a reference to the element located at the given index if the list is not
 
 #### Returns
 
-1. `V*` - A reference to the element in the list located at the given index.
+1. `V *` - A reference to the element in the list located at the given index.
 2. `NULL` - If the list is empty, or if `index` is greater than or equal to the list `count`.
 
 ## [<span id="list_back"> \_back() </span>](#list_function_index)
@@ -687,7 +687,7 @@ Moves the cursor of the target iterator to the end of the list.
 
 ## [<span id="list_iter_next"> \_iter\_next() </span>](#list_function_index)
 
-This function is used to iterate to the next element, retrieving the current one, along with an index that represents how many iterations have passed. When the index is `0` it means that the current result is the first element in the list; if it equals `count - 1` then it is the last element in the list.
+This function is used to iterate to the next element, retrieving the current one, along with an index that represents the relative position of it in the iteration. When the index is `0` it means that the current result is the first element in the list; if it equals `count - 1` then it is the last element in the list.
 
 #### Declaration
 
@@ -706,7 +706,7 @@ This function is used to iterate to the next element, retrieving the current one
 
 ## [<span id="list_iter_prev"> \_iter\_prev() </span>](#list_function_index)
 
-This function is used to iterate to the previous element, retrieving the current one, along with an index that represents how many iterations have passed. When the index is `0` it means that the current result is the first element in the list; if it equals `count - 1` then it is the last element in the list.
+This function is used to iterate to the previous element, retrieving the current one, along with an index that represents the relative position of it in the iteration. When the index is `0` it means that the current result is the first element in the list; if it equals `count - 1` then it is the last element in the list.
 
 #### Declaration
 
@@ -1010,7 +1010,7 @@ Initializes an iterator with a given target stack. The iterator's cursor will be
 
 ## [<span id="stack_iter_start"> \_iter\_start() </span>](#stack_function_index)
 
-Returns true if the iterator has reached the start of the stack (top element). If false, the iterator is still possible to iterate to a previous element.
+Returns true if the iterator has reached the start (top element) of the stack. If false, the iterator is still possible to iterate to a previous element.
 
 #### Declaration
 
@@ -1027,7 +1027,7 @@ Returns true if the iterator has reached the start of the stack (top element). I
 
 ## [<span id="stack_iter_end"> \_iter\_end() </span>](#stack_function_index)
 
-Returns true if the iterator has reached the end of the stack (bottom element). If false, the iterator is still possible to iterate to a next element.
+Returns true if the iterator has reached the end (bottom element) of the stack. If false, the iterator is still possible to iterate to a next element.
 
 #### Declaration
 
@@ -1056,7 +1056,7 @@ Moves the cursor of the target iterator to the start (top element) of the stack.
 
 ## [<span id="stack_iter_toend"> \_iter\_toend() </span>](#stack_function_index)
 
-Moves the cursor of the target iterator to the end of the stack (bottom element).
+Moves the cursor of the target iterator to the end (bottom element) of the stack.
 
 #### Declaration
 
@@ -1068,7 +1068,7 @@ Moves the cursor of the target iterator to the end of the stack (bottom element)
 
 ## [<span id="stack_iter_next"> \_iter\_next() </span>](#stack_function_index)
 
-This function is used to iterate to the next element, retrieving the current one, along with an index that represents how many iterations have passed. When the index is `0` it means that the current result is the top-most element of the stack; if it equals `count - 1` then it is the bottom-most element of the stack.
+This function is used to iterate to the next element, retrieving the current one, along with an index that represents the relative position of it in the iteration. When the index is `0` it means that the current result is the top-most element of the stack; if it equals `count - 1` then it is the bottom-most element of the stack.
 
 #### Declaration
 
@@ -1087,7 +1087,7 @@ This function is used to iterate to the next element, retrieving the current one
 
 ## [<span id="stack_iter_prev"> \_iter\_prev() </span>](#stack_function_index)
 
-This function is used to iterate to the previous element, retrieving the current one, along with an index that represents how many iterations have passed. When the index is `0` it means that the current result is the top-most element of the stack; if it equals `count - 1` then it is the bottom-most element of the stack.
+This function is used to iterate to the previous element, retrieving the current one, along with an index that represents the relative position of it in the iteration. When the index is `0` it means that the current result is the top-most element of the stack; if it equals `count - 1` then it is the bottom-most element of the stack.
 
 #### Declaration
 
@@ -1135,7 +1135,7 @@ The queue is used in many applications where a resource is shared among multiple
 * `struct SNAME##_iter_s` - Structure Iterator (represents a queue iterator)
     * `struct SNAME##_s *target` - Queue being iterated over.
     * `size_t cursor` - Index pointing to the next or previous element in the iteration.
-    * `size_t index` - How many iterations have passed.
+    * `size_t index` - Relative index to all elements in the iteration.
     * `bool start` - If the iterator reached the start of the queue.
     * `bool end` - If the iterator reached the end of the queue.
 
@@ -1394,7 +1394,7 @@ Initializes an iterator with a given target queue. The iterator's cursor will be
 
 ## [<span id="queue_iter_start"> \_iter\_start() </span>](#queue_function_index)
 
-Returns true if the iterator has reached the start of the queue (front element). If false, the iterator is still possible to iterate to a previous element.
+Returns true if the iterator has reached the start (front element) of the queue. If false, the iterator is still possible to iterate to a previous element.
 
 #### Declaration
 
@@ -1411,7 +1411,7 @@ Returns true if the iterator has reached the start of the queue (front element).
 
 ## [<span id="queue_iter_end"> \_iter\_end() </span>](#queue_function_index)
 
-Returns true if the iterator has reached the end of the queue (rear element). If false, the iterator is still possible to iterate to a next element.
+Returns true if the iterator has reached the end (rear element) of the queue. If false, the iterator is still possible to iterate to a next element.
 
 #### Declaration
 
@@ -1440,7 +1440,7 @@ Moves the cursor of the target iterator to the start (front element) of the queu
 
 ## [<span id="queue_iter_toend"> \_iter\_toend() </span>](#queue_function_index)
 
-Moves the cursor of the target iterator to the end of the queue (rear element).
+Moves the cursor of the target iterator to the end (rear element) of the queue.
 
 #### Declaration
 
@@ -1452,7 +1452,7 @@ Moves the cursor of the target iterator to the end of the queue (rear element).
 
 ## [<span id="queue_iter_next"> \_iter\_next() </span>](#queue_function_index)
 
-This function is used to iterate to the next element, retrieving the current one, along with an index that represents how many iterations have passed. When the index is `0` it means that the current result is the front element of the queue; if it equals `count - 1` then it is the rear element of the queue.
+This function is used to iterate to the next element, retrieving the current one, along with an index that represents the relative position of it in the iteration. When the index is `0` it means that the current result is the front element of the queue; if it equals `count - 1` then it is the rear element of the queue.
 
 #### Declaration
 
@@ -1471,7 +1471,7 @@ This function is used to iterate to the next element, retrieving the current one
 
 ## [<span id="queue_iter_prev"> \_iter\_prev() </span>](#queue_function_index)
 
-This function is used to iterate to the previous element, retrieving the current one, along with an index that represents how many iterations have passed. When the index is `0` it means that the current result is the front element of the queue; if it equals `count - 1` then it is the rear element of the queue.
+This function is used to iterate to the previous element, retrieving the current one, along with an index that represents the relative position of it in the iteration. When the index is `0` it means that the current result is the front element of the queue; if it equals `count - 1` then it is the rear element of the queue.
 
 #### Declaration
 
@@ -1511,7 +1511,7 @@ A double-ended queue backed by a circular buffer. Elements can be added and remo
 * `struct SNAME##_iter_s` - Structure Iterator (represents a deque iterator)
     * `struct SNAME##_s *target` - Deque being iterated over.
     * `size_t cursor` - Index pointing to the next or previous element in the iteration.
-    * `size_t index` - How many iterations have passed.
+    * `size_t index` - Relative index to all elements in the iteration.
     * `bool start` - If the iterator reached the start of the deque.
     * `bool end` - If the iterator reached the end of the deque.
 
@@ -1864,7 +1864,7 @@ Initializes an iterator with a given target deque. The iterator's cursor will be
 
 ## [<span id="deque_iter_start"> \_iter\_start() </span>](#deque_function_index)
 
-Returns true if the iterator has reached the start of the deque (front element). If false, the iterator is still possible to iterate to a previous element.
+Returns true if the iterator has reached the start (front element) of the deque. If false, the iterator is still possible to iterate to a previous element.
 
 #### Declaration
 
@@ -1881,7 +1881,7 @@ Returns true if the iterator has reached the start of the deque (front element).
 
 ## [<span id="deque_iter_end"> \_iter\_end() </span>](#deque_function_index)
 
-Returns true if the iterator has reached the end of the deque (rear element). If false, the iterator is still possible to iterate to a next element.
+Returns true if the iterator has reached the end (rear element) of the deque. If false, the iterator is still possible to iterate to a next element.
 
 #### Declaration
 
@@ -1922,7 +1922,7 @@ Moves the cursor of the target iterator to the end (rear element) of the deque.
 
 ## [<span id="deque_iter_next"> \_iter\_next() </span>](#deque_function_index)
 
-This function is used to iterate to the next element, retrieving the current one, along with an index that represents how many iterations have passed. When the index is `0` it means that the current result is the front element of the deque; if it equals `count - 1` then it is the rear element of the deque.
+This function is used to iterate to the next element, retrieving the current one, along with an index that represents the relative position of it in the iteration. When the index is `0` it means that the current result is the front element of the deque; if it equals `count - 1` then it is the rear element of the deque.
 
 #### Declaration
 
@@ -1941,7 +1941,7 @@ This function is used to iterate to the next element, retrieving the current one
 
 ## [<span id="deque_iter_prev"> \_iter\_prev() </span>](#deque_function_index)
 
-This function is used to iterate to the previous element, retrieving the current one, along with an index that represents how many iterations have passed. When the index is `0` it means that the current result is the front element of the deque; if it equals `count - 1` then it is the rear element of the deque.
+This function is used to iterate to the previous element, retrieving the current one, along with an index that represents the relative position of it in the iteration. When the index is `0` it means that the current result is the front element of the deque; if it equals `count - 1` then it is the rear element of the deque.
 
 #### Declaration
 
@@ -1966,9 +1966,486 @@ A heap is a nearly complete binary tree backed by a growable array. The first el
 
 A TreeSet is an ordered collection of unique elements implemented as a balanced binary tree. A binary tree is a data structure with a root node and each node has two children, often referred as `left` child and `right` child. It is a balanced tree in order to keep the height of the tree as low as possible. The height determines how fast it takes to look up for an element so there are balanced trees that when adding or removing a node from the tree will try, if needed, to balanced itself.
 
+The TreeSet is implemented as an AVL tree in order to guarantee a worst case lookup of `O(log n)`.
+
+### Generation Macro
+
+* `TREESET_GENERATE(PFX, SNAME, FMOD, V)`
+    * `PFX` - Functions namespace or prefix.
+    * `SNAME` - Structure name.
+    * `FMOD` - Function modifier (static or empty).
+    * `V` - Element type.
+
+### Defined Structures
+
+* `struct SNAME##_s` - Structure Name (represents a tree-based set structure)
+    * `struct SNAME##_node_s *root;` - Root node of the balanced binary tree.
+    * `size_t count` - Total elements in the set.
+    * `int (*cmp)(V, V)` - Comparator function used to sort elements. Returns:
+        * `-1` - When the first argument is less than the second;
+        * `0` - When both arguments are equal;
+        * `1` - When the first argument is greater than the second.
+
+* `struct SNAME##_node_s` - AVL tree node.
+    * `V key` - Node's element.
+    * `unsigned char height` - Height of this node. Used to balance the tree.
+    * `struct SNAME##_node_s *left` - Left subtree of this node.
+    * `struct SNAME##_node_s *right` - Right subtree of this node.
+    * `struct SNAME##_node_s *parent` - Parent node or `NULL` if this is the root node.
+
+* `struct SNAME##_iter_s` - Structure Iterator (represents a binary tree iterator)
+    * `struct SNAME##_s *target` - TreeSet being iterated over.
+    * `struct SNAME##_node_s *cursor` - Current AVL tree node.
+    * `struct SNAME##_node_s *first` - Marks the first AVL tree node in the iteration.
+    * `struct SNAME##_node_s *last` - Marks the last AVL tree node in the iteration.
+    * `size_t index` - Relative index to all elements in the iteration.
+    * `bool start` - If the iterator reached the start of the TreeSet.
+    * `bool end` - If the iterator reached the end of the TreeSet.
+
+### Typedefs
+
+* `typedef struct SNAME##_s SNAME`
+* `typedef struct SNAME##_node_s SNAME##_node`
+* `typedef struct SNAME##_iter_s SNAME##_iter`
+
+### <span id="treeset_function_index"> Defined Functions </span>
+
+#### Structure Initialization
+
+* [\_new()](#treeset_new)
+
+#### Structure Cleanup
+
+* [\_clear()](#treeset_clear)
+* [\_free()](#treeset_free)
+
+#### Input / Output
+
+* [\_insert()](#treeset_insert)
+* [\_remove()](#treeset_remove)
+
+Conditional Input / Output
+
+* [\_insert\_if()](#treeset_insert_if)
+* [\_remove\_if()](#treeset_remove_if)
+
+#### Elements Access
+
+* [\_max()](#treeset_max)
+* [\_min()](#treeset_min)
+* [\_contains()](#treeset_contains)
+
+#### Structure State
+
+* [\_empty()](#treeset_empty)
+* [\_count()](#treeset_count)
+
+#### Set Operations
+
+* [\_union()](#treeset_union)
+* [\_intersection()](#treeset_intersection)
+* [\_difference()](#treeset_difference)
+* [\_symmetric\_difference()](#treeset_symmetric_difference)
+
+#### Iterator
+
+* [\_iter\_new()](#treeset_iter_new)
+* [\_iter\_start()](#treeset_iter_start)
+* [\_iter\_end()](#treeset_iter_end)
+* [\_iter\_tostart()](#treeset_iter_tostart)
+* [\_iter\_toend()](#treeset_iter_toend)
+* [\_iter\_next()](#treeset_iter_next)
+* [\_iter\_prev()](#treeset_iter_prev)
+
+## [<span id="treeset_new"> \_new() </span>](#treeset_function_index)
+
+Allocates and returns a new TreeSet with a default comparator that will determine the order of the elements in the set.
+
+#### Declaration
+
+> `FMOD SNAME *PFX##_new(int (*compare)(V, V));`
+
+#### Parameters
+
+1. `int (*compare)(V, V)` - Comparator. Takes two arguments and returns:
+    * `-1` - When the first argument is less than the second;
+    * `0` - When both arguments are equal;
+    * `1` - When the first argument is greater than the second.
+
+#### Returns
+
+1. `SNAME *` - A pointer to a heap allocated TreeSet.
+2. `NULL` - If allocation fails.
+
+## [<span id="treeset_clear"> \_clear() </span>](#treeset_function_index)
+
+Removes all elements in the TreeSet, freeing all of its nodes except for the TreeSet structure.
+
+#### Declaration
+
+> `FMOD void PFX##_clear(SNAME *_set_);`
+
+#### Parameters
+
+1. `SNAME *_set_` - TreeSet to be cleared.
+
+## [<span id="treeset_free"> \_free() </span>](#treeset_function_index)
+
+Frees from memory the TreeSet nodes and the structure itself. Note that if the elements inside the TreeSet are pointers to allocated memory, this function might cause memory leaks as it does not deals with its elements.
+
+#### Declaration
+
+> `FMOD void PFX##_free(SNAME *_set_);`
+
+#### Parameters
+
+1. `SNAME *_set_` - TreeSet to be freed from memory.
+
+## [<span id="treeset_insert"> \_insert() </span>](#treeset_function_index)
+
+Inserts a new element to the set. The element is added only if it is not present in the set, otherwise it is ignored.
+
+#### Declaration
+
+> `FMOD bool PFX##_insert(SNAME *_set_, V element);`
+
+#### Parameters
+
+1. `SNAME *_set_` - Target TreeSet.
+2. `V` - Element to be added to the set.
+
+#### Returns
+
+1. `true` - If the element was successfully added to the set.
+2. `false` - If the element was not added to the set or if node allocation failed.
+
+## [<span id="treeset_remove"> \_remove() </span>](#treeset_function_index)
+
+Removes a matching element from the set using the comparator function.
+
+#### Declaration
+
+> `FMOD bool PFX##_remove(SNAME *_set_, V element);`
+
+#### Parameters
+
+1. `SNAME *_set_` - Target TreeSet.
+2. `V` - Element to be removed from the set.
+
+#### Returns
+
+1. `true` - If the element was successfully removed from the set.
+2. `false` - If the element was not fount in the set.
+
+## [<span id="treeset_insert_if"> \_insert\_if() </span>](#treeset_function_index)
+
+Inserts a new element to the set if the condition evaluates to true. The element is added only if it is not present in the set, otherwise it is ignored.
+
+#### Declaration
+
+> `FMOD bool PFX##_insert_if(SNAME *_set_, V element, bool condition);`
+
+#### Parameters
+
+1. `SNAME *_set_` - Target TreeSet.
+2. `V` - Element to be added to the set.
+3. `bool condition` - Condition for the element to be added.
+
+#### Returns
+
+1. `true` - If the element was successfully added to the set.
+2. `false` - If the element was not added to the set, if node allocation failed or if the condition evaluated to false.
+
+## [<span id="treeset_remove_if"> \_remove\_if() </span>](#treeset_function_index)
+
+Removes a matching element from the set using the comparator function, only if the give condition evaluates to true.
+
+#### Declaration
+
+> `FMOD bool PFX##_remove_if(SNAME *_set_, V element, bool condition);`
+
+#### Parameters
+
+1. `SNAME *_set_` - Target TreeSet.
+2. `V` - Element to be removed from the set.
+3. `bool condition` - Condition for the element to be removed.
+
+#### Returns
+
+1. `true` - If the element was successfully removed from the set.
+2. `false` - If the element was not fount in the set or if the condition evaluated to false.
+
+## [<span id="treeset_max"> \_max() </span>](#treeset_function_index)
+
+Returns the greatest element present in a given set, according to the set comparator function.
+
+#### Declaration
+
+> `FMOD V PFX##_max(SNAME *_set_);`
+
+#### Parameters
+
+1. `SNAME *_set_` - Target TreeSet.
+
+#### Returns
+
+1. `V` - The greatest element in the set.
+2. `0` or `NULL` - If the set is empty.
+
+## [<span id="treeset_min"> \_min() </span>](#treeset_function_index)
+
+Returns the smallest element present in a given set, according to the set comparator function.
+
+#### Declaration
+
+> `FMOD V PFX##_in(SNAME *_set_);`
+
+#### Parameters
+
+1. `SNAME *_set_` - Target TreeSet.
+
+#### Returns
+
+1. `V` - The smallest element in the set.
+2. `0` or `NULL` - If the set is empty.
+
+## [<span id="treeset_contains"> \_contains() </span>](#treeset_function_index)
+
+Check if an element is present in the TreeSet according to the set comparator function.
+
+#### Declaration
+
+> `FMOD bool PFX##_contains(SNAME *_set_, V element);`
+
+#### Parameters
+
+1. `SNAME *_set_` - Target TreeSet.
+2. `V element` - Element to check its presence in the TreeSet.
+
+#### Returns
+
+1. `true` - If the element is present in the TreeSet.
+2. `false` - If the element is not present in the TreeSet.
+
+## [<span id="treeset_empty"> \_empty() </span>](#treeset_function_index)
+
+Returns true if the TreeSet is empty, otherwise false.
+
+#### Declaration
+
+> `FMOD bool PFX##_empty(SNAME *_set_);`
+
+#### Parameters
+
+1. `SNAME *_set_` - Target TreeSet.
+
+#### Returns
+
+1. `true` - If the TreeSet is empty.
+2. `false` - If there is at least one element in the TreeSet.
+
+## [<span id="treeset_count"> \_count() </span>](#treeset_function_index)
+
+Returns the amount of elements in the TreeSet.
+
+#### Declaration
+
+> `FMOD size_t PFX##_count(SNAME *_set_);`
+
+#### Parameters
+
+1. `SNAME *_set_` - Target TreeSet.
+
+#### Returns
+
+1. `size_t` - The amount of elements in the TreeSet.
+
+## [<span id="treeset_union"> \_union() </span>](#treeset_function_index)
+
+Creates a new set as the union of two sets, `_set1_` and `_set2_`. The union of two sets is formed by the elements that are present in either one of the sets, or in both.
+
+#### Declaration
+
+> `FMOD SNAME *PFX##_union(SNAME *_set1_, SNAME *_set2_);`
+
+#### Parameters
+
+1. `SNAME *_set1_` - First operand set of union operation.
+2. `SNAME *_set2_` - Second operand of set union operation.
+
+#### Returns
+
+1. `SNAME *` - The resulting set representing the union of `_set1_` and `_set2_`.
+2. `NULL` - If allocation fails.
+
+## [<span id="treeset_intersection"> \_intersection() </span>](#treeset_function_index)
+
+Creates a new set as the intersection of two sets, `_set1_` and `_set2_`. The intersection of two sets is formed only by the elements that are present in both sets.
+
+#### Declaration
+
+> `FMOD SNAME *PFX##_intersection(SNAME *_set1_, SNAME *_set2_);`
+
+#### Parameters
+
+1. `SNAME *_set1_` - First operand set of intersection operation.
+2. `SNAME *_set2_` - Second operand of set intersection operation.
+
+#### Returns
+
+1. `SNAME *` - The resulting set representing the intersection of `_set1_` and `_set2_`.
+2. `NULL` - If allocation fails.
+
+## [<span id="treeset_difference"> \_difference() </span>](#treeset_function_index)
+
+Creates a new set as the difference of `_set1_` to `_set2_`. The difference of two sets is formed by the elements that are present in the first set, but not in the second one.
+
+#### Declaration
+
+> `FMOD SNAME *PFX##_difference(SNAME *_set1_, SNAME *_set2_);`
+
+#### Parameters
+
+1. `SNAME *_set1_` - First operand set of difference operation.
+2. `SNAME *_set2_` - Second operand set of difference operation.
+
+#### Returns
+
+1. `SNAME *` - The resulting set representing the difference of `_set1_` and `_set2_`.
+2. `NULL` - If allocation fails.
+
+## [<span id="treeset_symmetric_difference"> \_symmetric\_difference() </span>](#treeset_function_index)
+
+Creates a new set as the symmetric difference of `_set1_` to `_set2_`. The symmetric difference of two sets is formed by the elements that are present in one of the sets, but not in the other.
+
+#### Declaration
+
+> `FMOD SNAME *PFX##_symmetric_difference(SNAME *_set1_, SNAME *_set2_);`
+
+#### Parameters
+
+1. `SNAME *_set1_` - First operand set of symmetric difference operation.
+2. `SNAME *_set2_` - Second operand set of symmetric difference operation.
+
+#### Returns
+
+1. `SNAME *` - The resulting set representing the symmetric difference of `_set1_` and `_set2_`.
+2. `NULL` - If allocation fails.
+
+## [<span id="treeset_iter_new"> \_iter\_new() </span>](#treeset_function_index)
+
+Initializes an iterator with a given target TreeSet. The iterator's cursor will be positioned at the smallest element node of the TreeSet.
+
+#### Declaration
+
+> `FMOD void PFX##_iter_new(SNAME##_iter *iter, SNAME *target);`
+
+#### Parameters
+
+1. `SNAME##_iter *iter` - Iterator to be initialized.
+2. `SNAME *target` - Target TreeSet.
+
+## [<span id="treeset_iter_start"> \_iter\_start() </span>](#treeset_function_index)
+
+Returns true if the iterator has reached the start of the TreeSet (smallest element). If false, the iterator is still possible to iterate to a previous element.
+
+#### Declaration
+
+> `FMOD bool PFX##_iter_start(SNAME##_iter *iter);`
+
+#### Parameters
+
+1. `SNAME##_iter *iter` - Target iterator.
+
+#### Returns
+
+1. `true` - If the iterator has reached the start of the TreeSet.
+2. `false` - If the iterator has not reached the start of the TreeSet.
+
+## [<span id="treeset_iter_end"> \_iter\_end() </span>](#treeset_function_index)
+
+Returns true if the iterator has reached the end of the TreeSet (greatest element). If false, the iterator is still possible to iterate to a next element.
+
+#### Declaration
+
+> `FMOD bool PFX##_iter_end(SNAME##_iter *iter);`
+
+#### Parameters
+
+1. `SNAME##_iter *iter` - Target iterator.
+
+#### Returns
+
+1. `true` - If the iterator has reached the end of the TreeSet.
+2. `false` - If the iterator has not reached the end of the TreeSet.
+
+## [<span id="treeset_iter_tostart"> \_iter\_tostart() </span>](#treeset_function_index)
+
+Moves the cursor of the target iterator to the start (smallest element) of the TreeSet.
+
+#### Declaration
+
+> `FMOD void PFX##_iter_tostart(SNAME##_iter *iter);`
+
+#### Parameters
+
+1. `SNAME##_iter *iter` - Target iterator.
+
+## [<span id="treeset_iter_toend"> \_iter\_toend() </span>](#treeset_function_index)
+
+Moves the cursor of the target iterator to the end (greatest element) of the TreeSet.
+
+#### Declaration
+
+> `FMOD void PFX##_iter_toend(SNAME##_iter *iter);`
+
+#### Parameters
+
+1. `SNAME##_iter *iter` - Target iterator.
+
+## [<span id="treeset_iter_next"> \_iter\_next() </span>](#treeset_function_index)
+
+This function is used to iterate to the next element, retrieving the current one, along with an index that represents the relative position of it in the iteration. When the index is `0` it means that the current result is the lowest element of the TreeSet; if it equals `count - 1` then it is the greatest element of the TreeSet.
+
+#### Declaration
+
+> `FMOD bool PFX##_iter_next(SNAME##_iter *iter, V *result, size_t *index);`
+
+#### Parameters
+
+1. `SNAME##_iter *iter` - Target iterator.
+2. `V *result` - Resulting value from the TreeSet.
+3. `size_t *index` - Resulting index.
+
+#### Returns
+
+1. `true` - If the iterator has retrieved a valid `result` and `index`.
+2. `false` - If the iterator has not retrieved a valid `result` and `index`. Here, iteration to the next element has ended.
+
+## [<span id="treeset_iter_prev"> \_iter\_prev() </span>](#treeset_function_index)
+
+This function is used to iterate to the previous element, retrieving the current one, along with an index that represents the relative position of it in the iteration. When the index is `0` it means that the current result is the top-most element of the TreeSet; if it equals `count - 1` then it is the bottom-most element of the TreeSet.
+
+#### Declaration
+
+> `FMOD bool PFX##_iter_prev(SNAME##_iter *iter, V *result, size_t *index);`
+
+#### Parameters
+
+1. `SNAME##_iter *iter` - Target iterator.
+2. `V *result` - Resulting value from the TreeSet.
+3. `size_t *index` - Resulting index.
+
+#### Returns
+
+1. `true` - If the iterator has retrieved a valid `result` and `index`.
+2. `false` - If the iterator has not retrieved a valid `result` and `index`. Here, iteration to the previous element has ended.
+
 # [TreeMap](#collections_index)
 
 A TreeMap is an associative container that maps a key `K` to a value `V` containing only unique keys. The value is only accessible through the key. The keys are also sorted, unlike a HashMap. The main advantage of this container is that its elements are sorted when using an iterator over the tree and this ordering is based on a comparator function that is passes when the structure is initialized.
+
+The TreeMap is implemented as an AVL tree in order to guarantee a worst case lookup of `O(log n)`.
 
 # [HashSet](#collections_index)
 
