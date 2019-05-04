@@ -18,4 +18,5 @@ script:
   - ./iterators
   - gcc contains.c -Wall -Wextra -o contains -std=c11
   - ./contains
-
+  - gcc pointertype.c -Wall -Wextra -o pointertype -std=c11
+  - ./pointertype

@@ -295,7 +295,8 @@ static const size_t cmc_hashtable_primes[] = {53, 97, 191, 383, 769, 1531,
             return false;                                                                    \
                                                                                              \
         SNAME##_iter iter;                                                                   \
-        K result_key, max_key;                                                               \
+        K result_key;                                                                        \
+        K max_key;                                                                           \
         V result_value;                                                                      \
         size_t index;                                                                        \
                                                                                              \
@@ -326,7 +327,8 @@ static const size_t cmc_hashtable_primes[] = {53, 97, 191, 383, 769, 1531,
             return false;                                                                    \
                                                                                              \
         SNAME##_iter iter;                                                                   \
-        K result_key, min_key;                                                               \
+        K result_key;                                                                        \
+        K min_key;                                                                           \
         V result_value;                                                                      \
         size_t index;                                                                        \
                                                                                              \

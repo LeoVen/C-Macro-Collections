@@ -289,7 +289,8 @@ static const size_t cmc_hashtable_primes[] = {53, 97, 191, 383, 769, 1531,
         if (PFX##_empty(_set_))                                                                \
             return 0;                                                                          \
                                                                                                \
-        V result, max;                                                                         \
+        V result;                                                                              \
+        V max;                                                                                 \
         size_t index;                                                                          \
         SNAME##_iter iter;                                                                     \
                                                                                                \
@@ -311,7 +312,8 @@ static const size_t cmc_hashtable_primes[] = {53, 97, 191, 383, 769, 1531,
         if (PFX##_empty(_set_))                                                                \
             return 0;                                                                          \
                                                                                                \
-        V result, min;                                                                         \
+        V result;                                                                              \
+        V min;                                                                                 \
         size_t index;                                                                          \
         SNAME##_iter iter;                                                                     \
                                                                                                \
