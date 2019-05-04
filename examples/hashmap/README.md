@@ -1,3 +1,3 @@
 # Hashmap examples
 
-Currently none
+* countries - Uses a hashmap to map the country name to its population
