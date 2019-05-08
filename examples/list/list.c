@@ -54,7 +54,7 @@ int main(int argc, char const *argv[])
 
     // Iterate over each element starting from the start (iter_new positions
     // the iterator to the start of the list) until the end of the list.
-    for (l_iter_new(&iter, my_list); !l_iter_end(&iter);)
+    for (l_iter_init(&iter, my_list); !l_iter_end(&iter);)
     {
         // Here index corresponds to the position of the result relative to all
         // other elements in the iteration. It is only a coincidence that the

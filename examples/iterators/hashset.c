@@ -42,7 +42,7 @@ int main(int argc, char const *argv[])
 
     // Initialize iterator
     hset_iter iter;
-    hs_iter_new(&iter, hs);
+    hs_iter_init(&iter, hs);
 
     // Make the iterator go back and forward
     for (int j = 0; j < 4; j++)

@@ -25,7 +25,7 @@ int main(int argc, char const *argv[])
 
     // Initialize iterator
     list_iter iter;
-    l_iter_new(&iter, l);
+    l_iter_init(&iter, l);
 
     // Make the iterator go back and forward
     for (int j = 0; j < 4; j++)

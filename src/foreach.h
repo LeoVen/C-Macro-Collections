@@ -20,7 +20,7 @@
         size_t index;                                  \
         V value;                                       \
         SNAME##_iter iter;                             \
-        PFX##_iter_new(&iter, TARGET);                 \
+        PFX##_iter_init(&iter, TARGET);                \
         while (PFX##_iter_next(&iter, &value, &index)) \
         {                                              \
             BODY;                                      \
@@ -33,7 +33,7 @@
         size_t index;                                  \
         V value;                                       \
         SNAME##_iter iter;                             \
-        PFX##_iter_new(&iter, TARGET);                 \
+        PFX##_iter_init(&iter, TARGET);                \
         PFX##_iter_toend(&iter);                       \
         while (PFX##_iter_prev(&iter, &value, &index)) \
         {                                              \
@@ -48,7 +48,7 @@
         K key;                                               \
         V value;                                             \
         SNAME##_iter iter;                                   \
-        PFX##_iter_new(&iter, TARGET);                       \
+        PFX##_iter_init(&iter, TARGET);                      \
         while (PFX##_iter_next(&iter, &key, &value, &index)) \
         {                                                    \
             BODY;                                            \
@@ -62,7 +62,7 @@
         K key;                                               \
         V value;                                             \
         SNAME##_iter iter;                                   \
-        PFX##_iter_new(&iter, TARGET);                       \
+        PFX##_iter_init(&iter, TARGET);                      \
         PFX##_iter_toend(&iter);                             \
         while (PFX##_iter_prev(&iter, &key, &value, &index)) \
         {                                                    \

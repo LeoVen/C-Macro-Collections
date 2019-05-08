@@ -77,7 +77,7 @@ int main(int argc, char const *argv[])
     int key;
     size_t mult, _;
 
-    for (tm_iter_new(&iter, map); !tm_iter_end(&iter); /* empty */)
+    for (tm_iter_init(&iter, map); !tm_iter_end(&iter); /* empty */)
     {
         // Map[key] = multiplicity
         tm_iter_next(&iter, &key, &mult, &_);

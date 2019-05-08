@@ -136,7 +136,9 @@ static const size_t cmc_hashtable_primes[] = {53, 97, 191, 383, 769, 1531,
     FMOD SNAME *PFX##_difference(SNAME *_set1_, SNAME *_set2_);                               \
     FMOD SNAME *PFX##_symmetric_difference(SNAME *_set1_, SNAME *_set2_);                     \
                                                                                               \
-    FMOD void PFX##_iter_new(SNAME##_iter *iter, SNAME *target);                              \
+    FMOD SNAME##_iter *PFX##_iter_new(SNAME *target);                                         \
+    FMOD void PFX##_iter_free(SNAME##_iter *iter);                                            \
+    FMOD void PFX##_iter_init(SNAME##_iter *iter, SNAME *target);                             \
     FMOD bool PFX##_iter_start(SNAME##_iter *iter);                                           \
     FMOD bool PFX##_iter_end(SNAME##_iter *iter);                                             \
     FMOD void PFX##_iter_tostart(SNAME##_iter *iter);                                         \
@@ -294,7 +296,7 @@ static const size_t cmc_hashtable_primes[] = {53, 97, 191, 383, 769, 1531,
         size_t index;                                                                          \
         SNAME##_iter iter;                                                                     \
                                                                                                \
-        for (PFX##_iter_new(&iter, _set_); !PFX##_iter_end(&iter);)                            \
+        for (PFX##_iter_init(&iter, _set_); !PFX##_iter_end(&iter);)                           \
         {                                                                                      \
             PFX##_iter_next(&iter, &result, &index);                                           \
                                                                                                \
@@ -317,7 +319,7 @@ static const size_t cmc_hashtable_primes[] = {53, 97, 191, 383, 769, 1531,
         size_t index;                                                                          \
         SNAME##_iter iter;                                                                     \
                                                                                                \
-        for (PFX##_iter_new(&iter, _set_); !PFX##_iter_end(&iter);)                            \
+        for (PFX##_iter_init(&iter, _set_); !PFX##_iter_end(&iter);)                           \
         {                                                                                      \
             PFX##_iter_next(&iter, &result, &index);                                           \
                                                                                                \
@@ -356,8 +358,8 @@ static const size_t cmc_hashtable_primes[] = {53, 97, 191, 383, 769, 1531,
         if (!_set_r_)                                                                          \
             return false;                                                                      \
                                                                                                \
-        PFX##_iter_new(&iter1, _set1_);                                                        \
-        PFX##_iter_new(&iter2, _set2_);                                                        \
+        PFX##_iter_init(&iter1, _set1_);                                                       \
+        PFX##_iter_init(&iter2, _set2_);                                                       \
                                                                                                \
         for (PFX##_iter_tostart(&iter1); !PFX##_iter_end(&iter1);)                             \
         {                                                                                      \
@@ -388,7 +390,7 @@ static const size_t cmc_hashtable_primes[] = {53, 97, 191, 383, 769, 1531,
         SNAME *_set_A_ = _set1_->count < _set2_->count ? _set1_ : _set2_;                      \
         SNAME *_set_B_ = _set_A_ == _set1_ ? _set2_ : _set1_;                                  \
                                                                                                \
-        PFX##_iter_new(&iter, _set_A_);                                                        \
+        PFX##_iter_init(&iter, _set_A_);                                                       \
                                                                                                \
         for (PFX##_iter_tostart(&iter); !PFX##_iter_end(&iter);)                               \
         {                                                                                      \
@@ -412,7 +414,7 @@ static const size_t cmc_hashtable_primes[] = {53, 97, 191, 383, 769, 1531,
         if (!_set_r_)                                                                          \
             return false;                                                                      \
                                                                                                \
-        PFX##_iter_new(&iter, _set1_);                                                         \
+        PFX##_iter_init(&iter, _set1_);                                                        \
                                                                                                \
         for (PFX##_iter_tostart(&iter); !PFX##_iter_end(&iter);)                               \
         {                                                                                      \
@@ -436,8 +438,8 @@ static const size_t cmc_hashtable_primes[] = {53, 97, 191, 383, 769, 1531,
         if (!_set_r_)                                                                          \
             return false;                                                                      \
                                                                                                \
-        PFX##_iter_new(&iter1, _set1_);                                                        \
-        PFX##_iter_new(&iter2, _set2_);                                                        \
+        PFX##_iter_init(&iter1, _set1_);                                                       \
+        PFX##_iter_init(&iter2, _set2_);                                                       \
                                                                                                \
         for (PFX##_iter_tostart(&iter1); !PFX##_iter_end(&iter1);)                             \
         {                                                                                      \
@@ -458,7 +460,24 @@ static const size_t cmc_hashtable_primes[] = {53, 97, 191, 383, 769, 1531,
         return _set_r_;                                                                        \
     }                                                                                          \
                                                                                                \
-    FMOD void PFX##_iter_new(SNAME##_iter *iter, SNAME *target)                                \
+    FMOD SNAME##_iter *PFX##_iter_new(SNAME *target)                                           \
+    {                                                                                          \
+        SNAME##_iter *iter = malloc(sizeof(SNAME##_iter));                                     \
+                                                                                               \
+        if (!iter)                                                                             \
+            return NULL;                                                                       \
+                                                                                               \
+        PFX##_iter_init(iter, target);                                                         \
+                                                                                               \
+        return iter;                                                                           \
+    }                                                                                          \
+                                                                                               \
+    FMOD void PFX##_iter_free(SNAME##_iter *iter)                                              \
+    {                                                                                          \
+        free(iter);                                                                            \
+    }                                                                                          \
+                                                                                               \
+    FMOD void PFX##_iter_init(SNAME##_iter *iter, SNAME *target)                               \
     {                                                                                          \
         iter->target = target;                                                                 \
         iter->cursor = 0;                                                                      \
@@ -591,7 +610,7 @@ static const size_t cmc_hashtable_primes[] = {53, 97, 191, 383, 769, 1531,
         size_t index;                                                                          \
         SNAME##_iter iter;                                                                     \
                                                                                                \
-        for (PFX##_iter_new(&iter, _set_); !PFX##_iter_end(&iter);)                            \
+        for (PFX##_iter_init(&iter, _set_); !PFX##_iter_end(&iter);)                           \
         {                                                                                      \
             PFX##_iter_next(&iter, &value, &index);                                            \
             PFX##_insert(_new_set_, value);                                                    \

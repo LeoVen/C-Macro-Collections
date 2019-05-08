@@ -31,7 +31,7 @@ int main(int argc, char const *argv[])
 
     // Initialize iterator
     tmap_iter iter;
-    tm_iter_new(&iter, tm);
+    tm_iter_init(&iter, tm);
 
     // Make the iterator go back and forward
     for (int j = 0; j < 4; j++)

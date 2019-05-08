@@ -27,7 +27,7 @@ int main(int argc, char const *argv[])
 
     // Initialize iterator
     deque_iter iter;
-    d_iter_new(&iter, d);
+    d_iter_init(&iter, d);
 
     // Make the iterator go back and forward
     for (int j = 0; j < 4; j++)

@@ -44,7 +44,7 @@ void deque_iter_test(void)
 
     // Initialize iterator
     deque_iter iter;
-    d_iter_new(&iter, d);
+    d_iter_init(&iter, d);
 
     // Make the iterator go back and forward
     for (int j = 0; j < 4; j++)
@@ -86,7 +86,7 @@ void hashmap_iter_test(void)
 
     // Initialize iterator
     hmap_iter iter;
-    hm_iter_new(&iter, hm);
+    hm_iter_init(&iter, hm);
 
     // Make the iterator go back and forward
     for (int j = 0; j < 4; j++)
@@ -137,7 +137,7 @@ void hashset_iter_test(void)
 
     // Initialize iterator
     hset_iter iter;
-    hs_iter_new(&iter, hs);
+    hs_iter_init(&iter, hs);
 
     // Make the iterator go back and forward
     for (int j = 0; j < 4; j++)
@@ -178,7 +178,7 @@ void heap_iter_test(void)
 
     // Initialize iterator
     heap_iter iter;
-    h_iter_new(&iter, h);
+    h_iter_init(&iter, h);
 
     // Make the iterator go back and forward
     for (int j = 0; j < 4; j++)
@@ -219,7 +219,7 @@ void linkedlist_iter_test(void)
 
     // Initialize iterator
     linked_iter iter;
-    ll_iter_new(&iter, ll);
+    ll_iter_init(&iter, ll);
 
     // Make the iterator go back and forward
     for (int j = 0; j < 4; j++)
@@ -260,7 +260,7 @@ void list_iter_test(void)
 
     // Initialize iterator
     list_iter iter;
-    l_iter_new(&iter, l);
+    l_iter_init(&iter, l);
 
     // Make the iterator go back and forward
     for (int j = 0; j < 4; j++)
@@ -301,7 +301,7 @@ void queue_iter_test(void)
 
     // Initialize iterator
     queue_iter iter;
-    q_iter_new(&iter, q);
+    q_iter_init(&iter, q);
 
     // Make the iterator go back and forward
     for (int j = 0; j < 4; j++)
@@ -342,7 +342,7 @@ void stack_iter_test(void)
 
     // Initialize iterator
     stack_iter iter;
-    s_iter_new(&iter, s);
+    s_iter_init(&iter, s);
 
     // Make the iterator go back and forward
     for (int j = 0; j < 4; j++)
@@ -384,7 +384,7 @@ void treemap_iter_test(void)
 
     // Initialize iterator
     tmap_iter iter;
-    tm_iter_new(&iter, tm);
+    tm_iter_init(&iter, tm);
 
     // Make the iterator go back and forward
     for (int j = 0; j < 4; j++)
@@ -433,7 +433,7 @@ void treeset_iter_test(void)
 
     // Initialize iterator
     tset_iter iter;
-    ts_iter_new(&iter, ts);
+    ts_iter_init(&iter, ts);
 
     // Make the iterator go back and forward
     for (int j = 0; j < 4; j++)

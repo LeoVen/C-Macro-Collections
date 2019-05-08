@@ -30,7 +30,7 @@ int main(int argc, char const *argv[])
 
     // Initialize iterator
     heap_iter iter;
-    h_iter_new(&iter, h);
+    h_iter_init(&iter, h);
 
     // Make the iterator go back and forward
     for (int j = 0; j < 4; j++)

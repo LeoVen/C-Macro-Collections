@@ -25,7 +25,7 @@ void print_set(set *s)
     size_t index;
     int result;
     set_iter iter;
-    set_iter_new(&iter, s);
+    set_iter_init(&iter, s);
     for (set_iter_tostart(&iter); !set_iter_end(&iter);)
     {
         set_iter_next(&iter, &result, &index);

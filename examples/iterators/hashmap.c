@@ -43,7 +43,7 @@ int main(int argc, char const *argv[])
 
     // Initialize iterator
     hmap_iter iter;
-    hm_iter_new(&iter, hm);
+    hm_iter_init(&iter, hm);
 
     // Make the iterator go back and forward
     for (int j = 0; j < 4; j++)

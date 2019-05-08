@@ -29,7 +29,7 @@ int main(int argc, char const *argv[])
     }
 
     deque_iter iter;
-    d_iter_new(&iter, numbers);
+    d_iter_init(&iter, numbers);
 
     size_t result, index, sum = 0;
 

@@ -53,7 +53,7 @@ int main(int argc, char const *argv[])
 
     // Iterate through each letter and print it
     string_iter iter;
-    str_iter_new(&iter, my_str);
+    str_iter_init(&iter, my_str);
     size_t index;
     char result;
 
@@ -106,13 +106,13 @@ int main(int argc, char const *argv[])
         // Pop white space
         str_pop_front(str_out);
 
-        for (str_iter_new(&iter, my_str); !str_iter_end(&iter);)
+        for (str_iter_init(&iter, my_str); !str_iter_end(&iter);)
         {
             str_iter_next(&iter, &result, &index);
             putchar(result);
         }
         printf("\nString length: %lu\n\n", str_count(my_str));
-        for (str_iter_new(&iter, str_out); !str_iter_end(&iter);)
+        for (str_iter_init(&iter, str_out); !str_iter_end(&iter);)
         {
             str_iter_next(&iter, &result, &index);
             putchar(result);

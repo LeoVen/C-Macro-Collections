@@ -88,7 +88,9 @@
     FMOD bool PFX##_empty(SNAME *_map_);                                            \
     FMOD size_t PFX##_count(SNAME *_map_);                                          \
                                                                                     \
-    FMOD void PFX##_iter_new(SNAME##_iter *iter, SNAME *target);                    \
+    FMOD SNAME##_iter *PFX##_iter_new(SNAME *target);                               \
+    FMOD void PFX##_iter_free(SNAME##_iter *iter);                                  \
+    FMOD void PFX##_iter_init(SNAME##_iter *iter, SNAME *target);                   \
     FMOD bool PFX##_iter_start(SNAME##_iter *iter);                                 \
     FMOD bool PFX##_iter_end(SNAME##_iter *iter);                                   \
     FMOD void PFX##_iter_tostart(SNAME##_iter *iter);                               \
@@ -460,7 +462,24 @@
         return _map_->count;                                                       \
     }                                                                              \
                                                                                    \
-    FMOD void PFX##_iter_new(SNAME##_iter *iter, SNAME *target)                    \
+    FMOD SNAME##_iter *PFX##_iter_new(SNAME *target)                               \
+    {                                                                              \
+        SNAME##_iter *iter = malloc(sizeof(SNAME##_iter));                         \
+                                                                                   \
+        if (!iter)                                                                 \
+            return NULL;                                                           \
+                                                                                   \
+        PFX##_iter_init(iter, target);                                             \
+                                                                                   \
+        return iter;                                                               \
+    }                                                                              \
+                                                                                   \
+    FMOD void PFX##_iter_free(SNAME##_iter *iter)                                  \
+    {                                                                              \
+        free(iter);                                                                \
+    }                                                                              \
+                                                                                   \
+    FMOD void PFX##_iter_init(SNAME##_iter *iter, SNAME *target)                   \
     {                                                                              \
         iter->target = target;                                                     \
         iter->index = 0;                                                           \
