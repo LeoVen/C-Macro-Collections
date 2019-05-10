@@ -102,6 +102,8 @@ Sequences Input / Output
 #### Iterator
 
 * [\_iter\_new()](#list_iter_new)
+* [\_iter\_free()](#list_iter_free)
+* [\_iter\_init()](#list_iter_init)
 * [\_iter\_start()](#list_iter_start)
 * [\_iter\_end()](#list_iter_end)
 * [\_iter\_tostart()](#list_iter_tostart)
@@ -126,6 +128,26 @@ Allocates and returns a new list with an internal capacity of `size`. If allocat
 1. `SNAME *` - A pointer to a heap allocated list.
 2. `NULL` - If allocation fails.
 
+#### Example
+
+```c
+LIST_GENERATE(l, list, /* FMOD */, int)
+
+int main(void)
+{
+    // Make a list of integers with an initial capacity of 100
+    // The list and its internal buffer is allocated in the heap
+    list *int_list = l_new(100);
+
+    if (!int_list)
+        // Allocation failed
+        return 1;
+
+    // Be sure to free its resources
+    l_free(int_list);
+}
+```
+
 ## [<span id="list_new_from"> \_new\_from() </span>](#list_function_index)
 
 Allocates and returns a new list from an already existing array. The list internal buffer's size will match the size of the given array.
@@ -144,6 +166,29 @@ Allocates and returns a new list from an already existing array. The list intern
 1. `SNAME *` - A pointer to a heap allocated list with the given elements.
 2. `NULL` - If allocation fails, or if size equals `0`.
 
+#### Example
+
+```c
+LIST_GENERATE(l, list, /* FMOD */, char)
+
+int main(void)
+{
+    // An array of characters
+    const char *letters = "abcdefghijklmnopqrstuvwxyz";
+
+    // Make a list of characters from an already existing array
+    // In this case, a string
+    list *my_characters = l_new_from(letters, strlen(letters));
+
+    if (!my_characters)
+        // Allocation failed
+        return 1;
+
+    // Be sure to free its resources after using
+    l_free(my_characters);
+}
+```
+
 ## [<span id="list_clear"> \_clear() </span>](#list_function_index)
 
 Removes all elements in the list but does not frees the list structure. After this function the list is empty and can still be used.
@@ -156,6 +201,31 @@ Removes all elements in the list but does not frees the list structure. After th
 
 1. `SNAME *_list_` - Target list to be cleared.
 
+#### Example
+
+```c
+LIST_GENERATE(l, list, /* FMOD */, int)
+
+int main(void)
+{
+    // Make a list of integers with an initial capacity of 100
+    list *int_list = l_new(100);
+
+    // Add elements to the list
+    for (int i = 0; i < 50; i++)
+        l_push_back(int_list, i);
+
+    // empty the list
+    l_clear(int_list);
+    
+    // list now has a size of 0 but the list was not freed from
+    // memory and can still be used
+    
+    // Be sure to free its resources after use
+    l_free(int_list);
+}
+```
+
 ## [<span id="list_free"> \_free() </span>](#list_function_index)
 
 Frees from memory the list internal buffer and the structure itself. Note that if the elements inside the list are pointers to allocated memory, this function might cause memory leaks as it does not deals with its elements.
@@ -167,6 +237,26 @@ Frees from memory the list internal buffer and the structure itself. Note that i
 #### Parameters
 
 1. `SNAME *_list_` - Target list to be freed from memory.
+
+#### Example
+
+```c
+LIST_GENERATE(l, list, /* FMOD */, int)
+
+int main(void)
+{
+    // Make a list of integers with an initial capacity of 100
+    list *int_list = l_new(100);
+
+    // Operate on the list
+
+    // Free the list from memory
+    l_free(int_list);
+
+    // At this point the list is invalid
+    // To be able to use it again, a call to l_new() must be made again
+}
+```
 
 ## [<span id="list_push_front"> \_push\_front() </span>](#list_function_index)
 
@@ -616,11 +706,39 @@ Returns the internal buffer's current capacity.
 
 ## [<span id="list_iter_new"> \_iter\_new() </span>](#list_function_index)
 
-Initializes an iterator with a given target list. The iterator's cursor will be positioned at the beginning of the list.
+Creates a new iterator allocated on the heap and initializes it with a target list. The iterator's cursor will be positioned at the beginning of the list.
 
 #### Declaration
 
-> `FMOD void PFX##_iter_new(SNAME##_iter *iter, SNAME *target);`
+> `FMOD SNAME##_iter *PFX##_iter_new(SNAME *target);`
+
+#### Parameters
+
+1. `SNAME *target` - Target list.
+
+#### Returns
+
+1. `SNAME##_iter *` - A heap allocated list iterator.
+
+## [<span id="list_iter_free"> \_iter\_free() </span>](#list_function_index)
+
+Frees a heap allocated list iterator from memory.
+
+#### Declaration
+
+> `FMOD void PFX##_iter_free(SNAME##_iter *iter);`
+
+#### Parameters
+
+1. `SNAME##_iter *iter` - Iterator to be freed from memory.
+
+## [<span id="list_iter_init"> \_iter\_init() </span>](#list_function_index)
+
+Initializes an iterator with a given target list. The iterator's cursor will be positioned at the beginning of the list. The iterator must have been allocated already. This function merely initializes the structure.
+
+#### Declaration
+
+> `FMOD void PFX##_iter_init(SNAME##_iter *iter, SNAME *target);`
 
 #### Parameters
 
@@ -792,6 +910,8 @@ A Stack is used in algorithms like backtracking, depth-first search, expression 
 #### Iterator
 
 * [\_iter\_new()](#stack_iter_new)
+* [\_iter\_free()](#stack_iter_free)
+* [\_iter\_init()](#stack_iter_init)
 * [\_iter\_start()](#stack_iter_start)
 * [\_iter\_end()](#stack_iter_end)
 * [\_iter\_tostart()](#stack_iter_tostart)
@@ -997,11 +1117,39 @@ Returns the internal buffer's current capacity.
 
 ## [<span id="stack_iter_new"> \_iter\_new() </span>](#stack_function_index)
 
-Initializes an iterator with a given target stack. The iterator's cursor will be positioned at the top of the stack.
+Creates a new iterator allocated on the heap and initializes it with a target stack. The iterator's cursor will be positioned at the top of the stack.
 
 #### Declaration
 
-> `FMOD void PFX##_iter_new(SNAME##_iter *iter, SNAME *target);`
+> `FMOD SNAME##_iter *PFX##_iter_new(SNAME *target);`
+
+#### Parameters
+
+1. `SNAME *target` - Target stack.
+
+#### Returns
+
+1. `SNAME##_iter *` - A heap allocated stack iterator.
+
+## [<span id="stack_iter_free"> \_iter\_free() </span>](#stack_function_index)
+
+Frees a heap allocated stack iterator from memory.
+
+#### Declaration
+
+> `FMOD void PFX##_iter_free(SNAME##_iter *iter);`
+
+#### Parameters
+
+1. `SNAME##_iter *iter` - Iterator to be freed from memory.
+
+## [<span id="stack_iter_init"> \_iter\_init() </span>](#stack_function_index)
+
+Initializes an iterator with a given target stack. The iterator's cursor will be positioned at the top of the stack. The iterator must have been allocated already. This function merely initializes the structure.
+
+#### Declaration
+
+> `FMOD void PFX##_iter_init(SNAME##_iter *iter, SNAME *target);`
 
 #### Parameters
 
@@ -1176,6 +1324,8 @@ The queue is used in many applications where a resource is shared among multiple
 #### Iterator
 
 * [\_iter\_new()](#queue_iter_new)
+* [\_iter\_free()](#queue_iter_free)
+* [\_iter\_init()](#queue_iter_init)
 * [\_iter\_start()](#queue_iter_start)
 * [\_iter\_end()](#queue_iter_end)
 * [\_iter\_tostart()](#queue_iter_tostart)
@@ -1381,11 +1531,39 @@ Returns the internal buffer's current capacity.
 
 ## [<span id="queue_iter_new"> \_iter\_new() </span>](#queue_function_index)
 
-Initializes an iterator with a given target queue. The iterator's cursor will be positioned at the front of the queue.
+Creates a new iterator allocated on the heap and initializes it with a target queue.
 
 #### Declaration
 
-> `FMOD void PFX##_iter_new(SNAME##_iter *iter, SNAME *target);`
+> `FMOD SNAME##_iter *PFX##_iter_new(SNAME *target);`
+
+#### Parameters
+
+1. `SNAME *target` - Target queue.
+
+#### Returns
+
+1. `SNAME##_iter *` - A heap allocated queue iterator.
+
+## [<span id="queue_iter_free"> \_iter\_free() </span>](#queue_function_index)
+
+Frees a heap allocated queue iterator from memory.
+
+#### Declaration
+
+> `FMOD void PFX##_iter_free(SNAME##_iter *iter);`
+
+#### Parameters
+
+1. `SNAME##_iter *iter` - Iterator to be freed from memory.
+
+## [<span id="queue_iter_init"> \_iter\_init() </span>](#queue_function_index)
+
+Initializes an iterator with a given target queue. The iterator's cursor will be positioned at the front of the queue. The iterator must have been allocated already. This function merely initializes the structure.
+
+#### Declaration
+
+> `FMOD void PFX##_iter_init(SNAME##_iter *iter, SNAME *target);`
 
 #### Parameters
 
@@ -1557,6 +1735,8 @@ A double-ended queue backed by a circular buffer. Elements can be added and remo
 #### Iterator
 
 * [\_iter\_new()](#deque_iter_new)
+* [\_iter\_free()](#deque_iter_free)
+* [\_iter\_init()](#deque_iter_init)
 * [\_iter\_start()](#deque_iter_start)
 * [\_iter\_end()](#deque_iter_end)
 * [\_iter\_tostart()](#deque_iter_tostart)
@@ -1851,11 +2031,39 @@ Returns the internal buffer's current capacity.
 
 ## [<span id="deque_iter_new"> \_iter\_new() </span>](#deque_function_index)
 
-Initializes an iterator with a given target deque. The iterator's cursor will be positioned at the front of the deque.
+Creates a new iterator allocated on the heap and initializes it with a target deque. The iterator's cursor will be positioned at the front of the deque.
 
 #### Declaration
 
-> `FMOD void PFX##_iter_new(SNAME##_iter *iter, SNAME *target);`
+> `FMOD SNAME##_iter *PFX##_iter_new(SNAME *target);`
+
+#### Parameters
+
+1. `SNAME *target` - Target deque.
+
+#### Returns
+
+1. `SNAME##_iter *` - A heap allocated deque iterator.
+
+## [<span id="deque_iter_free"> \_iter\_free() </span>](#deque_function_index)
+
+Frees a heap allocated deque iterator from memory.
+
+#### Declaration
+
+> `FMOD void PFX##_iter_free(SNAME##_iter *iter);`
+
+#### Parameters
+
+1. `SNAME##_iter *iter` - Iterator to be freed from memory.
+
+## [<span id="deque_iter_init"> \_iter\_init() </span>](#deque_function_index)
+
+Initializes an iterator with a given target deque. The iterator's cursor will be positioned at the front of the deque. The iterator must have been allocated already. This function merely initializes the structure.
+
+#### Declaration
+
+> `FMOD void PFX##_iter_init(SNAME##_iter *iter, SNAME *target);`
 
 #### Parameters
 
@@ -2050,6 +2258,8 @@ Conditional Input / Output
 #### Iterator
 
 * [\_iter\_new()](#treeset_iter_new)
+* [\_iter\_free()](#treeset_iter_free)
+* [\_iter\_init()](#treeset_iter_init)
 * [\_iter\_start()](#treeset_iter_start)
 * [\_iter\_end()](#treeset_iter_end)
 * [\_iter\_tostart()](#treeset_iter_tostart)
@@ -2334,11 +2544,39 @@ Creates a new set as the symmetric difference of `_set1_` to `_set2_`. The symme
 
 ## [<span id="treeset_iter_new"> \_iter\_new() </span>](#treeset_function_index)
 
-Initializes an iterator with a given target TreeSet. The iterator's cursor will be positioned at the smallest element node of the TreeSet.
+Creates a new iterator allocated on the heap and initializes it with a target TreeSet. The iterator's cursor will be positioned at the smallest element node of the TreeSet.
 
 #### Declaration
 
-> `FMOD void PFX##_iter_new(SNAME##_iter *iter, SNAME *target);`
+> `FMOD SNAME##_iter *PFX##_iter_new(SNAME *target);`
+
+#### Parameters
+
+1. `SNAME *target` - Target TreeSet.
+
+#### Returns
+
+1. `SNAME##_iter *` - A heap allocated TreeSet iterator.
+
+## [<span id="treeset_iter_free"> \_iter\_free() </span>](#treeset_function_index)
+
+Frees a heap allocated TreeSet iterator from memory.
+
+#### Declaration
+
+> `FMOD void PFX##_iter_free(SNAME##_iter *iter);`
+
+#### Parameters
+
+1. `SNAME##_iter *iter` - Iterator to be freed from memory.
+
+## [<span id="treeset_iter_init"> \_iter\_init() </span>](#treeset_function_index)
+
+Initializes an iterator with a given target TreeSet. The iterator's cursor will be positioned at the smallest element node of the TreeSet. The iterator must have been allocated already. This function merely initializes the structure.
+
+#### Declaration
+
+> `FMOD void PFX##_iter_init(SNAME##_iter *iter, SNAME *target);`
 
 #### Parameters
 
