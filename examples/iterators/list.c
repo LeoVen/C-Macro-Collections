@@ -30,26 +30,30 @@ int main(int argc, char const *argv[])
     // Make the iterator go back and forward
     for (int j = 0; j < 4; j++)
     {
-        while (l_iter_next(&iter, &r, &i))
-            printf("C[%2d] = %2d\n", i, r);
+        while (!l_iter_end(&iter))
+        {
+            printf("C[%2d] = %2d\n", l_iter_index(&iter), l_iter_value(&iter));
+            l_iter_next(&iter);
+        }
         printf("\n");
-        while (l_iter_prev(&iter, &r, &i))
-            printf("C[%2d] = %2d\n", i, r);
+        while (!l_iter_start(&iter))
+        {
+            printf("C[%2d] = %2d\n", l_iter_index(&iter), l_iter_value(&iter));
+            l_iter_prev(&iter);
+        }
         printf("\n\n");
     }
 
-    for (l_iter_tostart(&iter); !l_iter_end(&iter); /**/)
+    for (l_iter_to_start(&iter); !l_iter_end(&iter); l_iter_next(&iter))
     {
-        l_iter_next(&iter, &r, &i);
-        printf("L[%2d] = %2d\n", i, r);
+        printf("L[%2d] = %2d\n", l_iter_index(&iter), l_iter_value(&iter));
     }
 
     printf("\n");
 
-    for (l_iter_toend(&iter); !l_iter_start(&iter); /**/)
+    for (l_iter_to_end(&iter); !l_iter_start(&iter); l_iter_prev(&iter))
     {
-        l_iter_prev(&iter, &r, &i);
-        printf("L[%2d] = %2d\n", i, r);
+        printf("L[%2d] = %2d\n", l_iter_index(&iter), l_iter_value(&iter));
     }
 
     l_free(l);

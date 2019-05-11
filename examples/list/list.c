@@ -7,8 +7,8 @@
  * Leonardo Vencovsky (https://github.com/LeoVen)
  *
  */
-#include <stdio.h>
 #include "list.h"
+#include <stdio.h>
 
 LIST_GENERATE(l, list, /* FMOD */, int)
 
@@ -44,7 +44,9 @@ int main(int argc, char const *argv[])
         // Add even numbers to a given index. In this case they are being added
         // to the end of the list (count index == push_back). With a condition
         // of being even (i % 2 == 0)
-        l_push_if(my_list, i, l_count(my_list), i % 2 == 0);
+        bool added = l_push_if(my_list, i, l_count(my_list), i % 2 == 0);
+
+        // If added is true, the element was added to the list
     }
 
     // Iterator
@@ -54,12 +56,13 @@ int main(int argc, char const *argv[])
 
     // Iterate over each element starting from the start (iter_new positions
     // the iterator to the start of the list) until the end of the list.
-    for (l_iter_init(&iter, my_list); !l_iter_end(&iter);)
+    for (l_iter_init(&iter, my_list); !l_iter_end(&iter); l_iter_next(&iter))
     {
         // Here index corresponds to the position of the result relative to all
         // other elements in the iteration. It is only a coincidence that the
         // index here is the same as the result's position in the list.
-        l_iter_next(&iter, &result, &index);
+        index = l_iter_index(&iter);
+        result = l_iter_value(&iter);
 
         // Do whatever you want with result and index, e.g.
         sum += result * index;

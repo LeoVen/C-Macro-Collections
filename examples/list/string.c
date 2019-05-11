@@ -21,7 +21,7 @@ int chrcmp(char a, char b)
 
 void print_str(string *str)
 {
-    // If the buffer is not completely filled, there will be at leas one null
+    // If the buffer is not completely filled, there will be at least one null
     // byte in the end of the list's contents. This printf is possible but very
     // dangerous as you might end up printing something else from memory until
     // a null byte.
@@ -57,19 +57,18 @@ int main(int argc, char const *argv[])
     size_t index;
     char result;
 
-    for (str_iter_tostart(&iter); !str_iter_end(&iter);)
+    // Printing each character
+    for (str_iter_to_start(&iter); !str_iter_end(&iter); str_iter_next(&iter))
     {
-        str_iter_next(&iter, &result, &index);
-        putchar(result);
+        putchar(str_iter_value(&iter));
     }
 
     printf("\n\n");
 
     // You can also print it reversed
-    for (str_iter_toend(&iter); !str_iter_start(&iter);)
+    for (str_iter_to_end(&iter); !str_iter_start(&iter); str_iter_prev(&iter))
     {
-        str_iter_prev(&iter, &result, &index);
-        putchar(result);
+        putchar(str_iter_value(&iter));
     }
 
     printf("\n\n");
@@ -77,15 +76,20 @@ int main(int argc, char const *argv[])
     // Now remove the first letter supposing we don't know where it starts
     index = str_indexof(my_str, ' ', chrcmp, true);
 
+    if (index == str_count(my_str))
+    {
+        // char not found...
+        // Treat error
+    }
+
     // Now that we know where the first word is, remove it, including the
     // extra space. [from, to] are inclusive.
     str_remove(my_str, 0, index);
 
     // Print it once again
-    for (str_iter_tostart(&iter); !str_iter_end(&iter);)
+    for (str_iter_to_start(&iter); !str_iter_end(&iter); str_iter_next(&iter))
     {
-        str_iter_next(&iter, &result, &index);
-        putchar(result);
+        putchar(str_iter_value(&iter));
     }
 
     printf("\nString length: %lu\n\n", str_count(my_str));
@@ -106,20 +110,22 @@ int main(int argc, char const *argv[])
         // Pop white space
         str_pop_front(str_out);
 
-        for (str_iter_init(&iter, my_str); !str_iter_end(&iter);)
+        for (str_iter_init(&iter, my_str); !str_iter_end(&iter); str_iter_next(&iter))
         {
-            str_iter_next(&iter, &result, &index);
-            putchar(result);
+            putchar(str_iter_value(&iter));
         }
+
         printf("\nString length: %lu\n\n", str_count(my_str));
-        for (str_iter_init(&iter, str_out); !str_iter_end(&iter);)
+
+        for (str_iter_init(&iter, str_out); !str_iter_end(&iter); str_iter_next(&iter))
         {
-            str_iter_next(&iter, &result, &index);
-            putchar(result);
+            putchar(str_iter_value(&iter));
         }
+
         printf("\nString length: %lu\n", str_count(str_out));
     }
 
+    // Free strings
     str_free(my_str);
     str_free(str_out);
 
