@@ -37,65 +37,105 @@
 #define DEQUE_GENERATE_SOURCE_PUBLIC(PFX, SNAME, FMOD, K, V) \
     DEQUE_GENERATE_SOURCE(PFX, SNAME, FMOD, V)
 /* STRUCT ********************************************************************/
-#define DEQUE_GENERATE_STRUCT(PFX, SNAME, FMOD, V) \
-                                                   \
-    struct SNAME##_s                               \
-    {                                              \
-        V *buffer;                                 \
-        size_t capacity;                           \
-        size_t count;                              \
-        size_t front;                              \
-        size_t back;                               \
-    };                                             \
-                                                   \
-    struct SNAME##_iter_s                          \
-    {                                              \
-        struct SNAME##_s *target;                  \
-        size_t cursor;                             \
-        size_t index;                              \
-        bool start;                                \
-        bool end;                                  \
-    };                                             \
-                                                   \
+#define DEQUE_GENERATE_STRUCT(PFX, SNAME, FMOD, V)
+
 /* HEADER ********************************************************************/
 #define DEQUE_GENERATE_HEADER(PFX, SNAME, FMOD, V)                                \
                                                                                   \
-    typedef struct SNAME##_s SNAME;                                               \
-    typedef struct SNAME##_iter_s SNAME##_iter;                                   \
+    typedef struct SNAME##_s                                                      \
+    {                                                                             \
+        /* Dynamic circular array of elements */                                  \
+        V *buffer;                                                                \
                                                                                   \
+        /* Current circular array capacity */                                     \
+        size_t capacity;                                                          \
+                                                                                  \
+        /* Current amount of elements */                                          \
+        size_t count;                                                             \
+                                                                                  \
+        /* Index representing the front of the deque */                           \
+        size_t front;                                                             \
+                                                                                  \
+        /* Index representing the back of the deque */                            \
+        size_t back;                                                              \
+                                                                                  \
+        /* Function that returns an iterator to the start of the deque */         \
+        struct SNAME##_iter_s (*it_start)(struct SNAME##_s *);                    \
+                                                                                  \
+        /* Function that returns an iterator to the end of the deque */           \
+        struct SNAME##_iter_s (*it_end)(struct SNAME##_s *);                      \
+                                                                                  \
+    } SNAME, *SNAME##_ptr;                                                        \
+                                                                                  \
+    typedef struct SNAME##_iter_s                                                 \
+    {                                                                             \
+        /* Target deque */                                                        \
+        struct SNAME##_s *target;                                                 \
+                                                                                  \
+        /* Cursor's position (index) */                                           \
+        size_t cursor;                                                            \
+                                                                                  \
+        /* Keeps track of relative index to the iteration of elements */          \
+        size_t index;                                                             \
+                                                                                  \
+        /* If the iterator has reached the start of the iteration */              \
+        bool start;                                                               \
+                                                                                  \
+        /* If the iterator has reached the end of the iteration */                \
+        bool end;                                                                 \
+                                                                                  \
+    } SNAME##_iter, *SNAME##_iter_ptr;                                            \
+                                                                                  \
+    /* Collection Functions */                                                    \
+    /* Collection Allocation and Deallocation */                                  \
     FMOD SNAME *PFX##_new(size_t size);                                           \
     FMOD void PFX##_clear(SNAME *_deque_);                                        \
     FMOD void PFX##_free(SNAME *_deque_);                                         \
+    /* Collection Input and Output */                                             \
     FMOD bool PFX##_push_front(SNAME *_deque_, V element);                        \
     FMOD bool PFX##_push_back(SNAME *_deque_, V element);                         \
     FMOD bool PFX##_pop_front(SNAME *_deque_);                                    \
     FMOD bool PFX##_pop_back(SNAME *_deque_);                                     \
+    /* Conditional Input and Output */                                            \
     FMOD bool PFX##_push_front_if(SNAME *_deque_, V element, bool condition);     \
     FMOD bool PFX##_push_back_if(SNAME *_deque_, V element, bool condition);      \
     FMOD bool PFX##_pop_front_if(SNAME *_deque_, bool condition);                 \
     FMOD bool PFX##_pop_back_if(SNAME *_deque_, bool condition);                  \
+    /* Element Access */                                                          \
     FMOD V PFX##_front(SNAME *_deque_);                                           \
     FMOD V PFX##_back(SNAME *_deque_);                                            \
+    /* Collection State */                                                        \
     FMOD bool PFX##_contains(SNAME *_deque_, V element, int (*comparator)(V, V)); \
     FMOD bool PFX##_empty(SNAME *_deque_);                                        \
     FMOD bool PFX##_full(SNAME *_deque_);                                         \
     FMOD size_t PFX##_count(SNAME *_deque_);                                      \
     FMOD size_t PFX##_capacity(SNAME *_deque_);                                   \
                                                                                   \
+    /* Iterator Functions */                                                      \
+    /* Iterator Allocation and Deallocation */                                    \
     FMOD SNAME##_iter *PFX##_iter_new(SNAME *target);                             \
     FMOD void PFX##_iter_free(SNAME##_iter *iter);                                \
+    /* Iterator Initialization */                                                 \
     FMOD void PFX##_iter_init(SNAME##_iter *iter, SNAME *target);                 \
+    /* Iterator State */                                                          \
     FMOD bool PFX##_iter_start(SNAME##_iter *iter);                               \
     FMOD bool PFX##_iter_end(SNAME##_iter *iter);                                 \
-    FMOD void PFX##_iter_tostart(SNAME##_iter *iter);                             \
-    FMOD void PFX##_iter_toend(SNAME##_iter *iter);                               \
-    FMOD bool PFX##_iter_next(SNAME##_iter *iter, V *result, size_t *index);      \
-    FMOD bool PFX##_iter_prev(SNAME##_iter *iter, V *result, size_t *index);      \
+    /* Iterator Movement */                                                       \
+    FMOD void PFX##_iter_to_start(SNAME##_iter *iter);                            \
+    FMOD void PFX##_iter_to_end(SNAME##_iter *iter);                              \
+    FMOD bool PFX##_iter_next(SNAME##_iter *iter);                                \
+    FMOD bool PFX##_iter_prev(SNAME##_iter *iter);                                \
+    /* Iterator Access */                                                         \
+    FMOD V PFX##_iter_value(SNAME##_iter *iter);                                  \
+    FMOD V *PFX##_iter_rvalue(SNAME##_iter *iter);                                \
+    FMOD size_t PFX##_iter_index(SNAME##_iter *iter);                             \
                                                                                   \
 /* SOURCE ********************************************************************/
 #define DEQUE_GENERATE_SOURCE(PFX, SNAME, FMOD, V)                                                       \
                                                                                                          \
-    FMOD bool PFX##_grow(SNAME *_deque_);                                                                \
+    FMOD bool PFX##_impl_grow(SNAME *_deque_);                                                           \
+    SNAME##_iter PFX##_impl_it_start(SNAME *_deque_);                                                    \
+    SNAME##_iter PFX##_impl_it_end(SNAME *_deque_);                                                      \
                                                                                                          \
     FMOD SNAME *PFX##_new(size_t size)                                                                   \
     {                                                                                                    \
@@ -122,6 +162,9 @@
         _deque_->front = 0;                                                                              \
         _deque_->back = 0;                                                                               \
                                                                                                          \
+        _deque_->it_start = PFX##_impl_it_start;                                                         \
+        _deque_->it_end = PFX##_impl_it_end;                                                             \
+                                                                                                         \
         return _deque_;                                                                                  \
     }                                                                                                    \
                                                                                                          \
@@ -144,7 +187,7 @@
     {                                                                                                    \
         if (PFX##_full(_deque_))                                                                         \
         {                                                                                                \
-            if (!PFX##_grow(_deque_))                                                                    \
+            if (!PFX##_impl_grow(_deque_))                                                               \
                 return false;                                                                            \
         }                                                                                                \
                                                                                                          \
@@ -161,7 +204,7 @@
     {                                                                                                    \
         if (PFX##_full(_deque_))                                                                         \
         {                                                                                                \
-            if (!PFX##_grow(_deque_))                                                                    \
+            if (!PFX##_impl_grow(_deque_))                                                               \
                 return false;                                                                            \
         }                                                                                                \
                                                                                                          \
@@ -317,7 +360,7 @@
         return PFX##_empty(iter->target) || iter->end;                                                   \
     }                                                                                                    \
                                                                                                          \
-    FMOD void PFX##_iter_tostart(SNAME##_iter *iter)                                                     \
+    FMOD void PFX##_iter_to_start(SNAME##_iter *iter)                                                    \
     {                                                                                                    \
         iter->cursor = iter->target->front;                                                              \
         iter->index = 0;                                                                                 \
@@ -325,7 +368,7 @@
         iter->end = PFX##_empty(iter->target);                                                           \
     }                                                                                                    \
                                                                                                          \
-    FMOD void PFX##_iter_toend(SNAME##_iter *iter)                                                       \
+    FMOD void PFX##_iter_to_end(SNAME##_iter *iter)                                                      \
     {                                                                                                    \
         if (PFX##_empty(iter->target))                                                                   \
             iter->cursor = 0;                                                                            \
@@ -337,13 +380,10 @@
         iter->end = true;                                                                                \
     }                                                                                                    \
                                                                                                          \
-    FMOD bool PFX##_iter_next(SNAME##_iter *iter, V *result, size_t *index)                              \
+    FMOD bool PFX##_iter_next(SNAME##_iter *iter)                                                        \
     {                                                                                                    \
         if (iter->end)                                                                                   \
             return false;                                                                                \
-                                                                                                         \
-        *index = iter->index;                                                                            \
-        *result = iter->target->buffer[iter->cursor];                                                    \
                                                                                                          \
         iter->start = false;                                                                             \
                                                                                                          \
@@ -358,13 +398,10 @@
         return true;                                                                                     \
     }                                                                                                    \
                                                                                                          \
-    FMOD bool PFX##_iter_prev(SNAME##_iter *iter, V *result, size_t *index)                              \
+    FMOD bool PFX##_iter_prev(SNAME##_iter *iter)                                                        \
     {                                                                                                    \
         if (iter->start)                                                                                 \
             return false;                                                                                \
-                                                                                                         \
-        *index = iter->index;                                                                            \
-        *result = iter->target->buffer[iter->cursor];                                                    \
                                                                                                          \
         iter->end = false;                                                                               \
                                                                                                          \
@@ -379,7 +416,22 @@
         return true;                                                                                     \
     }                                                                                                    \
                                                                                                          \
-    FMOD bool PFX##_grow(SNAME *_deque_)                                                                 \
+    FMOD V PFX##_iter_value(SNAME##_iter *iter)                                                          \
+    {                                                                                                    \
+        return iter->target->buffer[iter->cursor];                                                       \
+    }                                                                                                    \
+                                                                                                         \
+    FMOD V *PFX##_iter_rvalue(SNAME##_iter *iter)                                                        \
+    {                                                                                                    \
+        return &(iter->target->buffer[iter->cursor]);                                                    \
+    }                                                                                                    \
+                                                                                                         \
+    FMOD size_t PFX##_iter_index(SNAME##_iter *iter)                                                     \
+    {                                                                                                    \
+        return iter->index;                                                                              \
+    }                                                                                                    \
+                                                                                                         \
+    FMOD bool PFX##_impl_grow(SNAME *_deque_)                                                            \
     {                                                                                                    \
                                                                                                          \
         size_t new_capacity = _deque_->capacity * 2;                                                     \
@@ -402,6 +454,25 @@
         _deque_->back = _deque_->count;                                                                  \
                                                                                                          \
         return true;                                                                                     \
+    }                                                                                                    \
+                                                                                                         \
+    SNAME##_iter PFX##_impl_it_start(SNAME *_deque_)                                                     \
+    {                                                                                                    \
+        SNAME##_iter iter;                                                                               \
+                                                                                                         \
+        PFX##_iter_init(&iter, _deque_);                                                                 \
+                                                                                                         \
+        return iter;                                                                                     \
+    }                                                                                                    \
+                                                                                                         \
+    SNAME##_iter PFX##_impl_it_end(SNAME *_deque_)                                                       \
+    {                                                                                                    \
+        SNAME##_iter iter;                                                                               \
+                                                                                                         \
+        PFX##_iter_init(&iter, _deque_);                                                                 \
+        PFX##_iter_to_end(&iter);                                                                        \
+                                                                                                         \
+        return iter;                                                                                     \
     }
 
 #endif /* CMC_DEQUE_H */

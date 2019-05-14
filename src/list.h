@@ -105,8 +105,8 @@
     FMOD V *PFX##_get_ref(SNAME *_list_, size_t index);                                            \
     FMOD V PFX##_back(SNAME *_list_);                                                              \
     FMOD size_t PFX##_indexof(SNAME *_list_, V element, int (*comparator)(V, V), bool from_start); \
-    FMOD bool PFX##_contains(SNAME *_list_, V element, int (*comparator)(V, V));                   \
     /* Collection State */                                                                         \
+    FMOD bool PFX##_contains(SNAME *_list_, V element, int (*comparator)(V, V));                   \
     FMOD bool PFX##_empty(SNAME *_list_);                                                          \
     FMOD bool PFX##_full(SNAME *_list_);                                                           \
     FMOD size_t PFX##_count(SNAME *_list_);                                                        \
