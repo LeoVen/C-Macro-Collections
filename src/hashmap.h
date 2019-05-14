@@ -81,82 +81,139 @@ static const size_t cmc_hashtable_primes[] = {53, 97, 191, 383, 769, 1531,
 #define HASHMAP_GENERATE_SOURCE_PUBLIC(PFX, SNAME, FMOD, K, V) \
     HASHMAP_GENERATE_SOURCE(PFX, SNAME, FMOD, K, V)
 /* STRUCT ********************************************************************/
-#define HASHMAP_GENERATE_STRUCT(PFX, SNAME, FMOD, K, V) \
-                                                        \
-    struct SNAME##_s                                    \
-    {                                                   \
-        struct SNAME##_entry_s *buffer;                 \
-        size_t capacity;                                \
-        size_t count;                                   \
-        double load;                                    \
-        int (*cmp)(K, K);                               \
-        size_t (*hash)(K);                              \
-    };                                                  \
-                                                        \
-    struct SNAME##_entry_s                              \
-    {                                                   \
-        K key;                                          \
-        V value;                                        \
-        size_t dist;                                    \
-        enum EntryState_e state;                        \
-    };                                                  \
-                                                        \
-    struct SNAME##_iter_s                               \
-    {                                                   \
-        struct SNAME##_s *target;                       \
-        size_t cursor;                                  \
-        size_t index;                                   \
-        size_t first;                                   \
-        size_t last;                                    \
-        bool start;                                     \
-        bool end;                                       \
-    };                                                  \
-                                                        \
+#define HASHMAP_GENERATE_STRUCT(PFX, SNAME, FMOD, K, V)
+
 /* HEADER ********************************************************************/
 #define HASHMAP_GENERATE_HEADER(PFX, SNAME, FMOD, K, V)                                       \
                                                                                               \
-    typedef struct SNAME##_s SNAME;                                                           \
-    typedef struct SNAME##_entry_s SNAME##_entry;                                             \
-    typedef struct SNAME##_iter_s SNAME##_iter;                                               \
+    /* Hashmap Structure */                                                                   \
+    typedef struct SNAME##_s                                                                  \
+    {                                                                                         \
+        /* Array of buckets */                                                                \
+        struct SNAME##_entry_s *buffer;                                                       \
                                                                                               \
+        /* Current array capacity */                                                          \
+        size_t capacity;                                                                      \
+                                                                                              \
+        /* Current amount of keys */                                                          \
+        size_t count;                                                                         \
+                                                                                              \
+        /* Load factor in range (0.0, 1.0) */                                                 \
+        double load;                                                                          \
+                                                                                              \
+        /* Key comparison function */                                                         \
+        int (*cmp)(K, K);                                                                     \
+                                                                                              \
+        /* Key hash function */                                                               \
+        size_t (*hash)(K);                                                                    \
+                                                                                              \
+        /* Function that returns an iterator to the start of the hashmap */                   \
+        struct SNAME##_iter_s (*it_start)(struct SNAME##_s *);                                \
+                                                                                              \
+        /* Function that returns an iterator to the end of the hashmap */                     \
+        struct SNAME##_iter_s (*it_end)(struct SNAME##_s *);                                  \
+                                                                                              \
+    } SNAME, *SNAME##_ptr;                                                                    \
+                                                                                              \
+    /* Hashmap Entry */                                                                       \
+    typedef struct SNAME##_entry_s                                                            \
+    {                                                                                         \
+        /* Key */                                                                             \
+        K key;                                                                                \
+                                                                                              \
+        /* Value */                                                                           \
+        V value;                                                                              \
+                                                                                              \
+        /* The distance of this node to its original position, used by robin-hood hashing */  \
+        size_t dist;                                                                          \
+                                                                                              \
+        /* The sate of this node (DELETED, EMPTY, FILLED) */                                  \
+        enum EntryState_e state;                                                              \
+                                                                                              \
+    } SNAME##_entry, *SNAME##_entry_ptr;                                                      \
+                                                                                              \
+    /* Hashmap Iterator */                                                                    \
+    typedef struct SNAME##_iter_s                                                             \
+    {                                                                                         \
+        /* Target hashmap */                                                                  \
+        struct SNAME##_s *target;                                                             \
+                                                                                              \
+        /* Cursor's position (index) */                                                       \
+        size_t cursor;                                                                        \
+                                                                                              \
+        /* Keeps track of relative index to the iteration of elements */                      \
+        size_t index;                                                                         \
+                                                                                              \
+        /* The index of the first element */                                                  \
+        size_t first;                                                                         \
+                                                                                              \
+        /* The index of the last element */                                                   \
+        size_t last;                                                                          \
+                                                                                              \
+        /* If the iterator has reached the start of the iteration */                          \
+        bool start;                                                                           \
+                                                                                              \
+        /* If the iterator has reached the end of the iteration */                            \
+        bool end;                                                                             \
+                                                                                              \
+    } SNAME##_iter, *SNAME##_iter_ptr;                                                        \
+                                                                                              \
+    /* Collection Functions */                                                                \
+    /* Collection Allocation and Deallocation */                                              \
     FMOD SNAME *PFX##_new(size_t size, double load, int (*compare)(K, K), size_t (*hash)(K)); \
     FMOD void PFX##_clear(SNAME *_map_);                                                      \
     FMOD void PFX##_free(SNAME *_map_);                                                       \
+    /* Collection Input and Output */                                                         \
     FMOD bool PFX##_insert(SNAME *_map_, K key, V value);                                     \
     FMOD bool PFX##_remove(SNAME *_map_, K key, V *value);                                    \
+    /* Conditional Input and Output */                                                        \
     FMOD bool PFX##_insert_if(SNAME *_map_, K key, V value, bool condition);                  \
     FMOD bool PFX##_remove_if(SNAME *_map_, K key, V *value, bool condition);                 \
+    /* Element Access */                                                                      \
     FMOD bool PFX##_max(SNAME *_map_, K *key, V *value);                                      \
     FMOD bool PFX##_min(SNAME *_map_, K *key, V *value);                                      \
-    FMOD bool PFX##_contains(SNAME *_map_, K key);                                            \
     FMOD V PFX##_get(SNAME *_map_, K key);                                                    \
     FMOD V *PFX##_get_ref(SNAME *_map_, K key);                                               \
+    /* Collection State */                                                                    \
+    FMOD bool PFX##_contains(SNAME *_map_, K key);                                            \
     FMOD bool PFX##_empty(SNAME *_map_);                                                      \
     FMOD size_t PFX##_count(SNAME *_map_);                                                    \
                                                                                               \
+    /* Iterator Functions */                                                                  \
+    /* Iterator Allocation and Deallocation */                                                \
     FMOD SNAME##_iter *PFX##_iter_new(SNAME *target);                                         \
     FMOD void PFX##_iter_free(SNAME##_iter *iter);                                            \
+    /* Iterator Initialization */                                                             \
     FMOD void PFX##_iter_init(SNAME##_iter *iter, SNAME *target);                             \
+    /* Iterator State */                                                                      \
     FMOD bool PFX##_iter_start(SNAME##_iter *iter);                                           \
     FMOD bool PFX##_iter_end(SNAME##_iter *iter);                                             \
+    /* Iterator Movement */                                                                   \
     FMOD void PFX##_iter_tostart(SNAME##_iter *iter);                                         \
     FMOD void PFX##_iter_toend(SNAME##_iter *iter);                                           \
-    FMOD bool PFX##_iter_next(SNAME##_iter *iter, K *key, V *value, size_t *index);           \
-    FMOD bool PFX##_iter_prev(SNAME##_iter *iter, K *key, V *value, size_t *index);           \
+    FMOD bool PFX##_iter_next(SNAME##_iter *iter);                                            \
+    FMOD bool PFX##_iter_prev(SNAME##_iter *iter);                                            \
+    /* Iterator Access */                                                                     \
+    FMOD K PFX##_iter_key(SNAME##_iter *iter);                                                \
+    FMOD V PFX##_iter_value(SNAME##_iter *iter);                                              \
+    FMOD V *PFX##_iter_rvalue(SNAME##_iter *iter);                                            \
+    FMOD size_t PFX##_iter_index(SNAME##_iter *iter);                                         \
                                                                                               \
 /* SOURCE ********************************************************************/
 #define HASHMAP_GENERATE_SOURCE(PFX, SNAME, FMOD, K, V)                                      \
                                                                                              \
-    FMOD bool PFX##_grow(SNAME *_map_);                                                      \
-    FMOD SNAME##_entry *PFX##_get_entry(SNAME *_map_, K key);                                \
-    FMOD size_t PFX##_calculate_size(size_t required);                                       \
+    FMOD bool PFX##_impl_grow(SNAME *_map_);                                                 \
+    FMOD SNAME##_entry *PFX##_impl_get_entry(SNAME *_map_, K key);                           \
+    FMOD size_t PFX##_impl_calculate_size(size_t required);                                  \
+    SNAME##_iter PFX##_impl_it_start(SNAME *_map_);                                          \
+    SNAME##_iter PFX##_impl_it_end(SNAME *_map_);                                            \
                                                                                              \
     FMOD SNAME *PFX##_new(size_t size, double load, int (*compare)(K, K), size_t (*hash)(K)) \
     {                                                                                        \
         if (size == 0 || load <= 0 || load >= 1)                                             \
             return NULL;                                                                     \
                                                                                              \
-        size_t real_size = PFX##_calculate_size(size);                                       \
+        size_t real_size = PFX##_impl_calculate_size(size);                                  \
                                                                                              \
         SNAME *_map_ = malloc(sizeof(SNAME));                                                \
                                                                                              \
@@ -179,6 +236,9 @@ static const size_t cmc_hashtable_primes[] = {53, 97, 191, 383, 769, 1531,
         _map_->cmp = compare;                                                                \
         _map_->hash = hash;                                                                  \
                                                                                              \
+        _map_->it_start = PFX##_impl_it_start;                                               \
+        _map_->it_end = PFX##_impl_it_end;                                                   \
+                                                                                             \
         return _map_;                                                                        \
     }                                                                                        \
                                                                                              \
@@ -199,7 +259,7 @@ static const size_t cmc_hashtable_primes[] = {53, 97, 191, 383, 769, 1531,
     {                                                                                        \
         if ((double)_map_->capacity * _map_->load <= (double)_map_->count)                   \
         {                                                                                    \
-            if (!PFX##_grow(_map_))                                                          \
+            if (!PFX##_impl_grow(_map_))                                                     \
                 return false;                                                                \
         }                                                                                    \
                                                                                              \
@@ -209,7 +269,7 @@ static const size_t cmc_hashtable_primes[] = {53, 97, 191, 383, 769, 1531,
                                                                                              \
         SNAME##_entry *target = &(_map_->buffer[pos]);                                       \
                                                                                              \
-        if (PFX##_get_entry(_map_, key) != NULL)                                             \
+        if (PFX##_impl_get_entry(_map_, key) != NULL)                                        \
             return false;                                                                    \
                                                                                              \
         if (target->state == ES_EMPTY || target->state == ES_DELETED)                        \
@@ -259,7 +319,7 @@ static const size_t cmc_hashtable_primes[] = {53, 97, 191, 383, 769, 1531,
                                                                                              \
     FMOD bool PFX##_remove(SNAME *_map_, K key, V *value)                                    \
     {                                                                                        \
-        SNAME##_entry *result = PFX##_get_entry(_map_, key);                                 \
+        SNAME##_entry *result = PFX##_impl_get_entry(_map_, key);                            \
                                                                                              \
         if (result == NULL)                                                                  \
             return false;                                                                    \
@@ -297,14 +357,13 @@ static const size_t cmc_hashtable_primes[] = {53, 97, 191, 383, 769, 1531,
             return false;                                                                    \
                                                                                              \
         SNAME##_iter iter;                                                                   \
-        K result_key;                                                                        \
         K max_key;                                                                           \
-        V result_value;                                                                      \
-        size_t index;                                                                        \
                                                                                              \
-        for (PFX##_iter_init(&iter, _map_); !PFX##_iter_end(&iter);)                         \
+        for (PFX##_iter_init(&iter, _map_); !PFX##_iter_end(&iter); PFX##_iter_next(&iter))  \
         {                                                                                    \
-            PFX##_iter_next(&iter, &result_key, &result_value, &index);                      \
+            K result_key = PFX##_iter_key(&iter);                                            \
+            V result_value = PFX##_iter_value(&iter);                                        \
+            size_t index = PFX##_iter_index(&iter);                                          \
                                                                                              \
             if (index == 0)                                                                  \
             {                                                                                \
@@ -315,7 +374,7 @@ static const size_t cmc_hashtable_primes[] = {53, 97, 191, 383, 769, 1531,
             else if (_map_->cmp(result_key, max_key) > 0)                                    \
             {                                                                                \
                 max_key = result_key;                                                        \
-                *key = result_key;                                                           \
+                *key = max_key;                                                              \
                 *value = result_value;                                                       \
             }                                                                                \
         }                                                                                    \
@@ -329,14 +388,13 @@ static const size_t cmc_hashtable_primes[] = {53, 97, 191, 383, 769, 1531,
             return false;                                                                    \
                                                                                              \
         SNAME##_iter iter;                                                                   \
-        K result_key;                                                                        \
         K min_key;                                                                           \
-        V result_value;                                                                      \
-        size_t index;                                                                        \
                                                                                              \
-        for (PFX##_iter_init(&iter, _map_); !PFX##_iter_end(&iter);)                         \
+        for (PFX##_iter_init(&iter, _map_); !PFX##_iter_end(&iter); PFX##_iter_next(&iter))  \
         {                                                                                    \
-            PFX##_iter_next(&iter, &result_key, &result_value, &index);                      \
+            K result_key = PFX##_iter_key(&iter);                                            \
+            V result_value = PFX##_iter_value(&iter);                                        \
+            size_t index = PFX##_iter_index(&iter);                                          \
                                                                                              \
             if (index == 0)                                                                  \
             {                                                                                \
@@ -355,14 +413,9 @@ static const size_t cmc_hashtable_primes[] = {53, 97, 191, 383, 769, 1531,
         return true;                                                                         \
     }                                                                                        \
                                                                                              \
-    FMOD bool PFX##_contains(SNAME *_map_, K key)                                            \
-    {                                                                                        \
-        return PFX##_get_entry(_map_, key) != NULL;                                          \
-    }                                                                                        \
-                                                                                             \
     FMOD V PFX##_get(SNAME *_map_, K key)                                                    \
     {                                                                                        \
-        SNAME##_entry *entry = PFX##_get_entry(_map_, key);                                  \
+        SNAME##_entry *entry = PFX##_impl_get_entry(_map_, key);                             \
                                                                                              \
         if (!entry)                                                                          \
             return 0;                                                                        \
@@ -372,12 +425,17 @@ static const size_t cmc_hashtable_primes[] = {53, 97, 191, 383, 769, 1531,
                                                                                              \
     FMOD V *PFX##_get_ref(SNAME *_map_, K key)                                               \
     {                                                                                        \
-        SNAME##_entry *entry = PFX##_get_entry(_map_, key);                                  \
+        SNAME##_entry *entry = PFX##_impl_get_entry(_map_, key);                             \
                                                                                              \
         if (!entry)                                                                          \
             return NULL;                                                                     \
                                                                                              \
         return &(entry->value);                                                              \
+    }                                                                                        \
+                                                                                             \
+    FMOD bool PFX##_contains(SNAME *_map_, K key)                                            \
+    {                                                                                        \
+        return PFX##_impl_get_entry(_map_, key) != NULL;                                     \
     }                                                                                        \
                                                                                              \
     FMOD bool PFX##_empty(SNAME *_map_)                                                      \
@@ -449,7 +507,7 @@ static const size_t cmc_hashtable_primes[] = {53, 97, 191, 383, 769, 1531,
         return PFX##_empty(iter->target) || iter->end;                                       \
     }                                                                                        \
                                                                                              \
-    FMOD void PFX##_iter_tostart(SNAME##_iter *iter)                                         \
+    FMOD void PFX##_iter_to_start(SNAME##_iter *iter)                                        \
     {                                                                                        \
         iter->cursor = iter->first;                                                          \
         iter->index = 0;                                                                     \
@@ -457,7 +515,7 @@ static const size_t cmc_hashtable_primes[] = {53, 97, 191, 383, 769, 1531,
         iter->end = PFX##_empty(iter->target);                                               \
     }                                                                                        \
                                                                                              \
-    FMOD void PFX##_iter_toend(SNAME##_iter *iter)                                           \
+    FMOD void PFX##_iter_to_end(SNAME##_iter *iter)                                          \
     {                                                                                        \
         iter->cursor = iter->last;                                                           \
         iter->index = iter->target->count - 1;                                               \
@@ -465,31 +523,29 @@ static const size_t cmc_hashtable_primes[] = {53, 97, 191, 383, 769, 1531,
         iter->end = true;                                                                    \
     }                                                                                        \
                                                                                              \
-    FMOD bool PFX##_iter_next(SNAME##_iter *iter, K *key, V *value, size_t *index)           \
+    FMOD bool PFX##_iter_next(SNAME##_iter *iter)                                            \
     {                                                                                        \
         if (iter->end)                                                                       \
             return false;                                                                    \
                                                                                              \
         SNAME##_entry *scan = &(iter->target->buffer[iter->cursor]);                         \
                                                                                              \
-        *key = scan->key;                                                                    \
-        *value = scan->value;                                                                \
-        *index = iter->index;                                                                \
-                                                                                             \
         if (iter->cursor == iter->last)                                                      \
-            iter->end = true;                                                                \
-        else                                                                                 \
         {                                                                                    \
-            iter->index++;                                                                   \
+            iter->end = true;                                                                \
                                                                                              \
-            while (1)                                                                        \
-            {                                                                                \
-                iter->cursor++;                                                              \
-                scan = &(iter->target->buffer[iter->cursor]);                                \
+            return false;                                                                    \
+        }                                                                                    \
                                                                                              \
-                if (scan->state == ES_FILLED)                                                \
-                    break;                                                                   \
-            }                                                                                \
+        iter->index++;                                                                       \
+                                                                                             \
+        while (1)                                                                            \
+        {                                                                                    \
+            iter->cursor++;                                                                  \
+            scan = &(iter->target->buffer[iter->cursor]);                                    \
+                                                                                             \
+            if (scan->state == ES_FILLED)                                                    \
+                break;                                                                       \
         }                                                                                    \
                                                                                              \
         iter->start = PFX##_empty(iter->target);                                             \
@@ -497,31 +553,29 @@ static const size_t cmc_hashtable_primes[] = {53, 97, 191, 383, 769, 1531,
         return true;                                                                         \
     }                                                                                        \
                                                                                              \
-    FMOD bool PFX##_iter_prev(SNAME##_iter *iter, K *key, V *value, size_t *index)           \
+    FMOD bool PFX##_iter_prev(SNAME##_iter *iter)                                            \
     {                                                                                        \
         if (iter->start)                                                                     \
             return false;                                                                    \
                                                                                              \
         SNAME##_entry *scan = &(iter->target->buffer[iter->cursor]);                         \
                                                                                              \
-        *key = scan->key;                                                                    \
-        *value = scan->value;                                                                \
-        *index = iter->index;                                                                \
-                                                                                             \
         if (iter->cursor == iter->first)                                                     \
-            iter->start = true;                                                              \
-        else                                                                                 \
         {                                                                                    \
-            iter->index--;                                                                   \
+            iter->start = true;                                                              \
                                                                                              \
-            while (1)                                                                        \
-            {                                                                                \
-                iter->cursor--;                                                              \
-                scan = &(iter->target->buffer[iter->cursor]);                                \
+            return false;                                                                    \
+        }                                                                                    \
                                                                                              \
-                if (scan->state == ES_FILLED)                                                \
-                    break;                                                                   \
-            }                                                                                \
+        iter->index--;                                                                       \
+                                                                                             \
+        while (1)                                                                            \
+        {                                                                                    \
+            iter->cursor--;                                                                  \
+            scan = &(iter->target->buffer[iter->cursor]);                                    \
+                                                                                             \
+            if (scan->state == ES_FILLED)                                                    \
+                break;                                                                       \
         }                                                                                    \
                                                                                              \
         iter->end = PFX##_empty(iter->target);                                               \
@@ -529,23 +583,42 @@ static const size_t cmc_hashtable_primes[] = {53, 97, 191, 383, 769, 1531,
         return true;                                                                         \
     }                                                                                        \
                                                                                              \
-    FMOD bool PFX##_grow(SNAME *_map_)                                                       \
+    FMOD K PFX##_iter_key(SNAME##_iter *iter)                                                \
     {                                                                                        \
-        size_t new_size = PFX##_calculate_size(_map_->capacity + _map_->capacity / 2);       \
+        return iter->target->buffer[iter->cursor].key;                                       \
+    }                                                                                        \
+                                                                                             \
+    FMOD V PFX##_iter_value(SNAME##_iter *iter)                                              \
+    {                                                                                        \
+        return iter->target->buffer[iter->cursor].value;                                     \
+    }                                                                                        \
+                                                                                             \
+    FMOD V *PFX##_iter_rvalue(SNAME##_iter *iter)                                            \
+    {                                                                                        \
+        return &(iter->target->buffer[iter->cursor].value);                                  \
+    }                                                                                        \
+                                                                                             \
+    FMOD size_t PFX##_iter_index(SNAME##_iter *iter)                                         \
+    {                                                                                        \
+        return iter->index;                                                                  \
+    }                                                                                        \
+                                                                                             \
+    FMOD bool PFX##_impl_grow(SNAME *_map_)                                                  \
+    {                                                                                        \
+        size_t new_size = PFX##_impl_calculate_size(_map_->capacity + _map_->capacity / 2);  \
                                                                                              \
         SNAME *_new_map_ = PFX##_new(new_size, _map_->load, _map_->cmp, _map_->hash);        \
                                                                                              \
         if (!_new_map_)                                                                      \
             return false;                                                                    \
                                                                                              \
-        K key;                                                                               \
-        V value;                                                                             \
-        size_t index;                                                                        \
         SNAME##_iter iter;                                                                   \
                                                                                              \
-        for (PFX##_iter_init(&iter, _map_); !PFX##_iter_end(&iter);)                         \
+        for (PFX##_iter_init(&iter, _map_); !PFX##_iter_end(&iter); PFX##_iter_next(&iter))  \
         {                                                                                    \
-            PFX##_iter_next(&iter, &key, &value, &index);                                    \
+            K key = PFX##_iter_key(&iter);                                                   \
+            V value = PFX##_iter_value(&iter);                                               \
+                                                                                             \
             PFX##_insert(_new_map_, key, value);                                             \
         }                                                                                    \
                                                                                              \
@@ -566,7 +639,7 @@ static const size_t cmc_hashtable_primes[] = {53, 97, 191, 383, 769, 1531,
         return true;                                                                         \
     }                                                                                        \
                                                                                              \
-    FMOD SNAME##_entry *PFX##_get_entry(SNAME *_map_, K key)                                 \
+    FMOD SNAME##_entry *PFX##_impl_get_entry(SNAME *_map_, K key)                            \
     {                                                                                        \
         size_t hash = _map_->hash(key);                                                      \
         size_t pos = hash % _map_->capacity;                                                 \
@@ -585,7 +658,7 @@ static const size_t cmc_hashtable_primes[] = {53, 97, 191, 383, 769, 1531,
         return NULL;                                                                         \
     }                                                                                        \
                                                                                              \
-    FMOD size_t PFX##_calculate_size(size_t required)                                        \
+    FMOD size_t PFX##_impl_calculate_size(size_t required)                                   \
     {                                                                                        \
         const size_t count = sizeof(cmc_hashtable_primes) / sizeof(cmc_hashtable_primes[0]); \
                                                                                              \
@@ -597,6 +670,25 @@ static const size_t cmc_hashtable_primes[] = {53, 97, 191, 383, 769, 1531,
             i++;                                                                             \
                                                                                              \
         return cmc_hashtable_primes[i];                                                      \
+    }                                                                                        \
+                                                                                             \
+    SNAME##_iter PFX##_impl_it_start(SNAME *_map_)                                           \
+    {                                                                                        \
+        SNAME##_iter iter;                                                                   \
+                                                                                             \
+        PFX##_iter_init(&iter, _map_);                                                       \
+                                                                                             \
+        return iter;                                                                         \
+    }                                                                                        \
+                                                                                             \
+    SNAME##_iter PFX##_impl_it_end(SNAME *_map_)                                             \
+    {                                                                                        \
+        SNAME##_iter iter;                                                                   \
+                                                                                             \
+        PFX##_iter_init(&iter, _map_);                                                       \
+        PFX##_iter_to_end(&iter);                                                            \
+                                                                                             \
+        return iter;                                                                         \
     }
 
 #endif /* CMC_HASHMAP_H */

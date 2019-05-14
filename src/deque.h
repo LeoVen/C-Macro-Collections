@@ -42,6 +42,7 @@
 /* HEADER ********************************************************************/
 #define DEQUE_GENERATE_HEADER(PFX, SNAME, FMOD, V)                                \
                                                                                   \
+    /* Deque Structure */                                                         \
     typedef struct SNAME##_s                                                      \
     {                                                                             \
         /* Dynamic circular array of elements */                                  \
@@ -67,6 +68,7 @@
                                                                                   \
     } SNAME, *SNAME##_ptr;                                                        \
                                                                                   \
+    /* Deque Structure */                                                         \
     typedef struct SNAME##_iter_s                                                 \
     {                                                                             \
         /* Target deque */                                                        \
@@ -385,7 +387,7 @@
         if (iter->end)                                                                                   \
             return false;                                                                                \
                                                                                                          \
-        iter->start = false;                                                                             \
+        iter->start = PFX##_empty(iter->target);                                                         \
                                                                                                          \
         if (iter->index == iter->target->count - 1)                                                      \
             iter->end = true;                                                                            \
@@ -403,7 +405,7 @@
         if (iter->start)                                                                                 \
             return false;                                                                                \
                                                                                                          \
-        iter->end = false;                                                                               \
+        iter->end = PFX##_empty(iter->target);                                                           \
                                                                                                          \
         if (iter->index == 0)                                                                            \
             iter->start = true;                                                                          \

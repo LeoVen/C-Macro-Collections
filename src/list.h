@@ -42,9 +42,10 @@
 /* HEADER ********************************************************************/
 #define LIST_GENERATE_HEADER(PFX, SNAME, FMOD, V)                                                  \
                                                                                                    \
+    /* List Structure */                                                                           \
     typedef struct SNAME##_s                                                                       \
     {                                                                                              \
-        /* Dynamic array of elements*/                                                             \
+        /* Dynamic array of elements */                                                            \
         V *buffer;                                                                                 \
                                                                                                    \
         /* Current array capacity */                                                               \
@@ -61,12 +62,13 @@
                                                                                                    \
     } SNAME, *SNAME##_ptr;                                                                         \
                                                                                                    \
+    /* List Iterator */                                                                            \
     typedef struct SNAME##_iter_s                                                                  \
     {                                                                                              \
         /* Target list */                                                                          \
         struct SNAME##_s *target;                                                                  \
                                                                                                    \
-        /* Cursor's position */                                                                    \
+        /* Cursor's position (index) */                                                            \
         size_t cursor;                                                                             \
                                                                                                    \
         /* If the iterator has reached the start of the iteration */                               \
@@ -575,7 +577,7 @@
         if (iter->end)                                                                                           \
             return false;                                                                                        \
                                                                                                                  \
-        iter->start = false;                                                                                     \
+        iter->start = PFX##_empty(iter->target);                                                                 \
                                                                                                                  \
         if (iter->cursor == iter->target->count - 1)                                                             \
             iter->end = true;                                                                                    \
@@ -590,7 +592,7 @@
         if (iter->start)                                                                                         \
             return false;                                                                                        \
                                                                                                                  \
-        iter->end = false;                                                                                       \
+        iter->end = PFX##_empty(iter->target);                                                                   \
                                                                                                                  \
         if (iter->cursor == 0)                                                                                   \
             iter->start = true;                                                                                  \
