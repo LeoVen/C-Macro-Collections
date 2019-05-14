@@ -89,10 +89,10 @@ Sequences Input / Output
 * [\_get_ref()](#list_get_ref)
 * [\_back()](#list_back)
 * [\_indexof()](#list_indexof)
-* [\_contains()](#list_contains)
 
 #### Structure State
 
+* [\_contains()](#list_contains)
 * [\_empty()](#list_empty)
 * [\_full()](#list_full)
 * [\_count()](#list_count)
@@ -902,6 +902,7 @@ A Stack is used in algorithms like backtracking, depth-first search, expression 
 
 #### Structure State
 
+* [\_contains()](#stack_contains)
 * [\_empty()](#stack_empty)
 * [\_full()](#stack_full)
 * [\_count()](#stack_count)
@@ -1048,6 +1049,28 @@ Returns the element at the top of the stack if available.
 
 1. `V` - The element at the top of the stack.
 2. `0` or `NULL` - If the stack is empty.
+
+## [<span id="stack_contains"> \_contains() </span>](#stack_function_index)
+
+Check if an element is present in the stack according to a `comparator` function.
+
+#### Declaration
+
+> `FMOD bool PFX##_contains(SNAME *_stack_, V element, int (*comparator)(V, V));`
+
+#### Parameters
+
+1. `SNAME *_stack_` - Target stack.
+2. `V element` - Element to check its presence in the stack.
+3. `int (*comparator)(V, V)` - Comparison function. Returns:
+    * `-1` - When the first argument is less than the second;
+    * `0` - When both arguments are equal;
+    * `1` - When the first argument is greater than the second.
+
+#### Returns
+
+1. `true` - If the element is present in the stack.
+2. `false` - If the element is not present in the stack.
 
 ## [<span id="stack_empty"> \_empty() </span>](#stack_function_index)
 
@@ -1316,6 +1339,7 @@ The queue is used in many applications where a resource is shared among multiple
 
 #### Structure State
 
+* [\_contains()](#queue_contains)
 * [\_empty()](#queue_empty)
 * [\_full()](#queue_full)
 * [\_count()](#queue_count)
@@ -1462,6 +1486,28 @@ Returns the element at the front of the queue if available. This represents the 
 
 1. `V` - The element at the front of the queue.
 2. `0` or `NULL` - If the queue is empty.
+
+## [<span id="queue_contains"> \_contains() </span>](#queue_function_index)
+
+Check if an element is present in the queue according to a `comparator` function.
+
+#### Declaration
+
+> `FMOD bool PFX##_contains(SNAME *_queue_, V element, int (*comparator)(V, V));`
+
+#### Parameters
+
+1. `SNAME *_queue_` - Target queue.
+2. `V element` - Element to check its presence in the queue.
+3. `int (*comparator)(V, V)` - Comparison function. Returns:
+    * `-1` - When the first argument is less than the second;
+    * `0` - When both arguments are equal;
+    * `1` - When the first argument is greater than the second.
+
+#### Returns
+
+1. `true` - If the element is present in the queue.
+2. `false` - If the element is not present in the queue.
 
 ## [<span id="queue_empty"> \_empty() </span>](#queue_function_index)
 
@@ -1727,6 +1773,7 @@ A double-ended queue backed by a circular buffer. Elements can be added and remo
 
 #### Structure State
 
+* [\_contains()](#deque_contains)
 * [\_empty()](#deque_empty)
 * [\_full()](#deque_full)
 * [\_count()](#deque_count)
@@ -1962,6 +2009,28 @@ Returns the rear element if the specified deque is not empty.
 
 1. `V` - The rear element of the deque.
 2. `0` or `NULL` - If the deque is empty.
+
+## [<span id="deque_contains"> \_contains() </span>](#deque_function_index)
+
+Check if an element is present in the deque according to a `comparator` function.
+
+#### Declaration
+
+> `FMOD bool PFX##_contains(SNAME *_deque_, V element, int (*comparator)(V, V));`
+
+#### Parameters
+
+1. `SNAME *_deque_` - Target deque.
+2. `V element` - Element to check its presence in the deque.
+3. `int (*comparator)(V, V)` - Comparison function. Returns:
+    * `-1` - When the first argument is less than the second;
+    * `0` - When both arguments are equal;
+    * `1` - When the first argument is greater than the second.
+
+#### Returns
+
+1. `true` - If the element is present in the deque.
+2. `false` - If the element is not present in the deque.
 
 ## [<span id="deque_empty"> \_empty() </span>](#deque_function_index)
 
@@ -2241,10 +2310,10 @@ Conditional Input / Output
 
 * [\_max()](#treeset_max)
 * [\_min()](#treeset_min)
-* [\_contains()](#treeset_contains)
 
 #### Structure State
 
+* [\_contains()](#treeset_contains)
 * [\_empty()](#treeset_empty)
 * [\_count()](#treeset_count)
 
