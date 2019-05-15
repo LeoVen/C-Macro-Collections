@@ -13,8 +13,6 @@
 
 STACK_GENERATE(s, stack, /* static */, int)
 
-#define MAX(a, b) a > b ? a : b
-
 void print_hanoi(stack *t1, stack *t2, stack *t3);
 const char *draw(int value);
 void move_disc(stack *from, stack *to);

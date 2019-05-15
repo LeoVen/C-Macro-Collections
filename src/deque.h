@@ -421,11 +421,17 @@
                                                                                                          \
     FMOD V PFX##_iter_value(SNAME##_iter *iter)                                                          \
     {                                                                                                    \
+        if (PFX##_empty(iter->target))                                                                   \
+            return 0;                                                                                    \
+                                                                                                         \
         return iter->target->buffer[iter->cursor];                                                       \
     }                                                                                                    \
                                                                                                          \
     FMOD V *PFX##_iter_rvalue(SNAME##_iter *iter)                                                        \
     {                                                                                                    \
+        if (PFX##_empty(iter->target))                                                                   \
+            return NULL;                                                                                 \
+                                                                                                         \
         return &(iter->target->buffer[iter->cursor]);                                                    \
     }                                                                                                    \
                                                                                                          \

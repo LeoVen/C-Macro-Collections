@@ -711,11 +711,17 @@
                                                                                     \
     FMOD V PFX##_iter_value(SNAME##_iter *iter)                                     \
     {                                                                               \
+        if (PFX##_empty(iter->target))                                              \
+            return 0;                                                               \
+                                                                                    \
         return iter->cursor->data;                                                  \
     }                                                                               \
                                                                                     \
     FMOD V *PFX##_iter_rvalue(SNAME##_iter *iter)                                   \
     {                                                                               \
+        if (PFX##_empty(iter->target))                                              \
+            return NULL;                                                            \
+                                                                                    \
         return &(iter->cursor->data);                                               \
     }                                                                               \
                                                                                     \

@@ -373,6 +373,9 @@ typedef enum HeapOrder
                                                                                                   \
     FMOD V PFX##_iter_value(SNAME##_iter *iter)                                                   \
     {                                                                                             \
+        if (PFX##_empty(iter->target))                                                            \
+            return 0;                                                                             \
+                                                                                                  \
         return iter->target->buffer[iter->cursor];                                                \
     }                                                                                             \
                                                                                                   \
