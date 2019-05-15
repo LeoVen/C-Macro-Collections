@@ -7,17 +7,14 @@
  * Leonardo Vencovsky (https://github.com/LeoVen)
  *
  */
+#include "list.h"
 #include <stdio.h>
 #include <stdlib.h>
-#include "list.h"
 
 LIST_GENERATE(l, list, static, int)
 
 int main(int argc, char const *argv[])
 {
-    size_t i;
-    int r;
-
     // Initialize list and add some elements
     list *l = l_new(10);
     for (int i = 0; i < 10; i++)

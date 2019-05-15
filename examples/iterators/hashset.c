@@ -7,9 +7,9 @@
  * Leonardo Vencovsky (https://github.com/LeoVen)
  *
  */
+#include "hashset.h"
 #include <stdio.h>
 #include <stdlib.h>
-#include "hashset.h"
 
 HASHSET_GENERATE(hs, hset, static, int)
 

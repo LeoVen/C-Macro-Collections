@@ -7,52 +7,53 @@
  * Leonardo Vencovsky (https://github.com/LeoVen)
  *
  */
+#include "linkedlist.h"
 #include <stdio.h>
 #include <stdlib.h>
-#include "linkedlist.h"
 
-LINKEDLIST_GENERATE(ll, linked, static, int)
+LINKEDLIST_GENERATE(ll, linkedlist, static, int)
 
 int main(int argc, char const *argv[])
 {
-    size_t i;
-    int r;
-
-    // Initialize linked list and add some elements
-    linked *ll = ll_new();
+    // Initialize list and add some elements
+    linkedlist *l = ll_new();
     for (int i = 0; i < 10; i++)
-        ll_push_back(ll, i);
+        ll_push_back(l, i);
 
     // Initialize iterator
-    linked_iter iter;
-    ll_iter_init(&iter, ll);
+    linkedlist_iter iter;
+    ll_iter_init(&iter, l);
 
     // Make the iterator go back and forward
     for (int j = 0; j < 4; j++)
     {
-        while (ll_iter_next(&iter, &r, &i))
-            printf("C[%2d] = %2d\n", i, r);
+        while (!ll_iter_end(&iter))
+        {
+            printf("C[%2d] = %2d\n", ll_iter_index(&iter), ll_iter_value(&iter));
+            ll_iter_next(&iter);
+        }
         printf("\n");
-        while (ll_iter_prev(&iter, &r, &i))
-            printf("C[%2d] = %2d\n", i, r);
+        while (!ll_iter_start(&iter))
+        {
+            printf("C[%2d] = %2d\n", ll_iter_index(&iter), ll_iter_value(&iter));
+            ll_iter_prev(&iter);
+        }
         printf("\n\n");
     }
 
-    for (ll_iter_tostart(&iter); !ll_iter_end(&iter); /**/)
+    for (ll_iter_to_start(&iter); !ll_iter_end(&iter); ll_iter_next(&iter))
     {
-        ll_iter_next(&iter, &r, &i);
-        printf("LL[%2d] = %2d\n", i, r);
+        printf("LL[%2d] = %2d\n", ll_iter_index(&iter), ll_iter_value(&iter));
     }
 
     printf("\n");
 
-    for (ll_iter_toend(&iter); !ll_iter_start(&iter); /**/)
+    for (ll_iter_to_end(&iter); !ll_iter_start(&iter); ll_iter_prev(&iter))
     {
-        ll_iter_prev(&iter, &r, &i);
-        printf("LL[%2d] = %2d\n", i, r);
+        printf("LL[%2d] = %2d\n", ll_iter_index(&iter), ll_iter_value(&iter));
     }
 
-    ll_free(ll);
+    ll_free(l);
 
     return 0;
 }

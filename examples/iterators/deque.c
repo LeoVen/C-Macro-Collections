@@ -7,9 +7,9 @@
  * Leonardo Vencovsky (https://github.com/LeoVen)
  *
  */
+#include "deque.h"
 #include <stdio.h>
 #include <stdlib.h>
-#include "deque.h"
 
 DEQUE_GENERATE(d, deque, static, int)
 
