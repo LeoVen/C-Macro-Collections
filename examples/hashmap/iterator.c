@@ -36,7 +36,7 @@ HASHMAP_GENERATE(hm, hashmap, /* FMOD */, int, double)
 
 int main(int argc, char const *argv[])
 {
-    // Create a new hashmap with an initial capacity of 100
+    // Create a new hashmap with an initial capacity of 100 and load factor of 0.6
     hashmap *my_map = hm_new(100, 0.6, intcmp, inthash);
 
     // Add pairs to the hashmap

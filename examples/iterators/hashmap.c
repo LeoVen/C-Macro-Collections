@@ -32,9 +32,7 @@ int intcmp(int a, int b)
 
 int main(int argc, char const *argv[])
 {
-    size_t i;
-    int k;
-    double v, varr[10] = {0.0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9};
+    double varr[10] = {0.0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9};
 
     // Initialize hashmap and add some element
     hmap *hm = hm_new(50, 0.9, intcmp, inthash);

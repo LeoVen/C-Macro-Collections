@@ -89,7 +89,7 @@ static const size_t cmc_hashtable_primes[] = {53, 97, 191, 383, 769, 1531,
     /* Hashmap Structure */                                                                   \
     typedef struct SNAME##_s                                                                  \
     {                                                                                         \
-        /* Array of buckets */                                                                \
+        /* Array of Entries */                                                                \
         struct SNAME##_entry_s *buffer;                                                       \
                                                                                               \
         /* Current array capacity */                                                          \
@@ -118,10 +118,10 @@ static const size_t cmc_hashtable_primes[] = {53, 97, 191, 383, 769, 1531,
     /* Hashmap Entry */                                                                       \
     typedef struct SNAME##_entry_s                                                            \
     {                                                                                         \
-        /* Key */                                                                             \
+        /* Entry Key */                                                                       \
         K key;                                                                                \
                                                                                               \
-        /* Value */                                                                           \
+        /* Entry Value */                                                                     \
         V value;                                                                              \
                                                                                               \
         /* The distance of this node to its original position, used by robin-hood hashing */  \
@@ -357,7 +357,6 @@ static const size_t cmc_hashtable_primes[] = {53, 97, 191, 383, 769, 1531,
             return false;                                                                    \
                                                                                              \
         SNAME##_iter iter;                                                                   \
-        K max_key;                                                                           \
                                                                                              \
         for (PFX##_iter_init(&iter, _map_); !PFX##_iter_end(&iter); PFX##_iter_next(&iter))  \
         {                                                                                    \
@@ -367,14 +366,12 @@ static const size_t cmc_hashtable_primes[] = {53, 97, 191, 383, 769, 1531,
                                                                                              \
             if (index == 0)                                                                  \
             {                                                                                \
-                max_key = result_key;                                                        \
                 *key = result_key;                                                           \
                 *value = result_value;                                                       \
             }                                                                                \
-            else if (_map_->cmp(result_key, max_key) > 0)                                    \
+            else if (_map_->cmp(result_key, *key) > 0)                                       \
             {                                                                                \
-                max_key = result_key;                                                        \
-                *key = max_key;                                                              \
+                *key = result_key;                                                           \
                 *value = result_value;                                                       \
             }                                                                                \
         }                                                                                    \
@@ -388,7 +385,6 @@ static const size_t cmc_hashtable_primes[] = {53, 97, 191, 383, 769, 1531,
             return false;                                                                    \
                                                                                              \
         SNAME##_iter iter;                                                                   \
-        K min_key;                                                                           \
                                                                                              \
         for (PFX##_iter_init(&iter, _map_); !PFX##_iter_end(&iter); PFX##_iter_next(&iter))  \
         {                                                                                    \
@@ -398,14 +394,12 @@ static const size_t cmc_hashtable_primes[] = {53, 97, 191, 383, 769, 1531,
                                                                                              \
             if (index == 0)                                                                  \
             {                                                                                \
-                min_key = result_key;                                                        \
                 *key = result_key;                                                           \
                 *value = result_value;                                                       \
             }                                                                                \
-            else if (_map_->cmp(result_key, min_key) < 0)                                    \
+            else if (_map_->cmp(result_key, *key) < 0)                                       \
             {                                                                                \
-                min_key = result_key;                                                        \
-                *key = min_key;                                                              \
+                *key = result_key;                                                           \
                 *value = result_value;                                                       \
             }                                                                                \
         }                                                                                    \

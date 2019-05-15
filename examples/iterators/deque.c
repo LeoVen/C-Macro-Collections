@@ -15,9 +15,6 @@ DEQUE_GENERATE(d, deque, static, int)
 
 int main(int argc, char const *argv[])
 {
-    size_t i;
-    int r;
-
     // Initialize deque and add some elements
     deque *d = d_new(10);
     for (int i = 0; i < 10; i++)
