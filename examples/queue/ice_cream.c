@@ -7,10 +7,10 @@
  * Leonardo Vencovsky (https://github.com/LeoVen)
  *
  */
+#include "queue.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <time.h>
-#include "queue.h"
 
 QUEUE_GENERATE(q, queue, /* static */, const char *)
 

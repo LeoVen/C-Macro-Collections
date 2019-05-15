@@ -68,7 +68,7 @@
                                                                                   \
     } SNAME, *SNAME##_ptr;                                                        \
                                                                                   \
-    /* Deque Structure */                                                         \
+    /* Deque Iterator */                                                          \
     typedef struct SNAME##_iter_s                                                 \
     {                                                                             \
         /* Target deque */                                                        \
