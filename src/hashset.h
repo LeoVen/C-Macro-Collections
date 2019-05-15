@@ -172,6 +172,7 @@ static const size_t cmc_hashtable_primes[] = {53, 97, 191, 383, 769, 1531,
     FMOD bool PFX##_contains(SNAME *_set_, V element);                                        \
     FMOD bool PFX##_empty(SNAME *_set_);                                                      \
     FMOD size_t PFX##_count(SNAME *_set_);                                                    \
+    FMOD size_t PFX##_capacity(SNAME *_set_);                                                 \
                                                                                               \
     /* Set Operations */                                                                      \
     FMOD SNAME *PFX##_union(SNAME *_set1_, SNAME *_set2_);                                    \
@@ -200,6 +201,7 @@ static const size_t cmc_hashtable_primes[] = {53, 97, 191, 383, 769, 1531,
 /* SOURCE ********************************************************************/
 #define HASHSET_GENERATE_SOURCE(PFX, SNAME, FMOD, V)                                           \
                                                                                                \
+    /* Implementation Detail Functions */                                                      \
     FMOD bool PFX##_grow(SNAME *_set_);                                                        \
     FMOD SNAME##_entry *PFX##_get_entry(SNAME *_set_, V element);                              \
     FMOD size_t PFX##_calculate_size(size_t required);                                         \
@@ -397,6 +399,11 @@ static const size_t cmc_hashtable_primes[] = {53, 97, 191, 383, 769, 1531,
     FMOD size_t PFX##_count(SNAME *_set_)                                                      \
     {                                                                                          \
         return _set_->count;                                                                   \
+    }                                                                                          \
+                                                                                               \
+    FMOD size_t PFX##_capacity(SNAME *_set_)                                                   \
+    {                                                                                          \
+        return _set_->capacity;                                                                \
     }                                                                                          \
                                                                                                \
     FMOD SNAME *PFX##_union(SNAME *_set1_, SNAME *_set2_)                                      \

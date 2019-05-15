@@ -20,12 +20,9 @@ HEAP_GENERATE(h, heap, static, int)
 
 int main(int argc, char const *argv[])
 {
-    size_t i;
-    int r;
-
     // Initialize heap and add some elements
-    heap *h = h_new(10, MinHeap, intcmp);
-    for (int i = 9; i >= 0; i--)
+    heap *h = h_new(10, MaxHeap, intcmp);
+    for (int i = 0; i < 10; i++)
         h_insert(h, i);
 
     // Initialize iterator
@@ -35,26 +32,30 @@ int main(int argc, char const *argv[])
     // Make the iterator go back and forward
     for (int j = 0; j < 4; j++)
     {
-        while (h_iter_next(&iter, &r, &i))
-            printf("C[%2d] = %2d\n", i, r);
+        while (!h_iter_end(&iter))
+        {
+            printf("C[%2d] = %2d\n", h_iter_index(&iter), h_iter_value(&iter));
+            h_iter_next(&iter);
+        }
         printf("\n");
-        while (h_iter_prev(&iter, &r, &i))
-            printf("C[%2d] = %2d\n", i, r);
+        while (!h_iter_start(&iter))
+        {
+            printf("C[%2d] = %2d\n", h_iter_index(&iter), h_iter_value(&iter));
+            h_iter_prev(&iter);
+        }
         printf("\n\n");
     }
 
-    for (h_iter_tostart(&iter); !h_iter_end(&iter); /**/)
+    for (h_iter_to_start(&iter); !h_iter_end(&iter); h_iter_next(&iter))
     {
-        h_iter_next(&iter, &r, &i);
-        printf("H[%2d] = %2d\n", i, r);
+        printf("H[%2d] = %2d\n", h_iter_index(&iter), h_iter_value(&iter));
     }
 
     printf("\n");
 
-    for (h_iter_toend(&iter); !h_iter_start(&iter); /**/)
+    for (h_iter_to_end(&iter); !h_iter_start(&iter); h_iter_prev(&iter))
     {
-        h_iter_prev(&iter, &r, &i);
-        printf("H[%2d] = %2d\n", i, r);
+        printf("H[%2d] = %2d\n", h_iter_index(&iter), h_iter_value(&iter));
     }
 
     h_free(h);

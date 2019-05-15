@@ -178,6 +178,7 @@ static const size_t cmc_hashtable_primes[] = {53, 97, 191, 383, 769, 1531,
     FMOD bool PFX##_contains(SNAME *_map_, K key);                                            \
     FMOD bool PFX##_empty(SNAME *_map_);                                                      \
     FMOD size_t PFX##_count(SNAME *_map_);                                                    \
+    FMOD size_t PFX##_capacity(SNAME *_map_);                                                 \
                                                                                               \
     /* Iterator Functions */                                                                  \
     /* Iterator Allocation and Deallocation */                                                \
@@ -202,6 +203,7 @@ static const size_t cmc_hashtable_primes[] = {53, 97, 191, 383, 769, 1531,
 /* SOURCE ********************************************************************/
 #define HASHMAP_GENERATE_SOURCE(PFX, SNAME, FMOD, K, V)                                      \
                                                                                              \
+    /* Implementation Detail Functions */                                                    \
     FMOD bool PFX##_impl_grow(SNAME *_map_);                                                 \
     FMOD SNAME##_entry *PFX##_impl_get_entry(SNAME *_map_, K key);                           \
     FMOD size_t PFX##_impl_calculate_size(size_t required);                                  \
@@ -440,6 +442,11 @@ static const size_t cmc_hashtable_primes[] = {53, 97, 191, 383, 769, 1531,
     FMOD size_t PFX##_count(SNAME *_map_)                                                    \
     {                                                                                        \
         return _map_->count;                                                                 \
+    }                                                                                        \
+                                                                                             \
+    FMOD size_t PFX##_capacity(SNAME *_map_)                                                 \
+    {                                                                                        \
+        return _map_->capacity;                                                              \
     }                                                                                        \
                                                                                              \
     FMOD SNAME##_iter *PFX##_iter_new(SNAME *target)                                         \

@@ -135,6 +135,7 @@
 /* SOURCE ********************************************************************/
 #define DEQUE_GENERATE_SOURCE(PFX, SNAME, FMOD, V)                                                       \
                                                                                                          \
+    /* Implementation Detail Functions */                                                                \
     FMOD bool PFX##_impl_grow(SNAME *_deque_);                                                           \
     SNAME##_iter PFX##_impl_it_start(SNAME *_deque_);                                                    \
     SNAME##_iter PFX##_impl_it_end(SNAME *_deque_);                                                      \
