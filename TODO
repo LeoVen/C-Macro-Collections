@@ -1,0 +1,56 @@
+TODO
+
+[ ] Finish Documentation
+[ ] Simplify PUBLIC and PRIVATE
+[ ] Add multiset
+[ ] Add multimap
+[ ] Upgrade heap to a min-max heap
+[ ] Add dispose function
+[ ] Serialization
+[ ] Iterator based functions (like C++ collections)
+
+
+MAYBE
+
+[ ] Add conditional code generation based on variadic macros
+
+
+PLANNED
+
+Before 2.0
+    Get Documentation fixed and completed
+
+1.5
+    Simplify PUBLIC and PRIVATE (simply remove them)
+    Conditional code generation
+        Add extra content macro (Insert/Remove/Append/Prepend) and let user decide if he wants to include them or not
+        Separate Implementation Detail into a different MACRO (LIST_GENERATE_DETAIL)
+
+1.6
+    Iterator move and move_to
+    LinkedList - Insert/Remove/Append/Prepend/Extract
+    to_array - Creates an array with all the elements inside the collection
+
+1.7
+    Add shrink function that shrinks the internal buffer to current count of elements
+
+2.0
+    Add multiset, multimap and new heap implementation
+
+2.1
+    Adapt multiset, multimap, treehashmap and new heap implementation to the current standards
+    Add dispose method to each collection in order to automatically free its data
+
+2.2
+    Add serialization functions
+        Header:
+            %d - Type specifier (LIST = 0, DEQUE = 1, STACK = 2, etc) for quick check
+            %llu - How many elements there are
+            %d - If data varies in size
+            %llu - Data size
+
+2.3
+    Iterator functions (functions that operate relative to iterators position) like add or remove ranges
+
+Sometime
+    Add treehashmap
