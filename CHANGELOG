@@ -1,5 +1,70 @@
 # MAJOR.MINOR.ADJUSTMENTS
 
+1.4.0
+    New way on how iterators work to all collections
+        Added iter_init to work with stack allocated iterators
+        Added iter_new and iter_free to work with heap allocated iterators
+        Added two pointers to functions (it_start and it_end) that allow you to access iterators to both start and end of the target collection easily
+        iter_next and iter_prev now only move the iterator
+        To access the key, value and index, use a separate function
+    Removed FOR_EACH_MAP as it is no longer necessary since FOR_EACH also works to associative containers now
+    Updated benchmark, examples and tests to work on these new iterators
+    Changed pointertype test to be a pointer to struct instead of pointer to char
+    Added CHANGELOG and TODO
+
+1.3.0
+    Changed how the linkedlist functions relative to nodes work
+        Removed reference to owner list on each node
+        Renamed some functions for consistency
+
+1.2.4
+    Fixing some declarations in hashset and hashmap where a pointer type would cause problems
+    Added a test to make sure all collections support pointer type
+    Tests:
+        - pointertype
+
+1.2.3
+    Added get_ref functions to all collections that support it (only included in hashmap, linkedlist, list and treemap)
+
+1.2.2
+    Removed unnecessary modulo operation in hashtable functions
+
+1.2.1
+    Optimized list - now using 'string.h' functions to shift elements around instead of for-loops:
+        - memset
+        - memcpy
+        - memmove
+
+1.2.0
+    'contains' functions added to all collections
+    'contains' tests and benchmark
+    Unified Benchmark
+    Updated examples
+
+1.1.3
+    Renamed deque's 'rear' struct member to 'back' to be more consistent with other collections
+    Better benchmark and foreach tests are alphabetically ordered
+
+1.1.2
+    Fixing iterators for when they are initialized with an empty target
+    Better iterator tests
+    More examples
+
+1.1.1
+    Reordering functions (implementation details are now at the end of each file)
+
+1.1.0
+    Added new list functions:
+        - new_from
+        - prepend
+        - insert
+        - append
+        - remove
+        - fits
+
+1.0.1
+    Fixed hashset logic in robin-hood hashing
+
 1.0.0
     First stable version
     Includes the following collections:
@@ -18,68 +83,3 @@
     Tests:
         - foreach
         - iterator
-
-1.0.1
-    Fixed hashset logic in robin-hood hashing
-
-1.1.0
-    Added new list functions:
-        - new_from
-        - prepend
-        - insert
-        - append
-        - remove
-        - fits
-
-1.1.1
-    Reordering functions (implementation details are now at the end of each file)
-
-1.1.2
-    Fixing iterators for when they are initialized with an empty target
-    Better iterator tests
-    More examples
-
-1.1.3
-    Renamed deque's 'rear' struct member to 'back' to be more consistent with other collections
-    Better benchmark and foreach tests are alphabetically ordered
-
-1.2.0
-    'contains' functions added to all collections
-    'contains' tests and benchmark
-    Unified Benchmark
-    Updated examples
-
-1.2.1
-    Optimized list - now using 'string.h' functions to shift elements around instead of for-loops:
-        - memset
-        - memcpy
-        - memmove
-
-1.2.2
-    Removed unnecessary modulo operation in hashtable functions
-
-1.2.3
-    Added get_ref functions to all collections that support it (only included in hashmap, linkedlist, list and treemap)
-
-1.2.4
-    Fixing some declarations in hashset and hashmap where a pointer type would cause problems
-    Added a test to make sure all collections support pointer type
-    Tests:
-        - pointertype
-
-1.3.0
-    Changed how the linkedlist functions relative to nodes work
-        Removed reference to owner list on each node
-        Renamed some functions for consistency
-
-1.4.0
-    New way on how iterators work to all collections
-        Added iter_init to work with stack allocated iterators
-        Added iter_new and iter_free to work with heap allocated iterators
-        Added two pointers to functions (it_start and it_end) that allow you to access iterators to both start and end of the target collection easily
-        iter_next and iter_prev now only move the iterator
-        To access the key, value and index, use a separate function
-    Removed FOR_EACH_MAP as it is no longer necessary since FOR_EACH also works to associative containers now
-    Updated benchmark, examples and tests to work on these new iterators
-    Changed pointertype test to be a pointer to struct instead of pointer to char
-    Added CHANGELOG and TODO
