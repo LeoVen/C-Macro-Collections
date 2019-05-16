@@ -205,8 +205,8 @@ static const size_t cmc_hashtable_primes[] = {53, 97, 191, 383, 769, 1531,
     FMOD bool PFX##_grow(SNAME *_set_);                                                        \
     FMOD SNAME##_entry *PFX##_get_entry(SNAME *_set_, V element);                              \
     FMOD size_t PFX##_calculate_size(size_t required);                                         \
-    SNAME##_iter PFX##_impl_it_start(SNAME *_map_);                                            \
-    SNAME##_iter PFX##_impl_it_end(SNAME *_map_);                                              \
+    SNAME##_iter PFX##_impl_it_start(SNAME *_set_);                                            \
+    SNAME##_iter PFX##_impl_it_end(SNAME *_set_);                                              \
                                                                                                \
     FMOD SNAME *PFX##_new(size_t size, double load, int (*compare)(V, V), size_t (*hash)(V))   \
     {                                                                                          \
@@ -717,20 +717,20 @@ static const size_t cmc_hashtable_primes[] = {53, 97, 191, 383, 769, 1531,
         return cmc_hashtable_primes[i];                                                        \
     }                                                                                          \
                                                                                                \
-    SNAME##_iter PFX##_impl_it_start(SNAME *_map_)                                             \
+    SNAME##_iter PFX##_impl_it_start(SNAME *_set_)                                             \
     {                                                                                          \
         SNAME##_iter iter;                                                                     \
                                                                                                \
-        PFX##_iter_init(&iter, _map_);                                                         \
+        PFX##_iter_init(&iter, _set_);                                                         \
                                                                                                \
         return iter;                                                                           \
     }                                                                                          \
                                                                                                \
-    SNAME##_iter PFX##_impl_it_end(SNAME *_map_)                                               \
+    SNAME##_iter PFX##_impl_it_end(SNAME *_set_)                                               \
     {                                                                                          \
         SNAME##_iter iter;                                                                     \
                                                                                                \
-        PFX##_iter_init(&iter, _map_);                                                         \
+        PFX##_iter_init(&iter, _set_);                                                         \
         PFX##_iter_to_end(&iter);                                                              \
                                                                                                \
         return iter;                                                                           \

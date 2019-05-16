@@ -140,8 +140,8 @@ typedef enum HeapOrder
     FMOD size_t PFX##_impl_r(size_t index);                                                       \
     FMOD bool PFX##_impl_float_up(SNAME *_heap_, size_t index);                                   \
     FMOD bool PFX##_impl_float_down(SNAME *_heap_, size_t index);                                 \
-    SNAME##_iter PFX##_impl_it_start(SNAME *_list_);                                              \
-    SNAME##_iter PFX##_impl_it_end(SNAME *_list_);                                                \
+    SNAME##_iter PFX##_impl_it_start(SNAME *_heap_);                                              \
+    SNAME##_iter PFX##_impl_it_end(SNAME *_heap_);                                                \
                                                                                                   \
     FMOD SNAME *PFX##_new(size_t size, HeapOrder HO, int (*compare)(V, V))                        \
     {                                                                                             \

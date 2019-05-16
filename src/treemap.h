@@ -89,6 +89,7 @@
     {                                                                         \
         /* Target treemap */                                                  \
         struct SNAME##_s *target;                                             \
+                                                                              \
         /* Cursor's current node */                                           \
         struct SNAME##_node_s *cursor;                                        \
                                                                               \

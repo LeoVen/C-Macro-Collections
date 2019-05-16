@@ -132,8 +132,8 @@
                                                                                                          \
     /* Implementation Detail Functions */                                                                \
     FMOD bool PFX##_grow(SNAME *_queue_);                                                                \
-    SNAME##_iter PFX##_impl_it_start(SNAME *_list_);                                                     \
-    SNAME##_iter PFX##_impl_it_end(SNAME *_list_);                                                       \
+    SNAME##_iter PFX##_impl_it_start(SNAME *_queue_);                                                    \
+    SNAME##_iter PFX##_impl_it_end(SNAME *_queue_);                                                      \
                                                                                                          \
     FMOD SNAME *PFX##_new(size_t size)                                                                   \
     {                                                                                                    \
@@ -403,21 +403,21 @@
         return true;                                                                                     \
     }                                                                                                    \
                                                                                                          \
-    SNAME##_iter PFX##_impl_it_start(SNAME *_list_)                                                      \
+    SNAME##_iter PFX##_impl_it_start(SNAME *_queue_)                                                     \
     {                                                                                                    \
         SNAME##_iter iter;                                                                               \
                                                                                                          \
-        PFX##_iter_init(&iter, _list_);                                                                  \
+        PFX##_iter_init(&iter, _queue_);                                                                 \
         PFX##_iter_to_start(&iter);                                                                      \
                                                                                                          \
         return iter;                                                                                     \
     }                                                                                                    \
                                                                                                          \
-    SNAME##_iter PFX##_impl_it_end(SNAME *_list_)                                                        \
+    SNAME##_iter PFX##_impl_it_end(SNAME *_queue_)                                                       \
     {                                                                                                    \
         SNAME##_iter iter;                                                                               \
                                                                                                          \
-        PFX##_iter_init(&iter, _list_);                                                                  \
+        PFX##_iter_init(&iter, _queue_);                                                                 \
         PFX##_iter_to_end(&iter);                                                                        \
                                                                                                          \
         return iter;                                                                                     \
