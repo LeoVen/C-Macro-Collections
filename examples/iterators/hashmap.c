@@ -7,9 +7,9 @@
  * Leonardo Vencovsky (https://github.com/LeoVen)
  *
  */
+#include "hashmap.h"
 #include <stdio.h>
 #include <stdlib.h>
-#include "hashmap.h"
 
 HASHMAP_GENERATE(hm, hmap, static, int, double)
 
@@ -32,9 +32,7 @@ int intcmp(int a, int b)
 
 int main(int argc, char const *argv[])
 {
-    size_t i;
-    int k;
-    double v, varr[10] = {0.0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9};
+    double varr[10] = {0.0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9};
 
     // Initialize hashmap and add some element
     hmap *hm = hm_new(50, 0.9, intcmp, inthash);
@@ -45,29 +43,32 @@ int main(int argc, char const *argv[])
     hmap_iter iter;
     hm_iter_init(&iter, hm);
 
-    // Make the iterator go back and forward
     for (int j = 0; j < 4; j++)
     {
-        while (hm_iter_next(&iter, &k, &v, &i))
-            printf("S[%2d] = { %2d : %2.2lf }\n", i, k, v);
+        while (!hm_iter_end(&iter))
+        {
+            printf("C[%2d] = { %2d : %2.2lf }\n", hm_iter_index(&iter), hm_iter_key(&iter), hm_iter_value(&iter));
+            hm_iter_next(&iter);
+        }
         printf("\n");
-        while (hm_iter_prev(&iter, &k, &v, &i))
-            printf("S[%2d] = { %2d : %2.2lf }\n", i, k, v);
+        while (!hm_iter_start(&iter))
+        {
+            printf("C[%2d] = { %2d : %2.2lf }\n", hm_iter_index(&iter), hm_iter_key(&iter), hm_iter_value(&iter));
+            hm_iter_prev(&iter);
+        }
         printf("\n\n");
     }
 
-    for (hm_iter_tostart(&iter); !hm_iter_end(&iter); /**/)
+    for (hm_iter_to_start(&iter); !hm_iter_end(&iter); hm_iter_next(&iter))
     {
-        hm_iter_next(&iter, &k, &v, &i);
-        printf("M[%2d] = { %2d : %2.2lf }\n", i, k, v);
+        printf("M[%2d] = { %2d : %2.2lf }\n", hm_iter_index(&iter), hm_iter_key(&iter), hm_iter_value(&iter));
     }
 
     printf("\n");
 
-    for (hm_iter_toend(&iter); !hm_iter_start(&iter); /**/)
+    for (hm_iter_to_end(&iter); !hm_iter_start(&iter); hm_iter_prev(&iter))
     {
-        hm_iter_prev(&iter, &k, &v, &i);
-        printf("M[%2d] = { %2d : %2.2lf }\n", i, k, v);
+        printf("M[%2d] = { %2d : %2.2lf }\n", hm_iter_index(&iter), hm_iter_key(&iter), hm_iter_value(&iter));
     }
 
     hm_free(hm);

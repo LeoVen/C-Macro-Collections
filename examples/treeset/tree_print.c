@@ -24,7 +24,7 @@ void print_tree(set_node *root, int height)
     for (int i = 0; i < height; i++)
         printf("|------- ");
 
-    printf("%d\n", root->key);
+    printf("%d\n", root->value);
 
     print_tree(root->left, height + 1);
 }

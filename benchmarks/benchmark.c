@@ -13,7 +13,7 @@
  * - Output
  */
 #include "macro_collections.h"
-#include "timer.h"
+#include "util/timer.h"
 #include "util/twister.c"
 #include <stdio.h>
 #include <stdint.h>
@@ -71,7 +71,7 @@ COLLECTION_GENERATE(TREEMAP, PUBLIC, tm, tmap, /* FMOD */, int, int)
 COLLECTION_GENERATE(HASHSET, PUBLIC, hs, hset, /* FMOD */, /* K */, int)
 COLLECTION_GENERATE(HASHMAP, PUBLIC, hm, hmap, /* FMOD */, int, int)
 
-#define BENCHMARK(NAME, PFX, sname, initfunc, insertbody, removebody, iternext, searchbody)                      \
+#define BENCHMARK(NAME, PFX, sname, initfunc, insertbody, removebody, searchbody)                                \
     void NAME##_io_benchmark(int *array, int *sarray, size_t s)                                                  \
     {                                                                                                            \
         printf("+------------------------------------------------------------ %10s\n", #NAME);                   \
@@ -119,9 +119,8 @@ COLLECTION_GENERATE(HASHMAP, PUBLIC, hm, hmap, /* FMOD */, int, int)
                                                                                                                  \
         TIMER_START(timer)                                                                                       \
                                                                                                                  \
-        for (PFX##_iter_init(&iter, coll); !PFX##_iter_end(&iter);)                                              \
+        for (PFX##_iter_init(&iter, coll); !PFX##_iter_end(&iter); PFX##_iter_next(&iter))                       \
         {                                                                                                        \
-            iternext;                                                                                            \
         }                                                                                                        \
                                                                                                                  \
         TIMER_STOP(timer)                                                                                        \
@@ -173,16 +172,16 @@ COLLECTION_GENERATE(HASHMAP, PUBLIC, hm, hmap, /* FMOD */, int, int)
         printf("+------------------------------------------------------------ %10s\n\n", #NAME);                 \
     }
 
-BENCHMARK(DEQUE, d, deque, d_new(NTOTAL), d_push_back(coll, array[i]), d_pop_back(coll), d_iter_next(&iter, &k, &j), d_contains(coll, sarray[i], intcmp))
-BENCHMARK(HASHMAP, hm, hmap, hm_new(NTOTAL, 0.8, intcmp, inthash), hm_insert(coll, array[i], array[i]), hm_remove(coll, array[i], &r), hm_iter_next(&iter, &k, &v, &j), hm_contains(coll, sarray[i]))
-BENCHMARK(HASHSET, hs, hset, hs_new(NTOTAL, 0.8, intcmp, inthash), hs_insert(coll, array[i]), hs_remove(coll, array[i]), hs_iter_next(&iter, &v, &j), hs_contains(coll, sarray[i]))
-BENCHMARK(HEAP, h, heap, h_new(NTOTAL, MinHeap, intcmp), h_insert(coll, array[i]), h_remove(coll, &r), h_iter_next(&iter, &v, &j), h_contains(coll, sarray[i]))
-BENCHMARK(LINKEDLIST, ll, linked, ll_new(), ll_push_back(coll, array[i]), ll_pop_back(coll), ll_iter_next(&iter, &v, &j), ll_contains(coll, sarray[i], intcmp))
-BENCHMARK(LIST, l, list, l_new(NTOTAL), l_push_back(coll, array[i]), l_pop_back(coll), l_iter_next(&iter, &v, &j), l_contains(coll, sarray[i], intcmp))
-BENCHMARK(QUEUE, q, queue, q_new(NTOTAL), q_enqueue(coll, array[i]), q_dequeue(coll), q_iter_next(&iter, &v, &j), q_contains(coll, sarray[i], intcmp))
-BENCHMARK(STACK, s, stack, s_new(NTOTAL), s_push(coll, array[i]), s_pop(coll), s_iter_next(&iter, &v, &j), s_contains(coll, sarray[i], intcmp))
-BENCHMARK(TREEMAP, tm, tmap, tm_new(intcmp), tm_insert(coll, array[i], array[i]), tm_remove(coll, array[i], &r), tm_iter_next(&iter, &k, &v, &j), tm_contains(coll, sarray[i]))
-BENCHMARK(TREESET, ts, tset, ts_new(intcmp), ts_insert(coll, array[i]), ts_remove(coll, array[i]), ts_iter_next(&iter, &v, &j), ts_contains(coll, sarray[i]))
+BENCHMARK(DEQUE, d, deque, d_new(NTOTAL), d_push_back(coll, array[i]), d_pop_back(coll), d_contains(coll, sarray[i], intcmp))
+BENCHMARK(HASHMAP, hm, hmap, hm_new(NTOTAL, 0.8, intcmp, inthash), hm_insert(coll, array[i], array[i]), hm_remove(coll, array[i], &r), hm_contains(coll, sarray[i]))
+BENCHMARK(HASHSET, hs, hset, hs_new(NTOTAL, 0.8, intcmp, inthash), hs_insert(coll, array[i]), hs_remove(coll, array[i]), hs_contains(coll, sarray[i]))
+BENCHMARK(HEAP, h, heap, h_new(NTOTAL, MinHeap, intcmp), h_insert(coll, array[i]), h_remove(coll, &r), h_contains(coll, sarray[i]))
+BENCHMARK(LINKEDLIST, ll, linked, ll_new(), ll_push_back(coll, array[i]), ll_pop_back(coll), ll_contains(coll, sarray[i], intcmp))
+BENCHMARK(LIST, l, list, l_new(NTOTAL), l_push_back(coll, array[i]), l_pop_back(coll), l_contains(coll, sarray[i], intcmp))
+BENCHMARK(QUEUE, q, queue, q_new(NTOTAL), q_enqueue(coll, array[i]), q_dequeue(coll), q_contains(coll, sarray[i], intcmp))
+BENCHMARK(STACK, s, stack, s_new(NTOTAL), s_push(coll, array[i]), s_pop(coll), s_contains(coll, sarray[i], intcmp))
+BENCHMARK(TREEMAP, tm, tmap, tm_new(intcmp), tm_insert(coll, array[i], array[i]), tm_remove(coll, array[i], &r), tm_contains(coll, sarray[i]))
+BENCHMARK(TREESET, ts, tset, ts_new(intcmp), ts_insert(coll, array[i]), ts_remove(coll, array[i]), ts_contains(coll, sarray[i]))
 
 int main(void)
 {

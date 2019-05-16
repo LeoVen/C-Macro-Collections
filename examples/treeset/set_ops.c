@@ -22,13 +22,13 @@ TREESET_GENERATE(set, set, /* static */, int)
 
 void print_set(set *s)
 {
-    size_t index;
-    int result;
     set_iter iter;
     set_iter_init(&iter, s);
-    for (set_iter_tostart(&iter); !set_iter_end(&iter);)
+    for (set_iter_to_start(&iter); !set_iter_end(&iter); set_iter_next(&iter))
     {
-        set_iter_next(&iter, &result, &index);
+        int result = set_iter_value(&iter);
+        size_t index = set_iter_index(&iter);
+
         if (index == 0)
             printf("[ %2d, ", result);
         else if (index == s->count - 1)

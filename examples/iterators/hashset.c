@@ -7,9 +7,9 @@
  * Leonardo Vencovsky (https://github.com/LeoVen)
  *
  */
+#include "hashset.h"
 #include <stdio.h>
 #include <stdlib.h>
-#include "hashset.h"
 
 HASHSET_GENERATE(hs, hset, static, int)
 
@@ -32,9 +32,6 @@ int intcmp(int a, int b)
 
 int main(int argc, char const *argv[])
 {
-    size_t i;
-    int r;
-
     // Initialize hash set and add some elements
     hset *hs = hs_new(10, 0.9, intcmp, inthash);
     for (int i = 0; i < 10; i++)
@@ -47,26 +44,30 @@ int main(int argc, char const *argv[])
     // Make the iterator go back and forward
     for (int j = 0; j < 4; j++)
     {
-        while (hs_iter_next(&iter, &r, &i))
-            printf("C[%2d] = %2d\n", i, r);
+        while (!hs_iter_end(&iter))
+        {
+            printf("C[%2d] = %2d\n", hs_iter_index(&iter), hs_iter_value(&iter));
+            hs_iter_next(&iter);
+        }
         printf("\n");
-        while (hs_iter_prev(&iter, &r, &i))
-            printf("C[%2d] = %2d\n", i, r);
+        while (!hs_iter_start(&iter))
+        {
+            printf("C[%2d] = %2d\n", hs_iter_index(&iter), hs_iter_value(&iter));
+            hs_iter_prev(&iter);
+        }
         printf("\n\n");
     }
 
-    for (hs_iter_tostart(&iter); !hs_iter_end(&iter); /**/)
+    for (hs_iter_to_start(&iter); !hs_iter_end(&iter); hs_iter_next(&iter))
     {
-        hs_iter_next(&iter, &r, &i);
-        printf("S[%2d] = %2d\n", i, r);
+        printf("S[%2d] = %2d\n", hs_iter_index(&iter), hs_iter_value(&iter));
     }
 
     printf("\n");
 
-    for (hs_iter_toend(&iter); !hs_iter_start(&iter); /**/)
+    for (hs_iter_to_end(&iter); !hs_iter_start(&iter); hs_iter_prev(&iter))
     {
-        hs_iter_prev(&iter, &r, &i);
-        printf("S[%2d] = %2d\n", i, r);
+        printf("S[%2d] = %2d\n", hs_iter_index(&iter), hs_iter_value(&iter));
     }
 
     hs_free(hs);

@@ -12,6 +12,7 @@
 
 #include "treemap.h"
 #include <stdio.h>
+#include <inttypes.h>
 
 // Mapping an integer by size_t which will represent the key's multiplicity
 // (key could be anything and multiplicity could be an integer, preferably
@@ -36,7 +37,7 @@ void print_tree(tmap_node *root, int height)
         printf("|------- ");
 
     // Key:Multiplicity
-    printf("%d:%llu\n", root->key, root->value);
+    printf("%d:%" PRIuMAX "\n", root->key, root->value);
 
     print_tree(root->left, height + 1);
 }
@@ -73,15 +74,10 @@ int main(int argc, char const *argv[])
     printf("\n---------- SUMMARY ----------\n\n");
 
     // Print using iterator
-    tmap_iter iter;
-    int key;
-    size_t mult, _;
-
-    for (tm_iter_init(&iter, map); !tm_iter_end(&iter); /* empty */)
+    for (tmap_iter it = map->it_start(map); !tm_iter_end(&it); tm_iter_next(&it))
     {
         // Map[key] = multiplicity
-        tm_iter_next(&iter, &key, &mult, &_);
-        printf("Map[%2d] = %llu\n", key, mult);
+        printf("Map[%2d] = %" PRIuMAX "\n", tm_iter_key(&it), tm_iter_value(&it));
     }
 
     tm_free(map);

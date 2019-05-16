@@ -36,81 +36,134 @@
 #define LINKEDLIST_GENERATE_SOURCE_PUBLIC(PFX, SNAME, FMOD, K, V) \
     LINKEDLIST_GENERATE_SOURCE(PFX, SNAME, FMOD, V)
 /* STRUCT ********************************************************************/
-#define LINKEDLIST_GENERATE_STRUCT(PFX, SNAME, FMOD, V) \
-                                                        \
-    struct SNAME##_s                                    \
-    {                                                   \
-        struct SNAME##_node_s *head;                    \
-        struct SNAME##_node_s *tail;                    \
-        size_t count;                                   \
-    };                                                  \
-                                                        \
-    struct SNAME##_node_s                               \
-    {                                                   \
-        V data;                                         \
-        struct SNAME##_node_s *next;                    \
-        struct SNAME##_node_s *prev;                    \
-    };                                                  \
-                                                        \
-    struct SNAME##_iter_s                               \
-    {                                                   \
-        struct SNAME##_s *target;                       \
-        struct SNAME##_node_s *cursor;                  \
-        size_t index;                                   \
-        bool start;                                     \
-        bool end;                                       \
-    };                                                  \
-                                                        \
+#define LINKEDLIST_GENERATE_STRUCT(PFX, SNAME, FMOD, V)
+
 /* HEADER ********************************************************************/
 #define LINKEDLIST_GENERATE_HEADER(PFX, SNAME, FMOD, V)                              \
                                                                                      \
-    typedef struct SNAME##_s SNAME;                                                  \
-    typedef struct SNAME##_node_s SNAME##_node;                                      \
-    typedef struct SNAME##_iter_s SNAME##_iter;                                      \
+    /* Linked List Structure */                                                      \
+    typedef struct SNAME##_s                                                         \
+    {                                                                                \
+        /* First node in the list */                                                 \
+        struct SNAME##_node_s *head;                                                 \
                                                                                      \
+        /* Last node in the list */                                                  \
+        struct SNAME##_node_s *tail;                                                 \
+                                                                                     \
+        /* Current amount of elements in the list */                                 \
+        size_t count;                                                                \
+                                                                                     \
+        /* Function that returns an iterator to the start of the list */             \
+        struct SNAME##_iter_s (*it_start)(struct SNAME##_s *);                       \
+                                                                                     \
+        /* Function that returns an iterator to the end of the list */               \
+        struct SNAME##_iter_s (*it_end)(struct SNAME##_s *);                         \
+                                                                                     \
+    } SNAME, *SNAME_ptr;                                                             \
+                                                                                     \
+    /* Doubly-linked list node */                                                    \
+    typedef struct SNAME##_node_s                                                    \
+    {                                                                                \
+        /* Node's data */                                                            \
+        V data;                                                                      \
+                                                                                     \
+        /* Pointer to the next node on the linked list */                            \
+        struct SNAME##_node_s *next;                                                 \
+                                                                                     \
+        /* Pointer to the previous node on the linked list */                        \
+        struct SNAME##_node_s *prev;                                                 \
+                                                                                     \
+    } SNAME##_node, *SNAME##_node_ptr;                                               \
+                                                                                     \
+    /* Linked List Iterator */                                                       \
+    typedef struct SNAME##_iter_s                                                    \
+    {                                                                                \
+        /* Target Linked List */                                                     \
+        struct SNAME##_s *target;                                                    \
+                                                                                     \
+        /* Cursor's current node */                                                  \
+        struct SNAME##_node_s *cursor;                                               \
+                                                                                     \
+        /* Keeps track of relative index to the iteration of elements */             \
+        size_t index;                                                                \
+                                                                                     \
+        /* If the iterator has reached the start of the iteration */                 \
+        bool start;                                                                  \
+                                                                                     \
+        /* If the iterator has reached the end of the iteration */                   \
+        bool end;                                                                    \
+                                                                                     \
+    } SNAME##_iter, *SNAME##_iter_ptr;                                               \
+                                                                                     \
+    /* Collection Functions */                                                       \
+    /* Collection Allocation and Deallocation */                                     \
     FMOD SNAME *PFX##_new(void);                                                     \
     FMOD void PFX##_clear(SNAME *_list_);                                            \
     FMOD void PFX##_free(SNAME *_list_);                                             \
+    /* Collection Input and Output */                                                \
     FMOD bool PFX##_push_front(SNAME *_list_, V element);                            \
     FMOD bool PFX##_push(SNAME *_list_, V element, size_t index);                    \
     FMOD bool PFX##_push_back(SNAME *_list_, V element);                             \
     FMOD bool PFX##_pop_front(SNAME *_list_);                                        \
     FMOD bool PFX##_pop(SNAME *_list_, size_t index);                                \
     FMOD bool PFX##_pop_back(SNAME *_list_);                                         \
+    /* Conditional Input and Output */                                               \
     FMOD bool PFX##_push_if(SNAME *_list_, V element, size_t index, bool condition); \
     FMOD bool PFX##_pop_if(SNAME *_list_, size_t index, bool condition);             \
+    /* Element Access */                                                             \
     FMOD V PFX##_front(SNAME *_list_);                                               \
     FMOD V PFX##_get(SNAME *_list_, size_t index);                                   \
     FMOD V *PFX##_get_ref(SNAME *_list_, size_t index);                              \
     FMOD V PFX##_back(SNAME *_list_);                                                \
+    /* Collection State */                                                           \
     FMOD bool PFX##_contains(SNAME *_list_, V element, int (*comparator)(V, V));     \
     FMOD bool PFX##_empty(SNAME *_list_);                                            \
     FMOD size_t PFX##_count(SNAME *_list_);                                          \
                                                                                      \
+    /* Node Related Functions */                                                     \
+    /* Node Allocation and Deallocation */                                           \
     FMOD SNAME##_node *PFX##_new_node(V element);                                    \
+    FMOD void PFX##_free_node(SNAME##_node *_node_);                                 \
+    /* Node Access Relative to a Linked List */                                      \
     FMOD SNAME##_node *PFX##_head(SNAME *_list_);                                    \
     FMOD SNAME##_node *PFX##_get_node(SNAME *_list_, size_t index);                  \
     FMOD SNAME##_node *PFX##_tail(SNAME *_list_);                                    \
+    /* Input and Output Relative to a Node */                                        \
     FMOD bool PFX##_insert_after(SNAME *_owner_, SNAME##_node *_node_, V element);   \
     FMOD bool PFX##_insert_before(SNAME *_owner_, SNAME##_node *_node_, V element);  \
     FMOD bool PFX##_remove_after(SNAME *_owner_, SNAME##_node *_node_);              \
     FMOD bool PFX##_remove_current(SNAME *_owner_, SNAME##_node *_node_);            \
     FMOD bool PFX##_remove_before(SNAME *_owner_, SNAME##_node *_node_);             \
+    /* Node Access Relative to a Linked List Node */                                 \
     FMOD SNAME##_node *PFX##_next_node(SNAME##_node *_node_);                        \
     FMOD SNAME##_node *PFX##_prev_node(SNAME##_node *_node_);                        \
                                                                                      \
+    /* Iterator Functions */                                                         \
+    /* Iterator Allocation and Deallocation */                                       \
     FMOD SNAME##_iter *PFX##_iter_new(SNAME *target);                                \
     FMOD void PFX##_iter_free(SNAME##_iter *iter);                                   \
+    /* Iterator Initialization */                                                    \
     FMOD void PFX##_iter_init(SNAME##_iter *iter, SNAME *target);                    \
+    /* Iterator State */                                                             \
     FMOD bool PFX##_iter_start(SNAME##_iter *iter);                                  \
     FMOD bool PFX##_iter_end(SNAME##_iter *iter);                                    \
-    FMOD void PFX##_iter_tostart(SNAME##_iter *iter);                                \
-    FMOD void PFX##_iter_toend(SNAME##_iter *iter);                                  \
-    FMOD bool PFX##_iter_next(SNAME##_iter *iter, V *result, size_t *index);         \
-    FMOD bool PFX##_iter_prev(SNAME##_iter *iter, V *result, size_t *index);         \
+    /* Iterator Movement */                                                          \
+    FMOD void PFX##_iter_to_start(SNAME##_iter *iter);                               \
+    FMOD void PFX##_iter_to_end(SNAME##_iter *iter);                                 \
+    FMOD bool PFX##_iter_next(SNAME##_iter *iter);                                   \
+    FMOD bool PFX##_iter_prev(SNAME##_iter *iter);                                   \
+    /* Iterator Access */                                                            \
+    FMOD V PFX##_iter_value(SNAME##_iter *iter);                                     \
+    FMOD V *PFX##_iter_rvalue(SNAME##_iter *iter);                                   \
+    FMOD size_t PFX##_iter_index(SNAME##_iter *iter);                                \
+    FMOD SNAME##_node *PFX##_iter_node(SNAME##_iter *iter);                          \
                                                                                      \
 /* SOURCE ********************************************************************/
 #define LINKEDLIST_GENERATE_SOURCE(PFX, SNAME, FMOD, V)                             \
+                                                                                    \
+    /* Implementation Detail Functions */                                           \
+    SNAME##_iter PFX##_impl_it_start(SNAME *_list_);                                \
+    SNAME##_iter PFX##_impl_it_end(SNAME *_list_);                                  \
                                                                                     \
     FMOD SNAME *PFX##_new(void)                                                     \
     {                                                                               \
@@ -122,6 +175,9 @@
         _list_->count = 0;                                                          \
         _list_->head = NULL;                                                        \
         _list_->tail = NULL;                                                        \
+                                                                                    \
+        _list_->it_start = PFX##_impl_it_start;                                     \
+        _list_->it_end = PFX##_impl_it_end;                                         \
                                                                                     \
         return _list_;                                                              \
     }                                                                               \
@@ -151,21 +207,21 @@
                                                                                     \
     FMOD bool PFX##_push_front(SNAME *_list_, V element)                            \
     {                                                                               \
-        SNAME##_node *node = PFX##_new_node(element);                               \
+        SNAME##_node *_node_ = PFX##_new_node(element);                             \
                                                                                     \
-        if (!node)                                                                  \
+        if (!_node_)                                                                \
             return false;                                                           \
                                                                                     \
         if (PFX##_empty(_list_))                                                    \
         {                                                                           \
-            _list_->head = node;                                                    \
-            _list_->tail = node;                                                    \
+            _list_->head = _node_;                                                  \
+            _list_->tail = _node_;                                                  \
         }                                                                           \
         else                                                                        \
         {                                                                           \
-            node->next = _list_->head;                                              \
-            _list_->head->prev = node;                                              \
-            _list_->head = node;                                                    \
+            _node_->next = _list_->head;                                            \
+            _list_->head->prev = _node_;                                            \
+            _list_->head = _node_;                                                  \
         }                                                                           \
                                                                                     \
         _list_->count++;                                                            \
@@ -187,17 +243,17 @@
             return PFX##_push_back(_list_, element);                                \
         }                                                                           \
                                                                                     \
-        SNAME##_node *node = PFX##_new_node(element);                               \
+        SNAME##_node *_node_ = PFX##_new_node(element);                             \
                                                                                     \
-        if (!node)                                                                  \
+        if (!_node_)                                                                \
             return false;                                                           \
                                                                                     \
         SNAME##_node *scan = PFX##_get_node(_list_, index - 1);                     \
                                                                                     \
-        node->next = scan->next;                                                    \
-        node->prev = scan;                                                          \
-        node->next->prev = node;                                                    \
-        node->prev->next = node;                                                    \
+        _node_->next = scan->next;                                                  \
+        _node_->prev = scan;                                                        \
+        _node_->next->prev = _node_;                                                \
+        _node_->prev->next = _node_;                                                \
                                                                                     \
         _list_->count++;                                                            \
                                                                                     \
@@ -206,21 +262,21 @@
                                                                                     \
     FMOD bool PFX##_push_back(SNAME *_list_, V element)                             \
     {                                                                               \
-        SNAME##_node *node = PFX##_new_node(element);                               \
+        SNAME##_node *_node_ = PFX##_new_node(element);                             \
                                                                                     \
-        if (!node)                                                                  \
+        if (!_node_)                                                                \
             return false;                                                           \
                                                                                     \
         if (PFX##_empty(_list_))                                                    \
         {                                                                           \
-            _list_->head = node;                                                    \
-            _list_->tail = node;                                                    \
+            _list_->head = _node_;                                                  \
+            _list_->tail = _node_;                                                  \
         }                                                                           \
         else                                                                        \
         {                                                                           \
-            node->prev = _list_->tail;                                              \
-            _list_->tail->next = node;                                              \
-            _list_->tail = node;                                                    \
+            _node_->prev = _list_->tail;                                            \
+            _list_->tail->next = _node_;                                            \
+            _list_->tail = _node_;                                                  \
         }                                                                           \
                                                                                     \
         _list_->count++;                                                            \
@@ -233,10 +289,10 @@
         if (PFX##_empty(_list_))                                                    \
             return false;                                                           \
                                                                                     \
-        SNAME##_node *node = _list_->head;                                          \
+        SNAME##_node *_node_ = _list_->head;                                        \
         _list_->head = _list_->head->next;                                          \
                                                                                     \
-        free(node);                                                                 \
+        free(_node_);                                                               \
                                                                                     \
         if (_list_->head == NULL)                                                   \
             _list_->tail = NULL;                                                    \
@@ -265,15 +321,15 @@
             return PFX##_pop_back(_list_);                                          \
         }                                                                           \
                                                                                     \
-        SNAME##_node *node = PFX##_get_node(_list_, index);                         \
+        SNAME##_node *_node_ = PFX##_get_node(_list_, index);                       \
                                                                                     \
-        if (!node)                                                                  \
+        if (!_node_)                                                                \
             return false;                                                           \
                                                                                     \
-        node->next->prev = node->prev;                                              \
-        node->prev->next = node->next;                                              \
+        _node_->next->prev = _node_->prev;                                          \
+        _node_->prev->next = _node_->next;                                          \
                                                                                     \
-        free(node);                                                                 \
+        free(_node_);                                                               \
                                                                                     \
         _list_->count--;                                                            \
                                                                                     \
@@ -285,10 +341,10 @@
         if (PFX##_empty(_list_))                                                    \
             return false;                                                           \
                                                                                     \
-        SNAME##_node *node = _list_->tail;                                          \
+        SNAME##_node *_node_ = _list_->tail;                                        \
         _list_->tail = _list_->tail->prev;                                          \
                                                                                     \
-        free(node);                                                                 \
+        free(_node_);                                                               \
                                                                                     \
         if (_list_->tail == NULL)                                                   \
             _list_->head = NULL;                                                    \
@@ -391,16 +447,21 @@
                                                                                     \
     FMOD SNAME##_node *PFX##_new_node(V element)                                    \
     {                                                                               \
-        SNAME##_node *node = malloc(sizeof(SNAME##_node));                          \
+        SNAME##_node *_node_ = malloc(sizeof(SNAME##_node));                        \
                                                                                     \
-        if (!node)                                                                  \
+        if (!_node_)                                                                \
             return NULL;                                                            \
                                                                                     \
-        node->data = element;                                                       \
-        node->next = NULL;                                                          \
-        node->prev = NULL;                                                          \
+        _node_->data = element;                                                     \
+        _node_->next = NULL;                                                        \
+        _node_->prev = NULL;                                                        \
                                                                                     \
-        return node;                                                                \
+        return _node_;                                                              \
+    }                                                                               \
+                                                                                    \
+    FMOD void PFX##_free_node(SNAME##_node *_node_)                                 \
+    {                                                                               \
+        free(_node_);                                                               \
     }                                                                               \
                                                                                     \
     FMOD SNAME##_node *PFX##_head(SNAME *_list_)                                    \
@@ -416,26 +477,26 @@
         if (PFX##_empty(_list_))                                                    \
             return NULL;                                                            \
                                                                                     \
-        SNAME##_node *scan = NULL;                                                  \
+        SNAME##_node *_node_ = NULL;                                                \
                                                                                     \
         if (index <= _list_->count / 2)                                             \
         {                                                                           \
-            scan = _list_->head;                                                    \
+            _node_ = _list_->head;                                                  \
             for (size_t i = 0; i < index; i++)                                      \
             {                                                                       \
-                scan = scan->next;                                                  \
+                _node_ = _node_->next;                                              \
             }                                                                       \
         }                                                                           \
         else                                                                        \
         {                                                                           \
-            scan = _list_->tail;                                                    \
+            _node_ = _list_->tail;                                                  \
             for (size_t i = _list_->count - 1; i > index; i--)                      \
             {                                                                       \
-                scan = scan->prev;                                                  \
+                _node_ = _node_->prev;                                              \
             }                                                                       \
         }                                                                           \
                                                                                     \
-        return scan;                                                                \
+        return _node_;                                                              \
     }                                                                               \
                                                                                     \
     FMOD SNAME##_node *PFX##_tail(SNAME *_list_)                                    \
@@ -596,7 +657,7 @@
         return PFX##_empty(iter->target) || iter->end;                              \
     }                                                                               \
                                                                                     \
-    FMOD void PFX##_iter_tostart(SNAME##_iter *iter)                                \
+    FMOD void PFX##_iter_to_start(SNAME##_iter *iter)                               \
     {                                                                               \
         iter->cursor = iter->target->head;                                          \
         iter->index = 0;                                                            \
@@ -604,7 +665,7 @@
         iter->end = PFX##_empty(iter->target);                                      \
     }                                                                               \
                                                                                     \
-    FMOD void PFX##_iter_toend(SNAME##_iter *iter)                                  \
+    FMOD void PFX##_iter_to_end(SNAME##_iter *iter)                                 \
     {                                                                               \
         iter->cursor = iter->target->tail;                                          \
         iter->index = iter->target->count - 1;                                      \
@@ -612,14 +673,12 @@
         iter->end = true;                                                           \
     }                                                                               \
                                                                                     \
-    FMOD bool PFX##_iter_next(SNAME##_iter *iter, V *result, size_t *index)         \
+    FMOD bool PFX##_iter_next(SNAME##_iter *iter)                                   \
     {                                                                               \
         if (iter->end)                                                              \
             return false;                                                           \
                                                                                     \
-        *index = iter->index;                                                       \
-        *result = iter->cursor->data;                                               \
-        iter->start = false;                                                        \
+        iter->start = PFX##_empty(iter->target);                                    \
                                                                                     \
         if (iter->cursor->next == NULL)                                             \
             iter->end = true;                                                       \
@@ -632,14 +691,12 @@
         return true;                                                                \
     }                                                                               \
                                                                                     \
-    FMOD bool PFX##_iter_prev(SNAME##_iter *iter, V *result, size_t *index)         \
+    FMOD bool PFX##_iter_prev(SNAME##_iter *iter)                                   \
     {                                                                               \
         if (iter->start)                                                            \
             return false;                                                           \
                                                                                     \
-        *index = iter->index;                                                       \
-        *result = iter->cursor->data;                                               \
-        iter->end = false;                                                          \
+        iter->end = PFX##_empty(iter->target);                                      \
                                                                                     \
         if (iter->cursor->prev == NULL)                                             \
             iter->start = true;                                                     \
@@ -650,6 +707,52 @@
         }                                                                           \
                                                                                     \
         return true;                                                                \
+    }                                                                               \
+                                                                                    \
+    FMOD V PFX##_iter_value(SNAME##_iter *iter)                                     \
+    {                                                                               \
+        if (PFX##_empty(iter->target))                                              \
+            return 0;                                                               \
+                                                                                    \
+        return iter->cursor->data;                                                  \
+    }                                                                               \
+                                                                                    \
+    FMOD V *PFX##_iter_rvalue(SNAME##_iter *iter)                                   \
+    {                                                                               \
+        if (PFX##_empty(iter->target))                                              \
+            return NULL;                                                            \
+                                                                                    \
+        return &(iter->cursor->data);                                               \
+    }                                                                               \
+                                                                                    \
+    FMOD size_t PFX##_iter_index(SNAME##_iter *iter)                                \
+    {                                                                               \
+        return iter->index;                                                         \
+    }                                                                               \
+                                                                                    \
+    FMOD SNAME##_node *PFX##_iter_node(SNAME##_iter *iter)                          \
+    {                                                                               \
+        return iter->cursor;                                                        \
+    }                                                                               \
+                                                                                    \
+    SNAME##_iter PFX##_impl_it_start(SNAME *_list_)                                 \
+    {                                                                               \
+        SNAME##_iter iter;                                                          \
+                                                                                    \
+        PFX##_iter_init(&iter, _list_);                                             \
+        PFX##_iter_to_start(&iter);                                                 \
+                                                                                    \
+        return iter;                                                                \
+    }                                                                               \
+                                                                                    \
+    SNAME##_iter PFX##_impl_it_end(SNAME *_list_)                                   \
+    {                                                                               \
+        SNAME##_iter iter;                                                          \
+                                                                                    \
+        PFX##_iter_init(&iter, _list_);                                             \
+        PFX##_iter_to_end(&iter);                                                   \
+                                                                                    \
+        return iter;                                                                \
     }
 
 #endif /* CMC_LINKEDLIST_H */
