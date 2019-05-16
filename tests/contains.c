@@ -150,24 +150,44 @@ int main(void)
     printf("-------------------- CONTAINS --------------------\n");
     if (c[0] && !a[0] && !b[0])
         printf("%10s PASSED\n", "DEQUE");
+    else
+        printf("%10s FAILED\n", "DEQUE");
     if (c[1] && !a[1] && !b[1])
         printf("%10s PASSED\n", "HASHMAP");
+    else
+        printf("%10s FAILED\n", "HASHMAP");
     if (c[2] && !a[2] && !b[2])
         printf("%10s PASSED\n", "HASHSET");
+    else
+        printf("%10s FAILED\n", "HASHSET");
     if (c[3] && !a[3] && !b[3])
         printf("%10s PASSED\n", "HEAP");
+    else
+        printf("%10s FAILED\n", "HEAP");
     if (c[4] && !a[4] && !b[4])
         printf("%10s PASSED\n", "LINKEDLIST");
+    else
+        printf("%10s FAILED\n", "LINKEDLIST");
     if (c[5] && !a[5] && !b[5])
         printf("%10s PASSED\n", "LIST");
+    else
+        printf("%10s FAILED\n", "LIST");
     if (c[6] && !a[6] && !b[6])
         printf("%10s PASSED\n", "QUEUE");
+    else
+        printf("%10s FAILED\n", "QUEUE");
     if (c[7] && !a[7] && !b[7])
         printf("%10s PASSED\n", "STACK");
+    else
+        printf("%10s FAILED\n", "STACK");
     if (c[8] && !a[8] && !b[8])
         printf("%10s PASSED\n", "TREEMAP");
+    else
+        printf("%10s FAILED\n", "TREEMAP");
     if (c[9] && !a[9] && !b[9])
         printf("%10s PASSED\n", "TREESET");
+    else
+        printf("%10s FAILED\n", "TREESET");
 
     l_free(l);
     ll_free(ll);

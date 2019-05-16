@@ -70,138 +70,178 @@ int main(void)
     int sum0 = 0, sum1 = 0, sum2 = 0, sum3 = 0, sum4 = 0, sum5 = 0, sum6 = 0,
         sum7 = 0, sum8 = 0, sum9 = 0, sum10 = 0, sum11 = 0;
 
-    FOR_EACH(l, list, int, l, {
-        sum0 += value;
+    FOR_EACH(d, deque, d, {
+        sum3 += d_iter_value(&iter);
     })
 
-    FOR_EACH(s, stack, int, s, {
-        sum1 += value;
+    FOR_EACH(hm, hmap, hm, {
+        sum10 += hm_iter_key(&iter);
+        sum11 += hm_iter_value(&iter);
     })
 
-    FOR_EACH(q, queue, int, q, {
-        sum2 += value;
+    FOR_EACH(hs, hset, hs, {
+        sum9 += hs_iter_value(&iter);
     })
 
-    FOR_EACH(d, deque, int, d, {
-        sum3 += value;
+    FOR_EACH(h, heap, h, {
+        sum5 += h_iter_value(&iter);
     })
 
-    FOR_EACH(ll, linked, int, ll, {
-        sum4 += value;
+    FOR_EACH(ll, linked, ll, {
+        sum4 += ll_iter_value(&iter);
     })
 
-    FOR_EACH(h, heap, int, h, {
-        sum5 += value;
+    FOR_EACH(l, list, l, {
+        sum0 += l_iter_value(&iter);
     })
 
-    FOR_EACH(ts, tset, int, ts, {
-        sum6 += value;
+    FOR_EACH(q, queue, q, {
+        sum2 += q_iter_value(&iter);
     })
 
-    FOR_EACH_MAP(tm, tmap, int, int, tm, {
-        sum7 += key;
-        sum8 += value;
+    FOR_EACH(s, stack, s, {
+        sum1 += s_iter_value(&iter);
     })
 
-    FOR_EACH(hs, hset, int, hs, {
-        sum9 += value;
+    FOR_EACH(tm, tmap, tm, {
+        sum7 += tm_iter_key(&iter);
+        sum8 += tm_iter_value(&iter);
     })
 
-    FOR_EACH_MAP(hm, hmap, int, int, hm, {
-        sum10 += key;
-        sum11 += value;
+    FOR_EACH(ts, tset, ts, {
+        sum6 += ts_iter_value(&iter);
     })
 
     printf("\n-------------------- FOR_EACH --------------------\n");
     if (sum3 == 50005000)
         printf("%10s PASSED\n", "DEQUE");
+    else
+        printf("%10s FAILED\n", "DEQUE");
     if (sum9 == 50005000)
         printf("%10s PASSED\n", "HASHSET");
+    else
+        printf("%10s FAILED\n", "HASHSET");
     if (sum10 == 50005000 && sum11 == 50005000)
         printf("%10s PASSED\n", "HASHMAP");
+    else
+        printf("%10s FAILED\n", "HASHMAP");
     if (sum5 == 50005000)
         printf("%10s PASSED\n", "HEAP");
+    else
+        printf("%10s FAILED\n", "HEAP");
     if (sum4 == 50005000)
         printf("%10s PASSED\n", "LINKEDLIST");
+    else
+        printf("%10s FAILED\n", "LINKEDLIST");
     if (sum0 == 50005000)
         printf("%10s PASSED\n", "LIST");
+    else
+        printf("%10s FAILED\n", "LIST");
     if (sum2 == 50005000)
         printf("%10s PASSED\n", "QUEUE");
+    else
+        printf("%10s FAILED\n", "QUEUE");
     if (sum1 == 50005000)
         printf("%10s PASSED\n", "STACK");
+    else
+        printf("%10s FAILED\n", "STACK");
     if (sum7 == 50005000 && sum8 == 50005000)
         printf("%10s PASSED\n", "TREEMAP");
+    else
+        printf("%10s FAILED\n", "TREEMAP");
     if (sum6 == 50005000)
         printf("%10s PASSED\n", "TREESET");
+    else
+        printf("%10s FAILED\n", "TREESET");
 
     printf("\n\n");
 
     sum0 = 0, sum1 = 0, sum2 = 0, sum3 = 0, sum4 = 0, sum5 = 0, sum6 = 0,
     sum7 = 0, sum8 = 0, sum9 = 0, sum10 = 0, sum11 = 0;
 
-    FOR_EACH_REV(l, list, int, l, {
-        sum0 += value;
+    FOR_EACH_REV(d, deque, d, {
+        sum3 += d_iter_value(&iter);
     })
 
-    FOR_EACH_REV(s, stack, int, s, {
-        sum1 += value;
+    FOR_EACH_REV(hm, hmap, hm, {
+        sum10 += hm_iter_key(&iter);
+        sum11 += hm_iter_value(&iter);
     })
 
-    FOR_EACH_REV(q, queue, int, q, {
-        sum2 += value;
+    FOR_EACH_REV(hs, hset, hs, {
+        sum9 += hs_iter_value(&iter);
     })
 
-    FOR_EACH_REV(d, deque, int, d, {
-        sum3 += value;
+    FOR_EACH_REV(h, heap, h, {
+        sum5 += h_iter_value(&iter);
     })
 
-    FOR_EACH_REV(ll, linked, int, ll, {
-        sum4 += value;
+    FOR_EACH_REV(ll, linked, ll, {
+        sum4 += ll_iter_value(&iter);
     })
 
-    FOR_EACH_REV(h, heap, int, h, {
-        sum5 += value;
+    FOR_EACH_REV(l, list, l, {
+        sum0 += l_iter_value(&iter);
     })
 
-    FOR_EACH_REV(ts, tset, int, ts, {
-        sum6 += value;
+    FOR_EACH_REV(q, queue, q, {
+        sum2 += q_iter_value(&iter);
     })
 
-    FOR_EACH_MAP_REV(tm, tmap, int, int, tm, {
-        sum7 += key;
-        sum8 += value;
+    FOR_EACH_REV(s, stack, s, {
+        sum1 += s_iter_value(&iter);
     })
 
-    FOR_EACH_REV(hs, hset, int, hs, {
-        sum9 += value;
+    FOR_EACH_REV(tm, tmap, tm, {
+        sum7 += tm_iter_key(&iter);
+        sum8 += tm_iter_value(&iter);
     })
 
-    FOR_EACH_MAP_REV(tm, tmap, int, int, tm, {
-        sum10 += key;
-        sum11 += value;
+    FOR_EACH_REV(ts, tset, ts, {
+        sum6 += ts_iter_value(&iter);
     })
 
     printf("-------------------- FOR_EACH_REV --------------------\n");
     if (sum3 == 50005000)
         printf("%10s PASSED\n", "DEQUE");
-    if (sum9 == 50005000)
-        printf("%10s PASSED\n", "HASHSET");
+    else
+        printf("%10s FAILED\n", "DEQUE");
     if (sum10 == 50005000 && sum11 == 50005000)
         printf("%10s PASSED\n", "HASHMAP");
+    else
+        printf("%10s FAILED\n", "HASHMAP");
+    if (sum9 == 50005000)
+        printf("%10s PASSED\n", "HASHSET");
+    else
+        printf("%10s FAILED\n", "HASHSET");
     if (sum5 == 50005000)
         printf("%10s PASSED\n", "HEAP");
+    else
+        printf("%10s FAILED\n", "HEAP");
     if (sum4 == 50005000)
         printf("%10s PASSED\n", "LINKEDLIST");
+    else
+        printf("%10s FAILED\n", "LINKEDLIST");
     if (sum0 == 50005000)
         printf("%10s PASSED\n", "LIST");
+    else
+        printf("%10s FAILED\n", "LIST");
     if (sum2 == 50005000)
         printf("%10s PASSED\n", "QUEUE");
+    else
+        printf("%10s FAILED\n", "QUEUE");
     if (sum1 == 50005000)
         printf("%10s PASSED\n", "STACK");
+    else
+        printf("%10s FAILED\n", "STACK");
     if (sum7 == 50005000 && sum8 == 50005000)
         printf("%10s PASSED\n", "TREEMAP");
+    else
+        printf("%10s FAILED\n", "TREEMAP");
     if (sum6 == 50005000)
         printf("%10s PASSED\n", "TREESET");
+    else
+        printf("%10s FAILED\n", "TREESET");
 
     l_free(l);
     ll_free(ll);
