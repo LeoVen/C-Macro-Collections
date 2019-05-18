@@ -13,6 +13,8 @@ Check out `bug_report.md` and `feature_request.md` templates in the `.github` fo
 
 ## Here are things you could work on:
 
+> You can check out the TODO file to see what I've planned on doing, in case you want to work on any of those topics
+
 1. New features, new functions, new stuff!
     * Before adding anything new, please, first create an issue for it to be discussed;
     * Write tests to anything new you make.
