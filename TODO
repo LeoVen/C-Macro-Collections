@@ -21,25 +21,21 @@ Before 2.0
     Get Documentation fixed and completed
 
 1.5
-    Simplify PUBLIC and PRIVATE (simply remove them)
-    Conditional code generation
-        Add extra content macro (Insert/Remove/Append/Prepend) and let user decide if he wants to include them or not
-        Separate Implementation Detail into a different MACRO (LIST_GENERATE_DETAIL)
-
-1.6
+    Remove PUBLIC and PRIVATE
     Iterator move and move_to
     LinkedList - Insert/Remove/Append/Prepend/Extract
+    from_array - Creates a collection with all the elements in a specified array
     to_array - Creates an array with all the elements inside the collection
 
-1.7
+1.6
     Add shrink function that shrinks the internal buffer to current count of elements
+    Add dispose method to each collection in order to automatically free its data
 
 2.0
     Add multiset, multimap and new heap implementation
 
 2.1
-    Adapt multiset, multimap, treehashmap and new heap implementation to the current standards
-    Add dispose method to each collection in order to automatically free its data
+    Adapt multiset, multimap and new heap implementation to the current standards
 
 2.2
     Add serialization functions
@@ -52,5 +48,6 @@ Before 2.0
 2.3
     Iterator functions (functions that operate relative to iterators position) like add or remove ranges
 
-Sometime
-    Add treehashmap
+SOMETIME
+
+Add treehashmap

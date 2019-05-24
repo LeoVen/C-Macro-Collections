@@ -11,6 +11,10 @@
 * [HashSet](#HashSet)
 * [HashMap](#HashMap)
 
+Others
+
+* [ForEach](#ForEach)
+
 # [List](#collections_index)
 
 A List is a Dynamic Array that store its elements contiguously. It has an internal buffer that is pre-allocated with a greater capacity than necessary in order to foresee new elements being added. The items can be added at both ends of the list and at the middle (with a given index).
@@ -2764,3 +2768,78 @@ A HashMap is an associative container that maps a key `K` to a value `V` contain
 
 HashMaps are one of the most used data structures as they are very useful as lookup tables.
 
+# [ForEach](#collections_index)
+
+The ForEach macro is an utility that can be used to simplify iterations through a collections. There are two ForEach macros:
+
+* `FOR_EACH` - Iterates over a collection forwards, from the start to the end*.
+* `FOR_EACH_REV` - Iterates over a collection backwards, from the end to the start*.
+
+\* Check out the documentation of each collection to know which elements are regarded as the starting point and ending point of an iteration.
+
+### Parameters
+
+* `PFX` - The prefix of the functions of the defined collection.
+* `SNAME` - The defined name of your collection
+* `TARGET` - The target collection to be iterated over.
+* `BODY` - The body of your loop where a local variable called `iter` will be available.
+
+### Example
+
+```c
+#include "hashmap.h"
+#include "foreach.h" // The ForEach macros are defined here
+#include <stdio.h>
+
+// Int hash function
+size_t inthash(int t)
+{
+    size_t a = t;
+    a += ~(a << 15);
+    a ^= (a >> 10);
+    a += (a << 3);
+    a ^= (a >> 6);
+    a += ~(a << 11);
+    a ^= (a >> 16);
+    return a;
+}
+
+// Int compare function
+int intcmp(int a, int b)
+{
+    return (a > b) - (a < b);
+}
+
+// Generate all the code for the hashmap
+HASHMAP_GENERATE(hm, hashmap, /* FMOD */, int, double)
+
+int main(void)
+{
+    // Create a new hashmap with custom hash function
+    // The comparison function is only required to know if the key looked for was found
+    hashmap *map = hm_new(1000, 0.6, intcmp, inthash);
+
+    // Add keys mapped to a value
+    for (int i = 0; i < 5000; i++)
+    {
+        hm_insert(map, i, (double)i / 1000.0);
+    }
+
+    // Iterate over the HashMap without the FOR_EACH macro
+    for (hashmap_iter iter = map->it_start(map); !hm_iter_end(&iter); hm_iter_next(&iter))
+    {
+        printf("MAP[%4d] = %.3lf\n", hm_iter_key(&iter), hm_iter_value(&iter));
+    }
+
+    // Iterate over the HashMap using FOR_EACH macro
+    FOR_EACH(hm, hashmap, map, {
+        // Inside, the variable 'iter' will be available and from it you can access
+        // the key, value or index.
+        printf("MAP[%4d] = %.3lf\n", hm_iter_key(&iter), hm_iter_value(&iter));
+    })
+
+    hm_free(map);
+
+    return 0;
+}
+```
