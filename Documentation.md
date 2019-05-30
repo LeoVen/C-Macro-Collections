@@ -41,6 +41,11 @@ The iterator is a simple structure that is capable of going back and forwards. A
     * `V *buffer` - Internal storage.
     * `size_t capacity` - Storage capacity.
     * `size_t count` - Total elements in the list.
+    * `it_start` - Function that returns an iterator to the start of the list.
+        * Full definition: `struct SNAME##_iter_s (*it_start)(struct SNAME##_s *);`.
+    * `it_end` - Function that returns an iterator to the end of the list.
+        * Full definition: `struct SNAME##_iter_s (*it_end)(struct SNAME##_s *);`.
+
 * `struct SNAME##_iter_s` - Structure Iterator (represents a list iterator)
     * `struct SNAME##_s *target` - List being iterated over.
     * `size_t cursor` - Index pointing to the next or previous element in the iteration.
@@ -50,21 +55,20 @@ The iterator is a simple structure that is capable of going back and forwards. A
 ### Typedefs
 
 * `typedef struct SNAME##_s SNAME`
+* `typedef struct SNAME##_s *SNAME##_ptr`
 * `typedef struct SNAME##_iter_s SNAME##_iter`
+* `typedef struct SNAME##_iter_s *SNAME##_iter_ptr`
 
 ### <span id="list_function_index"> Defined Functions </span>
 
-#### Structure Initialization
+#### Collection Allocation and Deallocation
 
 * [\_new()](#list_new)
 * [\_new\_from()](#list_new_from)
-
-#### Structure Cleanup
-
 * [\_clear()](#list_clear)
 * [\_free()](#list_free)
 
-#### Input / Output
+#### Input and Output
 
 * [\_push\_front()](#list_push_front)
 * [\_push()](#list_push)
@@ -73,12 +77,12 @@ The iterator is a simple structure that is capable of going back and forwards. A
 * [\_pop()](#list_pop)
 * [\_pop\_back()](#list_pop_back)
 
-Conditional Input / Output
+#### Conditional Input and Output
 
 * [\_push\_if()](#list_push_if)
 * [\_pop\_if()](#list_pop_if)
 
-Sequences Input / Output
+#### Range Input and Output
 
 * [\_prepend()](#list_prepend)
 * [\_insert()](#list_insert)
@@ -94,7 +98,7 @@ Sequences Input / Output
 * [\_back()](#list_back)
 * [\_indexof()](#list_indexof)
 
-#### Structure State
+#### Collection State
 
 * [\_contains()](#list_contains)
 * [\_empty()](#list_empty)
@@ -103,17 +107,32 @@ Sequences Input / Output
 * [\_fits()](#list_fits)
 * [\_capacity()](#list_capacity)
 
-#### Iterator
+#### Iterator Allocation and Deallocation
 
 * [\_iter\_new()](#list_iter_new)
 * [\_iter\_free()](#list_iter_free)
+
+#### Iterator Initialization
+
 * [\_iter\_init()](#list_iter_init)
+
+#### Iterator State
+
 * [\_iter\_start()](#list_iter_start)
 * [\_iter\_end()](#list_iter_end)
-* [\_iter\_tostart()](#list_iter_tostart)
-* [\_iter\_toend()](#list_iter_toend)
+
+#### Iterator Movement
+
+* [\_iter\_to_start()](#list_iter_to_start)
+* [\_iter\_to_end()](#list_iter_to_end)
 * [\_iter\_next()](#list_iter_next)
 * [\_iter\_prev()](#list_iter_prev)
+
+#### Iterator Access
+
+* [\_iter\_value()](#list_iter_value)
+* [\_iter\_rvalue()](#list_iter_rvalue)
+* [\_iter\_index()](#list_iter_index)
 
 ## [<span id="list_new"> \_new() </span>](#list_function_index)
 
@@ -783,25 +802,25 @@ Returns true if the iterator has reached the end of the list. If false, the iter
 1. `true` - If the iterator has reached the end of the list.
 2. `false` - If the iterator has not reached the end of the list.
 
-## [<span id="list_iter_tostart"> \_iter\_tostart() </span>](#list_function_index)
+## [<span id="list_iter_to_start"> \_iter\_to\_start() </span>](#list_function_index)
 
 Moves the cursor of the target iterator to the start of the list.
 
 #### Declaration
 
-> `FMOD void PFX##_iter_tostart(SNAME##_iter *iter);`
+> `FMOD void PFX##_iter_to_start(SNAME##_iter *iter);`
 
 #### Parameters
 
 1. `SNAME##_iter *iter` - Target iterator.
 
-## [<span id="list_iter_toend"> \_iter\_toend() </span>](#list_function_index)
+## [<span id="list_iter_to_end"> \_iter\_to\_end() </span>](#list_function_index)
 
 Moves the cursor of the target iterator to the end of the list.
 
 #### Declaration
 
-> `FMOD void PFX##_iter_toend(SNAME##_iter *iter);`
+> `FMOD void PFX##_iter_to_end(SNAME##_iter *iter);`
 
 #### Parameters
 
@@ -809,41 +828,102 @@ Moves the cursor of the target iterator to the end of the list.
 
 ## [<span id="list_iter_next"> \_iter\_next() </span>](#list_function_index)
 
-This function is used to iterate to the next element, retrieving the current one, along with an index that represents the relative position of it in the iteration. When the index is `0` it means that the current result is the first element in the list; if it equals `count - 1` then it is the last element in the list.
+Moves the target list iterator to the next element if possible.
 
 #### Declaration
 
-> `FMOD bool PFX##_iter_next(SNAME##_iter *iter, V *result, size_t *index);`
+> `FMOD bool PFX##_iter_next(SNAME##_iter *iter);`
 
 #### Parameters
 
 1. `SNAME##_iter *iter` - Target iterator.
-2. `V *result` - Resulting value from the list.
-3. `size_t *index` - Resulting index.
 
 #### Returns
 
-1. `true` - If the iterator has retrieved a valid `result` and `index`.
-2. `false` - If the iterator has not retrieved a valid `result` and `index`. Here, iteration to the next element has ended.
+1. `true` - If the iterator has moved to the next element in the iteration.
+2. `false` - If the iterator could not move to the next element, hence reaching the end of the iteration.
 
 ## [<span id="list_iter_prev"> \_iter\_prev() </span>](#list_function_index)
 
-This function is used to iterate to the previous element, retrieving the current one, along with an index that represents the relative position of it in the iteration. When the index is `0` it means that the current result is the first element in the list; if it equals `count - 1` then it is the last element in the list.
+Moves the target list iterator to the previous element if possible.
 
 #### Declaration
 
-> `FMOD bool PFX##_iter_prev(SNAME##_iter *iter, V *result, size_t *index);`
+> `FMOD bool PFX##_iter_prev(SNAME##_iter *iter);`
 
 #### Parameters
 
 1. `SNAME##_iter *iter` - Target iterator.
-2. `V *result` - Resulting value from the list.
-3. `size_t *index` - Resulting index.
 
 #### Returns
 
-1. `true` - If the iterator has retrieved a valid `result` and `index`.
-2. `false` - If the iterator has not retrieved a valid `result` and `index`. Here, iteration to the previous element has ended.
+1. `true` - If the iterator has moved to the previous element in the iteration.
+2. `false` - If the iterator could not move to the previous element, hence reaching the start of the iteration.
+
+## [<span id="list_iter_value"> \_iter\_value() </span>](#list_function_index)
+
+Returns the element pointed by the target iterator's cursor. The iterator must have been initialized already.
+
+#### Declaration
+
+> `FMOD V PFX##_iter_value(SNAME##_iter *iter);`
+
+#### Parameters
+
+1. `SNAME##_iter *iter` - Target iterator.
+
+#### Returns
+
+1. `V` - The element pointed by the iterator's cursor.
+
+#### Undefined Behavior
+
+* If the iterator points to `NULL`;
+* If the iterator has not been properly initialized;
+* If the iterator's target is invalid.
+
+## [<span id="list_iter_rvalue"> \_iter\_rvalue() </span>](#list_function_index)
+
+Returns a reference to the element pointed by the target iterator's cursor. The iterator must have been initialized already.
+
+#### Declaration
+
+> `FMOD V *PFX##_iter_rvalue(SNAME##_iter *iter);`
+
+#### Parameters
+
+1. `SNAME##_iter *iter` - Target iterator.
+
+#### Returns
+
+1. `V *` - A reference to the element pointed by the iterator's cursor.
+
+#### Undefined Behavior
+
+* If the iterator points to `NULL`;
+* If the iterator has not been properly initialized;
+* If the iterator's target is invalid.
+
+## [<span id="list_iter_index"> \_iter\_index() </span>](#list_function_index)
+
+Returns the current position of the iterator relative to all the elements in the iteration. The index is `0` based and goes up to `count - 1`.
+
+#### Declaration
+
+> `FMOD size_t PFX##_iter_index(SNAME##_iter *iter);`
+
+#### Parameters
+
+1. `SNAME##_iter *iter` - Target iterator.
+
+#### Returns
+
+1. `size_t` - Current position of the iterator relative to all elements in the iteration.
+
+#### Undefined Behavior
+
+* If the iterator points to `NULL`;
+* If the iterator has not been properly initialized.
 
 # [LinkedList](#collections_index)
 
@@ -871,6 +951,11 @@ A Stack is used in algorithms like backtracking, depth-first search, expression 
     * `V *buffer` - Internal storage.
     * `size_t capacity` - Storage capacity.
     * `size_t count` - Total elements in the stack.
+    * `it_start` - Function that returns an iterator to the start of the stack.
+        * Full definition: `struct SNAME##_iter_s (*it_start)(struct SNAME##_s *);`.
+    * `it_end` - Function that returns an iterator to the end of the stack.
+        * Full definition: `struct SNAME##_iter_s (*it_end)(struct SNAME##_s *);`.
+
 * `struct SNAME##_iter_s` - Structure Iterator (represents a stack iterator)
     * `struct SNAME##_s *target` - Stack being iterated over.
     * `size_t cursor` - Index pointing to the next or previous element in the iteration.
@@ -880,23 +965,25 @@ A Stack is used in algorithms like backtracking, depth-first search, expression 
 ### Typedefs
 
 * `typedef struct SNAME##_s SNAME`
+* `typedef struct SNAME##_s *SNAME##_ptr`
 * `typedef struct SNAME##_iter_s SNAME##_iter`
+* `typedef struct SNAME##_iter_s *SNAME##_iter_ptr`
 
 ### <span id="stack_function_index"> Defined Functions </span>
 
-#### Structure Initialization
+#### Collection Allocation and Deallocation
 
 * [\_new()](#stack_new)
-
-#### Structure Cleanup
-
 * [\_clear()](#stack_clear)
 * [\_free()](#stack_free)
 
-#### Input / Output
+#### Input and Output
 
 * [\_push()](#stack_push)
 * [\_pop()](#stack_pop)
+
+#### Conditional Input and Output
+
 * [\_push\_if()](#stack_push_if)
 * [\_pop\_if()](#stack_pop_if)
 
@@ -904,7 +991,7 @@ A Stack is used in algorithms like backtracking, depth-first search, expression 
 
 * [\_top()](#stack_top)
 
-#### Structure State
+#### Collection State
 
 * [\_contains()](#stack_contains)
 * [\_empty()](#stack_empty)
@@ -912,17 +999,32 @@ A Stack is used in algorithms like backtracking, depth-first search, expression 
 * [\_count()](#stack_count)
 * [\_capacity()](#stack_capacity)
 
-#### Iterator
+#### Iterator Allocation and Deallocation
 
 * [\_iter\_new()](#stack_iter_new)
 * [\_iter\_free()](#stack_iter_free)
+
+#### Iterator Initialization
+
 * [\_iter\_init()](#stack_iter_init)
+
+#### Iterator State
+
 * [\_iter\_start()](#stack_iter_start)
 * [\_iter\_end()](#stack_iter_end)
-* [\_iter\_tostart()](#stack_iter_tostart)
-* [\_iter\_toend()](#stack_iter_toend)
+
+#### Iterator Movement
+
+* [\_iter\_to\_start()](#stack_iter_to_start)
+* [\_iter\_to\_end()](#stack_iter_to_end)
 * [\_iter\_next()](#stack_iter_next)
 * [\_iter\_prev()](#stack_iter_prev)
+
+#### Iterator Access
+
+* [\_iter\_value()](#stack_iter_value)
+* [\_iter\_rvalue()](#stack_iter_rvalue)
+* [\_iter\_index()](#stack_iter_index)
 
 ## [<span id="stack_new"> \_new() </span>](#stack_function_index)
 
@@ -1217,25 +1319,25 @@ Returns true if the iterator has reached the end (bottom element) of the stack. 
 1. `true` - If the iterator has reached the end of the stack.
 2. `false` - If the iterator has not reached the end of the stack.
 
-## [<span id="stack_iter_tostart"> \_iter\_tostart() </span>](#stack_function_index)
+## [<span id="stack_iter_to_start"> \_iter\_to\_start() </span>](#stack_function_index)
 
 Moves the cursor of the target iterator to the start (top element) of the stack.
 
 #### Declaration
 
-> `FMOD void PFX##_iter_tostart(SNAME##_iter *iter);`
+> `FMOD void PFX##_iter_to_start(SNAME##_iter *iter);`
 
 #### Parameters
 
 1. `SNAME##_iter *iter` - Target iterator.
 
-## [<span id="stack_iter_toend"> \_iter\_toend() </span>](#stack_function_index)
+## [<span id="stack_iter_to_end"> \_iter\_to\_end() </span>](#stack_function_index)
 
 Moves the cursor of the target iterator to the end (bottom element) of the stack.
 
 #### Declaration
 
-> `FMOD void PFX##_iter_toend(SNAME##_iter *iter);`
+> `FMOD void PFX##_iter_to_end(SNAME##_iter *iter);`
 
 #### Parameters
 
@@ -1243,41 +1345,102 @@ Moves the cursor of the target iterator to the end (bottom element) of the stack
 
 ## [<span id="stack_iter_next"> \_iter\_next() </span>](#stack_function_index)
 
-This function is used to iterate to the next element, retrieving the current one, along with an index that represents the relative position of it in the iteration. When the index is `0` it means that the current result is the top-most element of the stack; if it equals `count - 1` then it is the bottom-most element of the stack.
+Moves the target stack iterator to the next element if possible.
 
 #### Declaration
 
-> `FMOD bool PFX##_iter_next(SNAME##_iter *iter, V *result, size_t *index);`
+> `FMOD bool PFX##_iter_next(SNAME##_iter *iter);`
 
 #### Parameters
 
 1. `SNAME##_iter *iter` - Target iterator.
-2. `V *result` - Resulting value from the stack.
-3. `size_t *index` - Resulting index.
 
 #### Returns
 
-1. `true` - If the iterator has retrieved a valid `result` and `index`.
-2. `false` - If the iterator has not retrieved a valid `result` and `index`. Here, iteration to the next element has ended.
+1. `true` - If the iterator has moved to the next element in the iteration.
+2. `false` - If the iterator could not move to the next element, hence reaching the end of the iteration.
 
 ## [<span id="stack_iter_prev"> \_iter\_prev() </span>](#stack_function_index)
 
-This function is used to iterate to the previous element, retrieving the current one, along with an index that represents the relative position of it in the iteration. When the index is `0` it means that the current result is the top-most element of the stack; if it equals `count - 1` then it is the bottom-most element of the stack.
+Moves the target stack iterator to the previous element if possible.
 
 #### Declaration
 
-> `FMOD bool PFX##_iter_prev(SNAME##_iter *iter, V *result, size_t *index);`
+> `FMOD bool PFX##_iter_prev(SNAME##_iter *iter);`
 
 #### Parameters
 
 1. `SNAME##_iter *iter` - Target iterator.
-2. `V *result` - Resulting value from the stack.
-3. `size_t *index` - Resulting index.
 
 #### Returns
 
-1. `true` - If the iterator has retrieved a valid `result` and `index`.
-2. `false` - If the iterator has not retrieved a valid `result` and `index`. Here, iteration to the previous element has ended.
+1. `true` - If the iterator has moved to the previous element in the iteration.
+2. `false` - If the iterator could not move to the previous element, hence reaching the start of the iteration.
+
+## [<span id="stack_iter_value"> \_iter\_value() </span>](#stack_function_index)
+
+Returns the element pointed by the target iterator's cursor. The iterator must have been initialized already.
+
+#### Declaration
+
+> `FMOD V PFX##_iter_value(SNAME##_iter *iter);`
+
+#### Parameters
+
+1. `SNAME##_iter *iter` - Target iterator.
+
+#### Returns
+
+1. `V` - The element pointed by the iterator's cursor.
+
+#### Undefined Behavior
+
+* If the iterator points to `NULL`;
+* If the iterator has not been properly initialized;
+* If the iterator's target is invalid.
+
+## [<span id="stack_iter_rvalue"> \_iter\_rvalue() </span>](#stack_function_index)
+
+Returns a reference to the element pointed by the target iterator's cursor. The iterator must have been initialized already.
+
+#### Declaration
+
+> `FMOD V *PFX##_iter_rvalue(SNAME##_iter *iter);`
+
+#### Parameters
+
+1. `SNAME##_iter *iter` - Target iterator.
+
+#### Returns
+
+1. `V *` - A reference to the element pointed by the iterator's cursor.
+
+#### Undefined Behavior
+
+* If the iterator points to `NULL`;
+* If the iterator has not been properly initialized;
+* If the iterator's target is invalid.
+
+## [<span id="stack_iter_index"> \_iter\_index() </span>](#stack_function_index)
+
+Returns the current position of the iterator relative to all the elements in the iteration. The index is `0` based and goes up to `count - 1`.
+
+#### Declaration
+
+> `FMOD size_t PFX##_iter_index(SNAME##_iter *iter);`
+
+#### Parameters
+
+1. `SNAME##_iter *iter` - Target iterator.
+
+#### Returns
+
+1. `size_t` - Current position of the iterator relative to all elements in the iteration.
+
+#### Undefined Behavior
+
+* If the iterator points to `NULL`;
+* If the iterator has not been properly initialized.
 
 # [Queue](#collections_index)
 
@@ -1307,6 +1470,11 @@ The queue is used in many applications where a resource is shared among multiple
     * `size_t count` - Total elements in the queue.
     * `size_t front` - Front element index.
     * `size_t rear` - Rear element index.
+    * `it_start` - Function that returns an iterator to the start of the queue.
+        * Full definition: `struct SNAME##_iter_s (*it_start)(struct SNAME##_s *);`.
+    * `it_end` - Function that returns an iterator to the end of the queue.
+        * Full definition: `struct SNAME##_iter_s (*it_end)(struct SNAME##_s *);`.
+
 * `struct SNAME##_iter_s` - Structure Iterator (represents a queue iterator)
     * `struct SNAME##_s *target` - Queue being iterated over.
     * `size_t cursor` - Index pointing to the next or previous element in the iteration.
@@ -1317,20 +1485,19 @@ The queue is used in many applications where a resource is shared among multiple
 ### Typedefs
 
 * `typedef struct SNAME##_s SNAME`
+* `typedef struct SNAME##_s *SNAME##_ptr`
 * `typedef struct SNAME##_iter_s SNAME##_iter`
+* `typedef struct SNAME##_iter_s *SNAME##_iter_ptr`
 
 ### <span id="queue_function_index"> Defined Functions </span>
 
-#### Structure Initialization
+#### Collection Allocation and Deallocation
 
 * [\_new()](#queue_new)
-
-#### Structure Cleanup
-
 * [\_clear()](#queue_clear)
 * [\_free()](#queue_free)
 
-#### Input / Output
+#### Input and Output
 
 * [\_enqueue()](#queue_enqueue)
 * [\_dequeue()](#queue_dequeue)
@@ -1341,7 +1508,7 @@ The queue is used in many applications where a resource is shared among multiple
 
 * [\_peek()](#queue_peek)
 
-#### Structure State
+#### Collection State
 
 * [\_contains()](#queue_contains)
 * [\_empty()](#queue_empty)
@@ -1349,17 +1516,32 @@ The queue is used in many applications where a resource is shared among multiple
 * [\_count()](#queue_count)
 * [\_capacity()](#queue_capacity)
 
-#### Iterator
+#### Iterator Allocation and Deallocation
 
 * [\_iter\_new()](#queue_iter_new)
 * [\_iter\_free()](#queue_iter_free)
+
+#### Iterator Initialization
+
 * [\_iter\_init()](#queue_iter_init)
+
+#### Iterator State
+
 * [\_iter\_start()](#queue_iter_start)
 * [\_iter\_end()](#queue_iter_end)
-* [\_iter\_tostart()](#queue_iter_tostart)
-* [\_iter\_toend()](#queue_iter_toend)
+
+#### Iterator Movement
+
+* [\_iter\_to\_start()](#queue_iter_to_start)
+* [\_iter\_to\_end()](#queue_iter_to_end)
 * [\_iter\_next()](#queue_iter_next)
 * [\_iter\_prev()](#queue_iter_prev)
+
+#### Iterator Access
+
+* [\_iter\_value()](#queue_iter_value)
+* [\_iter\_rvalue()](#queue_iter_rvalue)
+* [\_iter\_index()](#queue_iter_index)
 
 ## [<span id="queue_new"> \_new() </span>](#queue_function_index)
 
@@ -1654,25 +1836,25 @@ Returns true if the iterator has reached the end (rear element) of the queue. If
 1. `true` - If the iterator has reached the end of the queue.
 2. `false` - If the iterator has not reached the end of the queue.
 
-## [<span id="queue_iter_tostart"> \_iter\_tostart() </span>](#queue_function_index)
+## [<span id="queue_iter_to_start"> \_iter\_to\_start() </span>](#queue_function_index)
 
 Moves the cursor of the target iterator to the start (front element) of the queue.
 
 #### Declaration
 
-> `FMOD void PFX##_iter_tostart(SNAME##_iter *iter);`
+> `FMOD void PFX##_iter_to_start(SNAME##_iter *iter);`
 
 #### Parameters
 
 1. `SNAME##_iter *iter` - Target iterator.
 
-## [<span id="queue_iter_toend"> \_iter\_toend() </span>](#queue_function_index)
+## [<span id="queue_iter_to_end"> \_iter\_to\_end() </span>](#queue_function_index)
 
 Moves the cursor of the target iterator to the end (rear element) of the queue.
 
 #### Declaration
 
-> `FMOD void PFX##_iter_toend(SNAME##_iter *iter);`
+> `FMOD void PFX##_iter_to_end(SNAME##_iter *iter);`
 
 #### Parameters
 
@@ -1680,41 +1862,102 @@ Moves the cursor of the target iterator to the end (rear element) of the queue.
 
 ## [<span id="queue_iter_next"> \_iter\_next() </span>](#queue_function_index)
 
-This function is used to iterate to the next element, retrieving the current one, along with an index that represents the relative position of it in the iteration. When the index is `0` it means that the current result is the front element of the queue; if it equals `count - 1` then it is the rear element of the queue.
+Moves the target queue iterator to the next element if possible.
 
 #### Declaration
 
-> `FMOD bool PFX##_iter_next(SNAME##_iter *iter, V *result, size_t *index);`
+> `FMOD bool PFX##_iter_next(SNAME##_iter *iter);`
 
 #### Parameters
 
 1. `SNAME##_iter *iter` - Target iterator.
-2. `V *result` - Resulting value from the queue.
-3. `size_t *index` - Resulting index.
 
 #### Returns
 
-1. `true` - If the iterator has retrieved a valid `result` and `index`.
-2. `false` - If the iterator has not retrieved a valid `result` and `index`. Here, iteration to the next element has ended.
+1. `true` - If the iterator has moved to the next element in the iteration.
+2. `false` - If the iterator could not move to the next element, hence reaching the end of the iteration.
 
 ## [<span id="queue_iter_prev"> \_iter\_prev() </span>](#queue_function_index)
 
-This function is used to iterate to the previous element, retrieving the current one, along with an index that represents the relative position of it in the iteration. When the index is `0` it means that the current result is the front element of the queue; if it equals `count - 1` then it is the rear element of the queue.
+Moves the target queue iterator to the previous element if possible.
 
 #### Declaration
 
-> `FMOD bool PFX##_iter_prev(SNAME##_iter *iter, V *result, size_t *index);`
+> `FMOD bool PFX##_iter_prev(SNAME##_iter *iter);`
 
 #### Parameters
 
 1. `SNAME##_iter *iter` - Target iterator.
-2. `V *result` - Resulting value from the queue.
-3. `size_t *index` - Resulting index.
 
 #### Returns
 
-1. `true` - If the iterator has retrieved a valid `result` and `index`.
-2. `false` - If the iterator has not retrieved a valid `result` and `index`. Here, iteration to the previous element has ended.
+1. `true` - If the iterator has moved to the previous element in the iteration.
+2. `false` - If the iterator could not move to the previous element, hence reaching the start of the iteration.
+
+## [<span id="queue_iter_value"> \_iter\_value() </span>](#queue_function_index)
+
+Returns the element pointed by the target iterator's cursor. The iterator must have been initialized already.
+
+#### Declaration
+
+> `FMOD V PFX##_iter_value(SNAME##_iter *iter);`
+
+#### Parameters
+
+1. `SNAME##_iter *iter` - Target iterator.
+
+#### Returns
+
+1. `V` - The element pointed by the iterator's cursor.
+
+#### Undefined Behavior
+
+* If the iterator points to `NULL`;
+* If the iterator has not been properly initialized;
+* If the iterator's target is invalid.
+
+## [<span id="queue_iter_rvalue"> \_iter\_rvalue() </span>](#queue_function_index)
+
+Returns a reference to the element pointed by the target iterator's cursor. The iterator must have been initialized already.
+
+#### Declaration
+
+> `FMOD V *PFX##_iter_rvalue(SNAME##_iter *iter);`
+
+#### Parameters
+
+1. `SNAME##_iter *iter` - Target iterator.
+
+#### Returns
+
+1. `V *` - A reference to the element pointed by the iterator's cursor.
+
+#### Undefined Behavior
+
+* If the iterator points to `NULL`;
+* If the iterator has not been properly initialized;
+* If the iterator's target is invalid.
+
+## [<span id="queue_iter_index"> \_iter\_index() </span>](#queue_function_index)
+
+Returns the current position of the iterator relative to all the elements in the iteration. The index is `0` based and goes up to `count - 1`.
+
+#### Declaration
+
+> `FMOD size_t PFX##_iter_index(SNAME##_iter *iter);`
+
+#### Parameters
+
+1. `SNAME##_iter *iter` - Target iterator.
+
+#### Returns
+
+1. `size_t` - Current position of the iterator relative to all elements in the iteration.
+
+#### Undefined Behavior
+
+* If the iterator points to `NULL`;
+* If the iterator has not been properly initialized.
 
 # [Deque](#collections_index)
 
@@ -1736,6 +1979,11 @@ A double-ended queue backed by a circular buffer. Elements can be added and remo
     * `size_t count` - Total elements in the deque.
     * `size_t front` - Front element index.
     * `size_t rear` - Rear element index.
+    * `it_start` - Function that returns an iterator to the start of the deque.
+        * Full definition: `struct SNAME##_iter_s (*it_start)(struct SNAME##_s *);`.
+    * `it_end` - Function that returns an iterator to the end of the deque.
+        * Full definition: `struct SNAME##_iter_s (*it_end)(struct SNAME##_s *);`.
+
 * `struct SNAME##_iter_s` - Structure Iterator (represents a deque iterator)
     * `struct SNAME##_s *target` - Deque being iterated over.
     * `size_t cursor` - Index pointing to the next or previous element in the iteration.
@@ -1746,25 +1994,27 @@ A double-ended queue backed by a circular buffer. Elements can be added and remo
 ### Typedefs
 
 * `typedef struct SNAME##_s SNAME`
+* `typedef struct SNAME##_s *SNAME##_ptr`
 * `typedef struct SNAME##_iter_s SNAME##_iter`
+* `typedef struct SNAME##_iter_s *SNAME##_iter_ptr`
 
 ### <span id="deque_function_index"> Defined Functions </span>
 
-#### Structure Initialization
+#### Collection Allocation and Deallocation
 
 * [\_new()](#deque_new)
-
-#### Structure Cleanup
-
 * [\_clear()](#deque_clear)
 * [\_free()](#deque_free)
 
-#### Input / Output
+#### Input and Output
 
 * [\_push\_front()](#deque_push_front)
 * [\_push\_back()](#deque_push_back)
 * [\_pop\_front()](#deque_pop_front)
 * [\_pop\_back()](#deque_pop_back)
+
+#### Conditional Input and Output
+
 * [\_push\_front\_if()](#deque_push_front_if)
 * [\_push\_back\_if()](#deque_push_back_if)
 * [\_pop\_front\_if()](#deque_pop_front_if)
@@ -1775,7 +2025,7 @@ A double-ended queue backed by a circular buffer. Elements can be added and remo
 * [\_front()](#deque_front)
 * [\_back()](#deque_back)
 
-#### Structure State
+#### Collection State
 
 * [\_contains()](#deque_contains)
 * [\_empty()](#deque_empty)
@@ -1783,17 +2033,32 @@ A double-ended queue backed by a circular buffer. Elements can be added and remo
 * [\_count()](#deque_count)
 * [\_capacity()](#deque_capacity)
 
-#### Iterator
+#### Iterator Allocation and Deallocation
 
 * [\_iter\_new()](#deque_iter_new)
 * [\_iter\_free()](#deque_iter_free)
+
+#### Iterator Initialization
+
 * [\_iter\_init()](#deque_iter_init)
+
+#### Iterator State
+
 * [\_iter\_start()](#deque_iter_start)
 * [\_iter\_end()](#deque_iter_end)
-* [\_iter\_tostart()](#deque_iter_tostart)
-* [\_iter\_toend()](#deque_iter_toend)
+
+#### Iterator Movement
+
+* [\_iter\_to\_start()](#deque_iter_to_start)
+* [\_iter\_to\_end()](#deque_iter_to_end)
 * [\_iter\_next()](#deque_iter_next)
 * [\_iter\_prev()](#deque_iter_prev)
+
+#### Iterator Access
+
+* [\_iter\_value()](#deque_iter_value)
+* [\_iter\_rvalue()](#deque_iter_rvalue)
+* [\_iter\_index()](#deque_iter_index)
 
 ## [<span id="deque_new"> \_new() </span>](#deque_function_index)
 
@@ -2177,25 +2442,25 @@ Returns true if the iterator has reached the end (rear element) of the deque. If
 1. `true` - If the iterator has reached the end of the deque.
 2. `false` - If the iterator has not reached the end of the deque.
 
-## [<span id="deque_iter_tostart"> \_iter\_tostart() </span>](#deque_function_index)
+## [<span id="deque_iter_to_start"> \_iter\_to\_start() </span>](#deque_function_index)
 
 Moves the cursor of the target iterator to the start (front element) of the deque.
 
 #### Declaration
 
-> `FMOD void PFX##_iter_tostart(SNAME##_iter *iter);`
+> `FMOD void PFX##_iter_to_start(SNAME##_iter *iter);`
 
 #### Parameters
 
 1. `SNAME##_iter *iter` - Target iterator.
 
-## [<span id="deque_iter_toend"> \_iter\_toend() </span>](#deque_function_index)
+## [<span id="deque_iter_to_end"> \_iter\_to\_end() </span>](#deque_function_index)
 
 Moves the cursor of the target iterator to the end (rear element) of the deque.
 
 #### Declaration
 
-> `FMOD void PFX##_iter_toend(SNAME##_iter *iter);`
+> `FMOD void PFX##_iter_to_end(SNAME##_iter *iter);`
 
 #### Parameters
 
@@ -2203,41 +2468,102 @@ Moves the cursor of the target iterator to the end (rear element) of the deque.
 
 ## [<span id="deque_iter_next"> \_iter\_next() </span>](#deque_function_index)
 
-This function is used to iterate to the next element, retrieving the current one, along with an index that represents the relative position of it in the iteration. When the index is `0` it means that the current result is the front element of the deque; if it equals `count - 1` then it is the rear element of the deque.
+Moves the target deque iterator to the next element if possible.
 
 #### Declaration
 
-> `FMOD bool PFX##_iter_next(SNAME##_iter *iter, V *result, size_t *index);`
+> `FMOD bool PFX##_iter_next(SNAME##_iter *iter);`
 
 #### Parameters
 
 1. `SNAME##_iter *iter` - Target iterator.
-2. `V *result` - Resulting value from the deque.
-3. `size_t *index` - Resulting index.
 
 #### Returns
 
-1. `true` - If the iterator has retrieved a valid `result` and `index`.
-2. `false` - If the iterator has not retrieved a valid `result` and `index`. Here, iteration to the next element has ended.
+1. `true` - If the iterator has moved to the next element in the iteration.
+2. `false` - If the iterator could not move to the next element, hence reaching the end of the iteration.
 
 ## [<span id="deque_iter_prev"> \_iter\_prev() </span>](#deque_function_index)
 
-This function is used to iterate to the previous element, retrieving the current one, along with an index that represents the relative position of it in the iteration. When the index is `0` it means that the current result is the front element of the deque; if it equals `count - 1` then it is the rear element of the deque.
+Moves the target deque iterator to the previous element if possible.
 
 #### Declaration
 
-> `FMOD bool PFX##_iter_prev(SNAME##_iter *iter, V *result, size_t *index);`
+> `FMOD bool PFX##_iter_prev(SNAME##_iter *iter);`
 
 #### Parameters
 
 1. `SNAME##_iter *iter` - Target iterator.
-2. `V *result` - Resulting value from the deque.
-3. `size_t *index` - Resulting index.
 
 #### Returns
 
-1. `true` - If the iterator has retrieved a valid `result` and `index`.
-2. `false` - If the iterator has not retrieved a valid `result` and `index`. Here, iteration to the previous element has ended.
+1. `true` - If the iterator has moved to the previous element in the iteration.
+2. `false` - If the iterator could not move to the previous element, hence reaching the start of the iteration.
+
+## [<span id="deque_iter_value"> \_iter\_value() </span>](#deque_function_index)
+
+Returns the element pointed by the target iterator's cursor. The iterator must have been initialized already.
+
+#### Declaration
+
+> `FMOD V PFX##_iter_value(SNAME##_iter *iter);`
+
+#### Parameters
+
+1. `SNAME##_iter *iter` - Target iterator.
+
+#### Returns
+
+1. `V` - The element pointed by the iterator's cursor.
+
+#### Undefined Behavior
+
+* If the iterator points to `NULL`;
+* If the iterator has not been properly initialized;
+* If the iterator's target is invalid.
+
+## [<span id="deque_iter_rvalue"> \_iter\_rvalue() </span>](#deque_function_index)
+
+Returns a reference to the element pointed by the target iterator's cursor. The iterator must have been initialized already.
+
+#### Declaration
+
+> `FMOD V *PFX##_iter_rvalue(SNAME##_iter *iter);`
+
+#### Parameters
+
+1. `SNAME##_iter *iter` - Target iterator.
+
+#### Returns
+
+1. `V *` - A reference to the element pointed by the iterator's cursor.
+
+#### Undefined Behavior
+
+* If the iterator points to `NULL`;
+* If the iterator has not been properly initialized;
+* If the iterator's target is invalid.
+
+## [<span id="deque_iter_index"> \_iter\_index() </span>](#deque_function_index)
+
+Returns the current position of the iterator relative to all the elements in the iteration. The index is `0` based and goes up to `count - 1`.
+
+#### Declaration
+
+> `FMOD size_t PFX##_iter_index(SNAME##_iter *iter);`
+
+#### Parameters
+
+1. `SNAME##_iter *iter` - Target iterator.
+
+#### Returns
+
+1. `size_t` - Current position of the iterator relative to all elements in the iteration.
+
+#### Undefined Behavior
+
+* If the iterator points to `NULL`;
+* If the iterator has not been properly initialized.
 
 # [Heap](#collections_index)
 
@@ -2273,6 +2599,10 @@ The TreeSet is implemented as an AVL tree in order to guarantee a worst case loo
     * `struct SNAME##_node_s *left` - Left subtree of this node.
     * `struct SNAME##_node_s *right` - Right subtree of this node.
     * `struct SNAME##_node_s *parent` - Parent node or `NULL` if this is the root node.
+    * `it_start` - Function that returns an iterator to the start of the TreeSet.
+        * Full definition: `struct SNAME##_iter_s (*it_start)(struct SNAME##_s *);`.
+    * `it_end` - Function that returns an iterator to the end of the TreeSet.
+        * Full definition: `struct SNAME##_iter_s (*it_end)(struct SNAME##_s *);`.
 
 * `struct SNAME##_iter_s` - Structure Iterator (represents a binary tree iterator)
     * `struct SNAME##_s *target` - TreeSet being iterated over.
@@ -2286,26 +2616,24 @@ The TreeSet is implemented as an AVL tree in order to guarantee a worst case loo
 ### Typedefs
 
 * `typedef struct SNAME##_s SNAME`
-* `typedef struct SNAME##_node_s SNAME##_node`
+* `typedef struct SNAME##_s *SNAME##_ptr`
 * `typedef struct SNAME##_iter_s SNAME##_iter`
+* `typedef struct SNAME##_iter_s *SNAME##_iter_ptr`
 
 ### <span id="treeset_function_index"> Defined Functions </span>
 
-#### Structure Initialization
+#### Collection Allocation and Deallocation
 
 * [\_new()](#treeset_new)
-
-#### Structure Cleanup
-
 * [\_clear()](#treeset_clear)
 * [\_free()](#treeset_free)
 
-#### Input / Output
+#### Input and Output
 
 * [\_insert()](#treeset_insert)
 * [\_remove()](#treeset_remove)
 
-Conditional Input / Output
+#### Conditional Input and Output
 
 * [\_insert\_if()](#treeset_insert_if)
 * [\_remove\_if()](#treeset_remove_if)
@@ -2315,7 +2643,7 @@ Conditional Input / Output
 * [\_max()](#treeset_max)
 * [\_min()](#treeset_min)
 
-#### Structure State
+#### Collection State
 
 * [\_contains()](#treeset_contains)
 * [\_empty()](#treeset_empty)
@@ -2328,17 +2656,31 @@ Conditional Input / Output
 * [\_difference()](#treeset_difference)
 * [\_symmetric\_difference()](#treeset_symmetric_difference)
 
-#### Iterator
+#### Iterator Allocation and Deallocation
 
 * [\_iter\_new()](#treeset_iter_new)
 * [\_iter\_free()](#treeset_iter_free)
+
+#### Iterator Initialization
+
 * [\_iter\_init()](#treeset_iter_init)
+
+#### Iterator State
+
 * [\_iter\_start()](#treeset_iter_start)
 * [\_iter\_end()](#treeset_iter_end)
-* [\_iter\_tostart()](#treeset_iter_tostart)
-* [\_iter\_toend()](#treeset_iter_toend)
+
+#### Iterator Movement
+
+* [\_iter\_to\_start()](#treeset_iter_to_start)
+* [\_iter\_to\_end()](#treeset_iter_to_end)
 * [\_iter\_next()](#treeset_iter_next)
 * [\_iter\_prev()](#treeset_iter_prev)
+
+#### Iterator Access
+
+* [\_iter\_value()](#treeset_iter_value)
+* [\_iter\_index()](#treeset_iter_index)
 
 ## [<span id="treeset_new"> \_new() </span>](#treeset_function_index)
 
@@ -2690,25 +3032,25 @@ Returns true if the iterator has reached the end of the TreeSet (greatest elemen
 1. `true` - If the iterator has reached the end of the TreeSet.
 2. `false` - If the iterator has not reached the end of the TreeSet.
 
-## [<span id="treeset_iter_tostart"> \_iter\_tostart() </span>](#treeset_function_index)
+## [<span id="treeset_iter_to_start"> \_iter\_to\_start() </span>](#treeset_function_index)
 
 Moves the cursor of the target iterator to the start (smallest element) of the TreeSet.
 
 #### Declaration
 
-> `FMOD void PFX##_iter_tostart(SNAME##_iter *iter);`
+> `FMOD void PFX##_iter_to_start(SNAME##_iter *iter);`
 
 #### Parameters
 
 1. `SNAME##_iter *iter` - Target iterator.
 
-## [<span id="treeset_iter_toend"> \_iter\_toend() </span>](#treeset_function_index)
+## [<span id="treeset_iter_to_end"> \_iter\_to\_end() </span>](#treeset_function_index)
 
 Moves the cursor of the target iterator to the end (greatest element) of the TreeSet.
 
 #### Declaration
 
-> `FMOD void PFX##_iter_toend(SNAME##_iter *iter);`
+> `FMOD void PFX##_iter_to_end(SNAME##_iter *iter);`
 
 #### Parameters
 
@@ -2716,41 +3058,80 @@ Moves the cursor of the target iterator to the end (greatest element) of the Tre
 
 ## [<span id="treeset_iter_next"> \_iter\_next() </span>](#treeset_function_index)
 
-This function is used to iterate to the next element, retrieving the current one, along with an index that represents the relative position of it in the iteration. When the index is `0` it means that the current result is the lowest element of the TreeSet; if it equals `count - 1` then it is the greatest element of the TreeSet.
+Moves the target TreeSet iterator to the next element if possible.
 
 #### Declaration
 
-> `FMOD bool PFX##_iter_next(SNAME##_iter *iter, V *result, size_t *index);`
+> `FMOD bool PFX##_iter_next(SNAME##_iter *iter);`
 
 #### Parameters
 
 1. `SNAME##_iter *iter` - Target iterator.
-2. `V *result` - Resulting value from the TreeSet.
-3. `size_t *index` - Resulting index.
 
 #### Returns
 
-1. `true` - If the iterator has retrieved a valid `result` and `index`.
-2. `false` - If the iterator has not retrieved a valid `result` and `index`. Here, iteration to the next element has ended.
+1. `true` - If the iterator has moved to the next element in the iteration.
+2. `false` - If the iterator could not move to the next element, hence reaching the end of the iteration.
 
 ## [<span id="treeset_iter_prev"> \_iter\_prev() </span>](#treeset_function_index)
 
-This function is used to iterate to the previous element, retrieving the current one, along with an index that represents the relative position of it in the iteration. When the index is `0` it means that the current result is the top-most element of the TreeSet; if it equals `count - 1` then it is the bottom-most element of the TreeSet.
+Moves the target TreeSet iterator to the previous element if possible.
 
 #### Declaration
 
-> `FMOD bool PFX##_iter_prev(SNAME##_iter *iter, V *result, size_t *index);`
+> `FMOD bool PFX##_iter_prev(SNAME##_iter *iter);`
 
 #### Parameters
 
 1. `SNAME##_iter *iter` - Target iterator.
-2. `V *result` - Resulting value from the TreeSet.
-3. `size_t *index` - Resulting index.
 
 #### Returns
 
-1. `true` - If the iterator has retrieved a valid `result` and `index`.
-2. `false` - If the iterator has not retrieved a valid `result` and `index`. Here, iteration to the previous element has ended.
+1. `true` - If the iterator has moved to the previous element in the iteration.
+2. `false` - If the iterator could not move to the previous element, hence reaching the start of the iteration.
+
+## [<span id="treeset_iter_value"> \_iter\_value() </span>](#treeset_function_index)
+
+Returns the element pointed by the target iterator's cursor. The iterator must have been initialized already.
+
+#### Declaration
+
+> `FMOD V PFX##_iter_value(SNAME##_iter *iter);`
+
+#### Parameters
+
+1. `SNAME##_iter *iter` - Target iterator.
+
+#### Returns
+
+1. `V` - The element pointed by the iterator's cursor.
+
+#### Undefined Behavior
+
+* If the iterator points to `NULL`;
+* If the iterator has not been properly initialized;
+* If the iterator's target is invalid.
+
+## [<span id="treeset_iter_index"> \_iter\_index() </span>](#treeset_function_index)
+
+Returns the current position of the iterator relative to all the elements in the iteration. The index is `0` based and goes up to `count - 1`.
+
+#### Declaration
+
+> `FMOD size_t PFX##_iter_index(SNAME##_iter *iter);`
+
+#### Parameters
+
+1. `SNAME##_iter *iter` - Target iterator.
+
+#### Returns
+
+1. `size_t` - Current position of the iterator relative to all elements in the iteration.
+
+#### Undefined Behavior
+
+* If the iterator points to `NULL`;
+* If the iterator has not been properly initialized.
 
 # [TreeMap](#collections_index)
 
