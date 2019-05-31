@@ -9,7 +9,6 @@
  */
 #include "hashset.h"
 #include <stdio.h>
-#include <stdlib.h>
 
 HASHSET_GENERATE(hs, hset, static, int)
 
@@ -27,12 +26,12 @@ size_t inthash(int t)
 
 int intcmp(int a, int b)
 {
-    return a - b;
+    return (a > b) - (a < b);
 }
 
 int main(int argc, char const *argv[])
 {
-    // Initialize hash set and add some elements
+    // Initialize hashset and add some elements
     hset *hs = hs_new(10, 0.9, intcmp, inthash);
     for (int i = 0; i < 10; i++)
         hs_insert(hs, i);
@@ -60,14 +59,14 @@ int main(int argc, char const *argv[])
 
     for (hs_iter_to_start(&iter); !hs_iter_end(&iter); hs_iter_next(&iter))
     {
-        printf("S[%2d] = %2d\n", hs_iter_index(&iter), hs_iter_value(&iter));
+        printf("HS[%2d] = %2d\n", hs_iter_index(&iter), hs_iter_value(&iter));
     }
 
     printf("\n");
 
     for (hs_iter_to_end(&iter); !hs_iter_start(&iter); hs_iter_prev(&iter))
     {
-        printf("S[%2d] = %2d\n", hs_iter_index(&iter), hs_iter_value(&iter));
+        printf("HS[%2d] = %2d\n", hs_iter_index(&iter), hs_iter_value(&iter));
     }
 
     hs_free(hs);

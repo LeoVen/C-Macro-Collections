@@ -26,24 +26,14 @@ typedef enum HeapOrder
 } HeapOrder;
 
 #define HEAP_GENERATE(PFX, SNAME, FMOD, V)    \
-    HEAP_GENERATE_STRUCT(PFX, SNAME, FMOD, V) \
     HEAP_GENERATE_HEADER(PFX, SNAME, FMOD, V) \
     HEAP_GENERATE_SOURCE(PFX, SNAME, FMOD, V)
 
-/* PRIVATE *******************************************************************/
-#define HEAP_GENERATE_HEADER_PRIVATE(PFX, SNAME, FMOD, K, V) \
+#define HEAP_WRAPGEN_HEADER(PFX, SNAME, FMOD, K, V) \
     HEAP_GENERATE_HEADER(PFX, SNAME, FMOD, V)
-#define HEAP_GENERATE_SOURCE_PRIVATE(PFX, SNAME, FMOD, K, V) \
-    HEAP_GENERATE_STRUCT(PFX, SNAME, FMOD, V)                \
+
+#define HEAP_WRAPGEN_SOURCE(PFX, SNAME, FMOD, K, V) \
     HEAP_GENERATE_SOURCE(PFX, SNAME, FMOD, V)
-/* PUBLIC ********************************************************************/
-#define HEAP_GENERATE_HEADER_PUBLIC(PFX, SNAME, FMOD, K, V) \
-    HEAP_GENERATE_STRUCT(PFX, SNAME, FMOD, V)               \
-    HEAP_GENERATE_HEADER(PFX, SNAME, FMOD, V)
-#define HEAP_GENERATE_SOURCE_PUBLIC(PFX, SNAME, FMOD, K, V) \
-    HEAP_GENERATE_SOURCE(PFX, SNAME, FMOD, V)
-/* STRUCT ********************************************************************/
-#define HEAP_GENERATE_STRUCT(PFX, SNAME, FMOD, V)
 
 /* HEADER ********************************************************************/
 #define HEAP_GENERATE_HEADER(PFX, SNAME, FMOD, V)                           \

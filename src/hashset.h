@@ -64,24 +64,14 @@ static const size_t cmc_hashtable_primes[] = {53, 97, 191, 383, 769, 1531,
 #endif /* CMC_HASH_TABLE_SETUP */
 
 #define HASHSET_GENERATE(PFX, SNAME, FMOD, V)    \
-    HASHSET_GENERATE_STRUCT(PFX, SNAME, FMOD, V) \
     HASHSET_GENERATE_HEADER(PFX, SNAME, FMOD, V) \
     HASHSET_GENERATE_SOURCE(PFX, SNAME, FMOD, V)
 
-/* PRIVATE *******************************************************************/
-#define HASHSET_GENERATE_HEADER_PRIVATE(PFX, SNAME, FMOD, K, V) \
+#define HASHSET_WRAPGEN_HEADER(PFX, SNAME, FMOD, K, V) \
     HASHSET_GENERATE_HEADER(PFX, SNAME, FMOD, V)
-#define HASHSET_GENERATE_SOURCE_PRIVATE(PFX, SNAME, FMOD, K, V) \
-    HASHSET_GENERATE_STRUCT(PFX, SNAME, FMOD, V)                \
+
+#define HASHSET_WRAPGEN_SOURCE(PFX, SNAME, FMOD, K, V) \
     HASHSET_GENERATE_SOURCE(PFX, SNAME, FMOD, V)
-/* PUBLIC ********************************************************************/
-#define HASHSET_GENERATE_HEADER_PUBLIC(PFX, SNAME, FMOD, K, V) \
-    HASHSET_GENERATE_STRUCT(PFX, SNAME, FMOD, V)               \
-    HASHSET_GENERATE_HEADER(PFX, SNAME, FMOD, V)
-#define HASHSET_GENERATE_SOURCE_PUBLIC(PFX, SNAME, FMOD, K, V) \
-    HASHSET_GENERATE_SOURCE(PFX, SNAME, FMOD, V)
-/* STRUCT ********************************************************************/
-#define HASHSET_GENERATE_STRUCT(PFX, SNAME, FMOD, V)
 
 /* HEADER ********************************************************************/
 #define HASHSET_GENERATE_HEADER(PFX, SNAME, FMOD, V)                                          \

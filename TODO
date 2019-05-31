@@ -1,7 +1,7 @@
 TODO
 
 [ ] Finish Documentation
-[ ] Simplify PUBLIC and PRIVATE
+[X] Remove PUBLIC and PRIVATE
 [ ] Add multiset
 [ ] Add multimap
 [ ] Upgrade heap to a min-max heap
@@ -21,7 +21,7 @@ Before 2.0
     Get Documentation fixed and completed
 
 1.5
-    Remove PUBLIC and PRIVATE
+    OK - Remove PUBLIC and PRIVATE
     Iterator move and move_to
     LinkedList - Insert/Remove/Append/Prepend/Extract
     from_array - Creates a collection with all the elements in a specified array

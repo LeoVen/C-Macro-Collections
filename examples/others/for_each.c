@@ -4,16 +4,16 @@
 #include "macro_collections.h"
 
 // Create containers to use only in this file
-COLLECTION_GENERATE(LIST, PUBLIC, l, list, static, , int)
-COLLECTION_GENERATE(LINKEDLIST, PUBLIC, ll, llist, static, , int)
-COLLECTION_GENERATE(STACK, PUBLIC, s, stack, static, , int)
-COLLECTION_GENERATE(QUEUE, PUBLIC, q, queue, static, , int)
-COLLECTION_GENERATE(DEQUE, PUBLIC, d, deque, static, , int)
-COLLECTION_GENERATE(TREESET, PUBLIC, ts, tset, static, , int)
+COLLECTION_GENERATE(LIST, l, list, static, , int)
+COLLECTION_GENERATE(LINKEDLIST, ll, llist, static, , int)
+COLLECTION_GENERATE(STACK, s, stack, static, , int)
+COLLECTION_GENERATE(QUEUE, q, queue, static, , int)
+COLLECTION_GENERATE(DEQUE, d, deque, static, , int)
+COLLECTION_GENERATE(TREESET, ts, tset, static, , int)
 
 int intcmp(int a, int b)
 {
-    return a - b;
+    return (a > b) - (a < b);
 }
 
 int main(int argc, char const *argv[])
@@ -58,7 +58,9 @@ int main(int argc, char const *argv[])
     // - value : the elements that changes with each iteration
     // - index : iteration index (first iteration is 0 and last is count - 1)
     // - iter : iterator struct
-    FOR_EACH(l, list, int, l, {
+    FOR_EACH(l, list, l, {
+        int value = l_iter_value(&iter);
+        size_t index = l_iter_index(&iter);
         if (index == 0)
             printf("[ %d, ", value);
         else if (index == iter.target->count - 1)
@@ -67,7 +69,9 @@ int main(int argc, char const *argv[])
             printf("%d, ", value);
     })
 
-    FOR_EACH(s, stack, int, s, {
+    FOR_EACH(s, stack, s, {
+        int value = s_iter_value(&iter);
+        size_t index = s_iter_index(&iter);
         if (index == 0)
             printf("[ %d, ", value);
         else if (index == iter.target->count - 1)
@@ -76,7 +80,9 @@ int main(int argc, char const *argv[])
             printf("%d, ", value);
     })
 
-    FOR_EACH(q, queue, int, q, {
+    FOR_EACH(q, queue, q, {
+        int value = q_iter_value(&iter);
+        size_t index = q_iter_index(&iter);
         if (index == 0)
             printf("[ %d, ", value);
         else if (index == iter.target->count - 1)
@@ -85,7 +91,9 @@ int main(int argc, char const *argv[])
             printf("%d, ", value);
     })
 
-    FOR_EACH(d, deque, int, d, {
+    FOR_EACH(d, deque, d, {
+        int value = d_iter_value(&iter);
+        size_t index = d_iter_index(&iter);
         if (index == 0)
             printf("[ %d, ", value);
         else if (index == iter.target->count - 1)
@@ -94,7 +102,9 @@ int main(int argc, char const *argv[])
             printf("%d, ", value);
     })
 
-    FOR_EACH(ll, llist, int, ll, {
+    FOR_EACH(ll, llist, ll, {
+        int value = ll_iter_value(&iter);
+        size_t index = ll_iter_index(&iter);
         if (index == 0)
             printf("[ %d, ", value);
         else if (index == iter.target->count - 1)
@@ -103,7 +113,9 @@ int main(int argc, char const *argv[])
             printf("%d, ", value);
     })
 
-    FOR_EACH(ts, tset, int, ts, {
+    FOR_EACH(ts, tset, ts, {
+        int value = ts_iter_value(&iter);
+        size_t index = ts_iter_index(&iter);
         if (index == 0)
             printf("[ %d, ", value);
         else if (index == iter.target->count - 1)

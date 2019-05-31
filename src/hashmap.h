@@ -64,24 +64,14 @@ static const size_t cmc_hashtable_primes[] = {53, 97, 191, 383, 769, 1531,
 #endif /* CMC_HASH_TABLE_SETUP */
 
 #define HASHMAP_GENERATE(PFX, SNAME, FMOD, K, V)    \
-    HASHMAP_GENERATE_STRUCT(PFX, SNAME, FMOD, K, V) \
     HASHMAP_GENERATE_HEADER(PFX, SNAME, FMOD, K, V) \
     HASHMAP_GENERATE_SOURCE(PFX, SNAME, FMOD, K, V)
 
-/* PRIVATE *******************************************************************/
-#define HASHMAP_GENERATE_HEADER_PRIVATE(PFX, SNAME, FMOD, K, V) \
+#define HASHMAP_WRAPGEN_HEADER(PFX, SNAME, FMOD, K, V) \
     HASHMAP_GENERATE_HEADER(PFX, SNAME, FMOD, K, V)
-#define HASHMAP_GENERATE_SOURCE_PRIVATE(PFX, SNAME, FMOD, K, V) \
-    HASHMAP_GENERATE_STRUCT(PFX, SNAME, FMOD, K, V)             \
+
+#define HASHMAP_WRAPGEN_SOURCE(PFX, SNAME, FMOD, K, V) \
     HASHMAP_GENERATE_SOURCE(PFX, SNAME, FMOD, K, V)
-/* PUBLIC ********************************************************************/
-#define HASHMAP_GENERATE_HEADER_PUBLIC(PFX, SNAME, FMOD, K, V) \
-    HASHMAP_GENERATE_STRUCT(PFX, SNAME, FMOD, K, V)            \
-    HASHMAP_GENERATE_HEADER(PFX, SNAME, FMOD, K, V)
-#define HASHMAP_GENERATE_SOURCE_PUBLIC(PFX, SNAME, FMOD, K, V) \
-    HASHMAP_GENERATE_SOURCE(PFX, SNAME, FMOD, K, V)
-/* STRUCT ********************************************************************/
-#define HASHMAP_GENERATE_STRUCT(PFX, SNAME, FMOD, K, V)
 
 /* HEADER ********************************************************************/
 #define HASHMAP_GENERATE_HEADER(PFX, SNAME, FMOD, K, V)                                       \

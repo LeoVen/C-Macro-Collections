@@ -85,12 +85,7 @@ Check out the **Documentation.md** to know exactly what represents the *end* and
 
 When including `macro_collections.h` in your source code you gain access to a macro called `COLLECTION_GENERATE` with the following parameters:
 
-> Note: in future updates, PRIVATE and PUBLIC will no longer exist
-
 * \*__C__ - Container name in uppercase (*LIST*, *LINKEDLIST*, *STACK*, *QUEUE*, *DEQUE*, *HEAP*, *TREESET*, *TREEMAP*, *HASHSET*, *HASHMAP*).
-* \*__P__ - Permission (PRIVATE, PUBLIC). Only matters when header and source are declared in separate files.
-	* *PRIVATE* - Members of a struct are hidden in source file and only accessible through functions.
-	* *PUBLIC* - Members of a struct are visible.
 * \*__PFX__ - Functions prefix or namespace.
 * \*__SNAME__ - Structure name (`typedef struct SNAME##_s SNAME`).
 * __FMOD__ - Function modifier (`static` or empty).

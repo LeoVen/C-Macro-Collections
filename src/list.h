@@ -20,24 +20,14 @@
 #include <string.h>
 
 #define LIST_GENERATE(PFX, SNAME, FMOD, V)    \
-    LIST_GENERATE_STRUCT(PFX, SNAME, FMOD, V) \
     LIST_GENERATE_HEADER(PFX, SNAME, FMOD, V) \
     LIST_GENERATE_SOURCE(PFX, SNAME, FMOD, V)
 
-/* PRIVATE *******************************************************************/
-#define LIST_GENERATE_HEADER_PRIVATE(PFX, SNAME, FMOD, K, V) \
+#define LIST_WRAPGEN_HEADER(PFX, SNAME, FMOD, K, V) \
     LIST_GENERATE_HEADER(PFX, SNAME, FMOD, V)
-#define LIST_GENERATE_SOURCE_PRIVATE(PFX, SNAME, FMOD, K, V) \
-    LIST_GENERATE_STRUCT(PFX, SNAME, FMOD, V)                \
+
+#define LIST_WRAPGEN_SOURCE(PFX, SNAME, FMOD, K, V) \
     LIST_GENERATE_SOURCE(PFX, SNAME, FMOD, V)
-/* PUBLIC ********************************************************************/
-#define LIST_GENERATE_HEADER_PUBLIC(PFX, SNAME, FMOD, K, V) \
-    LIST_GENERATE_STRUCT(PFX, SNAME, FMOD, V)               \
-    LIST_GENERATE_HEADER(PFX, SNAME, FMOD, V)
-#define LIST_GENERATE_SOURCE_PUBLIC(PFX, SNAME, FMOD, K, V) \
-    LIST_GENERATE_SOURCE(PFX, SNAME, FMOD, V)
-/* STRUCT ********************************************************************/
-#define LIST_GENERATE_STRUCT(PFX, SNAME, FMOD, V)
 
 /* HEADER ********************************************************************/
 #define LIST_GENERATE_HEADER(PFX, SNAME, FMOD, V)                                                  \

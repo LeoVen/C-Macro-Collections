@@ -9,7 +9,6 @@
  */
 #include "list.h"
 #include <stdio.h>
-#include <stdlib.h>
 
 LIST_GENERATE(l, list, static, int)
 

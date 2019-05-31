@@ -19,24 +19,14 @@
 #include <stdbool.h>
 
 #define LINKEDLIST_GENERATE(PFX, SNAME, FMOD, V)    \
-    LINKEDLIST_GENERATE_STRUCT(PFX, SNAME, FMOD, V) \
     LINKEDLIST_GENERATE_HEADER(PFX, SNAME, FMOD, V) \
     LINKEDLIST_GENERATE_SOURCE(PFX, SNAME, FMOD, V)
 
-/* PRIVATE *******************************************************************/
-#define LINKEDLIST_GENERATE_HEADER_PRIVATE(PFX, SNAME, FMOD, K, V) \
+#define LINKEDLIST_WRAPGEN_HEADER(PFX, SNAME, FMOD, K, V) \
     LINKEDLIST_GENERATE_HEADER(PFX, SNAME, FMOD, V)
-#define LINKEDLIST_GENERATE_SOURCE_PRIVATE(PFX, SNAME, FMOD, K, V) \
-    LINKEDLIST_GENERATE_STRUCT(PFX, SNAME, FMOD, V)                \
+
+#define LINKEDLIST_WRAPGEN_SOURCE(PFX, SNAME, FMOD, K, V) \
     LINKEDLIST_GENERATE_SOURCE(PFX, SNAME, FMOD, V)
-/* PUBLIC ********************************************************************/
-#define LINKEDLIST_GENERATE_HEADER_PUBLIC(PFX, SNAME, FMOD, K, V) \
-    LINKEDLIST_GENERATE_STRUCT(PFX, SNAME, FMOD, V)               \
-    LINKEDLIST_GENERATE_HEADER(PFX, SNAME, FMOD, V)
-#define LINKEDLIST_GENERATE_SOURCE_PUBLIC(PFX, SNAME, FMOD, K, V) \
-    LINKEDLIST_GENERATE_SOURCE(PFX, SNAME, FMOD, V)
-/* STRUCT ********************************************************************/
-#define LINKEDLIST_GENERATE_STRUCT(PFX, SNAME, FMOD, V)
 
 /* HEADER ********************************************************************/
 #define LINKEDLIST_GENERATE_HEADER(PFX, SNAME, FMOD, V)                              \

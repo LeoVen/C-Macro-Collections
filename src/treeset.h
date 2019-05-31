@@ -19,24 +19,14 @@
 #include <stdbool.h>
 
 #define TREESET_GENERATE(PFX, SNAME, FMOD, V)    \
-    TREESET_GENERATE_STRUCT(PFX, SNAME, FMOD, V) \
     TREESET_GENERATE_HEADER(PFX, SNAME, FMOD, V) \
     TREESET_GENERATE_SOURCE(PFX, SNAME, FMOD, V)
 
-/* PRIVATE *******************************************************************/
-#define TREESET_GENERATE_HEADER_PRIVATE(PFX, SNAME, FMOD, K, V) \
+#define TREESET_WRAPGEN_HEADER(PFX, SNAME, FMOD, K, V) \
     TREESET_GENERATE_HEADER(PFX, SNAME, FMOD, V)
-#define TREESET_GENERATE_SOURCE_PRIVATE(PFX, SNAME, FMOD, K, V) \
-    TREESET_GENERATE_STRUCT(PFX, SNAME, FMOD, V)                \
+
+#define TREESET_WRAPGEN_SOURCE(PFX, SNAME, FMOD, K, V) \
     TREESET_GENERATE_SOURCE(PFX, SNAME, FMOD, V)
-/* PUBLIC ********************************************************************/
-#define TREESET_GENERATE_HEADER_PUBLIC(PFX, SNAME, FMOD, K, V) \
-    TREESET_GENERATE_STRUCT(PFX, SNAME, FMOD, V)               \
-    TREESET_GENERATE_HEADER(PFX, SNAME, FMOD, V)
-#define TREESET_GENERATE_SOURCE_PUBLIC(PFX, SNAME, FMOD, K, V) \
-    TREESET_GENERATE_SOURCE(PFX, SNAME, FMOD, V)
-/* STRUCT ********************************************************************/
-#define TREESET_GENERATE_STRUCT(PFX, SNAME, FMOD, V)
 
 /* HEADER ********************************************************************/
 #define TREESET_GENERATE_HEADER(PFX, SNAME, FMOD, V)                        \

@@ -20,3 +20,7 @@ script:
   - ./contains
   - gcc pointertype.c -Wall -Wextra -o pointertype -std=c11
   - ./pointertype
+  - gcc -c ./sep/sep.c -Wall -Wextra -o sep.o -std=c11
+  - gcc -c ./sep/main.c -Wall -Wextra -o main.o -std=c11
+  - gcc sep.o main.o -o sep
+  - ./sep

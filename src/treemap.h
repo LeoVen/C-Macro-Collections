@@ -19,24 +19,14 @@
 #include <stdbool.h>
 
 #define TREEMAP_GENERATE(PFX, SNAME, FMOD, K, V)    \
-    TREEMAP_GENERATE_STRUCT(PFX, SNAME, FMOD, K, V) \
     TREEMAP_GENERATE_HEADER(PFX, SNAME, FMOD, K, V) \
     TREEMAP_GENERATE_SOURCE(PFX, SNAME, FMOD, K, V)
 
-/* PRIVATE *******************************************************************/
-#define TREEMAP_GENERATE_HEADER_PRIVATE(PFX, SNAME, FMOD, K, V) \
+#define TREEMAP_WRAPGEN_HEADER(PFX, SNAME, FMOD, K, V) \
     TREEMAP_GENERATE_HEADER(PFX, SNAME, FMOD, K, V)
-#define TREEMAP_GENERATE_SOURCE_PRIVATE(PFX, SNAME, FMOD, K, V) \
-    TREEMAP_GENERATE_STRUCT(PFX, SNAME, FMOD, K, V)             \
+
+#define TREEMAP_WRAPGEN_SOURCE(PFX, SNAME, FMOD, K, V) \
     TREEMAP_GENERATE_SOURCE(PFX, SNAME, FMOD, K, V)
-/* PUBLIC ********************************************************************/
-#define TREEMAP_GENERATE_HEADER_PUBLIC(PFX, SNAME, FMOD, K, V) \
-    TREEMAP_GENERATE_STRUCT(PFX, SNAME, FMOD, K, V)            \
-    TREEMAP_GENERATE_HEADER(PFX, SNAME, FMOD, K, V)
-#define TREEMAP_GENERATE_SOURCE_PUBLIC(PFX, SNAME, FMOD, K, V) \
-    TREEMAP_GENERATE_SOURCE(PFX, SNAME, FMOD, K, V)
-/* STRUCT ********************************************************************/
-#define TREEMAP_GENERATE_STRUCT(PFX, SNAME, FMOD, K, V)
 
 /* HEADER ********************************************************************/
 #define TREEMAP_GENERATE_HEADER(PFX, SNAME, FMOD, K, V)                       \

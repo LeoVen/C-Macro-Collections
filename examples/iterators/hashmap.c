@@ -9,7 +9,6 @@
  */
 #include "hashmap.h"
 #include <stdio.h>
-#include <stdlib.h>
 
 HASHMAP_GENERATE(hm, hmap, static, int, double)
 
@@ -27,7 +26,7 @@ size_t inthash(int t)
 
 int intcmp(int a, int b)
 {
-    return a - b;
+    return (a > b) - (a < b);
 }
 
 int main(int argc, char const *argv[])
@@ -61,14 +60,14 @@ int main(int argc, char const *argv[])
 
     for (hm_iter_to_start(&iter); !hm_iter_end(&iter); hm_iter_next(&iter))
     {
-        printf("M[%2d] = { %2d : %2.2lf }\n", hm_iter_index(&iter), hm_iter_key(&iter), hm_iter_value(&iter));
+        printf("HM[%2d] = { %2d : %2.2lf }\n", hm_iter_index(&iter), hm_iter_key(&iter), hm_iter_value(&iter));
     }
 
     printf("\n");
 
     for (hm_iter_to_end(&iter); !hm_iter_start(&iter); hm_iter_prev(&iter))
     {
-        printf("M[%2d] = { %2d : %2.2lf }\n", hm_iter_index(&iter), hm_iter_key(&iter), hm_iter_value(&iter));
+        printf("HM[%2d] = { %2d : %2.2lf }\n", hm_iter_index(&iter), hm_iter_key(&iter), hm_iter_value(&iter));
     }
 
     hm_free(hm);

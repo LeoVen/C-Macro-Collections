@@ -9,7 +9,6 @@
  */
 #include "deque.h"
 #include <stdio.h>
-#include <stdlib.h>
 
 DEQUE_GENERATE(d, deque, static, int)
 

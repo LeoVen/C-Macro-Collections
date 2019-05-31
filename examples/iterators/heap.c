@@ -9,11 +9,10 @@
  */
 #include "heap.h"
 #include <stdio.h>
-#include <stdlib.h>
 
 int intcmp(int a, int b)
 {
-    return a - b;
+    return (a > b) - (a < b);
 }
 
 HEAP_GENERATE(h, heap, static, int)

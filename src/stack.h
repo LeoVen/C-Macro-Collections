@@ -20,24 +20,14 @@
 #include <string.h>
 
 #define STACK_GENERATE(PFX, SNAME, FMOD, V)    \
-    STACK_GENERATE_STRUCT(PFX, SNAME, FMOD, V) \
     STACK_GENERATE_HEADER(PFX, SNAME, FMOD, V) \
     STACK_GENERATE_SOURCE(PFX, SNAME, FMOD, V)
 
-/* PRIVATE *******************************************************************/
-#define STACK_GENERATE_HEADER_PRIVATE(PFX, SNAME, FMOD, K, V) \
+#define STACK_WRAPGEN_HEADER(PFX, SNAME, FMOD, K, V) \
     STACK_GENERATE_HEADER(PFX, SNAME, FMOD, V)
-#define STACK_GENERATE_SOURCE_PRIVATE(PFX, SNAME, FMOD, K, V) \
-    STACK_GENERATE_STRUCT(PFX, SNAME, FMOD, V)                \
+
+#define STACK_WRAPGEN_SOURCE(PFX, SNAME, FMOD, K, V) \
     STACK_GENERATE_SOURCE(PFX, SNAME, FMOD, V)
-/* PUBLIC ********************************************************************/
-#define STACK_GENERATE_HEADER_PUBLIC(PFX, SNAME, FMOD, K, V) \
-    STACK_GENERATE_STRUCT(PFX, SNAME, FMOD, V)               \
-    STACK_GENERATE_HEADER(PFX, SNAME, FMOD, V)
-#define STACK_GENERATE_SOURCE_PUBLIC(PFX, SNAME, FMOD, K, V) \
-    STACK_GENERATE_SOURCE(PFX, SNAME, FMOD, V)
-/* STRUCT ********************************************************************/
-#define STACK_GENERATE_STRUCT(PFX, SNAME, FMOD, V)
 
 /* HEADER ********************************************************************/
 #define STACK_GENERATE_HEADER(PFX, SNAME, FMOD, V)                                \

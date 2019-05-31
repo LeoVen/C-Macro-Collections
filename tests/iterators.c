@@ -4,7 +4,7 @@
 
 int intcmp(int a, int b)
 {
-    return a - b;
+    return (a > b) - (a < b);
 }
 
 size_t inthash(int t)
@@ -19,16 +19,16 @@ size_t inthash(int t)
     return a;
 }
 
-COLLECTION_GENERATE(LIST, PUBLIC, l, list, /* FMOD */, /* K */, int)
-COLLECTION_GENERATE(STACK, PUBLIC, s, stack, /* FMOD */, /* K */, int)
-COLLECTION_GENERATE(QUEUE, PUBLIC, q, queue, /* FMOD */, /* K */, int)
-COLLECTION_GENERATE(DEQUE, PUBLIC, d, deque, /* FMOD */, /* K */, int)
-COLLECTION_GENERATE(LINKEDLIST, PUBLIC, ll, linked, /* FMOD */, /* K */, int)
-COLLECTION_GENERATE(HEAP, PUBLIC, h, heap, /* FMOD */, /* K */, int)
-COLLECTION_GENERATE(TREESET, PUBLIC, ts, tset, /* FMOD */, /* K */, int)
-COLLECTION_GENERATE(TREEMAP, PUBLIC, tm, tmap, /* FMOD */, int, double)
-COLLECTION_GENERATE(HASHSET, PUBLIC, hs, hset, /* FMOD */, /* K */, int)
-COLLECTION_GENERATE(HASHMAP, PUBLIC, hm, hmap, /* FMOD */, int, double)
+COLLECTION_GENERATE(LIST, l, list, /* FMOD */, /* K */, int)
+COLLECTION_GENERATE(STACK, s, stack, /* FMOD */, /* K */, int)
+COLLECTION_GENERATE(QUEUE, q, queue, /* FMOD */, /* K */, int)
+COLLECTION_GENERATE(DEQUE, d, deque, /* FMOD */, /* K */, int)
+COLLECTION_GENERATE(LINKEDLIST, ll, linked, /* FMOD */, /* K */, int)
+COLLECTION_GENERATE(HEAP, h, heap, /* FMOD */, /* K */, int)
+COLLECTION_GENERATE(TREESET, ts, tset, /* FMOD */, /* K */, int)
+COLLECTION_GENERATE(TREEMAP, tm, tmap, /* FMOD */, int, double)
+COLLECTION_GENERATE(HASHSET, hs, hset, /* FMOD */, /* K */, int)
+COLLECTION_GENERATE(HASHMAP, hm, hmap, /* FMOD */, int, double)
 
 #define ITERATOR_TEST(NAME, PFX, sname, initfunc, insertbody, sumbody, validation1, validation2) \
     void NAME##_iterator_test(void)                                                              \

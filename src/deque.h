@@ -20,24 +20,14 @@
 #include <string.h>
 
 #define DEQUE_GENERATE(PFX, SNAME, FMOD, V)    \
-    DEQUE_GENERATE_STRUCT(PFX, SNAME, FMOD, V) \
     DEQUE_GENERATE_HEADER(PFX, SNAME, FMOD, V) \
     DEQUE_GENERATE_SOURCE(PFX, SNAME, FMOD, V)
 
-/* PRIVATE *******************************************************************/
-#define DEQUE_GENERATE_HEADER_PRIVATE(PFX, SNAME, FMOD, K, V) \
+#define DEQUE_WRAPGEN_HEADER(PFX, SNAME, FMOD, K, V) \
     DEQUE_GENERATE_HEADER(PFX, SNAME, FMOD, V)
-#define DEQUE_GENERATE_SOURCE_PRIVATE(PFX, SNAME, FMOD, K, V) \
-    DEQUE_GENERATE_STRUCT(PFX, SNAME, FMOD, V)                \
+
+#define DEQUE_WRAPGEN_SOURCE(PFX, SNAME, FMOD, K, V) \
     DEQUE_GENERATE_SOURCE(PFX, SNAME, FMOD, V)
-/* PUBLIC ********************************************************************/
-#define DEQUE_GENERATE_HEADER_PUBLIC(PFX, SNAME, FMOD, K, V) \
-    DEQUE_GENERATE_STRUCT(PFX, SNAME, FMOD, V)               \
-    DEQUE_GENERATE_HEADER(PFX, SNAME, FMOD, V)
-#define DEQUE_GENERATE_SOURCE_PUBLIC(PFX, SNAME, FMOD, K, V) \
-    DEQUE_GENERATE_SOURCE(PFX, SNAME, FMOD, V)
-/* STRUCT ********************************************************************/
-#define DEQUE_GENERATE_STRUCT(PFX, SNAME, FMOD, V)
 
 /* HEADER ********************************************************************/
 #define DEQUE_GENERATE_HEADER(PFX, SNAME, FMOD, V)                                \
