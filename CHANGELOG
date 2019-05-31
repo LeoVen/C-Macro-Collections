@@ -1,5 +1,10 @@
 # MAJOR.MINOR.ADJUSTMENTS
 
+1.4.1
+    Removed PUBLIC and PRIVATE from the main macro
+    Corrected examples and benchmark
+    Added new test consisting of compiling the header and source separately
+
 1.4.0
     New way on how iterators work to all collections
         Added iter_init to work with stack allocated iterators
