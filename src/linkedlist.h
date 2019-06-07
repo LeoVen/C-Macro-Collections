@@ -49,7 +49,7 @@
         /* Function that returns an iterator to the end of the list */               \
         struct SNAME##_iter_s (*it_end)(struct SNAME##_s *);                         \
                                                                                      \
-    } SNAME, *SNAME_ptr;                                                             \
+    } SNAME, *SNAME##_ptr;                                                           \
                                                                                      \
     /* Doubly-linked list node */                                                    \
     typedef struct SNAME##_node_s                                                    \
@@ -148,12 +148,22 @@
     FMOD size_t PFX##_iter_index(SNAME##_iter *iter);                                \
     FMOD SNAME##_node *PFX##_iter_node(SNAME##_iter *iter);                          \
                                                                                      \
+    /* Default Value */                                                              \
+    static inline V PFX##_impl_default_value(void)                                   \
+    {                                                                                \
+        V _empty_value_;                                                             \
+                                                                                     \
+        memset(&_empty_value_, 0, sizeof(V));                                        \
+                                                                                     \
+        return _empty_value_;                                                        \
+    }                                                                                \
+                                                                                     \
 /* SOURCE ********************************************************************/
 #define LINKEDLIST_GENERATE_SOURCE(PFX, SNAME, FMOD, V)                             \
                                                                                     \
     /* Implementation Detail Functions */                                           \
-    SNAME##_iter PFX##_impl_it_start(SNAME *_list_);                                \
-    SNAME##_iter PFX##_impl_it_end(SNAME *_list_);                                  \
+    static SNAME##_iter PFX##_impl_it_start(SNAME *_list_);                         \
+    static SNAME##_iter PFX##_impl_it_end(SNAME *_list_);                           \
                                                                                     \
     FMOD SNAME *PFX##_new(void)                                                     \
     {                                                                               \
@@ -365,23 +375,20 @@
     FMOD V PFX##_front(SNAME *_list_)                                               \
     {                                                                               \
         if (PFX##_empty(_list_))                                                    \
-            return 0;                                                               \
+            PFX##_impl_default_value();                                             \
                                                                                     \
         return _list_->head->data;                                                  \
     }                                                                               \
                                                                                     \
     FMOD V PFX##_get(SNAME *_list_, size_t index)                                   \
     {                                                                               \
-        if (index >= _list_->count)                                                 \
-            return 0;                                                               \
-                                                                                    \
-        if (PFX##_empty(_list_))                                                    \
-            return 0;                                                               \
+        if (index >= _list_->count || PFX##_empty(_list_))                          \
+            PFX##_impl_default_value();                                             \
                                                                                     \
         SNAME##_node *scan = PFX##_get_node(_list_, index);                         \
                                                                                     \
         if (scan == NULL)                                                           \
-            return 0;                                                               \
+            return PFX##_impl_default_value();                                      \
                                                                                     \
         return scan->data;                                                          \
     }                                                                               \
@@ -405,7 +412,7 @@
     FMOD V PFX##_back(SNAME *_list_)                                                \
     {                                                                               \
         if (PFX##_empty(_list_))                                                    \
-            return 0;                                                               \
+            return PFX##_impl_default_value();                                      \
                                                                                     \
         return _list_->tail->data;                                                  \
     }                                                                               \
@@ -702,7 +709,7 @@
     FMOD V PFX##_iter_value(SNAME##_iter *iter)                                     \
     {                                                                               \
         if (PFX##_empty(iter->target))                                              \
-            return 0;                                                               \
+            return PFX##_impl_default_value();                                      \
                                                                                     \
         return iter->cursor->data;                                                  \
     }                                                                               \
@@ -725,7 +732,7 @@
         return iter->cursor;                                                        \
     }                                                                               \
                                                                                     \
-    SNAME##_iter PFX##_impl_it_start(SNAME *_list_)                                 \
+    static SNAME##_iter PFX##_impl_it_start(SNAME *_list_)                          \
     {                                                                               \
         SNAME##_iter iter;                                                          \
                                                                                     \
@@ -735,7 +742,7 @@
         return iter;                                                                \
     }                                                                               \
                                                                                     \
-    SNAME##_iter PFX##_impl_it_end(SNAME *_list_)                                   \
+    static SNAME##_iter PFX##_impl_it_end(SNAME *_list_)                            \
     {                                                                               \
         SNAME##_iter iter;                                                          \
                                                                                     \

@@ -124,13 +124,23 @@
     FMOD V *PFX##_iter_rvalue(SNAME##_iter *iter);                                                 \
     FMOD size_t PFX##_iter_index(SNAME##_iter *iter);                                              \
                                                                                                    \
+    /* Default Value */                                                                            \
+    static inline V PFX##_impl_default_value(void)                                                 \
+    {                                                                                              \
+        V _empty_value_;                                                                           \
+                                                                                                   \
+        memset(&_empty_value_, 0, sizeof(V));                                                      \
+                                                                                                   \
+        return _empty_value_;                                                                      \
+    }                                                                                              \
+                                                                                                   \
 /* SOURCE ********************************************************************/
 #define LIST_GENERATE_SOURCE(PFX, SNAME, FMOD, V)                                                                \
                                                                                                                  \
     /* Implementation Detail Functions */                                                                        \
-    FMOD bool PFX##_impl_grow(SNAME *_list_, size_t required);                                                   \
-    SNAME##_iter PFX##_impl_it_start(SNAME *_list_);                                                             \
-    SNAME##_iter PFX##_impl_it_end(SNAME *_list_);                                                               \
+    static bool PFX##_impl_grow(SNAME *_list_, size_t required);                                                 \
+    static SNAME##_iter PFX##_impl_it_start(SNAME *_list_);                                                      \
+    static SNAME##_iter PFX##_impl_it_end(SNAME *_list_);                                                        \
                                                                                                                  \
     FMOD SNAME *PFX##_new(size_t capacity)                                                                       \
     {                                                                                                            \
@@ -260,7 +270,7 @@
                                                                                                                  \
         memmove(_list_->buffer, _list_->buffer + 1, _list_->count * sizeof(V));                                  \
                                                                                                                  \
-        _list_->buffer[--_list_->count] = 0;                                                                     \
+        _list_->buffer[--_list_->count] = PFX##_impl_default_value();                                            \
                                                                                                                  \
         return true;                                                                                             \
     }                                                                                                            \
@@ -284,7 +294,7 @@
                                                                                                                  \
         memmove(_list_->buffer + index, _list_->buffer + index + 1, (_list_->count - index) * sizeof(V));        \
                                                                                                                  \
-        _list_->buffer[--_list_->count] = 0;                                                                     \
+        _list_->buffer[--_list_->count] = PFX##_impl_default_value();                                            \
                                                                                                                  \
         return true;                                                                                             \
     }                                                                                                            \
@@ -294,7 +304,7 @@
         if (PFX##_empty(_list_))                                                                                 \
             return false;                                                                                        \
                                                                                                                  \
-        _list_->buffer[--_list_->count] = 0;                                                                     \
+        _list_->buffer[--_list_->count] = PFX##_impl_default_value();                                            \
                                                                                                                  \
         return true;                                                                                             \
     }                                                                                                            \
@@ -420,18 +430,15 @@
     FMOD V PFX##_front(SNAME *_list_)                                                                            \
     {                                                                                                            \
         if (PFX##_empty(_list_))                                                                                 \
-            return 0;                                                                                            \
+            return PFX##_impl_default_value();                                                                   \
                                                                                                                  \
         return _list_->buffer[0];                                                                                \
     }                                                                                                            \
                                                                                                                  \
     FMOD V PFX##_get(SNAME *_list_, size_t index)                                                                \
     {                                                                                                            \
-        if (index >= _list_->count)                                                                              \
-            return 0;                                                                                            \
-                                                                                                                 \
-        if (PFX##_empty(_list_))                                                                                 \
-            return 0;                                                                                            \
+        if (index >= _list_->count || PFX##_empty(_list_))                                                       \
+            return PFX##_impl_default_value();                                                                   \
                                                                                                                  \
         return _list_->buffer[index];                                                                            \
     }                                                                                                            \
@@ -450,7 +457,7 @@
     FMOD V PFX##_back(SNAME *_list_)                                                                             \
     {                                                                                                            \
         if (PFX##_empty(_list_))                                                                                 \
-            return 0;                                                                                            \
+            return PFX##_impl_default_value();                                                                   \
                                                                                                                  \
         return _list_->buffer[_list_->count - 1];                                                                \
     }                                                                                                            \
@@ -595,7 +602,7 @@
     FMOD V PFX##_iter_value(SNAME##_iter *iter)                                                                  \
     {                                                                                                            \
         if (PFX##_empty(iter->target))                                                                           \
-            return 0;                                                                                            \
+            return PFX##_impl_default_value();                                                                   \
                                                                                                                  \
         return iter->target->buffer[iter->cursor];                                                               \
     }                                                                                                            \
@@ -613,7 +620,7 @@
         return iter->cursor;                                                                                     \
     }                                                                                                            \
                                                                                                                  \
-    FMOD bool PFX##_impl_grow(SNAME *_list_, size_t required)                                                    \
+    static bool PFX##_impl_grow(SNAME *_list_, size_t required)                                                  \
     {                                                                                                            \
         size_t new_capacity = _list_->capacity * 2;                                                              \
                                                                                                                  \
@@ -631,7 +638,7 @@
         return true;                                                                                             \
     }                                                                                                            \
                                                                                                                  \
-    SNAME##_iter PFX##_impl_it_start(SNAME *_list_)                                                              \
+    static SNAME##_iter PFX##_impl_it_start(SNAME *_list_)                                                       \
     {                                                                                                            \
         SNAME##_iter iter;                                                                                       \
                                                                                                                  \
@@ -641,7 +648,7 @@
         return iter;                                                                                             \
     }                                                                                                            \
                                                                                                                  \
-    SNAME##_iter PFX##_impl_it_end(SNAME *_list_)                                                                \
+    static SNAME##_iter PFX##_impl_it_end(SNAME *_list_)                                                         \
     {                                                                                                            \
         SNAME##_iter iter;                                                                                       \
                                                                                                                  \

@@ -188,22 +188,32 @@ static const size_t cmc_hashtable_primes[] = {53, 97, 191, 383, 769, 1531,
     FMOD V PFX##_iter_value(SNAME##_iter *iter);                                              \
     FMOD size_t PFX##_iter_index(SNAME##_iter *iter);                                         \
                                                                                               \
+    /* Default Value */                                                                       \
+    static inline V PFX##_impl_default_value(void)                                            \
+    {                                                                                         \
+        V _empty_value_;                                                                      \
+                                                                                              \
+        memset(&_empty_value_, 0, sizeof(V));                                                 \
+                                                                                              \
+        return _empty_value_;                                                                 \
+    }                                                                                         \
+                                                                                              \
 /* SOURCE ********************************************************************/
 #define HASHSET_GENERATE_SOURCE(PFX, SNAME, FMOD, V)                                           \
                                                                                                \
     /* Implementation Detail Functions */                                                      \
-    FMOD bool PFX##_grow(SNAME *_set_);                                                        \
-    FMOD SNAME##_entry *PFX##_get_entry(SNAME *_set_, V element);                              \
-    FMOD size_t PFX##_calculate_size(size_t required);                                         \
-    SNAME##_iter PFX##_impl_it_start(SNAME *_set_);                                            \
-    SNAME##_iter PFX##_impl_it_end(SNAME *_set_);                                              \
+    static bool PFX##_impl_grow(SNAME *_set_);                                                 \
+    static SNAME##_entry *PFX##_impl_get_entry(SNAME *_set_, V element);                       \
+    static size_t PFX##_impl_calculate_size(size_t required);                                  \
+    static SNAME##_iter PFX##_impl_it_start(SNAME *_set_);                                     \
+    static SNAME##_iter PFX##_impl_it_end(SNAME *_set_);                                       \
                                                                                                \
     FMOD SNAME *PFX##_new(size_t size, double load, int (*compare)(V, V), size_t (*hash)(V))   \
     {                                                                                          \
         if (size == 0 || load <= 0 || load >= 1)                                               \
             return NULL;                                                                       \
                                                                                                \
-        size_t real_size = PFX##_calculate_size(size);                                         \
+        size_t real_size = PFX##_impl_calculate_size(size);                                    \
                                                                                                \
         SNAME *_set_ = malloc(sizeof(SNAME));                                                  \
                                                                                                \
@@ -249,7 +259,7 @@ static const size_t cmc_hashtable_primes[] = {53, 97, 191, 383, 769, 1531,
     {                                                                                          \
         if ((double)_set_->capacity * _set_->load <= (double)_set_->count)                     \
         {                                                                                      \
-            if (!PFX##_grow(_set_))                                                            \
+            if (!PFX##_impl_grow(_set_))                                                       \
                 return false;                                                                  \
         }                                                                                      \
                                                                                                \
@@ -259,7 +269,7 @@ static const size_t cmc_hashtable_primes[] = {53, 97, 191, 383, 769, 1531,
                                                                                                \
         SNAME##_entry *target = &(_set_->buffer[pos]);                                         \
                                                                                                \
-        if (PFX##_get_entry(_set_, element) != NULL)                                           \
+        if (PFX##_impl_get_entry(_set_, element) != NULL)                                      \
             return false;                                                                      \
                                                                                                \
         if (target->state == ES_EMPTY || target->state == ES_DELETED)                          \
@@ -304,12 +314,12 @@ static const size_t cmc_hashtable_primes[] = {53, 97, 191, 383, 769, 1531,
                                                                                                \
     FMOD bool PFX##_remove(SNAME *_set_, V element)                                            \
     {                                                                                          \
-        SNAME##_entry *result = PFX##_get_entry(_set_, element);                               \
+        SNAME##_entry *result = PFX##_impl_get_entry(_set_, element);                          \
                                                                                                \
         if (result == NULL)                                                                    \
             return false;                                                                      \
                                                                                                \
-        result->value = 0;                                                                     \
+        result->value = PFX##_impl_default_value();                                            \
         result->dist = 0;                                                                      \
         result->state = ES_DELETED;                                                            \
                                                                                                \
@@ -378,7 +388,7 @@ static const size_t cmc_hashtable_primes[] = {53, 97, 191, 383, 769, 1531,
                                                                                                \
     FMOD bool PFX##_contains(SNAME *_set_, V element)                                          \
     {                                                                                          \
-        return PFX##_get_entry(_set_, element) != NULL;                                        \
+        return PFX##_impl_get_entry(_set_, element) != NULL;                                   \
     }                                                                                          \
                                                                                                \
     FMOD bool PFX##_empty(SNAME *_set_)                                                        \
@@ -437,7 +447,7 @@ static const size_t cmc_hashtable_primes[] = {53, 97, 191, 383, 769, 1531,
         {                                                                                      \
             V value = PFX##_iter_value(&iter);                                                 \
                                                                                                \
-            if (PFX##_get_entry(_set_B_, value) != NULL)                                       \
+            if (PFX##_impl_get_entry(_set_B_, value) != NULL)                                  \
                 PFX##_insert(_set_r_, value);                                                  \
         }                                                                                      \
                                                                                                \
@@ -458,7 +468,7 @@ static const size_t cmc_hashtable_primes[] = {53, 97, 191, 383, 769, 1531,
         {                                                                                      \
             V value = PFX##_iter_value(&iter);                                                 \
                                                                                                \
-            if (PFX##_get_entry(_set2_, value) == NULL)                                        \
+            if (PFX##_impl_get_entry(_set2_, value) == NULL)                                   \
                 PFX##_insert(_set_r_, value);                                                  \
         }                                                                                      \
                                                                                                \
@@ -481,7 +491,7 @@ static const size_t cmc_hashtable_primes[] = {53, 97, 191, 383, 769, 1531,
         {                                                                                      \
             V value = PFX##_iter_value(&iter1);                                                \
                                                                                                \
-            if (PFX##_get_entry(_set2_, value) == NULL)                                        \
+            if (PFX##_impl_get_entry(_set2_, value) == NULL)                                   \
                 PFX##_insert(_set_r_, value);                                                  \
         }                                                                                      \
                                                                                                \
@@ -489,7 +499,7 @@ static const size_t cmc_hashtable_primes[] = {53, 97, 191, 383, 769, 1531,
         {                                                                                      \
             V value = PFX##_iter_value(&iter2);                                                \
                                                                                                \
-            if (PFX##_get_entry(_set1_, value) == NULL)                                        \
+            if (PFX##_impl_get_entry(_set1_, value) == NULL)                                   \
                 PFX##_insert(_set_r_, value);                                                  \
         }                                                                                      \
                                                                                                \
@@ -630,7 +640,7 @@ static const size_t cmc_hashtable_primes[] = {53, 97, 191, 383, 769, 1531,
     FMOD V PFX##_iter_value(SNAME##_iter *iter)                                                \
     {                                                                                          \
         if (PFX##_empty(iter->target))                                                         \
-            return 0;                                                                          \
+            return PFX##_impl_default_value();                                                 \
                                                                                                \
         return iter->target->buffer[iter->cursor].value;                                       \
     }                                                                                          \
@@ -640,9 +650,9 @@ static const size_t cmc_hashtable_primes[] = {53, 97, 191, 383, 769, 1531,
         return iter->index;                                                                    \
     }                                                                                          \
                                                                                                \
-    FMOD bool PFX##_grow(SNAME *_set_)                                                         \
+    static bool PFX##_impl_grow(SNAME *_set_)                                                  \
     {                                                                                          \
-        size_t new_size = PFX##_calculate_size(_set_->capacity + _set_->capacity / 2);         \
+        size_t new_size = PFX##_impl_calculate_size(_set_->capacity + _set_->capacity / 2);    \
                                                                                                \
         SNAME *_new_set_ = PFX##_new(new_size, _set_->load, _set_->cmp, _set_->hash);          \
                                                                                                \
@@ -674,7 +684,7 @@ static const size_t cmc_hashtable_primes[] = {53, 97, 191, 383, 769, 1531,
         return true;                                                                           \
     }                                                                                          \
                                                                                                \
-    FMOD SNAME##_entry *PFX##_get_entry(SNAME *_set_, V element)                               \
+    static SNAME##_entry *PFX##_impl_get_entry(SNAME *_set_, V element)                        \
     {                                                                                          \
         size_t hash = _set_->hash(element);                                                    \
         size_t pos = hash % _set_->capacity;                                                   \
@@ -693,7 +703,7 @@ static const size_t cmc_hashtable_primes[] = {53, 97, 191, 383, 769, 1531,
         return NULL;                                                                           \
     }                                                                                          \
                                                                                                \
-    FMOD size_t PFX##_calculate_size(size_t required)                                          \
+    static size_t PFX##_impl_calculate_size(size_t required)                                   \
     {                                                                                          \
         const size_t count = sizeof(cmc_hashtable_primes) / sizeof(cmc_hashtable_primes[0]);   \
                                                                                                \
@@ -707,7 +717,7 @@ static const size_t cmc_hashtable_primes[] = {53, 97, 191, 383, 769, 1531,
         return cmc_hashtable_primes[i];                                                        \
     }                                                                                          \
                                                                                                \
-    SNAME##_iter PFX##_impl_it_start(SNAME *_set_)                                             \
+    static SNAME##_iter PFX##_impl_it_start(SNAME *_set_)                                      \
     {                                                                                          \
         SNAME##_iter iter;                                                                     \
                                                                                                \
@@ -716,7 +726,7 @@ static const size_t cmc_hashtable_primes[] = {53, 97, 191, 383, 769, 1531,
         return iter;                                                                           \
     }                                                                                          \
                                                                                                \
-    SNAME##_iter PFX##_impl_it_end(SNAME *_set_)                                               \
+    static SNAME##_iter PFX##_impl_it_end(SNAME *_set_)                                        \
     {                                                                                          \
         SNAME##_iter iter;                                                                     \
                                                                                                \

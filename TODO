@@ -22,13 +22,15 @@ Before 2.0
 
 1.5
     OK - Remove PUBLIC and PRIVATE
+    OK - Allow for struct to be a possible data type (instead of just pointer to struct)
     Iterator move and move_to
-    LinkedList - Insert/Remove/Append/Prepend/Extract
+    Set functions: is_subset, is_superset, is_disjointset
     from_array - Creates a collection with all the elements in a specified array
     to_array - Creates an array with all the elements inside the collection
 
 1.6
-    Add shrink function that shrinks the internal buffer to current count of elements
+    LinkedList - Insert/Remove/Append/Prepend/Extract
+    Resize buffer function
     Add dispose method to each collection in order to automatically free its data
 
 2.0

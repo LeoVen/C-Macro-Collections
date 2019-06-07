@@ -120,18 +120,28 @@ typedef enum HeapOrder
     FMOD V PFX##_iter_value(SNAME##_iter *iter);                            \
     FMOD size_t PFX##_iter_index(SNAME##_iter *iter);                       \
                                                                             \
+    /* Default Value */                                                     \
+    static inline V PFX##_impl_default_value(void)                          \
+    {                                                                       \
+        V _empty_value_;                                                    \
+                                                                            \
+        memset(&_empty_value_, 0, sizeof(V));                               \
+                                                                            \
+        return _empty_value_;                                               \
+    }                                                                       \
+                                                                            \
 /* SOURCE ********************************************************************/
 #define HEAP_GENERATE_SOURCE(PFX, SNAME, FMOD, V)                                                 \
                                                                                                   \
     /* Implementation Detail Functions */                                                         \
-    FMOD bool PFX##_impl_grow(SNAME *_heap_);                                                     \
-    FMOD size_t PFX##_impl_p(size_t index);                                                       \
-    FMOD size_t PFX##_impl_l(size_t index);                                                       \
-    FMOD size_t PFX##_impl_r(size_t index);                                                       \
-    FMOD bool PFX##_impl_float_up(SNAME *_heap_, size_t index);                                   \
-    FMOD bool PFX##_impl_float_down(SNAME *_heap_, size_t index);                                 \
-    SNAME##_iter PFX##_impl_it_start(SNAME *_heap_);                                              \
-    SNAME##_iter PFX##_impl_it_end(SNAME *_heap_);                                                \
+    static bool PFX##_impl_grow(SNAME *_heap_);                                                   \
+    static size_t PFX##_impl_p(size_t index);                                                     \
+    static size_t PFX##_impl_l(size_t index);                                                     \
+    static size_t PFX##_impl_r(size_t index);                                                     \
+    static bool PFX##_impl_float_up(SNAME *_heap_, size_t index);                                 \
+    static bool PFX##_impl_float_down(SNAME *_heap_, size_t index);                               \
+    static SNAME##_iter PFX##_impl_it_start(SNAME *_heap_);                                       \
+    static SNAME##_iter PFX##_impl_it_end(SNAME *_heap_);                                         \
                                                                                                   \
     FMOD SNAME *PFX##_new(size_t size, HeapOrder HO, int (*compare)(V, V))                        \
     {                                                                                             \
@@ -209,7 +219,7 @@ typedef enum HeapOrder
                                                                                                   \
         *result = _heap_->buffer[0];                                                              \
         _heap_->buffer[0] = _heap_->buffer[_heap_->count - 1];                                    \
-        _heap_->buffer[_heap_->count - 1] = 0;                                                    \
+        _heap_->buffer[_heap_->count - 1] = PFX##_impl_default_value();                           \
                                                                                                   \
         _heap_->count--;                                                                          \
                                                                                                   \
@@ -238,7 +248,7 @@ typedef enum HeapOrder
     FMOD V PFX##_peek(SNAME *_heap_)                                                              \
     {                                                                                             \
         if (PFX##_empty(_heap_))                                                                  \
-            return 0;                                                                             \
+            return PFX##_impl_default_value();                                                    \
                                                                                                   \
         return _heap_->buffer[0];                                                                 \
     }                                                                                             \
@@ -364,7 +374,7 @@ typedef enum HeapOrder
     FMOD V PFX##_iter_value(SNAME##_iter *iter)                                                   \
     {                                                                                             \
         if (PFX##_empty(iter->target))                                                            \
-            return 0;                                                                             \
+            return PFX##_impl_default_value();                                                    \
                                                                                                   \
         return iter->target->buffer[iter->cursor];                                                \
     }                                                                                             \
@@ -374,7 +384,7 @@ typedef enum HeapOrder
         return iter->cursor;                                                                      \
     }                                                                                             \
                                                                                                   \
-    FMOD bool PFX##_impl_grow(SNAME *_heap_)                                                      \
+    static bool PFX##_impl_grow(SNAME *_heap_)                                                    \
     {                                                                                             \
         size_t new_capacity = _heap_->capacity * 2;                                               \
                                                                                                   \
@@ -389,7 +399,7 @@ typedef enum HeapOrder
         return true;                                                                              \
     }                                                                                             \
                                                                                                   \
-    FMOD size_t PFX##_impl_p(size_t index)                                                        \
+    static size_t PFX##_impl_p(size_t index)                                                      \
     {                                                                                             \
         if (index == 0)                                                                           \
             return 0;                                                                             \
@@ -397,17 +407,17 @@ typedef enum HeapOrder
         return (index - 1) / 2;                                                                   \
     }                                                                                             \
                                                                                                   \
-    FMOD size_t PFX##_impl_l(size_t index)                                                        \
+    static size_t PFX##_impl_l(size_t index)                                                      \
     {                                                                                             \
         return 2 * index + 1;                                                                     \
     }                                                                                             \
                                                                                                   \
-    FMOD size_t PFX##_impl_r(size_t index)                                                        \
+    static size_t PFX##_impl_r(size_t index)                                                      \
     {                                                                                             \
         return 2 * index + 2;                                                                     \
     }                                                                                             \
                                                                                                   \
-    FMOD bool PFX##_impl_float_up(SNAME *_heap_, size_t index)                                    \
+    static bool PFX##_impl_float_up(SNAME *_heap_, size_t index)                                  \
     {                                                                                             \
         size_t C = index;                                                                         \
         V child = _heap_->buffer[C];                                                              \
@@ -430,7 +440,7 @@ typedef enum HeapOrder
         return true;                                                                              \
     }                                                                                             \
                                                                                                   \
-    FMOD bool PFX##_impl_float_down(SNAME *_heap_, size_t index)                                  \
+    static bool PFX##_impl_float_down(SNAME *_heap_, size_t index)                                \
     {                                                                                             \
         int mod = _heap_->HO;                                                                     \
                                                                                                   \
@@ -465,7 +475,7 @@ typedef enum HeapOrder
         return true;                                                                              \
     }                                                                                             \
                                                                                                   \
-    SNAME##_iter PFX##_impl_it_start(SNAME *_heap_)                                               \
+    static SNAME##_iter PFX##_impl_it_start(SNAME *_heap_)                                        \
     {                                                                                             \
         SNAME##_iter iter;                                                                        \
                                                                                                   \
@@ -475,7 +485,7 @@ typedef enum HeapOrder
         return iter;                                                                              \
     }                                                                                             \
                                                                                                   \
-    SNAME##_iter PFX##_impl_it_end(SNAME *_heap_)                                                 \
+    static SNAME##_iter PFX##_impl_it_end(SNAME *_heap_)                                          \
     {                                                                                             \
         SNAME##_iter iter;                                                                        \
                                                                                                   \

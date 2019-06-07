@@ -4,4 +4,4 @@
 * `contains.c` - Tests the `contains` function for all collections;
 * `foreach.c` - Tests the ForEach macros for all collections;
 * `iterators.c` - Tests all collection's iterators;
-* `pointertype.c` - Tests if the source code is compatible with pointer types.
+* `types.c` - Tests if all containers accept all possible C data types (struct, union, enum, pointers, function pointers)

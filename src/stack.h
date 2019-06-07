@@ -108,13 +108,23 @@
     FMOD V *PFX##_iter_rvalue(SNAME##_iter *iter);                                \
     FMOD size_t PFX##_iter_index(SNAME##_iter *iter);                             \
                                                                                   \
+    /* Default Value */                                                           \
+    static inline V PFX##_impl_default_value(void)                                \
+    {                                                                             \
+        V _empty_value_;                                                          \
+                                                                                  \
+        memset(&_empty_value_, 0, sizeof(V));                                     \
+                                                                                  \
+        return _empty_value_;                                                     \
+    }                                                                             \
+                                                                                  \
 /* SOURCE ********************************************************************/
 #define STACK_GENERATE_SOURCE(PFX, SNAME, FMOD, V)                               \
                                                                                  \
     /* Implementation Detail Functions */                                        \
-    FMOD bool PFX##_impl_grow(SNAME *_stack_);                                   \
-    SNAME##_iter PFX##_impl_it_start(SNAME *_stack_);                            \
-    SNAME##_iter PFX##_impl_it_end(SNAME *_stack_);                              \
+    static bool PFX##_impl_grow(SNAME *_stack_);                                 \
+    static SNAME##_iter PFX##_impl_it_start(SNAME *_stack_);                     \
+    static SNAME##_iter PFX##_impl_it_end(SNAME *_stack_);                       \
                                                                                  \
     FMOD SNAME *PFX##_new(size_t size)                                           \
     {                                                                            \
@@ -176,7 +186,7 @@
         if (PFX##_empty(_stack_))                                                \
             return false;                                                        \
                                                                                  \
-        _stack_->buffer[--_stack_->count] = 0;                                   \
+        _stack_->buffer[--_stack_->count] = PFX##_impl_default_value();          \
                                                                                  \
         return true;                                                             \
     }                                                                            \
@@ -200,7 +210,7 @@
     FMOD V PFX##_top(SNAME *_stack_)                                             \
     {                                                                            \
         if (PFX##_empty(_stack_))                                                \
-            return 0;                                                            \
+            PFX##_impl_default_value();                                          \
                                                                                  \
         return _stack_->buffer[_stack_->count - 1];                              \
     }                                                                            \
@@ -318,7 +328,7 @@
     FMOD V PFX##_iter_value(SNAME##_iter *iter)                                  \
     {                                                                            \
         if (PFX##_empty(iter->target))                                           \
-            return 0;                                                            \
+            PFX##_impl_default_value();                                          \
                                                                                  \
         return iter->target->buffer[iter->cursor];                               \
     }                                                                            \
@@ -336,7 +346,7 @@
         return iter->target->count - 1 - iter->cursor;                           \
     }                                                                            \
                                                                                  \
-    FMOD bool PFX##_impl_grow(SNAME *_stack_)                                    \
+    static bool PFX##_impl_grow(SNAME *_stack_)                                  \
     {                                                                            \
         size_t new_capacity = _stack_->capacity * 2;                             \
                                                                                  \
@@ -351,7 +361,7 @@
         return true;                                                             \
     }                                                                            \
                                                                                  \
-    SNAME##_iter PFX##_impl_it_start(SNAME *_stack_)                             \
+    static SNAME##_iter PFX##_impl_it_start(SNAME *_stack_)                      \
     {                                                                            \
         SNAME##_iter iter;                                                       \
                                                                                  \
@@ -361,7 +371,7 @@
         return iter;                                                             \
     }                                                                            \
                                                                                  \
-    SNAME##_iter PFX##_impl_it_end(SNAME *_stack_)                               \
+    static SNAME##_iter PFX##_impl_it_end(SNAME *_stack_)                        \
     {                                                                            \
         SNAME##_iter iter;                                                       \
                                                                                  \

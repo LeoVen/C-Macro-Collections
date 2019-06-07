@@ -1,5 +1,13 @@
 # MAJOR.MINOR.ADJUSTMENTS
 
+1.4.2
+    Adapted code so that plain struct type is accepted
+    Changed TreeSet max and min to be compatible with the TreeMap and the hash collections
+    Changed function modifier of all implementation detail to static
+    Fixed some implementation detail functions that were not prefixed with impl
+    Added types.c to test if it is possible to compile all the collections' generated code accepting all C data types
+    Removed pointertype.c (replaced by types.c)
+
 1.4.1
     Removed PUBLIC and PRIVATE from the main macro
     Corrected examples and benchmark

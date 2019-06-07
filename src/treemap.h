@@ -141,19 +141,39 @@
     FMOD V *PFX##_iter_rvalue(SNAME##_iter *iter);                            \
     FMOD size_t PFX##_iter_index(SNAME##_iter *iter);                         \
                                                                               \
+    /* Default Key */                                                         \
+    static inline K PFX##_impl_default_key(void)                              \
+    {                                                                         \
+        K _empty_key_;                                                        \
+                                                                              \
+        memset(&_empty_key_, 0, sizeof(K));                                   \
+                                                                              \
+        return _empty_key_;                                                   \
+    }                                                                         \
+                                                                              \
+    /* Default Value */                                                       \
+    static inline V PFX##_impl_default_value(void)                            \
+    {                                                                         \
+        V _empty_value_;                                                      \
+                                                                              \
+        memset(&_empty_value_, 0, sizeof(V));                                 \
+                                                                              \
+        return _empty_value_;                                                 \
+    }                                                                         \
+                                                                              \
 /* SOURCE ********************************************************************/
 #define TREEMAP_GENERATE_SOURCE(PFX, SNAME, FMOD, K, V)                      \
                                                                              \
     /* Implementation Detail Functions */                                    \
-    FMOD SNAME##_node *PFX##_impl_new_node(K key, V value);                  \
-    FMOD SNAME##_node *PFX##_impl_get_node(SNAME *_map_, K key);             \
-    FMOD unsigned char PFX##_impl_h(SNAME##_node *node);                     \
-    FMOD unsigned char PFX##_impl_hupdate(SNAME##_node *node);               \
-    FMOD void PFX##_impl_rotate_right(SNAME##_node **Z);                     \
-    FMOD void PFX##_impl_rotate_left(SNAME##_node **Z);                      \
-    FMOD void PFX##_impl_rebalance(SNAME *_map_, SNAME##_node *node);        \
-    SNAME##_iter PFX##_impl_it_start(SNAME *_map_);                          \
-    SNAME##_iter PFX##_impl_it_end(SNAME *_map_);                            \
+    static SNAME##_node *PFX##_impl_new_node(K key, V value);                \
+    static SNAME##_node *PFX##_impl_get_node(SNAME *_map_, K key);           \
+    static unsigned char PFX##_impl_h(SNAME##_node *node);                   \
+    static unsigned char PFX##_impl_hupdate(SNAME##_node *node);             \
+    static void PFX##_impl_rotate_right(SNAME##_node **Z);                   \
+    static void PFX##_impl_rotate_left(SNAME##_node **Z);                    \
+    static void PFX##_impl_rebalance(SNAME *_map_, SNAME##_node *node);      \
+    static SNAME##_iter PFX##_impl_it_start(SNAME *_map_);                   \
+    static SNAME##_iter PFX##_impl_it_end(SNAME *_map_);                     \
                                                                              \
     FMOD SNAME *PFX##_new(int (*compare)(K, K))                              \
     {                                                                        \
@@ -469,7 +489,7 @@
         SNAME##_node *node = PFX##_impl_get_node(_map_, key);                \
                                                                              \
         if (!node)                                                           \
-            return 0;                                                        \
+            return PFX##_impl_default_value();                               \
                                                                              \
         return node->value;                                                  \
     }                                                                        \
@@ -655,16 +675,25 @@
                                                                              \
     FMOD K PFX##_iter_key(SNAME##_iter *iter)                                \
     {                                                                        \
+        if (PFX##_empty(iter->target))                                       \
+            PFX##_impl_default_key();                                        \
+                                                                             \
         return iter->cursor->key;                                            \
     }                                                                        \
                                                                              \
     FMOD V PFX##_iter_value(SNAME##_iter *iter)                              \
     {                                                                        \
+        if (PFX##_empty(iter->target))                                       \
+            PFX##_impl_default_value();                                      \
+                                                                             \
         return iter->cursor->value;                                          \
     }                                                                        \
                                                                              \
     FMOD V *PFX##_iter_rvalue(SNAME##_iter *iter)                            \
     {                                                                        \
+        if (PFX##_empty(iter->target))                                       \
+            return NULL;                                                     \
+                                                                             \
         return &(iter->cursor->value);                                       \
     }                                                                        \
                                                                              \
@@ -673,7 +702,7 @@
         return iter->index;                                                  \
     }                                                                        \
                                                                              \
-    FMOD SNAME##_node *PFX##_impl_new_node(K key, V value)                   \
+    static SNAME##_node *PFX##_impl_new_node(K key, V value)                 \
     {                                                                        \
         SNAME##_node *node = malloc(sizeof(SNAME##_node));                   \
                                                                              \
@@ -690,7 +719,7 @@
         return node;                                                         \
     }                                                                        \
                                                                              \
-    FMOD SNAME##_node *PFX##_impl_get_node(SNAME *_map_, K key)              \
+    static SNAME##_node *PFX##_impl_get_node(SNAME *_map_, K key)            \
     {                                                                        \
         if (PFX##_empty(_map_))                                              \
             return NULL;                                                     \
@@ -710,7 +739,7 @@
         return NULL;                                                         \
     }                                                                        \
                                                                              \
-    FMOD unsigned char PFX##_impl_h(SNAME##_node *node)                      \
+    static unsigned char PFX##_impl_h(SNAME##_node *node)                    \
     {                                                                        \
         if (node == NULL)                                                    \
             return 0;                                                        \
@@ -718,7 +747,7 @@
         return node->height;                                                 \
     }                                                                        \
                                                                              \
-    FMOD unsigned char PFX##_impl_hupdate(SNAME##_node *node)                \
+    static unsigned char PFX##_impl_hupdate(SNAME##_node *node)              \
     {                                                                        \
         if (node == NULL)                                                    \
             return 0;                                                        \
@@ -729,7 +758,7 @@
         return 1 + (h_l > h_r ? h_l : h_r);                                  \
     }                                                                        \
                                                                              \
-    FMOD void PFX##_impl_rotate_right(SNAME##_node **Z)                      \
+    static void PFX##_impl_rotate_right(SNAME##_node **Z)                    \
     {                                                                        \
         SNAME##_node *root = *Z;                                             \
         SNAME##_node *new_root = root->left;                                 \
@@ -758,7 +787,7 @@
         *Z = new_root;                                                       \
     }                                                                        \
                                                                              \
-    FMOD void PFX##_impl_rotate_left(SNAME##_node **Z)                       \
+    static void PFX##_impl_rotate_left(SNAME##_node **Z)                     \
     {                                                                        \
         SNAME##_node *root = *Z;                                             \
         SNAME##_node *new_root = root->right;                                \
@@ -787,7 +816,7 @@
         *Z = new_root;                                                       \
     }                                                                        \
                                                                              \
-    FMOD void PFX##_impl_rebalance(SNAME *_map_, SNAME##_node *node)         \
+    static void PFX##_impl_rebalance(SNAME *_map_, SNAME##_node *node)       \
     {                                                                        \
         SNAME##_node *scan = node, *child = NULL;                            \
                                                                              \
@@ -831,7 +860,7 @@
         }                                                                    \
     }                                                                        \
                                                                              \
-    SNAME##_iter PFX##_impl_it_start(SNAME *_map_)                           \
+    static SNAME##_iter PFX##_impl_it_start(SNAME *_map_)                    \
     {                                                                        \
         SNAME##_iter iter;                                                   \
                                                                              \
@@ -840,7 +869,7 @@
         return iter;                                                         \
     }                                                                        \
                                                                              \
-    SNAME##_iter PFX##_impl_it_end(SNAME *_map_)                             \
+    static SNAME##_iter PFX##_impl_it_end(SNAME *_map_)                      \
     {                                                                        \
         SNAME##_iter iter;                                                   \
                                                                              \

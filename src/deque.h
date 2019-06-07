@@ -122,13 +122,23 @@
     FMOD V *PFX##_iter_rvalue(SNAME##_iter *iter);                                \
     FMOD size_t PFX##_iter_index(SNAME##_iter *iter);                             \
                                                                                   \
+    /* Default Value */                                                           \
+    static inline V PFX##_impl_default_value(void)                                \
+    {                                                                             \
+        V _empty_value_;                                                          \
+                                                                                  \
+        memset(&_empty_value_, 0, sizeof(V));                                     \
+                                                                                  \
+        return _empty_value_;                                                     \
+    }                                                                             \
+                                                                                  \
 /* SOURCE ********************************************************************/
 #define DEQUE_GENERATE_SOURCE(PFX, SNAME, FMOD, V)                                                          \
                                                                                                             \
     /* Implementation Detail Functions */                                                                   \
-    FMOD bool PFX##_impl_grow(SNAME *_deque_);                                                              \
-    SNAME##_iter PFX##_impl_it_start(SNAME *_deque_);                                                       \
-    SNAME##_iter PFX##_impl_it_end(SNAME *_deque_);                                                         \
+    static bool PFX##_impl_grow(SNAME *_deque_);                                                            \
+    static SNAME##_iter PFX##_impl_it_start(SNAME *_deque_);                                                \
+    static SNAME##_iter PFX##_impl_it_end(SNAME *_deque_);                                                  \
                                                                                                             \
     FMOD SNAME *PFX##_new(size_t size)                                                                      \
     {                                                                                                       \
@@ -215,7 +225,7 @@
         if (PFX##_empty(_deque_))                                                                           \
             return false;                                                                                   \
                                                                                                             \
-        _deque_->buffer[_deque_->front] = 0;                                                                \
+        _deque_->buffer[_deque_->front] = PFX##_impl_default_value();                                       \
                                                                                                             \
         _deque_->front = (_deque_->front == _deque_->capacity - 1) ? 0 : _deque_->front + 1;                \
                                                                                                             \
@@ -231,7 +241,7 @@
                                                                                                             \
         _deque_->back = (_deque_->back == 0) ? _deque_->capacity - 1 : _deque_->back - 1;                   \
                                                                                                             \
-        _deque_->buffer[_deque_->back] = 0;                                                                 \
+        _deque_->buffer[_deque_->back] = PFX##_impl_default_value();                                        \
                                                                                                             \
         _deque_->count--;                                                                                   \
                                                                                                             \
@@ -273,7 +283,7 @@
     FMOD V PFX##_front(SNAME *_deque_)                                                                      \
     {                                                                                                       \
         if (PFX##_empty(_deque_))                                                                           \
-            return 0;                                                                                       \
+            PFX##_impl_default_value();                                                                     \
                                                                                                             \
         return _deque_->buffer[_deque_->front];                                                             \
     }                                                                                                       \
@@ -281,7 +291,7 @@
     FMOD V PFX##_back(SNAME *_deque_)                                                                       \
     {                                                                                                       \
         if (PFX##_empty(_deque_))                                                                           \
-            return 0;                                                                                       \
+            PFX##_impl_default_value();                                                                     \
                                                                                                             \
         return _deque_->buffer[(_deque_->back == 0) ? _deque_->capacity - 1 : _deque_->back - 1];           \
     }                                                                                                       \
@@ -412,7 +422,7 @@
     FMOD V PFX##_iter_value(SNAME##_iter *iter)                                                             \
     {                                                                                                       \
         if (PFX##_empty(iter->target))                                                                      \
-            return 0;                                                                                       \
+            PFX##_impl_default_value();                                                                     \
                                                                                                             \
         return iter->target->buffer[iter->cursor];                                                          \
     }                                                                                                       \
@@ -430,7 +440,7 @@
         return iter->index;                                                                                 \
     }                                                                                                       \
                                                                                                             \
-    FMOD bool PFX##_impl_grow(SNAME *_deque_)                                                               \
+    static bool PFX##_impl_grow(SNAME *_deque_)                                                             \
     {                                                                                                       \
                                                                                                             \
         size_t new_capacity = _deque_->capacity * 2;                                                        \
@@ -455,7 +465,7 @@
         return true;                                                                                        \
     }                                                                                                       \
                                                                                                             \
-    SNAME##_iter PFX##_impl_it_start(SNAME *_deque_)                                                        \
+    static SNAME##_iter PFX##_impl_it_start(SNAME *_deque_)                                                 \
     {                                                                                                       \
         SNAME##_iter iter;                                                                                  \
                                                                                                             \
@@ -464,7 +474,7 @@
         return iter;                                                                                        \
     }                                                                                                       \
                                                                                                             \
-    SNAME##_iter PFX##_impl_it_end(SNAME *_deque_)                                                          \
+    static SNAME##_iter PFX##_impl_it_end(SNAME *_deque_)                                                   \
     {                                                                                                       \
         SNAME##_iter iter;                                                                                  \
                                                                                                             \

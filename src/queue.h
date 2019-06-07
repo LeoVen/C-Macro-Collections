@@ -117,13 +117,23 @@
     FMOD V *PFX##_iter_rvalue(SNAME##_iter *iter);                                \
     FMOD size_t PFX##_iter_index(SNAME##_iter *iter);                             \
                                                                                   \
+    /* Default Value */                                                           \
+    static inline V PFX##_impl_default_value(void)                                \
+    {                                                                             \
+        V _empty_value_;                                                          \
+                                                                                  \
+        memset(&_empty_value_, 0, sizeof(V));                                     \
+                                                                                  \
+        return _empty_value_;                                                     \
+    }                                                                             \
+                                                                                  \
 /* SOURCE ********************************************************************/
 #define QUEUE_GENERATE_SOURCE(PFX, SNAME, FMOD, V)                                                          \
                                                                                                             \
     /* Implementation Detail Functions */                                                                   \
-    FMOD bool PFX##_grow(SNAME *_queue_);                                                                   \
-    SNAME##_iter PFX##_impl_it_start(SNAME *_queue_);                                                       \
-    SNAME##_iter PFX##_impl_it_end(SNAME *_queue_);                                                         \
+    static FMOD bool PFX##_impl_grow(SNAME *_queue_);                                                       \
+    static SNAME##_iter PFX##_impl_it_start(SNAME *_queue_);                                                \
+    static SNAME##_iter PFX##_impl_it_end(SNAME *_queue_);                                                  \
                                                                                                             \
     FMOD SNAME *PFX##_new(size_t size)                                                                      \
     {                                                                                                       \
@@ -175,7 +185,7 @@
     {                                                                                                       \
         if (PFX##_full(_queue_))                                                                            \
         {                                                                                                   \
-            if (!PFX##_grow(_queue_))                                                                       \
+            if (!PFX##_impl_grow(_queue_))                                                                  \
                 return false;                                                                               \
         }                                                                                                   \
                                                                                                             \
@@ -192,7 +202,7 @@
         if (PFX##_empty(_queue_))                                                                           \
             return false;                                                                                   \
                                                                                                             \
-        _queue_->buffer[_queue_->front] = 0;                                                                \
+        _queue_->buffer[_queue_->front] = PFX##_impl_default_value();                                       \
                                                                                                             \
         _queue_->front = (_queue_->front == _queue_->capacity - 1) ? 0 : _queue_->front + 1;                \
         _queue_->count--;                                                                                   \
@@ -219,7 +229,7 @@
     FMOD V PFX##_peek(SNAME *_queue_)                                                                       \
     {                                                                                                       \
         if (PFX##_empty(_queue_))                                                                           \
-            return 0;                                                                                       \
+            PFX##_impl_default_value();                                                                     \
                                                                                                             \
         return _queue_->buffer[_queue_->front];                                                             \
     }                                                                                                       \
@@ -350,7 +360,7 @@
     FMOD V PFX##_iter_value(SNAME##_iter *iter)                                                             \
     {                                                                                                       \
         if (PFX##_empty(iter->target))                                                                      \
-            return 0;                                                                                       \
+            PFX##_impl_default_value();                                                                     \
                                                                                                             \
         return iter->target->buffer[iter->cursor];                                                          \
     }                                                                                                       \
@@ -368,7 +378,7 @@
         return iter->index;                                                                                 \
     }                                                                                                       \
                                                                                                             \
-    FMOD bool PFX##_grow(SNAME *_queue_)                                                                    \
+    static bool PFX##_impl_grow(SNAME *_queue_)                                                             \
     {                                                                                                       \
                                                                                                             \
         size_t new_capacity = _queue_->capacity * 2;                                                        \
@@ -393,7 +403,7 @@
         return true;                                                                                        \
     }                                                                                                       \
                                                                                                             \
-    SNAME##_iter PFX##_impl_it_start(SNAME *_queue_)                                                        \
+    static SNAME##_iter PFX##_impl_it_start(SNAME *_queue_)                                                 \
     {                                                                                                       \
         SNAME##_iter iter;                                                                                  \
                                                                                                             \
@@ -403,7 +413,7 @@
         return iter;                                                                                        \
     }                                                                                                       \
                                                                                                             \
-    SNAME##_iter PFX##_impl_it_end(SNAME *_queue_)                                                          \
+    static SNAME##_iter PFX##_impl_it_end(SNAME *_queue_)                                                   \
     {                                                                                                       \
         SNAME##_iter iter;                                                                                  \
                                                                                                             \

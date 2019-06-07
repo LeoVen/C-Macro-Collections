@@ -139,18 +139,29 @@
     FMOD V PFX##_iter_value(SNAME##_iter *iter);                            \
     FMOD size_t PFX##_iter_index(SNAME##_iter *iter);                       \
                                                                             \
+    /* Default Value */                                                     \
+    static inline V PFX##_impl_default_value(void)                          \
+    {                                                                       \
+        V _empty_value_;                                                    \
+                                                                            \
+        memset(&_empty_value_, 0, sizeof(V));                               \
+                                                                            \
+        return _empty_value_;                                               \
+    }                                                                       \
+                                                                            \
 /* SOURCE ********************************************************************/
 #define TREESET_GENERATE_SOURCE(PFX, SNAME, FMOD, V)                                        \
                                                                                             \
-    FMOD SNAME##_node *PFX##_new_node(V element);                                           \
-    FMOD SNAME##_node *PFX##_get_node(SNAME *_set_, V element);                             \
-    FMOD unsigned char PFX##_h(SNAME##_node *node);                                         \
-    FMOD unsigned char PFX##_hupdate(SNAME##_node *node);                                   \
-    FMOD void PFX##_rotate_right(SNAME##_node **Z);                                         \
-    FMOD void PFX##_rotate_left(SNAME##_node **Z);                                          \
-    FMOD void PFX##_rebalance(SNAME *_set_, SNAME##_node *node);                            \
-    SNAME##_iter PFX##_impl_it_start(SNAME *_set_);                                         \
-    SNAME##_iter PFX##_impl_it_end(SNAME *_set_);                                           \
+    /* Implementation Detail Functions */                                                   \
+    static SNAME##_node *PFX##_impl_new_node(V element);                                    \
+    static SNAME##_node *PFX##_impl_get_node(SNAME *_set_, V element);                      \
+    static unsigned char PFX##_impl_h(SNAME##_node *node);                                  \
+    static unsigned char PFX##_impl_hupdate(SNAME##_node *node);                            \
+    static void PFX##_impl_rotate_right(SNAME##_node **Z);                                  \
+    static void PFX##_impl_rotate_left(SNAME##_node **Z);                                   \
+    static void PFX##_impl_rebalance(SNAME *_set_, SNAME##_node *node);                     \
+    static SNAME##_iter PFX##_impl_it_start(SNAME *_set_);                                  \
+    static SNAME##_iter PFX##_impl_it_end(SNAME *_set_);                                    \
                                                                                             \
     FMOD SNAME *PFX##_new(int (*compare)(V, V))                                             \
     {                                                                                       \
@@ -235,7 +246,7 @@
     {                                                                                       \
         if (PFX##_empty(_set_))                                                             \
         {                                                                                   \
-            _set_->root = PFX##_new_node(element);                                          \
+            _set_->root = PFX##_impl_new_node(element);                                     \
                                                                                             \
             if (!_set_->root)                                                               \
                 return false;                                                               \
@@ -261,7 +272,7 @@
                                                                                             \
             if (_set_->cmp(parent->value, element) > 0)                                     \
             {                                                                               \
-                parent->left = PFX##_new_node(element);                                     \
+                parent->left = PFX##_impl_new_node(element);                                \
                                                                                             \
                 if (!parent->left)                                                          \
                     return false;                                                           \
@@ -271,7 +282,7 @@
             }                                                                               \
             else                                                                            \
             {                                                                               \
-                parent->right = PFX##_new_node(element);                                    \
+                parent->right = PFX##_impl_new_node(element);                               \
                                                                                             \
                 if (!parent->right)                                                         \
                     return false;                                                           \
@@ -280,7 +291,7 @@
                 node = parent->right;                                                       \
             }                                                                               \
                                                                                             \
-            PFX##_rebalance(_set_, node);                                                   \
+            PFX##_impl_rebalance(_set_, node);                                              \
         }                                                                                   \
                                                                                             \
         _set_->count++;                                                                     \
@@ -290,7 +301,7 @@
                                                                                             \
     FMOD bool PFX##_remove(SNAME *_set_, V element)                                         \
     {                                                                                       \
-        SNAME##_node *node = PFX##_get_node(_set_, element);                                \
+        SNAME##_node *node = PFX##_impl_get_node(_set_, element);                           \
                                                                                             \
         if (!node)                                                                          \
             return false;                                                                   \
@@ -399,7 +410,7 @@
         }                                                                                   \
                                                                                             \
         if (unbalanced != NULL)                                                             \
-            PFX##_rebalance(_set_, unbalanced);                                             \
+            PFX##_impl_rebalance(_set_, unbalanced);                                        \
                                                                                             \
         _set_->count--;                                                                     \
                                                                                             \
@@ -523,7 +534,7 @@
         {                                                                                   \
             V value = PFX##_iter_value(&iter);                                              \
                                                                                             \
-            if (PFX##_get_node(_set_B_, value) != NULL)                                     \
+            if (PFX##_impl_get_node(_set_B_, value) != NULL)                                \
                 PFX##_insert(_set_r_, value);                                               \
         }                                                                                   \
                                                                                             \
@@ -544,7 +555,7 @@
         {                                                                                   \
             V value = PFX##_iter_value(&iter);                                              \
                                                                                             \
-            if (PFX##_get_node(_set2_, value) == NULL)                                      \
+            if (PFX##_impl_get_node(_set2_, value) == NULL)                                 \
                 PFX##_insert(_set_r_, value);                                               \
         }                                                                                   \
                                                                                             \
@@ -566,7 +577,7 @@
         {                                                                                   \
             V value = PFX##_iter_value(&iter1);                                             \
                                                                                             \
-            if (PFX##_get_node(_set2_, value) == NULL)                                      \
+            if (PFX##_impl_get_node(_set2_, value) == NULL)                                 \
                 PFX##_insert(_set_r_, value);                                               \
         }                                                                                   \
                                                                                             \
@@ -574,7 +585,7 @@
         {                                                                                   \
             V value = PFX##_iter_value(&iter2);                                             \
                                                                                             \
-            if (PFX##_get_node(_set1_, value) == NULL)                                      \
+            if (PFX##_impl_get_node(_set1_, value) == NULL)                                 \
                 PFX##_insert(_set_r_, value);                                               \
         }                                                                                   \
                                                                                             \
@@ -724,6 +735,9 @@
                                                                                             \
     FMOD V PFX##_iter_value(SNAME##_iter *iter)                                             \
     {                                                                                       \
+        if (PFX##_empty(iter->target))                                                      \
+            PFX##_impl_default_value();                                                     \
+                                                                                            \
         return iter->cursor->value;                                                         \
     }                                                                                       \
                                                                                             \
@@ -732,7 +746,7 @@
         return iter->index;                                                                 \
     }                                                                                       \
                                                                                             \
-    FMOD SNAME##_node *PFX##_new_node(V element)                                            \
+    static SNAME##_node *PFX##_impl_new_node(V element)                                     \
     {                                                                                       \
         SNAME##_node *node = malloc(sizeof(SNAME##_node));                                  \
                                                                                             \
@@ -748,7 +762,7 @@
         return node;                                                                        \
     }                                                                                       \
                                                                                             \
-    FMOD SNAME##_node *PFX##_get_node(SNAME *_set_, V element)                              \
+    static SNAME##_node *PFX##_impl_get_node(SNAME *_set_, V element)                       \
     {                                                                                       \
         if (PFX##_empty(_set_))                                                             \
             return NULL;                                                                    \
@@ -768,7 +782,7 @@
         return NULL;                                                                        \
     }                                                                                       \
                                                                                             \
-    FMOD unsigned char PFX##_h(SNAME##_node *node)                                          \
+    static unsigned char PFX##_impl_h(SNAME##_node *node)                                   \
     {                                                                                       \
         if (node == NULL)                                                                   \
             return 0;                                                                       \
@@ -776,18 +790,18 @@
         return node->height;                                                                \
     }                                                                                       \
                                                                                             \
-    FMOD unsigned char PFX##_hupdate(SNAME##_node *node)                                    \
+    static unsigned char PFX##_impl_hupdate(SNAME##_node *node)                             \
     {                                                                                       \
         if (node == NULL)                                                                   \
             return 0;                                                                       \
                                                                                             \
-        unsigned char h_l = PFX##_h(node->left);                                            \
-        unsigned char h_r = PFX##_h(node->right);                                           \
+        unsigned char h_l = PFX##_impl_h(node->left);                                       \
+        unsigned char h_r = PFX##_impl_h(node->right);                                      \
                                                                                             \
         return 1 + (h_l > h_r ? h_l : h_r);                                                 \
     }                                                                                       \
                                                                                             \
-    FMOD void PFX##_rotate_right(SNAME##_node **Z)                                          \
+    static void PFX##_impl_rotate_right(SNAME##_node **Z)                                   \
     {                                                                                       \
         SNAME##_node *root = *Z;                                                            \
         SNAME##_node *new_root = root->left;                                                \
@@ -810,13 +824,13 @@
                                                                                             \
         new_root->right = root;                                                             \
                                                                                             \
-        root->height = PFX##_hupdate(root);                                                 \
-        new_root->height = PFX##_hupdate(new_root);                                         \
+        root->height = PFX##_impl_hupdate(root);                                            \
+        new_root->height = PFX##_impl_hupdate(new_root);                                    \
                                                                                             \
         *Z = new_root;                                                                      \
     }                                                                                       \
                                                                                             \
-    FMOD void PFX##_rotate_left(SNAME##_node **Z)                                           \
+    static void PFX##_impl_rotate_left(SNAME##_node **Z)                                    \
     {                                                                                       \
         SNAME##_node *root = *Z;                                                            \
         SNAME##_node *new_root = root->right;                                               \
@@ -839,13 +853,13 @@
                                                                                             \
         new_root->left = root;                                                              \
                                                                                             \
-        root->height = PFX##_hupdate(root);                                                 \
-        new_root->height = PFX##_hupdate(new_root);                                         \
+        root->height = PFX##_impl_hupdate(root);                                            \
+        new_root->height = PFX##_impl_hupdate(new_root);                                    \
                                                                                             \
         *Z = new_root;                                                                      \
     }                                                                                       \
                                                                                             \
-    FMOD void PFX##_rebalance(SNAME *_set_, SNAME##_node *node)                             \
+    static void PFX##_impl_rebalance(SNAME *_set_, SNAME##_node *node)                      \
     {                                                                                       \
         SNAME##_node *scan = node, *child = NULL;                                           \
                                                                                             \
@@ -857,26 +871,26 @@
             if (scan->parent == NULL)                                                       \
                 is_root = true;                                                             \
                                                                                             \
-            scan->height = PFX##_hupdate(scan);                                             \
-            balance = PFX##_h(scan->right) - PFX##_h(scan->left);                           \
+            scan->height = PFX##_impl_hupdate(scan);                                        \
+            balance = PFX##_impl_h(scan->right) - PFX##_impl_h(scan->left);                 \
                                                                                             \
             if (balance >= 2)                                                               \
             {                                                                               \
                 child = scan->right;                                                        \
                                                                                             \
-                if (PFX##_h(child->right) < PFX##_h(child->left))                           \
-                    PFX##_rotate_right(&(scan->right));                                     \
+                if (PFX##_impl_h(child->right) < PFX##_impl_h(child->left))                 \
+                    PFX##_impl_rotate_right(&(scan->right));                                \
                                                                                             \
-                PFX##_rotate_left(&scan);                                                   \
+                PFX##_impl_rotate_left(&scan);                                              \
             }                                                                               \
             else if (balance <= -2)                                                         \
             {                                                                               \
                 child = scan->left;                                                         \
                                                                                             \
-                if (PFX##_h(child->left) < PFX##_h(child->right))                           \
-                    PFX##_rotate_left(&(scan->left));                                       \
+                if (PFX##_impl_h(child->left) < PFX##_impl_h(child->right))                 \
+                    PFX##_impl_rotate_left(&(scan->left));                                  \
                                                                                             \
-                PFX##_rotate_right(&scan);                                                  \
+                PFX##_impl_rotate_right(&scan);                                             \
             }                                                                               \
                                                                                             \
             if (is_root)                                                                    \
@@ -889,7 +903,7 @@
         }                                                                                   \
     }                                                                                       \
                                                                                             \
-    SNAME##_iter PFX##_impl_it_start(SNAME *_set_)                                          \
+    static SNAME##_iter PFX##_impl_it_start(SNAME *_set_)                                   \
     {                                                                                       \
         SNAME##_iter iter;                                                                  \
                                                                                             \
@@ -898,7 +912,7 @@
         return iter;                                                                        \
     }                                                                                       \
                                                                                             \
-    SNAME##_iter PFX##_impl_it_end(SNAME *_set_)                                            \
+    static SNAME##_iter PFX##_impl_it_end(SNAME *_set_)                                     \
     {                                                                                       \
         SNAME##_iter iter;                                                                  \
                                                                                             \
