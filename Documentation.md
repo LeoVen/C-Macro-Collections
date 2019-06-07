@@ -2802,37 +2802,39 @@ Removes a matching element from the set using the comparator function, only if t
 
 ## [<span id="treeset_max"> \_max() </span>](#treeset_function_index)
 
-Returns the greatest element present in a given set, according to the set comparator function.
+Retrieves the greatest element present in a given set, according to the set comparator function.
 
 #### Declaration
 
-> `FMOD V PFX##_max(SNAME *_set_);`
+> `FMOD bool PFX##_max(SNAME *_set_, V *value);`
 
 #### Parameters
 
 1. `SNAME *_set_` - Target TreeSet.
+2. `V *value` - The resulting, greatest value in the set.
 
 #### Returns
 
-1. `V` - The greatest element in the set.
-2. `0` or `NULL` - If the set is empty.
+1. `true` - If the set is not empty and a valid value was found.
+2. `false` - If the set is empty and no valid value was found.
 
 ## [<span id="treeset_min"> \_min() </span>](#treeset_function_index)
 
-Returns the smallest element present in a given set, according to the set comparator function.
+Retrieves the smallest element present in a given set, according to the set comparator function.
 
 #### Declaration
 
-> `FMOD V PFX##_in(SNAME *_set_);`
+> `FMOD bool PFX##_min(SNAME *_set_, V *value);`
 
 #### Parameters
 
 1. `SNAME *_set_` - Target TreeSet.
+2. `V *value` - The resulting, smallest value in the set.
 
 #### Returns
 
-1. `V` - The smallest element in the set.
-2. `0` or `NULL` - If the set is empty.
+1. `true` - If the set is not empty and a valid value was found.
+2. `false` - If the set is empty and no valid value was found.
 
 ## [<span id="treeset_contains"> \_contains() </span>](#treeset_function_index)
 

@@ -108,8 +108,8 @@
     FMOD bool PFX##_insert_if(SNAME *_set_, V element, bool condition);     \
     FMOD bool PFX##_remove_if(SNAME *_set_, V element, bool condition);     \
     /* Element Access */                                                    \
-    FMOD V PFX##_max(SNAME *_set_);                                         \
-    FMOD V PFX##_min(SNAME *_set_);                                         \
+    FMOD bool PFX##_max(SNAME *_set_, V *value);                            \
+    FMOD bool PFX##_min(SNAME *_set_, V *value);                            \
     /* Collection State */                                                  \
     FMOD bool PFX##_contains(SNAME *_set_, V element);                      \
     FMOD bool PFX##_empty(SNAME *_set_);                                    \
@@ -425,30 +425,34 @@
         return false;                                                                       \
     }                                                                                       \
                                                                                             \
-    FMOD V PFX##_max(SNAME *_set_)                                                          \
+    FMOD bool PFX##_max(SNAME *_set_, V *value)                                             \
     {                                                                                       \
         if (PFX##_empty(_set_))                                                             \
-            return 0;                                                                       \
+            return false;                                                                   \
                                                                                             \
         SNAME##_node *scan = _set_->root;                                                   \
                                                                                             \
         while (scan->right != NULL)                                                         \
             scan = scan->right;                                                             \
                                                                                             \
-        return scan->value;                                                                 \
+        *value = scan->value;                                                               \
+                                                                                            \
+        return true;                                                                        \
     }                                                                                       \
                                                                                             \
-    FMOD V PFX##_min(SNAME *_set_)                                                          \
+    FMOD bool PFX##_min(SNAME *_set_, V *value)                                             \
     {                                                                                       \
         if (PFX##_empty(_set_))                                                             \
-            return 0;                                                                       \
+            return false;                                                                   \
                                                                                             \
         SNAME##_node *scan = _set_->root;                                                   \
                                                                                             \
         while (scan->left != NULL)                                                          \
             scan = scan->left;                                                              \
                                                                                             \
-        return scan->value;                                                                 \
+        *value = scan->value;                                                               \
+                                                                                            \
+        return true;                                                                        \
     }                                                                                       \
                                                                                             \
     FMOD bool PFX##_contains(SNAME *_set_, V element)                                       \
