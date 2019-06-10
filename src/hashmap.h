@@ -180,8 +180,8 @@ static const size_t cmc_hashtable_primes[] = {53, 97, 191, 383, 769, 1531,
     FMOD bool PFX##_iter_start(SNAME##_iter *iter);                                           \
     FMOD bool PFX##_iter_end(SNAME##_iter *iter);                                             \
     /* Iterator Movement */                                                                   \
-    FMOD void PFX##_iter_tostart(SNAME##_iter *iter);                                         \
-    FMOD void PFX##_iter_toend(SNAME##_iter *iter);                                           \
+    FMOD void PFX##_iter_to_start(SNAME##_iter *iter);                                        \
+    FMOD void PFX##_iter_to_end(SNAME##_iter *iter);                                          \
     FMOD bool PFX##_iter_next(SNAME##_iter *iter);                                            \
     FMOD bool PFX##_iter_prev(SNAME##_iter *iter);                                            \
     /* Iterator Access */                                                                     \
