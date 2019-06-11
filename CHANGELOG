@@ -1,5 +1,14 @@
 # MAJOR.MINOR.ADJUSTMENTS
 
+1.4.3
+    Fixed some functions names
+    Added set functions for both Tree and Hash Set
+        - is_subset
+        - is_proper_subset
+        - is_superset
+        - is_proper_subset
+        - is_disjointset
+
 1.4.2
     Adapted code so that plain struct type is accepted
     Changed TreeSet max and min to be compatible with the TreeMap and the hash collections
