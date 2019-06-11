@@ -120,6 +120,11 @@
     FMOD SNAME *PFX##_intersection(SNAME *_set1_, SNAME *_set2_);           \
     FMOD SNAME *PFX##_difference(SNAME *_set1_, SNAME *_set2_);             \
     FMOD SNAME *PFX##_symmetric_difference(SNAME *_set1_, SNAME *_set2_);   \
+    FMOD bool PFX##_is_subset(SNAME *_set1_, SNAME *_set2_);                \
+    FMOD bool PFX##_is_superset(SNAME *_set1_, SNAME *_set2_);              \
+    FMOD bool PFX##_is_proper_subset(SNAME *_set1_, SNAME *_set2_);         \
+    FMOD bool PFX##_is_proper_superset(SNAME *_set1_, SNAME *_set2_);       \
+    FMOD bool PFX##_is_disjointset(SNAME *_set1_, SNAME *_set2_);           \
                                                                             \
     /* Iterator Functions */                                                \
     /* Iterator Allocation and Deallocation */                              \
@@ -590,6 +595,111 @@
         }                                                                                   \
                                                                                             \
         return _set_r_;                                                                     \
+    }                                                                                       \
+                                                                                            \
+    /* Is _set1_ a subset of _set2_ ? */                                                    \
+    /* A set X is a subset of a set Y when: X <= Y */                                       \
+    /* If X is a subset of Y, then Y is a superset of X */                                  \
+    FMOD bool PFX##_is_subset(SNAME *_set1_, SNAME *_set2_)                                 \
+    {                                                                                       \
+        /* If the cardinality of _set1_ is greater than that of _set2_, then it is safe */  \
+        /* to say that _set1_ can't be a subset of _set2_ */                                \
+        if (PFX##_count(_set1_) > PFX##_count(_set2_))                                      \
+            return false;                                                                   \
+                                                                                            \
+        /* The empty set is a subset of all sets */                                         \
+        if (PFX##_empty(_set1_))                                                            \
+            return true;                                                                    \
+                                                                                            \
+        SNAME##_iter iter;                                                                  \
+                                                                                            \
+        PFX##_iter_init(&iter, _set1_);                                                     \
+                                                                                            \
+        for (PFX##_iter_to_start(&iter); !PFX##_iter_end(&iter); PFX##_iter_next(&iter))    \
+        {                                                                                   \
+            V value = PFX##_iter_value(&iter);                                              \
+                                                                                            \
+            if (!PFX##_contains(_set2_, value))                                             \
+                return false;                                                               \
+        }                                                                                   \
+                                                                                            \
+        return true;                                                                        \
+    }                                                                                       \
+                                                                                            \
+    /* Is _set1_ a superset of _set2_ ? */                                                  \
+    /* A set X is a superset of a set Y when: X >= Y */                                     \
+    /* If X is a superset of Y, then Y is a subset of X */                                  \
+    FMOD bool PFX##_is_superset(SNAME *_set1_, SNAME *_set2_)                               \
+    {                                                                                       \
+        return PFX##_is_subset(_set2_, _set1_);                                             \
+    }                                                                                       \
+                                                                                            \
+    /* Is _set1_ a proper subset of _set2_ ? */                                             \
+    /* A set X is a proper subset of a set Y when: X < Y */                                 \
+    /* If X is a proper subset of Y, then Y is a proper superset of X */                    \
+    FMOD bool PFX##_is_proper_subset(SNAME *_set1_, SNAME *_set2_)                          \
+    {                                                                                       \
+        /* If the cardinality of _set1_ is greater than or equal to that of _set2_, then */ \
+        /* it is safe to say that _set1_ can't be a proper subset of _set2_ */              \
+        if (PFX##_count(_set1_) >= PFX##_count(_set2_))                                     \
+            return false;                                                                   \
+                                                                                            \
+        if (PFX##_empty(_set1_))                                                            \
+        {                                                                                   \
+            /* The empty set is a proper subset of all non-empty sets */                    \
+            if (!PFX##_empty(_set2_))                                                       \
+                return true;                                                                \
+            /* The empty set is not a proper subset of itself (this is true for any set) */ \
+            else                                                                            \
+                return false;                                                               \
+        }                                                                                   \
+                                                                                            \
+        SNAME##_iter iter;                                                                  \
+                                                                                            \
+        PFX##_iter_init(&iter, _set1_);                                                     \
+                                                                                            \
+        for (PFX##_iter_to_start(&iter); !PFX##_iter_end(&iter); PFX##_iter_next(&iter))    \
+        {                                                                                   \
+            V value = PFX##_iter_value(&iter);                                              \
+                                                                                            \
+            if (!PFX##_contains(_set2_, value))                                             \
+                return false;                                                               \
+        }                                                                                   \
+                                                                                            \
+        return true;                                                                        \
+    }                                                                                       \
+                                                                                            \
+    /* Is _set1_ a proper superset of _set2_ ? */                                           \
+    /* A set X is a proper superset of a set Y when: X > Y */                               \
+    /* If X is a proper superset of Y, then Y is a proper subset of X */                    \
+    FMOD bool PFX##_is_proper_superset(SNAME *_set1_, SNAME *_set2_)                        \
+    {                                                                                       \
+        return PFX##_is_proper_subset(_set2_, _set1_);                                      \
+    }                                                                                       \
+                                                                                            \
+    /* Is _set1_ a disjointset of _set2_ ? */                                               \
+    /* A set X is a disjointset of a set Y if their intersection is empty, that is, if */   \
+    /* there are no elements in common between the two */                                   \
+    FMOD bool PFX##_is_disjointset(SNAME *_set1_, SNAME *_set2_)                            \
+    {                                                                                       \
+        /* The intersection of an empty set with any other set will result in an empty */   \
+        /* set */                                                                           \
+        if (PFX##_empty(_set1_))                                                            \
+            return true;                                                                    \
+                                                                                            \
+        SNAME##_iter iter;                                                                  \
+                                                                                            \
+        PFX##_iter_init(&iter, _set1_);                                                     \
+                                                                                            \
+        for (PFX##_iter_to_start(&iter); !PFX##_iter_end(&iter); PFX##_iter_next(&iter))    \
+        {                                                                                   \
+            V value = PFX##_iter_value(&iter);                                              \
+                                                                                            \
+            if (PFX##_contains(_set2_, value))                                              \
+                return false;                                                               \
+        }                                                                                   \
+                                                                                            \
+        return true;                                                                        \
     }                                                                                       \
                                                                                             \
     FMOD SNAME##_iter *PFX##_iter_new(SNAME *target)                                        \
