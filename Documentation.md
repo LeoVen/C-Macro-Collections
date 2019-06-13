@@ -136,15 +136,15 @@ The iterator is a simple structure that is capable of going back and forwards. A
 
 ## [<span id="list_new"> \_new() </span>](#list_function_index)
 
-Allocates and returns a new list with an internal capacity of `size`. If allocation fails, `NULL` is returned.
+Allocates and returns a new list with an internal capacity of the specified value. If allocation fails, `NULL` is returned.
 
 #### Declaration
 
-> `FMOD SNAME *PFX##_new(size_t size);`
+> `FMOD SNAME *PFX##_new(size_t capacity);`
 
 #### Parameters
 
-1. `size_t size` - The initial capacity for the list.
+1. `size_t capacity` - The initial capacity for the list.
 
 #### Returns
 
@@ -1028,15 +1028,15 @@ A Stack is used in algorithms like backtracking, depth-first search, expression 
 
 ## [<span id="stack_new"> \_new() </span>](#stack_function_index)
 
-Allocates and returns a new stack with an internal capacity of `size`. If allocation fails, `NULL` is returned.
+Allocates and returns a new stack with an internal capacity of the specified value. If allocation fails, `NULL` is returned.
 
 #### Declaration
 
-> `FMOD SNAME *PFX##_new(size_t size);`
+> `FMOD SNAME *PFX##_new(size_t capacity);`
 
 #### Parameters
 
-1. `size_t size` - The initial capacity for the stack.
+1. `size_t capacity` - The initial capacity for the stack.
 
 #### Returns
 
@@ -1545,15 +1545,15 @@ The queue is used in many applications where a resource is shared among multiple
 
 ## [<span id="queue_new"> \_new() </span>](#queue_function_index)
 
-Allocates and returns a new queue with an internal capacity of `size`. If allocation fails, `NULL` is returned.
+Allocates and returns a new queue with an internal capacity of the specified value. If allocation fails, `NULL` is returned.
 
 #### Declaration
 
-> `FMOD SNAME *PFX##_new(size_t size);`
+> `FMOD SNAME *PFX##_new(size_t capacity);`
 
 #### Parameters
 
-1. `size_t size` - The initial capacity for the queue.
+1. `size_t capacity` - The initial capacity for the queue.
 
 #### Returns
 
@@ -2062,15 +2062,15 @@ A double-ended queue backed by a circular buffer. Elements can be added and remo
 
 ## [<span id="deque_new"> \_new() </span>](#deque_function_index)
 
-Allocates and returns a new deque with an internal capacity of `size`. If allocation fails, `NULL` is returned.
+Allocates and returns a new deque with an internal capacity of the specified value. If allocation fails, `NULL` is returned.
 
 #### Declaration
 
-> `FMOD SNAME *PFX##_new(size_t size);`
+> `FMOD SNAME *PFX##_new(size_t capacity);`
 
 #### Parameters
 
-1. `size_t size` - The initial capacity for the deque.
+1. `size_t capacity` - The initial capacity for the deque.
 
 #### Returns
 

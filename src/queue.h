@@ -80,7 +80,7 @@
                                                                                   \
     /* Collection Functions */                                                    \
     /* Collection Allocation and Deallocation */                                  \
-    FMOD SNAME *PFX##_new(size_t size);                                           \
+    FMOD SNAME *PFX##_new(size_t capacity);                                       \
     FMOD void PFX##_clear(SNAME *_queue_);                                        \
     FMOD void PFX##_free(SNAME *_queue_);                                         \
     /* Collection Input and Output */                                             \
@@ -135,9 +135,9 @@
     static SNAME##_iter PFX##_impl_it_start(SNAME *_queue_);                                                \
     static SNAME##_iter PFX##_impl_it_end(SNAME *_queue_);                                                  \
                                                                                                             \
-    FMOD SNAME *PFX##_new(size_t size)                                                                      \
+    FMOD SNAME *PFX##_new(size_t capacity)                                                                  \
     {                                                                                                       \
-        if (size < 1)                                                                                       \
+        if (capacity < 1)                                                                                   \
             return NULL;                                                                                    \
                                                                                                             \
         SNAME *_queue_ = malloc(sizeof(SNAME));                                                             \
@@ -145,7 +145,7 @@
         if (!_queue_)                                                                                       \
             return NULL;                                                                                    \
                                                                                                             \
-        _queue_->buffer = malloc(sizeof(V) * size);                                                         \
+        _queue_->buffer = malloc(sizeof(V) * capacity);                                                     \
                                                                                                             \
         if (!_queue_->buffer)                                                                               \
         {                                                                                                   \
@@ -153,9 +153,9 @@
             return NULL;                                                                                    \
         }                                                                                                   \
                                                                                                             \
-        memset(_queue_->buffer, 0, sizeof(V) * size);                                                       \
+        memset(_queue_->buffer, 0, sizeof(V) * capacity);                                                   \
                                                                                                             \
-        _queue_->capacity = size;                                                                           \
+        _queue_->capacity = capacity;                                                                       \
         _queue_->count = 0;                                                                                 \
         _queue_->front = 0;                                                                                 \
         _queue_->rear = 0;                                                                                  \

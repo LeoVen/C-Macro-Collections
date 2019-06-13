@@ -71,7 +71,7 @@
                                                                                   \
     /* Collection Functions */                                                    \
     /* Collection Allocation and Deallocation */                                  \
-    FMOD SNAME *PFX##_new(size_t size);                                           \
+    FMOD SNAME *PFX##_new(size_t capacity);                                       \
     FMOD void PFX##_clear(SNAME *_stack_);                                        \
     FMOD void PFX##_free(SNAME *_stack_);                                         \
     /* Collection Input and Output */                                             \
@@ -126,9 +126,9 @@
     static SNAME##_iter PFX##_impl_it_start(SNAME *_stack_);                     \
     static SNAME##_iter PFX##_impl_it_end(SNAME *_stack_);                       \
                                                                                  \
-    FMOD SNAME *PFX##_new(size_t size)                                           \
+    FMOD SNAME *PFX##_new(size_t capacity)                                       \
     {                                                                            \
-        if (size < 1)                                                            \
+        if (capacity < 1)                                                        \
             return NULL;                                                         \
                                                                                  \
         SNAME *_stack_ = malloc(sizeof(SNAME));                                  \
@@ -136,7 +136,7 @@
         if (!_stack_)                                                            \
             return NULL;                                                         \
                                                                                  \
-        _stack_->buffer = malloc(sizeof(V) * size);                              \
+        _stack_->buffer = malloc(sizeof(V) * capacity);                          \
                                                                                  \
         if (!_stack_->buffer)                                                    \
         {                                                                        \
@@ -146,7 +146,7 @@
                                                                                  \
         memset(_stack_->buffer, 0, sizeof(V) * size);                            \
                                                                                  \
-        _stack_->capacity = size;                                                \
+        _stack_->capacity = capacity;                                            \
         _stack_->count = 0;                                                      \
                                                                                  \
         _stack_->it_start = PFX##_impl_it_start;                                 \

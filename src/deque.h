@@ -80,7 +80,7 @@
                                                                                   \
     /* Collection Functions */                                                    \
     /* Collection Allocation and Deallocation */                                  \
-    FMOD SNAME *PFX##_new(size_t size);                                           \
+    FMOD SNAME *PFX##_new(size_t capacity);                                       \
     FMOD void PFX##_clear(SNAME *_deque_);                                        \
     FMOD void PFX##_free(SNAME *_deque_);                                         \
     /* Collection Input and Output */                                             \
@@ -140,9 +140,9 @@
     static SNAME##_iter PFX##_impl_it_start(SNAME *_deque_);                                                \
     static SNAME##_iter PFX##_impl_it_end(SNAME *_deque_);                                                  \
                                                                                                             \
-    FMOD SNAME *PFX##_new(size_t size)                                                                      \
+    FMOD SNAME *PFX##_new(size_t capacity)                                                                  \
     {                                                                                                       \
-        if (size < 1)                                                                                       \
+        if (capacity < 1)                                                                                   \
             return NULL;                                                                                    \
                                                                                                             \
         SNAME *_deque_ = malloc(sizeof(SNAME));                                                             \
@@ -150,7 +150,7 @@
         if (!_deque_)                                                                                       \
             return NULL;                                                                                    \
                                                                                                             \
-        _deque_->buffer = malloc(sizeof(V) * size);                                                         \
+        _deque_->buffer = malloc(sizeof(V) * capacity);                                                     \
                                                                                                             \
         if (!_deque_->buffer)                                                                               \
         {                                                                                                   \
@@ -158,9 +158,9 @@
             return NULL;                                                                                    \
         }                                                                                                   \
                                                                                                             \
-        memset(_deque_->buffer, 0, sizeof(V) * size);                                                       \
+        memset(_deque_->buffer, 0, sizeof(V) * capacity);                                                   \
                                                                                                             \
-        _deque_->capacity = size;                                                                           \
+        _deque_->capacity = capacity;                                                                       \
         _deque_->count = 0;                                                                                 \
         _deque_->front = 0;                                                                                 \
         _deque_->back = 0;                                                                                  \

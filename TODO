@@ -25,27 +25,24 @@ Before 2.0
     OK - Allow for struct to be a possible data type (instead of just pointer to struct)
     OK - Set functions: is_subset, is_proper_subset, is_superset, is_proper_superset, is_disjointset
     Iterator move and move_to
-    from_array - Creates a collection with all the elements in a specified array
-    to_array - Creates an array with all the elements inside the collection
 
 1.6
+    from_array - Creates a collection with all the elements in a specified array
+    to_array - Creates an array with all the elements inside the collection
     LinkedList - Insert/Remove/Append/Prepend/Extract
     Resize buffer function
     Add dispose method to each collection in order to automatically free its data
+    Add copy functions (copy of a collection)
 
 2.0
-    Add multiset, multimap and new heap implementation
+    Add new heap collection implementation
+    Add stack based collections
 
 2.1
-    Adapt multiset, multimap and new heap implementation to the current standards
+    Add variadic macros (generate only the necessary functions)
 
 2.2
     Add serialization functions
-        Header:
-            %d - Type specifier (LIST = 0, DEQUE = 1, STACK = 2, etc) for quick check
-            %llu - How many elements there are
-            %d - If data varies in size
-            %llu - Data size
 
 2.3
     Iterator functions (functions that operate relative to iterators position) like add or remove ranges
