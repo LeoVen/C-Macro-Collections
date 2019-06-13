@@ -144,7 +144,7 @@
             return NULL;                                                         \
         }                                                                        \
                                                                                  \
-        memset(_stack_->buffer, 0, sizeof(V) * size);                            \
+        memset(_stack_->buffer, 0, sizeof(V) * capacity);                        \
                                                                                  \
         _stack_->capacity = capacity;                                            \
         _stack_->count = 0;                                                      \
