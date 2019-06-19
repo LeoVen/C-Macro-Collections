@@ -1,19 +1,700 @@
 <span id="collections_index"> Collections Documentation </span>
 
-* [List](#List)
-* [LinkedList](#LinkedList)
-* [Stack](#Stack)
-* [Queue](#Queue)
 * [Deque](#Deque)
-* [Heap](#Heap)
-* [TreeSet](#TreeSet)
-* [TreeMap](#TreeMap)
-* [HashSet](#HashSet)
 * [HashMap](#HashMap)
+* [HashSet](#HashSet)
+* [Heap](#Heap)
+* [LinkedList](#LinkedList)
+* [List](#List)
+* [Queue](#Queue)
+* [Stack](#Stack)
+* [TreeMap](#TreeMap)
+* [TreeSet](#TreeSet)
 
 Others
 
 * [ForEach](#ForEach)
+
+# [Deque](#collections_index)
+
+A double-ended queue backed by a circular buffer. Elements can be added and removed from both ends but not in the middle. Can also be used as a queue.
+
+### Generation Macro
+
+* `DEQUE_GENERATE(PFX, SNAME, FMOD, V)`
+    * `PFX` - Functions namespace or prefix.
+    * `SNAME` - Structure name.
+    * `FMOD` - Function modifier (static or empty).
+    * `V` - Element type.
+
+### Defined Structures
+
+* `struct SNAME##_s` - Structure Name (represents a double-ended queue structure)
+    * `V *buffer` - Dynamic circular array of elements.
+    * `size_t capacity` - Current circular array capacity.
+    * `size_t count` - Current amount of elements.
+    * `size_t front` - Index representing the front of the deque.
+    * `size_t rear` - Index representing the back of the deque.
+    * `it_start` - Function that returns an iterator to the start of the deque.
+        * Full definition: `struct SNAME##_iter_s (*it_start)(struct SNAME##_s *);`.
+    * `it_end` - Function that returns an iterator to the end of the deque.
+        * Full definition: `struct SNAME##_iter_s (*it_end)(struct SNAME##_s *);`.
+
+* `struct SNAME##_iter_s` - Structure Iterator (represents a double-ended queue iterator)
+    * `struct SNAME##_s *target` - Deque being iterated over.
+    * `size_t cursor` - Cursor's current position (index).
+    * `size_t index` - Relative index to all elements in the iteration.
+    * `bool start` - If the iterator reached the start of the iteration.
+    * `bool end` - If the iterator reached the end of iteration.
+
+### Typedefs
+
+* `typedef struct SNAME##_s SNAME`
+* `typedef struct SNAME##_s *SNAME##_ptr`
+* `typedef struct SNAME##_iter_s SNAME##_iter`
+* `typedef struct SNAME##_iter_s *SNAME##_iter_ptr`
+
+### <span id="deque_function_index"> Defined Functions </span>
+
+#### Collection Allocation and Deallocation
+
+* [\_new()](#deque_new)
+* [\_clear()](#deque_clear)
+* [\_free()](#deque_free)
+
+#### Input and Output
+
+* [\_push\_front()](#deque_push_front)
+* [\_push\_back()](#deque_push_back)
+* [\_pop\_front()](#deque_pop_front)
+* [\_pop\_back()](#deque_pop_back)
+
+#### Conditional Input and Output
+
+* [\_push\_front\_if()](#deque_push_front_if)
+* [\_push\_back\_if()](#deque_push_back_if)
+* [\_pop\_front\_if()](#deque_pop_front_if)
+* [\_pop\_back\_if()](#deque_pop_back_if)
+
+#### Elements Access
+
+* [\_front()](#deque_front)
+* [\_back()](#deque_back)
+
+#### Collection State
+
+* [\_contains()](#deque_contains)
+* [\_empty()](#deque_empty)
+* [\_full()](#deque_full)
+* [\_count()](#deque_count)
+* [\_capacity()](#deque_capacity)
+
+#### Iterator Allocation and Deallocation
+
+* [\_iter\_new()](#deque_iter_new)
+* [\_iter\_free()](#deque_iter_free)
+
+#### Iterator Initialization
+
+* [\_iter\_init()](#deque_iter_init)
+
+#### Iterator State
+
+* [\_iter\_start()](#deque_iter_start)
+* [\_iter\_end()](#deque_iter_end)
+
+#### Iterator Movement
+
+* [\_iter\_to\_start()](#deque_iter_to_start)
+* [\_iter\_to\_end()](#deque_iter_to_end)
+* [\_iter\_next()](#deque_iter_next)
+* [\_iter\_prev()](#deque_iter_prev)
+
+#### Iterator Access
+
+* [\_iter\_value()](#deque_iter_value)
+* [\_iter\_rvalue()](#deque_iter_rvalue)
+* [\_iter\_index()](#deque_iter_index)
+
+## [<span id="deque_new"> \_new() </span>](#deque_function_index)
+
+Allocates and returns a new deque with an internal capacity of the specified value. If allocation fails, `NULL` is returned.
+
+#### Declaration
+
+> `FMOD SNAME *PFX##_new(size_t capacity);`
+
+#### Parameters
+
+1. `size_t capacity` - The initial capacity for the deque.
+
+#### Returns
+
+1. `SNAME *` - A pointer to a heap allocated deque.
+2. `NULL` - If allocation fails.
+
+#### Example
+
+```c
+#include "deque.h"
+
+// Generate a DEQUE of type int
+DEQUE_GENERATE(d, deque, /* FMOD */, int)
+
+int main(void)
+{
+    // Make a deque of integers with an initial capacity of 100
+    // The deque and its internal buffer is allocated in the heap
+    deque *int_deque = d_new(100);
+
+    if (!int_deque)
+        // Allocation failed
+        return 1;
+
+    // Deque is ready to be used
+
+    // Be sure to free its resources later
+    d_free(int_deque);
+}
+```
+
+## [<span id="deque_clear"> \_clear() </span>](#deque_function_index)
+
+Removes all elements in the deque but does not frees the deque structure. This will not free any element belonging to the deque.
+
+#### Declaration
+
+> `FMOD void PFX##_clear(SNAME *_deque_);`
+
+#### Parameters
+
+1. `SNAME *_deque_` - Target deque to have all of its elements removed.
+
+#### Undefined Behavior
+
+* If the deque pointer is not a valid memory location.
+
+#### Example
+
+```c
+#include "deque.h"
+
+// Generate a DEQUE of type int
+DEQUE_GENERATE(d, deque, /* FMOD */, int)
+
+int main(void)
+{
+    // Make a deque of integers with an initial capacity of 100
+    deque *int_deque = d_new(100);
+
+    // Add elements to the deque
+    for (int i = 0; i < 50; i++)
+        d_push_front(int_deque, i);
+
+    // empty the deque
+    d_clear(int_deque);
+
+    // deque now has a size of 0 but the deque was not freed from
+    // memory and can still be used
+
+    // Be sure to free its resources after use
+    d_free(int_deque);
+}
+```
+
+## [<span id="deque_free"> \_free() </span>](#deque_function_index)
+
+Frees from memory the deque internal buffer and the structure itself. Note that if the elements inside the deque are pointers to allocated memory, this function might cause memory leaks as it does not deals with its elements.
+
+#### Declaration
+
+> `FMOD void PFX##_free(SNAME *_deque_);`
+
+#### Parameters
+
+1. `SNAME *_deque_` - Target deque to be freed from memory.
+
+## [<span id="deque_push_front"> \_push\_front() </span>](#deque_function_index)
+
+Adds an element to the front of the deque.
+
+#### Declaration
+
+> `FMOD bool PFX##_push_front(SNAME *_deque_, V element);`
+
+#### Parameters
+
+1. `SNAME *_deque_` - Target deque.
+2. `V element` - Element to be added.
+
+#### Returns
+
+1. `true` - If the element was successfully added to the front of the deque.
+2. `false` - If buffer reallocation failed.
+
+## [<span id="deque_push_back"> \_push\_back() </span>](#deque_function_index)
+
+Adds an element to the back of the deque.
+
+#### Declaration
+
+> `FMOD bool PFX##_push_back(SNAME *_deque_, V element);`
+
+#### Parameters
+
+1. `SNAME *_deque_` - Target deque.
+2. `V element` - Element to be added.
+
+#### Returns
+
+1. `true` - If the element was successfully added to the back of the deque.
+2. `false` - If buffer reallocation failed.
+
+## [<span id="deque_pop_front"> \_pop\_front() </span>](#deque_function_index)
+
+Removes an element from the front of the deque. If the deque is empty, nothing happens.
+
+#### Declaration
+
+> `FMOD bool PFX##_pop_front(SNAME *_deque_);`
+
+#### Parameters
+
+1. `SNAME *_deque_` - Target deque.
+
+#### Returns
+
+1. `true` - If an element was successfully removed from the front of the deque.
+2. `false` - If the deque is empty.
+
+## [<span id="deque_pop_back"> \_pop\_back() </span>](#deque_function_index)
+
+Removes an element from the back of the deque. If the deque is empty, nothing happens.
+
+#### Declaration
+
+> `FMOD bool PFX##_pop_back(SNAME *_deque_);`
+
+#### Parameters
+
+1. `SNAME *_deque_` - Target deque.
+
+#### Returns
+
+1. `true` - If an element was successfully removed from the back of the deque.
+2. `false` - If the deque is empty.
+
+## [<span id="deque_push_front_if"> \_push\_front\_if() </span>](#deque_function_index)
+
+Adds an element to the front of the deque if the condition evaluates to true.
+
+#### Declaration
+
+> `FMOD bool PFX##_push_front_if(SNAME *_deque_, V element, bool condition);`
+
+#### Parameters
+
+1. `SNAME *_deque_` - Target deque.
+2. `V element` - Element to be added.
+3. `bool condition` - Condition for the element to be added.
+
+#### Returns
+
+1. `true` - If the element was successfully added to the front of the deque.
+2. `false` - If the condition evaluated to false, or if buffer reallocation failed.
+
+## [<span id="deque_push_back_if"> \_push\_back\_if() </span>](#deque_function_index)
+
+Adds an element to the back of the deque if the condition evaluates to true.
+
+#### Declaration
+
+> `FMOD bool PFX##_push_back_if(SNAME *_deque_, V element, bool condition);`
+
+#### Parameters
+
+1. `SNAME *_deque_` - Target deque.
+2. `V element` - Element to be added.
+3. `bool condition` - Condition for the element to be added.
+
+#### Returns
+
+1. `true` - If the element was successfully added to the back of the deque.
+2. `false` - If the condition evaluated to false, or if buffer reallocation failed.
+
+## [<span id="deque_pop_front_if"> \_pop\_front\_if() </span>](#deque_function_index)
+
+Removes an element from the front of the deque if the condition evaluates to true. If the deque is empty, nothing happens.
+
+#### Declaration
+
+> `FMOD bool PFX##_pop_front_if(SNAME *_deque_, bool condition);`
+
+#### Parameters
+
+1. `SNAME *_deque_` - Target deque.
+2. `bool condition` - Condition for the element to be removed.
+
+#### Returns
+
+1. `true` - If an element was successfully removed from the front of the deque.
+2. `false` - If the condition evaluated to false, or if the deque is empty.
+
+## [<span id="deque_pop_back_if"> \_pop\_back\_if() </span>](#deque_function_index)
+
+Removes an element from the back of the deque if the condition evaluates to true. If the deque is empty, nothing happens.
+
+#### Declaration
+
+> `FMOD bool PFX##_pop_back_if(SNAME *_deque_, bool condition);`
+
+#### Parameters
+
+1. `SNAME *_deque_` - Target deque.
+2. `bool condition` - Condition for the element to be removed.
+
+#### Returns
+
+1. `true` - If an element was successfully removed from the back of the deque.
+2. `false` - If the condition evaluated to false, or if the deque is empty.
+
+## [<span id="deque_front"> \_front() </span>](#deque_function_index)
+
+Returns the front element if the specified deque is not empty.
+
+#### Declaration
+
+> `FMOD V PFX##_front(SNAME *_deque_);`
+
+#### Parameters
+
+1. `SNAME *_deque_` - Target deque.
+
+#### Returns
+
+1. `V` - The front element of the deque.
+2. The default value, where `V` has all of its bytes set to `0` in case the deque is empty.
+
+## [<span id="deque_back"> \_back() </span>](#deque_function_index)
+
+Returns the rear element if the specified deque is not empty.
+
+#### Declaration
+
+> `FMOD V PFX##_back(SNAME *_deque_);`
+
+#### Parameters
+
+1. `SNAME *_deque_` - Target deque.
+
+#### Returns
+
+1. `V` - The rear element of the deque.
+2. The default value, where `V` has all of its bytes set to `0` in case the deque is empty.
+
+## [<span id="deque_contains"> \_contains() </span>](#deque_function_index)
+
+Check if an element is present in the deque according to a `comparator` function. This function runs in `O(n)` and might slow down the program execution if the deque has a lot of elements of if this function is called multiple times.
+
+#### Declaration
+
+> `FMOD bool PFX##_contains(SNAME *_deque_, V element, int (*comparator)(V, V));`
+
+#### Parameters
+
+1. `SNAME *_deque_` - Target deque.
+2. `V element` - Element to check its presence in the deque.
+3. `int (*comparator)(V, V)` - Comparison function. Returns:
+    * `-1` - When the first argument is less than the second;
+    * `0` - When both arguments are equal;
+    * `1` - When the first argument is greater than the second.
+
+#### Returns
+
+1. `true` - If the element is present in the deque.
+2. `false` - If the element is not present in the deque.
+
+## [<span id="deque_empty"> \_empty() </span>](#deque_function_index)
+
+Returns true if the deque is empty, otherwise false.
+
+#### Declaration
+
+> `FMOD bool PFX##_empty(SNAME *_deque_);`
+
+#### Parameters
+
+1. `SNAME *_deque_` - Target deque.
+
+#### Returns
+
+1. `true` - If the deque is empty.
+2. `false` - If there is at least one element in the deque.
+
+## [<span id="deque_full"> \_full() </span>](#deque_function_index)
+
+Returns true if the deque is full, otherwise false. The deque is considered full when its internal buffer is filled up, so the next element added to the deque will required a resizing of the buffer, but note that the deque can grow indefinitely.
+
+#### Declaration
+
+> `FMOD bool PFX##_full(SNAME *_deque_);`
+
+#### Parameters
+
+1. `SNAME *_deque_` - Target deque.
+
+#### Returns
+
+1. `true` - If the deque internal buffer is full.
+2. `false` - If the deque internal buffer is not full.
+
+## [<span id="deque_count"> \_count() </span>](#deque_function_index)
+
+Returns the amount of elements in the deque.
+
+#### Declaration
+
+> `FMOD size_t PFX##_count(SNAME *_deque_);`
+
+#### Parameters
+
+1. `SNAME *_deque_` - Target deque.
+
+#### Returns
+
+1. `size_t` - The amount of elements in the deque.
+
+## [<span id="deque_capacity"> \_capacity() </span>](#deque_function_index)
+
+Returns the internal buffer's current capacity.
+
+#### Declaration
+
+> `FMOD size_t PFX##_capacity(SNAME *_deque_);`
+
+#### Parameters
+
+1. `SNAME *_deque_` - Target deque.
+
+#### Returns
+
+1. `size_t` - The internal buffer's current capacity.
+
+## [<span id="deque_iter_new"> \_iter\_new() </span>](#deque_function_index)
+
+Creates a new iterator allocated on the heap and initializes it with a target deque. The iterator's cursor will be positioned at the front of the deque.
+
+#### Declaration
+
+> `FMOD SNAME##_iter *PFX##_iter_new(SNAME *target);`
+
+#### Parameters
+
+1. `SNAME *target` - Target deque.
+
+#### Returns
+
+1. `SNAME##_iter *` - A heap allocated deque iterator.
+
+## [<span id="deque_iter_free"> \_iter\_free() </span>](#deque_function_index)
+
+Frees a heap allocated deque iterator from memory.
+
+#### Declaration
+
+> `FMOD void PFX##_iter_free(SNAME##_iter *iter);`
+
+#### Parameters
+
+1. `SNAME##_iter *iter` - Iterator to be freed from memory.
+
+## [<span id="deque_iter_init"> \_iter\_init() </span>](#deque_function_index)
+
+Initializes an iterator with a given target deque. The iterator's cursor will be positioned at the front of the deque. The iterator must have been allocated already. This function simply initializes the structure.
+
+#### Declaration
+
+> `FMOD void PFX##_iter_init(SNAME##_iter *iter, SNAME *target);`
+
+#### Parameters
+
+1. `SNAME##_iter *iter` - Iterator to be initialized.
+2. `SNAME *target` - Target deque.
+
+## [<span id="deque_iter_start"> \_iter\_start() </span>](#deque_function_index)
+
+Returns true if the iterator has reached the start (front element) of the deque. If false, the iterator is still possible to iterate to a previous element.
+
+#### Declaration
+
+> `FMOD bool PFX##_iter_start(SNAME##_iter *iter);`
+
+#### Parameters
+
+1. `SNAME##_iter *iter` - Target iterator.
+
+#### Returns
+
+1. `true` - If the iterator has reached the start of the deque.
+2. `false` - If the iterator has not reached the start of the deque.
+
+## [<span id="deque_iter_end"> \_iter\_end() </span>](#deque_function_index)
+
+Returns true if the iterator has reached the end (rear element) of the deque. If false, the iterator is still possible to iterate to a next element.
+
+#### Declaration
+
+> `FMOD bool PFX##_iter_end(SNAME##_iter *iter);`
+
+#### Parameters
+
+1. `SNAME##_iter *iter` - Target iterator.
+
+#### Returns
+
+1. `true` - If the iterator has reached the end of the deque.
+2. `false` - If the iterator has not reached the end of the deque.
+
+## [<span id="deque_iter_to_start"> \_iter\_to\_start() </span>](#deque_function_index)
+
+Moves the cursor of the target iterator to the start (front element) of the deque.
+
+#### Declaration
+
+> `FMOD void PFX##_iter_to_start(SNAME##_iter *iter);`
+
+#### Parameters
+
+1. `SNAME##_iter *iter` - Target iterator.
+
+## [<span id="deque_iter_to_end"> \_iter\_to\_end() </span>](#deque_function_index)
+
+Moves the cursor of the target iterator to the end (rear element) of the deque.
+
+#### Declaration
+
+> `FMOD void PFX##_iter_to_end(SNAME##_iter *iter);`
+
+#### Parameters
+
+1. `SNAME##_iter *iter` - Target iterator.
+
+## [<span id="deque_iter_next"> \_iter\_next() </span>](#deque_function_index)
+
+Moves the target deque iterator to the next element if possible.
+
+#### Declaration
+
+> `FMOD bool PFX##_iter_next(SNAME##_iter *iter);`
+
+#### Parameters
+
+1. `SNAME##_iter *iter` - Target iterator.
+
+#### Returns
+
+1. `true` - If the iterator has moved to the next element in the iteration.
+2. `false` - If the iterator could not move to the next element, hence reaching the end of the iteration.
+
+## [<span id="deque_iter_prev"> \_iter\_prev() </span>](#deque_function_index)
+
+Moves the target deque iterator to the previous element if possible.
+
+#### Declaration
+
+> `FMOD bool PFX##_iter_prev(SNAME##_iter *iter);`
+
+#### Parameters
+
+1. `SNAME##_iter *iter` - Target iterator.
+
+#### Returns
+
+1. `true` - If the iterator has moved to the previous element in the iteration.
+2. `false` - If the iterator could not move to the previous element, hence reaching the start of the iteration.
+
+## [<span id="deque_iter_value"> \_iter\_value() </span>](#deque_function_index)
+
+Returns the element pointed by the target iterator's cursor. The iterator must have been initialized already.
+
+#### Declaration
+
+> `FMOD V PFX##_iter_value(SNAME##_iter *iter);`
+
+#### Parameters
+
+1. `SNAME##_iter *iter` - Target iterator.
+
+#### Returns
+
+1. `V` - The element pointed by the iterator's cursor.
+
+#### Undefined Behavior
+
+* If the iterator points to `NULL`;
+* If the iterator has not been properly initialized;
+* If the iterator's target is invalid.
+
+## [<span id="deque_iter_rvalue"> \_iter\_rvalue() </span>](#deque_function_index)
+
+Returns a reference to the element pointed by the target iterator's cursor. The iterator must have been initialized already.
+
+#### Declaration
+
+> `FMOD V *PFX##_iter_rvalue(SNAME##_iter *iter);`
+
+#### Parameters
+
+1. `SNAME##_iter *iter` - Target iterator.
+
+#### Returns
+
+1. `V *` - A reference to the element pointed by the iterator's cursor.
+
+#### Undefined Behavior
+
+* If the iterator points to `NULL`;
+* If the iterator has not been properly initialized;
+* If the iterator's target is invalid.
+
+## [<span id="deque_iter_index"> \_iter\_index() </span>](#deque_function_index)
+
+Returns the current position of the iterator relative to all the elements in the iteration. The index is `0` based and goes up to `count - 1`.
+
+#### Declaration
+
+> `FMOD size_t PFX##_iter_index(SNAME##_iter *iter);`
+
+#### Parameters
+
+1. `SNAME##_iter *iter` - Target iterator.
+
+#### Returns
+
+1. `size_t` - Current position of the iterator relative to all elements in the iteration.
+
+#### Undefined Behavior
+
+* If the iterator points to `NULL`;
+* If the iterator has not been properly initialized.
+
+# [HashMap](#collections_index)
+
+A HashMap is an associative container that maps a key `K` to a value `V` containing only unique keys. The value is only accessible through the key. The keys are not sorted, unlike a TreeMap. The main advantage of this container is that lookups are almost instantaneous, requiring very few comparisons (at least one) to get the value corresponding to a key.
+
+HashMaps are one of the most used data structures as they are very useful as lookup tables.
+
+# [HashSet](#collections_index)
+
+A HashSet is an unordered collection of unique elements implemented as a hash-table. Searching for elements in this collection is almost instantaneous, requiring very few comparisons (at least one) to check if a certain element is present the the set.
+
+# [Heap](#collections_index)
+
+A heap is a nearly complete binary tree backed by a growable array. The first element of the array (or the root element of the tree) is the highest/lowest element. The min-heap is commonly used as a priority-queue and a max-heap is commonly used to sort an array of elements.
+
+# [LinkedList](#collections_index)
+
+A list where each element is linked by nodes. Elements can be added and removed from both ends of the list and also in the middle. The linked list can be used to implement other data structures like queues, stacks and deques.
 
 # [List](#collections_index)
 
@@ -154,6 +835,9 @@ Allocates and returns a new list with an internal capacity of the specified valu
 #### Example
 
 ```c
+#include "list.h"
+
+// Generate a LIST of type int
 LIST_GENERATE(l, list, /* FMOD */, int)
 
 int main(void)
@@ -166,7 +850,9 @@ int main(void)
         // Allocation failed
         return 1;
 
-    // Be sure to free its resources
+    // List is ready to be used
+
+    // Be sure to free its resources later
     l_free(int_list);
 }
 ```
@@ -189,9 +875,16 @@ Allocates and returns a new list from an already existing array. The list intern
 1. `SNAME *` - A pointer to a heap allocated list with the given elements.
 2. `NULL` - If allocation fails, or if size equals `0`.
 
+#### Undefined Behavior
+
+* If `size` is greater than the element array's actual size.
+
 #### Example
 
 ```c
+#include "list.h"
+
+// Generate a LIST of type char
 LIST_GENERATE(l, list, /* FMOD */, char)
 
 int main(void)
@@ -224,9 +917,16 @@ Removes all elements in the list but does not frees the list structure. After th
 
 1. `SNAME *_list_` - Target list to be cleared.
 
+#### Undefined Behavior
+
+* If the list pointer is not a valid memory location.
+
 #### Example
 
 ```c
+#include "list.h"
+
+// Generate a LIST of type int
 LIST_GENERATE(l, list, /* FMOD */, int)
 
 int main(void)
@@ -261,9 +961,16 @@ Frees from memory the list internal buffer and the structure itself. Note that i
 
 1. `SNAME *_list_` - Target list to be freed from memory.
 
+#### Undefined Behavior
+
+* If the list pointer is not a valid memory location.
+
 #### Example
 
 ```c
+#include "list.h"
+
+// Generate a LIST of type int
 LIST_GENERATE(l, list, /* FMOD */, int)
 
 int main(void)
@@ -283,7 +990,7 @@ int main(void)
 
 ## [<span id="list_push_front"> \_push\_front() </span>](#list_function_index)
 
-Shifts all elements one position to the right and adds an element at the front of the list (index `0`).
+Shifts all elements one position to the right and adds an element at the front of the list (index `0`). This function has a high runtime cost and should be avoided when possible.
 
 #### Declaration
 
@@ -298,6 +1005,40 @@ Shifts all elements one position to the right and adds an element at the front o
 
 1. `true` - If the element was successfully added to the list.
 2. `false` - If buffer reallocation failed.
+
+#### Undefined Behavior
+
+* If the list pointer is not a valid memory location.
+
+#### Example
+
+```c
+#include "list.h"
+
+// Generate a LIST of type int
+LIST_GENERATE(l, list, /* FMOD */, int)
+
+int main(void)
+{
+    // Make a list of integers with an initial capacity of 100
+    list *int_list = l_new(100);
+
+    // For loop to add 200 elements in the list
+    for (int i = 0; i < 200; i++)
+    {
+        // This function is really slow as it needs to shift all the elements
+        // one position to the right and then add the new one at index 0
+        if (!l_push_front(int_list, i))
+        {
+            // The element i could not be added because the buffer reallocation
+            // failed.
+        }
+    }
+
+    // Free the list from memory
+    l_free(int_list);
+}
+```
 
 ## [<span id="list_push"> \_push() </span>](#list_function_index)
 
@@ -319,6 +1060,37 @@ Adds an element at a given index in the list. After it is successfully added to 
 1. `true` - If the element was successfully added to the list.
 2. `false` - If buffer reallocation failed, or if `index` is greater than the list `count`.
 
+#### Example
+
+```c
+#include "list.h"
+
+// Generate a LIST of type int
+LIST_GENERATE(l, list, /* FMOD */, int)
+
+int main(void)
+{
+    // Make a list of integers with an initial capacity of 100
+    list *int_list = l_new(100);
+
+    // For loop to add 200 elements in the list
+    for (int i = 0; i < 200; i++)
+    {
+        // Add new elements at the middle of the list
+        // This function is also quite expensive. It will require, on average,
+        // to shift (n / 2) elements to the right
+        if (!l_push(int_list, i, l_count(int_list) / 2))
+        {
+            // The element i could not be added because the buffer reallocation
+            // failed or the index is greater than the list count of elements
+        }
+    }
+
+    // Free the list from memory
+    l_free(int_list);
+}
+```
+
 ## [<span id="list_push_back"> \_push\_back() </span>](#list_function_index)
 
 Adds an element at the back of the list (index `count` where count is the amount of elements in the list). No shifts are required.
@@ -336,6 +1108,37 @@ Adds an element at the back of the list (index `count` where count is the amount
 
 1. `true` - If the element was successfully added to the list.
 2. `false` - If buffer reallocation failed.
+
+#### Example
+
+```c
+#include "list.h"
+
+// Generate a LIST of type int
+LIST_GENERATE(l, list, /* FMOD */, int)
+
+int main(void)
+{
+    // Make a list of integers with an initial capacity of 100
+    list *int_list = l_new(100);
+
+    // For loop to add 200 elements in the list
+    for (int i = 0; i < 200; i++)
+    {
+        // Adds a new element to the end of the list. This is the fastest way
+        // to add an element to the list. If the list is not full, this
+        // operation is done instantly
+        if (!l_push_back(int_list, i)
+        {
+            // The element i could not be added because the buffer reallocation
+            // failed.
+        }
+    }
+
+    // Free the list from memory
+    l_free(int_list);
+}
+```
 
 ## [<span id="list_pop_front"> \_pop\_front() </span>](#list_function_index)
 
@@ -757,7 +1560,7 @@ Frees a heap allocated list iterator from memory.
 
 ## [<span id="list_iter_init"> \_iter\_init() </span>](#list_function_index)
 
-Initializes an iterator with a given target list. The iterator's cursor will be positioned at the beginning of the list. The iterator must have been allocated already. This function merely initializes the structure.
+Initializes an iterator with a given target list. The iterator's cursor will be positioned at the beginning of the list. The iterator must have been allocated already. This function simply initializes the structure.
 
 #### Declaration
 
@@ -905,523 +1708,6 @@ Returns a reference to the element pointed by the target iterator's cursor. The 
 * If the iterator's target is invalid.
 
 ## [<span id="list_iter_index"> \_iter\_index() </span>](#list_function_index)
-
-Returns the current position of the iterator relative to all the elements in the iteration. The index is `0` based and goes up to `count - 1`.
-
-#### Declaration
-
-> `FMOD size_t PFX##_iter_index(SNAME##_iter *iter);`
-
-#### Parameters
-
-1. `SNAME##_iter *iter` - Target iterator.
-
-#### Returns
-
-1. `size_t` - Current position of the iterator relative to all elements in the iteration.
-
-#### Undefined Behavior
-
-* If the iterator points to `NULL`;
-* If the iterator has not been properly initialized.
-
-# [LinkedList](#collections_index)
-
-A list where each element is linked by nodes. Elements can be added and removed from both ends of the list and also in the middle. The linked list can be used to implement other data structures like queues, stacks and deques.
-
-# [Stack](#collections_index)
-
-A Stack is a Last-in First-out (or First-in Last-out) data structure used in a variety of algorithms. It is a Dynamic Array that can only add or remove its elements at the end of the buffer, in this case, it represents the top of the stack.
-
-It has three main functions: `push` which adds an element at the top of the stack; `pop` which removes the top element from the stack; and `top` which returns the top element without removing it (it is also sometimes called `peek`).
-
-A Stack is used in algorithms like backtracking, depth-first search, expression evaluation, syntax parsing and many more.
-
-### Generation Macro
-
-* `STACK_GENERATE(PFX, SNAME, FMOD, V)`
-    * `PFX` - Functions namespace or prefix.
-    * `SNAME` - Structure name.
-    * `FMOD` - Function modifier (static or empty).
-    * `V` - Element type.
-
-### Defined Structures
-
-* `struct SNAME##_s` - Structure Name (represents a stack structure)
-    * `V *buffer` - Internal storage.
-    * `size_t capacity` - Storage capacity.
-    * `size_t count` - Total elements in the stack.
-    * `it_start` - Function that returns an iterator to the start of the stack.
-        * Full definition: `struct SNAME##_iter_s (*it_start)(struct SNAME##_s *);`.
-    * `it_end` - Function that returns an iterator to the end of the stack.
-        * Full definition: `struct SNAME##_iter_s (*it_end)(struct SNAME##_s *);`.
-
-* `struct SNAME##_iter_s` - Structure Iterator (represents a stack iterator)
-    * `struct SNAME##_s *target` - Stack being iterated over.
-    * `size_t cursor` - Index pointing to the next or previous element in the iteration.
-    * `bool start` - If the iterator reached the start of the stack.
-    * `bool end` - If the iterator reached the end of the stack.
-
-### Typedefs
-
-* `typedef struct SNAME##_s SNAME`
-* `typedef struct SNAME##_s *SNAME##_ptr`
-* `typedef struct SNAME##_iter_s SNAME##_iter`
-* `typedef struct SNAME##_iter_s *SNAME##_iter_ptr`
-
-### <span id="stack_function_index"> Defined Functions </span>
-
-#### Collection Allocation and Deallocation
-
-* [\_new()](#stack_new)
-* [\_clear()](#stack_clear)
-* [\_free()](#stack_free)
-
-#### Input and Output
-
-* [\_push()](#stack_push)
-* [\_pop()](#stack_pop)
-
-#### Conditional Input and Output
-
-* [\_push\_if()](#stack_push_if)
-* [\_pop\_if()](#stack_pop_if)
-
-#### Elements Access
-
-* [\_top()](#stack_top)
-
-#### Collection State
-
-* [\_contains()](#stack_contains)
-* [\_empty()](#stack_empty)
-* [\_full()](#stack_full)
-* [\_count()](#stack_count)
-* [\_capacity()](#stack_capacity)
-
-#### Iterator Allocation and Deallocation
-
-* [\_iter\_new()](#stack_iter_new)
-* [\_iter\_free()](#stack_iter_free)
-
-#### Iterator Initialization
-
-* [\_iter\_init()](#stack_iter_init)
-
-#### Iterator State
-
-* [\_iter\_start()](#stack_iter_start)
-* [\_iter\_end()](#stack_iter_end)
-
-#### Iterator Movement
-
-* [\_iter\_to\_start()](#stack_iter_to_start)
-* [\_iter\_to\_end()](#stack_iter_to_end)
-* [\_iter\_next()](#stack_iter_next)
-* [\_iter\_prev()](#stack_iter_prev)
-
-#### Iterator Access
-
-* [\_iter\_value()](#stack_iter_value)
-* [\_iter\_rvalue()](#stack_iter_rvalue)
-* [\_iter\_index()](#stack_iter_index)
-
-## [<span id="stack_new"> \_new() </span>](#stack_function_index)
-
-Allocates and returns a new stack with an internal capacity of the specified value. If allocation fails, `NULL` is returned.
-
-#### Declaration
-
-> `FMOD SNAME *PFX##_new(size_t capacity);`
-
-#### Parameters
-
-1. `size_t capacity` - The initial capacity for the stack.
-
-#### Returns
-
-1. `SNAME *` - A pointer to a heap allocated stack.
-2. `NULL` - If allocation fails.
-
-## [<span id="stack_clear"> \_clear() </span>](#stack_function_index)
-
-Removes all elements in the stack but does not frees the stack structure.
-
-#### Declaration
-
-> `FMOD void PFX##_clear(SNAME *_stack_);`
-
-#### Parameters
-
-1. `SNAME *_stack_` - Target stack to be cleared.
-
-## [<span id="stack_free"> \_free() </span>](#stack_function_index)
-
-Frees from memory the stack internal buffer and the structure itself. Note that if the elements inside the stack are pointers to allocated memory, this function might cause memory leaks as it does not deals with its elements.
-
-#### Declaration
-
-> `FMOD void PFX##_free(SNAME *_stack_);`
-
-#### Parameters
-
-1. `SNAME *_stack_` - Target stack to be freed from memory.
-
-## [<span id="stack_push"> \_push() </span>](#stack_function_index)
-
-Adds an element on top of the stack.
-
-#### Declaration
-
-> `FMOD bool PFX##_push(SNAME *_stack_, V element);`
-
-#### Parameters
-
-1. `SNAME *_stack_` - Target stack.
-2. `V element` - Element to be added.
-
-#### Returns
-
-1. `true` - If the element was successfully added to the stack.
-2. `false` - If buffer reallocation failed.
-
-## [<span id="stack_pop"> \_pop() </span>](#stack_function_index)
-
-Removes the top element from the stack.
-
-#### Declaration
-
-> `FMOD bool PFX##_pop(SNAME *_stack_);`
-
-#### Parameters
-
-1. `SNAME *_stack_` - Target stack.
-
-#### Returns
-
-1. `true` - If an element was successfully removed from the stack.
-2. `false` - If the stack is empty.
-
-## [<span id="stack_push_if"> \_push\_if() </span>](#stack_function_index)
-
-Adds an element on top of the stack if the condition evaluates to true.
-
-#### Declaration
-
-> `FMOD bool PFX##_push_if(SNAME *_stack_, V element, bool condition);`
-
-#### Parameters
-
-1. `SNAME *_stack_` - Target stack.
-2. `V element` - Element to be added.
-3. `bool condition` - Condition for the element to be added.
-
-#### Returns
-
-1. `true` - If the element was successfully added to the stack.
-2. `false` - If the condition evaluated to false, or if buffer reallocation failed.
-
-## [<span id="stack_pop_if"> \_pop\_if() </span>](#stack_function_index)
-
-Removes the top element from the stack if the condition evaluates to true.
-
-#### Declaration
-
-> `FMOD bool PFX##_pop_if(SNAME *_stack_, bool condition);`
-
-#### Parameters
-
-1. `SNAME *_stack_` - Target stack.
-2. `bool condition` - Condition for the element to be removed.
-
-#### Returns
-
-1. `true` - If the element was successfully added to the stack.
-2. `false` - If the condition evaluated to false, or if the stack is empty.
-
-## [<span id="stack_top"> \_top() </span>](#stack_function_index)
-
-Returns the element at the top of the stack if available.
-
-#### Declaration
-
-> `FMOD V PFX##_top(SNAME *_stack_);`
-
-#### Parameters
-
-1. `SNAME *_stack_` - Target stack.
-
-#### Returns
-
-1. `V` - The element at the top of the stack.
-2. `0` or `NULL` - If the stack is empty.
-
-## [<span id="stack_contains"> \_contains() </span>](#stack_function_index)
-
-Check if an element is present in the stack according to a `comparator` function.
-
-#### Declaration
-
-> `FMOD bool PFX##_contains(SNAME *_stack_, V element, int (*comparator)(V, V));`
-
-#### Parameters
-
-1. `SNAME *_stack_` - Target stack.
-2. `V element` - Element to check its presence in the stack.
-3. `int (*comparator)(V, V)` - Comparison function. Returns:
-    * `-1` - When the first argument is less than the second;
-    * `0` - When both arguments are equal;
-    * `1` - When the first argument is greater than the second.
-
-#### Returns
-
-1. `true` - If the element is present in the stack.
-2. `false` - If the element is not present in the stack.
-
-## [<span id="stack_empty"> \_empty() </span>](#stack_function_index)
-
-Returns true if the stack is empty, otherwise false.
-
-#### Declaration
-
-> `FMOD bool PFX##_empty(SNAME *_stack_);`
-
-#### Parameters
-
-1. `SNAME *_stack_` - Target stack.
-
-#### Returns
-
-1. `true` - If the stack is empty.
-2. `false` - If there is at least one element in the stack.
-
-## [<span id="stack_full"> \_full() </span>](#stack_function_index)
-
-Returns true if the stack is full, otherwise false. The stack is considered full when its internal buffer is filled up, so the next element added to the stack will required a resizing of the buffer, but note that the stack can grow indefinitely.
-
-#### Declaration
-
-> `FMOD bool PFX##_full(SNAME *_stack_);`
-
-#### Parameters
-
-1. `SNAME *_stack_` - Target stack.
-
-#### Returns
-
-1. `true` - If the stack internal buffer is full.
-2. `false` - If the stack internal buffer is not full.
-
-## [<span id="stack_count"> \_count() </span>](#stack_function_index)
-
-Returns the amount of elements in the stack.
-
-#### Declaration
-
-> `FMOD size_t PFX##_count(SNAME *_stack_);`
-
-#### Parameters
-
-1. `SNAME *_stack_` - Target stack.
-
-#### Returns
-
-1. `size_t` - The amount of elements in the stack.
-
-## [<span id="stack_capacity"> \_capacity() </span>](#stack_function_index)
-
-Returns the internal buffer's current capacity.
-
-#### Declaration
-
-> `FMOD size_t PFX##_capacity(SNAME *_stack_);`
-
-#### Parameters
-
-1. `SNAME *_stack_` - Target stack.
-
-#### Returns
-
-1. `size_t` - The internal buffer's current capacity.
-
-## [<span id="stack_iter_new"> \_iter\_new() </span>](#stack_function_index)
-
-Creates a new iterator allocated on the heap and initializes it with a target stack. The iterator's cursor will be positioned at the top of the stack.
-
-#### Declaration
-
-> `FMOD SNAME##_iter *PFX##_iter_new(SNAME *target);`
-
-#### Parameters
-
-1. `SNAME *target` - Target stack.
-
-#### Returns
-
-1. `SNAME##_iter *` - A heap allocated stack iterator.
-
-## [<span id="stack_iter_free"> \_iter\_free() </span>](#stack_function_index)
-
-Frees a heap allocated stack iterator from memory.
-
-#### Declaration
-
-> `FMOD void PFX##_iter_free(SNAME##_iter *iter);`
-
-#### Parameters
-
-1. `SNAME##_iter *iter` - Iterator to be freed from memory.
-
-## [<span id="stack_iter_init"> \_iter\_init() </span>](#stack_function_index)
-
-Initializes an iterator with a given target stack. The iterator's cursor will be positioned at the top of the stack. The iterator must have been allocated already. This function merely initializes the structure.
-
-#### Declaration
-
-> `FMOD void PFX##_iter_init(SNAME##_iter *iter, SNAME *target);`
-
-#### Parameters
-
-1. `SNAME##_iter *iter` - Iterator to be initialized.
-2. `SNAME *target` - Target stack.
-
-## [<span id="stack_iter_start"> \_iter\_start() </span>](#stack_function_index)
-
-Returns true if the iterator has reached the start (top element) of the stack. If false, the iterator is still possible to iterate to a previous element.
-
-#### Declaration
-
-> `FMOD bool PFX##_iter_start(SNAME##_iter *iter);`
-
-#### Parameters
-
-1. `SNAME##_iter *iter` - Target iterator.
-
-#### Returns
-
-1. `true` - If the iterator has reached the start of the stack.
-2. `false` - If the iterator has not reached the start of the stack.
-
-## [<span id="stack_iter_end"> \_iter\_end() </span>](#stack_function_index)
-
-Returns true if the iterator has reached the end (bottom element) of the stack. If false, the iterator is still possible to iterate to a next element.
-
-#### Declaration
-
-> `FMOD bool PFX##_iter_end(SNAME##_iter *iter);`
-
-#### Parameters
-
-1. `SNAME##_iter *iter` - Target iterator.
-
-#### Returns
-
-1. `true` - If the iterator has reached the end of the stack.
-2. `false` - If the iterator has not reached the end of the stack.
-
-## [<span id="stack_iter_to_start"> \_iter\_to\_start() </span>](#stack_function_index)
-
-Moves the cursor of the target iterator to the start (top element) of the stack.
-
-#### Declaration
-
-> `FMOD void PFX##_iter_to_start(SNAME##_iter *iter);`
-
-#### Parameters
-
-1. `SNAME##_iter *iter` - Target iterator.
-
-## [<span id="stack_iter_to_end"> \_iter\_to\_end() </span>](#stack_function_index)
-
-Moves the cursor of the target iterator to the end (bottom element) of the stack.
-
-#### Declaration
-
-> `FMOD void PFX##_iter_to_end(SNAME##_iter *iter);`
-
-#### Parameters
-
-1. `SNAME##_iter *iter` - Target iterator.
-
-## [<span id="stack_iter_next"> \_iter\_next() </span>](#stack_function_index)
-
-Moves the target stack iterator to the next element if possible.
-
-#### Declaration
-
-> `FMOD bool PFX##_iter_next(SNAME##_iter *iter);`
-
-#### Parameters
-
-1. `SNAME##_iter *iter` - Target iterator.
-
-#### Returns
-
-1. `true` - If the iterator has moved to the next element in the iteration.
-2. `false` - If the iterator could not move to the next element, hence reaching the end of the iteration.
-
-## [<span id="stack_iter_prev"> \_iter\_prev() </span>](#stack_function_index)
-
-Moves the target stack iterator to the previous element if possible.
-
-#### Declaration
-
-> `FMOD bool PFX##_iter_prev(SNAME##_iter *iter);`
-
-#### Parameters
-
-1. `SNAME##_iter *iter` - Target iterator.
-
-#### Returns
-
-1. `true` - If the iterator has moved to the previous element in the iteration.
-2. `false` - If the iterator could not move to the previous element, hence reaching the start of the iteration.
-
-## [<span id="stack_iter_value"> \_iter\_value() </span>](#stack_function_index)
-
-Returns the element pointed by the target iterator's cursor. The iterator must have been initialized already.
-
-#### Declaration
-
-> `FMOD V PFX##_iter_value(SNAME##_iter *iter);`
-
-#### Parameters
-
-1. `SNAME##_iter *iter` - Target iterator.
-
-#### Returns
-
-1. `V` - The element pointed by the iterator's cursor.
-
-#### Undefined Behavior
-
-* If the iterator points to `NULL`;
-* If the iterator has not been properly initialized;
-* If the iterator's target is invalid.
-
-## [<span id="stack_iter_rvalue"> \_iter\_rvalue() </span>](#stack_function_index)
-
-Returns a reference to the element pointed by the target iterator's cursor. The iterator must have been initialized already.
-
-#### Declaration
-
-> `FMOD V *PFX##_iter_rvalue(SNAME##_iter *iter);`
-
-#### Parameters
-
-1. `SNAME##_iter *iter` - Target iterator.
-
-#### Returns
-
-1. `V *` - A reference to the element pointed by the iterator's cursor.
-
-#### Undefined Behavior
-
-* If the iterator points to `NULL`;
-* If the iterator has not been properly initialized;
-* If the iterator's target is invalid.
-
-## [<span id="stack_iter_index"> \_iter\_index() </span>](#stack_function_index)
 
 Returns the current position of the iterator relative to all the elements in the iteration. The index is `0` based and goes up to `count - 1`.
 
@@ -1791,7 +2077,7 @@ Frees a heap allocated queue iterator from memory.
 
 ## [<span id="queue_iter_init"> \_iter\_init() </span>](#queue_function_index)
 
-Initializes an iterator with a given target queue. The iterator's cursor will be positioned at the front of the queue. The iterator must have been allocated already. This function merely initializes the structure.
+Initializes an iterator with a given target queue. The iterator's cursor will be positioned at the front of the queue. The iterator must have been allocated already. This function simply initializes the structure.
 
 #### Declaration
 
@@ -1959,13 +2245,17 @@ Returns the current position of the iterator relative to all the elements in the
 * If the iterator points to `NULL`;
 * If the iterator has not been properly initialized.
 
-# [Deque](#collections_index)
+# [Stack](#collections_index)
 
-A double-ended queue backed by a circular buffer. Elements can be added and removed from both ends but not in the middle. Can also be used as a queue.
+A Stack is a Last-in First-out (or First-in Last-out) data structure used in a variety of algorithms. It is a Dynamic Array that can only add or remove its elements at the end of the buffer, in this case, it represents the top of the stack.
+
+It has three main functions: `push` which adds an element at the top of the stack; `pop` which removes the top element from the stack; and `top` which returns the top element without removing it (it is also sometimes called `peek`).
+
+A Stack is used in algorithms like backtracking, depth-first search, expression evaluation, syntax parsing and many more.
 
 ### Generation Macro
 
-* `DEQUE_GENERATE(PFX, SNAME, FMOD, V)`
+* `STACK_GENERATE(PFX, SNAME, FMOD, V)`
     * `PFX` - Functions namespace or prefix.
     * `SNAME` - Structure name.
     * `FMOD` - Function modifier (static or empty).
@@ -1973,23 +2263,20 @@ A double-ended queue backed by a circular buffer. Elements can be added and remo
 
 ### Defined Structures
 
-* `struct SNAME##_s` - Structure Name (represents a deque structure)
+* `struct SNAME##_s` - Structure Name (represents a stack structure)
     * `V *buffer` - Internal storage.
     * `size_t capacity` - Storage capacity.
-    * `size_t count` - Total elements in the deque.
-    * `size_t front` - Front element index.
-    * `size_t rear` - Rear element index.
-    * `it_start` - Function that returns an iterator to the start of the deque.
+    * `size_t count` - Total elements in the stack.
+    * `it_start` - Function that returns an iterator to the start of the stack.
         * Full definition: `struct SNAME##_iter_s (*it_start)(struct SNAME##_s *);`.
-    * `it_end` - Function that returns an iterator to the end of the deque.
+    * `it_end` - Function that returns an iterator to the end of the stack.
         * Full definition: `struct SNAME##_iter_s (*it_end)(struct SNAME##_s *);`.
 
-* `struct SNAME##_iter_s` - Structure Iterator (represents a deque iterator)
-    * `struct SNAME##_s *target` - Deque being iterated over.
+* `struct SNAME##_iter_s` - Structure Iterator (represents a stack iterator)
+    * `struct SNAME##_s *target` - Stack being iterated over.
     * `size_t cursor` - Index pointing to the next or previous element in the iteration.
-    * `size_t index` - Relative index to all elements in the iteration.
-    * `bool start` - If the iterator reached the start of the deque.
-    * `bool end` - If the iterator reached the end of the deque.
+    * `bool start` - If the iterator reached the start of the stack.
+    * `bool end` - If the iterator reached the end of the stack.
 
 ### Typedefs
 
@@ -1998,71 +2285,66 @@ A double-ended queue backed by a circular buffer. Elements can be added and remo
 * `typedef struct SNAME##_iter_s SNAME##_iter`
 * `typedef struct SNAME##_iter_s *SNAME##_iter_ptr`
 
-### <span id="deque_function_index"> Defined Functions </span>
+### <span id="stack_function_index"> Defined Functions </span>
 
 #### Collection Allocation and Deallocation
 
-* [\_new()](#deque_new)
-* [\_clear()](#deque_clear)
-* [\_free()](#deque_free)
+* [\_new()](#stack_new)
+* [\_clear()](#stack_clear)
+* [\_free()](#stack_free)
 
 #### Input and Output
 
-* [\_push\_front()](#deque_push_front)
-* [\_push\_back()](#deque_push_back)
-* [\_pop\_front()](#deque_pop_front)
-* [\_pop\_back()](#deque_pop_back)
+* [\_push()](#stack_push)
+* [\_pop()](#stack_pop)
 
 #### Conditional Input and Output
 
-* [\_push\_front\_if()](#deque_push_front_if)
-* [\_push\_back\_if()](#deque_push_back_if)
-* [\_pop\_front\_if()](#deque_pop_front_if)
-* [\_pop\_back\_if()](#deque_pop_back_if)
+* [\_push\_if()](#stack_push_if)
+* [\_pop\_if()](#stack_pop_if)
 
 #### Elements Access
 
-* [\_front()](#deque_front)
-* [\_back()](#deque_back)
+* [\_top()](#stack_top)
 
 #### Collection State
 
-* [\_contains()](#deque_contains)
-* [\_empty()](#deque_empty)
-* [\_full()](#deque_full)
-* [\_count()](#deque_count)
-* [\_capacity()](#deque_capacity)
+* [\_contains()](#stack_contains)
+* [\_empty()](#stack_empty)
+* [\_full()](#stack_full)
+* [\_count()](#stack_count)
+* [\_capacity()](#stack_capacity)
 
 #### Iterator Allocation and Deallocation
 
-* [\_iter\_new()](#deque_iter_new)
-* [\_iter\_free()](#deque_iter_free)
+* [\_iter\_new()](#stack_iter_new)
+* [\_iter\_free()](#stack_iter_free)
 
 #### Iterator Initialization
 
-* [\_iter\_init()](#deque_iter_init)
+* [\_iter\_init()](#stack_iter_init)
 
 #### Iterator State
 
-* [\_iter\_start()](#deque_iter_start)
-* [\_iter\_end()](#deque_iter_end)
+* [\_iter\_start()](#stack_iter_start)
+* [\_iter\_end()](#stack_iter_end)
 
 #### Iterator Movement
 
-* [\_iter\_to\_start()](#deque_iter_to_start)
-* [\_iter\_to\_end()](#deque_iter_to_end)
-* [\_iter\_next()](#deque_iter_next)
-* [\_iter\_prev()](#deque_iter_prev)
+* [\_iter\_to\_start()](#stack_iter_to_start)
+* [\_iter\_to\_end()](#stack_iter_to_end)
+* [\_iter\_next()](#stack_iter_next)
+* [\_iter\_prev()](#stack_iter_prev)
 
 #### Iterator Access
 
-* [\_iter\_value()](#deque_iter_value)
-* [\_iter\_rvalue()](#deque_iter_rvalue)
-* [\_iter\_index()](#deque_iter_index)
+* [\_iter\_value()](#stack_iter_value)
+* [\_iter\_rvalue()](#stack_iter_rvalue)
+* [\_iter\_index()](#stack_iter_index)
 
-## [<span id="deque_new"> \_new() </span>](#deque_function_index)
+## [<span id="stack_new"> \_new() </span>](#stack_function_index)
 
-Allocates and returns a new deque with an internal capacity of the specified value. If allocation fails, `NULL` is returned.
+Allocates and returns a new stack with an internal capacity of the specified value. If allocation fails, `NULL` is returned.
 
 #### Declaration
 
@@ -2070,227 +2352,138 @@ Allocates and returns a new deque with an internal capacity of the specified val
 
 #### Parameters
 
-1. `size_t capacity` - The initial capacity for the deque.
+1. `size_t capacity` - The initial capacity for the stack.
 
 #### Returns
 
-1. `SNAME *` - A pointer to a heap allocated deque.
+1. `SNAME *` - A pointer to a heap allocated stack.
 2. `NULL` - If allocation fails.
 
-## [<span id="deque_clear"> \_clear() </span>](#deque_function_index)
+## [<span id="stack_clear"> \_clear() </span>](#stack_function_index)
 
-Removes all elements in the deque but does not frees the deque structure.
-
-#### Declaration
-
-> `FMOD void PFX##_clear(SNAME *_deque_);`
-
-#### Parameters
-
-1. `SNAME *_deque_` - Target deque to be cleared.
-
-## [<span id="deque_free"> \_free() </span>](#deque_function_index)
-
-Frees from memory the deque internal buffer and the structure itself. Note that if the elements inside the deque are pointers to allocated memory, this function might cause memory leaks as it does not deals with its elements.
+Removes all elements in the stack but does not frees the stack structure.
 
 #### Declaration
 
-> `FMOD void PFX##_free(SNAME *_deque_);`
+> `FMOD void PFX##_clear(SNAME *_stack_);`
 
 #### Parameters
 
-1. `SNAME *_deque_` - Target deque to be freed from memory.
+1. `SNAME *_stack_` - Target stack to be cleared.
 
-## [<span id="deque_push_front"> \_push\_front() </span>](#deque_function_index)
+## [<span id="stack_free"> \_free() </span>](#stack_function_index)
 
-Adds an element to the front of the deque.
+Frees from memory the stack internal buffer and the structure itself. Note that if the elements inside the stack are pointers to allocated memory, this function might cause memory leaks as it does not deals with its elements.
 
 #### Declaration
 
-> `FMOD bool PFX##_push_front(SNAME *_deque_, V element);`
+> `FMOD void PFX##_free(SNAME *_stack_);`
 
 #### Parameters
 
-1. `SNAME *_deque_` - Target deque.
+1. `SNAME *_stack_` - Target stack to be freed from memory.
+
+## [<span id="stack_push"> \_push() </span>](#stack_function_index)
+
+Adds an element on top of the stack.
+
+#### Declaration
+
+> `FMOD bool PFX##_push(SNAME *_stack_, V element);`
+
+#### Parameters
+
+1. `SNAME *_stack_` - Target stack.
 2. `V element` - Element to be added.
 
 #### Returns
 
-1. `true` - If the element was successfully added to the front of the deque.
+1. `true` - If the element was successfully added to the stack.
 2. `false` - If buffer reallocation failed.
 
-## [<span id="deque_push_back"> \_push\_back() </span>](#deque_function_index)
+## [<span id="stack_pop"> \_pop() </span>](#stack_function_index)
 
-Adds an element to the back of the deque.
+Removes the top element from the stack.
 
 #### Declaration
 
-> `FMOD bool PFX##_push_back(SNAME *_deque_, V element);`
+> `FMOD bool PFX##_pop(SNAME *_stack_);`
 
 #### Parameters
 
-1. `SNAME *_deque_` - Target deque.
-2. `V element` - Element to be added.
+1. `SNAME *_stack_` - Target stack.
 
 #### Returns
 
-1. `true` - If the element was successfully added to the back of the deque.
-2. `false` - If buffer reallocation failed.
+1. `true` - If an element was successfully removed from the stack.
+2. `false` - If the stack is empty.
 
-## [<span id="deque_pop_front"> \_pop\_front() </span>](#deque_function_index)
+## [<span id="stack_push_if"> \_push\_if() </span>](#stack_function_index)
 
-Removes an element from the front of the deque.
-
-#### Declaration
-
-> `FMOD bool PFX##_pop_front(SNAME *_deque_);`
-
-#### Parameters
-
-1. `SNAME *_deque_` - Target deque.
-
-#### Returns
-
-1. `true` - If the element was successfully removed from the front of the deque.
-2. `false` - If the deque is empty.
-
-## [<span id="deque_pop_back"> \_pop\_back() </span>](#deque_function_index)
-
-Removes an element from the back of the deque.
+Adds an element on top of the stack if the condition evaluates to true.
 
 #### Declaration
 
-> `FMOD bool PFX##_pop_back(SNAME *_deque_);`
+> `FMOD bool PFX##_push_if(SNAME *_stack_, V element, bool condition);`
 
 #### Parameters
 
-1. `SNAME *_deque_` - Target deque.
-
-#### Returns
-
-1. `true` - If the element was successfully removed from the back of the deque.
-2. `false` - If the deque is empty.
-
-## [<span id="deque_push_front_if"> \_push\_front\_if() </span>](#deque_function_index)
-
-Adds an element to the front of the deque if the condition evaluates to true.
-
-#### Declaration
-
-> `FMOD bool PFX##_push_front_if(SNAME *_deque_, V element, bool condition);`
-
-#### Parameters
-
-1. `SNAME *_deque_` - Target deque.
+1. `SNAME *_stack_` - Target stack.
 2. `V element` - Element to be added.
 3. `bool condition` - Condition for the element to be added.
 
 #### Returns
 
-1. `true` - If the element was successfully added to the front of the deque.
+1. `true` - If the element was successfully added to the stack.
 2. `false` - If the condition evaluated to false, or if buffer reallocation failed.
 
-## [<span id="deque_push_back_if"> \_push\_back\_if() </span>](#deque_function_index)
+## [<span id="stack_pop_if"> \_pop\_if() </span>](#stack_function_index)
 
-Adds an element to the back of the deque if the condition evaluates to true.
+Removes the top element from the stack if the condition evaluates to true.
 
 #### Declaration
 
-> `FMOD bool PFX##_push_back_if(SNAME *_deque_, V element, bool condition);`
+> `FMOD bool PFX##_pop_if(SNAME *_stack_, bool condition);`
 
 #### Parameters
 
-1. `SNAME *_deque_` - Target deque.
-2. `V element` - Element to be added.
-3. `bool condition` - Condition for the element to be added.
-
-#### Returns
-
-1. `true` - If the element was successfully added to the back of the deque.
-2. `false` - If the condition evaluated to false, or if buffer reallocation failed.
-
-## [<span id="deque_pop_front_if"> \_pop\_front\_if() </span>](#deque_function_index)
-
-Removes an element from the front of the deque if the condition evaluates to true.
-
-#### Declaration
-
-> `FMOD bool PFX##_pop_front_if(SNAME *_deque_, bool condition);`
-
-#### Parameters
-
-1. `SNAME *_deque_` - Target deque.
+1. `SNAME *_stack_` - Target stack.
 2. `bool condition` - Condition for the element to be removed.
 
 #### Returns
 
-1. `true` - If the element was successfully removed from the front of the deque.
-2. `false` - If the condition evaluated to false, or if the deque is empty.
+1. `true` - If the element was successfully added to the stack.
+2. `false` - If the condition evaluated to false, or if the stack is empty.
 
-## [<span id="deque_pop_back_if"> \_pop\_back\_if() </span>](#deque_function_index)
+## [<span id="stack_top"> \_top() </span>](#stack_function_index)
 
-Removes an element from the back of the deque if the condition evaluates to true.
+Returns the element at the top of the stack if available.
 
 #### Declaration
 
-> `FMOD bool PFX##_pop_back_if(SNAME *_deque_, bool condition);`
+> `FMOD V PFX##_top(SNAME *_stack_);`
 
 #### Parameters
 
-1. `SNAME *_deque_` - Target deque.
-2. `bool condition` - Condition for the element to be removed.
+1. `SNAME *_stack_` - Target stack.
 
 #### Returns
 
-1. `true` - If the element was successfully removed from the back of the deque.
-2. `false` - If the condition evaluated to false, or if the deque is empty.
+1. `V` - The element at the top of the stack.
+2. `0` or `NULL` - If the stack is empty.
 
-## [<span id="deque_front"> \_front() </span>](#deque_function_index)
+## [<span id="stack_contains"> \_contains() </span>](#stack_function_index)
 
-Returns the front element if the specified deque is not empty.
-
-#### Declaration
-
-> `FMOD V PFX##_front(SNAME *_deque_);`
-
-#### Parameters
-
-1. `SNAME *_deque_` - Target deque.
-
-#### Returns
-
-1. `V` - The front element of the deque.
-2. `0` or `NULL` - If the deque is empty.
-
-## [<span id="deque_back"> \_back() </span>](#deque_function_index)
-
-Returns the rear element if the specified deque is not empty.
+Check if an element is present in the stack according to a `comparator` function.
 
 #### Declaration
 
-> `FMOD V PFX##_back(SNAME *_deque_);`
+> `FMOD bool PFX##_contains(SNAME *_stack_, V element, int (*comparator)(V, V));`
 
 #### Parameters
 
-1. `SNAME *_deque_` - Target deque.
-
-#### Returns
-
-1. `V` - The rear element of the deque.
-2. `0` or `NULL` - If the deque is empty.
-
-## [<span id="deque_contains"> \_contains() </span>](#deque_function_index)
-
-Check if an element is present in the deque according to a `comparator` function.
-
-#### Declaration
-
-> `FMOD bool PFX##_contains(SNAME *_deque_, V element, int (*comparator)(V, V));`
-
-#### Parameters
-
-1. `SNAME *_deque_` - Target deque.
-2. `V element` - Element to check its presence in the deque.
+1. `SNAME *_stack_` - Target stack.
+2. `V element` - Element to check its presence in the stack.
 3. `int (*comparator)(V, V)` - Comparison function. Returns:
     * `-1` - When the first argument is less than the second;
     * `0` - When both arguments are equal;
@@ -2298,78 +2491,78 @@ Check if an element is present in the deque according to a `comparator` function
 
 #### Returns
 
-1. `true` - If the element is present in the deque.
-2. `false` - If the element is not present in the deque.
+1. `true` - If the element is present in the stack.
+2. `false` - If the element is not present in the stack.
 
-## [<span id="deque_empty"> \_empty() </span>](#deque_function_index)
+## [<span id="stack_empty"> \_empty() </span>](#stack_function_index)
 
-Returns true if the deque is empty, otherwise false.
-
-#### Declaration
-
-> `FMOD bool PFX##_empty(SNAME *_deque_);`
-
-#### Parameters
-
-1. `SNAME *_deque_` - Target deque.
-
-#### Returns
-
-1. `true` - If the deque is empty.
-2. `false` - If there is at least one element in the deque.
-
-## [<span id="deque_full"> \_full() </span>](#deque_function_index)
-
-Returns true if the deque is full, otherwise false. The deque is considered full when its internal buffer is filled up, so the next element added to the deque will required a resizing of the buffer, but note that the deque can grow indefinitely.
+Returns true if the stack is empty, otherwise false.
 
 #### Declaration
 
-> `FMOD bool PFX##_full(SNAME *_deque_);`
+> `FMOD bool PFX##_empty(SNAME *_stack_);`
 
 #### Parameters
 
-1. `SNAME *_deque_` - Target deque.
+1. `SNAME *_stack_` - Target stack.
 
 #### Returns
 
-1. `true` - If the deque internal buffer is full.
-2. `false` - If the deque internal buffer is not full.
+1. `true` - If the stack is empty.
+2. `false` - If there is at least one element in the stack.
 
-## [<span id="deque_count"> \_count() </span>](#deque_function_index)
+## [<span id="stack_full"> \_full() </span>](#stack_function_index)
 
-Returns the amount of elements in the deque.
+Returns true if the stack is full, otherwise false. The stack is considered full when its internal buffer is filled up, so the next element added to the stack will required a resizing of the buffer, but note that the stack can grow indefinitely.
 
 #### Declaration
 
-> `FMOD size_t PFX##_count(SNAME *_deque_);`
+> `FMOD bool PFX##_full(SNAME *_stack_);`
 
 #### Parameters
 
-1. `SNAME *_deque_` - Target deque.
+1. `SNAME *_stack_` - Target stack.
 
 #### Returns
 
-1. `size_t` - The amount of elements in the deque.
+1. `true` - If the stack internal buffer is full.
+2. `false` - If the stack internal buffer is not full.
 
-## [<span id="deque_capacity"> \_capacity() </span>](#deque_function_index)
+## [<span id="stack_count"> \_count() </span>](#stack_function_index)
+
+Returns the amount of elements in the stack.
+
+#### Declaration
+
+> `FMOD size_t PFX##_count(SNAME *_stack_);`
+
+#### Parameters
+
+1. `SNAME *_stack_` - Target stack.
+
+#### Returns
+
+1. `size_t` - The amount of elements in the stack.
+
+## [<span id="stack_capacity"> \_capacity() </span>](#stack_function_index)
 
 Returns the internal buffer's current capacity.
 
 #### Declaration
 
-> `FMOD size_t PFX##_capacity(SNAME *_deque_);`
+> `FMOD size_t PFX##_capacity(SNAME *_stack_);`
 
 #### Parameters
 
-1. `SNAME *_deque_` - Target deque.
+1. `SNAME *_stack_` - Target stack.
 
 #### Returns
 
 1. `size_t` - The internal buffer's current capacity.
 
-## [<span id="deque_iter_new"> \_iter\_new() </span>](#deque_function_index)
+## [<span id="stack_iter_new"> \_iter\_new() </span>](#stack_function_index)
 
-Creates a new iterator allocated on the heap and initializes it with a target deque. The iterator's cursor will be positioned at the front of the deque.
+Creates a new iterator allocated on the heap and initializes it with a target stack. The iterator's cursor will be positioned at the top of the stack.
 
 #### Declaration
 
@@ -2377,15 +2570,15 @@ Creates a new iterator allocated on the heap and initializes it with a target de
 
 #### Parameters
 
-1. `SNAME *target` - Target deque.
+1. `SNAME *target` - Target stack.
 
 #### Returns
 
-1. `SNAME##_iter *` - A heap allocated deque iterator.
+1. `SNAME##_iter *` - A heap allocated stack iterator.
 
-## [<span id="deque_iter_free"> \_iter\_free() </span>](#deque_function_index)
+## [<span id="stack_iter_free"> \_iter\_free() </span>](#stack_function_index)
 
-Frees a heap allocated deque iterator from memory.
+Frees a heap allocated stack iterator from memory.
 
 #### Declaration
 
@@ -2395,9 +2588,9 @@ Frees a heap allocated deque iterator from memory.
 
 1. `SNAME##_iter *iter` - Iterator to be freed from memory.
 
-## [<span id="deque_iter_init"> \_iter\_init() </span>](#deque_function_index)
+## [<span id="stack_iter_init"> \_iter\_init() </span>](#stack_function_index)
 
-Initializes an iterator with a given target deque. The iterator's cursor will be positioned at the front of the deque. The iterator must have been allocated already. This function merely initializes the structure.
+Initializes an iterator with a given target stack. The iterator's cursor will be positioned at the top of the stack. The iterator must have been allocated already. This function simply initializes the structure.
 
 #### Declaration
 
@@ -2406,11 +2599,11 @@ Initializes an iterator with a given target deque. The iterator's cursor will be
 #### Parameters
 
 1. `SNAME##_iter *iter` - Iterator to be initialized.
-2. `SNAME *target` - Target deque.
+2. `SNAME *target` - Target stack.
 
-## [<span id="deque_iter_start"> \_iter\_start() </span>](#deque_function_index)
+## [<span id="stack_iter_start"> \_iter\_start() </span>](#stack_function_index)
 
-Returns true if the iterator has reached the start (front element) of the deque. If false, the iterator is still possible to iterate to a previous element.
+Returns true if the iterator has reached the start (top element) of the stack. If false, the iterator is still possible to iterate to a previous element.
 
 #### Declaration
 
@@ -2422,12 +2615,12 @@ Returns true if the iterator has reached the start (front element) of the deque.
 
 #### Returns
 
-1. `true` - If the iterator has reached the start of the deque.
-2. `false` - If the iterator has not reached the start of the deque.
+1. `true` - If the iterator has reached the start of the stack.
+2. `false` - If the iterator has not reached the start of the stack.
 
-## [<span id="deque_iter_end"> \_iter\_end() </span>](#deque_function_index)
+## [<span id="stack_iter_end"> \_iter\_end() </span>](#stack_function_index)
 
-Returns true if the iterator has reached the end (rear element) of the deque. If false, the iterator is still possible to iterate to a next element.
+Returns true if the iterator has reached the end (bottom element) of the stack. If false, the iterator is still possible to iterate to a next element.
 
 #### Declaration
 
@@ -2439,12 +2632,12 @@ Returns true if the iterator has reached the end (rear element) of the deque. If
 
 #### Returns
 
-1. `true` - If the iterator has reached the end of the deque.
-2. `false` - If the iterator has not reached the end of the deque.
+1. `true` - If the iterator has reached the end of the stack.
+2. `false` - If the iterator has not reached the end of the stack.
 
-## [<span id="deque_iter_to_start"> \_iter\_to\_start() </span>](#deque_function_index)
+## [<span id="stack_iter_to_start"> \_iter\_to\_start() </span>](#stack_function_index)
 
-Moves the cursor of the target iterator to the start (front element) of the deque.
+Moves the cursor of the target iterator to the start (top element) of the stack.
 
 #### Declaration
 
@@ -2454,9 +2647,9 @@ Moves the cursor of the target iterator to the start (front element) of the dequ
 
 1. `SNAME##_iter *iter` - Target iterator.
 
-## [<span id="deque_iter_to_end"> \_iter\_to\_end() </span>](#deque_function_index)
+## [<span id="stack_iter_to_end"> \_iter\_to\_end() </span>](#stack_function_index)
 
-Moves the cursor of the target iterator to the end (rear element) of the deque.
+Moves the cursor of the target iterator to the end (bottom element) of the stack.
 
 #### Declaration
 
@@ -2466,9 +2659,9 @@ Moves the cursor of the target iterator to the end (rear element) of the deque.
 
 1. `SNAME##_iter *iter` - Target iterator.
 
-## [<span id="deque_iter_next"> \_iter\_next() </span>](#deque_function_index)
+## [<span id="stack_iter_next"> \_iter\_next() </span>](#stack_function_index)
 
-Moves the target deque iterator to the next element if possible.
+Moves the target stack iterator to the next element if possible.
 
 #### Declaration
 
@@ -2483,9 +2676,9 @@ Moves the target deque iterator to the next element if possible.
 1. `true` - If the iterator has moved to the next element in the iteration.
 2. `false` - If the iterator could not move to the next element, hence reaching the end of the iteration.
 
-## [<span id="deque_iter_prev"> \_iter\_prev() </span>](#deque_function_index)
+## [<span id="stack_iter_prev"> \_iter\_prev() </span>](#stack_function_index)
 
-Moves the target deque iterator to the previous element if possible.
+Moves the target stack iterator to the previous element if possible.
 
 #### Declaration
 
@@ -2500,7 +2693,7 @@ Moves the target deque iterator to the previous element if possible.
 1. `true` - If the iterator has moved to the previous element in the iteration.
 2. `false` - If the iterator could not move to the previous element, hence reaching the start of the iteration.
 
-## [<span id="deque_iter_value"> \_iter\_value() </span>](#deque_function_index)
+## [<span id="stack_iter_value"> \_iter\_value() </span>](#stack_function_index)
 
 Returns the element pointed by the target iterator's cursor. The iterator must have been initialized already.
 
@@ -2522,7 +2715,7 @@ Returns the element pointed by the target iterator's cursor. The iterator must h
 * If the iterator has not been properly initialized;
 * If the iterator's target is invalid.
 
-## [<span id="deque_iter_rvalue"> \_iter\_rvalue() </span>](#deque_function_index)
+## [<span id="stack_iter_rvalue"> \_iter\_rvalue() </span>](#stack_function_index)
 
 Returns a reference to the element pointed by the target iterator's cursor. The iterator must have been initialized already.
 
@@ -2544,7 +2737,7 @@ Returns a reference to the element pointed by the target iterator's cursor. The 
 * If the iterator has not been properly initialized;
 * If the iterator's target is invalid.
 
-## [<span id="deque_iter_index"> \_iter\_index() </span>](#deque_function_index)
+## [<span id="stack_iter_index"> \_iter\_index() </span>](#stack_function_index)
 
 Returns the current position of the iterator relative to all the elements in the iteration. The index is `0` based and goes up to `count - 1`.
 
@@ -2565,9 +2758,11 @@ Returns the current position of the iterator relative to all the elements in the
 * If the iterator points to `NULL`;
 * If the iterator has not been properly initialized.
 
-# [Heap](#collections_index)
+# [TreeMap](#collections_index)
 
-A heap is a nearly complete binary tree backed by a growable array. The first element of the array (or the root element of the tree) is the highest/lowest element. The min-heap is commonly used as a priority-queue and a max-heap is commonly used to sort an array of elements.
+A TreeMap is an associative container that maps a key `K` to a value `V` containing only unique keys. The value is only accessible through the key. The keys are also sorted, unlike a HashMap. The main advantage of this container is that its elements are sorted when using an iterator over the tree and this ordering is based on a comparator function that is passes when the structure is initialized.
+
+The TreeMap is implemented as an AVL tree in order to guarantee a worst case lookup of `O(log n)`.
 
 # [TreeSet](#collections_index)
 
@@ -2989,7 +3184,7 @@ Frees a heap allocated TreeSet iterator from memory.
 
 ## [<span id="treeset_iter_init"> \_iter\_init() </span>](#treeset_function_index)
 
-Initializes an iterator with a given target TreeSet. The iterator's cursor will be positioned at the smallest element node of the TreeSet. The iterator must have been allocated already. This function merely initializes the structure.
+Initializes an iterator with a given target TreeSet. The iterator's cursor will be positioned at the smallest element node of the TreeSet. The iterator must have been allocated already. This function simply initializes the structure.
 
 #### Declaration
 
@@ -3134,22 +3329,6 @@ Returns the current position of the iterator relative to all the elements in the
 
 * If the iterator points to `NULL`;
 * If the iterator has not been properly initialized.
-
-# [TreeMap](#collections_index)
-
-A TreeMap is an associative container that maps a key `K` to a value `V` containing only unique keys. The value is only accessible through the key. The keys are also sorted, unlike a HashMap. The main advantage of this container is that its elements are sorted when using an iterator over the tree and this ordering is based on a comparator function that is passes when the structure is initialized.
-
-The TreeMap is implemented as an AVL tree in order to guarantee a worst case lookup of `O(log n)`.
-
-# [HashSet](#collections_index)
-
-A HashSet is an unordered collection of unique elements implemented as a hash-table. Searching for elements in this collection is almost instantaneous, requiring very few comparisons (at least one) to check if a certain element is present the the set.
-
-# [HashMap](#collections_index)
-
-A HashMap is an associative container that maps a key `K` to a value `V` containing only unique keys. The value is only accessible through the key. The keys are not sorted, unlike a TreeMap. The main advantage of this container is that lookups are almost instantaneous, requiring very few comparisons (at least one) to get the value corresponding to a key.
-
-HashMaps are one of the most used data structures as they are very useful as lookup tables.
 
 # [ForEach](#collections_index)
 
