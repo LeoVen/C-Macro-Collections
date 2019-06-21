@@ -14,9 +14,9 @@
 // - Difference
 // - Symmetric Difference
 
+#include "cmc/hashset.h"
 #include <stdio.h>
 #include <stdlib.h>
-#include "hashset.h"
 
 HASHSET_GENERATE(set, set, /* static */, int)
 

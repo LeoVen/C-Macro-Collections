@@ -1,5 +1,19 @@
 # MAJOR.MINOR.ADJUSTMENTS
 
+1.5.0
+    Changed tests compilation and execution to a single Makefile
+    Changed project structure
+    ./src/
+        ./cmc/ - Main C Macro Collections Library
+        ./dev/ - A copy of ./cmc/ used for development (logging utility)
+        ./ext/ - Extra collections
+        ./sac/ - Stack Allocated Collections
+        ./utl/ - Utility like ForEach, logging, etc
+    Added ./utl/log.h a logging utility
+    Added ./dev/deque.h - A mirror of ./cmc/deque.h but with logging utility
+    Added ./ext/linkedqueue.h - A singly-linked list based queue
+    Added ./sac/stack.h - A Stack purely allocated on the stack
+
 1.4.3
     Fixed some functions names
     Added set functions for both Tree and Hash Set

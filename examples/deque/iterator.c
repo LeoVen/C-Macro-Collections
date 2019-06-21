@@ -8,7 +8,7 @@
  *
  * Iterator Example
  */
-#include "deque.h"
+#include "cmc/deque.h"
 #include <stdio.h>
 #include <inttypes.h>
 

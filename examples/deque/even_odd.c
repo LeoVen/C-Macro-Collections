@@ -7,10 +7,10 @@
  * Leonardo Vencovsky (https://github.com/LeoVen)
  *
  */
+#include "cmc/deque.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <assert.h>
-#include "deque.h"
 
 DEQUE_GENERATE(d, deque, /* static */, size_t)
 

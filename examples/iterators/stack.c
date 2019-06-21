@@ -7,7 +7,7 @@
  * Leonardo Vencovsky (https://github.com/LeoVen)
  *
  */
-#include "stack.h"
+#include "cmc/stack.h"
 #include <stdio.h>
 
 STACK_GENERATE(s, stack, static, int)

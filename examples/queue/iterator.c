@@ -8,7 +8,7 @@
  *
  * Iterator Example
  */
-#include "queue.h"
+#include "cmc/queue.h"
 #include <stdio.h>
 #include <inttypes.h>
 

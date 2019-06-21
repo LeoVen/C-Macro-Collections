@@ -8,7 +8,7 @@
  *
  * Iterator Example
  */
-#include "hashset.h"
+#include "cmc/hashset.h"
 #include <stdio.h>
 #include <inttypes.h>
 

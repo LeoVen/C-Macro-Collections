@@ -7,7 +7,7 @@
  * Leonardo Vencovsky (https://github.com/LeoVen)
  *
  */
-#include "treeset.h"
+#include "cmc/treeset.h"
 #include <stdio.h>
 
 int intcmp(int a, int b)

@@ -8,7 +8,7 @@
  *
  * Iterator Example
  */
-#include "linkedlist.h"
+#include "cmc/linkedlist.h"
 #include <stdio.h>
 #include <inttypes.h>
 

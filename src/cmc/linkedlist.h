@@ -17,6 +17,7 @@
 
 #include <stdlib.h>
 #include <stdbool.h>
+#include <string.h>
 
 #define LINKEDLIST_GENERATE(PFX, SNAME, FMOD, V)    \
     LINKEDLIST_GENERATE_HEADER(PFX, SNAME, FMOD, V) \

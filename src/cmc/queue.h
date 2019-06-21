@@ -131,7 +131,7 @@
 #define QUEUE_GENERATE_SOURCE(PFX, SNAME, FMOD, V)                                                          \
                                                                                                             \
     /* Implementation Detail Functions */                                                                   \
-    static FMOD bool PFX##_impl_grow(SNAME *_queue_);                                                       \
+    static bool PFX##_impl_grow(SNAME *_queue_);                                                            \
     static SNAME##_iter PFX##_impl_it_start(SNAME *_queue_);                                                \
     static SNAME##_iter PFX##_impl_it_end(SNAME *_queue_);                                                  \
                                                                                                             \

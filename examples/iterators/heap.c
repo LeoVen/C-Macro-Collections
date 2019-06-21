@@ -7,7 +7,7 @@
  * Leonardo Vencovsky (https://github.com/LeoVen)
  *
  */
-#include "heap.h"
+#include "cmc/heap.h"
 #include <stdio.h>
 
 int intcmp(int a, int b)

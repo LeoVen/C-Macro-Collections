@@ -32,17 +32,22 @@
     CONCATC(C)                                                \
     (PFX, SNAME, FMOD, K, V)
 
-#include "list.h"
-#include "linkedlist.h"
-#include "stack.h"
-#include "queue.h"
-#include "deque.h"
-#include "heap.h"
-#include "treeset.h"
-#include "treemap.h"
-#include "hashset.h"
-#include "hashmap.h"
+#include "cmc/list.h"
+#include "cmc/linkedlist.h"
+#include "cmc/stack.h"
+#include "cmc/queue.h"
+#include "cmc/deque.h"
+#include "cmc/heap.h"
+#include "cmc/treeset.h"
+#include "cmc/treemap.h"
+#include "cmc/hashset.h"
+#include "cmc/hashmap.h"
 
-#include "foreach.h"
+#include "ext/linkedqueue.h"
+
+#include "sac/stack.h"
+
+#include "utl/foreach.h"
+#include "utl/log.h"
 
 #endif /* CMC_MACRO_COLLECTIONS */

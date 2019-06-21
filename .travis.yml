@@ -8,19 +8,9 @@ addons:
       - ubuntu-toolchain-r-test
     packages:
       - gcc-7
+      - cmake
 script:
   - sudo ln -s /usr/bin/gcc-6 /usr/local/bin/gcc
   - export CC=gcc-7
   - cd ./tests
-  - gcc foreach.c -Wall -Wextra -o foreach -std=c11
-  - ./foreach
-  - gcc iterators.c -Wall -Wextra -o iterators -std=c11
-  - ./iterators
-  - gcc contains.c -Wall -Wextra -o contains -std=c11
-  - ./contains
-  - gcc types.c -Wall -Wextra -o types -std=c11
-  - ./types
-  - gcc -c ./sep/sep.c -Wall -Wextra -o ./sep/sep.o -std=c11
-  - gcc -c ./sep/main.c -Wall -Wextra -o ./sep/main.o -std=c11
-  - gcc ./sep/sep.o ./sep/main.o -o ./sep/sep
-  - ./sep/sep
+  - make

@@ -17,6 +17,7 @@
 
 #include <stdlib.h>
 #include <stdbool.h>
+#include <string.h>
 
 #define TREEMAP_GENERATE(PFX, SNAME, FMOD, K, V)    \
     TREEMAP_GENERATE_HEADER(PFX, SNAME, FMOD, K, V) \

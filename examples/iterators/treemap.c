@@ -7,7 +7,7 @@
  * Leonardo Vencovsky (https://github.com/LeoVen)
  *
  */
-#include "treemap.h"
+#include "cmc/treemap.h"
 #include <stdio.h>
 
 int intcmp(int a, int b)

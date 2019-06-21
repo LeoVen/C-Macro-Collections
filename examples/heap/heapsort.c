@@ -7,8 +7,8 @@
  * Leonardo Vencovsky (https://github.com/LeoVen)
  *
  */
+#include "cmc/heap.h"
 #include <stdio.h>
-#include "heap.h"
 
 static int intcmp(int a, int b)
 {

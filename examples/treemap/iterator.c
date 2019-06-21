@@ -8,7 +8,7 @@
  *
  * Iterator Example
  */
-#include "treemap.h"
+#include "cmc/treemap.h"
 #include <stdio.h>
 #include <inttypes.h>
 

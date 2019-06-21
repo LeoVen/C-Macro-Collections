@@ -7,7 +7,7 @@
  * Leonardo Vencovsky (https://github.com/LeoVen)
  *
  */
-#include "hashmap.h"
+#include "cmc/hashmap.h"
 #include <stdio.h>
 
 HASHMAP_GENERATE(hm, hmap, static, int, double)

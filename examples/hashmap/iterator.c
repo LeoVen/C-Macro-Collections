@@ -8,7 +8,7 @@
  *
  * Iterator Example
  */
-#include "hashmap.h"
+#include "cmc/hashmap.h"
 #include <stdio.h>
 #include <inttypes.h>
 

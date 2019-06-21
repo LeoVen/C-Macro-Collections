@@ -8,7 +8,7 @@
  *
  * Iterator Example
  */
-#include "heap.h"
+#include "cmc/heap.h"
 #include <stdio.h>
 #include <inttypes.h>
 

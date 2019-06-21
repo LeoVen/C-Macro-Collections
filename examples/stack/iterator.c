@@ -8,7 +8,7 @@
  *
  * Iterator Example
  */
-#include "stack.h"
+#include "cmc/stack.h"
 #include <stdio.h>
 #include <inttypes.h>
 

@@ -8,25 +8,64 @@ Generate Simple Data Structures of any type in C for you to use in your projects
 
 ## Available Collections
 
-* List
-* LinkedList
-* Stack
-* Queue
 * Deque
-* Heap
-* TreeSet
-* TreeMap
-* HashSet
 * HashMap
+* HashSet
+* Heap
+* LinkedList
+* List
+* Queue
+* Stack
+* TreeMap
+* TreeSet
 
-## Available Collections in future updates
+### Available Collections in future updates
 
-* Multimap
-* Multiset
-* Treehashmap
-* Heap will be a MinMaxHeap
+* MultiMap
+* MultiSet
+* TreeHashMap
+* Heap will be an IntervalHeap
+* Stack Allocated Collections
 
 Check out **Documentation.md** for more information about each collection.
+
+## Project Structure
+
+* __benchmarks__ - Where all benchmarks are hosted
+* __src__ - All headers part of the C Macro Collections Library
+    * __cmc__ - The main C Macro Collections Library
+    * __dev__ - The main C Macro Collections Library for development (containing logging)
+    * __ext__ - Extra collections
+    * __sac__ - Stack Allocated Collections
+    * __utl__ - Utility like ForEach macros, logging, etc
+    * __macro\_collections.h__ - Master header containing all collections and utilities
+* __tests__ - Where all tests are hosted
+
+Only Collections located in __cmc__ are to be documented at Documentation.md.
+
+## Design Decisions
+
+### Stack vs Heap Allocation
+
+Currently all collections need to be allocated on the heap. Iterators have both options but it is encouraged to allocate them on the stack since they don't require dynamic memory.
+
+### Some collections overlap others in terms of functionality
+
+Yes, you can use a Deque as a Queue or a List as a Stack without any major cost, but the idea is to have the least amount of code to fulfill the needs of a collection.
+
+Take for example the Stack. It is simple, small and doesn't have many functions. If you generate a List to be used (only) as a Stack (which is one of the bulkiest collections) you'll end up with a lot of code generated and compiled for nothing.
+
+The Deque versus Queue situation is a little less problematic, but again, you need to be careful when generating a lot of code as compilation times might go up to 15 seconds even with modern ultra-fast compilers.
+
+Another example is using a HashMap/TreeMap as a HashSet/TreeSet (with a dummy value that is never used), but I just think that this is a bad thing to do and you would be wasting some memory. Also, the sets generate a lot of code related to set theory, whereas maps don't.
+
+### But what about the LinkedList ?
+
+You can use them as Stacks, Queues and Deques, but with modern memory hierarchy models, array-based data structures have a significantly faster runtime due to caching, so I didn't bother to have specific implementations of those aforementioned collections.
+
+### You can't structurally modify a collection when iterating over it
+
+Modifying a collection will possibly invalidate all iterators currently initialized by it. Currently, the only collection that allows this is the LinkedList (using the node-based functions, not the iterator).
 
 ## What to use
 
@@ -104,27 +143,3 @@ When including `foreach.h` in your source code you gain access to all for-each m
 * __BODY__ - Block of code.
 
 Inside body you will have access to the iterator variable. With it you can use functions to access the key, value or index from the iterator. Checkout the documentation for more details.
-
-## Design Decisions
-
-### Stack vs Heap Allocation
-
-Currently all collections need to be allocated on the heap. Iterators have both options but it is encouraged to allocate them on the stack since they don't require dynamic memory.
-
-### Some collections overlap others in terms of functionality
-
-Yes, you can use a Deque as a Queue or a List as a Stack without any major cost, but the idea is to have the least amount of code to fulfill the needs of a collection.
-
-Take for example the Stack. It is simple, small and doesn't have many functions. If you generate a List to be used (only) as a Stack (which is one of the bulkiest collections) you'll end up with a lot of code generated and compiled for nothing.
-
-The Deque versus Queue situation is a little less problematic, but again, you need to be careful when generating a lot of code as compilation times might go up to 15 seconds even with modern ultra-fast compilers.
-
-Another example is using a HashMap/TreeMap as a HashSet/TreeSet (with a dummy value that is never used), but I just think that this is a bad thing to do and you would be wasting some memory. Also, the sets generate a lot of code related to set theory, whereas maps don't.
-
-### But what about the LinkedList ?
-
-You can use them as Stacks, Queues and Deques, but with modern memory hierarchy models, array-based data structures have a significantly faster runtime due to caching, so I didn't bother to have specific implementations of those aforementioned collections.
-
-### You can't structurally modify a collection when iterating over it
-
-Modifying a collection will possibly invalidate all iterators currently initialized by it. Currently, the only collection that allows this is the LinkedList (using the node-based functions, not the iterator).

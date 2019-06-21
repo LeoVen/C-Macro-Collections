@@ -17,6 +17,7 @@
 
 #include <stdlib.h>
 #include <stdbool.h>
+#include <string.h>
 
 #define TREESET_GENERATE(PFX, SNAME, FMOD, V)    \
     TREESET_GENERATE_HEADER(PFX, SNAME, FMOD, V) \

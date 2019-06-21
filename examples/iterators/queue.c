@@ -7,7 +7,7 @@
  * Leonardo Vencovsky (https://github.com/LeoVen)
  *
  */
-#include "queue.h"
+#include "cmc/queue.h"
 #include <stdio.h>
 
 QUEUE_GENERATE(q, queue, static, int)

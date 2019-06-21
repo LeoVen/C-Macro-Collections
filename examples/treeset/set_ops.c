@@ -14,9 +14,9 @@
 // - Difference
 // - Symmetric Difference
 
+#include "cmc/treeset.h"
 #include <stdio.h>
 #include <stdlib.h>
-#include "treeset.h"
 
 TREESET_GENERATE(set, set, /* static */, int)
 

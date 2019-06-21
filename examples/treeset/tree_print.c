@@ -7,10 +7,10 @@
  * Leonardo Vencovsky (https://github.com/LeoVen)
  *
  */
+#include "cmc/treeset.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <time.h>
-#include "treeset.h"
 
 TREESET_GENERATE(set, set, , int)
 

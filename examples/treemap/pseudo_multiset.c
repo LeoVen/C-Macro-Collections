@@ -10,7 +10,7 @@
 
 // How to make a multiset using a map
 
-#include "treemap.h"
+#include "cmc/treemap.h"
 #include <stdio.h>
 #include <inttypes.h>
 

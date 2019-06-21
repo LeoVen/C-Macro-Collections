@@ -8,8 +8,8 @@
  *
  * Foreach macro example
  */
-#include "hashmap.h"
-#include "foreach.h"
+#include "cmc/hashmap.h"
+#include "utl/foreach.h"
 #include <stdio.h>
 
 // Int hash function

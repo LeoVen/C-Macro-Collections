@@ -4,10 +4,12 @@ TODO
 [X] Remove PUBLIC and PRIVATE
 [ ] Add multiset
 [ ] Add multimap
-[ ] Upgrade heap to a min-max heap
+[ ] Upgrade heap to an interval heap
 [ ] Add dispose function
 [ ] Serialization
 [ ] Iterator based functions (like C++ collections)
+[ ] Add Stack Allocated Collections
+[ ] Finish all Dev Collections
 
 
 MAYBE
@@ -20,13 +22,8 @@ PLANNED
 Before 2.0
     Get Documentation fixed and completed
 
-1.5
-    OK - Remove PUBLIC and PRIVATE
-    OK - Allow for struct to be a possible data type (instead of just pointer to struct)
-    OK - Set functions: is_subset, is_proper_subset, is_superset, is_proper_superset, is_disjointset
-    Iterator move and move_to
-
 1.6
+    Iterator move and move_to
     from_array - Creates a collection with all the elements in a specified array
     to_array - Creates an array with all the elements inside the collection
     LinkedList - Insert/Remove/Append/Prepend/Extract
@@ -36,7 +33,7 @@ Before 2.0
 
 2.0
     Add new heap collection implementation
-    Add stack based collections
+    Add all stack based collections
 
 2.1
     Add variadic macros (generate only the necessary functions)
@@ -49,4 +46,4 @@ Before 2.0
 
 SOMETIME
 
-Add treehashmap
+Add TreeHashMap
