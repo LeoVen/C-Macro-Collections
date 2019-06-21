@@ -3,35 +3,13 @@
 Generate Simple Data Structures of any type in C for you to use in your projects.
 
 ![License](https://img.shields.io/badge/License-MIT-blue.svg)
-![Version](https://img.shields.io/badge/Version-v1.4.3-orange.svg)
+![Version](https://img.shields.io/badge/Version-v1.5.0-orange.svg)
 ![Build](https://travis-ci.org/LeoVen/C-Macro-Collections.svg?branch=master)
-
-## Available Collections
-
-* Deque
-* HashMap
-* HashSet
-* Heap
-* LinkedList
-* List
-* Queue
-* Stack
-* TreeMap
-* TreeSet
-
-### Available Collections in future updates
-
-* MultiMap
-* MultiSet
-* TreeHashMap
-* Heap will be an IntervalHeap
-* Stack Allocated Collections
-
-Check out **Documentation.md** for more information about each collection.
 
 ## Project Structure
 
 * __benchmarks__ - Where all benchmarks are hosted
+* __examples__ - Examples separated by collections
 * __src__ - All headers part of the C Macro Collections Library
     * __cmc__ - The main C Macro Collections Library
     * __dev__ - The main C Macro Collections Library for development (containing logging)
@@ -41,7 +19,35 @@ Check out **Documentation.md** for more information about each collection.
     * __macro\_collections.h__ - Master header containing all collections and utilities
 * __tests__ - Where all tests are hosted
 
-Only Collections located in __cmc__ are to be documented at Documentation.md.
+Only Collections located in __cmc__ are to be documented at *Documentation.md*.
+
+## Available Collections
+
+* Main C Macro Collections Library
+    * Deque
+    * HashMap
+    * HashSet
+    * Heap
+    * LinkedList
+    * List
+    * Queue
+    * Stack
+    * TreeMap
+    * TreeSet
+* Extra Collections Library
+    * LinkedQueue
+* Stack Allocated Collections Library
+    * Stack
+
+### More to Come
+
+* MultiMap
+* MultiSet
+* TreeHashMap
+* Heap will be an IntervalHeap
+* Stack Allocated Collections
+
+Check out **Documentation.md** for more information about each collection.
 
 ## Design Decisions
 
