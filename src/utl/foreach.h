@@ -1,11 +1,17 @@
 /**
- * @file for_each.h
+ * for_each.h
  *
  * Creation Date: 25/02/2019
  *
  * Authors:
  * Leonardo Vencovsky (https://github.com/LeoVen)
  *
+ */
+
+/**
+ * ForEach utility
+ *
+ * Read Documentation.md for more information
  */
 
 #ifndef CMC_FOR_EACH

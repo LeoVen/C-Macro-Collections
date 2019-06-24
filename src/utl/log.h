@@ -8,9 +8,11 @@
  *
  */
 
-/* Simple logging macros */
-/* You can toggle colors defining the macro CMC_LOG_COLOR but be sure that */
-/* your terminal supports ANSI color escape codes */
+/**
+ * Simple logging macros
+ * You can toggle colors defining the macro CMC_LOG_COLOR but be sure that
+ * your terminal supports ANSI color escape codes
+ */
 
 /**
  * What each error code means

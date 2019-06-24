@@ -11,9 +11,6 @@
 #ifndef CMC_MACRO_COLLECTIONS
 #define CMC_MACRO_COLLECTIONS
 
-#include <stdlib.h>
-#include <stdbool.h>
-
 #define CONCATH_(C) C##_WRAPGEN_HEADER
 #define CONCATC_(C) C##_WRAPGEN_SOURCE
 
@@ -32,22 +29,24 @@
     CONCATC(C)                                                \
     (PFX, SNAME, FMOD, K, V)
 
-#include "cmc/list.h"
-#include "cmc/linkedlist.h"
-#include "cmc/stack.h"
-#include "cmc/queue.h"
 #include "cmc/deque.h"
-#include "cmc/heap.h"
-#include "cmc/treeset.h"
-#include "cmc/treemap.h"
-#include "cmc/hashset.h"
 #include "cmc/hashmap.h"
+#include "cmc/hashset.h"
+#include "cmc/heap.h"
+#include "cmc/linkedlist.h"
+#include "cmc/list.h"
+#include "cmc/queue.h"
+#include "cmc/stack.h"
+#include "cmc/treemap.h"
+#include "cmc/treeset.h"
 
 #include "ext/linkedqueue.h"
 
+#include "sac/queue.h"
 #include "sac/stack.h"
 
 #include "utl/foreach.h"
 #include "utl/log.h"
+#include "utl/timer.h"
 
 #endif /* CMC_MACRO_COLLECTIONS */

@@ -1,5 +1,11 @@
 # MAJOR.MINOR.ADJUSTMENTS
 
+1.5.1
+    New queue benchmark
+    Added sac/queue.h
+    Added utl/timer.h
+    Fixing descriptions other minor fixes
+
 1.5.0
     Changed tests compilation and execution to a single Makefile
     Changed project structure
