@@ -79,7 +79,6 @@
     /* Collection Allocation and Deallocation */                                  \
     FMOD SNAME PFX##_new(void);                                                   \
     FMOD void PFX##_clear(SNAME *_stack_);                                        \
-    FMOD void PFX##_free(SNAME *_stack_);                                         \
     /* Collection Input and Output */                                             \
     FMOD bool PFX##_push(SNAME *_stack_, V element);                              \
     FMOD bool PFX##_pop(SNAME *_stack_);                                          \
@@ -142,15 +141,9 @@
                                                                                  \
     FMOD void PFX##_clear(SNAME *_stack_)                                        \
     {                                                                            \
-        memset(_stack_->buffer, 0, sizeof(V) * SIZE);                            \
+        memset(_stack_->buffer, 0, sizeof(_stack_->buffer));                     \
                                                                                  \
         _stack_->count = 0;                                                      \
-    }                                                                            \
-                                                                                 \
-    FMOD void PFX##_free(SNAME *_stack_)                                         \
-    {                                                                            \
-        free(_stack_->buffer);                                                   \
-        free(_stack_);                                                           \
     }                                                                            \
                                                                                  \
     FMOD bool PFX##_push(SNAME *_stack_, V element)                              \

@@ -6,8 +6,13 @@
  * Authors:
  * Leonardo Vencovsky (https://github.com/LeoVen)
  *
- * Simple timer macros.
  */
+
+/* Simple timer macros utility */
+
+#ifndef CMC_TIMER_H
+#define CMC_TIMER_H
+
 #include <time.h>
 
 typedef struct timer_s
@@ -25,3 +30,5 @@ typedef struct timer_s
 
 #define TIMER_CALC(timer) \
     timer.result = (double)(((timer.stop - timer.start) * 1000.0) / CLOCKS_PER_SEC);
+
+#endif /* CMC_TIMER_H */

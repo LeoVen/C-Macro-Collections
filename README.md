@@ -37,6 +37,7 @@ Only Collections located in __cmc__ are to be documented at *Documentation.md*.
 * Extra Collections Library
     * LinkedQueue
 * Stack Allocated Collections Library
+    * Queue
     * Stack
 
 ### More to Come
