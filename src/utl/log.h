@@ -11,7 +11,10 @@
 /**
  * Simple logging macros
  * You can toggle colors defining the macro CMC_LOG_COLOR but be sure that
- * your terminal supports ANSI color escape codes
+ * your terminal supports ANSI color escape codes.
+ *
+ * You can customize the logging utility by accessing cmc_log_config and
+ * directly modifying its values to better suit your needs.
  */
 
 /**
@@ -42,21 +45,6 @@
  * ERROR - 5
  * FATAL - 6
  *
- * Functions API
- *
- * void cmc_log_tlevel(int level)
- *      Set level for the Terminal Output to stderr.
- * void cmc_log_flevel(int level)
- *      Set level for the File Output to FILE pointer.
- * void cmc_log_tenable(bool enabled)
- *      Enables or disables Terminal Output to stderr.
- * void cmc_log_fenable(bool enabled)
- *      Enables or disables File Output.
- * void cmc_log_file(FILE *file)
- *      Set a file for writing the logging messages to it.
- * void cmc_log_set(bool enabled)
- *      Sets on or off all the logging messages.
- *
  * How the Log Level is calculated
  *
  * - If the log level is 0 all logs are enabled.
@@ -76,8 +64,13 @@
 #include <stdarg.h>
 #include <stdbool.h>
 
-static const char *names[] = {"TRACE", "DEBUG", "INFO", "WARN", "ERROR", "FATAL"};
-static const char *color[] = {"\x1b[94m", "\x1b[36m", "\x1b[32m", "\x1b[33m", "\x1b[31m", "\x1b[35m"};
+static const char *cmc_log_names[] = {"TRACE", "DEBUG", "INFO", "WARN", "ERROR", "FATAL"};
+
+#ifdef CMC_LOG_COLOR
+
+static const char *cmc_log_color[] = {"\x1b[94m", "\x1b[36m", "\x1b[32m", "\x1b[33m", "\x1b[31m", "\x1b[35m"};
+
+#endif
 
 static struct
 {
@@ -87,9 +80,10 @@ static struct
     bool fenabled; /* File Output Enabled */
     FILE *file;    /* File for Output */
     bool enabled;  /* Logging enabled */
-} log_config = {0, 0, true, true, NULL, true};
 
-typedef enum log_type_e
+} cmc_log_config = {0, 0, true, true, NULL, true};
+
+typedef enum cmc_log_type_e
 {
     LOG_TRACE = 1,
     LOG_DEBUG = 2,
@@ -97,7 +91,8 @@ typedef enum log_type_e
     LOG_WARN = 4,
     LOG_ERROR = 5,
     LOG_FATAL = 6
-} log_type;
+
+} cmc_log_type;
 
 #define log_trace(fmt, ...) cmc_log(LOG_TRACE, __FILE__, __func__, __LINE__, fmt, __VA_ARGS__)
 #define log_debug(fmt, ...) cmc_log(LOG_DEBUG, __FILE__, __func__, __LINE__, fmt, __VA_ARGS__)
@@ -106,46 +101,16 @@ typedef enum log_type_e
 #define log_error(fmt, ...) cmc_log(LOG_ERROR, __FILE__, __func__, __LINE__, fmt, __VA_ARGS__)
 #define log_fatal(fmt, ...) cmc_log(LOG_FATAL, __FILE__, __func__, __LINE__, fmt, __VA_ARGS__)
 
-static void cmc_log_tlevel(int terminal_level)
+static void cmc_log(cmc_log_type log, const char *filename, const char *funcname, int line, const char *fmt, ...)
 {
-    log_config.tlevel = terminal_level;
-}
-
-static void cmc_log_flevel(int file_level)
-{
-    log_config.flevel = file_level;
-}
-
-static void cmc_log_tenable(bool enabled)
-{
-    log_config.tenabled = enabled;
-}
-
-static void cmc_log_fenable(bool enabled)
-{
-    log_config.fenabled = enabled;
-}
-
-static void cmc_log_file(FILE *file)
-{
-    log_config.file = file;
-}
-
-static void cmc_log_set(bool enabled)
-{
-    log_config.enabled = enabled;
-}
-
-static void cmc_log(log_type log, const char *filename, const char *funcname, int line, const char *fmt, ...)
-{
-    if (!log_config.enabled)
+    if (!cmc_log_config.enabled)
         return;
 
-    if (log_config.tenabled)
+    if (cmc_log_config.tenabled)
     {
-        if (log_config.tlevel < 0 && ((int)log * -1) < log_config.tlevel)
+        if (cmc_log_config.tlevel < 0 && ((int)log * -1) < cmc_log_config.tlevel)
             return;
-        else if (log_config.tlevel > 0 && (int)log < log_config.tlevel)
+        else if (cmc_log_config.tlevel > 0 && (int)log < cmc_log_config.tlevel)
             return;
 
         int i = (int)log - 1;
@@ -156,14 +121,14 @@ static void cmc_log(log_type log, const char *filename, const char *funcname, in
         char time[16];
         time[strftime(time, sizeof(time), "%H:%M:%S", lt)] = '\0';
 
-#if defined(CMC_LOG_COLOR)
+#ifdef CMC_LOG_COLOR
         fprintf(stderr,
                 "%s %s%5s\x1b[0m \x1b[90m%s at %s:%d:\x1b[0m ",
-                time, color[i], names[i], filename, funcname, line);
+                time, cmc_log_color[i], cmc_log_names[i], filename, funcname, line);
 #else
         fprintf(stderr,
                 "%s %5s %s at %s:%d: ",
-                time, names[i], filename, funcname, line);
+                time, cmc_log_names[i], filename, funcname, line);
 #endif
 
         va_list args;
@@ -175,11 +140,11 @@ static void cmc_log(log_type log, const char *filename, const char *funcname, in
         fflush(stderr);
     }
 
-    if (log_config.file && log_config.fenabled)
+    if (cmc_log_config.file && cmc_log_config.fenabled)
     {
-        if (log_config.flevel < 0 && ((int)log * -1) < log_config.flevel)
+        if (cmc_log_config.flevel < 0 && ((int)log * -1) < cmc_log_config.flevel)
             return;
-        else if (log_config.flevel > 0 && (int)log < log_config.flevel)
+        else if (cmc_log_config.flevel > 0 && (int)log < cmc_log_config.flevel)
             return;
 
         int i = (int)log - 1;
@@ -190,15 +155,15 @@ static void cmc_log(log_type log, const char *filename, const char *funcname, in
         char time[32];
         time[strftime(time, sizeof(time), "%Y-%m-%d %H:%M:%S", lt)] = '\0';
 
-        fprintf(log_config.file, "%s %5s %s at %s:%d: ", time, names[i], filename, funcname, line);
+        fprintf(cmc_log_config.file, "%s %5s %s at %s:%d: ", time, cmc_log_names[i], filename, funcname, line);
 
         va_list file_args;
         va_start(file_args, fmt);
-        vfprintf(log_config.file, fmt, file_args);
+        vfprintf(cmc_log_config.file, fmt, file_args);
         va_end(file_args);
 
-        fprintf(log_config.file, "\n");
-        fflush(log_config.file);
+        fprintf(cmc_log_config.file, "\n");
+        fflush(cmc_log_config.file);
     }
 }
 

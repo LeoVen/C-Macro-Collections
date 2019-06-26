@@ -47,6 +47,7 @@
 
 #include "utl/foreach.h"
 #include "utl/log.h"
+#include "utl/test.h"
 #include "utl/timer.h"
 
 #endif /* CMC_MACRO_COLLECTIONS */
