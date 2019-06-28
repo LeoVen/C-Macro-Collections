@@ -24,7 +24,7 @@
         {                                                                                                  \
             BODY;                                                                                          \
         }                                                                                                  \
-    } while (0);
+    } while (0)
 
 #define FOR_EACH_REV(PFX, SNAME, TARGET, BODY)                                                             \
     do                                                                                                     \
@@ -33,6 +33,6 @@
         {                                                                                                  \
             BODY;                                                                                          \
         }                                                                                                  \
-    } while (0);
+    } while (0)
 
 #endif /* CMC_FOR_EACH */

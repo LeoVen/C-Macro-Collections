@@ -186,7 +186,7 @@ int main(void)
     int sum = 0;
     FOR_EACH(il, int_list, integers, {
         sum += il_iter_value(&iter);
-    })
+    });
 
     printf("\n\nSUM: %d\n", sum);
 
@@ -256,7 +256,7 @@ int main(void)
 
     FOR_EACH(dq, deque, d, {
         sum3 += dq_iter_value(&iter);
-    })
+    });
 
     printf("Deque sum: %d\n", sum3);
 

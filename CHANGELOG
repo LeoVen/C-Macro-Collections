@@ -1,10 +1,18 @@
 # MAJOR.MINOR.ADJUSTMENTS
 
+1.5.2
+    Added utl/test.h
+    Added utl/assert.h
+    Added tests/list.c - UnitTest for LIST
+    Small fixes on utl/foreach.h, utl/test.h and redone utl/timer.h
+    Removed utl/log.h functions that were unnecessary
+    Added the CMC namespace to CONCATC and CONCATH at macro_collections.h
+
 1.5.1
     New queue benchmark
     Added sac/queue.h
     Added utl/timer.h
-    Fixing descriptions other minor fixes
+    Fixing descriptions and other minor fixes
 
 1.5.0
     Changed tests compilation and execution to a single Makefile

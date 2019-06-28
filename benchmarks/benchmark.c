@@ -13,7 +13,6 @@
  * - Output
  */
 #include "macro_collections.h"
-#include "utl/timer.h"
 #include "util/twister.c"
 #include <stdio.h>
 #include <stdint.h>
@@ -82,17 +81,17 @@ COLLECTION_GENERATE(HASHMAP, hm, hmap, /* FMOD */, int, int)
                                                                                                                  \
         sname *coll = initfunc;                                                                                  \
                                                                                                                  \
-        TIMER_START(total)                                                                                       \
-        TIMER_START(timer)                                                                                       \
+        timer_start(total);                                                                                      \
+        timer_start(timer);                                                                                      \
                                                                                                                  \
         for (size_t i = 0; i < NTOTAL; i++)                                                                      \
         {                                                                                                        \
             insertbody;                                                                                          \
         }                                                                                                        \
                                                                                                                  \
-        TIMER_STOP(timer)                                                                                        \
+        timer_stop(timer);                                                                                       \
                                                                                                                  \
-        TIMER_CALC(timer)                                                                                        \
+        timer_calc(timer);                                                                                       \
                                                                                                                  \
         size_t s1 = PFX##_count(coll);                                                                           \
                                                                                                                  \
@@ -100,16 +99,16 @@ COLLECTION_GENERATE(HASHMAP, hm, hmap, /* FMOD */, int, int)
                                                                                                                  \
         double input_time = timer.result;                                                                        \
                                                                                                                  \
-        TIMER_START(timer)                                                                                       \
+        timer_start(timer);                                                                                      \
                                                                                                                  \
         for (size_t i = 0; i < s; i++)                                                                           \
         {                                                                                                        \
             searchbody;                                                                                          \
         }                                                                                                        \
                                                                                                                  \
-        TIMER_STOP(timer)                                                                                        \
+        timer_stop(timer);                                                                                       \
                                                                                                                  \
-        TIMER_CALC(timer)                                                                                        \
+        timer_calc(timer);                                                                                       \
                                                                                                                  \
         printf("   SEARCH %10s TOOK %8.0lf milliseconds for %8" PRIuMAX " elements\n", #NAME, timer.result, s);  \
                                                                                                                  \
@@ -117,30 +116,30 @@ COLLECTION_GENERATE(HASHMAP, hm, hmap, /* FMOD */, int, int)
                                                                                                                  \
         sname##_iter iter;                                                                                       \
                                                                                                                  \
-        TIMER_START(timer)                                                                                       \
+        timer_start(timer);                                                                                      \
                                                                                                                  \
         for (PFX##_iter_init(&iter, coll); !PFX##_iter_end(&iter); PFX##_iter_next(&iter))                       \
         {                                                                                                        \
         }                                                                                                        \
                                                                                                                  \
-        TIMER_STOP(timer)                                                                                        \
+        timer_stop(timer);                                                                                       \
                                                                                                                  \
-        TIMER_CALC(timer)                                                                                        \
+        timer_calc(timer);                                                                                       \
                                                                                                                  \
         printf("ITERATION %10s TOOK %8.0lf milliseconds for %8" PRIuMAX " elements\n", #NAME, timer.result, s1); \
                                                                                                                  \
         double iter_time = timer.result;                                                                         \
                                                                                                                  \
-        TIMER_START(timer);                                                                                      \
+        timer_start(timer);                                                                                      \
                                                                                                                  \
         for (size_t i = 0; i < NTOTAL; i++)                                                                      \
         {                                                                                                        \
             removebody;                                                                                          \
         }                                                                                                        \
                                                                                                                  \
-        TIMER_STOP(timer)                                                                                        \
+        timer_stop(timer);                                                                                       \
                                                                                                                  \
-        TIMER_CALC(timer)                                                                                        \
+        timer_calc(timer);                                                                                       \
                                                                                                                  \
         size_t s2 = PFX##_count(coll);                                                                           \
                                                                                                                  \
@@ -148,8 +147,8 @@ COLLECTION_GENERATE(HASHMAP, hm, hmap, /* FMOD */, int, int)
                                                                                                                  \
         double output_time = timer.result;                                                                       \
                                                                                                                  \
-        TIMER_STOP(total)                                                                                        \
-        TIMER_CALC(total)                                                                                        \
+        timer_stop(total);                                                                                       \
+        timer_calc(total);                                                                                       \
                                                                                                                  \
         PFX##_free(coll);                                                                                        \
                                                                                                                  \

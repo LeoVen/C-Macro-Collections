@@ -57,7 +57,7 @@ int main(void)
         // Inside, the variable 'iter' will be available and from it you can access
         // the key, value or index.
         printf("MAP[%4d] = %.3lf\n", hm_iter_key(&iter), hm_iter_value(&iter));
-    })
+    });
 
     hm_free(map);
 

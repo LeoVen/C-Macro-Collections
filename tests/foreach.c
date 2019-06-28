@@ -72,45 +72,45 @@ int main(void)
 
     FOR_EACH(d, deque, d, {
         sum3 += d_iter_value(&iter);
-    })
+    });
 
     FOR_EACH(hm, hmap, hm, {
         sum10 += hm_iter_key(&iter);
         sum11 += hm_iter_value(&iter);
-    })
+    });
 
     FOR_EACH(hs, hset, hs, {
         sum9 += hs_iter_value(&iter);
-    })
+    });
 
     FOR_EACH(h, heap, h, {
         sum5 += h_iter_value(&iter);
-    })
+    });
 
     FOR_EACH(ll, linked, ll, {
         sum4 += ll_iter_value(&iter);
-    })
+    });
 
     FOR_EACH(l, list, l, {
         sum0 += l_iter_value(&iter);
-    })
+    });
 
     FOR_EACH(q, queue, q, {
         sum2 += q_iter_value(&iter);
-    })
+    });
 
     FOR_EACH(s, stack, s, {
         sum1 += s_iter_value(&iter);
-    })
+    });
 
     FOR_EACH(tm, tmap, tm, {
         sum7 += tm_iter_key(&iter);
         sum8 += tm_iter_value(&iter);
-    })
+    });
 
     FOR_EACH(ts, tset, ts, {
         sum6 += ts_iter_value(&iter);
-    })
+    });
 
     printf("\n-------------------- FOR_EACH --------------------\n");
     if (sum3 == 50005000)
@@ -161,45 +161,45 @@ int main(void)
 
     FOR_EACH_REV(d, deque, d, {
         sum3 += d_iter_value(&iter);
-    })
+    });
 
     FOR_EACH_REV(hm, hmap, hm, {
         sum10 += hm_iter_key(&iter);
         sum11 += hm_iter_value(&iter);
-    })
+    });
 
     FOR_EACH_REV(hs, hset, hs, {
         sum9 += hs_iter_value(&iter);
-    })
+    });
 
     FOR_EACH_REV(h, heap, h, {
         sum5 += h_iter_value(&iter);
-    })
+    });
 
     FOR_EACH_REV(ll, linked, ll, {
         sum4 += ll_iter_value(&iter);
-    })
+    });
 
     FOR_EACH_REV(l, list, l, {
         sum0 += l_iter_value(&iter);
-    })
+    });
 
     FOR_EACH_REV(q, queue, q, {
         sum2 += q_iter_value(&iter);
-    })
+    });
 
     FOR_EACH_REV(s, stack, s, {
         sum1 += s_iter_value(&iter);
-    })
+    });
 
     FOR_EACH_REV(tm, tmap, tm, {
         sum7 += tm_iter_key(&iter);
         sum8 += tm_iter_value(&iter);
-    })
+    });
 
     FOR_EACH_REV(ts, tset, ts, {
         sum6 += ts_iter_value(&iter);
-    })
+    });
 
     printf("-------------------- FOR_EACH_REV --------------------\n");
     if (sum3 == 50005000)

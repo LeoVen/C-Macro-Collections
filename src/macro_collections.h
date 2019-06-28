@@ -11,22 +11,22 @@
 #ifndef CMC_MACRO_COLLECTIONS
 #define CMC_MACRO_COLLECTIONS
 
-#define CONCATH_(C) C##_WRAPGEN_HEADER
-#define CONCATC_(C) C##_WRAPGEN_SOURCE
+#define CMC_CONCATH_(C) C##_WRAPGEN_HEADER
+#define CMC_CONCATC_(C) C##_WRAPGEN_SOURCE
 
-#define CONCATH(C) CONCATH_(C)
-#define CONCATC(C) CONCATC_(C)
+#define CMC_CONCATH(C) CMC_CONCATH_(C)
+#define CMC_CONCATC(C) CMC_CONCATC_(C)
 
 #define COLLECTION_GENERATE(C, PFX, SNAME, FMOD, K, V)    \
     COLLECTION_GENERATE_HEADER(C, PFX, SNAME, FMOD, K, V) \
     COLLECTION_GENERATE_SOURCE(C, PFX, SNAME, FMOD, K, V)
 
 #define COLLECTION_GENERATE_HEADER(C, PFX, SNAME, FMOD, K, V) \
-    CONCATH(C)                                                \
+    CMC_CONCATH(C)                                            \
     (PFX, SNAME, FMOD, K, V)
 
 #define COLLECTION_GENERATE_SOURCE(C, PFX, SNAME, FMOD, K, V) \
-    CONCATC(C)                                                \
+    CMC_CONCATC(C)                                            \
     (PFX, SNAME, FMOD, K, V)
 
 #include "cmc/deque.h"
@@ -45,6 +45,7 @@
 #include "sac/queue.h"
 #include "sac/stack.h"
 
+#include "utl/assert.h"
 #include "utl/foreach.h"
 #include "utl/log.h"
 #include "utl/test.h"

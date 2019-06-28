@@ -103,10 +103,10 @@ static void cmc_test_log(const char *unit_name, const char *current_test, bool a
         tinfo.verbose = VERBOSE;                                                            \
                                                                                             \
         /* Tests */                                                                         \
-        TIMER_START(timer);                                                                 \
+        timer_start(timer);                                                                 \
         BODY;                                                                               \
-        TIMER_STOP(timer);                                                                  \
-        TIMER_CALC(timer);                                                                  \
+        timer_stop(timer);                                                                  \
+        timer_calc(timer);                                                                  \
                                                                                             \
         unittest_abort:                                                                     \
         if (tinfo.aborted)                                                                  \
@@ -133,7 +133,7 @@ static void cmc_test_log(const char *unit_name, const char *current_test, bool a
                                      \
         BODY;                        \
                                      \
-    } while (0);
+    } while (0)
 
 #define CMC_TEST_PASS()                                         \
     do                                                          \

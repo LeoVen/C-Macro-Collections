@@ -67,7 +67,7 @@ int main(int argc, char const *argv[])
             printf("%d ]\n", value);
         else
             printf("%d, ", value);
-    })
+    });
 
     FOR_EACH(s, stack, s, {
         int value = s_iter_value(&iter);
@@ -78,7 +78,7 @@ int main(int argc, char const *argv[])
             printf("%d ]\n", value);
         else
             printf("%d, ", value);
-    })
+    });
 
     FOR_EACH(q, queue, q, {
         int value = q_iter_value(&iter);
@@ -89,7 +89,7 @@ int main(int argc, char const *argv[])
             printf("%d ]\n", value);
         else
             printf("%d, ", value);
-    })
+    });
 
     FOR_EACH(d, deque, d, {
         int value = d_iter_value(&iter);
@@ -100,7 +100,7 @@ int main(int argc, char const *argv[])
             printf("%d ]\n", value);
         else
             printf("%d, ", value);
-    })
+    });
 
     FOR_EACH(ll, llist, ll, {
         int value = ll_iter_value(&iter);
@@ -111,7 +111,7 @@ int main(int argc, char const *argv[])
             printf("%d ]\n", value);
         else
             printf("%d, ", value);
-    })
+    });
 
     FOR_EACH(ts, tset, ts, {
         int value = ts_iter_value(&iter);
@@ -122,7 +122,7 @@ int main(int argc, char const *argv[])
             printf("%d ]\n", value);
         else
             printf("%d, ", value);
-    })
+    });
 
     l_free(l);
     ll_free(ll);

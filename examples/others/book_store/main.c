@@ -61,7 +61,7 @@ int main(int argc, char const *argv[])
 
         map_insert(library, value->isbn, value->name);
         set_insert(counter, value->name);
-    })
+    });
 
     printf("Library Size: %d\n", map_count(library));
     printf("Unique book titles: %d\n\n", set_count(counter));
@@ -69,7 +69,7 @@ int main(int argc, char const *argv[])
     FOR_EACH(q, queue, shelf, {
         book *value = q_iter_value(&iter);
         printf("[ %d : %-45s ]\n", value->isbn, value->name);
-    })
+    });
     printf("\n");
 
     set_free(counter);
@@ -122,11 +122,11 @@ int main(int argc, char const *argv[])
 
                 if (chrcmp(buffer, value) == 0)
                     il_push_back(search_list, key);
-            })
+            });
 
             FOR_EACH(il, intlist, search_list, {
                 printf("[ %d ]\n", il_iter_value(&iter));
-            })
+            });
 
             il_free(search_list);
         }
@@ -140,7 +140,7 @@ int main(int argc, char const *argv[])
             free(b->name);
 
         free(b);
-    })
+    });
 
     l_free(books);
     q_free(shelf);

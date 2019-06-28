@@ -22,13 +22,26 @@ typedef struct timer_s
     double result;
 } timer_t;
 
-#define TIMER_START(timer) \
-    timer.start = clock();
+#define timer_start(timer)       \
+    do                           \
+    {                            \
+        (timer).start = clock(); \
+                                 \
+    } while (0)
 
-#define TIMER_STOP(timer) \
-    timer.stop = clock();
+#define timer_stop(timer)       \
+    do                          \
+    {                           \
+        (timer).stop = clock(); \
+                                \
+    } while (0)
 
-#define TIMER_CALC(timer) \
-    timer.result = (double)(((timer.stop - timer.start) * 1000.0) / CLOCKS_PER_SEC);
+#define timer_calc(timer)                                                   \
+    do                                                                      \
+    {                                                                       \
+        timer_t *t = &(timer);                                              \
+        t->result = (double)(t->stop - t->start) * 1000.0 / CLOCKS_PER_SEC; \
+                                                                            \
+    } while (0)
 
 #endif /* CMC_TIMER_H */

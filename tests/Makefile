@@ -1,15 +1,21 @@
-CFLAGS= -Wno-unused-function -Wno-unused-paramter -Wno-unused-variable -std=c11 -Wall -Wextra
+CC = gcc
+CFLAGS = -std=c11 -Wall -Wextra
+CFLAGS += -Wno-unused-function -Wno-unused-paramter -Wno-unused-variable -Wno-unused-label
+CVFLAGS = --coverage -O0
 
 main:
-	gcc foreach.c -o foreach $(CFLAGS)
+	$(CC) foreach.c -o foreach $(CFLAGS)
 	./foreach
-	gcc iterators.c -o iterators $(CFLAGS)
+	$(CC) iterators.c -o iterators $(CFLAGS)
 	./iterators
-	gcc contains.c -o contains $(CFLAGS)
+	$(CC) contains.c -o contains $(CFLAGS)
 	./contains
-	gcc types.c -o types $(CFLAGS)
+	$(CC) types.c -o types $(CFLAGS)
 	./types
-	gcc -c ./sep/sep.c -o ./sep/sep.o $(CFLAGS)
-	gcc -c ./sep/main.c -o ./sep/main.o $(CFLAGS)
-	gcc ./sep/sep.o ./sep/main.o -o ./sep/sep
+	$(CC) -c ./sep/sep.c -o ./sep/sep.o $(CFLAGS)
+	$(CC) -c ./sep/main.c -o ./sep/main.o $(CFLAGS)
+	$(CC) ./sep/sep.o ./sep/main.o -o ./sep/sep
 	./sep/sep
+	$(CC) list.c -o list $(CFLAGS) $(CVFLAGS)
+	./list
+	gcov ./list.c
