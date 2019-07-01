@@ -1,7 +1,6 @@
 CC = gcc
 CFLAGS = -std=c11 -Wall -Wextra
 CFLAGS += -Wno-unused-function -Wno-unused-paramter -Wno-unused-variable -Wno-unused-label
-CVFLAGS = --coverage -O0
 
 main:
 	$(CC) foreach.c -o foreach $(CFLAGS)
@@ -16,6 +15,3 @@ main:
 	$(CC) -c ./sep/main.c -o ./sep/main.o $(CFLAGS)
 	$(CC) ./sep/sep.o ./sep/main.o -o ./sep/sep
 	./sep/sep
-	$(CC) list.c -o list $(CFLAGS) $(CVFLAGS)
-	./list
-	gcov ./list.c

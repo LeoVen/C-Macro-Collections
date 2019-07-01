@@ -1,5 +1,6 @@
 # Tests
 
+* `main` - Unit tests for the main C Macro Collections library with code coverage;
 * `sep/main.c`, `sep/sep.c` and `sep/sep.h` - Tests separate header and source compilation;
 * `contains.c` - Tests the `contains` function for all collections;
 * `foreach.c` - Tests the ForEach macros for all collections;

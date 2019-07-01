@@ -1,6 +1,4 @@
-#include "../src/macro_collections.h"
-
-LIST_GENERATE(l, list, , size_t)
+#include "../src/list.c"
 
 CMC_CREATE_UNIT(list_test, true, {
     CMC_CREATE_TEST(new, {
@@ -22,7 +20,7 @@ CMC_CREATE_UNIT(list_test, true, {
         l_free(l);
     });
 
-    CMC_CREATE_TEST(new [edge_case:capacity = 0], {
+    CMC_CREATE_TEST(new[edge_case:capacity = 0], {
         list *l = l_new(0);
 
         cmc_assert_equals(ptr, NULL, l);
@@ -56,7 +54,7 @@ CMC_CREATE_UNIT(list_test, true, {
         l_free(l);
     });
 
-    CMC_CREATE_TEST(new_from [edge_case:size = 1], {
+    CMC_CREATE_TEST(new_from[edge_case:size = 1], {
         size_t a = 10;
 
         size_t *values = &a;
@@ -173,7 +171,17 @@ CMC_CREATE_UNIT(list_test, true, {
         l_free(l);
     });
 
-    CMC_CREATE_TEST(pop_front [edge_case:count = 1], {
+    CMC_CREATE_TEST(pop_front[edge_case:count = 0], {
+        list *l = l_new(100);
+
+        cmc_assert_not_equals(ptr, NULL, l);
+        cmc_assert(!l_pop_front(l));
+        CMC_TEST_PASS_ELSE_FAIL(l_count(l) == 0);
+
+        l_free(l);
+    });
+
+    CMC_CREATE_TEST(pop_front[edge_case:count = 1], {
         list *l = l_new(100);
 
         cmc_assert_not_equals(ptr, NULL, l);
@@ -185,24 +193,13 @@ CMC_CREATE_UNIT(list_test, true, {
         l_free(l);
     });
 
-    CMC_CREATE_TEST(pop_front [edge_case:count = 2], {
-        list *l = l_new(100);
-
-        cmc_assert(l_push_back(l, 10));
-        cmc_assert(l_push_front(l, 10));
-
-        CMC_TEST_PASS_ELSE_FAIL(l_pop_front(l) && l_count(l) == 1);
-
-        l_free(l);
-    });
-
     CMC_CREATE_TEST(pop_front[buffer_clear], {
         list *l = l_new(100);
 
-        cmc_assert(l_push_back(l, 10));
-        cmc_assert(l_push_front(l, 10));
+        cmc_assert_not_equals(ptr, NULL, l);
+        cmc_assert(l_push_back(l, 1));
+        cmc_assert(l_push_front(l, 2));
 
-        // Default value is all bytes are 0
         bool passed = l_pop_front(l) && l->buffer[1] == 0;
 
         cmc_assert_equals(size_t, 0, l->buffer[1]);
@@ -211,11 +208,64 @@ CMC_CREATE_UNIT(list_test, true, {
 
         l_free(l);
     });
+
+    CMC_CREATE_TEST(pop[edge_case:count = 0], {
+        list *l = l_new(100);
+
+        cmc_assert_not_equals(ptr, NULL, l);
+        cmc_assert(!l_pop(l, 1));
+
+        CMC_TEST_PASS_ELSE_FAIL(!l_pop(l, 1));
+
+        l_free(l);
+    });
+
+    CMC_CREATE_TEST(pop[edge_case:count = 1], {
+        list *l = l_new(100);
+
+        cmc_assert_not_equals(ptr, NULL, l);
+        cmc_assert(l_push_back(l, 1));
+
+        CMC_TEST_PASS_ELSE_FAIL(l_pop(l, 0));
+
+        cmc_assert_equals(size_t, 0, l->buffer[0]);
+
+        l_free(l);
+    });
+
+    CMC_CREATE_TEST(pop[buffer_clear], {
+        list *l = l_new(100);
+
+        cmc_assert_not_equals(ptr, NULL, l);
+        cmc_assert(l_push_back(l, 1));
+        cmc_assert(l_push_back(l, 2));
+        cmc_assert(l_push_back(l, 3));
+        cmc_assert(l_pop(l, 1));
+
+        CMC_TEST_PASS_ELSE_FAIL(0 == l->buffer[2]);
+
+        l_free(l);
+    });
+
+    CMC_CREATE_TEST(pop_back[edge_case:count = 0], {
+        list *l = l_new(100);
+
+        cmc_assert_not_equals(ptr, NULL, l);
+        cmc_assert(!l_pop_back(l));
+        CMC_TEST_PASS_ELSE_FAIL(l_count(l) == 0);
+
+        l_free(l);
+    });
+
+    CMC_CREATE_TEST(pop_back[edge_case:count = 1], {
+        list *l = l_new(100);
+
+        cmc_assert_not_equals(ptr, NULL, l);
+        cmc_assert(l_push_back(l, 10));
+        cmc_assert(l_pop_back(l));
+
+        CMC_TEST_PASS_ELSE_FAIL(l_count(l) == 0);
+
+        l_free(l);
+    });
 })
-
-int main(void)
-{
-    list_test();
-
-    return 0;
-}

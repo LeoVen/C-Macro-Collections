@@ -14,5 +14,7 @@ script:
   - export CC=gcc-7
   - cd ./tests
   - make
+  - cd main
+  - make
 after_success:
   - bash <(curl -s https://codecov.io/bash)
