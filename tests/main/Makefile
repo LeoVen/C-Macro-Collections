@@ -8,3 +8,9 @@ main:
 	$(CC) main.c -o main $(CFLAGS) $(CVFLAGS) -I $(INCLUDE)
 	./main
 	gcov ./main.c
+
+dev:
+	$(CC) main.c -o main $(CFLAGS) $(CVFLAGS) -I $(INCLUDE)
+	./main
+	gcov ./main.c -n
+	rm *.gcda *.gcno *.exe

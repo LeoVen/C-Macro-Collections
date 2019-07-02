@@ -1,4 +1,4 @@
-#include "macro_collections.h"
+#include "cmc/deque.h"
 
 typedef struct deque_s
 {

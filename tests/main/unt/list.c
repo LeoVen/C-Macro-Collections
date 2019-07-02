@@ -1,3 +1,5 @@
+#include "utl/assert.h"
+#include "utl/test.h"
 #include "../src/list.c"
 
 CMC_CREATE_UNIT(list_test, true, {
@@ -12,16 +14,21 @@ CMC_CREATE_UNIT(list_test, true, {
         cmc_assert_equals(size_t, 0, l_count(l));
         cmc_assert_not_equals(ptr, NULL, l->buffer);
 
-        if (passed)
-            CMC_TEST_PASS();
-        else
-            CMC_TEST_FAIL();
+        CMC_TEST_PASS_ELSE_FAIL(passed);
 
         l_free(l);
     });
 
     CMC_CREATE_TEST(new[edge_case:capacity = 0], {
         list *l = l_new(0);
+
+        cmc_assert_equals(ptr, NULL, l);
+
+        CMC_TEST_PASS_ELSE_FAIL(l == NULL);
+    });
+
+    CMC_CREATE_TEST(new[edge_case:capacity = UINT64_MAX], {
+        list *l = l_new(UINT64_MAX);
 
         cmc_assert_equals(ptr, NULL, l);
 
@@ -76,9 +83,37 @@ CMC_CREATE_UNIT(list_test, true, {
         for (size_t i = 0; i < 50; i++)
             l_push_back(l, i);
 
+        cmc_assert_equals(size_t, 50, l_count(l));
+
         l_clear(l);
 
+        cmc_assert_equals(size_t, 0, l_count(l));
+        cmc_assert_equals(size_t, 100, l_capacity(l));
+
         CMC_TEST_PASS_ELSE_FAIL(l_count(l) == 0 && l_capacity(l) == 100);
+
+        l_free(l);
+    });
+
+    CMC_CREATE_TEST(buffer_growth[edge_case:capacity = 1], {
+        list *l = l_new(1);
+
+        cmc_assert_not_equals(ptr, NULL, l);
+
+        for (size_t i = 0; i < 100; i++)
+            l_push_back(l, i);
+
+        cmc_assert_equals(size_t, 100, l_count(l));
+
+        bool passed = true;
+
+        for (size_t i = 0; i < 100; i++)
+        {
+            passed = passed && l_get(l, i) == i;
+            cmc_assert_equals(size_t, i, l_get(l, i));
+        }
+
+        CMC_TEST_PASS_ELSE_FAIL(passed);
 
         l_free(l);
     });
