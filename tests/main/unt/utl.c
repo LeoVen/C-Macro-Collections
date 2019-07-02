@@ -1,4 +1,4 @@
-/* Utility folder to be included in the unit tests */
+/* Utility file to be included in the unit tests */
 #ifndef CMC_UNIT_TEST_UTL__
 #define CMC_UNIT_TEST_UTL__
 

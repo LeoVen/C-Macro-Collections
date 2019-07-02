@@ -2,7 +2,7 @@
 #include "utl/test.h"
 #include "../src/hashset.c"
 
-#include "../src/utl.c"
+#include "utl.c"
 
 CMC_CREATE_UNIT(hashset_test, true, {
     CMC_CREATE_TEST(new, {
