@@ -1,0 +1,5 @@
+ignore:
+  - "unt"
+  - "main.c"
+  - "src/utl.c"
+  - "../../src/utl/test.h"
