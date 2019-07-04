@@ -11,7 +11,7 @@ CMC_CREATE_UNIT(hashmap_test, true, {
         bool passed = (map->capacity >= (943722 / 0.6)) && map->count == 0 && map->buffer;
 
         cmc_assert_not_equals(ptr, NULL, map);
-        cmc_assert(hm_capacity(map) > (943722 / 0.6));
+        cmc_assert_greater_equals(size_t, (943722 / 0.6), hm_capacity(map));
 
         CMC_TEST_PASS_ELSE_FAIL(passed);
 

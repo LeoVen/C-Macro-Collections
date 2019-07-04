@@ -1,6 +1,6 @@
 CC = gcc
 CFLAGS = -std=c11 -Wall -Wextra
-CFLAGS += -Wno-unused-function -Wno-unused-paramter -Wno-unused-variable -Wno-unused-label
+CFLAGS += -Wno-unused-function -Wno-unused-parameter -Wno-unused-variable -Wno-unused-label
 CVFLAGS = --coverage -O0
 INCLUDE = ../../src/
 

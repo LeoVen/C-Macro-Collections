@@ -118,13 +118,43 @@ CMC_CREATE_UNIT(list_test, true, {
         l_free(l);
     });
 
-    CMC_CREATE_TEST(push_front[count capacity item_preservation grow], {
+    CMC_CREATE_TEST(push_front[count], {
         list *l = l_new(100);
 
         cmc_assert_not_equals(ptr, NULL, l);
 
-        for (size_t i = 0; i < 200; i++)
-            l_push_front(l, i);
+        for (size_t i = 0; i < 250; i++)
+            cmc_assert(l_push_front(l, i));
+
+        cmc_assert_equals(size_t, 250, l_count(l));
+
+        CMC_TEST_PASS_ELSE_FAIL(l_count(l) == 250);
+
+        l_free(l);
+    });
+
+    CMC_CREATE_TEST(push_front[capacity], {
+        list *l = l_new(100);
+
+        cmc_assert_not_equals(ptr, NULL, l);
+
+        for (size_t i = 0; i < 250; i++)
+            cmc_assert(l_push_front(l, i));
+
+        cmc_assert_lesser_equals(size_t, l_capacity(l), l_count(l));
+
+        CMC_TEST_PASS_ELSE_FAIL(l_count(l) <= l_capacity(l));
+
+        l_free(l);
+    });
+
+    CMC_CREATE_TEST(push_front[item_preservation], {
+        list *l = l_new(100);
+
+        cmc_assert_not_equals(ptr, NULL, l);
+
+        for (size_t i = 0; i < 250; i++)
+            cmc_assert(l_push_front(l, i));
 
         bool passed = true;
 
@@ -135,18 +165,57 @@ CMC_CREATE_UNIT(list_test, true, {
             cmc_assert_equals(size_t, l_get(l, i), l_count(l) - i - 1);
         }
 
-        CMC_TEST_PASS_ELSE_FAIL(passed && l_count(l) == 200);
+        CMC_TEST_PASS_ELSE_FAIL(passed);
 
         l_free(l);
     });
 
-    CMC_CREATE_TEST(push[count capacity item_preservation grow], {
+    CMC_CREATE_TEST(push[count], {
         list *l = l_new(100);
 
         cmc_assert_not_equals(ptr, NULL, l);
 
-        for (size_t i = 0; i < 200; i++)
-            l_push(l, i, l_count(l));
+        cmc_assert(l_push_back(l, 0));
+        cmc_assert(l_push_back(l, 249));
+
+        for (size_t i = 1; i < 249; i++)
+            cmc_assert(l_push(l, i, l_count(l) - 1));
+
+        cmc_assert_equals(size_t, 250, l_count(l));
+
+        CMC_TEST_PASS_ELSE_FAIL(l_count(l) == 250);
+
+        l_free(l);
+    });
+
+    CMC_CREATE_TEST(push[capacity], {
+        list *l = l_new(100);
+
+        cmc_assert_not_equals(ptr, NULL, l);
+
+        cmc_assert(l_push_back(l, 0));
+        cmc_assert(l_push_back(l, 249));
+
+        for (size_t i = 1; i < 249; i++)
+            cmc_assert(l_push(l, i, l_count(l) - 1));
+
+        cmc_assert_lesser_equals(size_t, l_capacity(l), l_count(l));
+
+        CMC_TEST_PASS_ELSE_FAIL(l_count(l) <= l_capacity(l));
+
+        l_free(l);
+    });
+
+    CMC_CREATE_TEST(push[item_preservation], {
+        list *l = l_new(100);
+
+        cmc_assert_not_equals(ptr, NULL, l);
+
+        cmc_assert(l_push_back(l, 0));
+        cmc_assert(l_push_back(l, 249));
+
+        for (size_t i = 1; i < 249; i++)
+            cmc_assert(l_push(l, i, l_count(l) - 1));
 
         bool passed = true;
 
@@ -157,39 +226,84 @@ CMC_CREATE_UNIT(list_test, true, {
             cmc_assert_equals(size_t, l_get(l, i), i);
         }
 
-        CMC_TEST_PASS_ELSE_FAIL(passed && l_count(l) == 200);
+        CMC_TEST_PASS_ELSE_FAIL(passed);
 
         l_free(l);
     });
 
-    CMC_CREATE_TEST(push_back[count capacity item_preservation grow], {
+    CMC_CREATE_TEST(push_back[count], {
         list *l = l_new(100);
 
         cmc_assert_not_equals(ptr, NULL, l);
 
-        for (size_t i = 0; i < 200; i++)
+        for (size_t i = 0; i < 250; i++)
+            cmc_assert(l_push_back(l, i));
+
+        cmc_assert_equals(size_t, 250, l_count(l));
+
+        CMC_TEST_PASS_ELSE_FAIL(l_count(l) == 250);
+
+        l_free(l);
+    });
+
+    CMC_CREATE_TEST(push_back[capacity], {
+        list *l = l_new(100);
+
+        cmc_assert_not_equals(ptr, NULL, l);
+
+        for (size_t i = 0; i < 250; i++)
+            cmc_assert(l_push_back(l, i));
+
+        cmc_assert_lesser_equals(size_t, l_capacity(l), l_count(l));
+
+        CMC_TEST_PASS_ELSE_FAIL(l_count(l) <= l_capacity(l));
+
+        l_free(l);
+    });
+
+    CMC_CREATE_TEST(push_back[item_preservation], {
+        list *l = l_new(100);
+
+        cmc_assert_not_equals(ptr, NULL, l);
+
+        for (size_t i = 0; i < 250; i++)
+            cmc_assert(l_push_back(l, i));
+
+        bool passed = true;
+
+        for (size_t i = 0; i < l_count(l); i++)
+        {
+            passed = passed && l_get(l, i) == i;
+
+            cmc_assert_equals(size_t, l_get(l, i), i);
+        }
+
+        CMC_TEST_PASS_ELSE_FAIL(passed);
+
+        l_free(l);
+    });
+
+    CMC_CREATE_TEST(pop_front[count], {
+        list *l = l_new(100);
+
+        cmc_assert_not_equals(ptr, NULL, l);
+
+        for (size_t i = 0; i < 250; i++)
             l_push_back(l, i);
 
-        bool passed = true;
+        cmc_assert(l_pop_front(l));
 
-        for (size_t i = 0; i < l_count(l); i++)
-        {
-            passed = passed && l_get(l, i) == i;
-
-            cmc_assert_equals(size_t, l_get(l, i), i);
-        }
-
-        CMC_TEST_PASS_ELSE_FAIL(passed && l_count(l) == 200);
+        CMC_TEST_PASS_ELSE_FAIL(l_count(l) == 250 - 1);
 
         l_free(l);
     });
 
-    CMC_CREATE_TEST(pop_front[count item_preservation], {
+    CMC_CREATE_TEST(pop_front[item_preservation], {
         list *l = l_new(100);
 
         cmc_assert_not_equals(ptr, NULL, l);
 
-        for (size_t i = 0; i < 200; i++)
+        for (size_t i = 0; i < 250; i++)
             l_push_back(l, i);
 
         bool passed = l_pop_front(l);
@@ -201,7 +315,7 @@ CMC_CREATE_UNIT(list_test, true, {
             cmc_assert_equals(size_t, l_get(l, i), i + 1);
         }
 
-        CMC_TEST_PASS_ELSE_FAIL(passed && l_count(l) == 199);
+        CMC_TEST_PASS_ELSE_FAIL(passed);
 
         l_free(l);
     });
