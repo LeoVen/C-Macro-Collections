@@ -4,6 +4,10 @@
 #include "unt/heap.c"
 #include "unt/linkedlist.c"
 #include "unt/list.c"
+#include "unt/queue.c"
+#include "unt/stack.c"
+#include "unt/treemap.c"
+#include "unt/treeset.c"
 
 int main(void)
 {
@@ -13,6 +17,10 @@ int main(void)
     heap_test();
     linkedlist_test();
     list_test();
+    queue_test();
+    stack_test();
+    treemap_test();
+    treeset_test();
 
     return 0;
 }

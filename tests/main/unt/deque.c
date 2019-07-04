@@ -64,8 +64,9 @@ CMC_CREATE_UNIT(deque_test, true, {
             d_push_back(d, i);
 
         cmc_assert_equals(size_t, 50, d_count(d));
+        cmc_assert_lesser_equals(size_t, d_capacity(d), d_count(d));
 
-        CMC_TEST_PASS_ELSE_FAIL(d_count(d) == 50);
+        CMC_TEST_PASS_ELSE_FAIL(d_count(d) == 50 && d_count(d) <= d_capacity(d));
 
         d_free(d);
     });

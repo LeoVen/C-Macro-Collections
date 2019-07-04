@@ -160,13 +160,13 @@ bool d_pop_back_if(deque *_deque_, bool condition)
 size_t d_front(deque *_deque_)
 {
     if (d_empty(_deque_))
-        d_impl_default_value();
+        return d_impl_default_value();
     return _deque_->buffer[_deque_->front];
 }
 size_t d_back(deque *_deque_)
 {
     if (d_empty(_deque_))
-        d_impl_default_value();
+        return d_impl_default_value();
     return _deque_->buffer[(_deque_->back == 0) ? _deque_->capacity - 1 : _deque_->back - 1];
 }
 bool d_contains(deque *_deque_, size_t element, int (*comparator)(size_t, size_t))
@@ -249,7 +249,7 @@ bool d_iter_prev(deque_iter *iter)
 size_t d_iter_value(deque_iter *iter)
 {
     if (d_empty(iter->target))
-        d_impl_default_value();
+        return d_impl_default_value();
     return iter->target->buffer[iter->cursor];
 }
 size_t *d_iter_rvalue(deque_iter *iter)

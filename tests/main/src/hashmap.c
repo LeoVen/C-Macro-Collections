@@ -76,16 +76,16 @@ static hashmap_iter hm_impl_it_end(hashmap *_map_);
 hashmap *hm_new(size_t capacity, double load, int (*compare)(size_t, size_t), size_t (*hash)(size_t))
 {
     if (capacity == 0 || load <= 0 || load >= 1)
-        return 0;
+        return NULL;
     size_t real_capacity = hm_impl_calculate_size(capacity / load);
     hashmap *_map_ = malloc(sizeof(hashmap));
     if (!_map_)
-        return 0;
+        return NULL;
     _map_->buffer = malloc(sizeof(hashmap_entry) * real_capacity);
     if (!_map_->buffer)
     {
         free(_map_);
-        return 0;
+        return NULL;
     }
     memset(_map_->buffer, 0, sizeof(hashmap_entry) * real_capacity);
     _map_->count = 0;
@@ -118,7 +118,7 @@ bool hm_insert(hashmap *_map_, size_t key, size_t value)
     size_t original_pos = hash % _map_->capacity;
     size_t pos = original_pos;
     hashmap_entry *target = &(_map_->buffer[pos]);
-    if (hm_impl_get_entry(_map_, key) != 0)
+    if (hm_impl_get_entry(_map_, key) != NULL)
         return false;
     if (target->state == ES_EMPTY || target->state == ES_DELETED)
     {
@@ -161,7 +161,7 @@ bool hm_insert(hashmap *_map_, size_t key, size_t value)
 bool hm_remove(hashmap *_map_, size_t key, size_t *value)
 {
     hashmap_entry *result = hm_impl_get_entry(_map_, key);
-    if (result == 0)
+    if (result == NULL)
         return false;
     *value = result->value;
     result->key = hm_impl_default_key();
@@ -233,17 +233,17 @@ size_t hm_get(hashmap *_map_, size_t key)
 {
     hashmap_entry *entry = hm_impl_get_entry(_map_, key);
     if (!entry)
-        hm_impl_default_value();
+        return hm_impl_default_value();
     return entry->value;
 }
 size_t *hm_get_ref(hashmap *_map_, size_t key)
 {
     hashmap_entry *entry = hm_impl_get_entry(_map_, key);
     if (!entry)
-        return 0;
+        return NULL;
     return &(entry->value);
 }
-bool hm_contains(hashmap *_map_, size_t key) { return hm_impl_get_entry(_map_, key) != 0; }
+bool hm_contains(hashmap *_map_, size_t key) { return hm_impl_get_entry(_map_, key) != NULL; }
 bool hm_empty(hashmap *_map_) { return _map_->count == 0; }
 size_t hm_count(hashmap *_map_) { return _map_->count; }
 size_t hm_capacity(hashmap *_map_) { return _map_->capacity; }
@@ -251,7 +251,7 @@ hashmap_iter *hm_iter_new(hashmap *target)
 {
     hashmap_iter *iter = malloc(sizeof(hashmap_iter));
     if (!iter)
-        return 0;
+        return NULL;
     hm_iter_init(iter, target);
     return iter;
 }
@@ -345,19 +345,19 @@ bool hm_iter_prev(hashmap_iter *iter)
 size_t hm_iter_key(hashmap_iter *iter)
 {
     if (hm_empty(iter->target))
-        hm_impl_default_key();
+        return hm_impl_default_key();
     return iter->target->buffer[iter->cursor].key;
 }
 size_t hm_iter_value(hashmap_iter *iter)
 {
     if (hm_empty(iter->target))
-        hm_impl_default_value();
+        return hm_impl_default_value();
     return iter->target->buffer[iter->cursor].value;
 }
 size_t *hm_iter_rvalue(hashmap_iter *iter)
 {
     if (hm_empty(iter->target))
-        return 0;
+        return NULL;
     return &(iter->target->buffer[iter->cursor].value);
 }
 size_t hm_iter_index(hashmap_iter *iter) { return iter->index; }
@@ -398,7 +398,7 @@ static hashmap_entry *hm_impl_get_entry(hashmap *_map_, size_t key)
         pos++;
         target = &(_map_->buffer[pos % _map_->capacity]);
     }
-    return 0;
+    return NULL;
 }
 static size_t hm_impl_calculate_size(size_t required)
 {

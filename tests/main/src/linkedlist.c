@@ -230,13 +230,13 @@ bool ll_pop_if(linkedlist *_list_, size_t index, bool condition)
 size_t ll_front(linkedlist *_list_)
 {
     if (ll_empty(_list_))
-        ll_impl_default_value();
+        return ll_impl_default_value();
     return _list_->head->data;
 }
 size_t ll_get(linkedlist *_list_, size_t index)
 {
     if (index >= _list_->count || ll_empty(_list_))
-        ll_impl_default_value();
+        return ll_impl_default_value();
     linkedlist_node *scan = ll_get_node(_list_, index);
     if (scan == NULL)
         return ll_impl_default_value();
