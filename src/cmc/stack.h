@@ -210,7 +210,7 @@
     FMOD V PFX##_top(SNAME *_stack_)                                             \
     {                                                                            \
         if (PFX##_empty(_stack_))                                                \
-            PFX##_impl_default_value();                                          \
+            return PFX##_impl_default_value();                                   \
                                                                                  \
         return _stack_->buffer[_stack_->count - 1];                              \
     }                                                                            \
@@ -328,7 +328,7 @@
     FMOD V PFX##_iter_value(SNAME##_iter *iter)                                  \
     {                                                                            \
         if (PFX##_empty(iter->target))                                           \
-            PFX##_impl_default_value();                                          \
+            return PFX##_impl_default_value();                                   \
                                                                                  \
         return iter->target->buffer[iter->cursor];                               \
     }                                                                            \

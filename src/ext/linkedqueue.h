@@ -237,7 +237,7 @@
     FMOD V PFX##_peek(SNAME *_lqueue_)                                            \
     {                                                                             \
         if (PFX##_empty(_lqueue_))                                                \
-            PFX##_impl_default_value();                                           \
+            return PFX##_impl_default_value();                                    \
                                                                                   \
         return _lqueue_->head->data;                                              \
     }                                                                             \
@@ -348,7 +348,7 @@
     FMOD V *PFX##_iter_rvalue(SNAME##_iter *iter)                                 \
     {                                                                             \
         if (PFX##_empty(iter->target))                                            \
-            NULL;                                                                 \
+            return NULL;                                                          \
                                                                                   \
         return &(iter->cursor->data);                                             \
     }                                                                             \

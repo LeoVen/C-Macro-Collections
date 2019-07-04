@@ -425,7 +425,7 @@ static const size_t cmc_hashtable_primes[] = {53, 97, 191, 383, 769, 1531,
         SNAME##_entry *entry = PFX##_impl_get_entry(_map_, key);                                 \
                                                                                                  \
         if (!entry)                                                                              \
-            PFX##_impl_default_value();                                                          \
+            return PFX##_impl_default_value();                                                   \
                                                                                                  \
         return entry->value;                                                                     \
     }                                                                                            \
@@ -598,7 +598,7 @@ static const size_t cmc_hashtable_primes[] = {53, 97, 191, 383, 769, 1531,
     FMOD K PFX##_iter_key(SNAME##_iter *iter)                                                    \
     {                                                                                            \
         if (PFX##_empty(iter->target))                                                           \
-            PFX##_impl_default_key();                                                            \
+            return PFX##_impl_default_key();                                                     \
                                                                                                  \
         return iter->target->buffer[iter->cursor].key;                                           \
     }                                                                                            \
@@ -606,7 +606,7 @@ static const size_t cmc_hashtable_primes[] = {53, 97, 191, 383, 769, 1531,
     FMOD V PFX##_iter_value(SNAME##_iter *iter)                                                  \
     {                                                                                            \
         if (PFX##_empty(iter->target))                                                           \
-            PFX##_impl_default_value();                                                          \
+            return PFX##_impl_default_value();                                                   \
                                                                                                  \
         return iter->target->buffer[iter->cursor].value;                                         \
     }                                                                                            \

@@ -229,7 +229,7 @@
     FMOD V PFX##_peek(SNAME *_queue_)                                                                       \
     {                                                                                                       \
         if (PFX##_empty(_queue_))                                                                           \
-            PFX##_impl_default_value();                                                                     \
+            return PFX##_impl_default_value();                                                              \
                                                                                                             \
         return _queue_->buffer[_queue_->front];                                                             \
     }                                                                                                       \
@@ -360,7 +360,7 @@
     FMOD V PFX##_iter_value(SNAME##_iter *iter)                                                             \
     {                                                                                                       \
         if (PFX##_empty(iter->target))                                                                      \
-            PFX##_impl_default_value();                                                                     \
+            return PFX##_impl_default_value();                                                              \
                                                                                                             \
         return iter->target->buffer[iter->cursor];                                                          \
     }                                                                                                       \

@@ -376,7 +376,7 @@
     FMOD V PFX##_front(SNAME *_list_)                                               \
     {                                                                               \
         if (PFX##_empty(_list_))                                                    \
-            PFX##_impl_default_value();                                             \
+            return PFX##_impl_default_value();                                      \
                                                                                     \
         return _list_->head->data;                                                  \
     }                                                                               \
@@ -384,7 +384,7 @@
     FMOD V PFX##_get(SNAME *_list_, size_t index)                                   \
     {                                                                               \
         if (index >= _list_->count || PFX##_empty(_list_))                          \
-            PFX##_impl_default_value();                                             \
+            return PFX##_impl_default_value();                                      \
                                                                                     \
         SNAME##_node *scan = PFX##_get_node(_list_, index);                         \
                                                                                     \

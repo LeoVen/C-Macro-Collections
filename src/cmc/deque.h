@@ -283,7 +283,7 @@
     FMOD V PFX##_front(SNAME *_deque_)                                                                      \
     {                                                                                                       \
         if (PFX##_empty(_deque_))                                                                           \
-            PFX##_impl_default_value();                                                                     \
+            return PFX##_impl_default_value();                                                              \
                                                                                                             \
         return _deque_->buffer[_deque_->front];                                                             \
     }                                                                                                       \
@@ -291,7 +291,7 @@
     FMOD V PFX##_back(SNAME *_deque_)                                                                       \
     {                                                                                                       \
         if (PFX##_empty(_deque_))                                                                           \
-            PFX##_impl_default_value();                                                                     \
+            return PFX##_impl_default_value();                                                              \
                                                                                                             \
         return _deque_->buffer[(_deque_->back == 0) ? _deque_->capacity - 1 : _deque_->back - 1];           \
     }                                                                                                       \
@@ -422,7 +422,7 @@
     FMOD V PFX##_iter_value(SNAME##_iter *iter)                                                             \
     {                                                                                                       \
         if (PFX##_empty(iter->target))                                                                      \
-            PFX##_impl_default_value();                                                                     \
+            return PFX##_impl_default_value();                                                              \
                                                                                                             \
         return iter->target->buffer[iter->cursor];                                                          \
     }                                                                                                       \
@@ -442,7 +442,6 @@
                                                                                                             \
     static bool PFX##_impl_grow(SNAME *_deque_)                                                             \
     {                                                                                                       \
-                                                                                                            \
         size_t new_capacity = _deque_->capacity * 2;                                                        \
                                                                                                             \
         V *new_buffer = malloc(sizeof(V) * new_capacity);                                                   \
