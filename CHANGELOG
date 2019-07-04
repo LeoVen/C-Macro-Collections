@@ -1,4 +1,9 @@
-# MAJOR.MINOR.ADJUSTMENTS
+# RELEASE.MAJOR.MINOR
+
+1.5.3
+    Tests completely reorganized and now with full code coverage
+    Some fixes where there was a missing return statement
+    Expanded utl/assert.h
 
 1.5.2
     Added utl/test.h
