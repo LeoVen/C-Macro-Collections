@@ -75,7 +75,7 @@ COLLECTION_GENERATE(HASHMAP, hm, hmap, /* FMOD */, int, int)
     {                                                                                                            \
         printf("+------------------------------------------------------------ %10s\n", #NAME);                   \
         printf("+------------------------------------------------------------ \n");                              \
-        timer_t timer, total;                                                                                    \
+        cmc_timer timer, total;                                                                                  \
         int r, k, v;                                                                                             \
         size_t j;                                                                                                \
                                                                                                                  \

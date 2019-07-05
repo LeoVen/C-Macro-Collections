@@ -98,7 +98,7 @@ static void cmc_test_log(const char *unit_name, const char *current_test, bool a
         const char *current_test = NULL;                                                    \
                                                                                             \
         cmc_test_info tinfo = {0};                                                          \
-        timer_t timer = {0};                                                                \
+        cmc_timer timer = {0};                                                              \
                                                                                             \
         tinfo.verbose = VERBOSE;                                                            \
                                                                                             \
