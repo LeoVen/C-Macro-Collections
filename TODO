@@ -1,50 +1,66 @@
 TODO
 
+X - Finished
+~ - Needs to be reviewed
+
 [ ] Finish Documentation
 [X] Remove PUBLIC and PRIVATE
-[ ] Add multiset
-[ ] Add multimap
-[ ] Upgrade heap to an interval heap
-[ ] Add dispose function
-[ ] Serialization
-[ ] Iterator based functions (like C++ collections)
-[ ] Add Stack Allocated Collections
-[ ] Finish all Dev Collections
-[ ] ToString method to all Collections
-
-
-MAYBE
-
-[ ] Add conditional code generation based on variadic macros
-
-
-PLANNED
-
-Before 2.0
-    Get Documentation fixed and completed
-
-1.6
-    Iterator move and move_to
-    from_array - Creates a collection with all the elements in a specified array
-    to_array - Creates an array with all the elements inside the collection
-    LinkedList - Insert/Remove/Append/Prepend/Extract
-    Resize buffer function
-    Add dispose method to each collection in order to automatically free its data
-    Add copy functions (copy of a collection)
-
-2.0
-    Add new heap collection implementation
-    Add all stack based collections
-
-2.1
-    Add variadic macros (generate only the necessary functions)
-
-2.2
-    Add serialization functions
-
-2.3
-    Iterator functions (functions that operate relative to iterators position) like add or remove ranges
-
-SOMETIME
-
-Add TreeHashMap
+[ ] Extra Collections
+    [~] Add MultiSet
+    [~] Add MultiMap
+    [X] Add IntervalHeap
+    [ ] Add TreeHashMap
+[ ] Add functions
+    [ ] to_string    {all}
+    [ ] iter_move    {all} (iterators)
+    [ ] iter_move_to {all} (iterators)
+    [ ] from_array   {all}
+    [ ] to_array     {all}
+    [ ] compare      {all}
+    [ ] resize       {dynamic arrays and circular buffers}
+    [ ] dispose      {all}
+    [ ] copy         {all}
+    [ ] save         {all} (serialization)
+    [ ] load         {all} (serialization)
+    [ ] Range IO
+        [ ] Sequences
+            [ ] seq_push_front
+            [ ] seq_push_at
+            [ ] seq_push_back
+            [ ] seq_remove
+            [ ] seq_extract
+        [ ] Others
+            [ ] seq_insert
+            [ ] seq_remove  (attention on how to treat this)
+            [ ] seq_extract (attention on how to treat this)
+    [ ] Iterator IO
+        [ ] range_insert
+        [ ] range_remove
+[ ] Stack Allocated Collections
+    [ ] Deque
+    [ ] HashMap
+    [ ] HashSet
+    [ ] Heap
+    [ ] LinkedList
+    [ ] List
+    [~] Queue
+    [~] Stack
+    [ ] TreeMap
+    [ ] TreeSet
+[ ] Dev Collections
+    [~] Deque
+    [ ] HashMap
+    [ ] HashSet
+    [ ] Heap
+    [ ] LinkedList
+    [ ] List
+    [ ] Queue
+    [ ] Stack
+    [ ] TreeMap
+    [ ] TreeSet
+[~] Utility
+    [X] assert.h
+    [X] foreach.h
+    [X] log.h
+    [~] test.h
+    [X] timer.h
