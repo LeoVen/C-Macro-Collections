@@ -40,7 +40,10 @@
 #include "cmc/treemap.h"
 #include "cmc/treeset.h"
 
+#include "ext/intervalheap.h"
 #include "ext/linkedqueue.h"
+#include "ext/multimap.h"
+#include "ext/multiset.h"
 
 #include "sac/queue.h"
 #include "sac/stack.h"

@@ -135,9 +135,6 @@ typedef enum HeapOrder
                                                                                                   \
     /* Implementation Detail Functions */                                                         \
     static bool PFX##_impl_grow(SNAME *_heap_);                                                   \
-    static size_t PFX##_impl_p(size_t index);                                                     \
-    static size_t PFX##_impl_l(size_t index);                                                     \
-    static size_t PFX##_impl_r(size_t index);                                                     \
     static bool PFX##_impl_float_up(SNAME *_heap_, size_t index);                                 \
     static bool PFX##_impl_float_down(SNAME *_heap_, size_t index);                               \
     static SNAME##_iter PFX##_impl_it_start(SNAME *_heap_);                                       \
@@ -399,42 +396,25 @@ typedef enum HeapOrder
         return true;                                                                              \
     }                                                                                             \
                                                                                                   \
-    static size_t PFX##_impl_p(size_t index)                                                      \
-    {                                                                                             \
-        if (index == 0)                                                                           \
-            return 0;                                                                             \
-                                                                                                  \
-        return (index - 1) / 2;                                                                   \
-    }                                                                                             \
-                                                                                                  \
-    static size_t PFX##_impl_l(size_t index)                                                      \
-    {                                                                                             \
-        return 2 * index + 1;                                                                     \
-    }                                                                                             \
-                                                                                                  \
-    static size_t PFX##_impl_r(size_t index)                                                      \
-    {                                                                                             \
-        return 2 * index + 2;                                                                     \
-    }                                                                                             \
-                                                                                                  \
     static bool PFX##_impl_float_up(SNAME *_heap_, size_t index)                                  \
     {                                                                                             \
+        /* Current index */                                                                       \
         size_t C = index;                                                                         \
         V child = _heap_->buffer[C];                                                              \
-        V parent = _heap_->buffer[PFX##_impl_p(C)];                                               \
+        V parent = _heap_->buffer[(index - 1) / 2];                                               \
                                                                                                   \
         int mod = _heap_->HO;                                                                     \
                                                                                                   \
         while (C > 0 && _heap_->cmp(child, parent) * mod > 0)                                     \
         {                                                                                         \
             V tmp = _heap_->buffer[C];                                                            \
-            _heap_->buffer[C] = _heap_->buffer[PFX##_impl_p(C)];                                  \
-            _heap_->buffer[PFX##_impl_p(C)] = tmp;                                                \
+            _heap_->buffer[C] = _heap_->buffer[(index - 1) / 2];                                  \
+            _heap_->buffer[(index - 1) / 2] = tmp;                                                \
                                                                                                   \
-            C = PFX##_impl_p(C);                                                                  \
+            C = (index - 1) / 2;                                                                  \
                                                                                                   \
             child = _heap_->buffer[C];                                                            \
-            parent = _heap_->buffer[PFX##_impl_p(C)];                                             \
+            parent = _heap_->buffer[(index - 1) / 2];                                             \
         }                                                                                         \
                                                                                                   \
         return true;                                                                              \
@@ -446,8 +426,8 @@ typedef enum HeapOrder
                                                                                                   \
         while (index < _heap_->count)                                                             \
         {                                                                                         \
-            size_t L = PFX##_impl_l(index);                                                       \
-            size_t R = PFX##_impl_r(index);                                                       \
+            size_t L = 2 * index + 1;                                                             \
+            size_t R = 2 * index + 2;                                                             \
             size_t C = index;                                                                     \
                                                                                                   \
             if (L < _heap_->count && _heap_->cmp(_heap_->buffer[L], _heap_->buffer[C]) * mod > 0) \
