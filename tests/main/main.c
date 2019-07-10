@@ -9,6 +9,8 @@
 #include "unt/treemap.c"
 #include "unt/treeset.c"
 
+#include "unt/multimap.c"
+
 int main(void)
 {
     deque_test();
@@ -21,6 +23,9 @@ int main(void)
     stack_test();
     treemap_test();
     treeset_test();
+
+    /* ext */
+    multimap_test();
 
     return 0;
 }
