@@ -1,5 +1,7 @@
 #include "cmc/linkedlist.h"
 
+//LINKEDLIST_GENERATE(ll, linkedlist, , size_t)
+
 typedef struct linkedlist_s
 {
     struct linkedlist_node_s *head;

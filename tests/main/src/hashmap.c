@@ -1,5 +1,7 @@
 #include "cmc/hashmap.h"
 
+//HASHMAP_GENERATE(hm, hashmap, , size_t, size_t)
+
 typedef struct hashmap_s
 {
     struct hashmap_entry_s *buffer;
@@ -16,7 +18,7 @@ typedef struct hashmap_entry_s
     size_t key;
     size_t value;
     size_t dist;
-    enum EntryState_e state;
+    enum cmc_entry_state_e state;
 } hashmap_entry, *hashmap_entry_ptr;
 typedef struct hashmap_iter_s
 {
@@ -120,12 +122,12 @@ bool hm_insert(hashmap *_map_, size_t key, size_t value)
     hashmap_entry *target = &(_map_->buffer[pos]);
     if (hm_impl_get_entry(_map_, key) != NULL)
         return false;
-    if (target->state == ES_EMPTY || target->state == ES_DELETED)
+    if (target->state == CMC_ES_EMPTY || target->state == CMC_ES_DELETED)
     {
         target->key = key;
         target->value = value;
         target->dist = original_pos - pos;
-        target->state = ES_FILLED;
+        target->state = CMC_ES_FILLED;
     }
     else
     {
@@ -133,12 +135,12 @@ bool hm_insert(hashmap *_map_, size_t key, size_t value)
         {
             pos++;
             target = &(_map_->buffer[pos % _map_->capacity]);
-            if (target->state == ES_EMPTY || target->state == ES_DELETED)
+            if (target->state == CMC_ES_EMPTY || target->state == CMC_ES_DELETED)
             {
                 target->key = key;
                 target->value = value;
                 target->dist = pos - original_pos;
-                target->state = ES_FILLED;
+                target->state = CMC_ES_FILLED;
                 break;
             }
             else if (target->dist < original_pos - pos)
@@ -167,7 +169,7 @@ bool hm_remove(hashmap *_map_, size_t key, size_t *value)
     result->key = hm_impl_default_key();
     result->value = hm_impl_default_value();
     result->dist = 0;
-    result->state = ES_DELETED;
+    result->state = CMC_ES_DELETED;
     _map_->count--;
     return true;
 }
@@ -267,7 +269,7 @@ void hm_iter_init(hashmap_iter *iter, hashmap *target)
     {
         for (size_t i = 0; i < target->capacity; i++)
         {
-            if (target->buffer[i].state == ES_FILLED)
+            if (target->buffer[i].state == CMC_ES_FILLED)
             {
                 iter->first = i;
                 break;
@@ -276,7 +278,7 @@ void hm_iter_init(hashmap_iter *iter, hashmap *target)
         iter->cursor = iter->first;
         for (size_t i = target->capacity; i > 0; i--)
         {
-            if (target->buffer[i - 1].state == ES_FILLED)
+            if (target->buffer[i - 1].state == CMC_ES_FILLED)
             {
                 iter->last = i - 1;
                 break;
@@ -315,7 +317,7 @@ bool hm_iter_next(hashmap_iter *iter)
     {
         iter->cursor++;
         scan = &(iter->target->buffer[iter->cursor]);
-        if (scan->state == ES_FILLED)
+        if (scan->state == CMC_ES_FILLED)
             break;
     }
     iter->start = hm_empty(iter->target);
@@ -336,7 +338,7 @@ bool hm_iter_prev(hashmap_iter *iter)
     {
         iter->cursor--;
         scan = &(iter->target->buffer[iter->cursor]);
-        if (scan->state == ES_FILLED)
+        if (scan->state == CMC_ES_FILLED)
             break;
     }
     iter->end = hm_empty(iter->target);
@@ -391,7 +393,7 @@ static hashmap_entry *hm_impl_get_entry(hashmap *_map_, size_t key)
     size_t hash = _map_->hash(key);
     size_t pos = hash % _map_->capacity;
     hashmap_entry *target = &(_map_->buffer[pos]);
-    while (target->state == ES_FILLED || target->state == ES_DELETED)
+    while (target->state == CMC_ES_FILLED || target->state == CMC_ES_DELETED)
     {
         if (_map_->cmp(target->key, key) == 0)
             return target;

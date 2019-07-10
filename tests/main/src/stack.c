@@ -1,5 +1,7 @@
 #include "cmc/stack.h"
 
+//STACK_GENERATE(s, stack, , size_t)
+
 typedef struct stack_s
 {
     size_t *buffer;

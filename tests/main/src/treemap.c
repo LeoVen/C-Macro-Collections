@@ -1,5 +1,7 @@
 #include "cmc/treemap.h"
 
+//TREEMAP_GENERATE(tm, treemap, , size_t, size_t)
+
 typedef struct treemap_s
 {
     struct treemap_node_s *root;

@@ -1,5 +1,7 @@
 #include "ext/multimap.h"
 
+//MULTIMAP_GENERATE(mm, multimap, , size_t, size_t)
+
 typedef struct multimap_s
 {
     struct multimap_entry_s *(*buffer)[2];

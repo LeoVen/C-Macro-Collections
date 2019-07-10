@@ -1,5 +1,7 @@
 #include "cmc/treeset.h"
 
+//TREESET_GENERATE(ts, treeset, , size_t)
+
 typedef struct treeset_s
 {
     struct treeset_node_s *root;
@@ -331,7 +333,7 @@ treeset *ts_union(treeset *_set1_, treeset *_set2_)
 {
     treeset *_set_r_ = ts_new(_set1_->cmp);
     if (!_set_r_)
-        return false;
+        return NULL;
     treeset_iter iter1, iter2;
     ts_iter_init(&iter1, _set1_);
     ts_iter_init(&iter2, _set2_);
@@ -349,7 +351,7 @@ treeset *ts_intersection(treeset *_set1_, treeset *_set2_)
 {
     treeset *_set_r_ = ts_new(_set1_->cmp);
     if (!_set_r_)
-        return false;
+        return NULL;
     treeset *_set_A_ = _set1_->count < _set2_->count ? _set1_ : _set2_;
     treeset *_set_B_ = _set_A_ == _set1_ ? _set2_ : _set1_;
     treeset_iter iter;
@@ -366,7 +368,7 @@ treeset *ts_difference(treeset *_set1_, treeset *_set2_)
 {
     treeset *_set_r_ = ts_new(_set1_->cmp);
     if (!_set_r_)
-        return false;
+        return NULL;
     treeset_iter iter;
     ts_iter_init(&iter, _set1_);
     for (ts_iter_to_start(&iter); !ts_iter_end(&iter); ts_iter_next(&iter))
@@ -381,7 +383,7 @@ treeset *ts_symmetric_difference(treeset *_set1_, treeset *_set2_)
 {
     treeset *_set_r_ = ts_new(_set1_->cmp);
     if (!_set_r_)
-        return false;
+        return NULL;
     treeset_iter iter1, iter2;
     ts_iter_init(&iter1, _set1_);
     ts_iter_init(&iter2, _set2_);

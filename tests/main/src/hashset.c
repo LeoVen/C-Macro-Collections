@@ -1,5 +1,7 @@
 #include "cmc/hashset.h"
 
+//HASHSET_GENERATE(hs, hashset, , size_t)
+
 typedef struct hashset_s
 {
     struct hashset_entry_s *buffer;
@@ -15,7 +17,7 @@ typedef struct hashset_entry_s
 {
     size_t value;
     size_t dist;
-    enum EntryState_e state;
+    enum cmc_entry_state_e state;
 } hashset_entry, *hashset_entry_ptr;
 typedef struct hashset_iter_s
 {
@@ -118,11 +120,11 @@ bool hs_insert(hashset *_set_, size_t element)
     hashset_entry *target = &(_set_->buffer[pos]);
     if (hs_impl_get_entry(_set_, element) != NULL)
         return false;
-    if (target->state == ES_EMPTY || target->state == ES_DELETED)
+    if (target->state == CMC_ES_EMPTY || target->state == CMC_ES_DELETED)
     {
         target->value = element;
         target->dist = pos - original_pos;
-        target->state = ES_FILLED;
+        target->state = CMC_ES_FILLED;
     }
     else
     {
@@ -130,11 +132,11 @@ bool hs_insert(hashset *_set_, size_t element)
         {
             pos++;
             target = &(_set_->buffer[pos % _set_->capacity]);
-            if (target->state == ES_EMPTY || target->state == ES_DELETED)
+            if (target->state == CMC_ES_EMPTY || target->state == CMC_ES_DELETED)
             {
                 target->value = element;
                 target->dist = pos - original_pos;
-                target->state = ES_FILLED;
+                target->state = CMC_ES_FILLED;
                 break;
             }
             else if (target->dist < pos - original_pos)
@@ -158,7 +160,7 @@ bool hs_remove(hashset *_set_, size_t element)
         return false;
     result->value = hs_impl_default_value();
     result->dist = 0;
-    result->state = ES_DELETED;
+    result->state = CMC_ES_DELETED;
     _set_->count--;
     return true;
 }
@@ -214,7 +216,7 @@ hashset *hs_union(hashset *_set1_, hashset *_set2_)
 {
     hashset *_set_r_ = hs_new(_set1_->capacity, _set1_->load, _set1_->cmp, _set1_->hash);
     if (!_set_r_)
-        return false;
+        return NULL;
     hashset_iter iter1, iter2;
     hs_iter_init(&iter1, _set1_);
     hs_iter_init(&iter2, _set2_);
@@ -232,7 +234,7 @@ hashset *hs_intersection(hashset *_set1_, hashset *_set2_)
 {
     hashset *_set_r_ = hs_new(_set1_->capacity, _set1_->load, _set1_->cmp, _set1_->hash);
     if (!_set_r_)
-        return false;
+        return NULL;
     hashset *_set_A_ = _set1_->count < _set2_->count ? _set1_ : _set2_;
     hashset *_set_B_ = _set_A_ == _set1_ ? _set2_ : _set1_;
     hashset_iter iter;
@@ -249,7 +251,7 @@ hashset *hs_difference(hashset *_set1_, hashset *_set2_)
 {
     hashset *_set_r_ = hs_new(_set1_->capacity, _set1_->load, _set1_->cmp, _set1_->hash);
     if (!_set_r_)
-        return false;
+        return NULL;
     hashset_iter iter;
     hs_iter_init(&iter, _set1_);
     for (hs_iter_to_start(&iter); !hs_iter_end(&iter); hs_iter_next(&iter))
@@ -265,7 +267,7 @@ hashset *hs_symmetric_difference(hashset *_set1_, hashset *_set2_)
     hashset_iter iter1, iter2;
     hashset *_set_r_ = hs_new(_set1_->capacity, _set1_->load, _set1_->cmp, _set1_->hash);
     if (!_set_r_)
-        return false;
+        return NULL;
     hs_iter_init(&iter1, _set1_);
     hs_iter_init(&iter2, _set2_);
     for (hs_iter_to_start(&iter1); !hs_iter_end(&iter1); hs_iter_next(&iter1))
@@ -355,7 +357,7 @@ void hs_iter_init(hashset_iter *iter, hashset *target)
     {
         for (size_t i = 0; i < target->capacity; i++)
         {
-            if (target->buffer[i].state == ES_FILLED)
+            if (target->buffer[i].state == CMC_ES_FILLED)
             {
                 iter->first = i;
                 break;
@@ -364,7 +366,7 @@ void hs_iter_init(hashset_iter *iter, hashset *target)
         iter->cursor = iter->first;
         for (size_t i = target->capacity; i > 0; i--)
         {
-            if (target->buffer[i - 1].state == ES_FILLED)
+            if (target->buffer[i - 1].state == CMC_ES_FILLED)
             {
                 iter->last = i - 1;
                 break;
@@ -402,7 +404,7 @@ bool hs_iter_next(hashset_iter *iter)
         {
             iter->cursor++;
             scan = &(iter->target->buffer[iter->cursor]);
-            if (scan->state == ES_FILLED)
+            if (scan->state == CMC_ES_FILLED)
                 break;
         }
     }
@@ -423,7 +425,7 @@ bool hs_iter_prev(hashset_iter *iter)
         {
             iter->cursor--;
             scan = &(iter->target->buffer[iter->cursor]);
-            if (scan->state == ES_FILLED)
+            if (scan->state == CMC_ES_FILLED)
                 break;
         }
     }
@@ -465,7 +467,7 @@ static hashset_entry *hs_impl_get_entry(hashset *_set_, size_t element)
     size_t hash = _set_->hash(element);
     size_t pos = hash % _set_->capacity;
     hashset_entry *target = &(_set_->buffer[pos]);
-    while (target->state == ES_FILLED || target->state == ES_DELETED)
+    while (target->state == CMC_ES_FILLED || target->state == CMC_ES_DELETED)
     {
         if (_set_->cmp(target->value, element) == 0)
             return target;

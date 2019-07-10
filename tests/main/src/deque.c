@@ -1,5 +1,7 @@
 #include "cmc/deque.h"
 
+//DEQUE_GENERATE(d, deque, , size_t)
+
 typedef struct deque_s
 {
     size_t *buffer;

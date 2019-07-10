@@ -1,11 +1,13 @@
 #include "cmc/heap.h"
 
+//HEAP_GENERATE(h, heap, , size_t)
+
 typedef struct heap_s
 {
     size_t *buffer;
     size_t capacity;
     size_t count;
-    enum HeapOrder HO;
+    enum cmc_heap_order_e HO;
     int (*cmp)(size_t, size_t);
     struct heap_iter_s (*it_start)(struct heap_s *);
     struct heap_iter_s (*it_end)(struct heap_s *);
@@ -17,7 +19,7 @@ typedef struct heap_iter_s
     bool start;
     bool end;
 } heap_iter, *heap_iter_ptr;
-heap *h_new(size_t capacity, HeapOrder HO, int (*compare)(size_t, size_t));
+heap *h_new(size_t capacity, cmc_heap_order HO, int (*compare)(size_t, size_t));
 void h_clear(heap *_heap_);
 void h_free(heap *_heap_);
 bool h_insert(heap *_heap_, size_t element);
@@ -49,18 +51,15 @@ static inline size_t h_impl_default_value(void)
     return _empty_value_;
 }
 static bool h_impl_grow(heap *_heap_);
-static size_t h_impl_p(size_t index);
-static size_t h_impl_l(size_t index);
-static size_t h_impl_r(size_t index);
 static bool h_impl_float_up(heap *_heap_, size_t index);
 static bool h_impl_float_down(heap *_heap_, size_t index);
 static heap_iter h_impl_it_start(heap *_heap_);
 static heap_iter h_impl_it_end(heap *_heap_);
-heap *h_new(size_t capacity, HeapOrder HO, int (*compare)(size_t, size_t))
+heap *h_new(size_t capacity, cmc_heap_order HO, int (*compare)(size_t, size_t))
 {
     if (capacity < 1)
         return NULL;
-    if (HO != MinHeap && HO != MaxHeap)
+    if (HO != cmc_min_heap && HO != cmc_max_heap)
         return NULL;
     heap *_heap_ = malloc(sizeof(heap));
     if (!_heap_)
@@ -225,28 +224,20 @@ static bool h_impl_grow(heap *_heap_)
     _heap_->capacity = new_capacity;
     return true;
 }
-static size_t h_impl_p(size_t index)
-{
-    if (index == 0)
-        return 0;
-    return (index - 1) / 2;
-}
-static size_t h_impl_l(size_t index) { return 2 * index + 1; }
-static size_t h_impl_r(size_t index) { return 2 * index + 2; }
 static bool h_impl_float_up(heap *_heap_, size_t index)
 {
     size_t C = index;
     size_t child = _heap_->buffer[C];
-    size_t parent = _heap_->buffer[h_impl_p(C)];
+    size_t parent = _heap_->buffer[(index - 1) / 2];
     int mod = _heap_->HO;
     while (C > 0 && _heap_->cmp(child, parent) * mod > 0)
     {
         size_t tmp = _heap_->buffer[C];
-        _heap_->buffer[C] = _heap_->buffer[h_impl_p(C)];
-        _heap_->buffer[h_impl_p(C)] = tmp;
-        C = h_impl_p(C);
+        _heap_->buffer[C] = _heap_->buffer[(index - 1) / 2];
+        _heap_->buffer[(index - 1) / 2] = tmp;
+        C = (index - 1) / 2;
         child = _heap_->buffer[C];
-        parent = _heap_->buffer[h_impl_p(C)];
+        parent = _heap_->buffer[(index - 1) / 2];
     }
     return true;
 }
@@ -255,8 +246,8 @@ static bool h_impl_float_down(heap *_heap_, size_t index)
     int mod = _heap_->HO;
     while (index < _heap_->count)
     {
-        size_t L = h_impl_l(index);
-        size_t R = h_impl_r(index);
+        size_t L = 2 * index + 1;
+        size_t R = 2 * index + 2;
         size_t C = index;
         if (L < _heap_->count && _heap_->cmp(_heap_->buffer[L], _heap_->buffer[C]) * mod > 0)
         {

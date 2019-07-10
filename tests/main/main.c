@@ -9,6 +9,7 @@
 #include "unt/treemap.c"
 #include "unt/treeset.c"
 
+#include "unt/linkedqueue.c"
 #include "unt/multimap.c"
 
 int main(void)
@@ -25,6 +26,7 @@ int main(void)
     treeset_test();
 
     /* ext */
+    linkedqueue_test();
     multimap_test();
 
     return 0;

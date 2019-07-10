@@ -1,5 +1,7 @@
 #include "cmc/list.h"
 
+//LIST_GENERATE(l, list, , size_t)
+
 typedef struct list_s
 {
     size_t *buffer;

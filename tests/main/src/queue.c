@@ -1,5 +1,7 @@
 #include "cmc/queue.h"
 
+//QUEUE_GENERATE(q, queue, , size_t)
+
 typedef struct queue_s
 {
     size_t *buffer;
