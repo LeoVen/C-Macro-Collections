@@ -218,7 +218,7 @@ int main(int argc, char const *argv[])
     }
 
     /* Sorting using a Heap */
-    Heap *sort = hp_new(hm_count(result), MaxHeap, cmp_wcpair);
+    Heap *sort = hp_new(hm_count(result), cmc_max_heap, cmp_wcpair);
 
     /* Add key-value pairs to Heap for sorting */
     for (HashMap_iter iter = result->it_start(result);

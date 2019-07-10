@@ -24,7 +24,7 @@ HEAP_GENERATE(h, heap, /* FMOD */, int)
 int main(int argc, char const *argv[])
 {
     // Create a new max heap with an initial capacity of 100
-    heap *my_heap = h_new(100, MaxHeap, intcmp);
+    heap *my_heap = h_new(100, cmc_max_heap, intcmp);
 
     // Add elements to the heap
     for (int i = 0; i < 20; i++)

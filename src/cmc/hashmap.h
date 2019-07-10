@@ -8,9 +8,11 @@
  *
  */
 
-/*****************************************************************************/
-/******************************************************************* HASHMAP */
-/*****************************************************************************/
+/**
+ * A HashMap is an implementation of a Map with unique keys, where every key is
+ * mapped to a value. The keys are not sorted. It is implemented as a hashtable
+ * with robin hood hashing.
+ */
 
 #ifndef CMC_HASHMAP_H
 #define CMC_HASHMAP_H
@@ -22,12 +24,12 @@
 #ifndef CMC_HASH_TABLE_SETUP
 #define CMC_HASH_TABLE_SETUP
 
-typedef enum EntryState_e
+typedef enum cmc_entry_state_e
 {
-    ES_DELETED = -1,
-    ES_EMPTY = 0,
-    ES_FILLED = 1
-} EntryState;
+    CMC_ES_DELETED = -1,
+    CMC_ES_EMPTY = 0,
+    CMC_ES_FILLED = 1
+} cmc_entry_state;
 
 static const size_t cmc_hashtable_primes[] = {53, 97, 191, 383, 769, 1531,
                                               3067, 6143, 12289, 24571, 49157,
@@ -118,7 +120,7 @@ static const size_t cmc_hashtable_primes[] = {53, 97, 191, 383, 769, 1531,
         size_t dist;                                                                              \
                                                                                                   \
         /* The sate of this node (DELETED, EMPTY, FILLED) */                                      \
-        enum EntryState_e state;                                                                  \
+        enum cmc_entry_state_e state;                                                             \
                                                                                                   \
     } SNAME##_entry, *SNAME##_entry_ptr;                                                          \
                                                                                                   \
@@ -284,12 +286,12 @@ static const size_t cmc_hashtable_primes[] = {53, 97, 191, 383, 769, 1531,
         if (PFX##_impl_get_entry(_map_, key) != NULL)                                            \
             return false;                                                                        \
                                                                                                  \
-        if (target->state == ES_EMPTY || target->state == ES_DELETED)                            \
+        if (target->state == CMC_ES_EMPTY || target->state == CMC_ES_DELETED)                    \
         {                                                                                        \
             target->key = key;                                                                   \
             target->value = value;                                                               \
             target->dist = original_pos - pos;                                                   \
-            target->state = ES_FILLED;                                                           \
+            target->state = CMC_ES_FILLED;                                                       \
         }                                                                                        \
         else                                                                                     \
         {                                                                                        \
@@ -298,12 +300,12 @@ static const size_t cmc_hashtable_primes[] = {53, 97, 191, 383, 769, 1531,
                 pos++;                                                                           \
                 target = &(_map_->buffer[pos % _map_->capacity]);                                \
                                                                                                  \
-                if (target->state == ES_EMPTY || target->state == ES_DELETED)                    \
+                if (target->state == CMC_ES_EMPTY || target->state == CMC_ES_DELETED)            \
                 {                                                                                \
                     target->key = key;                                                           \
                     target->value = value;                                                       \
                     target->dist = pos - original_pos;                                           \
-                    target->state = ES_FILLED;                                                   \
+                    target->state = CMC_ES_FILLED;                                               \
                                                                                                  \
                     break;                                                                       \
                 }                                                                                \
@@ -341,7 +343,7 @@ static const size_t cmc_hashtable_primes[] = {53, 97, 191, 383, 769, 1531,
         result->key = PFX##_impl_default_key();                                                  \
         result->value = PFX##_impl_default_value();                                              \
         result->dist = 0;                                                                        \
-        result->state = ES_DELETED;                                                              \
+        result->state = CMC_ES_DELETED;                                                          \
                                                                                                  \
         _map_->count--;                                                                          \
                                                                                                  \
@@ -489,7 +491,7 @@ static const size_t cmc_hashtable_primes[] = {53, 97, 191, 383, 769, 1531,
         {                                                                                        \
             for (size_t i = 0; i < target->capacity; i++)                                        \
             {                                                                                    \
-                if (target->buffer[i].state == ES_FILLED)                                        \
+                if (target->buffer[i].state == CMC_ES_FILLED)                                    \
                 {                                                                                \
                     iter->first = i;                                                             \
                     break;                                                                       \
@@ -500,7 +502,7 @@ static const size_t cmc_hashtable_primes[] = {53, 97, 191, 383, 769, 1531,
                                                                                                  \
             for (size_t i = target->capacity; i > 0; i--)                                        \
             {                                                                                    \
-                if (target->buffer[i - 1].state == ES_FILLED)                                    \
+                if (target->buffer[i - 1].state == CMC_ES_FILLED)                                \
                 {                                                                                \
                     iter->last = i - 1;                                                          \
                     break;                                                                       \
@@ -556,7 +558,7 @@ static const size_t cmc_hashtable_primes[] = {53, 97, 191, 383, 769, 1531,
             iter->cursor++;                                                                      \
             scan = &(iter->target->buffer[iter->cursor]);                                        \
                                                                                                  \
-            if (scan->state == ES_FILLED)                                                        \
+            if (scan->state == CMC_ES_FILLED)                                                    \
                 break;                                                                           \
         }                                                                                        \
                                                                                                  \
@@ -586,7 +588,7 @@ static const size_t cmc_hashtable_primes[] = {53, 97, 191, 383, 769, 1531,
             iter->cursor--;                                                                      \
             scan = &(iter->target->buffer[iter->cursor]);                                        \
                                                                                                  \
-            if (scan->state == ES_FILLED)                                                        \
+            if (scan->state == CMC_ES_FILLED)                                                    \
                 break;                                                                           \
         }                                                                                        \
                                                                                                  \
@@ -667,7 +669,7 @@ static const size_t cmc_hashtable_primes[] = {53, 97, 191, 383, 769, 1531,
                                                                                                  \
         SNAME##_entry *target = &(_map_->buffer[pos]);                                           \
                                                                                                  \
-        while (target->state == ES_FILLED || target->state == ES_DELETED)                        \
+        while (target->state == CMC_ES_FILLED || target->state == CMC_ES_DELETED)                \
         {                                                                                        \
             if (_map_->cmp(target->key, key) == 0)                                               \
                 return target;                                                                   \

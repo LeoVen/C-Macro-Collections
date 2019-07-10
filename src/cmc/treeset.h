@@ -8,9 +8,11 @@
  *
  */
 
-/*****************************************************************************/
-/******************************************************************* TREESET */
-/*****************************************************************************/
+/**
+ * A TreeSet is an implementation of a Set that keeps its elements sorted. Like
+ * a Set it has only unique keys. This implementation uses a balanced binary
+ * tree called AVL Tree that uses the height of nodes to keep its keys balanced.
+ */
 
 #ifndef CMC_TREESET_H
 #define CMC_TREESET_H
@@ -44,10 +46,10 @@
         /* Element comparison function */                                   \
         int (*cmp)(V, V);                                                   \
                                                                             \
-        /* Function that returns an iterator to the start of the hashset */ \
+        /* Function that returns an iterator to the start of the treeset */ \
         struct SNAME##_iter_s (*it_start)(struct SNAME##_s *);              \
                                                                             \
-        /* Function that returns an iterator to the end of the hashset */   \
+        /* Function that returns an iterator to the end of the treeset */   \
         struct SNAME##_iter_s (*it_end)(struct SNAME##_s *);                \
                                                                             \
     } SNAME, *SNAME##_ptr;                                                  \
@@ -95,6 +97,7 @@
                                                                             \
         /* If the iterator has reached the end of the iteration */          \
         bool end;                                                           \
+                                                                            \
     } SNAME##_iter, *SNAME##_iter_ptr;                                      \
                                                                             \
     /* Collection Functions */                                              \
@@ -504,7 +507,7 @@
         SNAME *_set_r_ = PFX##_new(_set1_->cmp);                                            \
                                                                                             \
         if (!_set_r_)                                                                       \
-            return false;                                                                   \
+            return NULL;                                                                    \
                                                                                             \
         SNAME##_iter iter1, iter2;                                                          \
         PFX##_iter_init(&iter1, _set1_);                                                    \
@@ -528,7 +531,7 @@
         SNAME *_set_r_ = PFX##_new(_set1_->cmp);                                            \
                                                                                             \
         if (!_set_r_)                                                                       \
-            return false;                                                                   \
+            return NULL;                                                                    \
                                                                                             \
         SNAME *_set_A_ = _set1_->count < _set2_->count ? _set1_ : _set2_;                   \
         SNAME *_set_B_ = _set_A_ == _set1_ ? _set2_ : _set1_;                               \
@@ -552,7 +555,7 @@
         SNAME *_set_r_ = PFX##_new(_set1_->cmp);                                            \
                                                                                             \
         if (!_set_r_)                                                                       \
-            return false;                                                                   \
+            return NULL;                                                                    \
                                                                                             \
         SNAME##_iter iter;                                                                  \
         PFX##_iter_init(&iter, _set1_);                                                     \
@@ -573,7 +576,7 @@
         SNAME *_set_r_ = PFX##_new(_set1_->cmp);                                            \
                                                                                             \
         if (!_set_r_)                                                                       \
-            return false;                                                                   \
+            return NULL;                                                                    \
                                                                                             \
         SNAME##_iter iter1, iter2;                                                          \
         PFX##_iter_init(&iter1, _set1_);                                                    \

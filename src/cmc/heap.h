@@ -19,11 +19,11 @@
 #include <stdbool.h>
 #include <string.h>
 
-typedef enum HeapOrder
+typedef enum cmc_heap_order_e
 {
-    MaxHeap = 1,
-    MinHeap = -1
-} HeapOrder;
+    cmc_max_heap = 1,
+    cmc_min_heap = -1
+} cmc_heap_order;
 
 #define HEAP_GENERATE(PFX, SNAME, FMOD, V)    \
     HEAP_GENERATE_HEADER(PFX, SNAME, FMOD, V) \
@@ -36,100 +36,100 @@ typedef enum HeapOrder
     HEAP_GENERATE_SOURCE(PFX, SNAME, FMOD, V)
 
 /* HEADER ********************************************************************/
-#define HEAP_GENERATE_HEADER(PFX, SNAME, FMOD, V)                               \
-                                                                                \
-    /* Heap Structure */                                                        \
-    typedef struct SNAME##_s                                                    \
-    {                                                                           \
-        /* Dynamic array of elements */                                         \
-        V *buffer;                                                              \
-                                                                                \
-        /* Current array capacity */                                            \
-        size_t capacity;                                                        \
-                                                                                \
-        /* Current amount of elements in the heap */                            \
-        size_t count;                                                           \
-                                                                                \
-        /* Heap order (MaxHeap or MinHeap) */                                   \
-        enum HeapOrder HO;                                                      \
-                                                                                \
-        /* Element comparison function */                                       \
-        int (*cmp)(V, V);                                                       \
-                                                                                \
-        /* Function that returns an iterator to the start of the heap */        \
-        struct SNAME##_iter_s (*it_start)(struct SNAME##_s *);                  \
-                                                                                \
-        /* Function that returns an iterator to the end of the heap */          \
-        struct SNAME##_iter_s (*it_end)(struct SNAME##_s *);                    \
-                                                                                \
-    } SNAME, *SNAME##_ptr;                                                      \
-                                                                                \
-    /* Heap Iterator */                                                         \
-    typedef struct SNAME##_iter_s                                               \
-    {                                                                           \
-        /* Target heap */                                                       \
-        struct SNAME##_s *target;                                               \
-                                                                                \
-        /* Cursor's position (index) */                                         \
-        size_t cursor;                                                          \
-                                                                                \
-        /* If the iterator has reached the start of the iteration */            \
-        bool start;                                                             \
-                                                                                \
-        /* If the iterator has reached the end of the iteration */              \
-        bool end;                                                               \
-                                                                                \
-    } SNAME##_iter, *SNAME##_iter_ptr;                                          \
-                                                                                \
-    /* Collection Functions */                                                  \
-    /* Collection Allocation and Deallocation */                                \
-    FMOD SNAME *PFX##_new(size_t capacity, HeapOrder HO, int (*compare)(V, V)); \
-    FMOD void PFX##_clear(SNAME *_heap_);                                       \
-    FMOD void PFX##_free(SNAME *_heap_);                                        \
-    /* Collection Input and Output */                                           \
-    FMOD bool PFX##_insert(SNAME *_heap_, V element);                           \
-    FMOD bool PFX##_remove(SNAME *_heap_, V *result);                           \
-    /* Conditional Input and Output */                                          \
-    FMOD bool PFX##_insert_if(SNAME *_heap_, V element, bool condition);        \
-    FMOD bool PFX##_remove_if(SNAME *_heap_, V *result, bool condition);        \
-    /* Element Access */                                                        \
-    FMOD V PFX##_peek(SNAME *_heap_);                                           \
-    FMOD V *PFX##_peek_ref(SNAME *_heap_);                                      \
-    /* Collection State */                                                      \
-    FMOD bool PFX##_contains(SNAME *_heap_, V element);                         \
-    FMOD bool PFX##_empty(SNAME *_heap_);                                       \
-    FMOD bool PFX##_full(SNAME *_heap_);                                        \
-    FMOD size_t PFX##_count(SNAME *_heap_);                                     \
-    FMOD size_t PFX##_capacity(SNAME *_heap_);                                  \
-                                                                                \
-    /* Iterator Functions */                                                    \
-    /* Iterator Allocation and Deallocation */                                  \
-    FMOD SNAME##_iter *PFX##_iter_new(SNAME *target);                           \
-    FMOD void PFX##_iter_free(SNAME##_iter *iter);                              \
-    /* Iterator Initialization */                                               \
-    FMOD void PFX##_iter_init(SNAME##_iter *iter, SNAME *target);               \
-    /* Iterator State */                                                        \
-    FMOD bool PFX##_iter_start(SNAME##_iter *iter);                             \
-    FMOD bool PFX##_iter_end(SNAME##_iter *iter);                               \
-    /* Iterator Movement */                                                     \
-    FMOD void PFX##_iter_to_start(SNAME##_iter *iter);                          \
-    FMOD void PFX##_iter_to_end(SNAME##_iter *iter);                            \
-    FMOD bool PFX##_iter_next(SNAME##_iter *iter);                              \
-    FMOD bool PFX##_iter_prev(SNAME##_iter *iter);                              \
-    /* Iterator Access */                                                       \
-    FMOD V PFX##_iter_value(SNAME##_iter *iter);                                \
-    FMOD size_t PFX##_iter_index(SNAME##_iter *iter);                           \
-                                                                                \
-    /* Default Value */                                                         \
-    static inline V PFX##_impl_default_value(void)                              \
-    {                                                                           \
-        V _empty_value_;                                                        \
-                                                                                \
-        memset(&_empty_value_, 0, sizeof(V));                                   \
-                                                                                \
-        return _empty_value_;                                                   \
-    }                                                                           \
-                                                                                \
+#define HEAP_GENERATE_HEADER(PFX, SNAME, FMOD, V)                                    \
+                                                                                     \
+    /* Heap Structure */                                                             \
+    typedef struct SNAME##_s                                                         \
+    {                                                                                \
+        /* Dynamic array of elements */                                              \
+        V *buffer;                                                                   \
+                                                                                     \
+        /* Current array capacity */                                                 \
+        size_t capacity;                                                             \
+                                                                                     \
+        /* Current amount of elements in the heap */                                 \
+        size_t count;                                                                \
+                                                                                     \
+        /* Heap order (MaxHeap or MinHeap) */                                        \
+        enum cmc_heap_order_e HO;                                                    \
+                                                                                     \
+        /* Element comparison function */                                            \
+        int (*cmp)(V, V);                                                            \
+                                                                                     \
+        /* Function that returns an iterator to the start of the heap */             \
+        struct SNAME##_iter_s (*it_start)(struct SNAME##_s *);                       \
+                                                                                     \
+        /* Function that returns an iterator to the end of the heap */               \
+        struct SNAME##_iter_s (*it_end)(struct SNAME##_s *);                         \
+                                                                                     \
+    } SNAME, *SNAME##_ptr;                                                           \
+                                                                                     \
+    /* Heap Iterator */                                                              \
+    typedef struct SNAME##_iter_s                                                    \
+    {                                                                                \
+        /* Target heap */                                                            \
+        struct SNAME##_s *target;                                                    \
+                                                                                     \
+        /* Cursor's position (index) */                                              \
+        size_t cursor;                                                               \
+                                                                                     \
+        /* If the iterator has reached the start of the iteration */                 \
+        bool start;                                                                  \
+                                                                                     \
+        /* If the iterator has reached the end of the iteration */                   \
+        bool end;                                                                    \
+                                                                                     \
+    } SNAME##_iter, *SNAME##_iter_ptr;                                               \
+                                                                                     \
+    /* Collection Functions */                                                       \
+    /* Collection Allocation and Deallocation */                                     \
+    FMOD SNAME *PFX##_new(size_t capacity, cmc_heap_order HO, int (*compare)(V, V)); \
+    FMOD void PFX##_clear(SNAME *_heap_);                                            \
+    FMOD void PFX##_free(SNAME *_heap_);                                             \
+    /* Collection Input and Output */                                                \
+    FMOD bool PFX##_insert(SNAME *_heap_, V element);                                \
+    FMOD bool PFX##_remove(SNAME *_heap_, V *result);                                \
+    /* Conditional Input and Output */                                               \
+    FMOD bool PFX##_insert_if(SNAME *_heap_, V element, bool condition);             \
+    FMOD bool PFX##_remove_if(SNAME *_heap_, V *result, bool condition);             \
+    /* Element Access */                                                             \
+    FMOD V PFX##_peek(SNAME *_heap_);                                                \
+    FMOD V *PFX##_peek_ref(SNAME *_heap_);                                           \
+    /* Collection State */                                                           \
+    FMOD bool PFX##_contains(SNAME *_heap_, V element);                              \
+    FMOD bool PFX##_empty(SNAME *_heap_);                                            \
+    FMOD bool PFX##_full(SNAME *_heap_);                                             \
+    FMOD size_t PFX##_count(SNAME *_heap_);                                          \
+    FMOD size_t PFX##_capacity(SNAME *_heap_);                                       \
+                                                                                     \
+    /* Iterator Functions */                                                         \
+    /* Iterator Allocation and Deallocation */                                       \
+    FMOD SNAME##_iter *PFX##_iter_new(SNAME *target);                                \
+    FMOD void PFX##_iter_free(SNAME##_iter *iter);                                   \
+    /* Iterator Initialization */                                                    \
+    FMOD void PFX##_iter_init(SNAME##_iter *iter, SNAME *target);                    \
+    /* Iterator State */                                                             \
+    FMOD bool PFX##_iter_start(SNAME##_iter *iter);                                  \
+    FMOD bool PFX##_iter_end(SNAME##_iter *iter);                                    \
+    /* Iterator Movement */                                                          \
+    FMOD void PFX##_iter_to_start(SNAME##_iter *iter);                               \
+    FMOD void PFX##_iter_to_end(SNAME##_iter *iter);                                 \
+    FMOD bool PFX##_iter_next(SNAME##_iter *iter);                                   \
+    FMOD bool PFX##_iter_prev(SNAME##_iter *iter);                                   \
+    /* Iterator Access */                                                            \
+    FMOD V PFX##_iter_value(SNAME##_iter *iter);                                     \
+    FMOD size_t PFX##_iter_index(SNAME##_iter *iter);                                \
+                                                                                     \
+    /* Default Value */                                                              \
+    static inline V PFX##_impl_default_value(void)                                   \
+    {                                                                                \
+        V _empty_value_;                                                             \
+                                                                                     \
+        memset(&_empty_value_, 0, sizeof(V));                                        \
+                                                                                     \
+        return _empty_value_;                                                        \
+    }                                                                                \
+                                                                                     \
 /* SOURCE ********************************************************************/
 #define HEAP_GENERATE_SOURCE(PFX, SNAME, FMOD, V)                                                 \
                                                                                                   \
@@ -140,12 +140,12 @@ typedef enum HeapOrder
     static SNAME##_iter PFX##_impl_it_start(SNAME *_heap_);                                       \
     static SNAME##_iter PFX##_impl_it_end(SNAME *_heap_);                                         \
                                                                                                   \
-    FMOD SNAME *PFX##_new(size_t capacity, HeapOrder HO, int (*compare)(V, V))                    \
+    FMOD SNAME *PFX##_new(size_t capacity, cmc_heap_order HO, int (*compare)(V, V))               \
     {                                                                                             \
         if (capacity < 1)                                                                         \
             return NULL;                                                                          \
                                                                                                   \
-        if (HO != MinHeap && HO != MaxHeap)                                                       \
+        if (HO != cmc_min_heap && HO != cmc_max_heap)                                             \
             return NULL;                                                                          \
                                                                                                   \
         SNAME *_heap_ = malloc(sizeof(SNAME));                                                    \

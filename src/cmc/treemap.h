@@ -8,9 +8,11 @@
  *
  */
 
-/*****************************************************************************/
-/******************************************************************* TREEMAP */
-/*****************************************************************************/
+/**
+ * A TreeMap is an implementation of a Map that keeps its keys sorted. Like a
+ * Map, it has only unique keys. This implementation uses a balanced binary
+ * tree called AVL Tree that uses the height of nodes to keep its keys balanced.
+ */
 
 #ifndef CMC_TREEMAP_H
 #define CMC_TREEMAP_H
@@ -44,10 +46,10 @@
         /* Key comparison function */                                         \
         int (*cmp)(K, K);                                                     \
                                                                               \
-        /* Function that returns an iterator to the start of the hashmap */   \
+        /* Function that returns an iterator to the start of the treemap */   \
         struct SNAME##_iter_s (*it_start)(struct SNAME##_s *);                \
                                                                               \
-        /* Function that returns an iterator to the end of the hashmap */     \
+        /* Function that returns an iterator to the end of the treemap */     \
         struct SNAME##_iter_s (*it_end)(struct SNAME##_s *);                  \
                                                                               \
     } SNAME, *SNAME##_ptr;                                                    \

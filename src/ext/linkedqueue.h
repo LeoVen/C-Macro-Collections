@@ -12,7 +12,7 @@
  * A node-based Queue using a Singly Linked List
  *
  * enqueue : is equivalent to a push_back from a LinkedList
- * dequeue : is equivalent to a pop_peek from a LinkedList
+ * dequeue : is equivalent to a pop_front from a LinkedList
  *
  * This Queue has a one-way iterator
  */
