@@ -7,10 +7,11 @@ X - Finished
 [X] Remove PUBLIC and PRIVATE
 [ ] Extra Collections
     [~] Add MultiSet
-    [~] Add MultiMap
+    [X] Add MultiMap
     [X] Add IntervalHeap
     [ ] Add TreeHashMap
 [ ] Add functions
+    [ ] update       {hashmap, treemap, multimap}
     [ ] to_string    {all}
     [ ] iter_move    {all} (iterators)
     [ ] iter_move_to {all} (iterators)
