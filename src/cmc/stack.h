@@ -308,7 +308,11 @@
         iter->start = PFX##_empty(iter->target);                                 \
                                                                                  \
         if (iter->cursor == 0)                                                   \
+        {                                                                        \
             iter->end = true;                                                    \
+                                                                                 \
+            return false;                                                        \
+        }                                                                        \
         else                                                                     \
             iter->cursor--;                                                      \
                                                                                  \
@@ -323,7 +327,11 @@
         iter->end = PFX##_empty(iter->target);                                   \
                                                                                  \
         if (iter->cursor == iter->target->count - 1)                             \
+        {                                                                        \
             iter->start = true;                                                  \
+                                                                                 \
+            return false;                                                        \
+        }                                                                        \
         else                                                                     \
             iter->cursor++;                                                      \
                                                                                  \
@@ -348,6 +356,9 @@
                                                                                  \
     FMOD size_t PFX##_iter_index(SNAME##_iter *iter)                             \
     {                                                                            \
+        if (PFX##_empty(iter->target))                                           \
+            return 0;                                                            \
+                                                                                 \
         return iter->target->count - 1 - iter->cursor;                           \
     }                                                                            \
                                                                                  \
