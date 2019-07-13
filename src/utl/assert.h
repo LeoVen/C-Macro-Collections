@@ -38,6 +38,7 @@
  * - float
  * - double
  * - ptr
+ * - bool (only for equals and not_equals)
  *
  */
 
@@ -369,6 +370,22 @@
                                                                                           \
     } while (0)
 
+#define cmc_assert_equals__Bool(expected, actual)                                          \
+    do                                                                                    \
+    {                                                                                     \
+        const char *str = #actual;                                                        \
+        bool expected_ = (expected);                                                      \
+        bool actual_ = (actual);                                                          \
+                                                                                          \
+        if ((expected_) != (actual_))                                                     \
+        {                                                                                 \
+            fprintf(stderr,                                                               \
+                    "Assertion Failed at %s:%s:%u for { %s }: Expected: %d Actual: %d\n", \
+                    __FILE__, __func__, __LINE__, str, expected_, actual_);               \
+        }                                                                                 \
+                                                                                          \
+    } while (0)
+
 #define cmc_assert_not_equals_int8_t(not_expected, actual)                                                    \
     do                                                                                                        \
     {                                                                                                         \
@@ -589,6 +606,22 @@
             fprintf(stderr,                                                                   \
                     "Assertion Failed at %s:%s:%u for { %s }: Not Expected: %p Actual: %p\n", \
                     __FILE__, __func__, __LINE__, str, not_expected_, actual_);               \
+        }                                                                                     \
+                                                                                              \
+    } while (0)
+
+#define cmc_assert_not_equals__Bool(expected, actual)                                          \
+    do                                                                                        \
+    {                                                                                         \
+        const char *str = #actual;                                                            \
+        bool expected_ = (expected);                                                          \
+        bool actual_ = (actual);                                                              \
+                                                                                              \
+        if ((expected_) != (actual_))                                                         \
+        {                                                                                     \
+            fprintf(stderr,                                                                   \
+                    "Assertion Failed at %s:%s:%u for { %s }: Not Expected: %d Actual: %d\n", \
+                    __FILE__, __func__, __LINE__, str, expected_, actual_);                   \
         }                                                                                     \
                                                                                               \
     } while (0)
