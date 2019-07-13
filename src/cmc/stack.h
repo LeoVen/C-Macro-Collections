@@ -266,7 +266,12 @@
     FMOD void PFX##_iter_init(SNAME##_iter *iter, SNAME *target)                 \
     {                                                                            \
         iter->target = target;                                                   \
-        iter->cursor = iter->target->count - 1;                                  \
+                                                                                 \
+        if (PFX##_empty(target))                                                 \
+            iter->cursor = 0;                                                    \
+        else                                                                     \
+            iter->cursor = iter->target->count - 1;                              \
+                                                                                 \
         iter->start = true;                                                      \
         iter->end = PFX##_empty(target);                                         \
     }                                                                            \
