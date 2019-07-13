@@ -141,7 +141,10 @@ void s_iter_free(stack_iter *iter) { free(iter); }
 void s_iter_init(stack_iter *iter, stack *target)
 {
     iter->target = target;
-    iter->cursor = iter->target->count - 1;
+    if (s_empty(target))
+        iter->cursor = 0;
+    else
+        iter->cursor = iter->target->count - 1;
     iter->start = true;
     iter->end = s_empty(target);
 }
@@ -165,7 +168,10 @@ bool s_iter_next(stack_iter *iter)
         return false;
     iter->start = s_empty(iter->target);
     if (iter->cursor == 0)
+    {
         iter->end = true;
+        return false;
+    }
     else
         iter->cursor--;
     return true;
@@ -176,7 +182,10 @@ bool s_iter_prev(stack_iter *iter)
         return false;
     iter->end = s_empty(iter->target);
     if (iter->cursor == iter->target->count - 1)
+    {
         iter->start = true;
+        return false;
+    }
     else
         iter->cursor++;
     return true;
@@ -193,7 +202,12 @@ size_t *s_iter_rvalue(stack_iter *iter)
         return NULL;
     return &(iter->target->buffer[iter->cursor]);
 }
-size_t s_iter_index(stack_iter *iter) { return iter->target->count - 1 - iter->cursor; }
+size_t s_iter_index(stack_iter *iter)
+{
+    if (s_empty(iter->target))
+        return 0;
+    return iter->target->count - 1 - iter->cursor;
+}
 static bool s_impl_grow(stack *_stack_)
 {
     size_t new_capacity = _stack_->capacity * 2;
