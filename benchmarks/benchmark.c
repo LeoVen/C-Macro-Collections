@@ -69,6 +69,8 @@ COLLECTION_GENERATE(TREESET, ts, tset, /* FMOD */, /* K */, int)
 COLLECTION_GENERATE(TREEMAP, tm, tmap, /* FMOD */, int, int)
 COLLECTION_GENERATE(HASHSET, hs, hset, /* FMOD */, /* K */, int)
 COLLECTION_GENERATE(HASHMAP, hm, hmap, /* FMOD */, int, int)
+COLLECTION_GENERATE(MULTIMAP, mm, mmap, /* FMOD */, int, int)
+COLLECTION_GENERATE(INTERVALHEAP, ih, iheap, , , int)
 
 #define BENCHMARK(NAME, PFX, sname, initfunc, insertbody, removebody, searchbody)                                \
     void NAME##_io_benchmark(int *array, int *sarray, size_t s)                                                  \
@@ -172,8 +174,8 @@ COLLECTION_GENERATE(HASHMAP, hm, hmap, /* FMOD */, int, int)
     }
 
 BENCHMARK(DEQUE, d, deque, d_new(NTOTAL), d_push_back(coll, array[i]), d_pop_back(coll), d_contains(coll, sarray[i], intcmp))
-BENCHMARK(HASHMAP, hm, hmap, hm_new(NTOTAL, 0.8, intcmp, inthash), hm_insert(coll, array[i], array[i]), hm_remove(coll, array[i], &r), hm_contains(coll, sarray[i]))
-BENCHMARK(HASHSET, hs, hset, hs_new(NTOTAL, 0.8, intcmp, inthash), hs_insert(coll, array[i]), hs_remove(coll, array[i]), hs_contains(coll, sarray[i]))
+BENCHMARK(HASHMAP, hm, hmap, hm_new(NTOTAL, 0.6, intcmp, inthash), hm_insert(coll, array[i], array[i]), hm_remove(coll, array[i], &r), hm_contains(coll, sarray[i]))
+BENCHMARK(HASHSET, hs, hset, hs_new(NTOTAL, 0.6, intcmp, inthash), hs_insert(coll, array[i]), hs_remove(coll, array[i]), hs_contains(coll, sarray[i]))
 BENCHMARK(HEAP, h, heap, h_new(NTOTAL, cmc_min_heap, intcmp), h_insert(coll, array[i]), h_remove(coll, &r), h_contains(coll, sarray[i]))
 BENCHMARK(LINKEDLIST, ll, linked, ll_new(), ll_push_back(coll, array[i]), ll_pop_back(coll), ll_contains(coll, sarray[i], intcmp))
 BENCHMARK(LIST, l, list, l_new(NTOTAL), l_push_back(coll, array[i]), l_pop_back(coll), l_contains(coll, sarray[i], intcmp))
@@ -181,6 +183,9 @@ BENCHMARK(QUEUE, q, queue, q_new(NTOTAL), q_enqueue(coll, array[i]), q_dequeue(c
 BENCHMARK(STACK, s, stack, s_new(NTOTAL), s_push(coll, array[i]), s_pop(coll), s_contains(coll, sarray[i], intcmp))
 BENCHMARK(TREEMAP, tm, tmap, tm_new(intcmp), tm_insert(coll, array[i], array[i]), tm_remove(coll, array[i], &r), tm_contains(coll, sarray[i]))
 BENCHMARK(TREESET, ts, tset, ts_new(intcmp), ts_insert(coll, array[i]), ts_remove(coll, array[i]), ts_contains(coll, sarray[i]))
+
+BENCHMARK(INTERVALHEAP, ih, iheap, ih_new(NTOTAL, intcmp), ih_insert(coll, array[i]), ih_remove_max(coll, &r), ih_contains(coll, sarray[i]))
+BENCHMARK(MULTIMAP, mm, mmap, mm_new(NTOTAL, 0.8, intcmp, inthash), mm_insert(coll, array[i], array[i]), mm_remove(coll, array[i], &r), mm_contains(coll, sarray[i]))
 
 int main(void)
 {
@@ -223,6 +228,9 @@ int main(void)
     STACK_io_benchmark(array, sarray, NMIN);
     TREEMAP_io_benchmark(array, sarray, NTOTAL);
     TREESET_io_benchmark(array, sarray, NTOTAL);
+
+    INTERVALHEAP_io_benchmark(array, array, NMIN);
+    MULTIMAP_io_benchmark(array, array, NTOTAL);
 
     free(array);
     free(sarray);
