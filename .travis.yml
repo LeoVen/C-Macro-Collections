@@ -13,8 +13,8 @@ script:
   - sudo ln -s /usr/bin/gcc-6 /usr/local/bin/gcc
   - export CC=gcc-7
   - cd ./tests
-  - make
+  - make --always-make
   - cd main
-  - make
+  - make --always-make
 after_success:
   - bash <(curl -s https://codecov.io/bash)
