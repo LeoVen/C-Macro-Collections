@@ -8,16 +8,46 @@
  *
  */
 
-/*****************************************************************************/
-/********************************************************************* QUEUE */
-/*****************************************************************************/
+/**
+ * Queue
+ *
+ * A Queue is a First-In First-out (or Last-in Last-out) data structure. It is
+ * a Dynamic Circular Array where elements are added from one end of the array
+ * and removed from the other end. The circular array here (also known as
+ * circular buffer or ring buffer) is very important so that both adding and
+ * removing elements from the Queue are done instantly. The array is linear but
+ * with the modulo operator it is treated as a circular sequence of elements.
+ *
+ * If the Queue was implemented as a regular Dynamic Array, when adding or
+ * removing an element at the front, it would be necessary to shift all elements
+ * currently present in the Queue and this would add up a lot of computing time.
+ * Shifting `100000` elements in memory by one position every time an element is
+ * added to the Queue is simply not efficient.
+ *
+ * The Queue has two ends. The `front` and `back`. In this implementation all
+ * elements are added to the back of the Queue and removed from the front, which
+ * is more or less how queues work in real life. Unlike a Stack that only has
+ * operations at one end of the buffer, the Queue needs to be implemented as a
+ * circular array in order to quickly add or remove elements.
+ *
+ * The Queue has three main functions: `enqueue` which adds an element to the
+ * Queue; `dequeue` which removes an element from the Queue; and `peek` which
+ * return the element at the front of the Queue, that is, the next element to
+ * be removed from it.
+ *
+ * The Queue is used in many applications where a resource is shared among
+ * multiple consumers and the Queue is responsible for scheduling the access to
+ * the resource.
+ */
 
 #ifndef CMC_QUEUE_H
 #define CMC_QUEUE_H
 
-#include <stdlib.h>
 #include <stdbool.h>
+#include <stdlib.h>
+#include <stdio.h>
 #include <string.h>
+#include "../utl/cmc_string.h"
 
 #define QUEUE_GENERATE(PFX, SNAME, FMOD, V)    \
     QUEUE_GENERATE_HEADER(PFX, SNAME, FMOD, V) \
@@ -48,7 +78,7 @@
         size_t front;                                                             \
                                                                                   \
         /* Index representing the back of the queue */                            \
-        size_t rear;                                                              \
+        size_t back;                                                              \
                                                                                   \
         /* Function that returns an iterator to the start of the queue */         \
         struct SNAME##_iter_s (*it_start)(struct SNAME##_s *);                    \
@@ -97,6 +127,8 @@
     FMOD bool PFX##_full(SNAME *_queue_);                                         \
     FMOD size_t PFX##_count(SNAME *_queue_);                                      \
     FMOD size_t PFX##_capacity(SNAME *_queue_);                                   \
+    /* Collection Utility */                                                      \
+    FMOD cmc_string PFX##_to_string(SNAME *_queue_);                              \
                                                                                   \
     /* Iterator Functions */                                                      \
     /* Iterator Allocation and Deallocation */                                    \
@@ -158,7 +190,7 @@
         _queue_->capacity = capacity;                                                                       \
         _queue_->count = 0;                                                                                 \
         _queue_->front = 0;                                                                                 \
-        _queue_->rear = 0;                                                                                  \
+        _queue_->back = 0;                                                                                  \
                                                                                                             \
         _queue_->it_start = PFX##_impl_it_start;                                                            \
         _queue_->it_end = PFX##_impl_it_end;                                                                \
@@ -172,7 +204,7 @@
                                                                                                             \
         _queue_->count = 0;                                                                                 \
         _queue_->front = 0;                                                                                 \
-        _queue_->rear = 0;                                                                                  \
+        _queue_->back = 0;                                                                                  \
     }                                                                                                       \
                                                                                                             \
     FMOD void PFX##_free(SNAME *_queue_)                                                                    \
@@ -189,9 +221,9 @@
                 return false;                                                                               \
         }                                                                                                   \
                                                                                                             \
-        _queue_->buffer[_queue_->rear] = element;                                                           \
+        _queue_->buffer[_queue_->back] = element;                                                           \
                                                                                                             \
-        _queue_->rear = (_queue_->rear == _queue_->capacity - 1) ? 0 : _queue_->rear + 1;                   \
+        _queue_->back = (_queue_->back == _queue_->capacity - 1) ? 0 : _queue_->back + 1;                   \
         _queue_->count++;                                                                                   \
                                                                                                             \
         return true;                                                                                        \
@@ -265,6 +297,18 @@
         return _queue_->capacity;                                                                           \
     }                                                                                                       \
                                                                                                             \
+    FMOD cmc_string PFX##_to_string(SNAME *_queue_)                                                         \
+    {                                                                                                       \
+        cmc_string str;                                                                                     \
+        SNAME *q_ = _queue_;                                                                                \
+        const char *name = #SNAME;                                                                          \
+                                                                                                            \
+        snprintf(str.s, cmc_string_len, cmc_string_fmt_queue,                                               \
+                 name, q_, q_->buffer, q_->capacity, q_->count, q_->front, q_->back);                       \
+                                                                                                            \
+        return str;                                                                                         \
+    }                                                                                                       \
+                                                                                                            \
     FMOD SNAME##_iter *PFX##_iter_new(SNAME *target)                                                        \
     {                                                                                                       \
         SNAME##_iter *iter = malloc(sizeof(SNAME##_iter));                                                  \
@@ -314,7 +358,7 @@
         if (PFX##_empty(iter->target))                                                                      \
             iter->cursor = 0;                                                                               \
         else                                                                                                \
-            iter->cursor = (iter->target->rear == 0) ? iter->target->capacity - 1 : iter->target->rear - 1; \
+            iter->cursor = (iter->target->back == 0) ? iter->target->capacity - 1 : iter->target->back - 1; \
                                                                                                             \
         iter->index = iter->target->count - 1;                                                              \
         iter->start = PFX##_empty(iter->target);                                                            \
@@ -398,7 +442,7 @@
         _queue_->buffer = new_buffer;                                                                       \
         _queue_->capacity = new_capacity;                                                                   \
         _queue_->front = 0;                                                                                 \
-        _queue_->rear = _queue_->count;                                                                     \
+        _queue_->back = _queue_->count;                                                                     \
                                                                                                             \
         return true;                                                                                        \
     }                                                                                                       \

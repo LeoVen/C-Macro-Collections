@@ -8,16 +8,34 @@
  *
  */
 
-/*****************************************************************************/
-/********************************************************************* DEQUE */
-/*****************************************************************************/
+/**
+ * Deque
+ *
+ * A Deque (double-ended queue) is a linear data structure that is able to add
+ * or remove elements from both ends. It can also be thought of a double-ended
+ * stack since you can push and pop elements from two ends. The Deque can also
+ * be used as a Queue.
+ *
+ * There is no random access for a Deque. The only elements accessible are the
+ * front element and the back.
+ *
+ * Implementation
+ *
+ * This implementation uses a circular buffer (ring buffer or cyclic buffer) in
+ * order to operate on O(1) for push and pop on either ends (only case where it
+ * takes longer than O(1) is when the buffer is reallocated). If it was
+ * implemented as a regular array, adding or removing elements from the front
+ * would take O(N) due to the need to shift all elements in the deque.
+ */
 
 #ifndef CMC_DEQUE_H
 #define CMC_DEQUE_H
 
-#include <stdlib.h>
 #include <stdbool.h>
+#include <stdlib.h>
+#include <stdio.h>
 #include <string.h>
+#include "../utl/cmc_string.h"
 
 #define DEQUE_GENERATE(PFX, SNAME, FMOD, V)    \
     DEQUE_GENERATE_HEADER(PFX, SNAME, FMOD, V) \
@@ -102,6 +120,8 @@
     FMOD bool PFX##_full(SNAME *_deque_);                                         \
     FMOD size_t PFX##_count(SNAME *_deque_);                                      \
     FMOD size_t PFX##_capacity(SNAME *_deque_);                                   \
+    /* Collection Utility */                                                      \
+    FMOD cmc_string PFX##_to_string(SNAME *_deque_);                              \
                                                                                   \
     /* Iterator Functions */                                                      \
     /* Iterator Allocation and Deallocation */                                    \
@@ -325,6 +345,18 @@
     FMOD size_t PFX##_capacity(SNAME *_deque_)                                                              \
     {                                                                                                       \
         return _deque_->capacity;                                                                           \
+    }                                                                                                       \
+                                                                                                            \
+    FMOD cmc_string PFX##_to_string(SNAME *_deque_)                                                         \
+    {                                                                                                       \
+        cmc_string str;                                                                                     \
+        SNAME *d_ = _deque_;                                                                                \
+        const char *name = #SNAME;                                                                          \
+                                                                                                            \
+        snprintf(str.s, cmc_string_len, cmc_string_fmt_deque,                                               \
+                 name, d_, d_->buffer, d_->capacity, d_->count, d_->front, d_->back);                       \
+                                                                                                            \
+        return str;                                                                                         \
     }                                                                                                       \
                                                                                                             \
     FMOD SNAME##_iter *PFX##_iter_new(SNAME *target)                                                        \

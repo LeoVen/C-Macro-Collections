@@ -8,9 +8,37 @@
  *
  */
 
-/*****************************************************************************/
-/******************************************************************* MULTIMAP */
-/*****************************************************************************/
+/**
+ * MultiMap
+ *
+ * The MultiMap is a Map that allows for multiple keys. This is a data structure
+ * that has a very narrow usage. A Map (either TreeMap or HashMap) can also work
+ * like a MultiMap if a certain key is mapped to another collection.
+ *
+ * Map<K = int, V = List<int>> maps an integer to a list of integer.
+ * MultiMap<K = int, V = int> maps many integer keys to integer values.
+ *
+ * The difference is that in a MultiMap you can store keys that are the same but
+ * might be different instances of the same value. This is also relevant if your
+ * data type is more complex like a struct where its ID is the same but some
+ * other members of this data type are different.
+ *
+ * Implementation
+ *
+ * The map uses separate chaining and robin hood hashing. Its internal buffer
+ * is made of a pair of pointers to entries that represent a linked list. So
+ * accessing map->buffer[0] would give the first pair of pointers. Each entry
+ * has both a pointer to a previous entry and a next entry. This design choice
+ * was made so that every collection in this library has a two-way iterator
+ * with a very few exceptions.
+ *
+ * Each entry is composed of a Key and a Value. Entries with the same key should
+ * always hash to the same linked list. Also, keys that hash to the same bucket
+ * will also be in the same linked list.
+ *
+ * The order of inserting and removing the same keys will behave like a FIFO. So
+ * the first key added will be the first to be removed.
+ */
 
 #ifndef CMC_MULTIMAP_H
 #define CMC_MULTIMAP_H
@@ -67,143 +95,143 @@ static const size_t cmc_hashtable_primes[] = {53, 97, 191, 383, 769, 1531,
     MULTIMAP_GENERATE_SOURCE(PFX, SNAME, FMOD, K, V)
 
 /* HEADER ********************************************************************/
-#define MULTIMAP_GENERATE_HEADER(PFX, SNAME, FMOD, K, V)                                      \
-                                                                                              \
-    /* Multimap Structure */                                                                  \
-    typedef struct SNAME##_s                                                                  \
-    {                                                                                         \
-        /* Array of linked list to entries */                                                 \
-        struct SNAME##_entry_s *(*buffer)[2];                                                 \
-                                                                                              \
-        /* Current array capacity */                                                          \
-        size_t capacity;                                                                      \
-                                                                                              \
-        /* Current amount of keys */                                                          \
-        size_t count;                                                                         \
-                                                                                              \
-        /* Load factor in range (0.0, infinity) */                                            \
-        double load;                                                                          \
-                                                                                              \
-        /* Key comparison functions */                                                        \
-        int (*cmp)(K, K);                                                                     \
-                                                                                              \
-        /* Key hash function */                                                               \
-        size_t (*hash)(K);                                                                    \
-                                                                                              \
-        /* Function that returns an iterator to the start of the multimap */                  \
-        struct SNAME##_iter_s (*it_start)(struct SNAME##_s *);                                \
-                                                                                              \
-        /* Function that returns an iterator to the end of the multimap */                    \
-        struct SNAME##_iter_s (*it_end)(struct SNAME##_s *);                                  \
-                                                                                              \
-    } SNAME, *SNAME##_ptr;                                                                    \
-                                                                                              \
-    /* Multimap Entry */                                                                      \
-    typedef struct SNAME##_entry_s                                                            \
-    {                                                                                         \
-        /* Entry Key */                                                                       \
-        K key;                                                                                \
-                                                                                              \
-        /* Entry Value */                                                                     \
-        V value;                                                                              \
-                                                                                              \
-        /* Next entry on the linked list */                                                   \
-        struct SNAME##_entry_s *next;                                                         \
-                                                                                              \
-        /* Previous entry on the linked list */                                               \
-        struct SNAME##_entry_s *prev;                                                         \
-                                                                                              \
-    } SNAME##_entry, *SNAME##_entry_ptr;                                                      \
-                                                                                              \
-    typedef struct SNAME##_iter_s                                                             \
-    {                                                                                         \
-        /* Target multimap */                                                                 \
-        struct SNAME##_s *target;                                                             \
-                                                                                              \
-        /* Current entry */                                                                   \
-        struct SNAME##_entry_s *curr_entry;                                                   \
-                                                                                              \
-        /* Cursor`s position (index) */                                                       \
-        size_t cursor;                                                                        \
-                                                                                              \
-        /* Keeps track of relative index to the iteration of elements */                      \
-        size_t index;                                                                         \
-                                                                                              \
-        /* The index of the first element */                                                  \
-        size_t first;                                                                         \
-                                                                                              \
-        /* The index of the last element */                                                   \
-        size_t last;                                                                          \
-                                                                                              \
-        /* If the iterator has reached the start of the iteration */                          \
-        bool start;                                                                           \
-                                                                                              \
-        /* If the iterator has reached the end of the iteration */                            \
-        bool end;                                                                             \
-    } SNAME##_iter, *SNAME##_iter_ptr;                                                        \
-                                                                                              \
-    /* Collection Functions */                                                                \
-    /* Collection Allocation and Deallocation */                                              \
-    FMOD SNAME *PFX##_new(size_t size, double load, int (*compare)(K, K), size_t (*hash)(K)); \
-    FMOD void PFX##_clear(SNAME *_map_);                                                      \
-    FMOD void PFX##_free(SNAME *_map_);                                                       \
-    /* Collection Input and Output */                                                         \
-    FMOD bool PFX##_insert(SNAME *_map_, K key, V value);                                     \
-    FMOD bool PFX##_remove(SNAME *_map_, K key, V *value);                                    \
-    FMOD size_t PFX##_remove_all(SNAME *_map_, K key);                                        \
-    /* Conditional Input and Output */                                                        \
-    FMOD bool PFX##_insert_if(SNAME *_map_, K key, V value, bool condition);                  \
-    FMOD bool PFX##_remove_if(SNAME *_map_, K key, V *value, bool condition);                 \
-    /* Element Access */                                                                      \
-    FMOD bool PFX##_max(SNAME *_map_, K *key, V *value);                                      \
-    FMOD bool PFX##_min(SNAME *_map_, K *key, V *value);                                      \
-    FMOD V PFX##_get(SNAME *_map_, K key);                                                    \
-    FMOD V *PFX##_get_ref(SNAME *_map_, K key);                                               \
-    /* Collection State */                                                                    \
-    FMOD bool PFX##_contains(SNAME *_map_, K key);                                            \
-    FMOD bool PFX##_empty(SNAME *_map_);                                                      \
-    FMOD size_t PFX##_count(SNAME *_map_);                                                    \
-    FMOD size_t PFX##_capacity(SNAME *_map_);                                                 \
-                                                                                              \
-    /* Iterator Functions */                                                                  \
-    /* Iterator Allocation and Deallocation */                                                \
-    FMOD SNAME##_iter *PFX##_iter_new(SNAME *target);                                         \
-    FMOD void PFX##_iter_free(SNAME##_iter *iter);                                            \
-    /* Iterator Initialization */                                                             \
-    FMOD void PFX##_iter_init(SNAME##_iter *iter, SNAME *target);                             \
-    /* Iterator State */                                                                      \
-    FMOD bool PFX##_iter_start(SNAME##_iter *iter);                                           \
-    FMOD bool PFX##_iter_end(SNAME##_iter *iter);                                             \
-    /* Iterator Movement */                                                                   \
-    FMOD void PFX##_iter_to_start(SNAME##_iter *iter);                                        \
-    FMOD void PFX##_iter_to_end(SNAME##_iter *iter);                                          \
-    FMOD bool PFX##_iter_next(SNAME##_iter *iter);                                            \
-    FMOD bool PFX##_iter_prev(SNAME##_iter *iter);                                            \
-    /* Iterator Access */                                                                     \
-    FMOD K PFX##_iter_key(SNAME##_iter *iter);                                                \
-    FMOD V PFX##_iter_value(SNAME##_iter *iter);                                              \
-    FMOD V *PFX##_iter_rvalue(SNAME##_iter *iter);                                            \
-    FMOD size_t PFX##_iter_index(SNAME##_iter *iter);                                         \
-                                                                                              \
-    /* Default Key */                                                                         \
-    static inline K PFX##_impl_default_key(void)                                              \
-    {                                                                                         \
-        K _empty_key_;                                                                        \
-                                                                                              \
-        memset(&_empty_key_, 0, sizeof(K));                                                   \
-                                                                                              \
-        return _empty_key_;                                                                   \
-    }                                                                                         \
-                                                                                              \
-    /* Default Value */                                                                       \
-    static inline V PFX##_impl_default_value(void)                                            \
-    {                                                                                         \
-        V _empty_value_;                                                                      \
-                                                                                              \
-        memset(&_empty_value_, 0, sizeof(V));                                                 \
-                                                                                              \
-        return _empty_value_;                                                                 \
-    }                                                                                         \
+#define MULTIMAP_GENERATE_HEADER(PFX, SNAME, FMOD, K, V)                                          \
+                                                                                                  \
+    /* Multimap Structure */                                                                      \
+    typedef struct SNAME##_s                                                                      \
+    {                                                                                             \
+        /* Array of linked list to entries */                                                     \
+        struct SNAME##_entry_s *(*buffer)[2];                                                     \
+                                                                                                  \
+        /* Current array capacity */                                                              \
+        size_t capacity;                                                                          \
+                                                                                                  \
+        /* Current amount of keys */                                                              \
+        size_t count;                                                                             \
+                                                                                                  \
+        /* Load factor in range (0.0, infinity) */                                                \
+        double load;                                                                              \
+                                                                                                  \
+        /* Key comparison functions */                                                            \
+        int (*cmp)(K, K);                                                                         \
+                                                                                                  \
+        /* Key hash function */                                                                   \
+        size_t (*hash)(K);                                                                        \
+                                                                                                  \
+        /* Function that returns an iterator to the start of the multimap */                      \
+        struct SNAME##_iter_s (*it_start)(struct SNAME##_s *);                                    \
+                                                                                                  \
+        /* Function that returns an iterator to the end of the multimap */                        \
+        struct SNAME##_iter_s (*it_end)(struct SNAME##_s *);                                      \
+                                                                                                  \
+    } SNAME, *SNAME##_ptr;                                                                        \
+                                                                                                  \
+    /* Multimap Entry */                                                                          \
+    typedef struct SNAME##_entry_s                                                                \
+    {                                                                                             \
+        /* Entry Key */                                                                           \
+        K key;                                                                                    \
+                                                                                                  \
+        /* Entry Value */                                                                         \
+        V value;                                                                                  \
+                                                                                                  \
+        /* Next entry on the linked list */                                                       \
+        struct SNAME##_entry_s *next;                                                             \
+                                                                                                  \
+        /* Previous entry on the linked list */                                                   \
+        struct SNAME##_entry_s *prev;                                                             \
+                                                                                                  \
+    } SNAME##_entry, *SNAME##_entry_ptr;                                                          \
+                                                                                                  \
+    typedef struct SNAME##_iter_s                                                                 \
+    {                                                                                             \
+        /* Target multimap */                                                                     \
+        struct SNAME##_s *target;                                                                 \
+                                                                                                  \
+        /* Current entry */                                                                       \
+        struct SNAME##_entry_s *curr_entry;                                                       \
+                                                                                                  \
+        /* Cursor`s position (index) */                                                           \
+        size_t cursor;                                                                            \
+                                                                                                  \
+        /* Keeps track of relative index to the iteration of elements */                          \
+        size_t index;                                                                             \
+                                                                                                  \
+        /* The index of the first element */                                                      \
+        size_t first;                                                                             \
+                                                                                                  \
+        /* The index of the last element */                                                       \
+        size_t last;                                                                              \
+                                                                                                  \
+        /* If the iterator has reached the start of the iteration */                              \
+        bool start;                                                                               \
+                                                                                                  \
+        /* If the iterator has reached the end of the iteration */                                \
+        bool end;                                                                                 \
+    } SNAME##_iter, *SNAME##_iter_ptr;                                                            \
+                                                                                                  \
+    /* Collection Functions */                                                                    \
+    /* Collection Allocation and Deallocation */                                                  \
+    FMOD SNAME *PFX##_new(size_t capacity, double load, int (*compare)(K, K), size_t (*hash)(K)); \
+    FMOD void PFX##_clear(SNAME *_map_);                                                          \
+    FMOD void PFX##_free(SNAME *_map_);                                                           \
+    /* Collection Input and Output */                                                             \
+    FMOD bool PFX##_insert(SNAME *_map_, K key, V value);                                         \
+    FMOD bool PFX##_remove(SNAME *_map_, K key, V *value);                                        \
+    FMOD size_t PFX##_remove_all(SNAME *_map_, K key);                                            \
+    /* Conditional Input and Output */                                                            \
+    FMOD bool PFX##_insert_if(SNAME *_map_, K key, V value, bool condition);                      \
+    FMOD bool PFX##_remove_if(SNAME *_map_, K key, V *value, bool condition);                     \
+    /* Element Access */                                                                          \
+    FMOD bool PFX##_max(SNAME *_map_, K *key, V *value);                                          \
+    FMOD bool PFX##_min(SNAME *_map_, K *key, V *value);                                          \
+    FMOD V PFX##_get(SNAME *_map_, K key);                                                        \
+    FMOD V *PFX##_get_ref(SNAME *_map_, K key);                                                   \
+    /* Collection State */                                                                        \
+    FMOD bool PFX##_contains(SNAME *_map_, K key);                                                \
+    FMOD bool PFX##_empty(SNAME *_map_);                                                          \
+    FMOD size_t PFX##_count(SNAME *_map_);                                                        \
+    FMOD size_t PFX##_capacity(SNAME *_map_);                                                     \
+                                                                                                  \
+    /* Iterator Functions */                                                                      \
+    /* Iterator Allocation and Deallocation */                                                    \
+    FMOD SNAME##_iter *PFX##_iter_new(SNAME *target);                                             \
+    FMOD void PFX##_iter_free(SNAME##_iter *iter);                                                \
+    /* Iterator Initialization */                                                                 \
+    FMOD void PFX##_iter_init(SNAME##_iter *iter, SNAME *target);                                 \
+    /* Iterator State */                                                                          \
+    FMOD bool PFX##_iter_start(SNAME##_iter *iter);                                               \
+    FMOD bool PFX##_iter_end(SNAME##_iter *iter);                                                 \
+    /* Iterator Movement */                                                                       \
+    FMOD void PFX##_iter_to_start(SNAME##_iter *iter);                                            \
+    FMOD void PFX##_iter_to_end(SNAME##_iter *iter);                                              \
+    FMOD bool PFX##_iter_next(SNAME##_iter *iter);                                                \
+    FMOD bool PFX##_iter_prev(SNAME##_iter *iter);                                                \
+    /* Iterator Access */                                                                         \
+    FMOD K PFX##_iter_key(SNAME##_iter *iter);                                                    \
+    FMOD V PFX##_iter_value(SNAME##_iter *iter);                                                  \
+    FMOD V *PFX##_iter_rvalue(SNAME##_iter *iter);                                                \
+    FMOD size_t PFX##_iter_index(SNAME##_iter *iter);                                             \
+                                                                                                  \
+    /* Default Key */                                                                             \
+    static inline K PFX##_impl_default_key(void)                                                  \
+    {                                                                                             \
+        K _empty_key_;                                                                            \
+                                                                                                  \
+        memset(&_empty_key_, 0, sizeof(K));                                                       \
+                                                                                                  \
+        return _empty_key_;                                                                       \
+    }                                                                                             \
+                                                                                                  \
+    /* Default Value */                                                                           \
+    static inline V PFX##_impl_default_value(void)                                                \
+    {                                                                                             \
+        V _empty_value_;                                                                          \
+                                                                                                  \
+        memset(&_empty_value_, 0, sizeof(V));                                                     \
+                                                                                                  \
+        return _empty_value_;                                                                     \
+    }                                                                                             \
 /* SOURCE ********************************************************************/
 #define MULTIMAP_GENERATE_SOURCE(PFX, SNAME, FMOD, K, V)                                         \
                                                                                                  \

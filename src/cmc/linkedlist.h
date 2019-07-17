@@ -8,16 +8,31 @@
  *
  */
 
-/*****************************************************************************/
-/**************************************************************** LINKEDLIST */
-/*****************************************************************************/
+/**
+ * LinkedList
+ *
+ * A LinkedList is a linear collection of elements, whose order is not given by
+ * their physical placement in memory. Instead, each element points to the next
+ * (singly-linked list) and to a previous one (doubly-linked list). It consists
+ * of nodes connected by these next or previous pointers. Unlike an array, the
+ * LinkedList can indefinitely grow.
+ *
+ * Implementation
+ *
+ * The LinkedList is implemented as a doubly-linked list and allows insertions
+ * and removals at both ends in O(1) and in a given index in O(N). The list has
+ * a head and tail pointer. The head points to the first element in the sequence
+ * and tail points to the last.
+ */
 
 #ifndef CMC_LINKEDLIST_H
 #define CMC_LINKEDLIST_H
 
-#include <stdlib.h>
 #include <stdbool.h>
+#include <stdlib.h>
+#include <stdio.h>
 #include <string.h>
+#include "../utl/cmc_string.h"
 
 #define LINKEDLIST_GENERATE(PFX, SNAME, FMOD, V)    \
     LINKEDLIST_GENERATE_HEADER(PFX, SNAME, FMOD, V) \
@@ -110,6 +125,8 @@
     FMOD bool PFX##_contains(SNAME *_list_, V element, int (*comparator)(V, V));     \
     FMOD bool PFX##_empty(SNAME *_list_);                                            \
     FMOD size_t PFX##_count(SNAME *_list_);                                          \
+    /* Collection Utility */                                                         \
+    FMOD cmc_string PFX##_to_string(SNAME *_list_);                                  \
                                                                                      \
     /* Node Related Functions */                                                     \
     /* Node Allocation and Deallocation */                                           \
@@ -441,6 +458,18 @@
     FMOD size_t PFX##_count(SNAME *_list_)                                          \
     {                                                                               \
         return _list_->count;                                                       \
+    }                                                                               \
+                                                                                    \
+    FMOD cmc_string PFX##_to_string(SNAME *_list_)                                  \
+    {                                                                               \
+        cmc_string str;                                                             \
+        SNAME *l_ = _list_;                                                         \
+        const char *name = #SNAME;                                                  \
+                                                                                    \
+        snprintf(str.s, cmc_string_len, cmc_string_fmt_linkedlist,                  \
+                 name, l_, l_->count, l_->head, l_->tail);                          \
+                                                                                    \
+        return str;                                                                 \
     }                                                                               \
                                                                                     \
     FMOD SNAME##_node *PFX##_new_node(V element)                                    \

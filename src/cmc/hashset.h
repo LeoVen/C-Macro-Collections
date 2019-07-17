@@ -9,6 +9,8 @@
  */
 
 /**
+ * HashSet
+ *
  * A HashSet is an implementation of a Set with unique keys. The keys are not
  * sorted. It is implemented as a hashtable with robin hood hashing.
  */
@@ -16,9 +18,11 @@
 #ifndef CMC_HASHSET_H
 #define CMC_HASHSET_H
 
-#include <stdlib.h>
 #include <stdbool.h>
+#include <stdlib.h>
+#include <stdio.h>
 #include <string.h>
+#include "../utl/cmc_string.h"
 
 #ifndef CMC_HASH_TABLE_SETUP
 #define CMC_HASH_TABLE_SETUP
@@ -164,6 +168,8 @@ static const size_t cmc_hashtable_primes[] = {53, 97, 191, 383, 769, 1531,
     FMOD bool PFX##_empty(SNAME *_set_);                                                          \
     FMOD size_t PFX##_count(SNAME *_set_);                                                        \
     FMOD size_t PFX##_capacity(SNAME *_set_);                                                     \
+    /* Collection Utility */                                                                      \
+    FMOD cmc_string PFX##_to_string(SNAME *_set_);                                                \
                                                                                                   \
     /* Set Operations */                                                                          \
     FMOD SNAME *PFX##_union(SNAME *_set1_, SNAME *_set2_);                                        \
@@ -410,6 +416,18 @@ static const size_t cmc_hashtable_primes[] = {53, 97, 191, 383, 769, 1531,
     FMOD size_t PFX##_capacity(SNAME *_set_)                                                     \
     {                                                                                            \
         return _set_->capacity;                                                                  \
+    }                                                                                            \
+                                                                                                 \
+    FMOD cmc_string PFX##_to_string(SNAME *_set_)                                                \
+    {                                                                                            \
+        cmc_string str;                                                                          \
+        SNAME *s_ = _set_;                                                                       \
+        const char *name = #SNAME;                                                               \
+                                                                                                 \
+        snprintf(str.s, cmc_string_len, cmc_string_fmt_hashset,                                  \
+                 name, s_, s_->buffer, s_->capacity, s_->count, s_->load, s_->cmp, s_->hash);    \
+                                                                                                 \
+        return str;                                                                              \
     }                                                                                            \
                                                                                                  \
     FMOD SNAME *PFX##_union(SNAME *_set1_, SNAME *_set2_)                                        \

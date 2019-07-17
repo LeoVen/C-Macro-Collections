@@ -9,6 +9,8 @@
  */
 
 /**
+ * TreeSet
+ *
  * A TreeSet is an implementation of a Set that keeps its elements sorted. Like
  * a Set it has only unique keys. This implementation uses a balanced binary
  * tree called AVL Tree that uses the height of nodes to keep its keys balanced.
@@ -17,9 +19,11 @@
 #ifndef CMC_TREESET_H
 #define CMC_TREESET_H
 
-#include <stdlib.h>
 #include <stdbool.h>
+#include <stdlib.h>
+#include <stdio.h>
 #include <string.h>
+#include "../utl/cmc_string.h"
 
 #define TREESET_GENERATE(PFX, SNAME, FMOD, V)    \
     TREESET_GENERATE_HEADER(PFX, SNAME, FMOD, V) \
@@ -118,6 +122,8 @@
     FMOD bool PFX##_contains(SNAME *_set_, V element);                      \
     FMOD bool PFX##_empty(SNAME *_set_);                                    \
     FMOD size_t PFX##_count(SNAME *_set_);                                  \
+    /* Collection Utility */                                                \
+    FMOD cmc_string PFX##_to_string(SNAME *_map_);                          \
                                                                             \
     /* Set Operations */                                                    \
     FMOD SNAME *PFX##_union(SNAME *_set1_, SNAME *_set2_);                  \
@@ -500,6 +506,18 @@
     FMOD size_t PFX##_count(SNAME *_set_)                                                   \
     {                                                                                       \
         return _set_->count;                                                                \
+    }                                                                                       \
+                                                                                            \
+    FMOD cmc_string PFX##_to_string(SNAME *_set_)                                           \
+    {                                                                                       \
+        cmc_string str;                                                                     \
+        SNAME *s_ = _set_;                                                                  \
+        const char *name = #SNAME;                                                          \
+                                                                                            \
+        snprintf(str.s, cmc_string_len, cmc_string_fmt_treeset,                             \
+                 name, s_, s_->root, s_->count, s_->cmp);                                   \
+                                                                                            \
+        return str;                                                                         \
     }                                                                                       \
                                                                                             \
     FMOD SNAME *PFX##_union(SNAME *_set1_, SNAME *_set2_)                                   \

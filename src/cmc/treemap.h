@@ -9,6 +9,8 @@
  */
 
 /**
+ * TreeMap
+ *
  * A TreeMap is an implementation of a Map that keeps its keys sorted. Like a
  * Map, it has only unique keys. This implementation uses a balanced binary
  * tree called AVL Tree that uses the height of nodes to keep its keys balanced.
@@ -17,9 +19,11 @@
 #ifndef CMC_TREEMAP_H
 #define CMC_TREEMAP_H
 
-#include <stdlib.h>
 #include <stdbool.h>
+#include <stdlib.h>
+#include <stdio.h>
 #include <string.h>
+#include "../utl/cmc_string.h"
 
 #define TREEMAP_GENERATE(PFX, SNAME, FMOD, K, V)    \
     TREEMAP_GENERATE_HEADER(PFX, SNAME, FMOD, K, V) \
@@ -123,6 +127,8 @@
     FMOD bool PFX##_contains(SNAME *_map_, K key);                            \
     FMOD bool PFX##_empty(SNAME *_map_);                                      \
     FMOD size_t PFX##_count(SNAME *_map_);                                    \
+    /* Collection Utility */                                                  \
+    FMOD cmc_string PFX##_to_string(SNAME *_map_);                            \
                                                                               \
     /* Iterator Functions */                                                  \
     /* Iterator Allocation and Deallocation */                                \
@@ -532,6 +538,18 @@
     FMOD size_t PFX##_count(SNAME *_map_)                                    \
     {                                                                        \
         return _map_->count;                                                 \
+    }                                                                        \
+                                                                             \
+    FMOD cmc_string PFX##_to_string(SNAME *_map_)                            \
+    {                                                                        \
+        cmc_string str;                                                      \
+        SNAME *m_ = _map_;                                                   \
+        const char *name = #SNAME;                                           \
+                                                                             \
+        snprintf(str.s, cmc_string_len, cmc_string_fmt_treemap,              \
+                 name, m_, m_->root, m_->count, m_->cmp);                    \
+                                                                             \
+        return str;                                                          \
     }                                                                        \
                                                                              \
     FMOD SNAME##_iter *PFX##_iter_new(SNAME *target)                         \

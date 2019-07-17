@@ -8,16 +8,31 @@
  *
  */
 
-/*****************************************************************************/
-/********************************************************************* STACK */
-/*****************************************************************************/
+/**
+ * Stack
+ *
+ * A Stack is a Last-in First-out (or First-in Last-out) data structure used in
+ * a variety of algorithms. It is a Dynamic Array that can only add or remove
+ * its elements at the end of the buffer, in this case, it represents the top of
+ * the stack.
+ *
+ * It has three main functions: `push` which adds an element at the top of the
+ * stack; `pop` which removes the top element from the stack; and `top` which
+ * returns the top element without removing it (it is also sometimes called
+ * `peek`).
+ *
+ * A Stack is used in algorithms like backtracking, depth-first search,
+ * expression evaluation, syntax parsing and many more.
+ */
 
 #ifndef CMC_STACK_H
 #define CMC_STACK_H
 
-#include <stdlib.h>
 #include <stdbool.h>
+#include <stdlib.h>
+#include <stdio.h>
 #include <string.h>
+#include "../utl/cmc_string.h"
 
 #define STACK_GENERATE(PFX, SNAME, FMOD, V)    \
     STACK_GENERATE_HEADER(PFX, SNAME, FMOD, V) \
@@ -88,6 +103,8 @@
     FMOD bool PFX##_full(SNAME *_stack_);                                         \
     FMOD size_t PFX##_count(SNAME *_stack_);                                      \
     FMOD size_t PFX##_capacity(SNAME *_stack_);                                   \
+    /* Collection Utility */                                                      \
+    FMOD cmc_string PFX##_to_string(SNAME *_stack_);                              \
                                                                                   \
     /* Iterator Functions */                                                      \
     /* Iterator Allocation and Deallocation */                                    \
@@ -244,6 +261,18 @@
     FMOD size_t PFX##_capacity(SNAME *_stack_)                                   \
     {                                                                            \
         return _stack_->capacity;                                                \
+    }                                                                            \
+                                                                                 \
+    FMOD cmc_string PFX##_to_string(SNAME *_stack_)                              \
+    {                                                                            \
+        cmc_string str;                                                          \
+        SNAME *s_ = _stack_;                                                     \
+        const char *name = #SNAME;                                               \
+                                                                                 \
+        snprintf(str.s, cmc_string_len, cmc_string_fmt_stack,                    \
+                 name, s_, s_->buffer, s_->capacity, s_->count);                 \
+                                                                                 \
+        return str;                                                              \
     }                                                                            \
                                                                                  \
     FMOD SNAME##_iter *PFX##_iter_new(SNAME *target)                             \

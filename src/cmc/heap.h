@@ -8,16 +8,33 @@
  *
  */
 
-/*****************************************************************************/
-/********************************************************************** HEAP */
-/*****************************************************************************/
+/**
+ * Heap
+ *
+ * The Heap is a specialized tree-based data structure which is essentially a
+ * complete tree that satisfies the heap property:
+ *     - MaxHeap:
+ *         - The root node is the greatest element of the unique set of keys.
+ *         - A node key is always greater than or equal to its children keys.
+ *     - Minheap:
+ *         - The root node is the smallest element of the unique set of keys.
+ *         - A node Key is always greater than or equal to its children keys.
+ *
+ * The heap is mostly used to implement priority queues. Sometimes it can also
+ * be used to sort elements. There are three main functions:
+ *     - insert : Adds an element to the heap
+ *     - remove_(min/max): Removes the min/max element from the heap
+ *     - min/max : Accesses the min/max element from the heap
+ */
 
 #ifndef CMC_HEAP_H
 #define CMC_HEAP_H
 
-#include <stdlib.h>
 #include <stdbool.h>
+#include <stdlib.h>
+#include <stdio.h>
 #include <string.h>
+#include "../utl/cmc_string.h"
 
 typedef enum cmc_heap_order_e
 {
@@ -101,6 +118,8 @@ typedef enum cmc_heap_order_e
     FMOD bool PFX##_full(SNAME *_heap_);                                             \
     FMOD size_t PFX##_count(SNAME *_heap_);                                          \
     FMOD size_t PFX##_capacity(SNAME *_heap_);                                       \
+    /* Collection Utility */                                                         \
+    FMOD cmc_string PFX##_to_string(SNAME *_heap_);                                  \
                                                                                      \
     /* Iterator Functions */                                                         \
     /* Iterator Allocation and Deallocation */                                       \
@@ -287,6 +306,19 @@ typedef enum cmc_heap_order_e
     FMOD size_t PFX##_capacity(SNAME *_heap_)                                                     \
     {                                                                                             \
         return _heap_->capacity;                                                                  \
+    }                                                                                             \
+                                                                                                  \
+    FMOD cmc_string PFX##_to_string(SNAME *_heap_)                                                \
+    {                                                                                             \
+        cmc_string str;                                                                           \
+        SNAME *h_ = _heap_;                                                                       \
+        const char *name = #SNAME;                                                                \
+        const char *t = h_->HO == 1 ? "MaxHeap" : "MinHeap";                                      \
+                                                                                                  \
+        snprintf(str.s, cmc_string_len, cmc_string_fmt_heap,                                      \
+                 name, h_, h_->buffer, h_->capacity, h_->count, t, h_->cmp);                      \
+                                                                                                  \
+        return str;                                                                               \
     }                                                                                             \
                                                                                                   \
     FMOD SNAME##_iter *PFX##_iter_new(SNAME *target)                                              \
