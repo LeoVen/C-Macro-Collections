@@ -25,7 +25,7 @@ int main(void)
     queue *q = q_new(1000);
     deque *d = d_new(1000);
     linked *ll = ll_new();
-    heap *h = h_new(1000, MaxHeap, intcmp);
+    heap *h = h_new(1000, cmc_max_heap, intcmp);
     tset *ts = ts_new(intcmp);
     tmap *tm = tm_new(intcmp);
     hset *hs = hs_new(1000, 0.9, intcmp, inthash);
