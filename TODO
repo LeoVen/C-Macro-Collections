@@ -1,9 +1,10 @@
 TODO
 
+/ - In Progress
 X - Finished
 ~ - Needs to be reviewed
 
-[ ] Finish Documentation
+[/] Documentation
 [X] Remove PUBLIC and PRIVATE
 [ ] Extra Collections
     [~] Add MultiSet
@@ -12,7 +13,7 @@ X - Finished
     [ ] Add TreeHashMap
 [ ] Add functions
     [ ] update       {hashmap, treemap, multimap}
-    [ ] to_string    {all}
+    [/] to_string    {all}
     [ ] iter_move    {all} (iterators)
     [ ] iter_move_to {all} (iterators)
     [ ] from_array   {all}

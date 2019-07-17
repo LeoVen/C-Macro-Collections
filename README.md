@@ -149,3 +149,13 @@ When including `foreach.h` in your source code you gain access to all for-each m
 * __BODY__ - Block of code.
 
 Inside body you will have access to the iterator variable. With it you can use functions to access the key, value or index from the iterator. Checkout the documentation for more details.
+
+<hr>
+
+Check out some code reviews that covers some parts the project:
+
+* [Unit Test](https://codereview.stackexchange.com/questions/222954/simple-unit-test-in-c)
+* [Interval Heap](https://codereview.stackexchange.com/questions/223595/generic-macro-generated-interval-heap-in-c)
+* [HashSet](https://codereview.stackexchange.com/questions/217333/generic-macro-generated-hashset-in-c)
+* [LinkedList](https://codereview.stackexchange.com/questions/216737/generic-macro-generated-linked-list-in-c)
+* [Others](https://codereview.stackexchange.com/questions/213553/simple-generic-macro-generated-containers)
