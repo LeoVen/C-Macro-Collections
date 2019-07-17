@@ -36,18 +36,15 @@ Only Collections located in __cmc__ are to be documented at *Documentation.md*.
     * TreeMap
     * TreeSet
 * Extra Collections Library
+    * IntervalHeap
     * LinkedQueue
+    * MultiMap
+    * MultiSet
 * Stack Allocated Collections Library
     * Queue
     * Stack
-
-### More to Come
-
-* MultiMap
-* MultiSet
-* TreeHashMap
-* Heap will be an IntervalHeap
-* Stack Allocated Collections
+* Development Collections Library
+    * Deque
 
 Check out **Documentation.md** for more information about each collection.
 
@@ -93,10 +90,11 @@ The following table shows how each collection is implemented and how well they d
 
 To generate the collection, all you need to do is to include the necessary header files. You can include the containers you want to use individually or you can include the master header, `macro_collections.h`, that comes with all collections and other functionalities like the `FOR_EACH` macro.
 
-There are three C standard headers that all collections use:
+There are four C standard headers that all collections use:
 
-* `<stdlib.h>`
 * `<stdbool.h>`
+* `<stdio.h>`
+* `<stdlib.h>`
 * `<string.h>`
 
 With the last one being used only by array based containers. These headers are already included by default.
