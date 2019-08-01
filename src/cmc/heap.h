@@ -214,7 +214,7 @@ typedef enum cmc_heap_order_e
                 return false;                                                                     \
         }                                                                                         \
                                                                                                   \
-        if (_heap_->count == 0)                                                                   \
+        if (PFX##_empty(_heap_))                                                                  \
         {                                                                                         \
             _heap_->buffer[_heap_->count++] = element;                                            \
             return true;                                                                          \
@@ -439,14 +439,16 @@ typedef enum cmc_heap_order_e
                                                                                                   \
         while (C > 0 && _heap_->cmp(child, parent) * mod > 0)                                     \
         {                                                                                         \
+            /* Swap between C (current element) and its parent */                                 \
             V tmp = _heap_->buffer[C];                                                            \
-            _heap_->buffer[C] = _heap_->buffer[(index - 1) / 2];                                  \
-            _heap_->buffer[(index - 1) / 2] = tmp;                                                \
+            _heap_->buffer[C] = _heap_->buffer[(C - 1) / 2];                                      \
+            _heap_->buffer[(C - 1) / 2] = tmp;                                                    \
                                                                                                   \
-            C = (index - 1) / 2;                                                                  \
+            /* Go to parent */                                                                    \
+            C = (C - 1) / 2;                                                                      \
                                                                                                   \
             child = _heap_->buffer[C];                                                            \
-            parent = _heap_->buffer[(index - 1) / 2];                                             \
+            parent = _heap_->buffer[(C - 1) / 2];                                                 \
         }                                                                                         \
                                                                                                   \
         return true;                                                                              \
@@ -462,6 +464,7 @@ typedef enum cmc_heap_order_e
             size_t R = 2 * index + 2;                                                             \
             size_t C = index;                                                                     \
                                                                                                   \
+            /* Determine if we swap with the left or right element */                             \
             if (L < _heap_->count && _heap_->cmp(_heap_->buffer[L], _heap_->buffer[C]) * mod > 0) \
             {                                                                                     \
                 C = L;                                                                            \
@@ -472,6 +475,7 @@ typedef enum cmc_heap_order_e
                 C = R;                                                                            \
             }                                                                                     \
                                                                                                   \
+            /* Swap only if either left or right was picked, otherwise done */                    \
             if (C != index)                                                                       \
             {                                                                                     \
                 V tmp = _heap_->buffer[index];                                                    \
