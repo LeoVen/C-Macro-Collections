@@ -1,3 +1,3 @@
 # Multiset examples
 
-* prime_cof.c - Prime factorization of a number.
+* multiset_operations.c - Demonstrates common multiset operations.

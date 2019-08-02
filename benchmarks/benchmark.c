@@ -59,18 +59,20 @@ void shuffle(int *array, mt_state_ptr st)
     }
 }
 
-COLLECTION_GENERATE(LIST, l, list, /* FMOD */, /* K */, int)
-COLLECTION_GENERATE(STACK, s, stack, /* FMOD */, /* K */, int)
-COLLECTION_GENERATE(QUEUE, q, queue, /* FMOD */, /* K */, int)
 COLLECTION_GENERATE(DEQUE, d, deque, /* FMOD */, /* K */, int)
-COLLECTION_GENERATE(LINKEDLIST, ll, linked, /* FMOD */, /* K */, int)
-COLLECTION_GENERATE(HEAP, h, heap, /* FMOD */, /* K */, int)
-COLLECTION_GENERATE(TREESET, ts, tset, /* FMOD */, /* K */, int)
-COLLECTION_GENERATE(TREEMAP, tm, tmap, /* FMOD */, int, int)
-COLLECTION_GENERATE(HASHSET, hs, hset, /* FMOD */, /* K */, int)
 COLLECTION_GENERATE(HASHMAP, hm, hmap, /* FMOD */, int, int)
-COLLECTION_GENERATE(MULTIMAP, mm, mmap, /* FMOD */, int, int)
+COLLECTION_GENERATE(HASHSET, hs, hset, /* FMOD */, /* K */, int)
+COLLECTION_GENERATE(HEAP, h, heap, /* FMOD */, /* K */, int)
+COLLECTION_GENERATE(LINKEDLIST, ll, linked, /* FMOD */, /* K */, int)
+COLLECTION_GENERATE(LIST, l, list, /* FMOD */, /* K */, int)
+COLLECTION_GENERATE(QUEUE, q, queue, /* FMOD */, /* K */, int)
+COLLECTION_GENERATE(STACK, s, stack, /* FMOD */, /* K */, int)
+COLLECTION_GENERATE(TREEMAP, tm, tmap, /* FMOD */, int, int)
+COLLECTION_GENERATE(TREESET, ts, tset, /* FMOD */, /* K */, int)
+
 COLLECTION_GENERATE(INTERVALHEAP, ih, iheap, , , int)
+COLLECTION_GENERATE(MULTIMAP, mm, mmap, /* FMOD */, int, int)
+COLLECTION_GENERATE(MULTISET, ms, mset, /* FMOD */, /* K */, int)
 
 #define BENCHMARK(NAME, PFX, sname, initfunc, insertbody, removebody, searchbody)                                \
     void NAME##_io_benchmark(int *array, int *sarray, size_t s)                                                  \
@@ -186,6 +188,7 @@ BENCHMARK(TREESET, ts, tset, ts_new(intcmp), ts_insert(coll, array[i]), ts_remov
 
 BENCHMARK(INTERVALHEAP, ih, iheap, ih_new(NTOTAL, intcmp), ih_insert(coll, array[i]), ih_remove_max(coll, &r), ih_contains(coll, sarray[i]))
 BENCHMARK(MULTIMAP, mm, mmap, mm_new(NTOTAL, 0.8, intcmp, inthash), mm_insert(coll, array[i], array[i]), mm_remove(coll, array[i], &r), mm_contains(coll, sarray[i]))
+BENCHMARK(MULTISET, ms, mset, ms_new(NTOTAL, 0.6, intcmp, inthash), ms_insert(coll, array[i]), ms_remove(coll, array[i]), ms_contains(coll, sarray[i]))
 
 int main(void)
 {
@@ -231,6 +234,7 @@ int main(void)
 
     INTERVALHEAP_io_benchmark(array, array, NMIN);
     MULTIMAP_io_benchmark(array, array, NTOTAL);
+    MULTISET_io_benchmark(array, array, NTOTAL);
 
     free(array);
     free(sarray);

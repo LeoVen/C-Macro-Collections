@@ -7,7 +7,7 @@
  * Leonardo Vencovsky (https://github.com/LeoVen)
  *
  * Mersenne Twister PRNG utility
- * 
+ *
  */
 #include <stdio.h>
 #include <stdlib.h>
