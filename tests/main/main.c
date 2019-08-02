@@ -11,6 +11,7 @@
 
 #include "unt/linkedqueue.c"
 #include "unt/multimap.c"
+#include "unt/multiset.c"
 
 int main(void)
 {
@@ -28,6 +29,7 @@ int main(void)
     /* ext */
     linkedqueue_test();
     multimap_test();
+    multiset_test();
 
     return 0;
 }
