@@ -35,6 +35,8 @@ static const char *cmc_string_fmt_stack = "%s at %p { buffer:%p, capacity:%" PRI
 static const char *cmc_string_fmt_treemap = "%s at %p { root:%p, count:%" PRIuMAX ", cmp:%p }";
 static const char *cmc_string_fmt_treeset = "%s at %p { root:%p, count:%" PRIuMAX ", cmp:%p }";
 
+static const char *cmc_string_fmt_intervalheap = "%s at %p { buffer:%p, capacity:%" PRIuMAX ", size:%" PRIuMAX ", count:%" PRIuMAX ", cmp:%p }";
+static const char *cmc_string_fmt_multimap = "%s at %p { buffer:%p, capacity:%" PRIuMAX ", count:%" PRIuMAX ", load:%lf, cmp:%p, hash:%p }";
 static const char *cmc_string_fmt_multiset = "%s at %p { buffer:%p, capacity:%" PRIuMAX ", count:%" PRIuMAX ", cardinality:%" PRIuMAX ", load:%lf, cmp:%p, hash:%p }";;
 
 #endif /* CMC_STRING_H */

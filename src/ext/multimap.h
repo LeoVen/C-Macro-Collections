@@ -43,9 +43,11 @@
 #ifndef CMC_MULTIMAP_H
 #define CMC_MULTIMAP_H
 
-#include <stdlib.h>
 #include <stdbool.h>
+#include <stdlib.h>
+#include <stdio.h>
 #include <string.h>
+#include "../utl/cmc_string.h"
 
 #ifndef CMC_HASH_TABLE_SETUP
 #define CMC_HASH_TABLE_SETUP
@@ -192,6 +194,8 @@ static const size_t cmc_hashtable_primes[] = {53, 97, 191, 383, 769, 1531,
     FMOD bool PFX##_empty(SNAME *_map_);                                                          \
     FMOD size_t PFX##_count(SNAME *_map_);                                                        \
     FMOD size_t PFX##_capacity(SNAME *_map_);                                                     \
+    /* Collection Utility */                                                                      \
+    FMOD cmc_string PFX##_to_string(SNAME *_map_);                                                \
                                                                                                   \
     /* Iterator Functions */                                                                      \
     /* Iterator Allocation and Deallocation */                                                    \
@@ -577,6 +581,18 @@ static const size_t cmc_hashtable_primes[] = {53, 97, 191, 383, 769, 1531,
     FMOD size_t PFX##_capacity(SNAME *_map_)                                                     \
     {                                                                                            \
         return _map_->capacity;                                                                  \
+    }                                                                                            \
+                                                                                                 \
+    FMOD cmc_string PFX##_to_string(SNAME *_map_)                                                \
+    {                                                                                            \
+        cmc_string str;                                                                          \
+        SNAME *m_ = _map_;                                                                       \
+        const char *name = #SNAME;                                                               \
+                                                                                                 \
+        snprintf(str.s, cmc_string_len, cmc_string_fmt_hashmap,                                  \
+                 name, m_, m_->buffer, m_->capacity, m_->count, m_->load, m_->cmp, m_->hash);    \
+                                                                                                 \
+        return str;                                                                              \
     }                                                                                            \
                                                                                                  \
     FMOD SNAME##_iter *PFX##_iter_new(SNAME *target)                                             \

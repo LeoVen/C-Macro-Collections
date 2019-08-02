@@ -21,9 +21,11 @@
 #ifndef CMC_INTERVALHEAP_H
 #define CMC_INTERVALHEAP_H
 
-#include <stdlib.h>
 #include <stdbool.h>
+#include <stdlib.h>
+#include <stdio.h>
 #include <string.h>
+#include "../utl/cmc_string.h"
 
 #define INTERVALHEAP_GENERATE(PFX, SNAME, FMOD, V)    \
     INTERVALHEAP_GENERATE_HEADER(PFX, SNAME, FMOD, V) \
@@ -115,6 +117,8 @@
     FMOD bool PFX##_full(SNAME *_heap_);                                     \
     FMOD size_t PFX##_count(SNAME *_heap_);                                  \
     FMOD size_t PFX##_capacity(SNAME *_heap_);                               \
+    /* Collection Utility */                                                 \
+    FMOD cmc_string PFX##_to_string(SNAME *_heap_);                          \
                                                                              \
     /* Iterator Functions */                                                 \
     /* Iterator Allocation and Deallocation */                               \
@@ -478,8 +482,19 @@
                                                                                             \
     FMOD size_t PFX##_capacity(SNAME *_heap_)                                               \
     {                                                                                       \
-        /* Multiply by 2 since each node can store two elements */                          \
-        return _heap_->capacity * 2;                                                        \
+        return _heap_->capacity;                                                            \
+    }                                                                                       \
+                                                                                            \
+    FMOD cmc_string PFX##_to_string(SNAME *_heap_)                                          \
+    {                                                                                       \
+        cmc_string str;                                                                     \
+        SNAME *h_ = _heap_;                                                                 \
+        const char *name = #SNAME;                                                          \
+                                                                                            \
+        snprintf(str.s, cmc_string_len, cmc_string_fmt_intervalheap,                        \
+                 name, h_, h_->buffer, h_->capacity, h_->size, h_->count, h_->cmp);         \
+                                                                                            \
+        return str;                                                                         \
     }                                                                                       \
                                                                                             \
     FMOD SNAME##_iter *PFX##_iter_new(SNAME *target)                                        \
