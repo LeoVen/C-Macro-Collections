@@ -3,7 +3,7 @@
 Generate Simple Data Structures of any type in C for you to use in your projects.
 
 ![License](https://img.shields.io/badge/License-MIT-blue.svg)
-![Version](https://img.shields.io/badge/Version-v1.5.3-orange.svg)
+![Version](https://img.shields.io/badge/Version-v1.6.0-orange.svg)
 [![Build](https://travis-ci.org/LeoVen/C-Macro-Collections.svg?branch=master)](https://travis-ci.org/LeoVen/C-Macro-Collections)
 [![codecov](https://codecov.io/gh/LeoVen/C-Macro-Collections/branch/master/graph/badge.svg)](https://codecov.io/gh/LeoVen/C-Macro-Collections)
 
@@ -88,16 +88,7 @@ The following table shows how each collection is implemented and how well they d
 
 ## How to use
 
-To generate the collection, all you need to do is to include the necessary header files. You can include the containers you want to use individually or you can include the master header, `macro_collections.h`, that comes with all collections and other functionalities like the `FOR_EACH` macro.
-
-There are four C standard headers that all collections use:
-
-* `<stdbool.h>`
-* `<stdio.h>`
-* `<stdlib.h>`
-* `<string.h>`
-
-With the last one being used only by array based containers. These headers are already included by default.
+To generate the collection, all you need to do is to include the necessary header files. You can include the containers you want to use individually or you can include the master header, `macro_collections.h`, that comes with the entire C-Macro-Collections library.
 
 ### Macros
 

@@ -1,29 +1,32 @@
 TODO
 
-/ - In Progress
-X - Finished
-~ - Needs to be reviewed
+[/] - In Progress
+[X] - Finished
+[~] - Needs to be reviewed
 
 [/] Documentation
 [X] Remove PUBLIC and PRIVATE
 [ ] Extra Collections
-    [~] Add MultiSet
+    [X] Add MultiSet
     [X] Add MultiMap
     [X] Add IntervalHeap
     [ ] Add TreeHashMap
 [ ] Add functions
     [ ] update       {hashmap, treemap, multimap}
     [/] to_string    {all}
-    [ ] iter_move    {all} (iterators)
-    [ ] iter_move_to {all} (iterators)
+    [ ] iter_advance {all} (iterators)
+    [ ] iter_rewind  {all} (iterators)
+    [ ] iter_go_to   {all} (iterators)
     [ ] from_array   {all}
     [ ] to_array     {all}
-    [ ] compare      {all}
+    [ ] equals       {all}
     [ ] resize       {dynamic arrays and circular buffers}
     [ ] dispose      {all}
-    [ ] copy         {all}
+    [ ] copy_of      {all}
     [ ] save         {all} (serialization)
     [ ] load         {all} (serialization)
+    [ ] read         {all} (serialization)
+    [ ] write        {all} (serialization)
     [ ] Range IO
         [ ] Sequences
             [ ] seq_push_front
@@ -60,9 +63,9 @@ X - Finished
     [ ] Stack
     [ ] TreeMap
     [ ] TreeSet
-[~] Utility
+[X] Utility
     [X] assert.h
     [X] foreach.h
     [X] log.h
-    [~] test.h
+    [X] test.h
     [X] timer.h

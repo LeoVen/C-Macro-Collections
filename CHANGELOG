@@ -1,22 +1,32 @@
 # RELEASE.MAJOR.MINOR
 
+1.6.0
+    Added ./ext/intervalheap.h
+    Added ./ext/multimap.h
+    Added ./ext/multiset.h
+    Added to_string function to most collections
+    Added the cmc prefix to the enum entry_state used by hashtables and to the enum heap_type used by the heap
+    Fixed return type on some functions from ./cmc/hashset.h and ./cmc/treeset.h
+    Fixed hashtables integer overflow when the capacity is divided by the load factor
+    Changed timer.h struct name from timer_t to cmc_timer to prevent name collisions on linux
+
 1.5.3
     Tests completely reorganized and now with full code coverage
     Some fixes where there was a missing return statement
-    Expanded utl/assert.h
+    Expanded ./utl/assert.h
 
 1.5.2
-    Added utl/test.h
-    Added utl/assert.h
-    Added tests/list.c - UnitTest for LIST
-    Small fixes on utl/foreach.h, utl/test.h and redone utl/timer.h
-    Removed utl/log.h functions that were unnecessary
+    Added ./utl/test.h
+    Added ./utl/assert.h
+    Added ./tests/list.c - UnitTest for LIST
+    Small fixes on ./utl/foreach.h, ./utl/test.h and redone ./utl/timer.h
+    Removed ./utl/log.h functions that were unnecessary
     Added the CMC namespace to CONCATC and CONCATH at macro_collections.h
 
 1.5.1
     New queue benchmark
-    Added sac/queue.h
-    Added utl/timer.h
+    Added ./sac/queue.h
+    Added ./utl/timer.h
     Fixing descriptions and other minor fixes
 
 1.5.0
