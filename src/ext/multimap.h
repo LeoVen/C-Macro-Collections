@@ -248,6 +248,10 @@ static const size_t cmc_hashtable_primes[] = {53, 97, 191, 383, 769, 1531,
         if (capacity == 0 || load <= 0)                                                          \
             return NULL;                                                                         \
                                                                                                  \
+        /* Prevent integer overflow */                                                           \
+        if (capacity >= UINTMAX_MAX * load)                                                      \
+            return NULL;                                                                         \
+                                                                                                 \
         size_t real_capacity = PFX##_impl_calculate_size(capacity / load);                       \
                                                                                                  \
         SNAME *_map_ = malloc(sizeof(SNAME));                                                    \

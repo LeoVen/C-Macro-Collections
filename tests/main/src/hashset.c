@@ -42,6 +42,7 @@ bool hs_contains(hashset *_set_, size_t element);
 bool hs_empty(hashset *_set_);
 size_t hs_count(hashset *_set_);
 size_t hs_capacity(hashset *_set_);
+cmc_string hs_to_string(hashset *_set_);
 hashset *hs_union(hashset *_set1_, hashset *_set2_);
 hashset *hs_intersection(hashset *_set1_, hashset *_set2_);
 hashset *hs_difference(hashset *_set1_, hashset *_set2_);
@@ -76,6 +77,8 @@ static hashset_iter hs_impl_it_end(hashset *_set_);
 hashset *hs_new(size_t capacity, double load, int (*compare)(size_t, size_t), size_t (*hash)(size_t))
 {
     if (capacity == 0 || load <= 0 || load >= 1)
+        return NULL;
+    if (capacity >= UINTMAX_MAX * load)
         return NULL;
     size_t real_capacity = hs_impl_calculate_size(capacity / load);
     hashset *_set_ = malloc(sizeof(hashset));
@@ -212,6 +215,14 @@ bool hs_contains(hashset *_set_, size_t element) { return hs_impl_get_entry(_set
 bool hs_empty(hashset *_set_) { return _set_->count == 0; }
 size_t hs_count(hashset *_set_) { return _set_->count; }
 size_t hs_capacity(hashset *_set_) { return _set_->capacity; }
+cmc_string hs_to_string(hashset *_set_)
+{
+    cmc_string str;
+    hashset *s_ = _set_;
+    const char *name = "hashset";
+    snprintf(str.s, cmc_string_len, cmc_string_fmt_hashset, name, s_, s_->buffer, s_->capacity, s_->count, s_->load, s_->cmp, s_->hash);
+    return str;
+}
 hashset *hs_union(hashset *_set1_, hashset *_set2_)
 {
     hashset *_set_r_ = hs_new(_set1_->capacity, _set1_->load, _set1_->cmp, _set1_->hash);

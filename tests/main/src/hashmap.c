@@ -45,6 +45,7 @@ bool hm_contains(hashmap *_map_, size_t key);
 bool hm_empty(hashmap *_map_);
 size_t hm_count(hashmap *_map_);
 size_t hm_capacity(hashmap *_map_);
+cmc_string hm_to_string(hashmap *_map_);
 hashmap_iter *hm_iter_new(hashmap *target);
 void hm_iter_free(hashmap_iter *iter);
 void hm_iter_init(hashmap_iter *iter, hashmap *target);
@@ -78,6 +79,8 @@ static hashmap_iter hm_impl_it_end(hashmap *_map_);
 hashmap *hm_new(size_t capacity, double load, int (*compare)(size_t, size_t), size_t (*hash)(size_t))
 {
     if (capacity == 0 || load <= 0 || load >= 1)
+        return NULL;
+    if (capacity >= UINTMAX_MAX * load)
         return NULL;
     size_t real_capacity = hm_impl_calculate_size(capacity / load);
     hashmap *_map_ = malloc(sizeof(hashmap));
@@ -249,6 +252,14 @@ bool hm_contains(hashmap *_map_, size_t key) { return hm_impl_get_entry(_map_, k
 bool hm_empty(hashmap *_map_) { return _map_->count == 0; }
 size_t hm_count(hashmap *_map_) { return _map_->count; }
 size_t hm_capacity(hashmap *_map_) { return _map_->capacity; }
+cmc_string hm_to_string(hashmap *_map_)
+{
+    cmc_string str;
+    hashmap *m_ = _map_;
+    const char *name = "hashmap";
+    snprintf(str.s, cmc_string_len, cmc_string_fmt_hashmap, name, m_, m_->buffer, m_->capacity, m_->count, m_->load, m_->cmp, m_->hash);
+    return str;
+}
 hashmap_iter *hm_iter_new(hashmap *target)
 {
     hashmap_iter *iter = malloc(sizeof(hashmap_iter));

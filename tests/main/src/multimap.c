@@ -31,7 +31,7 @@ typedef struct multimap_iter_s
     bool start;
     bool end;
 } multimap_iter, *multimap_iter_ptr;
-multimap *mm_new(size_t size, double load, int (*compare)(size_t, size_t), size_t (*hash)(size_t));
+multimap *mm_new(size_t capacity, double load, int (*compare)(size_t, size_t), size_t (*hash)(size_t));
 void mm_clear(multimap *_map_);
 void mm_free(multimap *_map_);
 bool mm_insert(multimap *_map_, size_t key, size_t value);
@@ -81,6 +81,8 @@ static multimap_iter mm_impl_it_end(multimap *_map_);
 multimap *mm_new(size_t capacity, double load, int (*compare)(size_t, size_t), size_t (*hash)(size_t))
 {
     if (capacity == 0 || load <= 0)
+        return NULL;
+    if (capacity >= UINTMAX_MAX * load)
         return NULL;
     size_t real_capacity = mm_impl_calculate_size(capacity / load);
     multimap *_map_ = malloc(sizeof(multimap));
