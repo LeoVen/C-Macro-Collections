@@ -161,6 +161,7 @@ static const size_t cmc_hashtable_primes[] = {53, 97, 191, 383, 769, 1531,
     FMOD void PFX##_free(SNAME *_map_);                                                           \
     /* Collection Input and Output */                                                             \
     FMOD bool PFX##_insert(SNAME *_map_, K key, V value);                                         \
+    FMOD bool PFX##_update(SNAME *_map_, K key, V new_value);                                     \
     FMOD bool PFX##_remove(SNAME *_map_, K key, V *value);                                        \
     /* Conditional Input and Output */                                                            \
     FMOD bool PFX##_insert_if(SNAME *_map_, K key, V value, bool condition);                      \
@@ -337,6 +338,18 @@ static const size_t cmc_hashtable_primes[] = {53, 97, 191, 383, 769, 1531,
         }                                                                                        \
                                                                                                  \
         _map_->count++;                                                                          \
+                                                                                                 \
+        return true;                                                                             \
+    }                                                                                            \
+                                                                                                 \
+    FMOD bool PFX##_update(SNAME *_map_, K key, V new_value)                                     \
+    {                                                                                            \
+        SNAME##_entry *entry = PFX##_impl_get_entry(_map_, key);                                 \
+                                                                                                 \
+        if (!entry)                                                                              \
+            return false;                                                                        \
+                                                                                                 \
+        entry->value = new_value;                                                                \
                                                                                                  \
         return true;                                                                             \
     }                                                                                            \

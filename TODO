@@ -12,7 +12,7 @@ TODO
     [X] Add IntervalHeap
     [ ] Add TreeHashMap
 [ ] Add functions
-    [ ] update       {hashmap, treemap, multimap}
+    [X] update       {hashmap, treemap, multimap}
     [/] to_string    {all}
     [ ] iter_advance {all} (iterators)
     [ ] iter_rewind  {all} (iterators)

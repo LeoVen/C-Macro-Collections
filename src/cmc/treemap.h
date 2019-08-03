@@ -114,6 +114,7 @@
     FMOD void PFX##_free(SNAME *_map_);                                       \
     /* Collection Input and Output */                                         \
     FMOD bool PFX##_insert(SNAME *_map_, K key, V value);                     \
+    FMOD bool PFX##_update(SNAME *_map_, K key, V new_value);                 \
     FMOD bool PFX##_remove(SNAME *_map_, K key, V *value);                    \
     /* Conditional Input and Output */                                        \
     FMOD bool PFX##_insert_if(SNAME *_map_, K key, V value, bool condition);  \
@@ -316,6 +317,18 @@
         }                                                                    \
                                                                              \
         _map_->count++;                                                      \
+                                                                             \
+        return true;                                                         \
+    }                                                                        \
+                                                                             \
+    FMOD bool PFX##_update(SNAME *_map_, K key, V new_value)                 \
+    {                                                                        \
+        SNAME##_node *node = PFX##_impl_get_node(_map_, key);                \
+                                                                             \
+        if (!node)                                                           \
+            return false;                                                    \
+                                                                             \
+        node->value = new_value;                                             \
                                                                              \
         return true;                                                         \
     }                                                                        \
