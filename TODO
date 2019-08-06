@@ -13,6 +13,7 @@ TODO
     [ ] Add TreeHashMap
 [ ] Add functions
     [X] update       {hashmap, treemap, multimap}
+    [X] set          {hashmap, treemap, multimap}
     [/] to_string    {all}
     [ ] iter_advance {all} (iterators)
     [ ] iter_rewind  {all} (iterators)

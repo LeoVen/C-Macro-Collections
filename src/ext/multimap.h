@@ -179,8 +179,8 @@ static const size_t cmc_hashtable_primes[] = {53, 97, 191, 383, 769, 1531,
     FMOD void PFX##_free(SNAME *_map_);                                                           \
     /* Collection Input and Output */                                                             \
     FMOD bool PFX##_insert(SNAME *_map_, K key, V value);                                         \
-    FMOD bool PFX##_update(SNAME *_map_, K key, V new_value);                                     \
-    FMOD size_t PFX##_update_all(SNAME *_map_, K key, V new_value);                               \
+    FMOD bool PFX##_update(SNAME *_map_, K key, V new_value, V *old_value);                       \
+    FMOD size_t PFX##_update_all(SNAME *_map_, K key, V new_value, V **old_values);               \
     FMOD bool PFX##_remove(SNAME *_map_, K key, V *value);                                        \
     FMOD size_t PFX##_remove_all(SNAME *_map_, K key);                                            \
     /* Conditional Input and Output */                                                            \
@@ -191,6 +191,8 @@ static const size_t cmc_hashtable_primes[] = {53, 97, 191, 383, 769, 1531,
     FMOD bool PFX##_min(SNAME *_map_, K *key, V *value);                                          \
     FMOD V PFX##_get(SNAME *_map_, K key);                                                        \
     FMOD V *PFX##_get_ref(SNAME *_map_, K key);                                                   \
+    FMOD bool PFX##_set(SNAME *_map_, K key, V new_value);                                        \
+    FMOD size_t PFX##_set_all(SNAME *_map_, K key, V new_value);                                  \
     /* Collection State */                                                                        \
     FMOD bool PFX##_contains(SNAME *_map_, K key);                                                \
     FMOD bool PFX##_empty(SNAME *_map_);                                                          \
@@ -356,43 +358,57 @@ static const size_t cmc_hashtable_primes[] = {53, 97, 191, 383, 769, 1531,
         return true;                                                                             \
     }                                                                                            \
                                                                                                  \
-    FMOD bool PFX##_update(SNAME *_map_, K key, V new_value)                                     \
+    FMOD bool PFX##_update(SNAME *_map_, K key, V new_value, V *old_value)                       \
     {                                                                                            \
-        size_t hash = _map_->hash(key);                                                          \
+        SNAME##_entry *entry = PFX##_impl_get_entry(_map_, key);                                 \
                                                                                                  \
-        SNAME##_entry *entry = _map_->buffer[hash % _map_->capacity][0];                         \
+        if (!entry)                                                                              \
+            return false;                                                                        \
                                                                                                  \
-        while (entry != NULL)                                                                    \
-        {                                                                                        \
-            if (_map_->cmp(entry->key, key) == 0)                                                \
-            {                                                                                    \
-                entry->value = new_value;                                                        \
-                                                                                                 \
-                return true;                                                                     \
-            }                                                                                    \
-                                                                                                 \
-            entry = entry->next;                                                                 \
-        }                                                                                        \
+        *old_value = entry->value;                                                               \
+        entry->value = new_value;                                                                \
                                                                                                  \
         return false;                                                                            \
     }                                                                                            \
                                                                                                  \
-    FMOD size_t PFX##_update_all(SNAME *_map_, K key, V new_value)                               \
+    FMOD size_t PFX##_update_all(SNAME *_map_, K key, V new_value, V **old_values)               \
     {                                                                                            \
         size_t hash = _map_->hash(key);                                                          \
                                                                                                  \
-        SNAME##_entry *entry = _map_->buffer[hash % _map_->capacity][0];                         \
+        SNAME##_entry *bucket = _map_->buffer[hash % _map_->capacity][0];                        \
+        SNAME##_entry *entry = bucket;                                                           \
                                                                                                  \
         size_t total = 0;                                                                        \
                                                                                                  \
         while (entry != NULL)                                                                    \
         {                                                                                        \
             if (_map_->cmp(entry->key, key) == 0)                                                \
-            {                                                                                    \
-                entry->value = new_value;                                                        \
-                                                                                                 \
                 total++;                                                                         \
+                                                                                                 \
+            entry = entry->next;                                                                 \
+        }                                                                                        \
+                                                                                                 \
+        if (total == 0)                                                                          \
+            return total;                                                                        \
+                                                                                                 \
+        *old_values = malloc(sizeof(V) * total);                                                 \
+                                                                                                 \
+        if (!(*old_values))                                                                      \
+            return false;                                                                        \
+                                                                                                 \
+        entry = bucket;                                                                          \
+        size_t index = 0;                                                                        \
+                                                                                                 \
+        while (entry != NULL)                                                                    \
+        {                                                                                        \
+            if (_map_->cmp(entry->key, key) == 0)                                                \
+            {                                                                                    \
+                (*old_values)[index++] = entry->value;                                           \
+                                                                                                 \
+                entry->value = new_value;                                                        \
             }                                                                                    \
+                                                                                                 \
+            entry = entry->next;                                                                 \
         }                                                                                        \
                                                                                                  \
         return total;                                                                            \
@@ -605,6 +621,41 @@ static const size_t cmc_hashtable_primes[] = {53, 97, 191, 383, 769, 1531,
             return NULL;                                                                         \
                                                                                                  \
         return &(entry->value);                                                                  \
+    }                                                                                            \
+                                                                                                 \
+    FMOD bool PFX##_set(SNAME *_map_, K key, V new_value)                                        \
+    {                                                                                            \
+        SNAME##_entry *entry = PFX##_impl_get_entry(_map_, key);                                 \
+                                                                                                 \
+        if (!entry)                                                                              \
+            return false;                                                                        \
+                                                                                                 \
+        entry->value = new_value;                                                                \
+                                                                                                 \
+        return false;                                                                            \
+    }                                                                                            \
+                                                                                                 \
+    FMOD size_t PFX##_set_all(SNAME *_map_, K key, V new_value)                                  \
+    {                                                                                            \
+        size_t hash = _map_->hash(key);                                                          \
+                                                                                                 \
+        SNAME##_entry *entry = _map_->buffer[hash % _map_->capacity][0];                         \
+                                                                                                 \
+        size_t total = 0;                                                                        \
+                                                                                                 \
+        while (entry != NULL)                                                                    \
+        {                                                                                        \
+            if (_map_->cmp(entry->key, key) == 0)                                                \
+            {                                                                                    \
+                entry->value = new_value;                                                        \
+                                                                                                 \
+                total++;                                                                         \
+            }                                                                                    \
+                                                                                                 \
+            entry = entry->next;                                                                 \
+        }                                                                                        \
+                                                                                                 \
+        return total;                                                                            \
     }                                                                                            \
                                                                                                  \
     FMOD bool PFX##_contains(SNAME *_map_, K key)                                                \

@@ -114,7 +114,7 @@
     FMOD void PFX##_free(SNAME *_map_);                                       \
     /* Collection Input and Output */                                         \
     FMOD bool PFX##_insert(SNAME *_map_, K key, V value);                     \
-    FMOD bool PFX##_update(SNAME *_map_, K key, V new_value);                 \
+    FMOD bool PFX##_update(SNAME *_map_, K key, V new_value, V *old_value);   \
     FMOD bool PFX##_remove(SNAME *_map_, K key, V *value);                    \
     /* Conditional Input and Output */                                        \
     FMOD bool PFX##_insert_if(SNAME *_map_, K key, V value, bool condition);  \
@@ -124,6 +124,7 @@
     FMOD bool PFX##_min(SNAME *_map_, K *key, V *value);                      \
     FMOD V PFX##_get(SNAME *_map_, K key);                                    \
     FMOD V *PFX##_get_ref(SNAME *_map_, K key);                               \
+    FMOD bool PFX##_set(SNAME *_map_, K key, V new_value);                    \
     /* Collection State */                                                    \
     FMOD bool PFX##_contains(SNAME *_map_, K key);                            \
     FMOD bool PFX##_empty(SNAME *_map_);                                      \
@@ -321,13 +322,14 @@
         return true;                                                         \
     }                                                                        \
                                                                              \
-    FMOD bool PFX##_update(SNAME *_map_, K key, V new_value)                 \
+    FMOD bool PFX##_update(SNAME *_map_, K key, V new_value, V *old_value)   \
     {                                                                        \
         SNAME##_node *node = PFX##_impl_get_node(_map_, key);                \
                                                                              \
         if (!node)                                                           \
             return false;                                                    \
                                                                              \
+        *old_value = node->value;                                            \
         node->value = new_value;                                             \
                                                                              \
         return true;                                                         \
@@ -524,6 +526,18 @@
             return NULL;                                                     \
                                                                              \
         return &(node->value);                                               \
+    }                                                                        \
+                                                                             \
+    FMOD bool PFX##_set(SNAME *_map_, K key, V new_value)                    \
+    {                                                                        \
+        SNAME##_node *node = PFX##_impl_get_node(_map_, key);                \
+                                                                             \
+        if (!node)                                                           \
+            return false;                                                    \
+                                                                             \
+        node->value = new_value;                                             \
+                                                                             \
+        return true;                                                         \
     }                                                                        \
                                                                              \
     FMOD bool PFX##_contains(SNAME *_map_, K key)                            \
