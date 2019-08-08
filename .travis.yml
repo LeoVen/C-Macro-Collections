@@ -8,10 +8,13 @@ addons:
       - ubuntu-toolchain-r-test
     packages:
       - gcc-7
+      - cmake
 script:
   - sudo ln -s /usr/bin/gcc-6 /usr/local/bin/gcc
   - export CC=gcc-7
   - cd ./tests
-  - gcc foreach.c -Wall -Wextra -o foreach -std=c11
-  - ./foreach
-
+  - make --always-make
+  - cd ./main
+  - make --always-make
+after_success:
+  - bash <(curl -s https://codecov.io/bash)

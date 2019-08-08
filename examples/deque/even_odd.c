@@ -7,10 +7,10 @@
  * Leonardo Vencovsky (https://github.com/LeoVen)
  *
  */
+#include "cmc/deque.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <assert.h>
-#include "deque.h"
 
 DEQUE_GENERATE(d, deque, /* static */, size_t)
 
@@ -29,13 +29,14 @@ int main(int argc, char const *argv[])
     }
 
     deque_iter iter;
-    d_iter_new(&iter, numbers);
+    d_iter_init(&iter, numbers);
 
     size_t result, index, sum = 0;
 
-    for (d_iter_toend(&iter); !d_iter_start(&iter);)
+    for (d_iter_to_end(&iter); !d_iter_start(&iter); d_iter_prev(&iter))
     {
-        d_iter_prev(&iter, &result, &index);
+        result = d_iter_value(&iter);
+        index = d_iter_index(&iter);
 
         if ((double)index < (double)d_count(numbers) / 2.0)
             break;

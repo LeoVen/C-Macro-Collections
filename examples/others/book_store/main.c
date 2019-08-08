@@ -9,11 +9,11 @@
 #include "book.c"
 #include "random.c"
 
-COLLECTION_GENERATE(LIST, PUBLIC, l, list, , , book *)
-COLLECTION_GENERATE(LIST, PUBLIC, il, intlist, , , int)
-COLLECTION_GENERATE(QUEUE, PUBLIC, q, queue, , , book *)
-COLLECTION_GENERATE(TREEMAP, PUBLIC, map, map, , int, char *)
-COLLECTION_GENERATE(TREESET, PUBLIC, set, set, , , char *)
+COLLECTION_GENERATE(LIST, l, list, , , book *)
+COLLECTION_GENERATE(LIST, il, intlist, , , int)
+COLLECTION_GENERATE(QUEUE, q, queue, , , book *)
+COLLECTION_GENERATE(TREEMAP, map, map, , int, char *)
+COLLECTION_GENERATE(TREESET, set, set, , , char *)
 
 list *load(void);
 void shuffle(list *l);
@@ -48,7 +48,9 @@ int main(int argc, char const *argv[])
     set *counter = set_new(chrcmp);
 
     // Add everything to its place.
-    FOR_EACH(l, list, book *, books, {
+    FOR_EACH(l, list, books, {
+        book *value = l_iter_value(&iter);
+
         // Keep the last added elements
         if (q_count(shelf) > 7)
         {
@@ -59,14 +61,15 @@ int main(int argc, char const *argv[])
 
         map_insert(library, value->isbn, value->name);
         set_insert(counter, value->name);
-    })
+    });
 
     printf("Library Size: %d\n", map_count(library));
     printf("Unique book titles: %d\n\n", set_count(counter));
     printf("Showcase Books:\n");
-    FOR_EACH(q, queue, book *, shelf, {
+    FOR_EACH(q, queue, shelf, {
+        book *value = q_iter_value(&iter);
         printf("[ %d : %-45s ]\n", value->isbn, value->name);
-    })
+    });
     printf("\n");
 
     set_free(counter);
@@ -113,24 +116,31 @@ int main(int argc, char const *argv[])
 
             intlist *search_list = il_new(32);
 
-            FOR_EACH_MAP(map, map, int, char *, library, {
+            FOR_EACH(map, map, library, {
+                int key = map_iter_key(&iter);
+                char *value = map_iter_value(&iter);
+
                 if (chrcmp(buffer, value) == 0)
                     il_push_back(search_list, key);
-            })
+            });
 
-            FOR_EACH(il, intlist, int, search_list, {
-                printf("[ %d ]\n", value);
-            })
+            FOR_EACH(il, intlist, search_list, {
+                printf("[ %d ]\n", il_iter_value(&iter));
+            });
 
             il_free(search_list);
         }
     }
 
     // Free all memory used by struct book
-    FOR_EACH(l, list, book *, books, {
-        free(value->name);
-        free(value);
-    })
+    FOR_EACH(l, list, books, {
+        book *b = l_iter_value(&iter);
+
+        if (b)
+            free(b->name);
+
+        free(b);
+    });
 
     l_free(books);
     q_free(shelf);

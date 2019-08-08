@@ -11,38 +11,47 @@
 #ifndef CMC_MACRO_COLLECTIONS
 #define CMC_MACRO_COLLECTIONS
 
-#include <stdlib.h>
-#include <stdbool.h>
+#define CMC_CONCATH_(C) C##_WRAPGEN_HEADER
+#define CMC_CONCATC_(C) C##_WRAPGEN_SOURCE
 
-#define CONCATH_(C, P) C##_GENERATE_HEADER##_##P
-#define CONCATC_(C, P) C##_GENERATE_SOURCE##_##P
+#define CMC_CONCATH(C) CMC_CONCATH_(C)
+#define CMC_CONCATC(C) CMC_CONCATC_(C)
 
-#define CONCATH(C, P) CONCATH_(C, P)
-#define CONCATC(C, P) CONCATC_(C, P)
+#define COLLECTION_GENERATE(C, PFX, SNAME, FMOD, K, V)    \
+    COLLECTION_GENERATE_HEADER(C, PFX, SNAME, FMOD, K, V) \
+    COLLECTION_GENERATE_SOURCE(C, PFX, SNAME, FMOD, K, V)
 
-#define COLLECTION_GENERATE(C, P, PFX, SNAME, FMOD, K, V)    \
-    COLLECTION_GENERATE_HEADER(C, P, PFX, SNAME, FMOD, K, V) \
-    COLLECTION_GENERATE_SOURCE(C, P, PFX, SNAME, FMOD, K, V)
-
-#define COLLECTION_GENERATE_HEADER(C, P, PFX, SNAME, FMOD, K, V) \
-    CONCATH(C, P)                                                \
+#define COLLECTION_GENERATE_HEADER(C, PFX, SNAME, FMOD, K, V) \
+    CMC_CONCATH(C)                                            \
     (PFX, SNAME, FMOD, K, V)
 
-#define COLLECTION_GENERATE_SOURCE(C, P, PFX, SNAME, FMOD, K, V) \
-    CONCATC(C, P)                                                \
+#define COLLECTION_GENERATE_SOURCE(C, PFX, SNAME, FMOD, K, V) \
+    CMC_CONCATC(C)                                            \
     (PFX, SNAME, FMOD, K, V)
 
-#include "list.h"
-#include "linkedlist.h"
-#include "stack.h"
-#include "queue.h"
-#include "deque.h"
-#include "heap.h"
-#include "treeset.h"
-#include "treemap.h"
-#include "hashset.h"
-#include "hashmap.h"
+#include "cmc/deque.h"
+#include "cmc/hashmap.h"
+#include "cmc/hashset.h"
+#include "cmc/heap.h"
+#include "cmc/linkedlist.h"
+#include "cmc/list.h"
+#include "cmc/queue.h"
+#include "cmc/stack.h"
+#include "cmc/treemap.h"
+#include "cmc/treeset.h"
 
-#include "foreach.h"
+#include "ext/intervalheap.h"
+#include "ext/linkedqueue.h"
+#include "ext/multimap.h"
+#include "ext/multiset.h"
+
+#include "sac/queue.h"
+#include "sac/stack.h"
+
+#include "utl/assert.h"
+#include "utl/foreach.h"
+#include "utl/log.h"
+#include "utl/test.h"
+#include "utl/timer.h"
 
 #endif /* CMC_MACRO_COLLECTIONS */

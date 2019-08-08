@@ -7,8 +7,8 @@
  * Leonardo Vencovsky (https://github.com/LeoVen)
  *
  */
+#include "cmc/heap.h"
 #include <stdio.h>
-#include "heap.h"
 
 static int intcmp(int a, int b)
 {
@@ -19,7 +19,7 @@ HEAP_GENERATE(h, heap, static, int)
 
 int main(int argc, char const *argv[])
 {
-    heap *h = h_new(32, MaxHeap, intcmp);
+    heap *h = h_new(32, cmc_max_heap, intcmp);
 
     for (int i = 1; i < 101; i++)
     {
