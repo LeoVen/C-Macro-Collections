@@ -21,24 +21,12 @@ TODO
     [ ] from_array   {all}
     [ ] to_array     {all}
     [ ] equals       {all}
-    [ ] resize       {dynamic arrays and circular buffers}
-    [ ] dispose      {all}
     [ ] copy_of      {all}
+    [ ] resize       {dynamic arrays and circular buffers}
     [ ] save         {all} (serialization)
     [ ] load         {all} (serialization)
     [ ] read         {all} (serialization)
     [ ] write        {all} (serialization)
-    [ ] Range IO
-        [ ] Sequences
-            [ ] seq_push_front
-            [ ] seq_push_at
-            [ ] seq_push_back
-            [ ] seq_remove
-            [ ] seq_extract
-        [ ] Others
-            [ ] seq_insert
-            [ ] seq_remove  (attention on how to treat this)
-            [ ] seq_extract (attention on how to treat this)
     [ ] Iterator IO
         [ ] range_insert
         [ ] range_remove

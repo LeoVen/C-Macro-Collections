@@ -3,7 +3,7 @@
 Generate Simple Data Structures of any type in C for you to use in your projects.
 
 ![License](https://img.shields.io/badge/License-MIT-blue.svg)
-![Version](https://img.shields.io/badge/Version-v1.6.0-orange.svg)
+![Version](https://img.shields.io/badge/Version-v1.6.1-orange.svg)
 [![Build](https://travis-ci.org/LeoVen/C-Macro-Collections.svg?branch=master)](https://travis-ci.org/LeoVen/C-Macro-Collections)
 [![codecov](https://codecov.io/gh/LeoVen/C-Macro-Collections/branch/master/graph/badge.svg)](https://codecov.io/gh/LeoVen/C-Macro-Collections)
 
@@ -37,7 +37,6 @@ Only Collections located in __cmc__ are to be documented at *Documentation.md*.
     * TreeSet
 * Extra Collections Library
     * IntervalHeap
-    * LinkedQueue
     * MultiMap
     * MultiSet
 * Stack Allocated Collections Library
@@ -46,7 +45,7 @@ Only Collections located in __cmc__ are to be documented at *Documentation.md*.
 * Development Collections Library
     * Deque
 
-Check out **Documentation.md** for more information about each collection.
+Check out **Documentation.md** for more information about each collection. The documentation is still being written.
 
 ## Design Decisions
 

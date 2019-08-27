@@ -1,5 +1,9 @@
 # RELEASE.MAJOR.MINOR
 
+1.6.1
+    Removed ./ext/linkedqueue.h
+    Added a deallocator parameter to all _free and _clear functions
+
 1.6.0
     Added ./ext/intervalheap.h
     Added ./ext/multimap.h
