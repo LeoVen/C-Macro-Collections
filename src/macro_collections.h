@@ -41,7 +41,6 @@
 #include "cmc/treeset.h"
 
 #include "ext/intervalheap.h"
-#include "ext/linkedqueue.h"
 #include "ext/multimap.h"
 #include "ext/multiset.h"
 

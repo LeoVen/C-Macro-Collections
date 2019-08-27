@@ -87,8 +87,8 @@
     /* Collection Functions */                                                    \
     /* Collection Allocation and Deallocation */                                  \
     FMOD SNAME *PFX##_new(size_t capacity);                                       \
-    FMOD void PFX##_clear(SNAME *_stack_);                                        \
-    FMOD void PFX##_free(SNAME *_stack_);                                         \
+    FMOD void PFX##_clear(SNAME *_stack_, void (*deallocator)(V));                \
+    FMOD void PFX##_free(SNAME *_stack_, void (*deallocator)(V));                 \
     /* Collection Input and Output */                                             \
     FMOD bool PFX##_push(SNAME *_stack_, V element);                              \
     FMOD bool PFX##_pop(SNAME *_stack_);                                          \
@@ -172,16 +172,28 @@
         return _stack_;                                                          \
     }                                                                            \
                                                                                  \
-    FMOD void PFX##_clear(SNAME *_stack_)                                        \
+    FMOD void PFX##_clear(SNAME *_stack_, void (*deallocator)(V))                \
     {                                                                            \
+        if (deallocator)                                                         \
+        {                                                                        \
+            for (size_t i = 0; i < _stack_->count; i++)                          \
+                deallocator(_stack_->buffer[i]);                                 \
+        }                                                                        \
+                                                                                 \
         memset(_stack_->buffer, 0, sizeof(V) * _stack_->capacity);               \
                                                                                  \
         _stack_->count = 0;                                                      \
     }                                                                            \
                                                                                  \
-    FMOD void PFX##_free(SNAME *_stack_)                                         \
+    FMOD void PFX##_free(SNAME *_stack_, void (*deallocator)(V))                 \
     {                                                                            \
         free(_stack_->buffer);                                                   \
+        if (deallocator)                                                         \
+        {                                                                        \
+            for (size_t i = 0; i < _stack_->count; i++)                          \
+                deallocator(_stack_->buffer[i]);                                 \
+        }                                                                        \
+                                                                                 \
         free(_stack_);                                                           \
     }                                                                            \
                                                                                  \

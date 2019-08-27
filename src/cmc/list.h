@@ -103,8 +103,8 @@
     /* Collection Allocation and Deallocation */                                                   \
     FMOD SNAME *PFX##_new(size_t capacity);                                                        \
     FMOD SNAME *PFX##_new_from(V *elements, size_t size);                                          \
-    FMOD void PFX##_clear(SNAME *_list_);                                                          \
-    FMOD void PFX##_free(SNAME *_list_);                                                           \
+    FMOD void PFX##_clear(SNAME *_list_, void (*deallocator)(V));                                  \
+    FMOD void PFX##_free(SNAME *_list_, void (*deallocator)(V));                                   \
     /* Collection Input and Output */                                                              \
     FMOD bool PFX##_push_front(SNAME *_list_, V element);                                          \
     FMOD bool PFX##_push(SNAME *_list_, V element, size_t index);                                  \
@@ -220,15 +220,27 @@
         return _list_;                                                                                           \
     }                                                                                                            \
                                                                                                                  \
-    FMOD void PFX##_clear(SNAME *_list_)                                                                         \
+    FMOD void PFX##_clear(SNAME *_list_, void (*deallocator)(V))                                                 \
     {                                                                                                            \
+        if (deallocator)                                                                                         \
+        {                                                                                                        \
+            for (size_t i = 0; i < _list_->count; i++)                                                           \
+                deallocator(_list_->buffer[i]);                                                                  \
+        }                                                                                                        \
+                                                                                                                 \
         memset(_list_->buffer, 0, sizeof(V) * _list_->capacity);                                                 \
                                                                                                                  \
         _list_->count = 0;                                                                                       \
     }                                                                                                            \
                                                                                                                  \
-    FMOD void PFX##_free(SNAME *_list_)                                                                          \
+    FMOD void PFX##_free(SNAME *_list_, void (*deallocator)(V))                                                  \
     {                                                                                                            \
+        if (deallocator)                                                                                         \
+        {                                                                                                        \
+            for (size_t i = 0; i < _list_->count; i++)                                                           \
+                deallocator(_list_->buffer[i]);                                                                  \
+        }                                                                                                        \
+                                                                                                                 \
         free(_list_->buffer);                                                                                    \
         free(_list_);                                                                                            \
     }                                                                                                            \

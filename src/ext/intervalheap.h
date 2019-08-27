@@ -95,8 +95,8 @@
     /* Collection Functions */                                               \
     /* Collection Allocation and Deallocation */                             \
     FMOD SNAME *PFX##_new(size_t capacity, int (*compare)(V, V));            \
-    FMOD void PFX##_clear(SNAME *_heap_);                                    \
-    FMOD void PFX##_free(SNAME *_heap_);                                     \
+    FMOD void PFX##_clear(SNAME *_heap_, void (*deallocator)(V));            \
+    FMOD void PFX##_free(SNAME *_heap_, void (*deallocator)(V));             \
     /* Collection Input and Output */                                        \
     FMOD bool PFX##_insert(SNAME *_heap_, V element);                        \
     FMOD bool PFX##_remove_max(SNAME *_heap_, V *result);                    \
@@ -192,16 +192,32 @@
         return _heap_;                                                                      \
     }                                                                                       \
                                                                                             \
-    FMOD void PFX##_clear(SNAME *_heap_)                                                    \
+    FMOD void PFX##_clear(SNAME *_heap_, void (*deallocator)(V))                            \
     {                                                                                       \
+        if (deallocator)                                                                    \
+        {                                                                                   \
+            for (size_t i = 0; i < _heap_->count; i++)                                      \
+            {                                                                               \
+                deallocator(_heap_->buffer[i / 2].data[i % 2]);                             \
+            }                                                                               \
+        }                                                                                   \
+                                                                                            \
         memset(_heap_->buffer, 0, sizeof(V) * _heap_->capacity);                            \
                                                                                             \
         _heap_->size = 0;                                                                   \
         _heap_->count = 0;                                                                  \
     }                                                                                       \
                                                                                             \
-    FMOD void PFX##_free(SNAME *_heap_)                                                     \
+    FMOD void PFX##_free(SNAME *_heap_, void (*deallocator)(V))                             \
     {                                                                                       \
+        if (deallocator)                                                                    \
+        {                                                                                   \
+            for (size_t i = 0; i < _heap_->count; i++)                                      \
+            {                                                                               \
+                deallocator(_heap_->buffer[i / 2].data[i % 2]);                             \
+            }                                                                               \
+        }                                                                                   \
+                                                                                            \
         free(_heap_->buffer);                                                               \
                                                                                             \
         free(_heap_);                                                                       \

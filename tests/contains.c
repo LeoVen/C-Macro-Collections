@@ -125,16 +125,16 @@ int main(void)
         a[9] = a[9] || ts_contains(ts, i);
     }
 
-    d_clear(d);
-    hm_clear(hm);
-    hs_clear(hs);
-    h_clear(h);
-    ll_clear(ll);
-    l_clear(l);
-    q_clear(q);
-    s_clear(s);
-    tm_clear(tm);
-    ts_clear(ts);
+    d_clear(d, NULL);
+    hm_clear(hm, NULL);
+    hs_clear(hs, NULL);
+    h_clear(h, NULL);
+    ll_clear(ll, NULL);
+    l_clear(l, NULL);
+    q_clear(q, NULL);
+    s_clear(s, NULL);
+    tm_clear(tm, NULL);
+    ts_clear(ts, NULL);
 
     b[0] = b[0] || d_contains(d, 1, intcmp);
     b[1] = b[1] || hm_contains(hm, 1);
@@ -189,16 +189,16 @@ int main(void)
     else
         printf("%10s FAILED\n", "TREESET");
 
-    l_free(l);
-    ll_free(ll);
-    s_free(s);
-    q_free(q);
-    d_free(d);
-    h_free(h);
-    ts_free(ts);
-    tm_free(tm);
-    hs_free(hs);
-    hm_free(hm);
+    l_free(l, NULL);
+    ll_free(ll, NULL);
+    s_free(s, NULL);
+    q_free(q, NULL);
+    d_free(d, NULL);
+    h_free(h, NULL);
+    ts_free(ts, NULL);
+    tm_free(tm, NULL);
+    hs_free(hs, NULL);
+    hm_free(hm, NULL);
 
     return 0;
 }

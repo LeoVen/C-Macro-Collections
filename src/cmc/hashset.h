@@ -152,8 +152,8 @@ static const size_t cmc_hashtable_primes[] = {53, 97, 191, 383, 769, 1531,
     /* Collection Functions */                                                                    \
     /* Collection Allocation and Deallocation */                                                  \
     FMOD SNAME *PFX##_new(size_t capacity, double load, int (*compare)(V, V), size_t (*hash)(V)); \
-    FMOD void PFX##_clear(SNAME *_set_);                                                          \
-    FMOD void PFX##_free(SNAME *_set_);                                                           \
+    FMOD void PFX##_clear(SNAME *_set_, void (*deallocator)(V));                                  \
+    FMOD void PFX##_free(SNAME *_set_, void (*deallocator)(V));                                   \
     /* Collection Input and Output */                                                             \
     FMOD bool PFX##_insert(SNAME *_set_, V element);                                              \
     FMOD bool PFX##_remove(SNAME *_set_, V element);                                              \
@@ -258,15 +258,41 @@ static const size_t cmc_hashtable_primes[] = {53, 97, 191, 383, 769, 1531,
         return _set_;                                                                            \
     }                                                                                            \
                                                                                                  \
-    FMOD void PFX##_clear(SNAME *_set_)                                                          \
+    FMOD void PFX##_clear(SNAME *_set_, void (*deallocator)(V))                                  \
     {                                                                                            \
+        if (deallocator)                                                                         \
+        {                                                                                        \
+            for (size_t i = 0; i < _set_->capacity; i++)                                         \
+            {                                                                                    \
+                SNAME##_entry *entry = &(_set_->buffer[i]);                                      \
+                                                                                                 \
+                if (entry->state == CMC_ES_FILLED)                                               \
+                {                                                                                \
+                    deallocator(entry->value);                                                   \
+                }                                                                                \
+            }                                                                                    \
+        }                                                                                        \
+                                                                                                 \
         memset(_set_->buffer, 0, sizeof(SNAME##_entry) * _set_->capacity);                       \
                                                                                                  \
         _set_->count = 0;                                                                        \
     }                                                                                            \
                                                                                                  \
-    FMOD void PFX##_free(SNAME *_set_)                                                           \
+    FMOD void PFX##_free(SNAME *_set_, void (*deallocator)(V))                                   \
     {                                                                                            \
+        if (deallocator)                                                                         \
+        {                                                                                        \
+            for (size_t i = 0; i < _set_->capacity; i++)                                         \
+            {                                                                                    \
+                SNAME##_entry *entry = &(_set_->buffer[i]);                                      \
+                                                                                                 \
+                if (entry->state == CMC_ES_FILLED)                                               \
+                {                                                                                \
+                    deallocator(entry->value);                                                   \
+                }                                                                                \
+            }                                                                                    \
+        }                                                                                        \
+                                                                                                 \
         free(_set_->buffer);                                                                     \
         free(_set_);                                                                             \
     }                                                                                            \
@@ -800,7 +826,7 @@ static const size_t cmc_hashtable_primes[] = {53, 97, 191, 383, 769, 1531,
                                                                                                  \
         if (_set_->count != _new_set_->count)                                                    \
         {                                                                                        \
-            PFX##_free(_new_set_);                                                               \
+            PFX##_free(_new_set_, NULL);                                                         \
                                                                                                  \
             return false;                                                                        \
         }                                                                                        \
@@ -811,7 +837,7 @@ static const size_t cmc_hashtable_primes[] = {53, 97, 191, 383, 769, 1531,
                                                                                                  \
         _set_->capacity = _new_set_->capacity;                                                   \
                                                                                                  \
-        PFX##_free(_new_set_);                                                                   \
+        PFX##_free(_new_set_, NULL);                                                             \
                                                                                                  \
         return true;                                                                             \
     }                                                                                            \

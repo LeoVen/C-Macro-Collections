@@ -107,8 +107,8 @@
     /* Collection Functions */                                              \
     /* Collection Allocation and Deallocation */                            \
     FMOD SNAME *PFX##_new(int (*compare)(V, V));                            \
-    FMOD void PFX##_clear(SNAME *_set_);                                    \
-    FMOD void PFX##_free(SNAME *_set_);                                     \
+    FMOD void PFX##_clear(SNAME *_set_, void (*deallocator)(V));            \
+    FMOD void PFX##_free(SNAME *_set_, void (*deallocator)(V));             \
     /* Collection Input and Output */                                       \
     FMOD bool PFX##_insert(SNAME *_set_, V element);                        \
     FMOD bool PFX##_remove(SNAME *_set_, V element);                        \
@@ -123,7 +123,7 @@
     FMOD bool PFX##_empty(SNAME *_set_);                                    \
     FMOD size_t PFX##_count(SNAME *_set_);                                  \
     /* Collection Utility */                                                \
-    FMOD cmc_string PFX##_to_string(SNAME *_map_);                          \
+    FMOD cmc_string PFX##_to_string(SNAME *_set_);                          \
                                                                             \
     /* Set Operations */                                                    \
     FMOD SNAME *PFX##_union(SNAME *_set1_, SNAME *_set2_);                  \
@@ -195,7 +195,7 @@
         return _set_;                                                                       \
     }                                                                                       \
                                                                                             \
-    FMOD void PFX##_clear(SNAME *_set_)                                                     \
+    FMOD void PFX##_clear(SNAME *_set_, void (*deallocator)(V))                             \
     {                                                                                       \
         SNAME##_node *scan = _set_->root;                                                   \
         SNAME##_node *up = NULL;                                                            \
@@ -223,12 +223,18 @@
             {                                                                               \
                 if (up == NULL)                                                             \
                 {                                                                           \
+                    if (deallocator)                                                        \
+                        deallocator(scan->value);                                           \
+                                                                                            \
                     free(scan);                                                             \
                     scan = NULL;                                                            \
                 }                                                                           \
                                                                                             \
                 while (up != NULL)                                                          \
                 {                                                                           \
+                    if (deallocator)                                                        \
+                        deallocator(scan->value);                                           \
+                                                                                            \
                     free(scan);                                                             \
                                                                                             \
                     if (up->right != NULL)                                                  \
@@ -250,9 +256,9 @@
         _set_->root = NULL;                                                                 \
     }                                                                                       \
                                                                                             \
-    FMOD void PFX##_free(SNAME *_set_)                                                      \
+    FMOD void PFX##_free(SNAME *_set_, void (*deallocator)(V))                              \
     {                                                                                       \
-        PFX##_clear(_set_);                                                                 \
+        PFX##_clear(_set_, deallocator);                                                    \
                                                                                             \
         free(_set_);                                                                        \
     }                                                                                       \

@@ -101,8 +101,8 @@ typedef enum cmc_heap_order_e
     /* Collection Functions */                                                       \
     /* Collection Allocation and Deallocation */                                     \
     FMOD SNAME *PFX##_new(size_t capacity, cmc_heap_order HO, int (*compare)(V, V)); \
-    FMOD void PFX##_clear(SNAME *_heap_);                                            \
-    FMOD void PFX##_free(SNAME *_heap_);                                             \
+    FMOD void PFX##_clear(SNAME *_heap_, void (*deallocator)(V));                    \
+    FMOD void PFX##_free(SNAME *_heap_, void (*deallocator)(V));                     \
     /* Collection Input and Output */                                                \
     FMOD bool PFX##_insert(SNAME *_heap_, V element);                                \
     FMOD bool PFX##_remove(SNAME *_heap_, V *result);                                \
@@ -193,15 +193,31 @@ typedef enum cmc_heap_order_e
         return _heap_;                                                                            \
     }                                                                                             \
                                                                                                   \
-    FMOD void PFX##_clear(SNAME *_heap_)                                                          \
+    FMOD void PFX##_clear(SNAME *_heap_, void (*deallocator)(V))                                  \
     {                                                                                             \
+        if (deallocator)                                                                          \
+        {                                                                                         \
+            for (size_t i = 0; i < _heap_->count; i++)                                            \
+            {                                                                                     \
+                deallocator(_heap_->buffer[i]);                                                   \
+            }                                                                                     \
+        }                                                                                         \
+                                                                                                  \
         memset(_heap_->buffer, 0, sizeof(V) * _heap_->capacity);                                  \
                                                                                                   \
         _heap_->count = 0;                                                                        \
     }                                                                                             \
                                                                                                   \
-    FMOD void PFX##_free(SNAME *_heap_)                                                           \
+    FMOD void PFX##_free(SNAME *_heap_, void (*deallocator)(V))                                   \
     {                                                                                             \
+        if (deallocator)                                                                          \
+        {                                                                                         \
+            for (size_t i = 0; i < _heap_->count; i++)                                            \
+            {                                                                                     \
+                deallocator(_heap_->buffer[i]);                                                   \
+            }                                                                                     \
+        }                                                                                         \
+                                                                                                  \
         free(_heap_->buffer);                                                                     \
         free(_heap_);                                                                             \
     }                                                                                             \

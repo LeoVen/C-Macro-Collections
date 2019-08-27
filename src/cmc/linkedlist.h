@@ -104,8 +104,8 @@
     /* Collection Functions */                                                       \
     /* Collection Allocation and Deallocation */                                     \
     FMOD SNAME *PFX##_new(void);                                                     \
-    FMOD void PFX##_clear(SNAME *_list_);                                            \
-    FMOD void PFX##_free(SNAME *_list_);                                             \
+    FMOD void PFX##_clear(SNAME *_list_, void (*deallocator)(V));                    \
+    FMOD void PFX##_free(SNAME *_list_, void (*deallocator)(V));                     \
     /* Collection Input and Output */                                                \
     FMOD bool PFX##_push_front(SNAME *_list_, V element);                            \
     FMOD bool PFX##_push(SNAME *_list_, V element, size_t index);                    \
@@ -200,14 +200,21 @@
         return _list_;                                                              \
     }                                                                               \
                                                                                     \
-    FMOD void PFX##_clear(SNAME *_list_)                                            \
+    FMOD void PFX##_clear(SNAME *_list_, void (*deallocator)(V))                    \
     {                                                                               \
         SNAME##_node *scan = _list_->head;                                          \
                                                                                     \
         while (_list_->head != NULL)                                                \
         {                                                                           \
             _list_->head = _list_->head->next;                                      \
+                                                                                    \
+            if (deallocator)                                                        \
+            {                                                                       \
+                deallocator(scan->data);                                            \
+            }                                                                       \
+                                                                                    \
             free(scan);                                                             \
+                                                                                    \
             scan = _list_->head;                                                    \
         }                                                                           \
                                                                                     \
@@ -216,9 +223,9 @@
         _list_->tail = NULL;                                                        \
     }                                                                               \
                                                                                     \
-    FMOD void PFX##_free(SNAME *_list_)                                             \
+    FMOD void PFX##_free(SNAME *_list_, void (*deallocator)(V))                     \
     {                                                                               \
-        PFX##_clear(_list_);                                                        \
+        PFX##_clear(_list_, deallocator);                                           \
                                                                                     \
         free(_list_);                                                               \
     }                                                                               \

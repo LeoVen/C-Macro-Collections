@@ -69,7 +69,7 @@ COLLECTION_GENERATE(HASHMAP, hm, hmap, /* FMOD */, int, double)
             sumbody;                                                                             \
         }                                                                                        \
                                                                                                  \
-        PFX##_free(coll);                                                                        \
+        PFX##_free(coll, NULL);                                                                  \
                                                                                                  \
         if (validation1 && validation2)                                                          \
             printf("%10s PASSED\n", #NAME);                                                      \
