@@ -119,6 +119,7 @@ typedef enum cmc_heap_order_e
     FMOD size_t PFX##_count(SNAME *_heap_);                                          \
     FMOD size_t PFX##_capacity(SNAME *_heap_);                                       \
     /* Collection Utility */                                                         \
+    FMOD SNAME *PFX##_copy_of(SNAME *_heap_, V (*copy_func)(V));                     \
     FMOD cmc_string PFX##_to_string(SNAME *_heap_);                                  \
                                                                                      \
     /* Iterator Functions */                                                         \
@@ -322,6 +323,26 @@ typedef enum cmc_heap_order_e
     FMOD size_t PFX##_capacity(SNAME *_heap_)                                                     \
     {                                                                                             \
         return _heap_->capacity;                                                                  \
+    }                                                                                             \
+                                                                                                  \
+    FMOD SNAME *PFX##_copy_of(SNAME *_heap_, V (*copy_func)(V))                                   \
+    {                                                                                             \
+        SNAME *result = PFX##_new(_heap_->capacity, _heap_->HO, _heap_->cmp);                     \
+                                                                                                  \
+        if (!result)                                                                              \
+            return NULL;                                                                          \
+                                                                                                  \
+        if (copy_func)                                                                            \
+        {                                                                                         \
+            for (size_t i = 0; i < _heap_->count; i++)                                            \
+                result->buffer[i] = copy_func(_heap_->buffer[i]);                                 \
+        }                                                                                         \
+        else                                                                                      \
+            memcpy(result->buffer, _heap_->buffer, sizeof(V) * _heap_->count);                    \
+                                                                                                  \
+        result->count = _heap_->count;                                                            \
+                                                                                                  \
+        return result;                                                                            \
     }                                                                                             \
                                                                                                   \
     FMOD cmc_string PFX##_to_string(SNAME *_heap_)                                                \

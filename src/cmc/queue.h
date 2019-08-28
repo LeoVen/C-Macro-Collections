@@ -128,6 +128,7 @@
     FMOD size_t PFX##_count(SNAME *_queue_);                                      \
     FMOD size_t PFX##_capacity(SNAME *_queue_);                                   \
     /* Collection Utility */                                                      \
+    FMOD SNAME *PFX##_copy_of(SNAME *_queue_, V (*copy_func)(V));                 \
     FMOD cmc_string PFX##_to_string(SNAME *_queue_);                              \
                                                                                   \
     /* Iterator Functions */                                                      \
@@ -311,6 +312,33 @@
     FMOD size_t PFX##_capacity(SNAME *_queue_)                                                               \
     {                                                                                                        \
         return _queue_->capacity;                                                                            \
+    }                                                                                                        \
+                                                                                                             \
+    FMOD SNAME *PFX##_copy_of(SNAME *_queue_, V (*copy_func)(V))                                             \
+    {                                                                                                        \
+        SNAME *result = PFX##_new(_queue_->capacity);                                                        \
+                                                                                                             \
+        if (!result)                                                                                         \
+            return NULL;                                                                                     \
+                                                                                                             \
+        if (copy_func)                                                                                       \
+        {                                                                                                    \
+            for (size_t i = _queue_->front, j = 0; j < _queue_->count; i = (i + 1) % _queue_->capacity, j++) \
+            {                                                                                                \
+                result->buffer[j] = copy_func(_queue_->buffer[i]);                                           \
+            }                                                                                                \
+        }                                                                                                    \
+        else                                                                                                 \
+        {                                                                                                    \
+            for (size_t i = _queue_->front, j = 0; j < _queue_->count; i = (i + 1) % _queue_->capacity, j++) \
+            {                                                                                                \
+                result->buffer[j] = _queue_->buffer[i];                                                      \
+            }                                                                                                \
+        }                                                                                                    \
+                                                                                                             \
+        result->count = _queue_->count;                                                                      \
+                                                                                                             \
+        return result;                                                                                       \
     }                                                                                                        \
                                                                                                              \
     FMOD cmc_string PFX##_to_string(SNAME *_queue_)                                                          \

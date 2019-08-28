@@ -135,6 +135,7 @@
     FMOD bool PFX##_fits(SNAME *_list_, size_t size);                                              \
     FMOD size_t PFX##_capacity(SNAME *_list_);                                                     \
     /* Collection Utility */                                                                       \
+    FMOD SNAME *PFX##_copy_of(SNAME *_list_, V (*copy_func)(V));                                   \
     FMOD cmc_string PFX##_to_string(SNAME *_list_);                                                \
                                                                                                    \
     /* Iterator Functions */                                                                       \
@@ -562,6 +563,26 @@
     FMOD size_t PFX##_capacity(SNAME *_list_)                                                                    \
     {                                                                                                            \
         return _list_->capacity;                                                                                 \
+    }                                                                                                            \
+                                                                                                                 \
+    FMOD SNAME *PFX##_copy_of(SNAME *_list_, V (*copy_func)(V))                                                  \
+    {                                                                                                            \
+        SNAME *result = PFX##_new(_list_->capacity);                                                             \
+                                                                                                                 \
+        if (!result)                                                                                             \
+            return NULL;                                                                                         \
+                                                                                                                 \
+        if (copy_func)                                                                                           \
+        {                                                                                                        \
+            for (size_t i = 0; i < _list_->count; i++)                                                           \
+                result->buffer[i] = copy_func(_list_->buffer[i]);                                                \
+        }                                                                                                        \
+        else                                                                                                     \
+            memcpy(result->buffer, _list_->buffer, sizeof(V) * _list_->count);                                   \
+                                                                                                                 \
+        result->count = _list_->count;                                                                           \
+                                                                                                                 \
+        return result;                                                                                           \
     }                                                                                                            \
                                                                                                                  \
     FMOD cmc_string PFX##_to_string(SNAME *_list_)                                                               \

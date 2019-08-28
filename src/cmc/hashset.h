@@ -169,6 +169,7 @@ static const size_t cmc_hashtable_primes[] = {53, 97, 191, 383, 769, 1531,
     FMOD size_t PFX##_count(SNAME *_set_);                                                        \
     FMOD size_t PFX##_capacity(SNAME *_set_);                                                     \
     /* Collection Utility */                                                                      \
+    FMOD SNAME *PFX##_copy_of(SNAME *_set_, V (*copy_func)(V));                                   \
     FMOD cmc_string PFX##_to_string(SNAME *_set_);                                                \
                                                                                                   \
     /* Set Operations */                                                                          \
@@ -446,6 +447,43 @@ static const size_t cmc_hashtable_primes[] = {53, 97, 191, 383, 769, 1531,
     FMOD size_t PFX##_capacity(SNAME *_set_)                                                     \
     {                                                                                            \
         return _set_->capacity;                                                                  \
+    }                                                                                            \
+                                                                                                 \
+    FMOD SNAME *PFX##_copy_of(SNAME *_set_, V (*copy_func)(V))                                   \
+    {                                                                                            \
+        SNAME *result = PFX##_new(_set_->capacity, _set_->load, _set_->cmp, _set_->hash);        \
+                                                                                                 \
+        if (!result)                                                                             \
+            return NULL;                                                                         \
+                                                                                                 \
+        if (copy_func)                                                                           \
+        {                                                                                        \
+            for (size_t i = 0; i < _set_->capacity; i++)                                         \
+            {                                                                                    \
+                SNAME##_entry *scan = &(_set_->buffer[i]);                                       \
+                                                                                                 \
+                if (scan->state != CMC_ES_EMPTY)                                                 \
+                {                                                                                \
+                    SNAME##_entry *target = &(result->buffer[i]);                                \
+                                                                                                 \
+                    if (scan->state == CMC_ES_DELETED)                                           \
+                        target->state = CMC_ES_DELETED;                                          \
+                    else                                                                         \
+                    {                                                                            \
+                        target->state = scan->state;                                             \
+                        target->dist = scan->dist;                                               \
+                                                                                                 \
+                        target->value = copy_func(scan->value);                                  \
+                    }                                                                            \
+                }                                                                                \
+            }                                                                                    \
+        }                                                                                        \
+        else                                                                                     \
+            memcpy(result->buffer, _set_->buffer, sizeof(SNAME##_entry) * _set_->capacity);      \
+                                                                                                 \
+        result->count = _set_->count;                                                            \
+                                                                                                 \
+        return result;                                                                           \
     }                                                                                            \
                                                                                                  \
     FMOD cmc_string PFX##_to_string(SNAME *_set_)                                                \

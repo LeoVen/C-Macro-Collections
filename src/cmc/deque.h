@@ -121,6 +121,7 @@
     FMOD size_t PFX##_count(SNAME *_deque_);                                      \
     FMOD size_t PFX##_capacity(SNAME *_deque_);                                   \
     /* Collection Utility */                                                      \
+    FMOD SNAME *PFX##_copy_of(SNAME *_deque_, V (*copy_func)(V));                 \
     FMOD cmc_string PFX##_to_string(SNAME *_deque_);                              \
                                                                                   \
     /* Iterator Functions */                                                      \
@@ -361,6 +362,33 @@
     FMOD size_t PFX##_capacity(SNAME *_deque_)                                                               \
     {                                                                                                        \
         return _deque_->capacity;                                                                            \
+    }                                                                                                        \
+                                                                                                             \
+    FMOD SNAME *PFX##_copy_of(SNAME *_deque_, V (*copy_func)(V))                                             \
+    {                                                                                                        \
+        SNAME *result = PFX##_new(_deque_->capacity);                                                        \
+                                                                                                             \
+        if (!result)                                                                                         \
+            return NULL;                                                                                     \
+                                                                                                             \
+        if (copy_func)                                                                                       \
+        {                                                                                                    \
+            for (size_t i = _deque_->front, j = 0; j < _deque_->count; i = (i + 1) % _deque_->capacity, j++) \
+            {                                                                                                \
+                result->buffer[j] = copy_func(_deque_->buffer[i]);                                           \
+            }                                                                                                \
+        }                                                                                                    \
+        else                                                                                                 \
+        {                                                                                                    \
+            for (size_t i = _deque_->front, j = 0; j < _deque_->count; i = (i + 1) % _deque_->capacity, j++) \
+            {                                                                                                \
+                result->buffer[j] = _deque_->buffer[i];                                                      \
+            }                                                                                                \
+        }                                                                                                    \
+                                                                                                             \
+        result->count = _deque_->count;                                                                      \
+                                                                                                             \
+        return result;                                                                                       \
     }                                                                                                        \
                                                                                                              \
     FMOD cmc_string PFX##_to_string(SNAME *_deque_)                                                          \

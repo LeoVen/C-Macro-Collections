@@ -104,6 +104,7 @@
     FMOD size_t PFX##_count(SNAME *_stack_);                                      \
     FMOD size_t PFX##_capacity(SNAME *_stack_);                                   \
     /* Collection Utility */                                                      \
+    FMOD SNAME *PFX##_copy_of(SNAME *_stack_, V (*copy_func)(V));                 \
     FMOD cmc_string PFX##_to_string(SNAME *_stack_);                              \
                                                                                   \
     /* Iterator Functions */                                                      \
@@ -273,6 +274,26 @@
     FMOD size_t PFX##_capacity(SNAME *_stack_)                                   \
     {                                                                            \
         return _stack_->capacity;                                                \
+    }                                                                            \
+                                                                                 \
+    FMOD SNAME *PFX##_copy_of(SNAME *_stack_, V (*copy_func)(V))                 \
+    {                                                                            \
+        SNAME *result = PFX##_new(_stack_->capacity);                            \
+                                                                                 \
+        if (!result)                                                             \
+            return NULL;                                                         \
+                                                                                 \
+        if (copy_func)                                                           \
+        {                                                                        \
+            for (size_t i = 0; i < _stack_->count; i++)                          \
+                result->buffer[i] = copy_func(_stack_->buffer[i]);               \
+        }                                                                        \
+        else                                                                     \
+            memcpy(result->buffer, _stack_->buffer, sizeof(V) * _stack_->count); \
+                                                                                 \
+        result->count = _stack_->count;                                          \
+                                                                                 \
+        return result;                                                           \
     }                                                                            \
                                                                                  \
     FMOD cmc_string PFX##_to_string(SNAME *_stack_)                              \

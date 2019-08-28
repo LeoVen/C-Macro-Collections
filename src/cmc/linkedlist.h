@@ -126,6 +126,7 @@
     FMOD bool PFX##_empty(SNAME *_list_);                                            \
     FMOD size_t PFX##_count(SNAME *_list_);                                          \
     /* Collection Utility */                                                         \
+    FMOD SNAME *PFX##_copy_of(SNAME *_list_, V (*copy_func)(V));                     \
     FMOD cmc_string PFX##_to_string(SNAME *_list_);                                  \
                                                                                      \
     /* Node Related Functions */                                                     \
@@ -465,6 +466,46 @@
     FMOD size_t PFX##_count(SNAME *_list_)                                          \
     {                                                                               \
         return _list_->count;                                                       \
+    }                                                                               \
+                                                                                    \
+    FMOD SNAME *PFX##_copy_of(SNAME *_list_, V (*copy_func)(V))                     \
+    {                                                                               \
+        SNAME *result = PFX##_new();                                                \
+                                                                                    \
+        if (!result)                                                                \
+            return NULL;                                                            \
+                                                                                    \
+        SNAME##_node *scan = _list_->head;                                          \
+                                                                                    \
+        while (scan != NULL)                                                        \
+        {                                                                           \
+            /* This allocation should never fail since it might not be */           \
+            /* possible to recover from it. That is why it isn't checked */         \
+            SNAME##_node *new_node;                                                 \
+                                                                                    \
+            if (copy_func)                                                          \
+                new_node = PFX##_new_node(copy_func(scan->data));                   \
+            else                                                                    \
+                new_node = PFX##_new_node(scan->data);                              \
+                                                                                    \
+            if (!result->head)                                                      \
+            {                                                                       \
+                result->head = new_node;                                            \
+                result->tail = new_node;                                            \
+            }                                                                       \
+            else                                                                    \
+            {                                                                       \
+                new_node->prev = result->tail;                                      \
+                result->tail->next = new_node;                                      \
+                result->tail = new_node;                                            \
+            }                                                                       \
+                                                                                    \
+            scan = scan->next;                                                      \
+        }                                                                           \
+                                                                                    \
+        result->count = _list_->count;                                              \
+                                                                                    \
+        return result;                                                              \
     }                                                                               \
                                                                                     \
     FMOD cmc_string PFX##_to_string(SNAME *_list_)                                  \

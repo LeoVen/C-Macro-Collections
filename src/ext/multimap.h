@@ -200,6 +200,7 @@ static const size_t cmc_hashtable_primes[] = {53, 97, 191, 383, 769, 1531,
     FMOD size_t PFX##_count(SNAME *_map_);                                                        \
     FMOD size_t PFX##_capacity(SNAME *_map_);                                                     \
     /* Collection Utility */                                                                      \
+    FMOD SNAME *PFX##_copy_of(SNAME *_map_, K (*key_copy_func)(K), V (*value_copy_func)(V));      \
     FMOD cmc_string PFX##_to_string(SNAME *_map_);                                                \
                                                                                                   \
     /* Iterator Functions */                                                                      \
@@ -707,6 +708,35 @@ static const size_t cmc_hashtable_primes[] = {53, 97, 191, 383, 769, 1531,
     FMOD size_t PFX##_capacity(SNAME *_map_)                                                     \
     {                                                                                            \
         return _map_->capacity;                                                                  \
+    }                                                                                            \
+                                                                                                 \
+    FMOD SNAME *PFX##_copy_of(SNAME *_map_, K (*key_copy_func)(K), V (*value_copy_func)(V))      \
+    {                                                                                            \
+        SNAME *result = PFX##_new(_map_->capacity, _map_->load, _map_->cmp, _map_->hash);        \
+                                                                                                 \
+        if (!result)                                                                             \
+            return NULL;                                                                         \
+                                                                                                 \
+        SNAME##_iter iter;                                                                       \
+        PFX##_iter_init(&iter, _map_);                                                           \
+                                                                                                 \
+        if (!PFX##_empty(_map_))                                                                 \
+        {                                                                                        \
+            for (PFX##_iter_to_start(&iter); !PFX##_iter_end(&iter); PFX##_iter_next(&iter))     \
+            {                                                                                    \
+                K key = PFX##_iter_key(&iter);                                                   \
+                V value = PFX##_iter_value(&iter);                                               \
+                                                                                                 \
+                if (key_copy_func)                                                               \
+                    key = key_copy_func(key);                                                    \
+                if (value_copy_func)                                                             \
+                    value = value_copy_func(value);                                              \
+                                                                                                 \
+                PFX##_insert(result, key, value);                                                \
+            }                                                                                    \
+        }                                                                                        \
+                                                                                                 \
+        return result;                                                                           \
     }                                                                                            \
                                                                                                  \
     FMOD cmc_string PFX##_to_string(SNAME *_map_)                                                \

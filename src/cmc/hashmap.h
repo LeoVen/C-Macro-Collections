@@ -178,6 +178,7 @@ static const size_t cmc_hashtable_primes[] = {53, 97, 191, 383, 769, 1531,
     FMOD size_t PFX##_count(SNAME *_map_);                                                        \
     FMOD size_t PFX##_capacity(SNAME *_map_);                                                     \
     /* Collection Utility */                                                                      \
+    FMOD SNAME *PFX##_copy_of(SNAME *_map_, K (*key_copy_func)(K), V (*value_copy_func)(V));      \
     FMOD cmc_string PFX##_to_string(SNAME *_map_);                                                \
                                                                                                   \
     /* Iterator Functions */                                                                      \
@@ -523,6 +524,51 @@ static const size_t cmc_hashtable_primes[] = {53, 97, 191, 383, 769, 1531,
     FMOD size_t PFX##_capacity(SNAME *_map_)                                                     \
     {                                                                                            \
         return _map_->capacity;                                                                  \
+    }                                                                                            \
+                                                                                                 \
+    FMOD SNAME *PFX##_copy_of(SNAME *_map_, K (*key_copy_func)(K), V (*value_copy_func)(V))      \
+    {                                                                                            \
+        SNAME *result = PFX##_new(_map_->capacity, _map_->load, _map_->cmp, _map_->hash);        \
+                                                                                                 \
+        if (!result)                                                                             \
+            return NULL;                                                                         \
+                                                                                                 \
+        if (key_copy_func || value_copy_func)                                                    \
+        {                                                                                        \
+            for (size_t i = 0; i < _map_->capacity; i++)                                         \
+            {                                                                                    \
+                SNAME##_entry *scan = &(_map_->buffer[i]);                                       \
+                                                                                                 \
+                if (scan->state != CMC_ES_EMPTY)                                                 \
+                {                                                                                \
+                    SNAME##_entry *target = &(result->buffer[i]);                                \
+                                                                                                 \
+                    if (scan->state == CMC_ES_DELETED)                                           \
+                        target->state = CMC_ES_DELETED;                                          \
+                    else                                                                         \
+                    {                                                                            \
+                        target->state = scan->state;                                             \
+                        target->dist = scan->dist;                                               \
+                                                                                                 \
+                        if (key_copy_func)                                                       \
+                            target->key = key_copy_func(scan->key);                              \
+                        else                                                                     \
+                            target->key = scan->key;                                             \
+                                                                                                 \
+                        if (value_copy_func)                                                     \
+                            target->value = value_copy_func(scan->value);                        \
+                        else                                                                     \
+                            target->value = scan->value;                                         \
+                    }                                                                            \
+                }                                                                                \
+            }                                                                                    \
+        }                                                                                        \
+        else                                                                                     \
+            memcpy(result->buffer, _map_->buffer, sizeof(SNAME##_entry) * _map_->capacity);      \
+                                                                                                 \
+        result->count = _map_->count;                                                            \
+                                                                                                 \
+        return result;                                                                           \
     }                                                                                            \
                                                                                                  \
     FMOD cmc_string PFX##_to_string(SNAME *_map_)                                                \
