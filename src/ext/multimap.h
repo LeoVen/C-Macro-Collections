@@ -196,11 +196,13 @@ static const size_t cmc_hashtable_primes[] = {53, 97, 191, 383, 769, 1531,
     FMOD size_t PFX##_remove_all(SNAME *_map_, K key);                                            \
     /* Collection State */                                                                        \
     FMOD bool PFX##_contains(SNAME *_map_, K key);                                                \
+    FMOD bool PFX##_key_count(SNAME *_map_, K key);                                               \
     FMOD bool PFX##_empty(SNAME *_map_);                                                          \
     FMOD size_t PFX##_count(SNAME *_map_);                                                        \
     FMOD size_t PFX##_capacity(SNAME *_map_);                                                     \
     /* Collection Utility */                                                                      \
     FMOD SNAME *PFX##_copy_of(SNAME *_map_, K (*key_copy_func)(K), V (*value_copy_func)(V));      \
+    FMOD bool PFX##_equals(SNAME *_map1_, SNAME *_map2_, bool ignore_key_count);                  \
     FMOD cmc_string PFX##_to_string(SNAME *_map_);                                                \
                                                                                                   \
     /* Iterator Functions */                                                                      \
@@ -285,6 +287,9 @@ static const size_t cmc_hashtable_primes[] = {53, 97, 191, 383, 769, 1531,
         _map_->cmp = compare;                                                                    \
         _map_->hash = hash;                                                                      \
                                                                                                  \
+        _map_->it_start = PFX##_impl_it_start;                                                   \
+        _map_->it_end = PFX##_impl_it_end;                                                       \
+                                                                                                 \
         return _map_;                                                                            \
     }                                                                                            \
                                                                                                  \
@@ -300,7 +305,12 @@ static const size_t cmc_hashtable_primes[] = {53, 97, 191, 383, 769, 1531,
             if (scan != NULL)                                                                    \
             {                                                                                    \
                 if (scan->next == NULL && scan->prev == NULL)                                    \
+                {                                                                                \
+                    if (deallocator)                                                             \
+                        deallocator(scan->key, scan->value);                                     \
+                                                                                                 \
                     free(scan);                                                                  \
+                }                                                                                \
                 else                                                                             \
                 {                                                                                \
                     while (scan != NULL)                                                         \
@@ -309,7 +319,8 @@ static const size_t cmc_hashtable_primes[] = {53, 97, 191, 383, 769, 1531,
                                                                                                  \
                         scan = scan->next;                                                       \
                                                                                                  \
-                        deallocator(tmp->key, tmp->scan);                                        \
+                        if (deallocator)                                                         \
+                            deallocator(tmp->key, tmp->value);                                   \
                                                                                                  \
                         free(tmp);                                                               \
                     }                                                                            \
@@ -345,7 +356,7 @@ static const size_t cmc_hashtable_primes[] = {53, 97, 191, 383, 769, 1531,
                                                                                                  \
                         scan = scan->next;                                                       \
                                                                                                  \
-                        deallocator(tmp->key, tmp->scan);                                        \
+                        deallocator(tmp->key, tmp->value);                                       \
                                                                                                  \
                         free(tmp);                                                               \
                     }                                                                            \
@@ -695,6 +706,28 @@ static const size_t cmc_hashtable_primes[] = {53, 97, 191, 383, 769, 1531,
         return PFX##_impl_get_entry(_map_, key) != NULL;                                         \
     }                                                                                            \
                                                                                                  \
+    FMOD bool PFX##_key_count(SNAME *_map_, K key)                                               \
+    {                                                                                            \
+        size_t hash = _map_->hash(key);                                                          \
+                                                                                                 \
+        SNAME##_entry *entry = _map_->buffer[hash % _map_->capacity][0];                         \
+                                                                                                 \
+        size_t total_count = 0;                                                                  \
+                                                                                                 \
+        if (!entry)                                                                              \
+            return total_count;                                                                  \
+                                                                                                 \
+        while (entry != NULL)                                                                    \
+        {                                                                                        \
+            if (_map_->cmp(entry->key, key) == 0)                                                \
+                total_count++;                                                                   \
+                                                                                                 \
+            entry = entry->next;                                                                 \
+        }                                                                                        \
+                                                                                                 \
+        return total_count;                                                                      \
+    }                                                                                            \
+                                                                                                 \
     FMOD bool PFX##_empty(SNAME *_map_)                                                          \
     {                                                                                            \
         return _map_->count == 0;                                                                \
@@ -739,13 +772,47 @@ static const size_t cmc_hashtable_primes[] = {53, 97, 191, 383, 769, 1531,
         return result;                                                                           \
     }                                                                                            \
                                                                                                  \
+    FMOD bool PFX##_equals(SNAME *_map1_, SNAME *_map2_, bool ignore_key_count)                  \
+    {                                                                                            \
+        if (ignore_key_count)                                                                    \
+        {                                                                                        \
+            SNAME##_iter iter;                                                                   \
+            PFX##_iter_init(&iter, _map1_);                                                      \
+                                                                                                 \
+            for (PFX##_iter_to_start(&iter); !PFX##_iter_end(&iter); PFX##_iter_next(&iter))     \
+            {                                                                                    \
+                if (PFX##_impl_get_entry(_map2_, PFX##_iter_key(&iter)) == NULL)                 \
+                    return false;                                                                \
+            }                                                                                    \
+        }                                                                                        \
+        else                                                                                     \
+        {                                                                                        \
+            /* Since the key count matters this can be checked and an early exit */              \
+            if (PFX##_count(_map1_) != PFX##_count(_map2_))                                      \
+                return false;                                                                    \
+                                                                                                 \
+            SNAME##_iter iter;                                                                   \
+            PFX##_iter_init(&iter, _map1_);                                                      \
+                                                                                                 \
+            for (PFX##_iter_to_start(&iter); !PFX##_iter_end(&iter); PFX##_iter_next(&iter))     \
+            {                                                                                    \
+                K key = PFX##_iter_key(&iter);                                                   \
+                                                                                                 \
+                if (PFX##_key_count(_map1_, key) != PFX##_key_count(_map2_, key))                \
+                    return false;                                                                \
+            }                                                                                    \
+        }                                                                                        \
+                                                                                                 \
+        return true;                                                                             \
+    }                                                                                            \
+                                                                                                 \
     FMOD cmc_string PFX##_to_string(SNAME *_map_)                                                \
     {                                                                                            \
         cmc_string str;                                                                          \
         SNAME *m_ = _map_;                                                                       \
         const char *name = #SNAME;                                                               \
                                                                                                  \
-        snprintf(str.s, cmc_string_len, cmc_string_fmt_hashmap,                                  \
+        snprintf(str.s, cmc_string_len, cmc_string_fmt_multimap,                                 \
                  name, m_, m_->buffer, m_->capacity, m_->count, m_->load, m_->cmp, m_->hash);    \
                                                                                                  \
         return str;                                                                              \

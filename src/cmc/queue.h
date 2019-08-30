@@ -60,106 +60,107 @@
     QUEUE_GENERATE_SOURCE(PFX, SNAME, FMOD, V)
 
 /* HEADER ********************************************************************/
-#define QUEUE_GENERATE_HEADER(PFX, SNAME, FMOD, V)                                \
-                                                                                  \
-    /* Queue Structure */                                                         \
-    typedef struct SNAME##_s                                                      \
-    {                                                                             \
-        /* Dynamic circular array of elements */                                  \
-        V *buffer;                                                                \
-                                                                                  \
-        /* Current circular array capacity */                                     \
-        size_t capacity;                                                          \
-                                                                                  \
-        /* Current amount of elements */                                          \
-        size_t count;                                                             \
-                                                                                  \
-        /* Index representing the front of the queue */                           \
-        size_t front;                                                             \
-                                                                                  \
-        /* Index representing the back of the queue */                            \
-        size_t back;                                                              \
-                                                                                  \
-        /* Function that returns an iterator to the start of the queue */         \
-        struct SNAME##_iter_s (*it_start)(struct SNAME##_s *);                    \
-                                                                                  \
-        /* Function that returns an iterator to the end of the queue */           \
-        struct SNAME##_iter_s (*it_end)(struct SNAME##_s *);                      \
-                                                                                  \
-    } SNAME, *SNAME##_ptr;                                                        \
-                                                                                  \
-    /* Queue Iterator */                                                          \
-    typedef struct SNAME##_iter_s                                                 \
-    {                                                                             \
-        /* Target queue */                                                        \
-        struct SNAME##_s *target;                                                 \
-                                                                                  \
-        /* Cursor's position (index) */                                           \
-        size_t cursor;                                                            \
-                                                                                  \
-        /* Keeps track of relative index to the iteration of elements */          \
-        size_t index;                                                             \
-                                                                                  \
-        /* If the iterator has reached the start of the iteration */              \
-        bool start;                                                               \
-                                                                                  \
-        /* If the iterator has reached the end of the iteration */                \
-        bool end;                                                                 \
-                                                                                  \
-    } SNAME##_iter, *SNAME##_iter_ptr;                                            \
-                                                                                  \
-    /* Collection Functions */                                                    \
-    /* Collection Allocation and Deallocation */                                  \
-    FMOD SNAME *PFX##_new(size_t capacity);                                       \
-    FMOD void PFX##_clear(SNAME *_queue_, void (*deallocator)(V));                \
-    FMOD void PFX##_free(SNAME *_queue_, void (*deallocator)(V));                 \
-    /* Collection Input and Output */                                             \
-    FMOD bool PFX##_enqueue(SNAME *_queue_, V element);                           \
-    FMOD bool PFX##_dequeue(SNAME *_queue_);                                      \
-    /* Conditional Input and Output */                                            \
-    FMOD bool PFX##_enqueue_if(SNAME *_queue_, V element, bool condition);        \
-    FMOD bool PFX##_dequeue_if(SNAME *_queue_, bool condition);                   \
-    /* Element Access */                                                          \
-    FMOD V PFX##_peek(SNAME *_queue_);                                            \
-    /* Collection State */                                                        \
-    FMOD bool PFX##_contains(SNAME *_queue_, V element, int (*comparator)(V, V)); \
-    FMOD bool PFX##_empty(SNAME *_queue_);                                        \
-    FMOD bool PFX##_full(SNAME *_queue_);                                         \
-    FMOD size_t PFX##_count(SNAME *_queue_);                                      \
-    FMOD size_t PFX##_capacity(SNAME *_queue_);                                   \
-    /* Collection Utility */                                                      \
-    FMOD SNAME *PFX##_copy_of(SNAME *_queue_, V (*copy_func)(V));                 \
-    FMOD cmc_string PFX##_to_string(SNAME *_queue_);                              \
-                                                                                  \
-    /* Iterator Functions */                                                      \
-    /* Iterator Allocation and Deallocation */                                    \
-    FMOD SNAME##_iter *PFX##_iter_new(SNAME *target);                             \
-    FMOD void PFX##_iter_free(SNAME##_iter *iter);                                \
-    /* Iterator Initialization */                                                 \
-    FMOD void PFX##_iter_init(SNAME##_iter *iter, SNAME *target);                 \
-    /* Iterator State */                                                          \
-    FMOD bool PFX##_iter_start(SNAME##_iter *iter);                               \
-    FMOD bool PFX##_iter_end(SNAME##_iter *iter);                                 \
-    /* Iterator Movement */                                                       \
-    FMOD void PFX##_iter_to_start(SNAME##_iter *iter);                            \
-    FMOD void PFX##_iter_to_end(SNAME##_iter *iter);                              \
-    FMOD bool PFX##_iter_next(SNAME##_iter *iter);                                \
-    FMOD bool PFX##_iter_prev(SNAME##_iter *iter);                                \
-    /* Iterator Access */                                                         \
-    FMOD V PFX##_iter_value(SNAME##_iter *iter);                                  \
-    FMOD V *PFX##_iter_rvalue(SNAME##_iter *iter);                                \
-    FMOD size_t PFX##_iter_index(SNAME##_iter *iter);                             \
-                                                                                  \
-    /* Default Value */                                                           \
-    static inline V PFX##_impl_default_value(void)                                \
-    {                                                                             \
-        V _empty_value_;                                                          \
-                                                                                  \
-        memset(&_empty_value_, 0, sizeof(V));                                     \
-                                                                                  \
-        return _empty_value_;                                                     \
-    }                                                                             \
-                                                                                  \
+#define QUEUE_GENERATE_HEADER(PFX, SNAME, FMOD, V)                                     \
+                                                                                       \
+    /* Queue Structure */                                                              \
+    typedef struct SNAME##_s                                                           \
+    {                                                                                  \
+        /* Dynamic circular array of elements */                                       \
+        V *buffer;                                                                     \
+                                                                                       \
+        /* Current circular array capacity */                                          \
+        size_t capacity;                                                               \
+                                                                                       \
+        /* Current amount of elements */                                               \
+        size_t count;                                                                  \
+                                                                                       \
+        /* Index representing the front of the queue */                                \
+        size_t front;                                                                  \
+                                                                                       \
+        /* Index representing the back of the queue */                                 \
+        size_t back;                                                                   \
+                                                                                       \
+        /* Function that returns an iterator to the start of the queue */              \
+        struct SNAME##_iter_s (*it_start)(struct SNAME##_s *);                         \
+                                                                                       \
+        /* Function that returns an iterator to the end of the queue */                \
+        struct SNAME##_iter_s (*it_end)(struct SNAME##_s *);                           \
+                                                                                       \
+    } SNAME, *SNAME##_ptr;                                                             \
+                                                                                       \
+    /* Queue Iterator */                                                               \
+    typedef struct SNAME##_iter_s                                                      \
+    {                                                                                  \
+        /* Target queue */                                                             \
+        struct SNAME##_s *target;                                                      \
+                                                                                       \
+        /* Cursor's position (index) */                                                \
+        size_t cursor;                                                                 \
+                                                                                       \
+        /* Keeps track of relative index to the iteration of elements */               \
+        size_t index;                                                                  \
+                                                                                       \
+        /* If the iterator has reached the start of the iteration */                   \
+        bool start;                                                                    \
+                                                                                       \
+        /* If the iterator has reached the end of the iteration */                     \
+        bool end;                                                                      \
+                                                                                       \
+    } SNAME##_iter, *SNAME##_iter_ptr;                                                 \
+                                                                                       \
+    /* Collection Functions */                                                         \
+    /* Collection Allocation and Deallocation */                                       \
+    FMOD SNAME *PFX##_new(size_t capacity);                                            \
+    FMOD void PFX##_clear(SNAME *_queue_, void (*deallocator)(V));                     \
+    FMOD void PFX##_free(SNAME *_queue_, void (*deallocator)(V));                      \
+    /* Collection Input and Output */                                                  \
+    FMOD bool PFX##_enqueue(SNAME *_queue_, V element);                                \
+    FMOD bool PFX##_dequeue(SNAME *_queue_);                                           \
+    /* Conditional Input and Output */                                                 \
+    FMOD bool PFX##_enqueue_if(SNAME *_queue_, V element, bool condition);             \
+    FMOD bool PFX##_dequeue_if(SNAME *_queue_, bool condition);                        \
+    /* Element Access */                                                               \
+    FMOD V PFX##_peek(SNAME *_queue_);                                                 \
+    /* Collection State */                                                             \
+    FMOD bool PFX##_contains(SNAME *_queue_, V element, int (*comparator)(V, V));      \
+    FMOD bool PFX##_empty(SNAME *_queue_);                                             \
+    FMOD bool PFX##_full(SNAME *_queue_);                                              \
+    FMOD size_t PFX##_count(SNAME *_queue_);                                           \
+    FMOD size_t PFX##_capacity(SNAME *_queue_);                                        \
+    /* Collection Utility */                                                           \
+    FMOD SNAME *PFX##_copy_of(SNAME *_queue_, V (*copy_func)(V));                      \
+    FMOD bool PFX##_equals(SNAME *_queue1_, SNAME *_queue2_, int (*comparator)(V, V)); \
+    FMOD cmc_string PFX##_to_string(SNAME *_queue_);                                   \
+                                                                                       \
+    /* Iterator Functions */                                                           \
+    /* Iterator Allocation and Deallocation */                                         \
+    FMOD SNAME##_iter *PFX##_iter_new(SNAME *target);                                  \
+    FMOD void PFX##_iter_free(SNAME##_iter *iter);                                     \
+    /* Iterator Initialization */                                                      \
+    FMOD void PFX##_iter_init(SNAME##_iter *iter, SNAME *target);                      \
+    /* Iterator State */                                                               \
+    FMOD bool PFX##_iter_start(SNAME##_iter *iter);                                    \
+    FMOD bool PFX##_iter_end(SNAME##_iter *iter);                                      \
+    /* Iterator Movement */                                                            \
+    FMOD void PFX##_iter_to_start(SNAME##_iter *iter);                                 \
+    FMOD void PFX##_iter_to_end(SNAME##_iter *iter);                                   \
+    FMOD bool PFX##_iter_next(SNAME##_iter *iter);                                     \
+    FMOD bool PFX##_iter_prev(SNAME##_iter *iter);                                     \
+    /* Iterator Access */                                                              \
+    FMOD V PFX##_iter_value(SNAME##_iter *iter);                                       \
+    FMOD V *PFX##_iter_rvalue(SNAME##_iter *iter);                                     \
+    FMOD size_t PFX##_iter_index(SNAME##_iter *iter);                                  \
+                                                                                       \
+    /* Default Value */                                                                \
+    static inline V PFX##_impl_default_value(void)                                     \
+    {                                                                                  \
+        V _empty_value_;                                                               \
+                                                                                       \
+        memset(&_empty_value_, 0, sizeof(V));                                          \
+                                                                                       \
+        return _empty_value_;                                                          \
+    }                                                                                  \
+                                                                                       \
 /* SOURCE ********************************************************************/
 #define QUEUE_GENERATE_SOURCE(PFX, SNAME, FMOD, V)                                                           \
                                                                                                              \
@@ -339,6 +340,24 @@
         result->count = _queue_->count;                                                                      \
                                                                                                              \
         return result;                                                                                       \
+    }                                                                                                        \
+                                                                                                             \
+    FMOD bool PFX##_equals(SNAME *_queue1_, SNAME *_queue2_, int (*comparator)(V, V))                        \
+    {                                                                                                        \
+        if (PFX##_count(_queue1_) != PFX##_count(_queue2_))                                                  \
+            return false;                                                                                    \
+                                                                                                             \
+        size_t i, j, k;                                                                                      \
+        for (i = _queue1_->front, j = _queue2_->front, k = 0; k < PFX##_count(_queue1_); k++)                \
+        {                                                                                                    \
+            if (comparator(_queue1_->buffer[i], _queue2_->buffer[j]) == 0)                                   \
+                return false;                                                                                \
+                                                                                                             \
+            i = (i + 1) % _queue1_->capacity;                                                                \
+            j = (j + 1) % _queue2_->capacity;                                                                \
+        }                                                                                                    \
+                                                                                                             \
+        return true;                                                                                         \
     }                                                                                                        \
                                                                                                              \
     FMOD cmc_string PFX##_to_string(SNAME *_queue_)                                                          \

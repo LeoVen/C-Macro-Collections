@@ -170,6 +170,7 @@ static const size_t cmc_hashtable_primes[] = {53, 97, 191, 383, 769, 1531,
     FMOD size_t PFX##_capacity(SNAME *_set_);                                                     \
     /* Collection Utility */                                                                      \
     FMOD SNAME *PFX##_copy_of(SNAME *_set_, V (*copy_func)(V));                                   \
+    FMOD bool PFX##_equals(SNAME *_set1_, SNAME *_set2_);                                         \
     FMOD cmc_string PFX##_to_string(SNAME *_set_);                                                \
                                                                                                   \
     /* Set Operations */                                                                          \
@@ -484,6 +485,26 @@ static const size_t cmc_hashtable_primes[] = {53, 97, 191, 383, 769, 1531,
         result->count = _set_->count;                                                            \
                                                                                                  \
         return result;                                                                           \
+    }                                                                                            \
+                                                                                                 \
+    FMOD bool PFX##_equals(SNAME *_set1_, SNAME *_set2_)                                         \
+    {                                                                                            \
+        if (PFX##_count(_set1_) != PFX##_count(_set2_))                                          \
+            return false;                                                                        \
+                                                                                                 \
+        if (PFX##_count(_set1_) == 0)                                                            \
+            return true;                                                                         \
+                                                                                                 \
+        SNAME##_iter iter;                                                                       \
+        PFX##_iter_init(&iter, _set1_);                                                          \
+                                                                                                 \
+        for (PFX##_iter_to_start(&iter); !PFX##_iter_end(&iter); PFX##_iter_next(&iter))         \
+        {                                                                                        \
+            if (PFX##_impl_get_entry(_set2_, PFX##_iter_value(&iter)) == NULL)                   \
+                return false;                                                                    \
+        }                                                                                        \
+                                                                                                 \
+        return true;                                                                             \
     }                                                                                            \
                                                                                                  \
     FMOD cmc_string PFX##_to_string(SNAME *_set_)                                                \

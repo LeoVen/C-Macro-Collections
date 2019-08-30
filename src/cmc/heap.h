@@ -120,6 +120,7 @@ typedef enum cmc_heap_order_e
     FMOD size_t PFX##_capacity(SNAME *_heap_);                                       \
     /* Collection Utility */                                                         \
     FMOD SNAME *PFX##_copy_of(SNAME *_heap_, V (*copy_func)(V));                     \
+    FMOD bool PFX##_equals(SNAME *_heap1_, SNAME *_heap2_);                          \
     FMOD cmc_string PFX##_to_string(SNAME *_heap_);                                  \
                                                                                      \
     /* Iterator Functions */                                                         \
@@ -343,6 +344,20 @@ typedef enum cmc_heap_order_e
         result->count = _heap_->count;                                                            \
                                                                                                   \
         return result;                                                                            \
+    }                                                                                             \
+                                                                                                  \
+    FMOD bool PFX##_equals(SNAME *_heap1_, SNAME *_heap2_)                                        \
+    {                                                                                             \
+        if (PFX##_count(_heap1_) != PFX##_count(_heap2_))                                         \
+            return false;                                                                         \
+                                                                                                  \
+        for (size_t i = 0; i < PFX##_count(_heap1_); i++)                                         \
+        {                                                                                         \
+            if (_heap1_->cmp(_heap1_->buffer[i], _heap2_->buffer[i]) != 0)                        \
+                return false;                                                                     \
+        }                                                                                         \
+                                                                                                  \
+        return true;                                                                              \
     }                                                                                             \
                                                                                                   \
     FMOD cmc_string PFX##_to_string(SNAME *_heap_)                                                \

@@ -48,111 +48,112 @@
     DEQUE_GENERATE_SOURCE(PFX, SNAME, FMOD, V)
 
 /* HEADER ********************************************************************/
-#define DEQUE_GENERATE_HEADER(PFX, SNAME, FMOD, V)                                \
-                                                                                  \
-    /* Deque Structure */                                                         \
-    typedef struct SNAME##_s                                                      \
-    {                                                                             \
-        /* Dynamic circular array of elements */                                  \
-        V *buffer;                                                                \
-                                                                                  \
-        /* Current circular array capacity */                                     \
-        size_t capacity;                                                          \
-                                                                                  \
-        /* Current amount of elements */                                          \
-        size_t count;                                                             \
-                                                                                  \
-        /* Index representing the front of the deque */                           \
-        size_t front;                                                             \
-                                                                                  \
-        /* Index representing the back of the deque */                            \
-        size_t back;                                                              \
-                                                                                  \
-        /* Function that returns an iterator to the start of the deque */         \
-        struct SNAME##_iter_s (*it_start)(struct SNAME##_s *);                    \
-                                                                                  \
-        /* Function that returns an iterator to the end of the deque */           \
-        struct SNAME##_iter_s (*it_end)(struct SNAME##_s *);                      \
-                                                                                  \
-    } SNAME, *SNAME##_ptr;                                                        \
-                                                                                  \
-    /* Deque Iterator */                                                          \
-    typedef struct SNAME##_iter_s                                                 \
-    {                                                                             \
-        /* Target deque */                                                        \
-        struct SNAME##_s *target;                                                 \
-                                                                                  \
-        /* Cursor's position (index) */                                           \
-        size_t cursor;                                                            \
-                                                                                  \
-        /* Keeps track of relative index to the iteration of elements */          \
-        size_t index;                                                             \
-                                                                                  \
-        /* If the iterator has reached the start of the iteration */              \
-        bool start;                                                               \
-                                                                                  \
-        /* If the iterator has reached the end of the iteration */                \
-        bool end;                                                                 \
-                                                                                  \
-    } SNAME##_iter, *SNAME##_iter_ptr;                                            \
-                                                                                  \
-    /* Collection Functions */                                                    \
-    /* Collection Allocation and Deallocation */                                  \
-    FMOD SNAME *PFX##_new(size_t capacity);                                       \
-    FMOD void PFX##_clear(SNAME *_deque_, void (*deallocator)(V));                \
-    FMOD void PFX##_free(SNAME *_deque_, void (*deallocator)(V));                 \
-    /* Collection Input and Output */                                             \
-    FMOD bool PFX##_push_front(SNAME *_deque_, V element);                        \
-    FMOD bool PFX##_push_back(SNAME *_deque_, V element);                         \
-    FMOD bool PFX##_pop_front(SNAME *_deque_);                                    \
-    FMOD bool PFX##_pop_back(SNAME *_deque_);                                     \
-    /* Conditional Input and Output */                                            \
-    FMOD bool PFX##_push_front_if(SNAME *_deque_, V element, bool condition);     \
-    FMOD bool PFX##_push_back_if(SNAME *_deque_, V element, bool condition);      \
-    FMOD bool PFX##_pop_front_if(SNAME *_deque_, bool condition);                 \
-    FMOD bool PFX##_pop_back_if(SNAME *_deque_, bool condition);                  \
-    /* Element Access */                                                          \
-    FMOD V PFX##_front(SNAME *_deque_);                                           \
-    FMOD V PFX##_back(SNAME *_deque_);                                            \
-    /* Collection State */                                                        \
-    FMOD bool PFX##_contains(SNAME *_deque_, V element, int (*comparator)(V, V)); \
-    FMOD bool PFX##_empty(SNAME *_deque_);                                        \
-    FMOD bool PFX##_full(SNAME *_deque_);                                         \
-    FMOD size_t PFX##_count(SNAME *_deque_);                                      \
-    FMOD size_t PFX##_capacity(SNAME *_deque_);                                   \
-    /* Collection Utility */                                                      \
-    FMOD SNAME *PFX##_copy_of(SNAME *_deque_, V (*copy_func)(V));                 \
-    FMOD cmc_string PFX##_to_string(SNAME *_deque_);                              \
-                                                                                  \
-    /* Iterator Functions */                                                      \
-    /* Iterator Allocation and Deallocation */                                    \
-    FMOD SNAME##_iter *PFX##_iter_new(SNAME *target);                             \
-    FMOD void PFX##_iter_free(SNAME##_iter *iter);                                \
-    /* Iterator Initialization */                                                 \
-    FMOD void PFX##_iter_init(SNAME##_iter *iter, SNAME *target);                 \
-    /* Iterator State */                                                          \
-    FMOD bool PFX##_iter_start(SNAME##_iter *iter);                               \
-    FMOD bool PFX##_iter_end(SNAME##_iter *iter);                                 \
-    /* Iterator Movement */                                                       \
-    FMOD void PFX##_iter_to_start(SNAME##_iter *iter);                            \
-    FMOD void PFX##_iter_to_end(SNAME##_iter *iter);                              \
-    FMOD bool PFX##_iter_next(SNAME##_iter *iter);                                \
-    FMOD bool PFX##_iter_prev(SNAME##_iter *iter);                                \
-    /* Iterator Access */                                                         \
-    FMOD V PFX##_iter_value(SNAME##_iter *iter);                                  \
-    FMOD V *PFX##_iter_rvalue(SNAME##_iter *iter);                                \
-    FMOD size_t PFX##_iter_index(SNAME##_iter *iter);                             \
-                                                                                  \
-    /* Default Value */                                                           \
-    static inline V PFX##_impl_default_value(void)                                \
-    {                                                                             \
-        V _empty_value_;                                                          \
-                                                                                  \
-        memset(&_empty_value_, 0, sizeof(V));                                     \
-                                                                                  \
-        return _empty_value_;                                                     \
-    }                                                                             \
-                                                                                  \
+#define DEQUE_GENERATE_HEADER(PFX, SNAME, FMOD, V)                                     \
+                                                                                       \
+    /* Deque Structure */                                                              \
+    typedef struct SNAME##_s                                                           \
+    {                                                                                  \
+        /* Dynamic circular array of elements */                                       \
+        V *buffer;                                                                     \
+                                                                                       \
+        /* Current circular array capacity */                                          \
+        size_t capacity;                                                               \
+                                                                                       \
+        /* Current amount of elements */                                               \
+        size_t count;                                                                  \
+                                                                                       \
+        /* Index representing the front of the deque */                                \
+        size_t front;                                                                  \
+                                                                                       \
+        /* Index representing the back of the deque */                                 \
+        size_t back;                                                                   \
+                                                                                       \
+        /* Function that returns an iterator to the start of the deque */              \
+        struct SNAME##_iter_s (*it_start)(struct SNAME##_s *);                         \
+                                                                                       \
+        /* Function that returns an iterator to the end of the deque */                \
+        struct SNAME##_iter_s (*it_end)(struct SNAME##_s *);                           \
+                                                                                       \
+    } SNAME, *SNAME##_ptr;                                                             \
+                                                                                       \
+    /* Deque Iterator */                                                               \
+    typedef struct SNAME##_iter_s                                                      \
+    {                                                                                  \
+        /* Target deque */                                                             \
+        struct SNAME##_s *target;                                                      \
+                                                                                       \
+        /* Cursor's position (index) */                                                \
+        size_t cursor;                                                                 \
+                                                                                       \
+        /* Keeps track of relative index to the iteration of elements */               \
+        size_t index;                                                                  \
+                                                                                       \
+        /* If the iterator has reached the start of the iteration */                   \
+        bool start;                                                                    \
+                                                                                       \
+        /* If the iterator has reached the end of the iteration */                     \
+        bool end;                                                                      \
+                                                                                       \
+    } SNAME##_iter, *SNAME##_iter_ptr;                                                 \
+                                                                                       \
+    /* Collection Functions */                                                         \
+    /* Collection Allocation and Deallocation */                                       \
+    FMOD SNAME *PFX##_new(size_t capacity);                                            \
+    FMOD void PFX##_clear(SNAME *_deque_, void (*deallocator)(V));                     \
+    FMOD void PFX##_free(SNAME *_deque_, void (*deallocator)(V));                      \
+    /* Collection Input and Output */                                                  \
+    FMOD bool PFX##_push_front(SNAME *_deque_, V element);                             \
+    FMOD bool PFX##_push_back(SNAME *_deque_, V element);                              \
+    FMOD bool PFX##_pop_front(SNAME *_deque_);                                         \
+    FMOD bool PFX##_pop_back(SNAME *_deque_);                                          \
+    /* Conditional Input and Output */                                                 \
+    FMOD bool PFX##_push_front_if(SNAME *_deque_, V element, bool condition);          \
+    FMOD bool PFX##_push_back_if(SNAME *_deque_, V element, bool condition);           \
+    FMOD bool PFX##_pop_front_if(SNAME *_deque_, bool condition);                      \
+    FMOD bool PFX##_pop_back_if(SNAME *_deque_, bool condition);                       \
+    /* Element Access */                                                               \
+    FMOD V PFX##_front(SNAME *_deque_);                                                \
+    FMOD V PFX##_back(SNAME *_deque_);                                                 \
+    /* Collection State */                                                             \
+    FMOD bool PFX##_contains(SNAME *_deque_, V element, int (*comparator)(V, V));      \
+    FMOD bool PFX##_empty(SNAME *_deque_);                                             \
+    FMOD bool PFX##_full(SNAME *_deque_);                                              \
+    FMOD size_t PFX##_count(SNAME *_deque_);                                           \
+    FMOD size_t PFX##_capacity(SNAME *_deque_);                                        \
+    /* Collection Utility */                                                           \
+    FMOD SNAME *PFX##_copy_of(SNAME *_deque_, V (*copy_func)(V));                      \
+    FMOD bool PFX##_equals(SNAME *_deque1_, SNAME *_deque2_, int (*comparator)(V, V)); \
+    FMOD cmc_string PFX##_to_string(SNAME *_deque_);                                   \
+                                                                                       \
+    /* Iterator Functions */                                                           \
+    /* Iterator Allocation and Deallocation */                                         \
+    FMOD SNAME##_iter *PFX##_iter_new(SNAME *target);                                  \
+    FMOD void PFX##_iter_free(SNAME##_iter *iter);                                     \
+    /* Iterator Initialization */                                                      \
+    FMOD void PFX##_iter_init(SNAME##_iter *iter, SNAME *target);                      \
+    /* Iterator State */                                                               \
+    FMOD bool PFX##_iter_start(SNAME##_iter *iter);                                    \
+    FMOD bool PFX##_iter_end(SNAME##_iter *iter);                                      \
+    /* Iterator Movement */                                                            \
+    FMOD void PFX##_iter_to_start(SNAME##_iter *iter);                                 \
+    FMOD void PFX##_iter_to_end(SNAME##_iter *iter);                                   \
+    FMOD bool PFX##_iter_next(SNAME##_iter *iter);                                     \
+    FMOD bool PFX##_iter_prev(SNAME##_iter *iter);                                     \
+    /* Iterator Access */                                                              \
+    FMOD V PFX##_iter_value(SNAME##_iter *iter);                                       \
+    FMOD V *PFX##_iter_rvalue(SNAME##_iter *iter);                                     \
+    FMOD size_t PFX##_iter_index(SNAME##_iter *iter);                                  \
+                                                                                       \
+    /* Default Value */                                                                \
+    static inline V PFX##_impl_default_value(void)                                     \
+    {                                                                                  \
+        V _empty_value_;                                                               \
+                                                                                       \
+        memset(&_empty_value_, 0, sizeof(V));                                          \
+                                                                                       \
+        return _empty_value_;                                                          \
+    }                                                                                  \
+                                                                                       \
 /* SOURCE ********************************************************************/
 #define DEQUE_GENERATE_SOURCE(PFX, SNAME, FMOD, V)                                                           \
                                                                                                              \
@@ -389,6 +390,24 @@
         result->count = _deque_->count;                                                                      \
                                                                                                              \
         return result;                                                                                       \
+    }                                                                                                        \
+                                                                                                             \
+    FMOD bool PFX##_equals(SNAME *_deque1_, SNAME *_deque2_, int (*comparator)(V, V))                        \
+    {                                                                                                        \
+        if (PFX##_count(_deque1_) != PFX##_count(_deque2_))                                                  \
+            return false;                                                                                    \
+                                                                                                             \
+        size_t i, j, k;                                                                                      \
+        for (i = _deque1_->front, j = _deque2_->front, k = 0; k < PFX##_count(_deque1_); k++)                \
+        {                                                                                                    \
+            if (comparator(_deque1_->buffer[i], _deque2_->buffer[j]) == 0)                                   \
+                return false;                                                                                \
+                                                                                                             \
+            i = (i + 1) % _deque1_->capacity;                                                                \
+            j = (j + 1) % _deque2_->capacity;                                                                \
+        }                                                                                                    \
+                                                                                                             \
+        return true;                                                                                         \
     }                                                                                                        \
                                                                                                              \
     FMOD cmc_string PFX##_to_string(SNAME *_deque_)                                                          \

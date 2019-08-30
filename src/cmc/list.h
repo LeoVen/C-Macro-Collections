@@ -136,6 +136,7 @@
     FMOD size_t PFX##_capacity(SNAME *_list_);                                                     \
     /* Collection Utility */                                                                       \
     FMOD SNAME *PFX##_copy_of(SNAME *_list_, V (*copy_func)(V));                                   \
+    FMOD bool PFX##_equals(SNAME *_list1_, SNAME *_list2_, int (*comparator)(V, V));               \
     FMOD cmc_string PFX##_to_string(SNAME *_list_);                                                \
                                                                                                    \
     /* Iterator Functions */                                                                       \
@@ -583,6 +584,20 @@
         result->count = _list_->count;                                                                           \
                                                                                                                  \
         return result;                                                                                           \
+    }                                                                                                            \
+                                                                                                                 \
+    FMOD bool PFX##_equals(SNAME *_list1_, SNAME *_list2_, int (*comparator)(V, V))                              \
+    {                                                                                                            \
+        if (PFX##_count(_list1_) != PFX##_count(_list2_))                                                        \
+            return false;                                                                                        \
+                                                                                                                 \
+        for (size_t i = 0; i < PFX##_count(_list1_); i++)                                                        \
+        {                                                                                                        \
+            if (comparator(_list1_->buffer[i], _list2_->buffer[i]) != 0)                                         \
+                return false;                                                                                    \
+        }                                                                                                        \
+                                                                                                                 \
+        return false;                                                                                            \
     }                                                                                                            \
                                                                                                                  \
     FMOD cmc_string PFX##_to_string(SNAME *_list_)                                                               \

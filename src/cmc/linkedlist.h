@@ -127,6 +127,7 @@
     FMOD size_t PFX##_count(SNAME *_list_);                                          \
     /* Collection Utility */                                                         \
     FMOD SNAME *PFX##_copy_of(SNAME *_list_, V (*copy_func)(V));                     \
+    FMOD bool PFX##_equals(SNAME *_list1_, SNAME *_list2_, int (*comparator)(V, V)); \
     FMOD cmc_string PFX##_to_string(SNAME *_list_);                                  \
                                                                                      \
     /* Node Related Functions */                                                     \
@@ -506,6 +507,26 @@
         result->count = _list_->count;                                              \
                                                                                     \
         return result;                                                              \
+    }                                                                               \
+                                                                                    \
+    FMOD bool PFX##_equals(SNAME *_list1_, SNAME *_list2_, int (*comparator)(V, V)) \
+    {                                                                               \
+        if (PFX##_count(_list1_) != PFX##_count(_list2_))                           \
+            return false;                                                           \
+                                                                                    \
+        SNAME##_node *scan1 = _list1_->head;                                        \
+        SNAME##_node *scan2 = _list2_->head;                                        \
+                                                                                    \
+        while (scan1 != NULL && scan2 != NULL)                                      \
+        {                                                                           \
+            if (comparator(scan1->data, scan2->data) != 0)                          \
+                return false;                                                       \
+                                                                                    \
+            scan1 = scan1->next;                                                    \
+            scan2 = scan2->next;                                                    \
+        }                                                                           \
+                                                                                    \
+        return true;                                                                \
     }                                                                               \
                                                                                     \
     FMOD cmc_string PFX##_to_string(SNAME *_list_)                                  \

@@ -119,6 +119,7 @@
     FMOD size_t PFX##_capacity(SNAME *_heap_);                               \
     /* Collection Utility */                                                 \
     FMOD SNAME *PFX##_copy_of(SNAME *_set_, V (*copy_func)(V));              \
+    FMOD bool PFX##_equals(SNAME *_heap1_, SNAME *_heap2_);                  \
     FMOD cmc_string PFX##_to_string(SNAME *_heap_);                          \
                                                                              \
     /* Iterator Functions */                                                 \
@@ -528,6 +529,23 @@
             memcpy(result->buffer, _heap_->buffer, sizeof(SNAME##_node) * _heap_->capacity);      \
                                                                                                   \
         return result;                                                                            \
+    }                                                                                             \
+                                                                                                  \
+    FMOD bool PFX##_equals(SNAME *_heap1_, SNAME *_heap2_)                                        \
+    {                                                                                             \
+        if (PFX##_count(_heap1_) != PFX##_count(_heap2_))                                         \
+            return false;                                                                         \
+                                                                                                  \
+        for (size_t i = 0; i < _heap1_->count; i++)                                               \
+        {                                                                                         \
+            V element1 = _heap1_->buffer[i / 2].data[i % 2];                                      \
+            V element2 = _heap2_->buffer[i / 2].data[i % 2];                                      \
+                                                                                                  \
+            if (_heap1_->cmp(element1, element2) == 0)                                            \
+                return true;                                                                      \
+        }                                                                                         \
+                                                                                                  \
+        return false;                                                                             \
     }                                                                                             \
                                                                                                   \
     FMOD cmc_string PFX##_to_string(SNAME *_heap_)                                                \

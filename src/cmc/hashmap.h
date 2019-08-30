@@ -179,6 +179,7 @@ static const size_t cmc_hashtable_primes[] = {53, 97, 191, 383, 769, 1531,
     FMOD size_t PFX##_capacity(SNAME *_map_);                                                     \
     /* Collection Utility */                                                                      \
     FMOD SNAME *PFX##_copy_of(SNAME *_map_, K (*key_copy_func)(K), V (*value_copy_func)(V));      \
+    FMOD bool PFX##_equals(SNAME *_map1_, SNAME *_map2_, int (*value_comparator)(V, V));          \
     FMOD cmc_string PFX##_to_string(SNAME *_map_);                                                \
                                                                                                   \
     /* Iterator Functions */                                                                      \
@@ -569,6 +570,31 @@ static const size_t cmc_hashtable_primes[] = {53, 97, 191, 383, 769, 1531,
         result->count = _map_->count;                                                            \
                                                                                                  \
         return result;                                                                           \
+    }                                                                                            \
+                                                                                                 \
+    FMOD bool PFX##_equals(SNAME *_map1_, SNAME *_map2_, int (*value_comparator)(V, V))          \
+    {                                                                                            \
+        if (PFX##_count(_map1_) != PFX##_count(_map2_))                                          \
+            return false;                                                                        \
+                                                                                                 \
+        SNAME##_iter iter;                                                                       \
+        PFX##_iter_init(&iter, _map1_);                                                          \
+                                                                                                 \
+        for (PFX##_iter_to_start(&iter); !PFX##_iter_end(&iter); PFX##_iter_next(&iter))         \
+        {                                                                                        \
+            SNAME##_entry *entry = PFX##_impl_get_entry(_map2_, PFX##_iter_key(&iter));          \
+                                                                                                 \
+            if (entry == NULL)                                                                   \
+                return false;                                                                    \
+                                                                                                 \
+            if (value_comparator)                                                                \
+            {                                                                                    \
+                if (value_comparator(entry->value, PFX##_iter_value(&iter)) != 0)                \
+                    return false;                                                                \
+            }                                                                                    \
+        }                                                                                        \
+                                                                                                 \
+        return true;                                                                             \
     }                                                                                            \
                                                                                                  \
     FMOD cmc_string PFX##_to_string(SNAME *_map_)                                                \
