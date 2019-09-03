@@ -1,5 +1,6 @@
 #include "../src/macro_collections.h"
 #include <stdio.h>
+#include <string.h>
 #include <assert.h>
 
 int intcmp(int a, int b)
@@ -30,6 +31,10 @@ COLLECTION_GENERATE(TREEMAP, tm, tmap, /* FMOD */, int, int)
 COLLECTION_GENERATE(HASHSET, hs, hset, /* FMOD */, /* K */, int)
 COLLECTION_GENERATE(HASHMAP, hm, hmap, /* FMOD */, int, int)
 
+COLLECTION_GENERATE(INTERVALHEAP, ih, iheap, /* FMOD */, , int)
+COLLECTION_GENERATE(MULTIMAP, mm, mmap, /* FMOD */, int, int)
+COLLECTION_GENERATE(MULTISET, ms, mset, , , int)
+
 int main(void)
 {
     list *l = l_new(1000);
@@ -40,208 +45,268 @@ int main(void)
     heap *h = h_new(1000, cmc_max_heap, intcmp);
     tset *ts = ts_new(intcmp);
     tmap *tm = tm_new(intcmp);
-    hset *hs = hs_new(1000, 0.9, intcmp, inthash);
-    hmap *hm = hm_new(1000, 0.9, intcmp, inthash);
+    hset *hs = hs_new(1000, 0.6, intcmp, inthash);
+    hmap *hm = hm_new(1000, 0.6, intcmp, inthash);
+
+    iheap *ih = ih_new(1000, intcmp);
+    mmap *mm = mm_new(1000, 0.8, intcmp, inthash);
+    mset *ms = ms_new(1000, 0.6, intcmp, inthash);
+
+    bool p = true;
 
     for (int i = 1; i < 10001; i++)
     {
         if (i % 2 == 0)
         {
-            d_push_front(d, i);
-            l_push_front(l, i);
-            ll_push_front(ll, i);
+            assert(d_push_front(d, i));
+            assert(l_push_front(l, i));
+            assert(ll_push_front(ll, i));
         }
         else
         {
-            d_push_back(d, i);
-            l_push_back(l, i);
-            ll_push_back(ll, i);
+            assert(d_push_back(d, i));
+            assert(l_push_back(l, i));
+            assert(ll_push_back(ll, i));
         }
 
-        s_push(s, i);
-        q_enqueue(q, i);
-        h_insert(h, i);
-        ts_insert(ts, i);
-        tm_insert(tm, i, i);
-        hs_insert(hs, i);
-        hm_insert(hm, i, i);
+        assert(s_push(s, i));
+        assert(q_enqueue(q, i));
+        assert(h_insert(h, i));
+        assert(ts_insert(ts, i));
+        assert(tm_insert(tm, i, i));
+        assert(hs_insert(hs, i));
+        assert(hm_insert(hm, i, i));
+
+        assert(ih_insert(ih, i));
+        assert(mm_insert(mm, i, i));
+        assert(ms_insert(ms, i));
     }
 
-    int sum0 = 0, sum1 = 0, sum2 = 0, sum3 = 0, sum4 = 0, sum5 = 0, sum6 = 0,
-        sum7 = 0, sum8 = 0, sum9 = 0, sum10 = 0, sum11 = 0;
+    int sums[16] = {0};
 
     FOR_EACH(d, deque, d, {
-        sum3 += d_iter_value(&iter);
+        sums[0] += d_iter_value(&iter);
     });
 
     FOR_EACH(hm, hmap, hm, {
-        sum10 += hm_iter_key(&iter);
-        sum11 += hm_iter_value(&iter);
+        sums[1] += hm_iter_key(&iter);
+        sums[2] += hm_iter_value(&iter);
     });
 
     FOR_EACH(hs, hset, hs, {
-        sum9 += hs_iter_value(&iter);
+        sums[3] += hs_iter_value(&iter);
     });
 
     FOR_EACH(h, heap, h, {
-        sum5 += h_iter_value(&iter);
+        sums[4] += h_iter_value(&iter);
     });
 
     FOR_EACH(ll, linked, ll, {
-        sum4 += ll_iter_value(&iter);
+        sums[5] += ll_iter_value(&iter);
     });
 
     FOR_EACH(l, list, l, {
-        sum0 += l_iter_value(&iter);
+        sums[6] += l_iter_value(&iter);
     });
 
     FOR_EACH(q, queue, q, {
-        sum2 += q_iter_value(&iter);
+        sums[7] += q_iter_value(&iter);
     });
 
     FOR_EACH(s, stack, s, {
-        sum1 += s_iter_value(&iter);
+        sums[8] += s_iter_value(&iter);
     });
 
     FOR_EACH(tm, tmap, tm, {
-        sum7 += tm_iter_key(&iter);
-        sum8 += tm_iter_value(&iter);
+        sums[9] += tm_iter_key(&iter);
+        sums[10] += tm_iter_value(&iter);
     });
 
     FOR_EACH(ts, tset, ts, {
-        sum6 += ts_iter_value(&iter);
+        sums[11] += ts_iter_value(&iter);
+    });
+
+    FOR_EACH(ih, iheap, ih, {
+        sums[12] += ih_iter_value(&iter);
+    });
+
+    FOR_EACH(mm, mmap, mm, {
+        sums[13] += mm_iter_key(&iter);
+        sums[14] += mm_iter_value(&iter);
+    });
+
+    FOR_EACH(ms, mset, ms, {
+        sums[15] += ms_iter_value(&iter);
     });
 
     printf("\n-------------------- FOR_EACH --------------------\n");
-    if (sum3 == 50005000)
-        printf("%10s PASSED\n", "DEQUE");
+    if (sums[0] == 50005000)
+        printf("%12s PASSED\n", "DEQUE");
     else
-        printf("%10s FAILED\n", "DEQUE");
-    if (sum9 == 50005000)
-        printf("%10s PASSED\n", "HASHSET");
+        printf("%12s FAILED\n", "DEQUE");
+    if (sums[1] == 50005000 && sums[2] == 50005000)
+        printf("%12s PASSED\n", "HASHMAP");
     else
-        printf("%10s FAILED\n", "HASHSET");
-    if (sum10 == 50005000 && sum11 == 50005000)
-        printf("%10s PASSED\n", "HASHMAP");
+        printf("%12s FAILED\n", "HASHMAP");
+    if (sums[3] == 50005000)
+        printf("%12s PASSED\n", "HASHSET");
     else
-        printf("%10s FAILED\n", "HASHMAP");
-    if (sum5 == 50005000)
-        printf("%10s PASSED\n", "HEAP");
+        printf("%12s FAILED\n", "HASHSET");
+    if (sums[4] == 50005000)
+        printf("%12s PASSED\n", "HEAP");
     else
-        printf("%10s FAILED\n", "HEAP");
-    if (sum4 == 50005000)
-        printf("%10s PASSED\n", "LINKEDLIST");
+        printf("%12s FAILED\n", "HEAP");
+    if (sums[5] == 50005000)
+        printf("%12s PASSED\n", "LINKEDLIST");
     else
-        printf("%10s FAILED\n", "LINKEDLIST");
-    if (sum0 == 50005000)
-        printf("%10s PASSED\n", "LIST");
+        printf("%12s FAILED\n", "LINKEDLIST");
+    if (sums[6] == 50005000)
+        printf("%12s PASSED\n", "LIST");
     else
-        printf("%10s FAILED\n", "LIST");
-    if (sum2 == 50005000)
-        printf("%10s PASSED\n", "QUEUE");
+        printf("%12s FAILED\n", "LIST");
+    if (sums[7] == 50005000)
+        printf("%12s PASSED\n", "QUEUE");
     else
-        printf("%10s FAILED\n", "QUEUE");
-    if (sum1 == 50005000)
-        printf("%10s PASSED\n", "STACK");
+        printf("%12s FAILED\n", "QUEUE");
+    if (sums[8] == 50005000)
+        printf("%12s PASSED\n", "STACK");
     else
-        printf("%10s FAILED\n", "STACK");
-    if (sum7 == 50005000 && sum8 == 50005000)
-        printf("%10s PASSED\n", "TREEMAP");
+        printf("%12s FAILED\n", "STACK");
+    if (sums[9] == 50005000 && sums[10] == 50005000)
+        printf("%12s PASSED\n", "TREEMAP");
     else
-        printf("%10s FAILED\n", "TREEMAP");
-    if (sum6 == 50005000)
-        printf("%10s PASSED\n", "TREESET");
+        printf("%12s FAILED\n", "TREEMAP");
+    if (sums[11] == 50005000)
+        printf("%12s PASSED\n", "TREESET");
     else
-        printf("%10s FAILED\n", "TREESET");
+        printf("%12s FAILED\n", "TREESET");
+    if (sums[12] == 50005000)
+        printf("%12s PASSED\n", "INTERVALHEAP");
+    else
+        printf("%12s FAILED\n", "INTERVALHEAP");
+    if (sums[13] == 50005000 && sums[14] == 50005000)
+        printf("%12s PASSED\n", "MULTIMAP");
+    else
+        printf("%12s FAILED\n", "MULTIMAP");
+    if (sums[15] == 50005000)
+        printf("%12s PASSED\n", "MULTISET");
+    else
+        printf("%12s FAILED\n", "MULTISET");
 
     printf("\n\n");
 
-    sum0 = 0, sum1 = 0, sum2 = 0, sum3 = 0, sum4 = 0, sum5 = 0, sum6 = 0,
-    sum7 = 0, sum8 = 0, sum9 = 0, sum10 = 0, sum11 = 0;
+    memset(sums, 0, sizeof sums);
 
     FOR_EACH_REV(d, deque, d, {
-        sum3 += d_iter_value(&iter);
+        sums[0] += d_iter_value(&iter);
     });
 
     FOR_EACH_REV(hm, hmap, hm, {
-        sum10 += hm_iter_key(&iter);
-        sum11 += hm_iter_value(&iter);
+        sums[1] += hm_iter_key(&iter);
+        sums[2] += hm_iter_value(&iter);
     });
 
     FOR_EACH_REV(hs, hset, hs, {
-        sum9 += hs_iter_value(&iter);
+        sums[3] += hs_iter_value(&iter);
     });
 
     FOR_EACH_REV(h, heap, h, {
-        sum5 += h_iter_value(&iter);
+        sums[4] += h_iter_value(&iter);
     });
 
     FOR_EACH_REV(ll, linked, ll, {
-        sum4 += ll_iter_value(&iter);
+        sums[5] += ll_iter_value(&iter);
     });
 
     FOR_EACH_REV(l, list, l, {
-        sum0 += l_iter_value(&iter);
+        sums[6] += l_iter_value(&iter);
     });
 
     FOR_EACH_REV(q, queue, q, {
-        sum2 += q_iter_value(&iter);
+        sums[7] += q_iter_value(&iter);
     });
 
     FOR_EACH_REV(s, stack, s, {
-        sum1 += s_iter_value(&iter);
+        sums[8] += s_iter_value(&iter);
     });
 
     FOR_EACH_REV(tm, tmap, tm, {
-        sum7 += tm_iter_key(&iter);
-        sum8 += tm_iter_value(&iter);
+        sums[9] += tm_iter_key(&iter);
+        sums[10] += tm_iter_value(&iter);
     });
 
     FOR_EACH_REV(ts, tset, ts, {
-        sum6 += ts_iter_value(&iter);
+        sums[11] += ts_iter_value(&iter);
+    });
+
+    FOR_EACH_REV(ih, iheap, ih, {
+        sums[12] += ih_iter_value(&iter);
+    });
+
+    FOR_EACH_REV(mm, mmap, mm, {
+        sums[13] += mm_iter_key(&iter);
+        sums[14] += mm_iter_value(&iter);
+    });
+
+    FOR_EACH_REV(ms, mset, ms, {
+        sums[15] += ms_iter_value(&iter);
     });
 
     printf("-------------------- FOR_EACH_REV --------------------\n");
-    if (sum3 == 50005000)
-        printf("%10s PASSED\n", "DEQUE");
+    if (sums[0] == 50005000)
+        printf("%12s PASSED\n", "DEQUE");
     else
-        printf("%10s FAILED\n", "DEQUE");
-    if (sum10 == 50005000 && sum11 == 50005000)
-        printf("%10s PASSED\n", "HASHMAP");
+        printf("%12s FAILED\n", "DEQUE");
+    if (sums[1] == 50005000 && sums[2] == 50005000)
+        printf("%12s PASSED\n", "HASHMAP");
     else
-        printf("%10s FAILED\n", "HASHMAP");
-    if (sum9 == 50005000)
-        printf("%10s PASSED\n", "HASHSET");
+        printf("%12s FAILED\n", "HASHMAP");
+    if (sums[3] == 50005000)
+        printf("%12s PASSED\n", "HASHSET");
     else
-        printf("%10s FAILED\n", "HASHSET");
-    if (sum5 == 50005000)
-        printf("%10s PASSED\n", "HEAP");
+        printf("%12s FAILED\n", "HASHSET");
+    if (sums[4] == 50005000)
+        printf("%12s PASSED\n", "HEAP");
     else
-        printf("%10s FAILED\n", "HEAP");
-    if (sum4 == 50005000)
-        printf("%10s PASSED\n", "LINKEDLIST");
+        printf("%12s FAILED\n", "HEAP");
+    if (sums[5] == 50005000)
+        printf("%12s PASSED\n", "LINKEDLIST");
     else
-        printf("%10s FAILED\n", "LINKEDLIST");
-    if (sum0 == 50005000)
-        printf("%10s PASSED\n", "LIST");
+        printf("%12s FAILED\n", "LINKEDLIST");
+    if (sums[6] == 50005000)
+        printf("%12s PASSED\n", "LIST");
     else
-        printf("%10s FAILED\n", "LIST");
-    if (sum2 == 50005000)
-        printf("%10s PASSED\n", "QUEUE");
+        printf("%12s FAILED\n", "LIST");
+    if (sums[7] == 50005000)
+        printf("%12s PASSED\n", "QUEUE");
     else
-        printf("%10s FAILED\n", "QUEUE");
-    if (sum1 == 50005000)
-        printf("%10s PASSED\n", "STACK");
+        printf("%12s FAILED\n", "QUEUE");
+    if (sums[8] == 50005000)
+        printf("%12s PASSED\n", "STACK");
     else
-        printf("%10s FAILED\n", "STACK");
-    if (sum7 == 50005000 && sum8 == 50005000)
-        printf("%10s PASSED\n", "TREEMAP");
+        printf("%12s FAILED\n", "STACK");
+    if (sums[9] == 50005000 && sums[10] == 50005000)
+        printf("%12s PASSED\n", "TREEMAP");
     else
-        printf("%10s FAILED\n", "TREEMAP");
-    if (sum6 == 50005000)
-        printf("%10s PASSED\n", "TREESET");
+        printf("%12s FAILED\n", "TREEMAP");
+    if (sums[11] == 50005000)
+        printf("%12s PASSED\n", "TREESET");
     else
-        printf("%10s FAILED\n", "TREESET");
+        printf("%12s FAILED\n", "TREESET");
+    if (sums[12] == 50005000)
+        printf("%12s PASSED\n", "INTERVALHEAP");
+    else
+        printf("%12s FAILED\n", "INTERVALHEAP");
+    if (sums[13] == 50005000 && sums[14] == 50005000)
+        printf("%12s PASSED\n", "MULTIMAP");
+    else
+        printf("%12s FAILED\n", "MULTIMAP");
+    if (sums[15] == 50005000)
+        printf("%12s PASSED\n", "MULTISET");
+    else
+        printf("%12s FAILED\n", "MULTISET");
+
+    printf("\n\n");
 
     l_free(l, NULL);
     ll_free(ll, NULL);
@@ -253,6 +318,10 @@ int main(void)
     tm_free(tm, NULL);
     hs_free(hs, NULL);
     hm_free(hm, NULL);
+
+    ih_free(ih, NULL);
+    mm_free(mm, NULL);
+    ms_free(ms, NULL);
 
     return 0;
 }

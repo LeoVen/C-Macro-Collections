@@ -31,6 +31,10 @@ COLLECTION_GENERATE(TREEMAP, tm, tmap, /* FMOD */, int, int)
 COLLECTION_GENERATE(HASHSET, hs, hset, /* FMOD */, /* K */, int)
 COLLECTION_GENERATE(HASHMAP, hm, hmap, /* FMOD */, int, int)
 
+COLLECTION_GENERATE(INTERVALHEAP, ih, iheap, /* FMOD */, , int)
+COLLECTION_GENERATE(MULTIMAP, mm, mmap, /* FMOD */, int, int)
+COLLECTION_GENERATE(MULTISET, ms, mset, , , int)
+
 int main(void)
 {
     list *l = l_new(1000);
@@ -41,12 +45,16 @@ int main(void)
     heap *h = h_new(1000, cmc_max_heap, intcmp);
     tset *ts = ts_new(intcmp);
     tmap *tm = tm_new(intcmp);
-    hset *hs = hs_new(1000, 0.9, intcmp, inthash);
-    hmap *hm = hm_new(1000, 0.9, intcmp, inthash);
+    hset *hs = hs_new(1000, 0.6, intcmp, inthash);
+    hmap *hm = hm_new(1000, 0.6, intcmp, inthash);
 
-    bool a[10] = {false, false, false, false, false, false, false, false, false, false},
-         b[10] = {false, false, false, false, false, false, false, false, false, false},
-         c[10] = {true, true, true, true, true, true, true, true, true, true};
+    iheap *ih = ih_new(1000, intcmp);
+    mmap *mm = mm_new(1000, 0.8, intcmp, inthash);
+    mset *ms = ms_new(1000, 0.6, intcmp, inthash);
+
+    bool a[13] = {false, false, false, false, false, false, false, false, false, false, false, false, false},
+         b[13] = {false, false, false, false, false, false, false, false, false, false, false, false, false},
+         c[13] = {true, true, true, true, true, true, true, true, true, true, true, true, true};
 
     b[0] = d_contains(d, 1, intcmp);
     b[1] = hm_contains(hm, 1);
@@ -58,6 +66,10 @@ int main(void)
     b[7] = s_contains(s, 1, intcmp);
     b[8] = tm_contains(tm, 1);
     b[9] = ts_contains(ts, 1);
+
+    b[10] = ih_contains(ih, 1);
+    b[11] = mm_contains(mm, 1);
+    b[12] = ms_contains(ms, 1);
 
     for (int i = 1; i < 1001; i++)
     {
@@ -81,6 +93,10 @@ int main(void)
         tm_insert(tm, i, i);
         hs_insert(hs, i);
         hm_insert(hm, i, i);
+
+        ih_insert(ih, i);
+        mm_insert(mm, i, i);
+        ms_insert(ms, i);
     }
 
     for (int i = 1; i < 1001; i++)
@@ -95,6 +111,10 @@ int main(void)
         c[7] = c[7] && s_contains(s, i, intcmp);
         c[8] = c[8] && tm_contains(tm, i);
         c[9] = c[9] && ts_contains(ts, i);
+
+        c[10] = c[10] && ih_contains(ih, i);
+        c[11] = c[11] && mm_contains(mm, i);
+        c[12] = c[12] && ms_contains(ms, i);
     }
 
     for (int i = -500; i < 1; i++)
@@ -109,6 +129,10 @@ int main(void)
         a[7] = a[7] || s_contains(s, i, intcmp);
         a[8] = a[8] || tm_contains(tm, i);
         a[9] = a[9] || ts_contains(ts, i);
+
+        a[10] = a[10] || ih_contains(ih, i);
+        a[11] = a[11] || mm_contains(mm, i);
+        a[12] = a[12] || ms_contains(ms, i);
     }
 
     for (int i = 1001; i < 1500; i++)
@@ -123,6 +147,10 @@ int main(void)
         a[7] = a[7] || s_contains(s, i, intcmp);
         a[8] = a[8] || tm_contains(tm, i);
         a[9] = a[9] || ts_contains(ts, i);
+
+        a[10] = a[10] || ih_contains(ih, i);
+        a[11] = a[11] || mm_contains(mm, i);
+        a[12] = a[12] || ms_contains(ms, i);
     }
 
     d_clear(d, NULL);
@@ -136,6 +164,10 @@ int main(void)
     tm_clear(tm, NULL);
     ts_clear(ts, NULL);
 
+    ih_clear(ih, NULL);
+    mm_clear(mm, NULL);
+    ms_clear(ms, NULL);
+
     b[0] = b[0] || d_contains(d, 1, intcmp);
     b[1] = b[1] || hm_contains(hm, 1);
     b[2] = b[2] || hs_contains(hs, 1);
@@ -147,47 +179,65 @@ int main(void)
     b[8] = b[8] || tm_contains(tm, 1);
     b[9] = b[9] || ts_contains(ts, 1);
 
+    b[10] = b[10] || ih_contains(ih, 1);
+    b[11] = b[11] || mm_contains(mm, 1);
+    b[12] = b[12] || ms_contains(ms, 1);
+
     printf("-------------------- CONTAINS --------------------\n");
     if (c[0] && !a[0] && !b[0])
-        printf("%10s PASSED\n", "DEQUE");
+        printf("%12s PASSED\n", "DEQUE");
     else
-        printf("%10s FAILED\n", "DEQUE");
+        printf("%12s FAILED\n", "DEQUE");
     if (c[1] && !a[1] && !b[1])
-        printf("%10s PASSED\n", "HASHMAP");
+        printf("%12s PASSED\n", "HASHMAP");
     else
-        printf("%10s FAILED\n", "HASHMAP");
+        printf("%12s FAILED\n", "HASHMAP");
     if (c[2] && !a[2] && !b[2])
-        printf("%10s PASSED\n", "HASHSET");
+        printf("%12s PASSED\n", "HASHSET");
     else
-        printf("%10s FAILED\n", "HASHSET");
+        printf("%12s FAILED\n", "HASHSET");
     if (c[3] && !a[3] && !b[3])
-        printf("%10s PASSED\n", "HEAP");
+        printf("%12s PASSED\n", "HEAP");
     else
-        printf("%10s FAILED\n", "HEAP");
+        printf("%12s FAILED\n", "HEAP");
     if (c[4] && !a[4] && !b[4])
-        printf("%10s PASSED\n", "LINKEDLIST");
+        printf("%12s PASSED\n", "LINKEDLIST");
     else
-        printf("%10s FAILED\n", "LINKEDLIST");
+        printf("%12s FAILED\n", "LINKEDLIST");
     if (c[5] && !a[5] && !b[5])
-        printf("%10s PASSED\n", "LIST");
+        printf("%12s PASSED\n", "LIST");
     else
-        printf("%10s FAILED\n", "LIST");
+        printf("%12s FAILED\n", "LIST");
     if (c[6] && !a[6] && !b[6])
-        printf("%10s PASSED\n", "QUEUE");
+        printf("%12s PASSED\n", "QUEUE");
     else
-        printf("%10s FAILED\n", "QUEUE");
+        printf("%12s FAILED\n", "QUEUE");
     if (c[7] && !a[7] && !b[7])
-        printf("%10s PASSED\n", "STACK");
+        printf("%12s PASSED\n", "STACK");
     else
-        printf("%10s FAILED\n", "STACK");
+        printf("%12s FAILED\n", "STACK");
     if (c[8] && !a[8] && !b[8])
-        printf("%10s PASSED\n", "TREEMAP");
+        printf("%12s PASSED\n", "TREEMAP");
     else
-        printf("%10s FAILED\n", "TREEMAP");
+        printf("%12s FAILED\n", "TREEMAP");
     if (c[9] && !a[9] && !b[9])
-        printf("%10s PASSED\n", "TREESET");
+        printf("%12s PASSED\n", "TREESET");
     else
-        printf("%10s FAILED\n", "TREESET");
+        printf("%12s FAILED\n", "TREESET");
+    if (c[10] && !a[10] && !b[10])
+        printf("%12s PASSED\n", "INTERVALHEAP");
+    else
+        printf("%12s FAILED\n", "INTERVALHEAP");
+    if (c[11] && !a[11] && !b[11])
+        printf("%12s PASSED\n", "MULTIMAP");
+    else
+        printf("%12s FAILED\n", "MULTIMAP");
+    if (c[12] && !a[12] && !b[12])
+        printf("%12s PASSED\n", "MULTISET");
+    else
+        printf("%12s FAILED\n", "MULTISET");
+
+    printf("\n\n");
 
     l_free(l, NULL);
     ll_free(ll, NULL);
@@ -199,6 +249,10 @@ int main(void)
     tm_free(tm, NULL);
     hs_free(hs, NULL);
     hm_free(hm, NULL);
+
+    ih_free(ih, NULL);
+    mm_free(mm, NULL);
+    ms_free(ms, NULL);
 
     return 0;
 }

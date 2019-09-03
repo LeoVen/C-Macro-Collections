@@ -28,8 +28,12 @@ int main(void)
     heap *h = h_new(1000, cmc_max_heap, intcmp);
     tset *ts = ts_new(intcmp);
     tmap *tm = tm_new(intcmp);
-    hset *hs = hs_new(1000, 0.9, intcmp, inthash);
-    hmap *hm = hm_new(1000, 0.9, intcmp, inthash);
+    hset *hs = hs_new(1000, 0.6, intcmp, inthash);
+    hmap *hm = hm_new(1000, 0.6, intcmp, inthash);
+
+    iheap *ih = ih_new(1000, intcmp);
+    mmap *mm = mm_new(1000, 0.8, intcmp, inthash);
+    mset *ms = ms_new(1000, 0.6, intcmp, inthash);
 
     printf("+--------------------------------------------------+\n");
     printf("|       Separate Header and Source is Working      |\n");
@@ -45,6 +49,10 @@ int main(void)
     tm_free(tm, NULL);
     hs_free(hs, NULL);
     hm_free(hm, NULL);
+
+    ih_free(ih, NULL);
+    mm_free(mm, NULL);
+    ms_free(ms, NULL);
 
     return 0;
 }

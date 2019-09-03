@@ -1,6 +1,5 @@
 #include "../src/macro_collections.h"
 #include <stdio.h>
-#include <assert.h>
 
 int intcmp(int a, int b)
 {
@@ -29,6 +28,10 @@ COLLECTION_GENERATE(TREESET, ts, tset, /* FMOD */, /* K */, int)
 COLLECTION_GENERATE(TREEMAP, tm, tmap, /* FMOD */, int, double)
 COLLECTION_GENERATE(HASHSET, hs, hset, /* FMOD */, /* K */, int)
 COLLECTION_GENERATE(HASHMAP, hm, hmap, /* FMOD */, int, double)
+
+COLLECTION_GENERATE(INTERVALHEAP, ih, iheap, /* FMOD */, , int)
+COLLECTION_GENERATE(MULTIMAP, mm, mmap, /* FMOD */, int, double)
+COLLECTION_GENERATE(MULTISET, ms, mset, , , int)
 
 #define ITERATOR_TEST(NAME, PFX, sname, initfunc, insertbody, sumbody, validation1, validation2) \
     void NAME##_iterator_test(void)                                                              \
@@ -71,22 +74,25 @@ COLLECTION_GENERATE(HASHMAP, hm, hmap, /* FMOD */, int, double)
                                                                                                  \
         PFX##_free(coll, NULL);                                                                  \
                                                                                                  \
-        if (validation1 && validation2)                                                          \
-            printf("%10s PASSED\n", #NAME);                                                      \
+        if ((validation1) && (validation2))                                                      \
+            printf("%12s PASSED\n", #NAME);                                                      \
         else                                                                                     \
-            printf("%10s FAILED\n", #NAME);                                                      \
+            printf("%12s FAILED\n", #NAME);                                                      \
     }
 
 ITERATOR_TEST(DEQUE, d, deque, d_new(20), d_push_front(coll, i), sum1 += d_iter_value(&iter), sum1 == 450, 1)
-ITERATOR_TEST(HASHMAP, hm, hmap, hm_new(50, 0.6, intcmp, inthash), hm_insert(coll, i, (double)i / 10.0), sum1 += hm_iter_key(&iter); sum2 += hm_iter_value(&iter), sum1 == 450, sum2 == 45.0)
+ITERATOR_TEST(HASHMAP, hm, hmap, hm_new(50, 0.6, intcmp, inthash), hm_insert(coll, i, (double)i / 10.0), sum1 += hm_iter_key(&iter); sum2 += hm_iter_value(&iter), sum1 == 450, (int)sum2 == (int)45)
 ITERATOR_TEST(HASHSET, hs, hset, hs_new(50, 0.6, intcmp, inthash), hs_insert(coll, i), sum1 += hs_iter_value(&iter), sum1 == 450, 1)
 ITERATOR_TEST(HEAP, h, heap, h_new(20, cmc_max_heap, intcmp), h_insert(coll, i), sum1 += h_iter_value(&iter), sum1 == 450, 1)
 ITERATOR_TEST(LINKEDLIST, ll, linked, ll_new(), ll_push_back(coll, i), sum1 += ll_iter_value(&iter), sum1 == 450, 1)
 ITERATOR_TEST(LIST, l, list, l_new(20), l_push_back(coll, i), sum1 += l_iter_value(&iter), sum1 == 450, 1)
 ITERATOR_TEST(QUEUE, q, queue, q_new(20), q_enqueue(coll, i), sum1 += q_iter_value(&iter), sum1 == 450, 1)
 ITERATOR_TEST(STACK, s, stack, s_new(20), s_push(coll, i), sum1 += s_iter_value(&iter), sum1 == 450, 1)
-ITERATOR_TEST(TREEMAP, tm, tmap, tm_new(intcmp), tm_insert(coll, i, (double)i / 10.0), sum1 += tm_iter_key(&iter); sum2 += tm_iter_value(&iter), sum1 == 450, sum2 == 45.0)
+ITERATOR_TEST(TREEMAP, tm, tmap, tm_new(intcmp), tm_insert(coll, i, (double)i / 10.0), sum1 += tm_iter_key(&iter); sum2 += tm_iter_value(&iter), sum1 == 450, (int)sum2 == (int)45)
 ITERATOR_TEST(TREESET, ts, tset, ts_new(intcmp), ts_insert(coll, i), sum1 += ts_iter_value(&iter), sum1 == 450, 1)
+ITERATOR_TEST(INTERVALHEAP, ih, iheap, ih_new(20, intcmp), ih_insert(coll, i), sum1 += ih_iter_value(&iter), sum1 == 450, 1)
+ITERATOR_TEST(MULTIMAP, mm, mmap, mm_new(50, 0.8, intcmp, inthash), mm_insert(coll, i, (double)i / 10.0), sum1 += mm_iter_key(&iter); sum2 += mm_iter_value(&iter), sum1 == 450, (int)sum2 == (int)45)
+ITERATOR_TEST(MULTISET, ms, mset, ms_new(50, 0.6, intcmp, inthash), ms_insert(coll, i), sum1 += ms_iter_value(&iter); sum2 += ms_iter_multiplicity(&iter), sum1 == 450, (size_t)sum2 == 100)
 
 int main(void)
 {
@@ -101,6 +107,12 @@ int main(void)
     STACK_iterator_test();
     TREEMAP_iterator_test();
     TREESET_iterator_test();
+
+    INTERVALHEAP_iterator_test();
+    MULTIMAP_iterator_test();
+    MULTISET_iterator_test();
+
+    printf("\n\n");
 
     return 0;
 }
