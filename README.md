@@ -1,11 +1,20 @@
 # C-Macro-Collections
 
-Generate Simple Data Structures of any type in C for you to use in your projects.
+Header only, macro generated, generic and type-safe Collections in C.
 
 ![License](https://img.shields.io/badge/License-MIT-blue.svg)
 ![Version](https://img.shields.io/badge/Version-v1.6.1-orange.svg)
 [![Build](https://travis-ci.org/LeoVen/C-Macro-Collections.svg?branch=master)](https://travis-ci.org/LeoVen/C-Macro-Collections)
 [![codecov](https://codecov.io/gh/LeoVen/C-Macro-Collections/branch/master/graph/badge.svg)](https://codecov.io/gh/LeoVen/C-Macro-Collections)
+
+## Table of Contents
+
+* Project Structure
+* Available Collections
+* Overall To-Do
+* Design Decisions
+* What to Use
+* How to Use
 
 ## Project Structure
 
@@ -15,12 +24,10 @@ Generate Simple Data Structures of any type in C for you to use in your projects
     * __cmc__ - The main C Macro Collections Library
     * __dev__ - The main C Macro Collections Library for development (containing logging)
     * __ext__ - Extra collections
-    * __sac__ - Stack Allocated Collections
+    * __sac__ - Statically  Allocated Collections
     * __utl__ - Utility like ForEach macros, logging, etc
     * __macro\_collections.h__ - Master header containing all collections and utilities
 * __tests__ - Where all tests are hosted
-
-Only Collections located in __cmc__ are to be documented at *Documentation.md*.
 
 ## Available Collections
 
@@ -39,13 +46,23 @@ Only Collections located in __cmc__ are to be documented at *Documentation.md*.
     * IntervalHeap
     * MultiMap
     * MultiSet
-* Stack Allocated Collections Library
+* Statically  Allocated Collections Library
     * Queue
     * Stack
 * Development Collections Library
     * Deque
 
 Check out **Documentation.md** for more information about each collection. The documentation is still being written.
+
+## Overall To-Do
+
+In the long term, these are the steps left for the completion of this library:
+
+* Complete the implementation of all the functions in the scope of the TODO file for the main collections (all those included in `cmc` and `ext`);
+* Reorganize and complete all tests for `cmc` and `ext`;
+* Make an exact copy of all collections to `dev` with many logging utility, for them to be used under development;
+* Port all of these collections to be statically allocated and be part of the `sac` library;
+* Complete all tests for `sac`.
 
 ## Design Decisions
 
