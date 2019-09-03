@@ -356,7 +356,8 @@ static const size_t cmc_hashtable_primes[] = {53, 97, 191, 383, 769, 1531,
                                                                                                  \
                         scan = scan->next;                                                       \
                                                                                                  \
-                        deallocator(tmp->key, tmp->value);                                       \
+                        if (deallocator)                                                         \
+                            deallocator(tmp->key, tmp->value);                                   \
                                                                                                  \
                         free(tmp);                                                               \
                     }                                                                            \
@@ -1017,6 +1018,13 @@ static const size_t cmc_hashtable_primes[] = {53, 97, 191, 383, 769, 1531,
         if (_map_->count != _new_map_->count)                                                    \
         {                                                                                        \
             PFX##_free(_new_map_, NULL);                                                         \
+            return false;                                                                        \
+        }                                                                                        \
+                                                                                                 \
+        if (_map_->count != _new_map_->count)                                                    \
+        {                                                                                        \
+            PFX##_free(_new_map_, NULL);                                                         \
+                                                                                                 \
             return false;                                                                        \
         }                                                                                        \
                                                                                                  \

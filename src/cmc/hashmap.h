@@ -330,7 +330,7 @@ static const size_t cmc_hashtable_primes[] = {53, 97, 191, 383, 769, 1531,
         {                                                                                        \
             target->key = key;                                                                   \
             target->value = value;                                                               \
-            target->dist = original_pos - pos;                                                   \
+            target->dist = 0;                                                                    \
             target->state = CMC_ES_FILLED;                                                       \
         }                                                                                        \
         else                                                                                     \
@@ -775,7 +775,7 @@ static const size_t cmc_hashtable_primes[] = {53, 97, 191, 383, 769, 1531,
                                                                                                  \
     static bool PFX##_impl_grow(SNAME *_map_)                                                    \
     {                                                                                            \
-        size_t new_size = PFX##_impl_calculate_size(_map_->capacity + _map_->capacity / 2);      \
+        size_t new_size = _map_->capacity + _map_->capacity / 2;                                 \
                                                                                                  \
         SNAME *_new_map_ = PFX##_new(new_size, _map_->load, _map_->cmp, _map_->hash);            \
                                                                                                  \
@@ -795,14 +795,17 @@ static const size_t cmc_hashtable_primes[] = {53, 97, 191, 383, 769, 1531,
         if (_map_->count != _new_map_->count)                                                    \
         {                                                                                        \
             PFX##_free(_new_map_, NULL);                                                         \
+                                                                                                 \
             return false;                                                                        \
         }                                                                                        \
                                                                                                  \
-        SNAME##_entry *tmp = _map_->buffer;                                                      \
+        SNAME##_entry *tmp_b = _map_->buffer;                                                    \
         _map_->buffer = _new_map_->buffer;                                                       \
-        _new_map_->buffer = tmp;                                                                 \
+        _new_map_->buffer = tmp_b;                                                               \
                                                                                                  \
+        size_t tmp_c = _map_->capacity;                                                          \
         _map_->capacity = _new_map_->capacity;                                                   \
+        _new_map_->capacity = tmp_c;                                                             \
                                                                                                  \
         PFX##_free(_new_map_, NULL);                                                             \
                                                                                                  \

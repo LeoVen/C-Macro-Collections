@@ -319,7 +319,7 @@ static const size_t cmc_hashtable_primes[] = {53, 97, 191, 383, 769, 1531,
         if (target->state == CMC_ES_EMPTY || target->state == CMC_ES_DELETED)                    \
         {                                                                                        \
             target->value = element;                                                             \
-            target->dist = pos - original_pos;                                                   \
+            target->dist = 0;                                                                    \
             target->state = CMC_ES_FILLED;                                                       \
         }                                                                                        \
         else                                                                                     \
@@ -806,19 +806,21 @@ static const size_t cmc_hashtable_primes[] = {53, 97, 191, 383, 769, 1531,
         SNAME##_entry *scan = &(iter->target->buffer[iter->cursor]);                             \
                                                                                                  \
         if (iter->cursor == iter->last)                                                          \
-            iter->end = true;                                                                    \
-        else                                                                                     \
         {                                                                                        \
-            iter->index++;                                                                       \
+            iter->end = true;                                                                    \
                                                                                                  \
-            while (1)                                                                            \
-            {                                                                                    \
-                iter->cursor++;                                                                  \
-                scan = &(iter->target->buffer[iter->cursor]);                                    \
+            return false;                                                                        \
+        }                                                                                        \
                                                                                                  \
-                if (scan->state == CMC_ES_FILLED)                                                \
-                    break;                                                                       \
-            }                                                                                    \
+        iter->index++;                                                                           \
+                                                                                                 \
+        while (1)                                                                                \
+        {                                                                                        \
+            iter->cursor++;                                                                      \
+            scan = &(iter->target->buffer[iter->cursor]);                                        \
+                                                                                                 \
+            if (scan->state == CMC_ES_FILLED)                                                    \
+                break;                                                                           \
         }                                                                                        \
                                                                                                  \
         iter->start = PFX##_empty(iter->target);                                                 \
@@ -834,19 +836,21 @@ static const size_t cmc_hashtable_primes[] = {53, 97, 191, 383, 769, 1531,
         SNAME##_entry *scan = &(iter->target->buffer[iter->cursor]);                             \
                                                                                                  \
         if (iter->cursor == iter->first)                                                         \
-            iter->start = true;                                                                  \
-        else                                                                                     \
         {                                                                                        \
-            iter->index--;                                                                       \
+            iter->start = true;                                                                  \
                                                                                                  \
-            while (1)                                                                            \
-            {                                                                                    \
-                iter->cursor--;                                                                  \
-                scan = &(iter->target->buffer[iter->cursor]);                                    \
+            return false;                                                                        \
+        }                                                                                        \
                                                                                                  \
-                if (scan->state == CMC_ES_FILLED)                                                \
-                    break;                                                                       \
-            }                                                                                    \
+        iter->index--;                                                                           \
+                                                                                                 \
+        while (1)                                                                                \
+        {                                                                                        \
+            iter->cursor--;                                                                      \
+            scan = &(iter->target->buffer[iter->cursor]);                                        \
+                                                                                                 \
+            if (scan->state == CMC_ES_FILLED)                                                    \
+                break;                                                                           \
         }                                                                                        \
                                                                                                  \
         iter->end = PFX##_empty(iter->target);                                                   \
@@ -869,7 +873,7 @@ static const size_t cmc_hashtable_primes[] = {53, 97, 191, 383, 769, 1531,
                                                                                                  \
     static bool PFX##_impl_grow(SNAME *_set_)                                                    \
     {                                                                                            \
-        size_t new_size = PFX##_impl_calculate_size(_set_->capacity + _set_->capacity / 2);      \
+        size_t new_size = _set_->capacity + _set_->capacity / 2;                                 \
                                                                                                  \
         SNAME *_new_set_ = PFX##_new(new_size, _set_->load, _set_->cmp, _set_->hash);            \
                                                                                                  \
@@ -890,11 +894,13 @@ static const size_t cmc_hashtable_primes[] = {53, 97, 191, 383, 769, 1531,
             return false;                                                                        \
         }                                                                                        \
                                                                                                  \
-        SNAME##_entry *tmp = _set_->buffer;                                                      \
+        SNAME##_entry *tmp_b = _set_->buffer;                                                    \
         _set_->buffer = _new_set_->buffer;                                                       \
-        _new_set_->buffer = tmp;                                                                 \
+        _new_set_->buffer = tmp_b;                                                               \
                                                                                                  \
+        size_t tmp_c = _set_->capacity;                                                          \
         _set_->capacity = _new_set_->capacity;                                                   \
+        _new_set_->capacity = tmp_c;                                                             \
                                                                                                  \
         PFX##_free(_new_set_, NULL);                                                             \
                                                                                                  \
