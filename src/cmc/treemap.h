@@ -115,16 +115,15 @@
     /* Collection Input and Output */                                                        \
     FMOD bool PFX##_insert(SNAME *_map_, K key, V value);                                    \
     FMOD bool PFX##_update(SNAME *_map_, K key, V new_value, V *old_value);                  \
-    FMOD bool PFX##_remove(SNAME *_map_, K key, V *value);                                   \
+    FMOD bool PFX##_remove(SNAME *_map_, K key, V *out_value);                               \
     /* Conditional Input and Output */                                                       \
     FMOD bool PFX##_insert_if(SNAME *_map_, K key, V value, bool condition);                 \
-    FMOD bool PFX##_remove_if(SNAME *_map_, K key, V *value, bool condition);                \
+    FMOD bool PFX##_remove_if(SNAME *_map_, K key, V *out_value, bool condition);            \
     /* Element Access */                                                                     \
     FMOD bool PFX##_max(SNAME *_map_, K *key, V *value);                                     \
     FMOD bool PFX##_min(SNAME *_map_, K *key, V *value);                                     \
     FMOD V PFX##_get(SNAME *_map_, K key);                                                   \
     FMOD V *PFX##_get_ref(SNAME *_map_, K key);                                              \
-    FMOD bool PFX##_set(SNAME *_map_, K key, V new_value);                                   \
     /* Collection State */                                                                   \
     FMOD bool PFX##_contains(SNAME *_map_, K key);                                           \
     FMOD bool PFX##_empty(SNAME *_map_);                                                     \
@@ -337,20 +336,23 @@
         if (!node)                                                                           \
             return false;                                                                    \
                                                                                              \
-        *old_value = node->value;                                                            \
+        if (old_value)                                                                       \
+            *old_value = node->value;                                                        \
+                                                                                             \
         node->value = new_value;                                                             \
                                                                                              \
         return true;                                                                         \
     }                                                                                        \
                                                                                              \
-    FMOD bool PFX##_remove(SNAME *_map_, K key, V *value)                                    \
+    FMOD bool PFX##_remove(SNAME *_map_, K key, V *out_value)                                \
     {                                                                                        \
         SNAME##_node *node = PFX##_impl_get_node(_map_, key);                                \
                                                                                              \
         if (!node)                                                                           \
             return false;                                                                    \
                                                                                              \
-        *value = node->value;                                                                \
+        if (out_value)                                                                       \
+            *out_value = node->value;                                                        \
                                                                                              \
         SNAME##_node *temp = NULL, *unbalanced = NULL;                                       \
                                                                                              \
@@ -476,10 +478,10 @@
         return false;                                                                        \
     }                                                                                        \
                                                                                              \
-    FMOD bool PFX##_remove_if(SNAME *_map_, K key, V *value, bool condition)                 \
+    FMOD bool PFX##_remove_if(SNAME *_map_, K key, V *out_value, bool condition)             \
     {                                                                                        \
         if (condition)                                                                       \
-            return PFX##_remove(_map_, key, value);                                          \
+            return PFX##_remove(_map_, key, out_value);                                      \
                                                                                              \
         return false;                                                                        \
     }                                                                                        \
@@ -534,18 +536,6 @@
             return NULL;                                                                     \
                                                                                              \
         return &(node->value);                                                               \
-    }                                                                                        \
-                                                                                             \
-    FMOD bool PFX##_set(SNAME *_map_, K key, V new_value)                                    \
-    {                                                                                        \
-        SNAME##_node *node = PFX##_impl_get_node(_map_, key);                                \
-                                                                                             \
-        if (!node)                                                                           \
-            return false;                                                                    \
-                                                                                             \
-        node->value = new_value;                                                             \
-                                                                                             \
-        return true;                                                                         \
     }                                                                                        \
                                                                                              \
     FMOD bool PFX##_contains(SNAME *_map_, K key)                                            \

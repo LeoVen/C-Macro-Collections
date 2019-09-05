@@ -162,16 +162,15 @@ static const size_t cmc_hashtable_primes[] = {53, 97, 191, 383, 769, 1531,
     /* Collection Input and Output */                                                             \
     FMOD bool PFX##_insert(SNAME *_map_, K key, V value);                                         \
     FMOD bool PFX##_update(SNAME *_map_, K key, V new_value, V *old_value);                       \
-    FMOD bool PFX##_remove(SNAME *_map_, K key, V *value);                                        \
+    FMOD bool PFX##_remove(SNAME *_map_, K key, V *out_value);                                    \
     /* Conditional Input and Output */                                                            \
     FMOD bool PFX##_insert_if(SNAME *_map_, K key, V value, bool condition);                      \
-    FMOD bool PFX##_remove_if(SNAME *_map_, K key, V *value, bool condition);                     \
+    FMOD bool PFX##_remove_if(SNAME *_map_, K key, V *out_value, bool condition);                 \
     /* Element Access */                                                                          \
     FMOD bool PFX##_max(SNAME *_map_, K *key, V *value);                                          \
     FMOD bool PFX##_min(SNAME *_map_, K *key, V *value);                                          \
     FMOD V PFX##_get(SNAME *_map_, K key);                                                        \
     FMOD V *PFX##_get_ref(SNAME *_map_, K key);                                                   \
-    FMOD bool PFX##_set(SNAME *_map_, K key, V new_value);                                        \
     /* Collection State */                                                                        \
     FMOD bool PFX##_contains(SNAME *_map_, K key);                                                \
     FMOD bool PFX##_empty(SNAME *_map_);                                                          \
@@ -378,20 +377,23 @@ static const size_t cmc_hashtable_primes[] = {53, 97, 191, 383, 769, 1531,
         if (!entry)                                                                              \
             return false;                                                                        \
                                                                                                  \
-        *old_value = entry->value;                                                               \
+        if (old_value)                                                                           \
+            *old_value = entry->value;                                                           \
+                                                                                                 \
         entry->value = new_value;                                                                \
                                                                                                  \
         return true;                                                                             \
     }                                                                                            \
                                                                                                  \
-    FMOD bool PFX##_remove(SNAME *_map_, K key, V *value)                                        \
+    FMOD bool PFX##_remove(SNAME *_map_, K key, V *out_value)                                    \
     {                                                                                            \
         SNAME##_entry *result = PFX##_impl_get_entry(_map_, key);                                \
                                                                                                  \
         if (result == NULL)                                                                      \
             return false;                                                                        \
                                                                                                  \
-        *value = result->value;                                                                  \
+        if (out_value)                                                                           \
+            *out_value = result->value;                                                          \
                                                                                                  \
         result->key = PFX##_impl_default_key();                                                  \
         result->value = PFX##_impl_default_value();                                              \
@@ -411,10 +413,10 @@ static const size_t cmc_hashtable_primes[] = {53, 97, 191, 383, 769, 1531,
         return false;                                                                            \
     }                                                                                            \
                                                                                                  \
-    FMOD bool PFX##_remove_if(SNAME *_map_, K key, V *value, bool condition)                     \
+    FMOD bool PFX##_remove_if(SNAME *_map_, K key, V *out_value, bool condition)                 \
     {                                                                                            \
         if (condition)                                                                           \
-            return PFX##_remove(_map_, key, value);                                              \
+            return PFX##_remove(_map_, key, out_value);                                          \
                                                                                                  \
         return false;                                                                            \
     }                                                                                            \
@@ -493,18 +495,6 @@ static const size_t cmc_hashtable_primes[] = {53, 97, 191, 383, 769, 1531,
             return NULL;                                                                         \
                                                                                                  \
         return &(entry->value);                                                                  \
-    }                                                                                            \
-                                                                                                 \
-    FMOD bool PFX##_set(SNAME *_map_, K key, V new_value)                                        \
-    {                                                                                            \
-        SNAME##_entry *entry = PFX##_impl_get_entry(_map_, key);                                 \
-                                                                                                 \
-        if (!entry)                                                                              \
-            return false;                                                                        \
-                                                                                                 \
-        entry->value = new_value;                                                                \
-                                                                                                 \
-        return true;                                                                             \
     }                                                                                            \
                                                                                                  \
     FMOD bool PFX##_contains(SNAME *_map_, K key)                                                \
