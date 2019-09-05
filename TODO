@@ -11,25 +11,24 @@ TODO
     [X] Add MultiMap
     [X] Add IntervalHeap
     [ ] Add TreeHashMap
+    [ ] Add SortedList
+    [ ] Add BiDiMap
 [ ] Add functions
     [X] update       {hashmap, treemap, multimap}
     [X] set          {hashmap, treemap, multimap}
-    [/] to_string    {all}
+    [X] to_string    {all}
     [ ] iter_advance {all} (iterators)
     [ ] iter_rewind  {all} (iterators)
     [ ] iter_go_to   {all} (iterators)
     [ ] from_array   {all}
     [ ] to_array     {all}
-    [ ] equals       {all}
-    [ ] copy_of      {all}
+    [X] equals       {all}
+    [X] copy_of      {all}
     [ ] resize       {dynamic arrays and circular buffers}
     [ ] save         {all} (serialization)
     [ ] load         {all} (serialization)
     [ ] read         {all} (serialization)
     [ ] write        {all} (serialization)
-    [ ] Iterator IO
-        [ ] range_insert
-        [ ] range_remove
 [ ] Stack Allocated Collections
     [ ] Deque
     [ ] HashMap
@@ -52,9 +51,9 @@ TODO
     [ ] Stack
     [ ] TreeMap
     [ ] TreeSet
-[X] Utility
-    [X] assert.h
+[~] Utility
+    [~] assert.h
     [X] foreach.h
-    [X] log.h
-    [X] test.h
+    [~] log.h
+    [~] test.h
     [X] timer.h

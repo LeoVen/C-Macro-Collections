@@ -1,5 +1,13 @@
 # RELEASE.MAJOR.MINOR
 
+1.6.2
+    Added new functions to all collections:
+        - copy_of
+        - equals
+    Added the new collections to the tests
+    Fixed some collections and some improvements to the hashtables
+    Unified the functions set and update from the map implementations
+
 1.6.1
     Removed ./ext/linkedqueue.h
     Added a deallocator parameter to all _free and _clear functions
