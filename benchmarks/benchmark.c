@@ -154,7 +154,7 @@ COLLECTION_GENERATE(MULTISET, ms, mset, /* FMOD */, /* K */, int)
         timer_stop(total);                                                                                       \
         timer_calc(total);                                                                                       \
                                                                                                                  \
-        PFX##_free(coll);                                                                                        \
+        PFX##_free(coll, NULL);                                                                                  \
                                                                                                                  \
         double adj_search_time = (total.result - search_time) + (search_time * (double)NTOTAL) / (double)s;      \
         double no_search = input_time + iter_time + output_time;                                                 \
