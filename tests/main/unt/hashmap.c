@@ -8,12 +8,10 @@ CMC_CREATE_UNIT(hashmap_test, true, {
     CMC_CREATE_TEST(new, {
         hashmap *map = hm_new(943722, 0.6, cmp, hash);
 
-        bool passed = (map->capacity >= (943722 / 0.6)) && map->count == 0 && map->buffer;
-
         cmc_assert_not_equals(ptr, NULL, map);
+        cmc_assert_not_equals(ptr, NULL, map->buffer);
+        cmc_assert_equals(size_t, 0, hm_count(map));
         cmc_assert_greater_equals(size_t, (943722 / 0.6), hm_capacity(map));
-
-        CMC_TEST_PASS_ELSE_FAIL(passed);
 
         hm_free(map);
     });
@@ -22,16 +20,12 @@ CMC_CREATE_UNIT(hashmap_test, true, {
         hashmap *map = hm_new(0, 0.6, cmp, hash);
 
         cmc_assert_equals(ptr, NULL, map);
-
-        CMC_TEST_PASS_ELSE_FAIL(map == NULL);
     });
 
     CMC_CREATE_TEST(new[edge_case:capacity = UINT64_MAX], {
         hashmap *map = hm_new(UINT64_MAX, 0.6, cmp, hash);
 
         cmc_assert_equals(ptr, NULL, map);
-
-        CMC_TEST_PASS_ELSE_FAIL(map == NULL);
     });
 
     CMC_CREATE_TEST(clear[count capacity], {
@@ -47,8 +41,6 @@ CMC_CREATE_UNIT(hashmap_test, true, {
         hm_clear(map);
 
         cmc_assert_equals(size_t, 0, hm_count(map));
-
-        CMC_TEST_PASS_ELSE_FAIL(hm_count(map) == 0);
 
         hm_free(map);
     });

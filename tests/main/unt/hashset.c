@@ -8,12 +8,10 @@ CMC_CREATE_UNIT(hashset_test, true, {
     CMC_CREATE_TEST(new, {
         hashset *set = hs_new(943722, 0.6, cmp, hash);
 
-        bool passed = (set->capacity >= (943722 / 0.6)) && set->count == 0 && set->buffer;
-
         cmc_assert_not_equals(ptr, NULL, set);
-        cmc_assert(hs_capacity(set) > (943722 / 0.6));
-
-        CMC_TEST_PASS_ELSE_FAIL(passed);
+        cmc_assert_not_equals(ptr, NULL, set->buffer);
+        cmc_assert_equals(size_t, 0, hs_count(set));
+        cmc_assert_greater_equals(size_t, (943722 / 0.6), hs_capacity(set));
 
         hs_free(set);
     });
@@ -22,16 +20,12 @@ CMC_CREATE_UNIT(hashset_test, true, {
         hashset *set = hs_new(0, 0.6, cmp, hash);
 
         cmc_assert_equals(ptr, NULL, set);
-
-        CMC_TEST_PASS_ELSE_FAIL(set == NULL);
     });
 
     CMC_CREATE_TEST(new[edge_case:capacity = UINT64_MAX], {
         hashset *set = hs_new(UINT64_MAX, 0.6, cmp, hash);
 
         cmc_assert_equals(ptr, NULL, set);
-
-        CMC_TEST_PASS_ELSE_FAIL(set == NULL);
     });
 
     CMC_CREATE_TEST(clear[count capacity], {
@@ -47,8 +41,6 @@ CMC_CREATE_UNIT(hashset_test, true, {
         hs_clear(set);
 
         cmc_assert_equals(size_t, 0, hs_count(set));
-
-        CMC_TEST_PASS_ELSE_FAIL(hs_count(set) == 0);
 
         hs_free(set);
     });

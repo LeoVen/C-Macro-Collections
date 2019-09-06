@@ -10,8 +10,6 @@ CMC_CREATE_UNIT(treemap_test, true, {
 
         cmc_assert_not_equals(ptr, NULL, map);
 
-        CMC_TEST_PASS_ELSE_FAIL(map);
-
         tm_free(map);
     });
 
@@ -29,8 +27,6 @@ CMC_CREATE_UNIT(treemap_test, true, {
 
         cmc_assert_equals(size_t, 0, tm_count(map));
         cmc_assert_equals(ptr, NULL, map->root);
-
-        CMC_TEST_PASS_ELSE_FAIL(tm_count(map) == 0);
 
         tm_free(map);
     });

@@ -2,7 +2,7 @@ CC = gcc
 CFLAGS = -std=c11 -Wall -Wextra
 CFLAGS += -Wno-unused-function -Wno-unused-parameter -Wno-unused-variable -Wno-unused-label
 
-main:
+main: FORCE
 	$(CC) foreach.c -o foreach.exe $(CFLAGS)
 	./foreach.exe
 	$(CC) iterators.c -o iterators.exe $(CFLAGS)
@@ -21,3 +21,5 @@ dev: main
 
 windev: main
 	del *.exe .\\sep\\*.o .\\sep\\*.exe
+
+FORCE:

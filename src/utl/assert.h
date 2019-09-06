@@ -46,12 +46,22 @@
 #define CMC_ASSERT_H
 
 #include <inttypes.h>
+#include <stdbool.h>
 #include <stdint.h>
 #include <stdio.h>
 #include <string.h>
 
 #define CMC_ASSERT_GLUE_(dtype, assertion) cmc_assert_##assertion##_##dtype
 #define CMC_ASSERT_GLUE(dtype, assertion) CMC_ASSERT_GLUE_(dtype, assertion)
+
+/**
+ * This is a global variable that can be used to test if all assertions passed.
+ * If a single assertion fails, this variable will be set to false.
+ *
+ * This variable is also used in test.h utility to automatically pass or fail a
+ * unit test. Once the unit test finishes, this variable is set back to true.
+ */
+static bool cmc_assert_state = true;
 
 /**
  * expression : An expression that is expected to be evaluated to true.
@@ -62,6 +72,8 @@
         const char *str = #expression;                           \
         if (!(expression))                                       \
         {                                                        \
+            cmc_assert_state = false;                            \
+                                                                 \
             fprintf(stderr,                                      \
                     "Assertion Failed at %s:%s:%u for { %s }\n", \
                     __FILE__, __func__, __LINE__, str);          \
@@ -155,6 +167,8 @@
                                                                                                           \
         if ((expected_) != (actual_))                                                                     \
         {                                                                                                 \
+            cmc_assert_state = false;                                                                     \
+                                                                                                          \
             fprintf(stderr,                                                                               \
                     "Assertion Failed at %s:%s:%u for { %s }: Expected: %" PRId8 " Actual: %" PRId8 "\n", \
                     __FILE__, __func__, __LINE__, str, expected_, actual_);                               \
@@ -171,6 +185,8 @@
                                                                                                             \
         if ((expected_) != (actual_))                                                                       \
         {                                                                                                   \
+            cmc_assert_state = false;                                                                       \
+                                                                                                            \
             fprintf(stderr,                                                                                 \
                     "Assertion Failed at %s:%s:%u for { %s }: Expected: %" PRId16 " Actual: %" PRId16 "\n", \
                     __FILE__, __func__, __LINE__, str, expected_, actual_);                                 \
@@ -187,6 +203,8 @@
                                                                                                             \
         if ((expected_) != (actual_))                                                                       \
         {                                                                                                   \
+            cmc_assert_state = false;                                                                       \
+                                                                                                            \
             fprintf(stderr,                                                                                 \
                     "Assertion Failed at %s:%s:%u for { %s }: Expected: %" PRId32 " Actual: %" PRId32 "\n", \
                     __FILE__, __func__, __LINE__, str, expected_, actual_);                                 \
@@ -203,6 +221,8 @@
                                                                                                             \
         if ((expected_) != (actual_))                                                                       \
         {                                                                                                   \
+            cmc_assert_state = false;                                                                       \
+                                                                                                            \
             fprintf(stderr,                                                                                 \
                     "Assertion Failed at %s:%s:%u for { %s }: Expected: %" PRId64 " Actual: %" PRId64 "\n", \
                     __FILE__, __func__, __LINE__, str, expected_, actual_);                                 \
@@ -219,6 +239,8 @@
                                                                                                           \
         if ((expected_) != (actual_))                                                                     \
         {                                                                                                 \
+            cmc_assert_state = false;                                                                     \
+                                                                                                          \
             fprintf(stderr,                                                                               \
                     "Assertion Failed at %s:%s:%u for { %s }: Expected: %" PRIu8 " Actual: %" PRIu8 "\n", \
                     __FILE__, __func__, __LINE__, str, expected_, actual_);                               \
@@ -235,6 +257,8 @@
                                                                                                             \
         if ((expected_) != (actual_))                                                                       \
         {                                                                                                   \
+            cmc_assert_state = false;                                                                       \
+                                                                                                            \
             fprintf(stderr,                                                                                 \
                     "Assertion Failed at %s:%s:%u for { %s }: Expected: %" PRIu16 " Actual: %" PRIu16 "\n", \
                     __FILE__, __func__, __LINE__, str, expected_, actual_);                                 \
@@ -251,6 +275,8 @@
                                                                                                             \
         if ((expected_) != (actual_))                                                                       \
         {                                                                                                   \
+            cmc_assert_state = false;                                                                       \
+                                                                                                            \
             fprintf(stderr,                                                                                 \
                     "Assertion Failed at %s:%s:%u for { %s }: Expected: %" PRIu32 " Actual: %" PRIu32 "\n", \
                     __FILE__, __func__, __LINE__, str, expected_, actual_);                                 \
@@ -267,6 +293,8 @@
                                                                                                             \
         if ((expected_) != (actual_))                                                                       \
         {                                                                                                   \
+            cmc_assert_state = false;                                                                       \
+                                                                                                            \
             fprintf(stderr,                                                                                 \
                     "Assertion Failed at %s:%s:%u for { %s }: Expected: %" PRIu64 " Actual: %" PRIu64 "\n", \
                     __FILE__, __func__, __LINE__, str, expected_, actual_);                                 \
@@ -283,6 +311,8 @@
                                                                                                               \
         if ((expected_) != (actual_))                                                                         \
         {                                                                                                     \
+            cmc_assert_state = false;                                                                         \
+                                                                                                              \
             fprintf(stderr,                                                                                   \
                     "Assertion Failed at %s:%s:%u for { %s }: Expected: %" PRIdMAX " Actual: %" PRIdMAX "\n", \
                     __FILE__, __func__, __LINE__, str, expected_, actual_);                                   \
@@ -299,6 +329,8 @@
                                                                                                               \
         if ((expected_) != (actual_))                                                                         \
         {                                                                                                     \
+            cmc_assert_state = false;                                                                         \
+                                                                                                              \
             fprintf(stderr,                                                                                   \
                     "Assertion Failed at %s:%s:%u for { %s }: Expected: %" PRIuMAX " Actual: %" PRIuMAX "\n", \
                     __FILE__, __func__, __LINE__, str, expected_, actual_);                                   \
@@ -315,6 +347,8 @@
                                                                                                               \
         if ((expected_) != (actual_))                                                                         \
         {                                                                                                     \
+            cmc_assert_state = false;                                                                         \
+                                                                                                              \
             fprintf(stderr,                                                                                   \
                     "Assertion Failed at %s:%s:%u for { %s }: Expected: %" PRIuMAX " Actual: %" PRIuMAX "\n", \
                     __FILE__, __func__, __LINE__, str, expected_, actual_);                                   \
@@ -331,6 +365,8 @@
                                                                                           \
         if ((expected_) != (actual_))                                                     \
         {                                                                                 \
+            cmc_assert_state = false;                                                     \
+                                                                                          \
             fprintf(stderr,                                                               \
                     "Assertion Failed at %s:%s:%u for { %s }: Expected: %f Actual: %f\n", \
                     __FILE__, __func__, __LINE__, str, expected_, actual_);               \
@@ -347,6 +383,8 @@
                                                                                             \
         if ((expected_) != (actual_))                                                       \
         {                                                                                   \
+            cmc_assert_state = false;                                                       \
+                                                                                            \
             fprintf(stderr,                                                                 \
                     "Assertion Failed at %s:%s:%u for { %s }: Expected: %lf Actual: %lf\n", \
                     __FILE__, __func__, __LINE__, str, expected_, actual_);                 \
@@ -363,6 +401,8 @@
                                                                                           \
         if ((expected_) != (actual_))                                                     \
         {                                                                                 \
+            cmc_assert_state = false;                                                     \
+                                                                                          \
             fprintf(stderr,                                                               \
                     "Assertion Failed at %s:%s:%u for { %s }: Expected: %p Actual: %p\n", \
                     __FILE__, __func__, __LINE__, str, expected_, actual_);               \
@@ -370,7 +410,7 @@
                                                                                           \
     } while (0)
 
-#define cmc_assert_equals__Bool(expected, actual)                                          \
+#define cmc_assert_equals__Bool(expected, actual)                                         \
     do                                                                                    \
     {                                                                                     \
         const char *str = #actual;                                                        \
@@ -379,6 +419,8 @@
                                                                                           \
         if ((expected_) != (actual_))                                                     \
         {                                                                                 \
+            cmc_assert_state = false;                                                     \
+                                                                                          \
             fprintf(stderr,                                                               \
                     "Assertion Failed at %s:%s:%u for { %s }: Expected: %d Actual: %d\n", \
                     __FILE__, __func__, __LINE__, str, expected_, actual_);               \
@@ -395,6 +437,8 @@
                                                                                                               \
         if ((not_expected_) == (actual_))                                                                     \
         {                                                                                                     \
+            cmc_assert_state = false;                                                                         \
+                                                                                                              \
             fprintf(stderr,                                                                                   \
                     "Assertion Failed at %s:%s:%u for { %s }: Not Expected: %" PRId8 " Actual: %" PRId8 "\n", \
                     __FILE__, __func__, __LINE__, str, not_expected_, actual_);                               \
@@ -411,6 +455,8 @@
                                                                                                                 \
         if ((not_expected_) == (actual_))                                                                       \
         {                                                                                                       \
+            cmc_assert_state = false;                                                                           \
+                                                                                                                \
             fprintf(stderr,                                                                                     \
                     "Assertion Failed at %s:%s:%u for { %s }: Not Expected: %" PRId16 " Actual: %" PRId16 "\n", \
                     __FILE__, __func__, __LINE__, str, not_expected_, actual_);                                 \
@@ -427,6 +473,8 @@
                                                                                                                 \
         if ((not_expected_) == (actual_))                                                                       \
         {                                                                                                       \
+            cmc_assert_state = false;                                                                           \
+                                                                                                                \
             fprintf(stderr,                                                                                     \
                     "Assertion Failed at %s:%s:%u for { %s }: Not Expected: %" PRId32 " Actual: %" PRId32 "\n", \
                     __FILE__, __func__, __LINE__, str, not_expected_, actual_);                                 \
@@ -443,6 +491,8 @@
                                                                                                                 \
         if ((not_expected_) == (actual_))                                                                       \
         {                                                                                                       \
+            cmc_assert_state = false;                                                                           \
+                                                                                                                \
             fprintf(stderr,                                                                                     \
                     "Assertion Failed at %s:%s:%u for { %s }: Not Expected: %" PRId64 " Actual: %" PRId64 "\n", \
                     __FILE__, __func__, __LINE__, str, not_expected_, actual_);                                 \
@@ -459,6 +509,8 @@
                                                                                                               \
         if ((not_expected_) == (actual_))                                                                     \
         {                                                                                                     \
+            cmc_assert_state = false;                                                                         \
+                                                                                                              \
             fprintf(stderr,                                                                                   \
                     "Assertion Failed at %s:%s:%u for { %s }: Not Expected: %" PRIu8 " Actual: %" PRIu8 "\n", \
                     __FILE__, __func__, __LINE__, str, not_expected_, actual_);                               \
@@ -475,6 +527,8 @@
                                                                                                                 \
         if ((not_expected_) == (actual_))                                                                       \
         {                                                                                                       \
+            cmc_assert_state = false;                                                                           \
+                                                                                                                \
             fprintf(stderr,                                                                                     \
                     "Assertion Failed at %s:%s:%u for { %s }: Not Expected: %" PRIu16 " Actual: %" PRIu16 "\n", \
                     __FILE__, __func__, __LINE__, str, not_expected_, actual_);                                 \
@@ -491,6 +545,8 @@
                                                                                                                 \
         if ((not_expected_) == (actual_))                                                                       \
         {                                                                                                       \
+            cmc_assert_state = false;                                                                           \
+                                                                                                                \
             fprintf(stderr,                                                                                     \
                     "Assertion Failed at %s:%s:%u for { %s }: Not Expected: %" PRIu32 " Actual: %" PRIu32 "\n", \
                     __FILE__, __func__, __LINE__, str, not_expected_, actual_);                                 \
@@ -507,6 +563,8 @@
                                                                                                                 \
         if ((not_expected_) == (actual_))                                                                       \
         {                                                                                                       \
+            cmc_assert_state = false;                                                                           \
+                                                                                                                \
             fprintf(stderr,                                                                                     \
                     "Assertion Failed at %s:%s:%u for { %s }: Not Expected: %" PRIu64 " Actual: %" PRIu64 "\n", \
                     __FILE__, __func__, __LINE__, str, not_expected_, actual_);                                 \
@@ -523,6 +581,8 @@
                                                                                                                   \
         if ((not_expected_) == (actual_))                                                                         \
         {                                                                                                         \
+            cmc_assert_state = false;                                                                             \
+                                                                                                                  \
             fprintf(stderr,                                                                                       \
                     "Assertion Failed at %s:%s:%u for { %s }: Not Expected: %" PRIdMAX " Actual: %" PRIdMAX "\n", \
                     __FILE__, __func__, __LINE__, str, not_expected_, actual_);                                   \
@@ -539,6 +599,8 @@
                                                                                                                   \
         if ((not_expected_) == (actual_))                                                                         \
         {                                                                                                         \
+            cmc_assert_state = false;                                                                             \
+                                                                                                                  \
             fprintf(stderr,                                                                                       \
                     "Assertion Failed at %s:%s:%u for { %s }: Not Expected: %" PRIuMAX " Actual: %" PRIuMAX "\n", \
                     __FILE__, __func__, __LINE__, str, not_expected_, actual_);                                   \
@@ -555,6 +617,8 @@
                                                                                                                   \
         if ((not_expected_) == (actual_))                                                                         \
         {                                                                                                         \
+            cmc_assert_state = false;                                                                             \
+                                                                                                                  \
             fprintf(stderr,                                                                                       \
                     "Assertion Failed at %s:%s:%u for { %s }: Not Expected: %" PRIuMAX " Actual: %" PRIuMAX "\n", \
                     __FILE__, __func__, __LINE__, str, not_expected_, actual_);                                   \
@@ -571,6 +635,8 @@
                                                                                               \
         if ((not_expected_) == (actual_))                                                     \
         {                                                                                     \
+            cmc_assert_state = false;                                                         \
+                                                                                              \
             fprintf(stderr,                                                                   \
                     "Assertion Failed at %s:%s:%u for { %s }: Not Expected: %f Actual: %f\n", \
                     __FILE__, __func__, __LINE__, str, not_expected_, actual_);               \
@@ -587,6 +653,8 @@
                                                                                                 \
         if ((not_expected_) == (actual_))                                                       \
         {                                                                                       \
+            cmc_assert_state = false;                                                           \
+                                                                                                \
             fprintf(stderr,                                                                     \
                     "Assertion Failed at %s:%s:%u for { %s }: Not Expected: %lf Actual: %lf\n", \
                     __FILE__, __func__, __LINE__, str, not_expected_, actual_);                 \
@@ -603,6 +671,8 @@
                                                                                               \
         if ((not_expected_) == (actual_))                                                     \
         {                                                                                     \
+            cmc_assert_state = false;                                                         \
+                                                                                              \
             fprintf(stderr,                                                                   \
                     "Assertion Failed at %s:%s:%u for { %s }: Not Expected: %p Actual: %p\n", \
                     __FILE__, __func__, __LINE__, str, not_expected_, actual_);               \
@@ -610,7 +680,7 @@
                                                                                               \
     } while (0)
 
-#define cmc_assert_not_equals__Bool(expected, actual)                                          \
+#define cmc_assert_not_equals__Bool(expected, actual)                                         \
     do                                                                                        \
     {                                                                                         \
         const char *str = #actual;                                                            \
@@ -619,6 +689,8 @@
                                                                                               \
         if ((expected_) != (actual_))                                                         \
         {                                                                                     \
+            cmc_assert_state = false;                                                         \
+                                                                                              \
             fprintf(stderr,                                                                   \
                     "Assertion Failed at %s:%s:%u for { %s }: Not Expected: %d Actual: %d\n", \
                     __FILE__, __func__, __LINE__, str, expected_, actual_);                   \
@@ -635,6 +707,8 @@
                                                                                                                              \
         if ((actual_) <= (boundary_))                                                                                        \
         {                                                                                                                    \
+            cmc_assert_state = false;                                                                                        \
+                                                                                                                             \
             fprintf(stderr,                                                                                                  \
                     "Assertion Failed at %s:%s:%u for { %s }: Expected Greater (excluded): %" PRId8 " Actual: %" PRId8 "\n", \
                     __FILE__, __func__, __LINE__, str, boundary_, actual_);                                                  \
@@ -651,6 +725,8 @@
                                                                                                                                \
         if ((actual_) <= (boundary_))                                                                                          \
         {                                                                                                                      \
+            cmc_assert_state = false;                                                                                          \
+                                                                                                                               \
             fprintf(stderr,                                                                                                    \
                     "Assertion Failed at %s:%s:%u for { %s }: Expected Greater (excluded): %" PRId16 " Actual: %" PRId16 "\n", \
                     __FILE__, __func__, __LINE__, str, boundary_, actual_);                                                    \
@@ -667,6 +743,8 @@
                                                                                                                                \
         if ((actual_) <= (boundary_))                                                                                          \
         {                                                                                                                      \
+            cmc_assert_state = false;                                                                                          \
+                                                                                                                               \
             fprintf(stderr,                                                                                                    \
                     "Assertion Failed at %s:%s:%u for { %s }: Expected Greater (excluded): %" PRId32 " Actual: %" PRId32 "\n", \
                     __FILE__, __func__, __LINE__, str, boundary_, actual_);                                                    \
@@ -683,6 +761,8 @@
                                                                                                                                \
         if ((actual_) <= (boundary_))                                                                                          \
         {                                                                                                                      \
+            cmc_assert_state = false;                                                                                          \
+                                                                                                                               \
             fprintf(stderr,                                                                                                    \
                     "Assertion Failed at %s:%s:%u for { %s }: Expected Greater (excluded): %" PRId64 " Actual: %" PRId64 "\n", \
                     __FILE__, __func__, __LINE__, str, boundary_, actual_);                                                    \
@@ -699,6 +779,8 @@
                                                                                                                              \
         if ((actual_) <= (boundary_))                                                                                        \
         {                                                                                                                    \
+            cmc_assert_state = false;                                                                                        \
+                                                                                                                             \
             fprintf(stderr,                                                                                                  \
                     "Assertion Failed at %s:%s:%u for { %s }: Expected Greater (excluded): %" PRIu8 " Actual: %" PRIu8 "\n", \
                     __FILE__, __func__, __LINE__, str, boundary_, actual_);                                                  \
@@ -715,6 +797,8 @@
                                                                                                                                \
         if ((actual_) <= (boundary_))                                                                                          \
         {                                                                                                                      \
+            cmc_assert_state = false;                                                                                          \
+                                                                                                                               \
             fprintf(stderr,                                                                                                    \
                     "Assertion Failed at %s:%s:%u for { %s }: Expected Greater (excluded): %" PRIu16 " Actual: %" PRIu16 "\n", \
                     __FILE__, __func__, __LINE__, str, boundary_, actual_);                                                    \
@@ -731,6 +815,8 @@
                                                                                                                                \
         if ((actual_) <= (boundary_))                                                                                          \
         {                                                                                                                      \
+            cmc_assert_state = false;                                                                                          \
+                                                                                                                               \
             fprintf(stderr,                                                                                                    \
                     "Assertion Failed at %s:%s:%u for { %s }: Expected Greater (excluded): %" PRIu32 " Actual: %" PRIu32 "\n", \
                     __FILE__, __func__, __LINE__, str, boundary_, actual_);                                                    \
@@ -747,6 +833,8 @@
                                                                                                                                \
         if ((actual_) <= (boundary_))                                                                                          \
         {                                                                                                                      \
+            cmc_assert_state = false;                                                                                          \
+                                                                                                                               \
             fprintf(stderr,                                                                                                    \
                     "Assertion Failed at %s:%s:%u for { %s }: Expected Greater (excluded): %" PRIu64 " Actual: %" PRIu64 "\n", \
                     __FILE__, __func__, __LINE__, str, boundary_, actual_);                                                    \
@@ -763,6 +851,8 @@
                                                                                                                                  \
         if ((actual_) <= (boundary_))                                                                                            \
         {                                                                                                                        \
+            cmc_assert_state = false;                                                                                            \
+                                                                                                                                 \
             fprintf(stderr,                                                                                                      \
                     "Assertion Failed at %s:%s:%u for { %s }: Expected Greater (excluded): %" PRIdMAX " Actual: %" PRIdMAX "\n", \
                     __FILE__, __func__, __LINE__, str, boundary_, actual_);                                                      \
@@ -779,6 +869,8 @@
                                                                                                                                  \
         if ((actual_) <= (boundary_))                                                                                            \
         {                                                                                                                        \
+            cmc_assert_state = false;                                                                                            \
+                                                                                                                                 \
             fprintf(stderr,                                                                                                      \
                     "Assertion Failed at %s:%s:%u for { %s }: Expected Greater (excluded): %" PRIuMAX " Actual: %" PRIuMAX "\n", \
                     __FILE__, __func__, __LINE__, str, boundary_, actual_);                                                      \
@@ -795,6 +887,8 @@
                                                                                                                                  \
         if ((actual_) <= (boundary_))                                                                                            \
         {                                                                                                                        \
+            cmc_assert_state = false;                                                                                            \
+                                                                                                                                 \
             fprintf(stderr,                                                                                                      \
                     "Assertion Failed at %s:%s:%u for { %s }: Expected Greater (excluded): %" PRIuMAX " Actual: %" PRIuMAX "\n", \
                     __FILE__, __func__, __LINE__, str, boundary_, actual_);                                                      \
@@ -811,6 +905,8 @@
                                                                                                              \
         if ((actual_) <= (boundary_))                                                                        \
         {                                                                                                    \
+            cmc_assert_state = false;                                                                        \
+                                                                                                             \
             fprintf(stderr,                                                                                  \
                     "Assertion Failed at %s:%s:%u for { %s }: Expected Greater (excluded): %f Actual: %f\n", \
                     __FILE__, __func__, __LINE__, str, boundary_, actual_);                                  \
@@ -827,6 +923,8 @@
                                                                                                                \
         if ((actual_) <= (boundary_))                                                                          \
         {                                                                                                      \
+            cmc_assert_state = false;                                                                          \
+                                                                                                               \
             fprintf(stderr,                                                                                    \
                     "Assertion Failed at %s:%s:%u for { %s }: Expected Greater (excluded): %lf Actual: %lf\n", \
                     __FILE__, __func__, __LINE__, str, boundary_, actual_);                                    \
@@ -843,6 +941,8 @@
                                                                                                                              \
         if ((actual_) < (boundary_))                                                                                         \
         {                                                                                                                    \
+            cmc_assert_state = false;                                                                                        \
+                                                                                                                             \
             fprintf(stderr,                                                                                                  \
                     "Assertion Failed at %s:%s:%u for { %s }: Expected Greater (included): %" PRId8 " Actual: %" PRId8 "\n", \
                     __FILE__, __func__, __LINE__, str, boundary_, actual_);                                                  \
@@ -859,6 +959,8 @@
                                                                                                                                \
         if ((actual_) < (boundary_))                                                                                           \
         {                                                                                                                      \
+            cmc_assert_state = false;                                                                                          \
+                                                                                                                               \
             fprintf(stderr,                                                                                                    \
                     "Assertion Failed at %s:%s:%u for { %s }: Expected Greater (included): %" PRId16 " Actual: %" PRId16 "\n", \
                     __FILE__, __func__, __LINE__, str, boundary_, actual_);                                                    \
@@ -875,6 +977,8 @@
                                                                                                                                \
         if ((actual_) < (boundary_))                                                                                           \
         {                                                                                                                      \
+            cmc_assert_state = false;                                                                                          \
+                                                                                                                               \
             fprintf(stderr,                                                                                                    \
                     "Assertion Failed at %s:%s:%u for { %s }: Expected Greater (included): %" PRId32 " Actual: %" PRId32 "\n", \
                     __FILE__, __func__, __LINE__, str, boundary_, actual_);                                                    \
@@ -891,6 +995,8 @@
                                                                                                                                \
         if ((actual_) < (boundary_))                                                                                           \
         {                                                                                                                      \
+            cmc_assert_state = false;                                                                                          \
+                                                                                                                               \
             fprintf(stderr,                                                                                                    \
                     "Assertion Failed at %s:%s:%u for { %s }: Expected Greater (included): %" PRId64 " Actual: %" PRId64 "\n", \
                     __FILE__, __func__, __LINE__, str, boundary_, actual_);                                                    \
@@ -907,6 +1013,8 @@
                                                                                                                              \
         if ((actual_) < (boundary_))                                                                                         \
         {                                                                                                                    \
+            cmc_assert_state = false;                                                                                        \
+                                                                                                                             \
             fprintf(stderr,                                                                                                  \
                     "Assertion Failed at %s:%s:%u for { %s }: Expected Greater (included): %" PRIu8 " Actual: %" PRIu8 "\n", \
                     __FILE__, __func__, __LINE__, str, boundary_, actual_);                                                  \
@@ -923,6 +1031,8 @@
                                                                                                                                \
         if ((actual_) < (boundary_))                                                                                           \
         {                                                                                                                      \
+            cmc_assert_state = false;                                                                                          \
+                                                                                                                               \
             fprintf(stderr,                                                                                                    \
                     "Assertion Failed at %s:%s:%u for { %s }: Expected Greater (included): %" PRIu16 " Actual: %" PRIu16 "\n", \
                     __FILE__, __func__, __LINE__, str, boundary_, actual_);                                                    \
@@ -939,6 +1049,8 @@
                                                                                                                                \
         if ((actual_) < (boundary_))                                                                                           \
         {                                                                                                                      \
+            cmc_assert_state = false;                                                                                          \
+                                                                                                                               \
             fprintf(stderr,                                                                                                    \
                     "Assertion Failed at %s:%s:%u for { %s }: Expected Greater (included): %" PRIu32 " Actual: %" PRIu32 "\n", \
                     __FILE__, __func__, __LINE__, str, boundary_, actual_);                                                    \
@@ -955,6 +1067,8 @@
                                                                                                                                \
         if ((actual_) < (boundary_))                                                                                           \
         {                                                                                                                      \
+            cmc_assert_state = false;                                                                                          \
+                                                                                                                               \
             fprintf(stderr,                                                                                                    \
                     "Assertion Failed at %s:%s:%u for { %s }: Expected Greater (included): %" PRIu64 " Actual: %" PRIu64 "\n", \
                     __FILE__, __func__, __LINE__, str, boundary_, actual_);                                                    \
@@ -971,6 +1085,8 @@
                                                                                                                                  \
         if ((actual_) < (boundary_))                                                                                             \
         {                                                                                                                        \
+            cmc_assert_state = false;                                                                                            \
+                                                                                                                                 \
             fprintf(stderr,                                                                                                      \
                     "Assertion Failed at %s:%s:%u for { %s }: Expected Greater (included): %" PRIdMAX " Actual: %" PRIdMAX "\n", \
                     __FILE__, __func__, __LINE__, str, boundary_, actual_);                                                      \
@@ -987,6 +1103,8 @@
                                                                                                                                  \
         if ((actual_) < (boundary_))                                                                                             \
         {                                                                                                                        \
+            cmc_assert_state = false;                                                                                            \
+                                                                                                                                 \
             fprintf(stderr,                                                                                                      \
                     "Assertion Failed at %s:%s:%u for { %s }: Expected Greater (included): %" PRIuMAX " Actual: %" PRIuMAX "\n", \
                     __FILE__, __func__, __LINE__, str, boundary_, actual_);                                                      \
@@ -1003,6 +1121,8 @@
                                                                                                                                  \
         if ((actual_) < (boundary_))                                                                                             \
         {                                                                                                                        \
+            cmc_assert_state = false;                                                                                            \
+                                                                                                                                 \
             fprintf(stderr,                                                                                                      \
                     "Assertion Failed at %s:%s:%u for { %s }: Expected Greater (included): %" PRIuMAX " Actual: %" PRIuMAX "\n", \
                     __FILE__, __func__, __LINE__, str, boundary_, actual_);                                                      \
@@ -1019,6 +1139,8 @@
                                                                                                              \
         if ((actual_) < (boundary_))                                                                         \
         {                                                                                                    \
+            cmc_assert_state = false;                                                                        \
+                                                                                                             \
             fprintf(stderr,                                                                                  \
                     "Assertion Failed at %s:%s:%u for { %s }: Expected Greater (included): %f Actual: %f\n", \
                     __FILE__, __func__, __LINE__, str, boundary_, actual_);                                  \
@@ -1035,6 +1157,8 @@
                                                                                                                \
         if ((actual_) < (boundary_))                                                                           \
         {                                                                                                      \
+            cmc_assert_state = false;                                                                          \
+                                                                                                               \
             fprintf(stderr,                                                                                    \
                     "Assertion Failed at %s:%s:%u for { %s }: Expected Greater (included): %lf Actual: %lf\n", \
                     __FILE__, __func__, __LINE__, str, boundary_, actual_);                                    \
@@ -1051,6 +1175,8 @@
                                                                                                                             \
         if ((actual_) >= (boundary_))                                                                                       \
         {                                                                                                                   \
+            cmc_assert_state = false;                                                                                       \
+                                                                                                                            \
             fprintf(stderr,                                                                                                 \
                     "Assertion Failed at %s:%s:%u for { %s }: Expected Lesser (excluded): %" PRId8 " Actual: %" PRId8 "\n", \
                     __FILE__, __func__, __LINE__, str, boundary_, actual_);                                                 \
@@ -1067,6 +1193,8 @@
                                                                                                                               \
         if ((actual_) >= (boundary_))                                                                                         \
         {                                                                                                                     \
+            cmc_assert_state = false;                                                                                         \
+                                                                                                                              \
             fprintf(stderr,                                                                                                   \
                     "Assertion Failed at %s:%s:%u for { %s }: Expected Lesser (excluded): %" PRId16 " Actual: %" PRId16 "\n", \
                     __FILE__, __func__, __LINE__, str, boundary_, actual_);                                                   \
@@ -1083,6 +1211,8 @@
                                                                                                                               \
         if ((actual_) >= (boundary_))                                                                                         \
         {                                                                                                                     \
+            cmc_assert_state = false;                                                                                         \
+                                                                                                                              \
             fprintf(stderr,                                                                                                   \
                     "Assertion Failed at %s:%s:%u for { %s }: Expected Lesser (excluded): %" PRId32 " Actual: %" PRId32 "\n", \
                     __FILE__, __func__, __LINE__, str, boundary_, actual_);                                                   \
@@ -1099,6 +1229,8 @@
                                                                                                                               \
         if ((actual_) >= (boundary_))                                                                                         \
         {                                                                                                                     \
+            cmc_assert_state = false;                                                                                         \
+                                                                                                                              \
             fprintf(stderr,                                                                                                   \
                     "Assertion Failed at %s:%s:%u for { %s }: Expected Lesser (excluded): %" PRId64 " Actual: %" PRId64 "\n", \
                     __FILE__, __func__, __LINE__, str, boundary_, actual_);                                                   \
@@ -1115,6 +1247,8 @@
                                                                                                                             \
         if ((actual_) >= (boundary_))                                                                                       \
         {                                                                                                                   \
+            cmc_assert_state = false;                                                                                       \
+                                                                                                                            \
             fprintf(stderr,                                                                                                 \
                     "Assertion Failed at %s:%s:%u for { %s }: Expected Lesser (excluded): %" PRIu8 " Actual: %" PRIu8 "\n", \
                     __FILE__, __func__, __LINE__, str, boundary_, actual_);                                                 \
@@ -1131,6 +1265,8 @@
                                                                                                                               \
         if ((actual_) >= (boundary_))                                                                                         \
         {                                                                                                                     \
+            cmc_assert_state = false;                                                                                         \
+                                                                                                                              \
             fprintf(stderr,                                                                                                   \
                     "Assertion Failed at %s:%s:%u for { %s }: Expected Lesser (excluded): %" PRIu16 " Actual: %" PRIu16 "\n", \
                     __FILE__, __func__, __LINE__, str, boundary_, actual_);                                                   \
@@ -1147,6 +1283,8 @@
                                                                                                                               \
         if ((actual_) >= (boundary_))                                                                                         \
         {                                                                                                                     \
+            cmc_assert_state = false;                                                                                         \
+                                                                                                                              \
             fprintf(stderr,                                                                                                   \
                     "Assertion Failed at %s:%s:%u for { %s }: Expected Lesser (excluded): %" PRIu32 " Actual: %" PRIu32 "\n", \
                     __FILE__, __func__, __LINE__, str, boundary_, actual_);                                                   \
@@ -1163,6 +1301,8 @@
                                                                                                                               \
         if ((actual_) >= (boundary_))                                                                                         \
         {                                                                                                                     \
+            cmc_assert_state = false;                                                                                         \
+                                                                                                                              \
             fprintf(stderr,                                                                                                   \
                     "Assertion Failed at %s:%s:%u for { %s }: Expected Lesser (excluded): %" PRIu64 " Actual: %" PRIu64 "\n", \
                     __FILE__, __func__, __LINE__, str, boundary_, actual_);                                                   \
@@ -1179,6 +1319,8 @@
                                                                                                                                 \
         if ((actual_) >= (boundary_))                                                                                           \
         {                                                                                                                       \
+            cmc_assert_state = false;                                                                                           \
+                                                                                                                                \
             fprintf(stderr,                                                                                                     \
                     "Assertion Failed at %s:%s:%u for { %s }: Expected Lesser (excluded): %" PRIdMAX " Actual: %" PRIdMAX "\n", \
                     __FILE__, __func__, __LINE__, str, boundary_, actual_);                                                     \
@@ -1195,6 +1337,8 @@
                                                                                                                                 \
         if ((actual_) >= (boundary_))                                                                                           \
         {                                                                                                                       \
+            cmc_assert_state = false;                                                                                           \
+                                                                                                                                \
             fprintf(stderr,                                                                                                     \
                     "Assertion Failed at %s:%s:%u for { %s }: Expected Lesser (excluded): %" PRIuMAX " Actual: %" PRIuMAX "\n", \
                     __FILE__, __func__, __LINE__, str, boundary_, actual_);                                                     \
@@ -1211,6 +1355,8 @@
                                                                                                                                 \
         if ((actual_) >= (boundary_))                                                                                           \
         {                                                                                                                       \
+            cmc_assert_state = false;                                                                                           \
+                                                                                                                                \
             fprintf(stderr,                                                                                                     \
                     "Assertion Failed at %s:%s:%u for { %s }: Expected Lesser (excluded): %" PRIuMAX " Actual: %" PRIuMAX "\n", \
                     __FILE__, __func__, __LINE__, str, boundary_, actual_);                                                     \
@@ -1227,6 +1373,8 @@
                                                                                                             \
         if ((actual_) >= (boundary_))                                                                       \
         {                                                                                                   \
+            cmc_assert_state = false;                                                                       \
+                                                                                                            \
             fprintf(stderr,                                                                                 \
                     "Assertion Failed at %s:%s:%u for { %s }: Expected Lesser (excluded): %f Actual: %f\n", \
                     __FILE__, __func__, __LINE__, str, boundary_, actual_);                                 \
@@ -1243,6 +1391,8 @@
                                                                                                               \
         if ((actual_) >= (boundary_))                                                                         \
         {                                                                                                     \
+            cmc_assert_state = false;                                                                         \
+                                                                                                              \
             fprintf(stderr,                                                                                   \
                     "Assertion Failed at %s:%s:%u for { %s }: Expected Lesser (excluded): %lf Actual: %lf\n", \
                     __FILE__, __func__, __LINE__, str, boundary_, actual_);                                   \
@@ -1259,6 +1409,8 @@
                                                                                                                             \
         if ((actual_) > (boundary_))                                                                                        \
         {                                                                                                                   \
+            cmc_assert_state = false;                                                                                       \
+                                                                                                                            \
             fprintf(stderr,                                                                                                 \
                     "Assertion Failed at %s:%s:%u for { %s }: Expected Lesser (included): %" PRId8 " Actual: %" PRId8 "\n", \
                     __FILE__, __func__, __LINE__, str, boundary_, actual_);                                                 \
@@ -1275,6 +1427,8 @@
                                                                                                                               \
         if ((actual_) > (boundary_))                                                                                          \
         {                                                                                                                     \
+            cmc_assert_state = false;                                                                                         \
+                                                                                                                              \
             fprintf(stderr,                                                                                                   \
                     "Assertion Failed at %s:%s:%u for { %s }: Expected Lesser (included): %" PRId16 " Actual: %" PRId16 "\n", \
                     __FILE__, __func__, __LINE__, str, boundary_, actual_);                                                   \
@@ -1291,6 +1445,8 @@
                                                                                                                               \
         if ((actual_) > (boundary_))                                                                                          \
         {                                                                                                                     \
+            cmc_assert_state = false;                                                                                         \
+                                                                                                                              \
             fprintf(stderr,                                                                                                   \
                     "Assertion Failed at %s:%s:%u for { %s }: Expected Lesser (included): %" PRId32 " Actual: %" PRId32 "\n", \
                     __FILE__, __func__, __LINE__, str, boundary_, actual_);                                                   \
@@ -1307,6 +1463,8 @@
                                                                                                                               \
         if ((actual_) > (boundary_))                                                                                          \
         {                                                                                                                     \
+            cmc_assert_state = false;                                                                                         \
+                                                                                                                              \
             fprintf(stderr,                                                                                                   \
                     "Assertion Failed at %s:%s:%u for { %s }: Expected Lesser (included): %" PRId64 " Actual: %" PRId64 "\n", \
                     __FILE__, __func__, __LINE__, str, boundary_, actual_);                                                   \
@@ -1323,6 +1481,8 @@
                                                                                                                             \
         if ((actual_) > (boundary_))                                                                                        \
         {                                                                                                                   \
+            cmc_assert_state = false;                                                                                       \
+                                                                                                                            \
             fprintf(stderr,                                                                                                 \
                     "Assertion Failed at %s:%s:%u for { %s }: Expected Lesser (included): %" PRIu8 " Actual: %" PRIu8 "\n", \
                     __FILE__, __func__, __LINE__, str, boundary_, actual_);                                                 \
@@ -1339,6 +1499,8 @@
                                                                                                                               \
         if ((actual_) > (boundary_))                                                                                          \
         {                                                                                                                     \
+            cmc_assert_state = false;                                                                                         \
+                                                                                                                              \
             fprintf(stderr,                                                                                                   \
                     "Assertion Failed at %s:%s:%u for { %s }: Expected Lesser (included): %" PRIu16 " Actual: %" PRIu16 "\n", \
                     __FILE__, __func__, __LINE__, str, boundary_, actual_);                                                   \
@@ -1355,6 +1517,8 @@
                                                                                                                               \
         if ((actual_) > (boundary_))                                                                                          \
         {                                                                                                                     \
+            cmc_assert_state = false;                                                                                         \
+                                                                                                                              \
             fprintf(stderr,                                                                                                   \
                     "Assertion Failed at %s:%s:%u for { %s }: Expected Lesser (included): %" PRIu32 " Actual: %" PRIu32 "\n", \
                     __FILE__, __func__, __LINE__, str, boundary_, actual_);                                                   \
@@ -1371,6 +1535,8 @@
                                                                                                                               \
         if ((actual_) > (boundary_))                                                                                          \
         {                                                                                                                     \
+            cmc_assert_state = false;                                                                                         \
+                                                                                                                              \
             fprintf(stderr,                                                                                                   \
                     "Assertion Failed at %s:%s:%u for { %s }: Expected Lesser (included): %" PRIu64 " Actual: %" PRIu64 "\n", \
                     __FILE__, __func__, __LINE__, str, boundary_, actual_);                                                   \
@@ -1387,6 +1553,8 @@
                                                                                                                                 \
         if ((actual_) > (boundary_))                                                                                            \
         {                                                                                                                       \
+            cmc_assert_state = false;                                                                                           \
+                                                                                                                                \
             fprintf(stderr,                                                                                                     \
                     "Assertion Failed at %s:%s:%u for { %s }: Expected Lesser (included): %" PRIdMAX " Actual: %" PRIdMAX "\n", \
                     __FILE__, __func__, __LINE__, str, boundary_, actual_);                                                     \
@@ -1403,6 +1571,8 @@
                                                                                                                                 \
         if ((actual_) > (boundary_))                                                                                            \
         {                                                                                                                       \
+            cmc_assert_state = false;                                                                                           \
+                                                                                                                                \
             fprintf(stderr,                                                                                                     \
                     "Assertion Failed at %s:%s:%u for { %s }: Expected Lesser (included): %" PRIuMAX " Actual: %" PRIuMAX "\n", \
                     __FILE__, __func__, __LINE__, str, boundary_, actual_);                                                     \
@@ -1419,6 +1589,8 @@
                                                                                                                                 \
         if ((actual_) > (boundary_))                                                                                            \
         {                                                                                                                       \
+            cmc_assert_state = false;                                                                                           \
+                                                                                                                                \
             fprintf(stderr,                                                                                                     \
                     "Assertion Failed at %s:%s:%u for { %s }: Expected Lesser (included): %" PRIuMAX " Actual: %" PRIuMAX "\n", \
                     __FILE__, __func__, __LINE__, str, boundary_, actual_);                                                     \
@@ -1435,6 +1607,8 @@
                                                                                                             \
         if ((actual_) > (boundary_))                                                                        \
         {                                                                                                   \
+            cmc_assert_state = false;                                                                       \
+                                                                                                            \
             fprintf(stderr,                                                                                 \
                     "Assertion Failed at %s:%s:%u for { %s }: Expected Lesser (included): %f Actual: %f\n", \
                     __FILE__, __func__, __LINE__, str, boundary_, actual_);                                 \
@@ -1451,6 +1625,8 @@
                                                                                                               \
         if ((actual_) > (boundary_))                                                                          \
         {                                                                                                     \
+            cmc_assert_state = false;                                                                         \
+                                                                                                              \
             fprintf(stderr,                                                                                   \
                     "Assertion Failed at %s:%s:%u for { %s }: Expected Lesser (included): %lf Actual: %lf\n", \
                     __FILE__, __func__, __LINE__, str, boundary_, actual_);                                   \
@@ -1468,6 +1644,8 @@
                                                                                                                               \
         if ((actual_) < (lower_bound_) || (actual_) > (upper_bound_))                                                         \
         {                                                                                                                     \
+            cmc_assert_state = false;                                                                                         \
+                                                                                                                              \
             fprintf(stderr,                                                                                                   \
                     "Assertion Failed at %s:%s:%u for { %s }: Expected Range: [%" PRId8 ", %" PRId8 "] Actual: %" PRId8 "\n", \
                     __FILE__, __func__, __LINE__, str, lower_bound_, upper_bound_, actual_);                                  \
@@ -1485,6 +1663,8 @@
                                                                                                                                  \
         if ((actual_) < (lower_bound_) || (actual_) > (upper_bound_))                                                            \
         {                                                                                                                        \
+            cmc_assert_state = false;                                                                                            \
+                                                                                                                                 \
             fprintf(stderr,                                                                                                      \
                     "Assertion Failed at %s:%s:%u for { %s }: Expected Range: [%" PRId16 ", %" PRId16 "] Actual: %" PRId16 "\n", \
                     __FILE__, __func__, __LINE__, str, lower_bound_, upper_bound_, actual_);                                     \
@@ -1502,6 +1682,8 @@
                                                                                                                                  \
         if ((actual_) < (lower_bound_) || (actual_) > (upper_bound_))                                                            \
         {                                                                                                                        \
+            cmc_assert_state = false;                                                                                            \
+                                                                                                                                 \
             fprintf(stderr,                                                                                                      \
                     "Assertion Failed at %s:%s:%u for { %s }: Expected Range: [%" PRId32 ", %" PRId32 "] Actual: %" PRId32 "\n", \
                     __FILE__, __func__, __LINE__, str, lower_bound_, upper_bound_, actual_);                                     \
@@ -1519,6 +1701,8 @@
                                                                                                                                  \
         if ((actual_) < (lower_bound_) || (actual_) > (upper_bound_))                                                            \
         {                                                                                                                        \
+            cmc_assert_state = false;                                                                                            \
+                                                                                                                                 \
             fprintf(stderr,                                                                                                      \
                     "Assertion Failed at %s:%s:%u for { %s }: Expected Range: [%" PRId32 ", %" PRId32 "] Actual: %" PRId32 "\n", \
                     __FILE__, __func__, __LINE__, str, lower_bound_, upper_bound_, actual_);                                     \
@@ -1536,6 +1720,8 @@
                                                                                                                               \
         if ((actual_) < (lower_bound_) || (actual_) > (upper_bound_))                                                         \
         {                                                                                                                     \
+            cmc_assert_state = false;                                                                                         \
+                                                                                                                              \
             fprintf(stderr,                                                                                                   \
                     "Assertion Failed at %s:%s:%u for { %s }: Expected Range: [%" PRIu8 ", %" PRIu8 "] Actual: %" PRIu8 "\n", \
                     __FILE__, __func__, __LINE__, str, lower_bound_, upper_bound_, actual_);                                  \
@@ -1553,6 +1739,8 @@
                                                                                                                                  \
         if ((actual_) < (lower_bound_) || (actual_) > (upper_bound_))                                                            \
         {                                                                                                                        \
+            cmc_assert_state = false;                                                                                            \
+                                                                                                                                 \
             fprintf(stderr,                                                                                                      \
                     "Assertion Failed at %s:%s:%u for { %s }: Expected Range: [%" PRIu16 ", %" PRIu16 "] Actual: %" PRIu16 "\n", \
                     __FILE__, __func__, __LINE__, str, lower_bound_, upper_bound_, actual_);                                     \
@@ -1570,6 +1758,8 @@
                                                                                                                                  \
         if ((actual_) < (lower_bound_) || (actual_) > (upper_bound_))                                                            \
         {                                                                                                                        \
+            cmc_assert_state = false;                                                                                            \
+                                                                                                                                 \
             fprintf(stderr,                                                                                                      \
                     "Assertion Failed at %s:%s:%u for { %s }: Expected Range: [%" PRIu32 ", %" PRIu32 "] Actual: %" PRIu32 "\n", \
                     __FILE__, __func__, __LINE__, str, lower_bound_, upper_bound_, actual_);                                     \
@@ -1587,6 +1777,8 @@
                                                                                                                                  \
         if ((actual_) < (lower_bound_) || (actual_) > (upper_bound_))                                                            \
         {                                                                                                                        \
+            cmc_assert_state = false;                                                                                            \
+                                                                                                                                 \
             fprintf(stderr,                                                                                                      \
                     "Assertion Failed at %s:%s:%u for { %s }: Expected Range: [%" PRIu64 ", %" PRIu64 "] Actual: %" PRIu64 "\n", \
                     __FILE__, __func__, __LINE__, str, lower_bound_, upper_bound_, actual_);                                     \
@@ -1604,6 +1796,8 @@
                                                                                                                                     \
         if ((actual_) < (lower_bound_) || (actual_) > (upper_bound_))                                                               \
         {                                                                                                                           \
+            cmc_assert_state = false;                                                                                               \
+                                                                                                                                    \
             fprintf(stderr,                                                                                                         \
                     "Assertion Failed at %s:%s:%u for { %s }: Expected Range: [%" PRIdMAX ", %" PRIdMAX "] Actual: %" PRIdMAX "\n", \
                     __FILE__, __func__, __LINE__, str, lower_bound_, upper_bound_, actual_);                                        \
@@ -1621,6 +1815,8 @@
                                                                                                                                     \
         if ((actual_) < (lower_bound_) || (actual_) > (upper_bound_))                                                               \
         {                                                                                                                           \
+            cmc_assert_state = false;                                                                                               \
+                                                                                                                                    \
             fprintf(stderr,                                                                                                         \
                     "Assertion Failed at %s:%s:%u for { %s }: Expected Range: [%" PRIuMAX ", %" PRIuMAX "] Actual: %" PRIuMAX "\n", \
                     __FILE__, __func__, __LINE__, str, lower_bound_, upper_bound_, actual_);                                        \
@@ -1638,6 +1834,8 @@
                                                                                                                                     \
         if ((actual_) < (lower_bound_) || (actual_) > (upper_bound_))                                                               \
         {                                                                                                                           \
+            cmc_assert_state = false;                                                                                               \
+                                                                                                                                    \
             fprintf(stderr,                                                                                                         \
                     "Assertion Failed at %s:%s:%u for { %s }: Expected Range: [%" PRIuMAX ", %" PRIuMAX "] Actual: %" PRIuMAX "\n", \
                     __FILE__, __func__, __LINE__, str, lower_bound_, upper_bound_, actual_);                                        \
@@ -1655,6 +1853,8 @@
                                                                                                       \
         if ((actual_) < (lower_bound_) || (actual_) > (upper_bound_))                                 \
         {                                                                                             \
+            cmc_assert_state = false;                                                                 \
+                                                                                                      \
             fprintf(stderr,                                                                           \
                     "Assertion Failed at %s:%s:%u for { %s }: Expected Range: [%f, %f] Actual: %f\n", \
                     __FILE__, __func__, __LINE__, str, lower_bound_, upper_bound_, actual_);          \
@@ -1672,6 +1872,8 @@
                                                                                                          \
         if ((actual_) < (lower_bound_) || (actual_) > (upper_bound_))                                    \
         {                                                                                                \
+            cmc_assert_state = false;                                                                    \
+                                                                                                         \
             fprintf(stderr,                                                                              \
                     "Assertion Failed at %s:%s:%u for { %s }: Expected Range: [%lf, %lf] Actual: %lf\n", \
                     __FILE__, __func__, __LINE__, str, lower_bound_, upper_bound_, actual_);             \
@@ -1689,6 +1891,8 @@
                                                                                                                                   \
         if ((actual_) >= (lower_bound_) && (actual_) <= (upper_bound_))                                                           \
         {                                                                                                                         \
+            cmc_assert_state = false;                                                                                             \
+                                                                                                                                  \
             fprintf(stderr,                                                                                                       \
                     "Assertion Failed at %s:%s:%u for { %s }: Not Expected Range: [%" PRId8 ", %" PRId8 "] Actual: %" PRId8 "\n", \
                     __FILE__, __func__, __LINE__, str, lower_bound_, upper_bound_, actual_);                                      \
@@ -1706,6 +1910,8 @@
                                                                                                                                      \
         if ((actual_) >= (lower_bound_) && (actual_) <= (upper_bound_))                                                              \
         {                                                                                                                            \
+            cmc_assert_state = false;                                                                                                \
+                                                                                                                                     \
             fprintf(stderr,                                                                                                          \
                     "Assertion Failed at %s:%s:%u for { %s }: Not Expected Range: [%" PRId16 ", %" PRId16 "] Actual: %" PRId16 "\n", \
                     __FILE__, __func__, __LINE__, str, lower_bound_, upper_bound_, actual_);                                         \
@@ -1723,6 +1929,8 @@
                                                                                                                                      \
         if ((actual_) >= (lower_bound_) && (actual_) <= (upper_bound_))                                                              \
         {                                                                                                                            \
+            cmc_assert_state = false;                                                                                                \
+                                                                                                                                     \
             fprintf(stderr,                                                                                                          \
                     "Assertion Failed at %s:%s:%u for { %s }: Not Expected Range: [%" PRId32 ", %" PRId32 "] Actual: %" PRId32 "\n", \
                     __FILE__, __func__, __LINE__, str, lower_bound_, upper_bound_, actual_);                                         \
@@ -1740,6 +1948,8 @@
                                                                                                                                      \
         if ((actual_) >= (lower_bound_) && (actual_) <= (upper_bound_))                                                              \
         {                                                                                                                            \
+            cmc_assert_state = false;                                                                                                \
+                                                                                                                                     \
             fprintf(stderr,                                                                                                          \
                     "Assertion Failed at %s:%s:%u for { %s }: Not Expected Range: [%" PRId32 ", %" PRId32 "] Actual: %" PRId32 "\n", \
                     __FILE__, __func__, __LINE__, str, lower_bound_, upper_bound_, actual_);                                         \
@@ -1757,6 +1967,8 @@
                                                                                                                                   \
         if ((actual_) >= (lower_bound_) && (actual_) <= (upper_bound_))                                                           \
         {                                                                                                                         \
+            cmc_assert_state = false;                                                                                             \
+                                                                                                                                  \
             fprintf(stderr,                                                                                                       \
                     "Assertion Failed at %s:%s:%u for { %s }: Not Expected Range: [%" PRIu8 ", %" PRIu8 "] Actual: %" PRIu8 "\n", \
                     __FILE__, __func__, __LINE__, str, lower_bound_, upper_bound_, actual_);                                      \
@@ -1774,6 +1986,8 @@
                                                                                                                                      \
         if ((actual_) >= (lower_bound_) && (actual_) <= (upper_bound_))                                                              \
         {                                                                                                                            \
+            cmc_assert_state = false;                                                                                                \
+                                                                                                                                     \
             fprintf(stderr,                                                                                                          \
                     "Assertion Failed at %s:%s:%u for { %s }: Not Expected Range: [%" PRIu16 ", %" PRIu16 "] Actual: %" PRIu16 "\n", \
                     __FILE__, __func__, __LINE__, str, lower_bound_, upper_bound_, actual_);                                         \
@@ -1791,6 +2005,8 @@
                                                                                                                                      \
         if ((actual_) >= (lower_bound_) && (actual_) <= (upper_bound_))                                                              \
         {                                                                                                                            \
+            cmc_assert_state = false;                                                                                                \
+                                                                                                                                     \
             fprintf(stderr,                                                                                                          \
                     "Assertion Failed at %s:%s:%u for { %s }: Not Expected Range: [%" PRIu32 ", %" PRIu32 "] Actual: %" PRIu32 "\n", \
                     __FILE__, __func__, __LINE__, str, lower_bound_, upper_bound_, actual_);                                         \
@@ -1808,6 +2024,8 @@
                                                                                                                                      \
         if ((actual_) >= (lower_bound_) && (actual_) <= (upper_bound_))                                                              \
         {                                                                                                                            \
+            cmc_assert_state = false;                                                                                                \
+                                                                                                                                     \
             fprintf(stderr,                                                                                                          \
                     "Assertion Failed at %s:%s:%u for { %s }: Not Expected Range: [%" PRIu64 ", %" PRIu64 "] Actual: %" PRIu64 "\n", \
                     __FILE__, __func__, __LINE__, str, lower_bound_, upper_bound_, actual_);                                         \
@@ -1825,6 +2043,8 @@
                                                                                                                                         \
         if ((actual_) >= (lower_bound_) && (actual_) <= (upper_bound_))                                                                 \
         {                                                                                                                               \
+            cmc_assert_state = false;                                                                                                   \
+                                                                                                                                        \
             fprintf(stderr,                                                                                                             \
                     "Assertion Failed at %s:%s:%u for { %s }: Not Expected Range: [%" PRIdMAX ", %" PRIdMAX "] Actual: %" PRIdMAX "\n", \
                     __FILE__, __func__, __LINE__, str, lower_bound_, upper_bound_, actual_);                                            \
@@ -1842,6 +2062,8 @@
                                                                                                                                         \
         if ((actual_) >= (lower_bound_) && (actual_) <= (upper_bound_))                                                                 \
         {                                                                                                                               \
+            cmc_assert_state = false;                                                                                                   \
+                                                                                                                                        \
             fprintf(stderr,                                                                                                             \
                     "Assertion Failed at %s:%s:%u for { %s }: Not Expected Range: [%" PRIuMAX ", %" PRIuMAX "] Actual: %" PRIuMAX "\n", \
                     __FILE__, __func__, __LINE__, str, lower_bound_, upper_bound_, actual_);                                            \
@@ -1859,6 +2081,8 @@
                                                                                                                                         \
         if ((actual_) >= (lower_bound_) && (actual_) <= (upper_bound_))                                                                 \
         {                                                                                                                               \
+            cmc_assert_state = false;                                                                                                   \
+                                                                                                                                        \
             fprintf(stderr,                                                                                                             \
                     "Assertion Failed at %s:%s:%u for { %s }: Not Expected Range: [%" PRIuMAX ", %" PRIuMAX "] Actual: %" PRIuMAX "\n", \
                     __FILE__, __func__, __LINE__, str, lower_bound_, upper_bound_, actual_);                                            \
@@ -1876,6 +2100,8 @@
                                                                                                           \
         if ((actual_) >= (lower_bound_) && (actual_) <= (upper_bound_))                                   \
         {                                                                                                 \
+            cmc_assert_state = false;                                                                     \
+                                                                                                          \
             fprintf(stderr,                                                                               \
                     "Assertion Failed at %s:%s:%u for { %s }: Not Expected Range: [%f, %f] Actual: %f\n", \
                     __FILE__, __func__, __LINE__, str, lower_bound_, upper_bound_, actual_);              \
@@ -1893,6 +2119,8 @@
                                                                                                              \
         if ((actual_) >= (lower_bound_) && (actual_) <= (upper_bound_))                                      \
         {                                                                                                    \
+            cmc_assert_state = false;                                                                        \
+                                                                                                             \
             fprintf(stderr,                                                                                  \
                     "Assertion Failed at %s:%s:%u for { %s }: Not Expected Range: [%lf, %lf] Actual: %lf\n", \
                     __FILE__, __func__, __LINE__, str, lower_bound_, upper_bound_, actual_);                 \

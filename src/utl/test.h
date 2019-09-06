@@ -11,6 +11,10 @@
 /**
  * Simple Unit Test Utility
  *
+ * Required imports:
+ *     - assert.h (to integrate with the cmc_assert_state variable)
+ *     - timer.h  (to calculate the execution time for the unit test)
+ *
  * CMC_CREATE_UNIT
  *     Create a UnitTest
  *     Parameters:
@@ -42,6 +46,7 @@
 #ifndef CMC_TEST_H
 #define CMC_TEST_H
 
+#include "assert.h"
 #include "timer.h"
 #include <inttypes.h>
 #include <stdbool.h>
@@ -92,7 +97,7 @@ static void cmc_test_log(const char *unit_name, const char *current_test, bool a
 }
 
 #define CMC_CREATE_UNIT(UNAME, VERBOSE, BODY)                                               \
-    void UNAME(void)                                                                        \
+    uintmax_t UNAME(void)                                                                   \
     {                                                                                       \
         const char *unit_name = #UNAME;                                                     \
         const char *current_test = NULL;                                                    \
@@ -104,11 +109,13 @@ static void cmc_test_log(const char *unit_name, const char *current_test, bool a
                                                                                             \
         /* Tests */                                                                         \
         timer_start(timer);                                                                 \
+                                                                                            \
         BODY;                                                                               \
+                                                                                            \
         timer_stop(timer);                                                                  \
         timer_calc(timer);                                                                  \
                                                                                             \
-        unittest_abort:                                                                     \
+    unittest_abort:                                                                         \
         if (tinfo.aborted)                                                                  \
         {                                                                                   \
             cmc_test_log(unit_name, current_test, true, false);                             \
@@ -122,51 +129,38 @@ static void cmc_test_log(const char *unit_name, const char *current_test, bool a
         printf("|                                                  |\n");                   \
         printf("| Total Unit Test Runtime : %9.0f milliseconds |\n", timer.result);         \
         printf("+--------------------------------------------------+\n");                   \
+                                                                                            \
+        return tinfo.failed;                                                                \
     }
 
-#define CMC_CREATE_TEST(TNAME, BODY) \
-    do                               \
-    {                                \
-        current_test = #TNAME;       \
-                                     \
-        tinfo.total += 1;            \
-                                     \
-        BODY;                        \
-                                     \
-    } while (0)
-
-#define CMC_TEST_PASS()                                         \
-    do                                                          \
-    {                                                           \
-        tinfo.passed += 1;                                      \
-        if (tinfo.verbose)                                      \
-            cmc_test_log(unit_name, current_test, false, true); \
-                                                                \
-    } while (0)
-
-#define CMC_TEST_FAIL()                                          \
+#define CMC_CREATE_TEST(TNAME, BODY)                             \
     do                                                           \
     {                                                            \
-        tinfo.failed += 1;                                       \
-        if (tinfo.verbose)                                       \
-            cmc_test_log(unit_name, current_test, false, false); \
+        current_test = #TNAME;                                   \
                                                                  \
-    } while (0)
-
-#define CMC_TEST_PASS_ELSE_FAIL(EXPRESSION) \
-    do                                      \
-    {                                       \
-        if (EXPRESSION)                     \
-            CMC_TEST_PASS();                \
-        else                                \
-            CMC_TEST_FAIL();                \
-                                            \
+        tinfo.total += 1;                                        \
+                                                                 \
+        /* Provided by assert.h */                               \
+        cmc_assert_state = true;                                 \
+                                                                 \
+        BODY;                                                    \
+                                                                 \
+        if (!cmc_assert_state)                                   \
+        {                                                        \
+            tinfo.failed += 1;                                   \
+            cmc_test_log(unit_name, current_test, false, false); \
+        }                                                        \
+        else                                                     \
+        {                                                        \
+            tinfo.passed += 1;                                   \
+            cmc_test_log(unit_name, current_test, false, true);  \
+        }                                                        \
+                                                                 \
     } while (0)
 
 #define CMC_TEST_ABORT()      \
     do                        \
     {                         \
-                              \
         tinfo.aborted = true; \
         tinfo.total -= 1;     \
         goto unittest_abort;  \

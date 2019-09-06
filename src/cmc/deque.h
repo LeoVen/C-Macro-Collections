@@ -139,6 +139,9 @@
     FMOD void PFX##_iter_to_end(SNAME##_iter *iter);                                   \
     FMOD bool PFX##_iter_next(SNAME##_iter *iter);                                     \
     FMOD bool PFX##_iter_prev(SNAME##_iter *iter);                                     \
+    FMOD bool PFX##_iter_advance(SNAME##_iter *iter, size_t steps);                    \
+    FMOD bool PFX##_iter_rewind(SNAME##_iter *iter, size_t steps);                     \
+    FMOD bool PFX##_iter_go_to(SNAME##_iter *iter, size_t index);                      \
     /* Iterator Access */                                                              \
     FMOD V PFX##_iter_value(SNAME##_iter *iter);                                       \
     FMOD V *PFX##_iter_rvalue(SNAME##_iter *iter);                                     \
@@ -510,6 +513,40 @@
             iter->cursor = (iter->cursor == 0) ? iter->target->capacity - 1 : iter->cursor - 1;              \
             iter->index--;                                                                                   \
         }                                                                                                    \
+                                                                                                             \
+        return true;                                                                                         \
+    }                                                                                                        \
+                                                                                                             \
+    FMOD bool PFX##_iter_advance(SNAME##_iter *iter, size_t steps)                                           \
+    {                                                                                                        \
+        if (iter->end)                                                                                       \
+            return false;                                                                                    \
+                                                                                                             \
+        if (iter->index + steps > PFX##_count(iter->target))                                                 \
+            return false;                                                                                    \
+                                                                                                             \
+        /* TODO */                                                                                           \
+                                                                                                             \
+        return true;                                                                                         \
+    }                                                                                                        \
+                                                                                                             \
+    FMOD bool PFX##_iter_rewind(SNAME##_iter *iter, size_t steps)                                            \
+    {                                                                                                        \
+        if (iter->start)                                                                                     \
+            return false;                                                                                    \
+                                                                                                             \
+        if (iter->index < steps)                                                                             \
+            return false;                                                                                    \
+                                                                                                             \
+        /* TODO */                                                                                           \
+                                                                                                             \
+        return true;                                                                                         \
+    }                                                                                                        \
+                                                                                                             \
+    FMOD bool PFX##_iter_go_to(SNAME##_iter *iter, size_t index)                                             \
+    {                                                                                                        \
+                                                                                                             \
+        /* TODO */                                                                                           \
                                                                                                              \
         return true;                                                                                         \
     }                                                                                                        \

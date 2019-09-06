@@ -7,14 +7,9 @@ CMC_CREATE_UNIT(list_test, true, {
         list *l = l_new(1000000);
 
         cmc_assert_not_equals(ptr, NULL, l);
-
-        bool passed = l->capacity == 1000000 && l->count == 0 && l->buffer;
-
-        cmc_assert_equals(size_t, 1000000, l->capacity);
-        cmc_assert_equals(size_t, 0, l_count(l));
         cmc_assert_not_equals(ptr, NULL, l->buffer);
-
-        CMC_TEST_PASS_ELSE_FAIL(passed);
+        cmc_assert_equals(size_t, 1000000, l_capacity(l));
+        cmc_assert_equals(size_t, 0, l_count(l));
 
         l_free(l);
     });
@@ -23,16 +18,12 @@ CMC_CREATE_UNIT(list_test, true, {
         list *l = l_new(0);
 
         cmc_assert_equals(ptr, NULL, l);
-
-        CMC_TEST_PASS_ELSE_FAIL(l == NULL);
     });
 
     CMC_CREATE_TEST(new[edge_case:capacity = UINT64_MAX], {
         list *l = l_new(UINT64_MAX);
 
         cmc_assert_equals(ptr, NULL, l);
-
-        CMC_TEST_PASS_ELSE_FAIL(l == NULL);
     });
 
     CMC_CREATE_TEST(new_from[count item_preservation], {
@@ -47,16 +38,8 @@ CMC_CREATE_UNIT(list_test, true, {
 
         cmc_assert_not_equals(ptr, NULL, l);
 
-        bool passed = true;
-
         for (size_t i = 0; i < 5; i++)
-        {
             cmc_assert_equals(size_t, i, l_get(l, i));
-
-            passed = passed && l_get(l, i) == i;
-        }
-
-        CMC_TEST_PASS_ELSE_FAIL(passed && l_count(l) == 5);
 
         l_free(l);
     });
@@ -69,8 +52,6 @@ CMC_CREATE_UNIT(list_test, true, {
         list *l = l_new_from(values, 1);
 
         cmc_assert_not_equals(ptr, NULL, l);
-
-        CMC_TEST_PASS_ELSE_FAIL(l_count(l) == 1);
 
         l_free(l);
     });
@@ -90,8 +71,6 @@ CMC_CREATE_UNIT(list_test, true, {
         cmc_assert_equals(size_t, 0, l_count(l));
         cmc_assert_equals(size_t, 100, l_capacity(l));
 
-        CMC_TEST_PASS_ELSE_FAIL(l_count(l) == 0 && l_capacity(l) == 100);
-
         l_free(l);
     });
 
@@ -105,15 +84,8 @@ CMC_CREATE_UNIT(list_test, true, {
 
         cmc_assert_equals(size_t, 100, l_count(l));
 
-        bool passed = true;
-
         for (size_t i = 0; i < 100; i++)
-        {
-            passed = passed && l_get(l, i) == i;
             cmc_assert_equals(size_t, i, l_get(l, i));
-        }
-
-        CMC_TEST_PASS_ELSE_FAIL(passed);
 
         l_free(l);
     });
@@ -128,8 +100,6 @@ CMC_CREATE_UNIT(list_test, true, {
 
         cmc_assert_equals(size_t, 250, l_count(l));
 
-        CMC_TEST_PASS_ELSE_FAIL(l_count(l) == 250);
-
         l_free(l);
     });
 
@@ -143,8 +113,6 @@ CMC_CREATE_UNIT(list_test, true, {
 
         cmc_assert_lesser_equals(size_t, l_capacity(l), l_count(l));
 
-        CMC_TEST_PASS_ELSE_FAIL(l_count(l) <= l_capacity(l));
-
         l_free(l);
     });
 
@@ -156,16 +124,8 @@ CMC_CREATE_UNIT(list_test, true, {
         for (size_t i = 0; i < 250; i++)
             cmc_assert(l_push_front(l, i));
 
-        bool passed = true;
-
         for (size_t i = 0; i < l_count(l); i++)
-        {
-            passed = passed && l_get(l, i) == (l_count(l) - i - 1);
-
             cmc_assert_equals(size_t, l_get(l, i), l_count(l) - i - 1);
-        }
-
-        CMC_TEST_PASS_ELSE_FAIL(passed);
 
         l_free(l);
     });
@@ -183,8 +143,6 @@ CMC_CREATE_UNIT(list_test, true, {
 
         cmc_assert_equals(size_t, 250, l_count(l));
 
-        CMC_TEST_PASS_ELSE_FAIL(l_count(l) == 250);
-
         l_free(l);
     });
 
@@ -201,8 +159,6 @@ CMC_CREATE_UNIT(list_test, true, {
 
         cmc_assert_lesser_equals(size_t, l_capacity(l), l_count(l));
 
-        CMC_TEST_PASS_ELSE_FAIL(l_count(l) <= l_capacity(l));
-
         l_free(l);
     });
 
@@ -217,16 +173,8 @@ CMC_CREATE_UNIT(list_test, true, {
         for (size_t i = 1; i < 249; i++)
             cmc_assert(l_push(l, i, l_count(l) - 1));
 
-        bool passed = true;
-
         for (size_t i = 0; i < l_count(l); i++)
-        {
-            passed = passed && l_get(l, i) == i;
-
             cmc_assert_equals(size_t, l_get(l, i), i);
-        }
-
-        CMC_TEST_PASS_ELSE_FAIL(passed);
 
         l_free(l);
     });
@@ -241,8 +189,6 @@ CMC_CREATE_UNIT(list_test, true, {
 
         cmc_assert_equals(size_t, 250, l_count(l));
 
-        CMC_TEST_PASS_ELSE_FAIL(l_count(l) == 250);
-
         l_free(l);
     });
 
@@ -256,8 +202,6 @@ CMC_CREATE_UNIT(list_test, true, {
 
         cmc_assert_lesser_equals(size_t, l_capacity(l), l_count(l));
 
-        CMC_TEST_PASS_ELSE_FAIL(l_count(l) <= l_capacity(l));
-
         l_free(l);
     });
 
@@ -269,16 +213,8 @@ CMC_CREATE_UNIT(list_test, true, {
         for (size_t i = 0; i < 250; i++)
             cmc_assert(l_push_back(l, i));
 
-        bool passed = true;
-
         for (size_t i = 0; i < l_count(l); i++)
-        {
-            passed = passed && l_get(l, i) == i;
-
             cmc_assert_equals(size_t, l_get(l, i), i);
-        }
-
-        CMC_TEST_PASS_ELSE_FAIL(passed);
 
         l_free(l);
     });
@@ -293,8 +229,6 @@ CMC_CREATE_UNIT(list_test, true, {
 
         cmc_assert(l_pop_front(l));
 
-        CMC_TEST_PASS_ELSE_FAIL(l_count(l) == 250 - 1);
-
         l_free(l);
     });
 
@@ -306,16 +240,10 @@ CMC_CREATE_UNIT(list_test, true, {
         for (size_t i = 0; i < 250; i++)
             l_push_back(l, i);
 
-        bool passed = l_pop_front(l);
+        cmc_assert(l_pop_front(l));
 
         for (size_t i = 0; i < l_count(l); i++)
-        {
-            passed = passed && l_get(l, i) == i + 1;
-
             cmc_assert_equals(size_t, l_get(l, i), i + 1);
-        }
-
-        CMC_TEST_PASS_ELSE_FAIL(passed);
 
         l_free(l);
     });
@@ -325,7 +253,6 @@ CMC_CREATE_UNIT(list_test, true, {
 
         cmc_assert_not_equals(ptr, NULL, l);
         cmc_assert(!l_pop_front(l));
-        CMC_TEST_PASS_ELSE_FAIL(l_count(l) == 0);
 
         l_free(l);
     });
@@ -337,8 +264,6 @@ CMC_CREATE_UNIT(list_test, true, {
         cmc_assert(l_push_back(l, 10));
         cmc_assert(l_pop_front(l));
 
-        CMC_TEST_PASS_ELSE_FAIL(l_count(l) == 0);
-
         l_free(l);
     });
 
@@ -349,11 +274,9 @@ CMC_CREATE_UNIT(list_test, true, {
         cmc_assert(l_push_back(l, 1));
         cmc_assert(l_push_front(l, 2));
 
-        bool passed = l_pop_front(l) && l->buffer[1] == 0;
+        cmc_assert(l_pop_front(l));
 
         cmc_assert_equals(size_t, 0, l->buffer[1]);
-
-        CMC_TEST_PASS_ELSE_FAIL(passed && l_count(l) == 1);
 
         l_free(l);
     });
@@ -364,8 +287,6 @@ CMC_CREATE_UNIT(list_test, true, {
         cmc_assert_not_equals(ptr, NULL, l);
         cmc_assert(!l_pop(l, 1));
 
-        CMC_TEST_PASS_ELSE_FAIL(!l_pop(l, 1));
-
         l_free(l);
     });
 
@@ -374,8 +295,7 @@ CMC_CREATE_UNIT(list_test, true, {
 
         cmc_assert_not_equals(ptr, NULL, l);
         cmc_assert(l_push_back(l, 1));
-
-        CMC_TEST_PASS_ELSE_FAIL(l_pop(l, 0));
+        cmc_assert(l_pop(l, 0));
 
         cmc_assert_equals(size_t, 0, l->buffer[0]);
 
@@ -391,8 +311,6 @@ CMC_CREATE_UNIT(list_test, true, {
         cmc_assert(l_push_back(l, 3));
         cmc_assert(l_pop(l, 1));
 
-        CMC_TEST_PASS_ELSE_FAIL(0 == l->buffer[2]);
-
         l_free(l);
     });
 
@@ -401,7 +319,6 @@ CMC_CREATE_UNIT(list_test, true, {
 
         cmc_assert_not_equals(ptr, NULL, l);
         cmc_assert(!l_pop_back(l));
-        CMC_TEST_PASS_ELSE_FAIL(l_count(l) == 0);
 
         l_free(l);
     });
@@ -412,8 +329,6 @@ CMC_CREATE_UNIT(list_test, true, {
         cmc_assert_not_equals(ptr, NULL, l);
         cmc_assert(l_push_back(l, 10));
         cmc_assert(l_pop_back(l));
-
-        CMC_TEST_PASS_ELSE_FAIL(l_count(l) == 0);
 
         l_free(l);
     });

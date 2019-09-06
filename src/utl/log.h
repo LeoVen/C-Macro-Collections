@@ -85,21 +85,21 @@ static struct
 
 typedef enum cmc_log_type_e
 {
-    LOG_TRACE = 1,
-    LOG_DEBUG = 2,
-    LOG_INFO = 3,
-    LOG_WARN = 4,
-    LOG_ERROR = 5,
-    LOG_FATAL = 6
+    CMC_LOG_TRACE = 1,
+    CMC_LOG_DEBUG = 2,
+    CMC_LOG_INFO = 3,
+    CMC_LOG_WARN = 4,
+    CMC_LOG_ERROR = 5,
+    CMC_LOG_FATAL = 6
 
 } cmc_log_type;
 
-#define log_trace(fmt, ...) cmc_log(LOG_TRACE, __FILE__, __func__, __LINE__, fmt, __VA_ARGS__)
-#define log_debug(fmt, ...) cmc_log(LOG_DEBUG, __FILE__, __func__, __LINE__, fmt, __VA_ARGS__)
-#define log_info(fmt, ...) cmc_log(LOG_INFO, __FILE__, __func__, __LINE__, fmt, __VA_ARGS__)
-#define log_warn(fmt, ...) cmc_log(LOG_WARN, __FILE__, __func__, __LINE__, fmt, __VA_ARGS__)
-#define log_error(fmt, ...) cmc_log(LOG_ERROR, __FILE__, __func__, __LINE__, fmt, __VA_ARGS__)
-#define log_fatal(fmt, ...) cmc_log(LOG_FATAL, __FILE__, __func__, __LINE__, fmt, __VA_ARGS__)
+#define cmc_log_trace(fmt, ...) cmc_log(CMC_LOG_TRACE, __FILE__, __func__, __LINE__, fmt, __VA_ARGS__)
+#define cmc_log_debug(fmt, ...) cmc_log(CMC_LOG_DEBUG, __FILE__, __func__, __LINE__, fmt, __VA_ARGS__)
+#define cmc_log_info(fmt, ...) cmc_log(CMC_LOG_INFO, __FILE__, __func__, __LINE__, fmt, __VA_ARGS__)
+#define cmc_log_warn(fmt, ...) cmc_log(CMC_LOG_WARN, __FILE__, __func__, __LINE__, fmt, __VA_ARGS__)
+#define cmc_log_error(fmt, ...) cmc_log(CMC_LOG_ERROR, __FILE__, __func__, __LINE__, fmt, __VA_ARGS__)
+#define cmc_log_fatal(fmt, ...) cmc_log(CMC_LOG_FATAL, __FILE__, __func__, __LINE__, fmt, __VA_ARGS__)
 
 static void cmc_log(cmc_log_type log, const char *filename, const char *funcname, int line, const char *fmt, ...)
 {

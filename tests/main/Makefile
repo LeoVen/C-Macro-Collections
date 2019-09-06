@@ -4,7 +4,7 @@ CFLAGS += -Wno-unused-function -Wno-unused-parameter -Wno-unused-variable -Wno-u
 CVFLAGS = --coverage -O0
 INCLUDE = ../../src/
 
-main:
+main: FORCE
 	$(CC) main.c -o main $(CFLAGS) $(CVFLAGS) -I $(INCLUDE)
 	./main
 	gcov ./main.c
@@ -14,3 +14,11 @@ dev:
 	./main
 	gcov ./main.c -n
 	rm *.gcda *.gcno *.exe
+
+windev:
+	$(CC) main.c -o main $(CFLAGS) $(CVFLAGS) -I $(INCLUDE)
+	./main
+	gcov ./main.c -n
+	del *.gcda *.gcno *.exe
+
+FORCE:

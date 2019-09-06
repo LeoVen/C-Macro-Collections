@@ -14,20 +14,22 @@
 
 int main(void)
 {
-    deque_test();
-    hashmap_test();
-    hashset_test();
-    heap_test();
-    linkedlist_test();
-    list_test();
-    queue_test();
-    stack_test();
-    treemap_test();
-    treeset_test();
+    uintmax_t failed = 0;
+
+    failed += deque_test();
+    failed += hashmap_test();
+    failed += hashset_test();
+    failed += heap_test();
+    failed += linkedlist_test();
+    failed += list_test();
+    failed += queue_test();
+    failed += stack_test();
+    failed += treemap_test();
+    failed += treeset_test();
 
     /* ext */
-    multimap_test();
-    multiset_test();
+    failed += multimap_test();
+    failed += multiset_test();
 
-    return 0;
+    return failed;
 }

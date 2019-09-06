@@ -10,8 +10,6 @@ CMC_CREATE_UNIT(treeset_test, true, {
 
         cmc_assert_not_equals(ptr, NULL, set);
 
-        CMC_TEST_PASS_ELSE_FAIL(set);
-
         ts_free(set);
     });
 
@@ -29,9 +27,6 @@ CMC_CREATE_UNIT(treeset_test, true, {
 
         cmc_assert_equals(size_t, 0, ts_count(set));
         cmc_assert_equals(ptr, NULL, set->root);
-
-
-        CMC_TEST_PASS_ELSE_FAIL(ts_count(set) == 0);
 
         ts_free(set);
     });
