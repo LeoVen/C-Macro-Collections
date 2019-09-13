@@ -122,6 +122,9 @@
     FMOD void PFX##_iter_to_end(SNAME##_iter *iter);                                   \
     FMOD bool PFX##_iter_next(SNAME##_iter *iter);                                     \
     FMOD bool PFX##_iter_prev(SNAME##_iter *iter);                                     \
+    FMOD bool PFX##_iter_advance(SNAME##_iter *iter, size_t steps);                    \
+    FMOD bool PFX##_iter_rewind(SNAME##_iter *iter, size_t steps);                     \
+    FMOD bool PFX##_iter_go_to(SNAME##_iter *iter, size_t index);                      \
     /* Iterator Access */                                                              \
     FMOD V PFX##_iter_value(SNAME##_iter *iter);                                       \
     FMOD V *PFX##_iter_rvalue(SNAME##_iter *iter);                                     \
@@ -343,12 +346,7 @@
     FMOD void PFX##_iter_init(SNAME##_iter *iter, SNAME *target)                      \
     {                                                                                 \
         iter->target = target;                                                        \
-                                                                                      \
-        if (PFX##_empty(target))                                                      \
-            iter->cursor = 0;                                                         \
-        else                                                                          \
-            iter->cursor = iter->target->count - 1;                                   \
-                                                                                      \
+        iter->cursor = PFX##_empty(target) ? 0 : iter->target->count - 1;             \
         iter->start = true;                                                           \
         iter->end = PFX##_empty(target);                                              \
     }                                                                                 \
@@ -365,16 +363,22 @@
                                                                                       \
     FMOD void PFX##_iter_to_start(SNAME##_iter *iter)                                 \
     {                                                                                 \
-        iter->cursor = iter->target->count - 1;                                       \
-        iter->start = true;                                                           \
-        iter->end = PFX##_empty(iter->target);                                        \
+        if (!PFX##_empty(iter->target))                                               \
+        {                                                                             \
+            iter->cursor = iter->target->count - 1;                                   \
+            iter->start = true;                                                       \
+            iter->end = PFX##_empty(iter->target);                                    \
+        }                                                                             \
     }                                                                                 \
                                                                                       \
     FMOD void PFX##_iter_to_end(SNAME##_iter *iter)                                   \
     {                                                                                 \
-        iter->cursor = 0;                                                             \
-        iter->start = PFX##_empty(iter->target);                                      \
-        iter->end = true;                                                             \
+        if (!PFX##_empty(iter->target))                                               \
+        {                                                                             \
+            iter->cursor = 0;                                                         \
+            iter->start = PFX##_empty(iter->target);                                  \
+            iter->end = true;                                                         \
+        }                                                                             \
     }                                                                                 \
                                                                                       \
     FMOD bool PFX##_iter_next(SNAME##_iter *iter)                                     \
@@ -382,16 +386,15 @@
         if (iter->end)                                                                \
             return false;                                                             \
                                                                                       \
-        iter->start = PFX##_empty(iter->target);                                      \
-                                                                                      \
         if (iter->cursor == 0)                                                        \
         {                                                                             \
             iter->end = true;                                                         \
-                                                                                      \
             return false;                                                             \
         }                                                                             \
-        else                                                                          \
-            iter->cursor--;                                                           \
+                                                                                      \
+        iter->start = PFX##_empty(iter->target);                                      \
+                                                                                      \
+        iter->cursor--;                                                               \
                                                                                       \
         return true;                                                                  \
     }                                                                                 \
@@ -401,16 +404,74 @@
         if (iter->start)                                                              \
             return false;                                                             \
                                                                                       \
-        iter->end = PFX##_empty(iter->target);                                        \
-                                                                                      \
-        if (iter->cursor == iter->target->count - 1)                                  \
+        if (iter->cursor + 1 == PFX##_count(iter->target))                            \
         {                                                                             \
             iter->start = true;                                                       \
-                                                                                      \
             return false;                                                             \
         }                                                                             \
-        else                                                                          \
-            iter->cursor++;                                                           \
+                                                                                      \
+        iter->end = PFX##_empty(iter->target);                                        \
+                                                                                      \
+        iter->cursor++;                                                               \
+                                                                                      \
+        return true;                                                                  \
+    }                                                                                 \
+                                                                                      \
+    /* Returns true only if the iterator moved */                                     \
+    FMOD bool PFX##_iter_advance(SNAME##_iter *iter, size_t steps)                    \
+    {                                                                                 \
+        if (iter->end)                                                                \
+            return false;                                                             \
+                                                                                      \
+        if (iter->cursor == 0)                                                        \
+        {                                                                             \
+            iter->end = true;                                                         \
+            return false;                                                             \
+        }                                                                             \
+                                                                                      \
+        if (steps == 0 || iter->cursor < steps)                                       \
+            return false;                                                             \
+                                                                                      \
+        iter->start = PFX##_empty(iter->target);                                      \
+                                                                                      \
+        iter->cursor -= steps;                                                        \
+                                                                                      \
+        return true;                                                                  \
+    }                                                                                 \
+                                                                                      \
+    /* Returns true only if the iterator moved */                                     \
+    FMOD bool PFX##_iter_rewind(SNAME##_iter *iter, size_t steps)                     \
+    {                                                                                 \
+        if (iter->start)                                                              \
+            return false;                                                             \
+                                                                                      \
+        if (iter->cursor + 1 == PFX##_count(iter->target))                            \
+        {                                                                             \
+            iter->start = true;                                                       \
+            return false;                                                             \
+        }                                                                             \
+                                                                                      \
+        if (steps == 0 || iter->cursor + steps >= PFX##_count(iter->target))          \
+            return false;                                                             \
+                                                                                      \
+        iter->end = PFX##_empty(iter->target);                                        \
+                                                                                      \
+        iter->cursor += steps;                                                        \
+                                                                                      \
+        return true;                                                                  \
+    }                                                                                 \
+                                                                                      \
+    /* Returns true only if the iterator was able to be positioned at the given */    \
+    /* index */                                                                       \
+    FMOD bool PFX##_iter_go_to(SNAME##_iter *iter, size_t index)                      \
+    {                                                                                 \
+        if (index >= PFX##_count(iter->target))                                       \
+            return false;                                                             \
+                                                                                      \
+        if (iter->cursor > index)                                                     \
+            return PFX##_iter_rewind(iter, iter->cursor - index);                     \
+        else if (iter->cursor < index)                                                \
+            return PFX##_iter_advance(iter, index - iter->cursor);                    \
                                                                                       \
         return true;                                                                  \
     }                                                                                 \

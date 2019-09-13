@@ -195,6 +195,9 @@ static const size_t cmc_hashtable_primes[] = {53, 97, 191, 383, 769, 1531,
     FMOD void PFX##_iter_to_end(SNAME##_iter *iter);                                              \
     FMOD bool PFX##_iter_next(SNAME##_iter *iter);                                                \
     FMOD bool PFX##_iter_prev(SNAME##_iter *iter);                                                \
+    FMOD bool PFX##_iter_advance(SNAME##_iter *iter, size_t steps);                               \
+    FMOD bool PFX##_iter_rewind(SNAME##_iter *iter, size_t steps);                                \
+    FMOD bool PFX##_iter_go_to(SNAME##_iter *iter, size_t index);                                 \
     /* Iterator Access */                                                                         \
     FMOD K PFX##_iter_key(SNAME##_iter *iter);                                                    \
     FMOD V PFX##_iter_value(SNAME##_iter *iter);                                                  \
@@ -618,9 +621,9 @@ static const size_t cmc_hashtable_primes[] = {53, 97, 191, 383, 769, 1531,
                                                                                                  \
     FMOD void PFX##_iter_init(SNAME##_iter *iter, SNAME *target)                                 \
     {                                                                                            \
+        memset(iter, 0, sizeof(SNAME##_iter));                                                   \
+                                                                                                 \
         iter->target = target;                                                                   \
-        iter->cursor = 0;                                                                        \
-        iter->index = 0;                                                                         \
         iter->start = true;                                                                      \
         iter->end = PFX##_empty(target);                                                         \
                                                                                                  \
@@ -660,18 +663,24 @@ static const size_t cmc_hashtable_primes[] = {53, 97, 191, 383, 769, 1531,
                                                                                                  \
     FMOD void PFX##_iter_to_start(SNAME##_iter *iter)                                            \
     {                                                                                            \
-        iter->cursor = iter->first;                                                              \
-        iter->index = 0;                                                                         \
-        iter->start = true;                                                                      \
-        iter->end = PFX##_empty(iter->target);                                                   \
+        if (!PFX##_empty(iter->target))                                                          \
+        {                                                                                        \
+            iter->cursor = iter->first;                                                          \
+            iter->index = 0;                                                                     \
+            iter->start = true;                                                                  \
+            iter->end = PFX##_empty(iter->target);                                               \
+        }                                                                                        \
     }                                                                                            \
                                                                                                  \
     FMOD void PFX##_iter_to_end(SNAME##_iter *iter)                                              \
     {                                                                                            \
-        iter->cursor = iter->last;                                                               \
-        iter->index = iter->target->count - 1;                                                   \
-        iter->start = PFX##_empty(iter->target);                                                 \
-        iter->end = true;                                                                        \
+        if (!PFX##_empty(iter->target))                                                          \
+        {                                                                                        \
+            iter->cursor = iter->last;                                                           \
+            iter->index = PFX##_count(iter->target) - 1;                                         \
+            iter->start = PFX##_empty(iter->target);                                             \
+            iter->end = true;                                                                    \
+        }                                                                                        \
     }                                                                                            \
                                                                                                  \
     FMOD bool PFX##_iter_next(SNAME##_iter *iter)                                                \
@@ -679,14 +688,15 @@ static const size_t cmc_hashtable_primes[] = {53, 97, 191, 383, 769, 1531,
         if (iter->end)                                                                           \
             return false;                                                                        \
                                                                                                  \
-        SNAME##_entry *scan = &(iter->target->buffer[iter->cursor]);                             \
-                                                                                                 \
-        if (iter->cursor == iter->last)                                                          \
+        if (iter->index + 1 == PFX##_count(iter->target))                                        \
         {                                                                                        \
             iter->end = true;                                                                    \
-                                                                                                 \
             return false;                                                                        \
         }                                                                                        \
+                                                                                                 \
+        iter->start = PFX##_empty(iter->target);                                                 \
+                                                                                                 \
+        SNAME##_entry *scan = &(iter->target->buffer[iter->cursor]);                             \
                                                                                                  \
         iter->index++;                                                                           \
                                                                                                  \
@@ -699,8 +709,6 @@ static const size_t cmc_hashtable_primes[] = {53, 97, 191, 383, 769, 1531,
                 break;                                                                           \
         }                                                                                        \
                                                                                                  \
-        iter->start = PFX##_empty(iter->target);                                                 \
-                                                                                                 \
         return true;                                                                             \
     }                                                                                            \
                                                                                                  \
@@ -709,14 +717,15 @@ static const size_t cmc_hashtable_primes[] = {53, 97, 191, 383, 769, 1531,
         if (iter->start)                                                                         \
             return false;                                                                        \
                                                                                                  \
-        SNAME##_entry *scan = &(iter->target->buffer[iter->cursor]);                             \
-                                                                                                 \
-        if (iter->cursor == iter->first)                                                         \
+        if (iter->index == 0)                                                                    \
         {                                                                                        \
             iter->start = true;                                                                  \
-                                                                                                 \
             return false;                                                                        \
         }                                                                                        \
+                                                                                                 \
+        iter->end = PFX##_empty(iter->target);                                                   \
+                                                                                                 \
+        SNAME##_entry *scan = &(iter->target->buffer[iter->cursor]);                             \
                                                                                                  \
         iter->index--;                                                                           \
                                                                                                  \
@@ -729,7 +738,61 @@ static const size_t cmc_hashtable_primes[] = {53, 97, 191, 383, 769, 1531,
                 break;                                                                           \
         }                                                                                        \
                                                                                                  \
-        iter->end = PFX##_empty(iter->target);                                                   \
+        return true;                                                                             \
+    }                                                                                            \
+                                                                                                 \
+    /* Returns true only if the iterator moved */                                                \
+    FMOD bool PFX##_iter_advance(SNAME##_iter *iter, size_t steps)                               \
+    {                                                                                            \
+        if (iter->end)                                                                           \
+            return false;                                                                        \
+                                                                                                 \
+        if (iter->index + 1 == PFX##_count(iter->target))                                        \
+        {                                                                                        \
+            iter->end = true;                                                                    \
+            return false;                                                                        \
+        }                                                                                        \
+                                                                                                 \
+        if (steps == 0 || iter->index + steps >= PFX##_count(iter->target))                      \
+            return false;                                                                        \
+                                                                                                 \
+        for (size_t i = 0; i < steps; i++)                                                       \
+            PFX##_iter_next(iter);                                                               \
+                                                                                                 \
+        return true;                                                                             \
+    }                                                                                            \
+                                                                                                 \
+    /* Returns true only if the iterator moved */                                                \
+    FMOD bool PFX##_iter_rewind(SNAME##_iter *iter, size_t steps)                                \
+    {                                                                                            \
+        if (iter->start)                                                                         \
+            return false;                                                                        \
+                                                                                                 \
+        if (iter->index == 0)                                                                    \
+        {                                                                                        \
+            iter->start = true;                                                                  \
+            return false;                                                                        \
+        }                                                                                        \
+                                                                                                 \
+        if (steps == 0 || iter->index < steps)                                                   \
+            return false;                                                                        \
+                                                                                                 \
+        for (size_t i = 0; i < steps; i++)                                                       \
+            PFX##_iter_prev(iter);                                                               \
+                                                                                                 \
+        return true;                                                                             \
+    }                                                                                            \
+                                                                                                 \
+    /* Returns true only if the iterator was able to be positioned at the given index */         \
+    FMOD bool PFX##_iter_go_to(SNAME##_iter *iter, size_t index)                                 \
+    {                                                                                            \
+        if (index >= PFX##_count(iter->target))                                                  \
+            return false;                                                                        \
+                                                                                                 \
+        if (iter->index > index)                                                                 \
+            return PFX##_iter_rewind(iter, iter->index - index);                                 \
+        else if (iter->index < index)                                                            \
+            return PFX##_iter_advance(iter, index - iter->index);                                \
                                                                                                  \
         return true;                                                                             \
     }                                                                                            \
