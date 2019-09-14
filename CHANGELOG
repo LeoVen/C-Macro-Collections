@@ -1,5 +1,13 @@
 # RELEASE.MAJOR.MINOR
 
+1.6.3
+    - Added iterator functions to all collections:
+        - iter_advance
+        - iter_rewind
+        - iter_go_to
+    - Added cmc prefix to the logging utility
+    - Integrated the assert utility with the test utility. Now any assertion that fails inside the unit test will trigger failure and is no longer needed to manually pass or fail tests.
+
 1.6.2
     Added new functions to all collections:
         - copy_of
