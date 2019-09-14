@@ -4,31 +4,37 @@ TODO
 [X] - Finished
 [~] - Needs to be reviewed
 
-[/] Documentation
-[X] Remove PUBLIC and PRIVATE
-[ ] Extra Collections
-    [X] Add MultiSet
-    [X] Add MultiMap
-    [X] Add IntervalHeap
+[ ] Future possible Collections
     [ ] Add TreeHashMap
     [ ] Add SortedList
     [ ] Add BiDiMap
+    [ ] Add Trie (or any variant)
+
+[/] Documentation
+[X] Remove PUBLIC and PRIVATE
+[X] Extra Collections
+    [X] Add MultiSet
+    [X] Add MultiMap
+    [X] Add IntervalHeap
 [ ] Add functions
     [X] update       {hashmap, treemap, multimap}
     [X] set          {hashmap, treemap, multimap}
     [X] to_string    {all}
-    [ ] iter_advance {all} (iterators)
-    [ ] iter_rewind  {all} (iterators)
-    [ ] iter_go_to   {all} (iterators)
+    [X] iter_advance {all} (iterators)
+    [X] iter_rewind  {all} (iterators)
+    [X] iter_go_to   {all} (iterators)
     [ ] from_array   {all}
     [ ] to_array     {all}
     [X] equals       {all}
     [X] copy_of      {all}
     [ ] resize       {dynamic arrays and circular buffers}
-    [ ] save         {all} (serialization)
-    [ ] load         {all} (serialization)
-    [ ] read         {all} (serialization)
-    [ ] write        {all} (serialization)
+[ ] Serialization
+    [ ] save         {all}
+    [ ] load         {all}
+    [ ] serialize    {all}
+    [ ] deserialize  {all}
+[ ] Add callback utility
+[ ] Zip Iterators
 [ ] Stack Allocated Collections
     [ ] Deque
     [ ] HashMap

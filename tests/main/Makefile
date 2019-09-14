@@ -9,13 +9,13 @@ main: FORCE
 	./main
 	gcov ./main.c
 
-dev:
+dev: FORCE
 	$(CC) main.c -o main $(CFLAGS) $(CVFLAGS) -I $(INCLUDE)
 	./main
 	gcov ./main.c -n
 	rm *.gcda *.gcno *.exe
 
-windev:
+windev: FORCE
 	$(CC) main.c -o main $(CFLAGS) $(CVFLAGS) -I $(INCLUDE)
 	./main
 	gcov ./main.c -n

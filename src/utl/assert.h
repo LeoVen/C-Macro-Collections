@@ -11,7 +11,7 @@
 /**
  * Definition of many typed non-abortive assertions. Every assertion that fails
  * will print a message to stderr but will not abort the program execution.
- * There are 4 main macros:
+ * There are 9 main macros:
  *
  * - cmc_assert
  * - cmc_assert_equals
