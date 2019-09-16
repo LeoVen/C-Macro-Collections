@@ -25,18 +25,18 @@
 #include <string.h>
 #include "../utl/cmc_string.h"
 
-#define TREESET_GENERATE(PFX, SNAME, FMOD, V)    \
-    TREESET_GENERATE_HEADER(PFX, SNAME, FMOD, V) \
-    TREESET_GENERATE_SOURCE(PFX, SNAME, FMOD, V)
+#define CMC_GENERATE_TREESET(PFX, SNAME, V)    \
+    CMC_GENERATE_TREESET_HEADER(PFX, SNAME, V) \
+    CMC_GENERATE_TREESET_SOURCE(PFX, SNAME, V)
 
-#define TREESET_WRAPGEN_HEADER(PFX, SNAME, FMOD, K, V) \
-    TREESET_GENERATE_HEADER(PFX, SNAME, FMOD, V)
+#define CMC_WRAPGEN_TREESET_HEADER(PFX, SNAME, K, V) \
+    CMC_GENERATE_TREESET_HEADER(PFX, SNAME, V)
 
-#define TREESET_WRAPGEN_SOURCE(PFX, SNAME, FMOD, K, V) \
-    TREESET_GENERATE_SOURCE(PFX, SNAME, FMOD, V)
+#define CMC_WRAPGEN_TREESET_SOURCE(PFX, SNAME, K, V) \
+    CMC_GENERATE_TREESET_SOURCE(PFX, SNAME, V)
 
 /* HEADER ********************************************************************/
-#define TREESET_GENERATE_HEADER(PFX, SNAME, FMOD, V)                        \
+#define CMC_GENERATE_TREESET_HEADER(PFX, SNAME, V)                          \
                                                                             \
     /* Treeset Structure */                                                 \
     typedef struct SNAME##_s                                                \
@@ -106,58 +106,58 @@
                                                                             \
     /* Collection Functions */                                              \
     /* Collection Allocation and Deallocation */                            \
-    FMOD SNAME *PFX##_new(int (*compare)(V, V));                            \
-    FMOD void PFX##_clear(SNAME *_set_, void (*deallocator)(V));            \
-    FMOD void PFX##_free(SNAME *_set_, void (*deallocator)(V));             \
+    SNAME *PFX##_new(int (*compare)(V, V));                                 \
+    void PFX##_clear(SNAME *_set_, void (*deallocator)(V));                 \
+    void PFX##_free(SNAME *_set_, void (*deallocator)(V));                  \
     /* Collection Input and Output */                                       \
-    FMOD bool PFX##_insert(SNAME *_set_, V element);                        \
-    FMOD bool PFX##_remove(SNAME *_set_, V element);                        \
+    bool PFX##_insert(SNAME *_set_, V element);                             \
+    bool PFX##_remove(SNAME *_set_, V element);                             \
     /* Conditional Input and Output */                                      \
-    FMOD bool PFX##_insert_if(SNAME *_set_, V element, bool condition);     \
-    FMOD bool PFX##_remove_if(SNAME *_set_, V element, bool condition);     \
+    bool PFX##_insert_if(SNAME *_set_, V element, bool condition);          \
+    bool PFX##_remove_if(SNAME *_set_, V element, bool condition);          \
     /* Element Access */                                                    \
-    FMOD bool PFX##_max(SNAME *_set_, V *value);                            \
-    FMOD bool PFX##_min(SNAME *_set_, V *value);                            \
+    bool PFX##_max(SNAME *_set_, V *value);                                 \
+    bool PFX##_min(SNAME *_set_, V *value);                                 \
     /* Collection State */                                                  \
-    FMOD bool PFX##_contains(SNAME *_set_, V element);                      \
-    FMOD bool PFX##_empty(SNAME *_set_);                                    \
-    FMOD size_t PFX##_count(SNAME *_set_);                                  \
+    bool PFX##_contains(SNAME *_set_, V element);                           \
+    bool PFX##_empty(SNAME *_set_);                                         \
+    size_t PFX##_count(SNAME *_set_);                                       \
     /* Collection Utility */                                                \
-    FMOD SNAME *PFX##_copy_of(SNAME *_set_, V (*copy_func)(V));             \
-    FMOD bool PFX##_equals(SNAME *_set1_, SNAME *_set2_);                   \
-    FMOD cmc_string PFX##_to_string(SNAME *_set_);                          \
+    SNAME *PFX##_copy_of(SNAME *_set_, V (*copy_func)(V));                  \
+    bool PFX##_equals(SNAME *_set1_, SNAME *_set2_);                        \
+    cmc_string PFX##_to_string(SNAME *_set_);                               \
                                                                             \
     /* Set Operations */                                                    \
-    FMOD SNAME *PFX##_union(SNAME *_set1_, SNAME *_set2_);                  \
-    FMOD SNAME *PFX##_intersection(SNAME *_set1_, SNAME *_set2_);           \
-    FMOD SNAME *PFX##_difference(SNAME *_set1_, SNAME *_set2_);             \
-    FMOD SNAME *PFX##_symmetric_difference(SNAME *_set1_, SNAME *_set2_);   \
-    FMOD bool PFX##_is_subset(SNAME *_set1_, SNAME *_set2_);                \
-    FMOD bool PFX##_is_superset(SNAME *_set1_, SNAME *_set2_);              \
-    FMOD bool PFX##_is_proper_subset(SNAME *_set1_, SNAME *_set2_);         \
-    FMOD bool PFX##_is_proper_superset(SNAME *_set1_, SNAME *_set2_);       \
-    FMOD bool PFX##_is_disjointset(SNAME *_set1_, SNAME *_set2_);           \
+    SNAME *PFX##_union(SNAME *_set1_, SNAME *_set2_);                       \
+    SNAME *PFX##_intersection(SNAME *_set1_, SNAME *_set2_);                \
+    SNAME *PFX##_difference(SNAME *_set1_, SNAME *_set2_);                  \
+    SNAME *PFX##_symmetric_difference(SNAME *_set1_, SNAME *_set2_);        \
+    bool PFX##_is_subset(SNAME *_set1_, SNAME *_set2_);                     \
+    bool PFX##_is_superset(SNAME *_set1_, SNAME *_set2_);                   \
+    bool PFX##_is_proper_subset(SNAME *_set1_, SNAME *_set2_);              \
+    bool PFX##_is_proper_superset(SNAME *_set1_, SNAME *_set2_);            \
+    bool PFX##_is_disjointset(SNAME *_set1_, SNAME *_set2_);                \
                                                                             \
     /* Iterator Functions */                                                \
     /* Iterator Allocation and Deallocation */                              \
-    FMOD SNAME##_iter *PFX##_iter_new(SNAME *target);                       \
-    FMOD void PFX##_iter_free(SNAME##_iter *iter);                          \
+    SNAME##_iter *PFX##_iter_new(SNAME *target);                            \
+    void PFX##_iter_free(SNAME##_iter *iter);                               \
     /* Iterator Initialization */                                           \
-    FMOD void PFX##_iter_init(SNAME##_iter *iter, SNAME *target);           \
+    void PFX##_iter_init(SNAME##_iter *iter, SNAME *target);                \
     /* Iterator State */                                                    \
-    FMOD bool PFX##_iter_start(SNAME##_iter *iter);                         \
-    FMOD bool PFX##_iter_end(SNAME##_iter *iter);                           \
+    bool PFX##_iter_start(SNAME##_iter *iter);                              \
+    bool PFX##_iter_end(SNAME##_iter *iter);                                \
     /* Iterator Movement */                                                 \
-    FMOD void PFX##_iter_to_start(SNAME##_iter *iter);                      \
-    FMOD void PFX##_iter_to_end(SNAME##_iter *iter);                        \
-    FMOD bool PFX##_iter_next(SNAME##_iter *iter);                          \
-    FMOD bool PFX##_iter_prev(SNAME##_iter *iter);                          \
-    FMOD bool PFX##_iter_advance(SNAME##_iter *iter, size_t steps);         \
-    FMOD bool PFX##_iter_rewind(SNAME##_iter *iter, size_t steps);          \
-    FMOD bool PFX##_iter_go_to(SNAME##_iter *iter, size_t index);           \
+    void PFX##_iter_to_start(SNAME##_iter *iter);                           \
+    void PFX##_iter_to_end(SNAME##_iter *iter);                             \
+    bool PFX##_iter_next(SNAME##_iter *iter);                               \
+    bool PFX##_iter_prev(SNAME##_iter *iter);                               \
+    bool PFX##_iter_advance(SNAME##_iter *iter, size_t steps);              \
+    bool PFX##_iter_rewind(SNAME##_iter *iter, size_t steps);               \
+    bool PFX##_iter_go_to(SNAME##_iter *iter, size_t index);                \
     /* Iterator Access */                                                   \
-    FMOD V PFX##_iter_value(SNAME##_iter *iter);                            \
-    FMOD size_t PFX##_iter_index(SNAME##_iter *iter);                       \
+    V PFX##_iter_value(SNAME##_iter *iter);                                 \
+    size_t PFX##_iter_index(SNAME##_iter *iter);                            \
                                                                             \
     /* Default Value */                                                     \
     static inline V PFX##_impl_default_value(void)                          \
@@ -170,7 +170,7 @@
     }                                                                       \
                                                                             \
 /* SOURCE ********************************************************************/
-#define TREESET_GENERATE_SOURCE(PFX, SNAME, FMOD, V)                                         \
+#define CMC_GENERATE_TREESET_SOURCE(PFX, SNAME, V)                                           \
                                                                                              \
     /* Implementation Detail Functions */                                                    \
     static SNAME##_node *PFX##_impl_new_node(V element);                                     \
@@ -183,7 +183,7 @@
     static SNAME##_iter PFX##_impl_it_start(SNAME *_set_);                                   \
     static SNAME##_iter PFX##_impl_it_end(SNAME *_set_);                                     \
                                                                                              \
-    FMOD SNAME *PFX##_new(int (*compare)(V, V))                                              \
+    SNAME *PFX##_new(int (*compare)(V, V))                                                   \
     {                                                                                        \
         SNAME *_set_ = malloc(sizeof(SNAME));                                                \
                                                                                              \
@@ -200,7 +200,7 @@
         return _set_;                                                                        \
     }                                                                                        \
                                                                                              \
-    FMOD void PFX##_clear(SNAME *_set_, void (*deallocator)(V))                              \
+    void PFX##_clear(SNAME *_set_, void (*deallocator)(V))                                   \
     {                                                                                        \
         SNAME##_node *scan = _set_->root;                                                    \
         SNAME##_node *up = NULL;                                                             \
@@ -261,14 +261,14 @@
         _set_->root = NULL;                                                                  \
     }                                                                                        \
                                                                                              \
-    FMOD void PFX##_free(SNAME *_set_, void (*deallocator)(V))                               \
+    void PFX##_free(SNAME *_set_, void (*deallocator)(V))                                    \
     {                                                                                        \
         PFX##_clear(_set_, deallocator);                                                     \
                                                                                              \
         free(_set_);                                                                         \
     }                                                                                        \
                                                                                              \
-    FMOD bool PFX##_insert(SNAME *_set_, V element)                                          \
+    bool PFX##_insert(SNAME *_set_, V element)                                               \
     {                                                                                        \
         if (PFX##_empty(_set_))                                                              \
         {                                                                                    \
@@ -325,7 +325,7 @@
         return true;                                                                         \
     }                                                                                        \
                                                                                              \
-    FMOD bool PFX##_remove(SNAME *_set_, V element)                                          \
+    bool PFX##_remove(SNAME *_set_, V element)                                               \
     {                                                                                        \
         SNAME##_node *node = PFX##_impl_get_node(_set_, element);                            \
                                                                                              \
@@ -446,7 +446,7 @@
         return true;                                                                         \
     }                                                                                        \
                                                                                              \
-    FMOD bool PFX##_insert_if(SNAME *_set_, V element, bool condition)                       \
+    bool PFX##_insert_if(SNAME *_set_, V element, bool condition)                            \
     {                                                                                        \
         if (condition)                                                                       \
             return PFX##_insert(_set_, element);                                             \
@@ -454,7 +454,7 @@
         return false;                                                                        \
     }                                                                                        \
                                                                                              \
-    FMOD bool PFX##_remove_if(SNAME *_set_, V element, bool condition)                       \
+    bool PFX##_remove_if(SNAME *_set_, V element, bool condition)                            \
     {                                                                                        \
         if (condition)                                                                       \
             return PFX##_remove(_set_, element);                                             \
@@ -462,7 +462,7 @@
         return false;                                                                        \
     }                                                                                        \
                                                                                              \
-    FMOD bool PFX##_max(SNAME *_set_, V *value)                                              \
+    bool PFX##_max(SNAME *_set_, V *value)                                                   \
     {                                                                                        \
         if (PFX##_empty(_set_))                                                              \
             return false;                                                                    \
@@ -477,7 +477,7 @@
         return true;                                                                         \
     }                                                                                        \
                                                                                              \
-    FMOD bool PFX##_min(SNAME *_set_, V *value)                                              \
+    bool PFX##_min(SNAME *_set_, V *value)                                                   \
     {                                                                                        \
         if (PFX##_empty(_set_))                                                              \
             return false;                                                                    \
@@ -492,7 +492,7 @@
         return true;                                                                         \
     }                                                                                        \
                                                                                              \
-    FMOD bool PFX##_contains(SNAME *_set_, V element)                                        \
+    bool PFX##_contains(SNAME *_set_, V element)                                             \
     {                                                                                        \
         SNAME##_node *scan = _set_->root;                                                    \
                                                                                              \
@@ -509,17 +509,17 @@
         return false;                                                                        \
     }                                                                                        \
                                                                                              \
-    FMOD bool PFX##_empty(SNAME *_set_)                                                      \
+    bool PFX##_empty(SNAME *_set_)                                                           \
     {                                                                                        \
         return _set_->count == 0;                                                            \
     }                                                                                        \
                                                                                              \
-    FMOD size_t PFX##_count(SNAME *_set_)                                                    \
+    size_t PFX##_count(SNAME *_set_)                                                         \
     {                                                                                        \
         return _set_->count;                                                                 \
     }                                                                                        \
                                                                                              \
-    FMOD SNAME *PFX##_copy_of(SNAME *_set_, V (*copy_func)(V))                               \
+    SNAME *PFX##_copy_of(SNAME *_set_, V (*copy_func)(V))                                    \
     {                                                                                        \
         SNAME *result = PFX##_new(_set_->cmp);                                               \
                                                                                              \
@@ -543,7 +543,7 @@
         return result;                                                                       \
     }                                                                                        \
                                                                                              \
-    FMOD bool PFX##_equals(SNAME *_set1_, SNAME *_set2_)                                     \
+    bool PFX##_equals(SNAME *_set1_, SNAME *_set2_)                                          \
     {                                                                                        \
         if (PFX##_count(_set1_) != PFX##_count(_set2_))                                      \
             return false;                                                                    \
@@ -560,7 +560,7 @@
         return true;                                                                         \
     }                                                                                        \
                                                                                              \
-    FMOD cmc_string PFX##_to_string(SNAME *_set_)                                            \
+    cmc_string PFX##_to_string(SNAME *_set_)                                                 \
     {                                                                                        \
         cmc_string str;                                                                      \
         SNAME *s_ = _set_;                                                                   \
@@ -572,7 +572,7 @@
         return str;                                                                          \
     }                                                                                        \
                                                                                              \
-    FMOD SNAME *PFX##_union(SNAME *_set1_, SNAME *_set2_)                                    \
+    SNAME *PFX##_union(SNAME *_set1_, SNAME *_set2_)                                         \
     {                                                                                        \
         SNAME *_set_r_ = PFX##_new(_set1_->cmp);                                             \
                                                                                              \
@@ -596,7 +596,7 @@
         return _set_r_;                                                                      \
     }                                                                                        \
                                                                                              \
-    FMOD SNAME *PFX##_intersection(SNAME *_set1_, SNAME *_set2_)                             \
+    SNAME *PFX##_intersection(SNAME *_set1_, SNAME *_set2_)                                  \
     {                                                                                        \
         SNAME *_set_r_ = PFX##_new(_set1_->cmp);                                             \
                                                                                              \
@@ -620,7 +620,7 @@
         return _set_r_;                                                                      \
     }                                                                                        \
                                                                                              \
-    FMOD SNAME *PFX##_difference(SNAME *_set1_, SNAME *_set2_)                               \
+    SNAME *PFX##_difference(SNAME *_set1_, SNAME *_set2_)                                    \
     {                                                                                        \
         SNAME *_set_r_ = PFX##_new(_set1_->cmp);                                             \
                                                                                              \
@@ -641,7 +641,7 @@
         return _set_r_;                                                                      \
     }                                                                                        \
                                                                                              \
-    FMOD SNAME *PFX##_symmetric_difference(SNAME *_set1_, SNAME *_set2_)                     \
+    SNAME *PFX##_symmetric_difference(SNAME *_set1_, SNAME *_set2_)                          \
     {                                                                                        \
         SNAME *_set_r_ = PFX##_new(_set1_->cmp);                                             \
                                                                                              \
@@ -674,7 +674,7 @@
     /* Is _set1_ a subset of _set2_ ? */                                                     \
     /* A set X is a subset of a set Y when: X <= Y */                                        \
     /* If X is a subset of Y, then Y is a superset of X */                                   \
-    FMOD bool PFX##_is_subset(SNAME *_set1_, SNAME *_set2_)                                  \
+    bool PFX##_is_subset(SNAME *_set1_, SNAME *_set2_)                                       \
     {                                                                                        \
         /* If the cardinality of _set1_ is greater than that of _set2_, then it is safe */   \
         /* to say that _set1_ can't be a subset of _set2_ */                                 \
@@ -703,7 +703,7 @@
     /* Is _set1_ a superset of _set2_ ? */                                                   \
     /* A set X is a superset of a set Y when: X >= Y */                                      \
     /* If X is a superset of Y, then Y is a subset of X */                                   \
-    FMOD bool PFX##_is_superset(SNAME *_set1_, SNAME *_set2_)                                \
+    bool PFX##_is_superset(SNAME *_set1_, SNAME *_set2_)                                     \
     {                                                                                        \
         return PFX##_is_subset(_set2_, _set1_);                                              \
     }                                                                                        \
@@ -711,7 +711,7 @@
     /* Is _set1_ a proper subset of _set2_ ? */                                              \
     /* A set X is a proper subset of a set Y when: X < Y */                                  \
     /* If X is a proper subset of Y, then Y is a proper superset of X */                     \
-    FMOD bool PFX##_is_proper_subset(SNAME *_set1_, SNAME *_set2_)                           \
+    bool PFX##_is_proper_subset(SNAME *_set1_, SNAME *_set2_)                                \
     {                                                                                        \
         /* If the cardinality of _set1_ is greater than or equal to that of _set2_, then */  \
         /* it is safe to say that _set1_ can't be a proper subset of _set2_ */               \
@@ -746,7 +746,7 @@
     /* Is _set1_ a proper superset of _set2_ ? */                                            \
     /* A set X is a proper superset of a set Y when: X > Y */                                \
     /* If X is a proper superset of Y, then Y is a proper subset of X */                     \
-    FMOD bool PFX##_is_proper_superset(SNAME *_set1_, SNAME *_set2_)                         \
+    bool PFX##_is_proper_superset(SNAME *_set1_, SNAME *_set2_)                              \
     {                                                                                        \
         return PFX##_is_proper_subset(_set2_, _set1_);                                       \
     }                                                                                        \
@@ -754,7 +754,7 @@
     /* Is _set1_ a disjointset of _set2_ ? */                                                \
     /* A set X is a disjointset of a set Y if their intersection is empty, that is, if */    \
     /* there are no elements in common between the two */                                    \
-    FMOD bool PFX##_is_disjointset(SNAME *_set1_, SNAME *_set2_)                             \
+    bool PFX##_is_disjointset(SNAME *_set1_, SNAME *_set2_)                                  \
     {                                                                                        \
         /* The intersection of an empty set with any other set will result in an empty */    \
         /* set */                                                                            \
@@ -776,7 +776,7 @@
         return true;                                                                         \
     }                                                                                        \
                                                                                              \
-    FMOD SNAME##_iter *PFX##_iter_new(SNAME *target)                                         \
+    SNAME##_iter *PFX##_iter_new(SNAME *target)                                              \
     {                                                                                        \
         SNAME##_iter *iter = malloc(sizeof(SNAME##_iter));                                   \
                                                                                              \
@@ -788,12 +788,12 @@
         return iter;                                                                         \
     }                                                                                        \
                                                                                              \
-    FMOD void PFX##_iter_free(SNAME##_iter *iter)                                            \
+    void PFX##_iter_free(SNAME##_iter *iter)                                                 \
     {                                                                                        \
         free(iter);                                                                          \
     }                                                                                        \
                                                                                              \
-    FMOD void PFX##_iter_init(SNAME##_iter *iter, SNAME *target)                             \
+    void PFX##_iter_init(SNAME##_iter *iter, SNAME *target)                                  \
     {                                                                                        \
         memset(iter, 0, sizeof(SNAME##_iter));                                               \
                                                                                              \
@@ -816,17 +816,17 @@
         }                                                                                    \
     }                                                                                        \
                                                                                              \
-    FMOD bool PFX##_iter_start(SNAME##_iter *iter)                                           \
+    bool PFX##_iter_start(SNAME##_iter *iter)                                                \
     {                                                                                        \
         return PFX##_empty(iter->target) || iter->start;                                     \
     }                                                                                        \
                                                                                              \
-    FMOD bool PFX##_iter_end(SNAME##_iter *iter)                                             \
+    bool PFX##_iter_end(SNAME##_iter *iter)                                                  \
     {                                                                                        \
         return PFX##_empty(iter->target) || iter->end;                                       \
     }                                                                                        \
                                                                                              \
-    FMOD void PFX##_iter_to_start(SNAME##_iter *iter)                                        \
+    void PFX##_iter_to_start(SNAME##_iter *iter)                                             \
     {                                                                                        \
         if (!PFX##_empty(iter->target))                                                      \
         {                                                                                    \
@@ -837,7 +837,7 @@
         }                                                                                    \
     }                                                                                        \
                                                                                              \
-    FMOD void PFX##_iter_to_end(SNAME##_iter *iter)                                          \
+    void PFX##_iter_to_end(SNAME##_iter *iter)                                               \
     {                                                                                        \
         if (!PFX##_empty(iter->target))                                                      \
         {                                                                                    \
@@ -848,7 +848,7 @@
         }                                                                                    \
     }                                                                                        \
                                                                                              \
-    FMOD bool PFX##_iter_next(SNAME##_iter *iter)                                            \
+    bool PFX##_iter_next(SNAME##_iter *iter)                                                 \
     {                                                                                        \
         if (iter->end)                                                                       \
             return false;                                                                    \
@@ -888,7 +888,7 @@
         }                                                                                    \
     }                                                                                        \
                                                                                              \
-    FMOD bool PFX##_iter_prev(SNAME##_iter *iter)                                            \
+    bool PFX##_iter_prev(SNAME##_iter *iter)                                                 \
     {                                                                                        \
         if (iter->start)                                                                     \
             return false;                                                                    \
@@ -930,7 +930,7 @@
     }                                                                                        \
                                                                                              \
     /* Returns true only if the iterator moved */                                            \
-    FMOD bool PFX##_iter_advance(SNAME##_iter *iter, size_t steps)                           \
+    bool PFX##_iter_advance(SNAME##_iter *iter, size_t steps)                                \
     {                                                                                        \
         if (iter->end)                                                                       \
             return false;                                                                    \
@@ -953,7 +953,7 @@
     }                                                                                        \
                                                                                              \
     /* Returns true only if the iterator moved */                                            \
-    FMOD bool PFX##_iter_rewind(SNAME##_iter *iter, size_t steps)                            \
+    bool PFX##_iter_rewind(SNAME##_iter *iter, size_t steps)                                 \
     {                                                                                        \
         if (iter->start)                                                                     \
             return false;                                                                    \
@@ -976,7 +976,7 @@
     }                                                                                        \
                                                                                              \
     /* Returns true only if the iterator was able to be positioned at the given index */     \
-    FMOD bool PFX##_iter_go_to(SNAME##_iter *iter, size_t index)                             \
+    bool PFX##_iter_go_to(SNAME##_iter *iter, size_t index)                                  \
     {                                                                                        \
         if (index >= PFX##_count(iter->target))                                              \
             return false;                                                                    \
@@ -989,7 +989,7 @@
         return true;                                                                         \
     }                                                                                        \
                                                                                              \
-    FMOD V PFX##_iter_value(SNAME##_iter *iter)                                              \
+    V PFX##_iter_value(SNAME##_iter *iter)                                                   \
     {                                                                                        \
         if (PFX##_empty(iter->target))                                                       \
             return PFX##_impl_default_value();                                               \
@@ -997,7 +997,7 @@
         return iter->cursor->value;                                                          \
     }                                                                                        \
                                                                                              \
-    FMOD size_t PFX##_iter_index(SNAME##_iter *iter)                                         \
+    size_t PFX##_iter_index(SNAME##_iter *iter)                                              \
     {                                                                                        \
         return iter->index;                                                                  \
     }                                                                                        \

@@ -27,134 +27,134 @@
 #include <string.h>
 #include "../utl/cmc_string.h"
 
-#define INTERVALHEAP_GENERATE(PFX, SNAME, FMOD, V)    \
-    INTERVALHEAP_GENERATE_HEADER(PFX, SNAME, FMOD, V) \
-    INTERVALHEAP_GENERATE_SOURCE(PFX, SNAME, FMOD, V)
+#define CMC_GENERATE_INTERVALHEAP(PFX, SNAME, V)    \
+    CMC_GENERATE_INTERVALHEAP_HEADER(PFX, SNAME, V) \
+    CMC_GENERATE_INTERVALHEAP_SOURCE(PFX, SNAME, V)
 
-#define INTERVALHEAP_WRAPGEN_HEADER(PFX, SNAME, FMOD, K, V) \
-    INTERVALHEAP_GENERATE_HEADER(PFX, SNAME, FMOD, V)
+#define CMC_WRAPGEN_INTERVALHEAP_HEADER(PFX, SNAME, K, V) \
+    CMC_GENERATE_INTERVALHEAP_HEADER(PFX, SNAME, V)
 
-#define INTERVALHEAP_WRAPGEN_SOURCE(PFX, SNAME, FMOD, K, V) \
-    INTERVALHEAP_GENERATE_SOURCE(PFX, SNAME, FMOD, V)
+#define CMC_WRAPGEN_INTERVALHEAP_SOURCE(PFX, SNAME, K, V) \
+    CMC_GENERATE_INTERVALHEAP_SOURCE(PFX, SNAME, V)
 
 /* HEADER ********************************************************************/
-#define INTERVALHEAP_GENERATE_HEADER(PFX, SNAME, FMOD, V)                    \
-                                                                             \
-    /* Heap Structure */                                                     \
-    typedef struct SNAME##_s                                                 \
-    {                                                                        \
-        /* Dynamic array of nodes */                                         \
-        struct SNAME##_node_s *buffer;                                       \
-                                                                             \
-        /* Current array capacity (how many nodes can be stored) */          \
-        size_t capacity;                                                     \
-                                                                             \
-        /* Current amount of nodes in the dynamic array */                   \
-        size_t size;                                                         \
-                                                                             \
-        /* Current amount of elements in the heap */                         \
-        size_t count;                                                        \
-                                                                             \
-        /* Element comparison function */                                    \
-        int (*cmp)(V, V);                                                    \
-                                                                             \
-        /* Function that returns an iterator to the start of the heap */     \
-        struct SNAME##_iter_s (*it_start)(struct SNAME##_s *);               \
-                                                                             \
-        /* Function that returns an iterator to the end of the heap */       \
-        struct SNAME##_iter_s (*it_end)(struct SNAME##_s *);                 \
-                                                                             \
-    } SNAME, *SNAME##_ptr;                                                   \
-                                                                             \
-    /* Heap Node */                                                          \
-    typedef struct SNAME##_node_s                                            \
-    {                                                                        \
-        /* 0 - Value belonging to the MinHeap */                             \
-        /* 1 - Value belonging to the MaxHeap */                             \
-        V data[2];                                                           \
-                                                                             \
-    } SNAME##_node, *SNAME##_node_ptr;                                       \
-                                                                             \
-    /* Heap Iterator */                                                      \
-    typedef struct SNAME##_iter_s                                            \
-    {                                                                        \
-        /* Target heap */                                                    \
-        struct SNAME##_s *target;                                            \
-                                                                             \
-        /* Cursor's position (index) */                                      \
-        size_t cursor;                                                       \
-                                                                             \
-        /* If the iterator has reached the start of the iteration */         \
-        bool start;                                                          \
-                                                                             \
-        /* If the iterator has reached the end of the iteration */           \
-        bool end;                                                            \
-                                                                             \
-    } SNAME##_iter, *SNAME##_iter_ptr;                                       \
-                                                                             \
-    /* Collection Functions */                                               \
-    /* Collection Allocation and Deallocation */                             \
-    FMOD SNAME *PFX##_new(size_t capacity, int (*compare)(V, V));            \
-    FMOD void PFX##_clear(SNAME *_heap_, void (*deallocator)(V));            \
-    FMOD void PFX##_free(SNAME *_heap_, void (*deallocator)(V));             \
-    /* Collection Input and Output */                                        \
-    FMOD bool PFX##_insert(SNAME *_heap_, V element);                        \
-    FMOD bool PFX##_remove_max(SNAME *_heap_, V *result);                    \
-    FMOD bool PFX##_remove_min(SNAME *_heap_, V *result);                    \
-    /* Conditional Input and Output */                                       \
-    FMOD bool PFX##_insert_if(SNAME *_heap_, V element, bool condition);     \
-    FMOD bool PFX##_remove_max_if(SNAME *_heap_, V *result, bool condition); \
-    FMOD bool PFX##_remove_min_if(SNAME *_heap_, V *result, bool condition); \
-    /* Collection Update */                                                  \
-    FMOD bool PFX##_update_max(SNAME *_heap_, V element);                    \
-    FMOD bool PFX##_update_min(SNAME *_heap_, V element);                    \
-    /* Element Access */                                                     \
-    FMOD bool PFX##_max(SNAME *_heap_, V *value);                            \
-    FMOD bool PFX##_min(SNAME *_heap_, V *value);                            \
-    /* Collection State */                                                   \
-    FMOD bool PFX##_contains(SNAME *_heap_, V element);                      \
-    FMOD bool PFX##_empty(SNAME *_heap_);                                    \
-    FMOD bool PFX##_full(SNAME *_heap_);                                     \
-    FMOD size_t PFX##_count(SNAME *_heap_);                                  \
-    FMOD size_t PFX##_capacity(SNAME *_heap_);                               \
-    /* Collection Utility */                                                 \
-    FMOD SNAME *PFX##_copy_of(SNAME *_set_, V (*copy_func)(V));              \
-    FMOD bool PFX##_equals(SNAME *_heap1_, SNAME *_heap2_);                  \
-    FMOD cmc_string PFX##_to_string(SNAME *_heap_);                          \
-                                                                             \
-    /* Iterator Functions */                                                 \
-    /* Iterator Allocation and Deallocation */                               \
-    FMOD SNAME##_iter *PFX##_iter_new(SNAME *target);                        \
-    FMOD void PFX##_iter_free(SNAME##_iter *iter);                           \
-    /* Iterator Initialization */                                            \
-    FMOD void PFX##_iter_init(SNAME##_iter *iter, SNAME *target);            \
-    /* Iterator State */                                                     \
-    FMOD bool PFX##_iter_start(SNAME##_iter *iter);                          \
-    FMOD bool PFX##_iter_end(SNAME##_iter *iter);                            \
-    /* Iterator Movement */                                                  \
-    FMOD void PFX##_iter_to_start(SNAME##_iter *iter);                       \
-    FMOD void PFX##_iter_to_end(SNAME##_iter *iter);                         \
-    FMOD bool PFX##_iter_next(SNAME##_iter *iter);                           \
-    FMOD bool PFX##_iter_prev(SNAME##_iter *iter);                           \
-    FMOD bool PFX##_iter_advance(SNAME##_iter *iter, size_t steps);          \
-    FMOD bool PFX##_iter_rewind(SNAME##_iter *iter, size_t steps);           \
-    FMOD bool PFX##_iter_go_to(SNAME##_iter *iter, size_t index);            \
-    /* Iterator Access */                                                    \
-    FMOD V PFX##_iter_value(SNAME##_iter *iter);                             \
-    FMOD size_t PFX##_iter_index(SNAME##_iter *iter);                        \
-                                                                             \
-    /* Default Value */                                                      \
-    static inline V PFX##_impl_default_value(void)                           \
-    {                                                                        \
-        V _empty_value_;                                                     \
-                                                                             \
-        memset(&_empty_value_, 0, sizeof(V));                                \
-                                                                             \
-        return _empty_value_;                                                \
-    }                                                                        \
-                                                                             \
+#define CMC_GENERATE_INTERVALHEAP_HEADER(PFX, SNAME, V)                  \
+                                                                         \
+    /* Heap Structure */                                                 \
+    typedef struct SNAME##_s                                             \
+    {                                                                    \
+        /* Dynamic array of nodes */                                     \
+        struct SNAME##_node_s *buffer;                                   \
+                                                                         \
+        /* Current array capacity (how many nodes can be stored) */      \
+        size_t capacity;                                                 \
+                                                                         \
+        /* Current amount of nodes in the dynamic array */               \
+        size_t size;                                                     \
+                                                                         \
+        /* Current amount of elements in the heap */                     \
+        size_t count;                                                    \
+                                                                         \
+        /* Element comparison function */                                \
+        int (*cmp)(V, V);                                                \
+                                                                         \
+        /* Function that returns an iterator to the start of the heap */ \
+        struct SNAME##_iter_s (*it_start)(struct SNAME##_s *);           \
+                                                                         \
+        /* Function that returns an iterator to the end of the heap */   \
+        struct SNAME##_iter_s (*it_end)(struct SNAME##_s *);             \
+                                                                         \
+    } SNAME, *SNAME##_ptr;                                               \
+                                                                         \
+    /* Heap Node */                                                      \
+    typedef struct SNAME##_node_s                                        \
+    {                                                                    \
+        /* 0 - Value belonging to the MinHeap */                         \
+        /* 1 - Value belonging to the MaxHeap */                         \
+        V data[2];                                                       \
+                                                                         \
+    } SNAME##_node, *SNAME##_node_ptr;                                   \
+                                                                         \
+    /* Heap Iterator */                                                  \
+    typedef struct SNAME##_iter_s                                        \
+    {                                                                    \
+        /* Target heap */                                                \
+        struct SNAME##_s *target;                                        \
+                                                                         \
+        /* Cursor's position (index) */                                  \
+        size_t cursor;                                                   \
+                                                                         \
+        /* If the iterator has reached the start of the iteration */     \
+        bool start;                                                      \
+                                                                         \
+        /* If the iterator has reached the end of the iteration */       \
+        bool end;                                                        \
+                                                                         \
+    } SNAME##_iter, *SNAME##_iter_ptr;                                   \
+                                                                         \
+    /* Collection Functions */                                           \
+    /* Collection Allocation and Deallocation */                         \
+    SNAME *PFX##_new(size_t capacity, int (*compare)(V, V));             \
+    void PFX##_clear(SNAME *_heap_, void (*deallocator)(V));             \
+    void PFX##_free(SNAME *_heap_, void (*deallocator)(V));              \
+    /* Collection Input and Output */                                    \
+    bool PFX##_insert(SNAME *_heap_, V element);                         \
+    bool PFX##_remove_max(SNAME *_heap_, V *result);                     \
+    bool PFX##_remove_min(SNAME *_heap_, V *result);                     \
+    /* Conditional Input and Output */                                   \
+    bool PFX##_insert_if(SNAME *_heap_, V element, bool condition);      \
+    bool PFX##_remove_max_if(SNAME *_heap_, V *result, bool condition);  \
+    bool PFX##_remove_min_if(SNAME *_heap_, V *result, bool condition);  \
+    /* Collection Update */                                              \
+    bool PFX##_update_max(SNAME *_heap_, V element);                     \
+    bool PFX##_update_min(SNAME *_heap_, V element);                     \
+    /* Element Access */                                                 \
+    bool PFX##_max(SNAME *_heap_, V *value);                             \
+    bool PFX##_min(SNAME *_heap_, V *value);                             \
+    /* Collection State */                                               \
+    bool PFX##_contains(SNAME *_heap_, V element);                       \
+    bool PFX##_empty(SNAME *_heap_);                                     \
+    bool PFX##_full(SNAME *_heap_);                                      \
+    size_t PFX##_count(SNAME *_heap_);                                   \
+    size_t PFX##_capacity(SNAME *_heap_);                                \
+    /* Collection Utility */                                             \
+    SNAME *PFX##_copy_of(SNAME *_set_, V (*copy_func)(V));               \
+    bool PFX##_equals(SNAME *_heap1_, SNAME *_heap2_);                   \
+    cmc_string PFX##_to_string(SNAME *_heap_);                           \
+                                                                         \
+    /* Iterator Functions */                                             \
+    /* Iterator Allocation and Deallocation */                           \
+    SNAME##_iter *PFX##_iter_new(SNAME *target);                         \
+    void PFX##_iter_free(SNAME##_iter *iter);                            \
+    /* Iterator Initialization */                                        \
+    void PFX##_iter_init(SNAME##_iter *iter, SNAME *target);             \
+    /* Iterator State */                                                 \
+    bool PFX##_iter_start(SNAME##_iter *iter);                           \
+    bool PFX##_iter_end(SNAME##_iter *iter);                             \
+    /* Iterator Movement */                                              \
+    void PFX##_iter_to_start(SNAME##_iter *iter);                        \
+    void PFX##_iter_to_end(SNAME##_iter *iter);                          \
+    bool PFX##_iter_next(SNAME##_iter *iter);                            \
+    bool PFX##_iter_prev(SNAME##_iter *iter);                            \
+    bool PFX##_iter_advance(SNAME##_iter *iter, size_t steps);           \
+    bool PFX##_iter_rewind(SNAME##_iter *iter, size_t steps);            \
+    bool PFX##_iter_go_to(SNAME##_iter *iter, size_t index);             \
+    /* Iterator Access */                                                \
+    V PFX##_iter_value(SNAME##_iter *iter);                              \
+    size_t PFX##_iter_index(SNAME##_iter *iter);                         \
+                                                                         \
+    /* Default Value */                                                  \
+    static inline V PFX##_impl_default_value(void)                       \
+    {                                                                    \
+        V _empty_value_;                                                 \
+                                                                         \
+        memset(&_empty_value_, 0, sizeof(V));                            \
+                                                                         \
+        return _empty_value_;                                            \
+    }                                                                    \
+                                                                         \
 /* SOURCE ********************************************************************/
-#define INTERVALHEAP_GENERATE_SOURCE(PFX, SNAME, FMOD, V)                                         \
+#define CMC_GENERATE_INTERVALHEAP_SOURCE(PFX, SNAME, V)                                           \
                                                                                                   \
     /* Implementation Detail Functions */                                                         \
     static bool PFX##_impl_grow(SNAME *_heap_);                                                   \
@@ -165,7 +165,7 @@
     static SNAME##_iter PFX##_impl_it_start(SNAME *_heap_);                                       \
     static SNAME##_iter PFX##_impl_it_end(SNAME *_heap_);                                         \
                                                                                                   \
-    FMOD SNAME *PFX##_new(size_t capacity, int (*compare)(V, V))                                  \
+    SNAME *PFX##_new(size_t capacity, int (*compare)(V, V))                                       \
     {                                                                                             \
         SNAME *_heap_ = malloc(sizeof(SNAME));                                                    \
                                                                                                   \
@@ -197,7 +197,7 @@
         return _heap_;                                                                            \
     }                                                                                             \
                                                                                                   \
-    FMOD void PFX##_clear(SNAME *_heap_, void (*deallocator)(V))                                  \
+    void PFX##_clear(SNAME *_heap_, void (*deallocator)(V))                                       \
     {                                                                                             \
         if (deallocator)                                                                          \
         {                                                                                         \
@@ -213,7 +213,7 @@
         _heap_->count = 0;                                                                        \
     }                                                                                             \
                                                                                                   \
-    FMOD void PFX##_free(SNAME *_heap_, void (*deallocator)(V))                                   \
+    void PFX##_free(SNAME *_heap_, void (*deallocator)(V))                                        \
     {                                                                                             \
         if (deallocator)                                                                          \
         {                                                                                         \
@@ -228,7 +228,7 @@
         free(_heap_);                                                                             \
     }                                                                                             \
                                                                                                   \
-    FMOD bool PFX##_insert(SNAME *_heap_, V element)                                              \
+    bool PFX##_insert(SNAME *_heap_, V element)                                                   \
     {                                                                                             \
         if (PFX##_full(_heap_))                                                                   \
         {                                                                                         \
@@ -279,7 +279,7 @@
         return true;                                                                              \
     }                                                                                             \
                                                                                                   \
-    FMOD bool PFX##_remove_max(SNAME *_heap_, V *result)                                          \
+    bool PFX##_remove_max(SNAME *_heap_, V *result)                                               \
     {                                                                                             \
         if (PFX##_empty(_heap_))                                                                  \
             return false;                                                                         \
@@ -324,7 +324,7 @@
         return true;                                                                              \
     }                                                                                             \
                                                                                                   \
-    FMOD bool PFX##_remove_min(SNAME *_heap_, V *result)                                          \
+    bool PFX##_remove_min(SNAME *_heap_, V *result)                                               \
     {                                                                                             \
         if (PFX##_empty(_heap_))                                                                  \
             return false;                                                                         \
@@ -367,7 +367,7 @@
         return true;                                                                              \
     }                                                                                             \
                                                                                                   \
-    FMOD bool PFX##_insert_if(SNAME *_heap_, V element, bool condition)                           \
+    bool PFX##_insert_if(SNAME *_heap_, V element, bool condition)                                \
     {                                                                                             \
         if (condition)                                                                            \
             return PFX##_insert(_heap_, element);                                                 \
@@ -375,7 +375,7 @@
         return false;                                                                             \
     }                                                                                             \
                                                                                                   \
-    FMOD bool PFX##_remove_max_if(SNAME *_heap_, V *result, bool condition)                       \
+    bool PFX##_remove_max_if(SNAME *_heap_, V *result, bool condition)                            \
     {                                                                                             \
         if (condition)                                                                            \
             return PFX##_remove_max(_heap_, result);                                              \
@@ -383,7 +383,7 @@
         return false;                                                                             \
     }                                                                                             \
                                                                                                   \
-    FMOD bool PFX##_remove_min_if(SNAME *_heap_, V *result, bool condition)                       \
+    bool PFX##_remove_min_if(SNAME *_heap_, V *result, bool condition)                            \
     {                                                                                             \
         if (condition)                                                                            \
             return PFX##_remove_min(_heap_, result);                                              \
@@ -391,7 +391,7 @@
         return false;                                                                             \
     }                                                                                             \
                                                                                                   \
-    FMOD bool PFX##_update_max(SNAME *_heap_, V element)                                          \
+    bool PFX##_update_max(SNAME *_heap_, V element)                                               \
     {                                                                                             \
         if (PFX##_empty(_heap_))                                                                  \
             return false;                                                                         \
@@ -420,7 +420,7 @@
         return true;                                                                              \
     }                                                                                             \
                                                                                                   \
-    FMOD bool PFX##_update_min(SNAME *_heap_, V element)                                          \
+    bool PFX##_update_min(SNAME *_heap_, V element)                                               \
     {                                                                                             \
         if (PFX##_empty(_heap_))                                                                  \
             return false;                                                                         \
@@ -449,7 +449,7 @@
         return true;                                                                              \
     }                                                                                             \
                                                                                                   \
-    FMOD bool PFX##_max(SNAME *_heap_, V *value)                                                  \
+    bool PFX##_max(SNAME *_heap_, V *value)                                                       \
     {                                                                                             \
         if (PFX##_empty(_heap_))                                                                  \
             return false;                                                                         \
@@ -464,7 +464,7 @@
         return true;                                                                              \
     }                                                                                             \
                                                                                                   \
-    FMOD bool PFX##_min(SNAME *_heap_, V *value)                                                  \
+    bool PFX##_min(SNAME *_heap_, V *value)                                                       \
     {                                                                                             \
         if (PFX##_empty(_heap_))                                                                  \
             return false;                                                                         \
@@ -474,7 +474,7 @@
         return true;                                                                              \
     }                                                                                             \
                                                                                                   \
-    FMOD bool PFX##_contains(SNAME *_heap_, V element)                                            \
+    bool PFX##_contains(SNAME *_heap_, V element)                                                 \
     {                                                                                             \
         for (size_t i = 0; i < _heap_->count; i++)                                                \
         {                                                                                         \
@@ -485,28 +485,28 @@
         return false;                                                                             \
     }                                                                                             \
                                                                                                   \
-    FMOD bool PFX##_empty(SNAME *_heap_)                                                          \
+    bool PFX##_empty(SNAME *_heap_)                                                               \
     {                                                                                             \
         return _heap_->count == 0;                                                                \
     }                                                                                             \
                                                                                                   \
-    FMOD bool PFX##_full(SNAME *_heap_)                                                           \
+    bool PFX##_full(SNAME *_heap_)                                                                \
     {                                                                                             \
         /* The heap is full if all nodes are completely filled */                                 \
         return _heap_->size >= _heap_->capacity && _heap_->count % 2 == 0;                        \
     }                                                                                             \
                                                                                                   \
-    FMOD size_t PFX##_count(SNAME *_heap_)                                                        \
+    size_t PFX##_count(SNAME *_heap_)                                                             \
     {                                                                                             \
         return _heap_->count;                                                                     \
     }                                                                                             \
                                                                                                   \
-    FMOD size_t PFX##_capacity(SNAME *_heap_)                                                     \
+    size_t PFX##_capacity(SNAME *_heap_)                                                          \
     {                                                                                             \
         return _heap_->capacity;                                                                  \
     }                                                                                             \
                                                                                                   \
-    FMOD SNAME *PFX##_copy_of(SNAME *_heap_, V (*copy_func)(V))                                   \
+    SNAME *PFX##_copy_of(SNAME *_heap_, V (*copy_func)(V))                                        \
     {                                                                                             \
         SNAME *result = malloc(sizeof(SNAME));                                                    \
                                                                                                   \
@@ -534,7 +534,7 @@
         return result;                                                                            \
     }                                                                                             \
                                                                                                   \
-    FMOD bool PFX##_equals(SNAME *_heap1_, SNAME *_heap2_)                                        \
+    bool PFX##_equals(SNAME *_heap1_, SNAME *_heap2_)                                             \
     {                                                                                             \
         if (PFX##_count(_heap1_) != PFX##_count(_heap2_))                                         \
             return false;                                                                         \
@@ -551,7 +551,7 @@
         return false;                                                                             \
     }                                                                                             \
                                                                                                   \
-    FMOD cmc_string PFX##_to_string(SNAME *_heap_)                                                \
+    cmc_string PFX##_to_string(SNAME *_heap_)                                                     \
     {                                                                                             \
         cmc_string str;                                                                           \
         SNAME *h_ = _heap_;                                                                       \
@@ -563,7 +563,7 @@
         return str;                                                                               \
     }                                                                                             \
                                                                                                   \
-    FMOD SNAME##_iter *PFX##_iter_new(SNAME *target)                                              \
+    SNAME##_iter *PFX##_iter_new(SNAME *target)                                                   \
     {                                                                                             \
         SNAME##_iter *iter = malloc(sizeof(SNAME##_iter));                                        \
                                                                                                   \
@@ -575,12 +575,12 @@
         return iter;                                                                              \
     }                                                                                             \
                                                                                                   \
-    FMOD void PFX##_iter_free(SNAME##_iter *iter)                                                 \
+    void PFX##_iter_free(SNAME##_iter *iter)                                                      \
     {                                                                                             \
         free(iter);                                                                               \
     }                                                                                             \
                                                                                                   \
-    FMOD void PFX##_iter_init(SNAME##_iter *iter, SNAME *target)                                  \
+    void PFX##_iter_init(SNAME##_iter *iter, SNAME *target)                                       \
     {                                                                                             \
         iter->target = target;                                                                    \
         iter->cursor = 0;                                                                         \
@@ -588,17 +588,17 @@
         iter->end = PFX##_empty(target);                                                          \
     }                                                                                             \
                                                                                                   \
-    FMOD bool PFX##_iter_start(SNAME##_iter *iter)                                                \
+    bool PFX##_iter_start(SNAME##_iter *iter)                                                     \
     {                                                                                             \
         return PFX##_empty(iter->target) || iter->start;                                          \
     }                                                                                             \
                                                                                                   \
-    FMOD bool PFX##_iter_end(SNAME##_iter *iter)                                                  \
+    bool PFX##_iter_end(SNAME##_iter *iter)                                                       \
     {                                                                                             \
         return PFX##_empty(iter->target) || iter->end;                                            \
     }                                                                                             \
                                                                                                   \
-    FMOD void PFX##_iter_to_start(SNAME##_iter *iter)                                             \
+    void PFX##_iter_to_start(SNAME##_iter *iter)                                                  \
     {                                                                                             \
         if (!PFX##_empty(iter->target))                                                           \
         {                                                                                         \
@@ -608,7 +608,7 @@
         }                                                                                         \
     }                                                                                             \
                                                                                                   \
-    FMOD void PFX##_iter_to_end(SNAME##_iter *iter)                                               \
+    void PFX##_iter_to_end(SNAME##_iter *iter)                                                    \
     {                                                                                             \
         if (!PFX##_empty(iter->target))                                                           \
         {                                                                                         \
@@ -618,7 +618,7 @@
         }                                                                                         \
     }                                                                                             \
                                                                                                   \
-    FMOD bool PFX##_iter_next(SNAME##_iter *iter)                                                 \
+    bool PFX##_iter_next(SNAME##_iter *iter)                                                      \
     {                                                                                             \
         if (iter->end)                                                                            \
             return false;                                                                         \
@@ -636,7 +636,7 @@
         return true;                                                                              \
     }                                                                                             \
                                                                                                   \
-    FMOD bool PFX##_iter_prev(SNAME##_iter *iter)                                                 \
+    bool PFX##_iter_prev(SNAME##_iter *iter)                                                      \
     {                                                                                             \
         if (iter->start)                                                                          \
             return false;                                                                         \
@@ -655,7 +655,7 @@
     }                                                                                             \
                                                                                                   \
     /* Returns true only if the iterator moved */                                                 \
-    FMOD bool PFX##_iter_advance(SNAME##_iter *iter, size_t steps)                                \
+    bool PFX##_iter_advance(SNAME##_iter *iter, size_t steps)                                     \
     {                                                                                             \
         if (iter->start)                                                                          \
             return false;                                                                         \
@@ -677,7 +677,7 @@
     }                                                                                             \
                                                                                                   \
     /* Returns true only if the iterator moved */                                                 \
-    FMOD bool PFX##_iter_rewind(SNAME##_iter *iter, size_t steps)                                 \
+    bool PFX##_iter_rewind(SNAME##_iter *iter, size_t steps)                                      \
     {                                                                                             \
         if (iter->start)                                                                          \
             return false;                                                                         \
@@ -699,7 +699,7 @@
     }                                                                                             \
                                                                                                   \
     /* Returns true only if the iterator was able to be positioned at the given index */          \
-    FMOD bool PFX##_iter_go_to(SNAME##_iter *iter, size_t index)                                  \
+    bool PFX##_iter_go_to(SNAME##_iter *iter, size_t index)                                       \
     {                                                                                             \
         if (index >= PFX##_count(iter->target))                                                   \
             return false;                                                                         \
@@ -712,7 +712,7 @@
         return true;                                                                              \
     }                                                                                             \
                                                                                                   \
-    FMOD V PFX##_iter_value(SNAME##_iter *iter)                                                   \
+    V PFX##_iter_value(SNAME##_iter *iter)                                                        \
     {                                                                                             \
         if (PFX##_empty(iter->target))                                                            \
             return PFX##_impl_default_value();                                                    \
@@ -720,7 +720,7 @@
         return iter->target->buffer[iter->cursor / 2].data[iter->cursor % 2];                     \
     }                                                                                             \
                                                                                                   \
-    FMOD size_t PFX##_iter_index(SNAME##_iter *iter)                                              \
+    size_t PFX##_iter_index(SNAME##_iter *iter)                                                   \
     {                                                                                             \
         return iter->cursor;                                                                      \
     }                                                                                             \

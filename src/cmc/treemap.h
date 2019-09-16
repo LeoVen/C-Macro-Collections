@@ -25,159 +25,159 @@
 #include <string.h>
 #include "../utl/cmc_string.h"
 
-#define TREEMAP_GENERATE(PFX, SNAME, FMOD, K, V)    \
-    TREEMAP_GENERATE_HEADER(PFX, SNAME, FMOD, K, V) \
-    TREEMAP_GENERATE_SOURCE(PFX, SNAME, FMOD, K, V)
+#define CMC_GENERATE_TREEMAP(PFX, SNAME, K, V)    \
+    CMC_GENERATE_TREEMAP_HEADER(PFX, SNAME, K, V) \
+    CMC_GENERATE_TREEMAP_SOURCE(PFX, SNAME, K, V)
 
-#define TREEMAP_WRAPGEN_HEADER(PFX, SNAME, FMOD, K, V) \
-    TREEMAP_GENERATE_HEADER(PFX, SNAME, FMOD, K, V)
+#define CMC_WRAPGEN_TREEMAP_HEADER(PFX, SNAME, K, V) \
+    CMC_GENERATE_TREEMAP_HEADER(PFX, SNAME, K, V)
 
-#define TREEMAP_WRAPGEN_SOURCE(PFX, SNAME, FMOD, K, V) \
-    TREEMAP_GENERATE_SOURCE(PFX, SNAME, FMOD, K, V)
+#define CMC_WRAPGEN_TREEMAP_SOURCE(PFX, SNAME, K, V) \
+    CMC_GENERATE_TREEMAP_SOURCE(PFX, SNAME, K, V)
 
 /* HEADER ********************************************************************/
-#define TREEMAP_GENERATE_HEADER(PFX, SNAME, FMOD, K, V)                                      \
-                                                                                             \
-    /* Treemap Structure */                                                                  \
-    typedef struct SNAME##_s                                                                 \
-    {                                                                                        \
-        /* Root node */                                                                      \
-        struct SNAME##_node_s *root;                                                         \
-                                                                                             \
-        /* Current amount of keys */                                                         \
-        size_t count;                                                                        \
-                                                                                             \
-        /* Key comparison function */                                                        \
-        int (*cmp)(K, K);                                                                    \
-                                                                                             \
-        /* Function that returns an iterator to the start of the treemap */                  \
-        struct SNAME##_iter_s (*it_start)(struct SNAME##_s *);                               \
-                                                                                             \
-        /* Function that returns an iterator to the end of the treemap */                    \
-        struct SNAME##_iter_s (*it_end)(struct SNAME##_s *);                                 \
-                                                                                             \
-    } SNAME, *SNAME##_ptr;                                                                   \
-                                                                                             \
-    /* Treemap Node */                                                                       \
-    typedef struct SNAME##_node_s                                                            \
-    {                                                                                        \
-        /* Node Key */                                                                       \
-        K key;                                                                               \
-                                                                                             \
-        /* Node Value */                                                                     \
-        V value;                                                                             \
-                                                                                             \
-        /* Node height used by the AVL tree to keep it strictly balanced */                  \
-        unsigned char height;                                                                \
-                                                                                             \
-        /* Right child node or subtree */                                                    \
-        struct SNAME##_node_s *right;                                                        \
-                                                                                             \
-        /* Left child node or subtree */                                                     \
-        struct SNAME##_node_s *left;                                                         \
-                                                                                             \
-        /* Parent node */                                                                    \
-        struct SNAME##_node_s *parent;                                                       \
-                                                                                             \
-    } SNAME##_node, *SNAME##_node_ptr;                                                       \
-                                                                                             \
-    /* Treemap Iterator */                                                                   \
-    typedef struct SNAME##_iter_s                                                            \
-    {                                                                                        \
-        /* Target treemap */                                                                 \
-        struct SNAME##_s *target;                                                            \
-                                                                                             \
-        /* Cursor's current node */                                                          \
-        struct SNAME##_node_s *cursor;                                                       \
-                                                                                             \
-        /* The first node in the iteration */                                                \
-        struct SNAME##_node_s *first;                                                        \
-                                                                                             \
-        /* The last node in the iteration */                                                 \
-        struct SNAME##_node_s *last;                                                         \
-                                                                                             \
-        /* Keeps track of relative index to the iteration of elements */                     \
-        size_t index;                                                                        \
-                                                                                             \
-        /* If the iterator has reached the start of the iteration */                         \
-        bool start;                                                                          \
-                                                                                             \
-        /* If the iterator has reached the end of the iteration */                           \
-        bool end;                                                                            \
-                                                                                             \
-    } SNAME##_iter, *SNAME##_iter_ptr;                                                       \
-                                                                                             \
-    /* Collection Functions */                                                               \
-    /* Collection Allocation and Deallocation */                                             \
-    FMOD SNAME *PFX##_new(int (*compare)(K, K));                                             \
-    FMOD void PFX##_clear(SNAME *_map_, void (*deallocator)(K, V));                          \
-    FMOD void PFX##_free(SNAME *_map_, void (*deallocator)(K, V));                           \
-    /* Collection Input and Output */                                                        \
-    FMOD bool PFX##_insert(SNAME *_map_, K key, V value);                                    \
-    FMOD bool PFX##_update(SNAME *_map_, K key, V new_value, V *old_value);                  \
-    FMOD bool PFX##_remove(SNAME *_map_, K key, V *out_value);                               \
-    /* Conditional Input and Output */                                                       \
-    FMOD bool PFX##_insert_if(SNAME *_map_, K key, V value, bool condition);                 \
-    FMOD bool PFX##_remove_if(SNAME *_map_, K key, V *out_value, bool condition);            \
-    /* Element Access */                                                                     \
-    FMOD bool PFX##_max(SNAME *_map_, K *key, V *value);                                     \
-    FMOD bool PFX##_min(SNAME *_map_, K *key, V *value);                                     \
-    FMOD V PFX##_get(SNAME *_map_, K key);                                                   \
-    FMOD V *PFX##_get_ref(SNAME *_map_, K key);                                              \
-    /* Collection State */                                                                   \
-    FMOD bool PFX##_contains(SNAME *_map_, K key);                                           \
-    FMOD bool PFX##_empty(SNAME *_map_);                                                     \
-    FMOD size_t PFX##_count(SNAME *_map_);                                                   \
-    /* Collection Utility */                                                                 \
-    FMOD SNAME *PFX##_copy_of(SNAME *_map_, K (*key_copy_func)(K), V (*value_copy_func)(V)); \
-    FMOD bool PFX##_equals(SNAME *_map1_, SNAME *_map2_, int (*value_comparator)(V, V));     \
-    FMOD cmc_string PFX##_to_string(SNAME *_map_);                                           \
-                                                                                             \
-    /* Iterator Functions */                                                                 \
-    /* Iterator Allocation and Deallocation */                                               \
-    FMOD SNAME##_iter *PFX##_iter_new(SNAME *target);                                        \
-    FMOD void PFX##_iter_free(SNAME##_iter *iter);                                           \
-    /* Iterator Initialization */                                                            \
-    FMOD void PFX##_iter_init(SNAME##_iter *iter, SNAME *target);                            \
-    /* Iterator State */                                                                     \
-    FMOD bool PFX##_iter_start(SNAME##_iter *iter);                                          \
-    FMOD bool PFX##_iter_end(SNAME##_iter *iter);                                            \
-    /* Iterator Movement */                                                                  \
-    FMOD void PFX##_iter_to_start(SNAME##_iter *iter);                                       \
-    FMOD void PFX##_iter_to_end(SNAME##_iter *iter);                                         \
-    FMOD bool PFX##_iter_next(SNAME##_iter *iter);                                           \
-    FMOD bool PFX##_iter_prev(SNAME##_iter *iter);                                           \
-    FMOD bool PFX##_iter_advance(SNAME##_iter *iter, size_t steps);                          \
-    FMOD bool PFX##_iter_rewind(SNAME##_iter *iter, size_t steps);                           \
-    FMOD bool PFX##_iter_go_to(SNAME##_iter *iter, size_t index);                            \
-    /* Iterator Access */                                                                    \
-    FMOD K PFX##_iter_key(SNAME##_iter *iter);                                               \
-    FMOD V PFX##_iter_value(SNAME##_iter *iter);                                             \
-    FMOD V *PFX##_iter_rvalue(SNAME##_iter *iter);                                           \
-    FMOD size_t PFX##_iter_index(SNAME##_iter *iter);                                        \
-                                                                                             \
-    /* Default Key */                                                                        \
-    static inline K PFX##_impl_default_key(void)                                             \
-    {                                                                                        \
-        K _empty_key_;                                                                       \
-                                                                                             \
-        memset(&_empty_key_, 0, sizeof(K));                                                  \
-                                                                                             \
-        return _empty_key_;                                                                  \
-    }                                                                                        \
-                                                                                             \
-    /* Default Value */                                                                      \
-    static inline V PFX##_impl_default_value(void)                                           \
-    {                                                                                        \
-        V _empty_value_;                                                                     \
-                                                                                             \
-        memset(&_empty_value_, 0, sizeof(V));                                                \
-                                                                                             \
-        return _empty_value_;                                                                \
-    }                                                                                        \
-                                                                                             \
+#define CMC_GENERATE_TREEMAP_HEADER(PFX, SNAME, K, V)                                   \
+                                                                                        \
+    /* Treemap Structure */                                                             \
+    typedef struct SNAME##_s                                                            \
+    {                                                                                   \
+        /* Root node */                                                                 \
+        struct SNAME##_node_s *root;                                                    \
+                                                                                        \
+        /* Current amount of keys */                                                    \
+        size_t count;                                                                   \
+                                                                                        \
+        /* Key comparison function */                                                   \
+        int (*cmp)(K, K);                                                               \
+                                                                                        \
+        /* Function that returns an iterator to the start of the treemap */             \
+        struct SNAME##_iter_s (*it_start)(struct SNAME##_s *);                          \
+                                                                                        \
+        /* Function that returns an iterator to the end of the treemap */               \
+        struct SNAME##_iter_s (*it_end)(struct SNAME##_s *);                            \
+                                                                                        \
+    } SNAME, *SNAME##_ptr;                                                              \
+                                                                                        \
+    /* Treemap Node */                                                                  \
+    typedef struct SNAME##_node_s                                                       \
+    {                                                                                   \
+        /* Node Key */                                                                  \
+        K key;                                                                          \
+                                                                                        \
+        /* Node Value */                                                                \
+        V value;                                                                        \
+                                                                                        \
+        /* Node height used by the AVL tree to keep it strictly balanced */             \
+        unsigned char height;                                                           \
+                                                                                        \
+        /* Right child node or subtree */                                               \
+        struct SNAME##_node_s *right;                                                   \
+                                                                                        \
+        /* Left child node or subtree */                                                \
+        struct SNAME##_node_s *left;                                                    \
+                                                                                        \
+        /* Parent node */                                                               \
+        struct SNAME##_node_s *parent;                                                  \
+                                                                                        \
+    } SNAME##_node, *SNAME##_node_ptr;                                                  \
+                                                                                        \
+    /* Treemap Iterator */                                                              \
+    typedef struct SNAME##_iter_s                                                       \
+    {                                                                                   \
+        /* Target treemap */                                                            \
+        struct SNAME##_s *target;                                                       \
+                                                                                        \
+        /* Cursor's current node */                                                     \
+        struct SNAME##_node_s *cursor;                                                  \
+                                                                                        \
+        /* The first node in the iteration */                                           \
+        struct SNAME##_node_s *first;                                                   \
+                                                                                        \
+        /* The last node in the iteration */                                            \
+        struct SNAME##_node_s *last;                                                    \
+                                                                                        \
+        /* Keeps track of relative index to the iteration of elements */                \
+        size_t index;                                                                   \
+                                                                                        \
+        /* If the iterator has reached the start of the iteration */                    \
+        bool start;                                                                     \
+                                                                                        \
+        /* If the iterator has reached the end of the iteration */                      \
+        bool end;                                                                       \
+                                                                                        \
+    } SNAME##_iter, *SNAME##_iter_ptr;                                                  \
+                                                                                        \
+    /* Collection Functions */                                                          \
+    /* Collection Allocation and Deallocation */                                        \
+    SNAME *PFX##_new(int (*compare)(K, K));                                             \
+    void PFX##_clear(SNAME *_map_, void (*deallocator)(K, V));                          \
+    void PFX##_free(SNAME *_map_, void (*deallocator)(K, V));                           \
+    /* Collection Input and Output */                                                   \
+    bool PFX##_insert(SNAME *_map_, K key, V value);                                    \
+    bool PFX##_update(SNAME *_map_, K key, V new_value, V *old_value);                  \
+    bool PFX##_remove(SNAME *_map_, K key, V *out_value);                               \
+    /* Conditional Input and Output */                                                  \
+    bool PFX##_insert_if(SNAME *_map_, K key, V value, bool condition);                 \
+    bool PFX##_remove_if(SNAME *_map_, K key, V *out_value, bool condition);            \
+    /* Element Access */                                                                \
+    bool PFX##_max(SNAME *_map_, K *key, V *value);                                     \
+    bool PFX##_min(SNAME *_map_, K *key, V *value);                                     \
+    V PFX##_get(SNAME *_map_, K key);                                                   \
+    V *PFX##_get_ref(SNAME *_map_, K key);                                              \
+    /* Collection State */                                                              \
+    bool PFX##_contains(SNAME *_map_, K key);                                           \
+    bool PFX##_empty(SNAME *_map_);                                                     \
+    size_t PFX##_count(SNAME *_map_);                                                   \
+    /* Collection Utility */                                                            \
+    SNAME *PFX##_copy_of(SNAME *_map_, K (*key_copy_func)(K), V (*value_copy_func)(V)); \
+    bool PFX##_equals(SNAME *_map1_, SNAME *_map2_, int (*value_comparator)(V, V));     \
+    cmc_string PFX##_to_string(SNAME *_map_);                                           \
+                                                                                        \
+    /* Iterator Functions */                                                            \
+    /* Iterator Allocation and Deallocation */                                          \
+    SNAME##_iter *PFX##_iter_new(SNAME *target);                                        \
+    void PFX##_iter_free(SNAME##_iter *iter);                                           \
+    /* Iterator Initialization */                                                       \
+    void PFX##_iter_init(SNAME##_iter *iter, SNAME *target);                            \
+    /* Iterator State */                                                                \
+    bool PFX##_iter_start(SNAME##_iter *iter);                                          \
+    bool PFX##_iter_end(SNAME##_iter *iter);                                            \
+    /* Iterator Movement */                                                             \
+    void PFX##_iter_to_start(SNAME##_iter *iter);                                       \
+    void PFX##_iter_to_end(SNAME##_iter *iter);                                         \
+    bool PFX##_iter_next(SNAME##_iter *iter);                                           \
+    bool PFX##_iter_prev(SNAME##_iter *iter);                                           \
+    bool PFX##_iter_advance(SNAME##_iter *iter, size_t steps);                          \
+    bool PFX##_iter_rewind(SNAME##_iter *iter, size_t steps);                           \
+    bool PFX##_iter_go_to(SNAME##_iter *iter, size_t index);                            \
+    /* Iterator Access */                                                               \
+    K PFX##_iter_key(SNAME##_iter *iter);                                               \
+    V PFX##_iter_value(SNAME##_iter *iter);                                             \
+    V *PFX##_iter_rvalue(SNAME##_iter *iter);                                           \
+    size_t PFX##_iter_index(SNAME##_iter *iter);                                        \
+                                                                                        \
+    /* Default Key */                                                                   \
+    static inline K PFX##_impl_default_key(void)                                        \
+    {                                                                                   \
+        K _empty_key_;                                                                  \
+                                                                                        \
+        memset(&_empty_key_, 0, sizeof(K));                                             \
+                                                                                        \
+        return _empty_key_;                                                             \
+    }                                                                                   \
+                                                                                        \
+    /* Default Value */                                                                 \
+    static inline V PFX##_impl_default_value(void)                                      \
+    {                                                                                   \
+        V _empty_value_;                                                                \
+                                                                                        \
+        memset(&_empty_value_, 0, sizeof(V));                                           \
+                                                                                        \
+        return _empty_value_;                                                           \
+    }                                                                                   \
+                                                                                        \
 /* SOURCE ********************************************************************/
-#define TREEMAP_GENERATE_SOURCE(PFX, SNAME, FMOD, K, V)                                      \
+#define CMC_GENERATE_TREEMAP_SOURCE(PFX, SNAME, K, V)                                        \
                                                                                              \
     /* Implementation Detail Functions */                                                    \
     static SNAME##_node *PFX##_impl_new_node(K key, V value);                                \
@@ -190,7 +190,7 @@
     static SNAME##_iter PFX##_impl_it_start(SNAME *_map_);                                   \
     static SNAME##_iter PFX##_impl_it_end(SNAME *_map_);                                     \
                                                                                              \
-    FMOD SNAME *PFX##_new(int (*compare)(K, K))                                              \
+    SNAME *PFX##_new(int (*compare)(K, K))                                                   \
     {                                                                                        \
         SNAME *_map_ = malloc(sizeof(SNAME));                                                \
                                                                                              \
@@ -207,7 +207,7 @@
         return _map_;                                                                        \
     }                                                                                        \
                                                                                              \
-    FMOD void PFX##_clear(SNAME *_map_, void (*deallocator)(K, V))                           \
+    void PFX##_clear(SNAME *_map_, void (*deallocator)(K, V))                                \
     {                                                                                        \
         SNAME##_node *scan = _map_->root;                                                    \
         SNAME##_node *up = NULL;                                                             \
@@ -268,14 +268,14 @@
         _map_->root = NULL;                                                                  \
     }                                                                                        \
                                                                                              \
-    FMOD void PFX##_free(SNAME *_map_, void (*deallocator)(K, V))                            \
+    void PFX##_free(SNAME *_map_, void (*deallocator)(K, V))                                 \
     {                                                                                        \
         PFX##_clear(_map_, deallocator);                                                     \
                                                                                              \
         free(_map_);                                                                         \
     }                                                                                        \
                                                                                              \
-    FMOD bool PFX##_insert(SNAME *_map_, K key, V value)                                     \
+    bool PFX##_insert(SNAME *_map_, K key, V value)                                          \
     {                                                                                        \
         if (PFX##_empty(_map_))                                                              \
         {                                                                                    \
@@ -332,7 +332,7 @@
         return true;                                                                         \
     }                                                                                        \
                                                                                              \
-    FMOD bool PFX##_update(SNAME *_map_, K key, V new_value, V *old_value)                   \
+    bool PFX##_update(SNAME *_map_, K key, V new_value, V *old_value)                        \
     {                                                                                        \
         SNAME##_node *node = PFX##_impl_get_node(_map_, key);                                \
                                                                                              \
@@ -347,7 +347,7 @@
         return true;                                                                         \
     }                                                                                        \
                                                                                              \
-    FMOD bool PFX##_remove(SNAME *_map_, K key, V *out_value)                                \
+    bool PFX##_remove(SNAME *_map_, K key, V *out_value)                                     \
     {                                                                                        \
         SNAME##_node *node = PFX##_impl_get_node(_map_, key);                                \
                                                                                              \
@@ -473,7 +473,7 @@
         return true;                                                                         \
     }                                                                                        \
                                                                                              \
-    FMOD bool PFX##_insert_if(SNAME *_map_, K key, V value, bool condition)                  \
+    bool PFX##_insert_if(SNAME *_map_, K key, V value, bool condition)                       \
     {                                                                                        \
         if (condition)                                                                       \
             return PFX##_insert(_map_, key, value);                                          \
@@ -481,7 +481,7 @@
         return false;                                                                        \
     }                                                                                        \
                                                                                              \
-    FMOD bool PFX##_remove_if(SNAME *_map_, K key, V *out_value, bool condition)             \
+    bool PFX##_remove_if(SNAME *_map_, K key, V *out_value, bool condition)                  \
     {                                                                                        \
         if (condition)                                                                       \
             return PFX##_remove(_map_, key, out_value);                                      \
@@ -489,7 +489,7 @@
         return false;                                                                        \
     }                                                                                        \
                                                                                              \
-    FMOD bool PFX##_max(SNAME *_map_, K *key, V *value)                                      \
+    bool PFX##_max(SNAME *_map_, K *key, V *value)                                           \
     {                                                                                        \
         if (PFX##_empty(_map_))                                                              \
             return false;                                                                    \
@@ -505,7 +505,7 @@
         return true;                                                                         \
     }                                                                                        \
                                                                                              \
-    FMOD bool PFX##_min(SNAME *_map_, K *key, V *value)                                      \
+    bool PFX##_min(SNAME *_map_, K *key, V *value)                                           \
     {                                                                                        \
         if (PFX##_empty(_map_))                                                              \
             return false;                                                                    \
@@ -521,7 +521,7 @@
         return true;                                                                         \
     }                                                                                        \
                                                                                              \
-    FMOD V PFX##_get(SNAME *_map_, K key)                                                    \
+    V PFX##_get(SNAME *_map_, K key)                                                         \
     {                                                                                        \
         SNAME##_node *node = PFX##_impl_get_node(_map_, key);                                \
                                                                                              \
@@ -531,7 +531,7 @@
         return node->value;                                                                  \
     }                                                                                        \
                                                                                              \
-    FMOD V *PFX##_get_ref(SNAME *_map_, K key)                                               \
+    V *PFX##_get_ref(SNAME *_map_, K key)                                                    \
     {                                                                                        \
         SNAME##_node *node = PFX##_impl_get_node(_map_, key);                                \
                                                                                              \
@@ -541,7 +541,7 @@
         return &(node->value);                                                               \
     }                                                                                        \
                                                                                              \
-    FMOD bool PFX##_contains(SNAME *_map_, K key)                                            \
+    bool PFX##_contains(SNAME *_map_, K key)                                                 \
     {                                                                                        \
         SNAME##_node *scan = _map_->root;                                                    \
                                                                                              \
@@ -558,17 +558,17 @@
         return false;                                                                        \
     }                                                                                        \
                                                                                              \
-    FMOD bool PFX##_empty(SNAME *_map_)                                                      \
+    bool PFX##_empty(SNAME *_map_)                                                           \
     {                                                                                        \
         return _map_->count == 0;                                                            \
     }                                                                                        \
                                                                                              \
-    FMOD size_t PFX##_count(SNAME *_map_)                                                    \
+    size_t PFX##_count(SNAME *_map_)                                                         \
     {                                                                                        \
         return _map_->count;                                                                 \
     }                                                                                        \
                                                                                              \
-    FMOD SNAME *PFX##_copy_of(SNAME *_map_, K (*key_copy_func)(K), V (*value_copy_func)(V))  \
+    SNAME *PFX##_copy_of(SNAME *_map_, K (*key_copy_func)(K), V (*value_copy_func)(V))       \
     {                                                                                        \
         SNAME *result = PFX##_new(_map_->cmp);                                               \
                                                                                              \
@@ -597,7 +597,7 @@
         return result;                                                                       \
     }                                                                                        \
                                                                                              \
-    FMOD bool PFX##_equals(SNAME *_map1_, SNAME *_map2_, int (*value_comparator)(V, V))      \
+    bool PFX##_equals(SNAME *_map1_, SNAME *_map2_, int (*value_comparator)(V, V))           \
     {                                                                                        \
         if (PFX##_count(_map1_) != PFX##_count(_map2_))                                      \
             return false;                                                                    \
@@ -622,7 +622,7 @@
         return true;                                                                         \
     }                                                                                        \
                                                                                              \
-    FMOD cmc_string PFX##_to_string(SNAME *_map_)                                            \
+    cmc_string PFX##_to_string(SNAME *_map_)                                                 \
     {                                                                                        \
         cmc_string str;                                                                      \
         SNAME *m_ = _map_;                                                                   \
@@ -634,7 +634,7 @@
         return str;                                                                          \
     }                                                                                        \
                                                                                              \
-    FMOD SNAME##_iter *PFX##_iter_new(SNAME *target)                                         \
+    SNAME##_iter *PFX##_iter_new(SNAME *target)                                              \
     {                                                                                        \
         SNAME##_iter *iter = malloc(sizeof(SNAME##_iter));                                   \
                                                                                              \
@@ -646,12 +646,12 @@
         return iter;                                                                         \
     }                                                                                        \
                                                                                              \
-    FMOD void PFX##_iter_free(SNAME##_iter *iter)                                            \
+    void PFX##_iter_free(SNAME##_iter *iter)                                                 \
     {                                                                                        \
         free(iter);                                                                          \
     }                                                                                        \
                                                                                              \
-    FMOD void PFX##_iter_init(SNAME##_iter *iter, SNAME *target)                             \
+    void PFX##_iter_init(SNAME##_iter *iter, SNAME *target)                                  \
     {                                                                                        \
         memset(iter, 0, sizeof(SNAME##_iter));                                               \
                                                                                              \
@@ -674,17 +674,17 @@
         }                                                                                    \
     }                                                                                        \
                                                                                              \
-    FMOD bool PFX##_iter_start(SNAME##_iter *iter)                                           \
+    bool PFX##_iter_start(SNAME##_iter *iter)                                                \
     {                                                                                        \
         return PFX##_empty(iter->target) || iter->start;                                     \
     }                                                                                        \
                                                                                              \
-    FMOD bool PFX##_iter_end(SNAME##_iter *iter)                                             \
+    bool PFX##_iter_end(SNAME##_iter *iter)                                                  \
     {                                                                                        \
         return PFX##_empty(iter->target) || iter->end;                                       \
     }                                                                                        \
                                                                                              \
-    FMOD void PFX##_iter_to_start(SNAME##_iter *iter)                                        \
+    void PFX##_iter_to_start(SNAME##_iter *iter)                                             \
     {                                                                                        \
         if (!PFX##_empty(iter->target))                                                      \
         {                                                                                    \
@@ -695,7 +695,7 @@
         }                                                                                    \
     }                                                                                        \
                                                                                              \
-    FMOD void PFX##_iter_to_end(SNAME##_iter *iter)                                          \
+    void PFX##_iter_to_end(SNAME##_iter *iter)                                               \
     {                                                                                        \
         if (!PFX##_empty(iter->target))                                                      \
         {                                                                                    \
@@ -706,7 +706,7 @@
         }                                                                                    \
     }                                                                                        \
                                                                                              \
-    FMOD bool PFX##_iter_next(SNAME##_iter *iter)                                            \
+    bool PFX##_iter_next(SNAME##_iter *iter)                                                 \
     {                                                                                        \
         if (iter->end)                                                                       \
             return false;                                                                    \
@@ -746,7 +746,7 @@
         }                                                                                    \
     }                                                                                        \
                                                                                              \
-    FMOD bool PFX##_iter_prev(SNAME##_iter *iter)                                            \
+    bool PFX##_iter_prev(SNAME##_iter *iter)                                                 \
     {                                                                                        \
         if (iter->start)                                                                     \
             return false;                                                                    \
@@ -787,7 +787,7 @@
     }                                                                                        \
                                                                                              \
     /* Returns true only if the iterator moved */                                            \
-    FMOD bool PFX##_iter_advance(SNAME##_iter *iter, size_t steps)                           \
+    bool PFX##_iter_advance(SNAME##_iter *iter, size_t steps)                                \
     {                                                                                        \
         if (iter->end)                                                                       \
             return false;                                                                    \
@@ -810,7 +810,7 @@
     }                                                                                        \
                                                                                              \
     /* Returns true only if the iterator moved */                                            \
-    FMOD bool PFX##_iter_rewind(SNAME##_iter *iter, size_t steps)                            \
+    bool PFX##_iter_rewind(SNAME##_iter *iter, size_t steps)                                 \
     {                                                                                        \
         if (iter->start)                                                                     \
             return false;                                                                    \
@@ -833,7 +833,7 @@
     }                                                                                        \
                                                                                              \
     /* Returns true only if the iterator was able to be positioned at the given index */     \
-    FMOD bool PFX##_iter_go_to(SNAME##_iter *iter, size_t index)                             \
+    bool PFX##_iter_go_to(SNAME##_iter *iter, size_t index)                                  \
     {                                                                                        \
         if (index >= PFX##_count(iter->target))                                              \
             return false;                                                                    \
@@ -846,7 +846,7 @@
         return true;                                                                         \
     }                                                                                        \
                                                                                              \
-    FMOD K PFX##_iter_key(SNAME##_iter *iter)                                                \
+    K PFX##_iter_key(SNAME##_iter *iter)                                                     \
     {                                                                                        \
         if (PFX##_empty(iter->target))                                                       \
             return PFX##_impl_default_key();                                                 \
@@ -854,7 +854,7 @@
         return iter->cursor->key;                                                            \
     }                                                                                        \
                                                                                              \
-    FMOD V PFX##_iter_value(SNAME##_iter *iter)                                              \
+    V PFX##_iter_value(SNAME##_iter *iter)                                                   \
     {                                                                                        \
         if (PFX##_empty(iter->target))                                                       \
             return PFX##_impl_default_value();                                               \
@@ -862,7 +862,7 @@
         return iter->cursor->value;                                                          \
     }                                                                                        \
                                                                                              \
-    FMOD V *PFX##_iter_rvalue(SNAME##_iter *iter)                                            \
+    V *PFX##_iter_rvalue(SNAME##_iter *iter)                                                 \
     {                                                                                        \
         if (PFX##_empty(iter->target))                                                       \
             return NULL;                                                                     \
@@ -870,7 +870,7 @@
         return &(iter->cursor->value);                                                       \
     }                                                                                        \
                                                                                              \
-    FMOD size_t PFX##_iter_index(SNAME##_iter *iter)                                         \
+    size_t PFX##_iter_index(SNAME##_iter *iter)                                              \
     {                                                                                        \
         return iter->index;                                                                  \
     }                                                                                        \

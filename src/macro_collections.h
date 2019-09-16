@@ -8,26 +8,24 @@
  *
  */
 
-#ifndef CMC_MACRO_COLLECTIONS
-#define CMC_MACRO_COLLECTIONS
+#ifndef CMC_MACRO_COLLECTIONS_H
+#define CMC_MACRO_COLLECTIONS_H
 
-#define CMC_CONCATH_(C) C##_WRAPGEN_HEADER
-#define CMC_CONCATC_(C) C##_WRAPGEN_SOURCE
+#define CMC_CONCATH_(C) CMC_WRAPGEN_##C##_HEADER
+#define CMC_CONCATC_(C) CMC_WRAPGEN_##C##_SOURCE
 
 #define CMC_CONCATH(C) CMC_CONCATH_(C)
 #define CMC_CONCATC(C) CMC_CONCATC_(C)
 
-#define COLLECTION_GENERATE(C, PFX, SNAME, FMOD, K, V)    \
-    COLLECTION_GENERATE_HEADER(C, PFX, SNAME, FMOD, K, V) \
-    COLLECTION_GENERATE_SOURCE(C, PFX, SNAME, FMOD, K, V)
+#define CMC_COLLECTION_GENERATE(C, PFX, SNAME, K, V)    \
+    CMC_COLLECTION_GENERATE_HEADER(C, PFX, SNAME, K, V) \
+    CMC_COLLECTION_GENERATE_SOURCE(C, PFX, SNAME, K, V)
 
-#define COLLECTION_GENERATE_HEADER(C, PFX, SNAME, FMOD, K, V) \
-    CMC_CONCATH(C)                                            \
-    (PFX, SNAME, FMOD, K, V)
+#define CMC_COLLECTION_GENERATE_HEADER(C, PFX, SNAME, K, V) \
+    CMC_CONCATH(C)(PFX, SNAME, K, V)
 
-#define COLLECTION_GENERATE_SOURCE(C, PFX, SNAME, FMOD, K, V) \
-    CMC_CONCATC(C)                                            \
-    (PFX, SNAME, FMOD, K, V)
+#define CMC_COLLECTION_GENERATE_SOURCE(C, PFX, SNAME, K, V) \
+    CMC_CONCATC(C)(PFX, SNAME, K, V)
 
 #include "cmc/deque.h"
 #include "cmc/hashmap.h"
@@ -53,4 +51,4 @@
 #include "utl/test.h"
 #include "utl/timer.h"
 
-#endif /* CMC_MACRO_COLLECTIONS */
+#endif /* CMC_MACRO_COLLECTIONS_H */

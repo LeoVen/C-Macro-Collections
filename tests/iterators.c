@@ -18,20 +18,20 @@ size_t inthash(int t)
     return a;
 }
 
-COLLECTION_GENERATE(LIST, l, list, /* FMOD */, /* K */, int)
-COLLECTION_GENERATE(STACK, s, stack, /* FMOD */, /* K */, int)
-COLLECTION_GENERATE(QUEUE, q, queue, /* FMOD */, /* K */, int)
-COLLECTION_GENERATE(DEQUE, d, deque, /* FMOD */, /* K */, int)
-COLLECTION_GENERATE(LINKEDLIST, ll, linked, /* FMOD */, /* K */, int)
-COLLECTION_GENERATE(HEAP, h, heap, /* FMOD */, /* K */, int)
-COLLECTION_GENERATE(TREESET, ts, tset, /* FMOD */, /* K */, int)
-COLLECTION_GENERATE(TREEMAP, tm, tmap, /* FMOD */, int, double)
-COLLECTION_GENERATE(HASHSET, hs, hset, /* FMOD */, /* K */, int)
-COLLECTION_GENERATE(HASHMAP, hm, hmap, /* FMOD */, int, double)
+CMC_COLLECTION_GENERATE(LIST, l, list, /* K */, int)
+CMC_COLLECTION_GENERATE(STACK, s, stack, /* K */, int)
+CMC_COLLECTION_GENERATE(QUEUE, q, queue, /* K */, int)
+CMC_COLLECTION_GENERATE(DEQUE, d, deque, /* K */, int)
+CMC_COLLECTION_GENERATE(LINKEDLIST, ll, linked, /* K */, int)
+CMC_COLLECTION_GENERATE(HEAP, h, heap, /* K */, int)
+CMC_COLLECTION_GENERATE(TREESET, ts, tset, /* K */, int)
+CMC_COLLECTION_GENERATE(TREEMAP, tm, tmap, int, double)
+CMC_COLLECTION_GENERATE(HASHSET, hs, hset, /* K */, int)
+CMC_COLLECTION_GENERATE(HASHMAP, hm, hmap, int, double)
 
-COLLECTION_GENERATE(INTERVALHEAP, ih, iheap, /* FMOD */, , int)
-COLLECTION_GENERATE(MULTIMAP, mm, mmap, /* FMOD */, int, double)
-COLLECTION_GENERATE(MULTISET, ms, mset, , , int)
+CMC_COLLECTION_GENERATE(INTERVALHEAP, ih, iheap, /* K */, int)
+CMC_COLLECTION_GENERATE(MULTIMAP, mm, mmap, int, double)
+CMC_COLLECTION_GENERATE(MULTISET, ms, mset, /* K */, int)
 
 #define ITERATOR_TEST(NAME, PFX, sname, initfunc, insertbody, sumbody, validation1, validation2) \
     void NAME##_iterator_test(void)                                                              \

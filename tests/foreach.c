@@ -20,20 +20,20 @@ size_t inthash(int t)
     return a;
 }
 
-COLLECTION_GENERATE(LIST, l, list, /* FMOD */, /* K */, int)
-COLLECTION_GENERATE(STACK, s, stack, /* FMOD */, /* K */, int)
-COLLECTION_GENERATE(QUEUE, q, queue, /* FMOD */, /* K */, int)
-COLLECTION_GENERATE(DEQUE, d, deque, /* FMOD */, /* K */, int)
-COLLECTION_GENERATE(LINKEDLIST, ll, linked, /* FMOD */, /* K */, int)
-COLLECTION_GENERATE(HEAP, h, heap, /* FMOD */, /* K */, int)
-COLLECTION_GENERATE(TREESET, ts, tset, /* FMOD */, /* K */, int)
-COLLECTION_GENERATE(TREEMAP, tm, tmap, /* FMOD */, int, int)
-COLLECTION_GENERATE(HASHSET, hs, hset, /* FMOD */, /* K */, int)
-COLLECTION_GENERATE(HASHMAP, hm, hmap, /* FMOD */, int, int)
+CMC_COLLECTION_GENERATE(LIST, l, list, /* K */, int)
+CMC_COLLECTION_GENERATE(STACK, s, stack, /* K */, int)
+CMC_COLLECTION_GENERATE(QUEUE, q, queue, /* K */, int)
+CMC_COLLECTION_GENERATE(DEQUE, d, deque, /* K */, int)
+CMC_COLLECTION_GENERATE(LINKEDLIST, ll, linked, /* K */, int)
+CMC_COLLECTION_GENERATE(HEAP, h, heap, /* K */, int)
+CMC_COLLECTION_GENERATE(TREESET, ts, tset, /* K */, int)
+CMC_COLLECTION_GENERATE(TREEMAP, tm, tmap, int, int)
+CMC_COLLECTION_GENERATE(HASHSET, hs, hset, /* K */, int)
+CMC_COLLECTION_GENERATE(HASHMAP, hm, hmap, int, int)
 
-COLLECTION_GENERATE(INTERVALHEAP, ih, iheap, /* FMOD */, , int)
-COLLECTION_GENERATE(MULTIMAP, mm, mmap, /* FMOD */, int, int)
-COLLECTION_GENERATE(MULTISET, ms, mset, , , int)
+CMC_COLLECTION_GENERATE(INTERVALHEAP, ih, iheap, , int)
+CMC_COLLECTION_GENERATE(MULTIMAP, mm, mmap, int, int)
+CMC_COLLECTION_GENERATE(MULTISET, ms, mset, , int)
 
 int main(void)
 {
@@ -84,62 +84,62 @@ int main(void)
 
     int sums[16] = {0};
 
-    FOR_EACH(d, deque, d, {
+    CMC_FOR_EACH(d, deque, d, {
         sums[0] += d_iter_value(&iter);
     });
 
-    FOR_EACH(hm, hmap, hm, {
+    CMC_FOR_EACH(hm, hmap, hm, {
         sums[1] += hm_iter_key(&iter);
         sums[2] += hm_iter_value(&iter);
     });
 
-    FOR_EACH(hs, hset, hs, {
+    CMC_FOR_EACH(hs, hset, hs, {
         sums[3] += hs_iter_value(&iter);
     });
 
-    FOR_EACH(h, heap, h, {
+    CMC_FOR_EACH(h, heap, h, {
         sums[4] += h_iter_value(&iter);
     });
 
-    FOR_EACH(ll, linked, ll, {
+    CMC_FOR_EACH(ll, linked, ll, {
         sums[5] += ll_iter_value(&iter);
     });
 
-    FOR_EACH(l, list, l, {
+    CMC_FOR_EACH(l, list, l, {
         sums[6] += l_iter_value(&iter);
     });
 
-    FOR_EACH(q, queue, q, {
+    CMC_FOR_EACH(q, queue, q, {
         sums[7] += q_iter_value(&iter);
     });
 
-    FOR_EACH(s, stack, s, {
+    CMC_FOR_EACH(s, stack, s, {
         sums[8] += s_iter_value(&iter);
     });
 
-    FOR_EACH(tm, tmap, tm, {
+    CMC_FOR_EACH(tm, tmap, tm, {
         sums[9] += tm_iter_key(&iter);
         sums[10] += tm_iter_value(&iter);
     });
 
-    FOR_EACH(ts, tset, ts, {
+    CMC_FOR_EACH(ts, tset, ts, {
         sums[11] += ts_iter_value(&iter);
     });
 
-    FOR_EACH(ih, iheap, ih, {
+    CMC_FOR_EACH(ih, iheap, ih, {
         sums[12] += ih_iter_value(&iter);
     });
 
-    FOR_EACH(mm, mmap, mm, {
+    CMC_FOR_EACH(mm, mmap, mm, {
         sums[13] += mm_iter_key(&iter);
         sums[14] += mm_iter_value(&iter);
     });
 
-    FOR_EACH(ms, mset, ms, {
+    CMC_FOR_EACH(ms, mset, ms, {
         sums[15] += ms_iter_value(&iter);
     });
 
-    printf("\n-------------------- FOR_EACH --------------------\n");
+    printf("\n-------------------- CMC_FOR_EACH --------------------\n");
     if (sums[0] == 50005000)
         printf("%12s PASSED\n", "DEQUE");
     else
@@ -197,62 +197,62 @@ int main(void)
 
     memset(sums, 0, sizeof sums);
 
-    FOR_EACH_REV(d, deque, d, {
+    CMC_FOR_EACH_REV(d, deque, d, {
         sums[0] += d_iter_value(&iter);
     });
 
-    FOR_EACH_REV(hm, hmap, hm, {
+    CMC_FOR_EACH_REV(hm, hmap, hm, {
         sums[1] += hm_iter_key(&iter);
         sums[2] += hm_iter_value(&iter);
     });
 
-    FOR_EACH_REV(hs, hset, hs, {
+    CMC_FOR_EACH_REV(hs, hset, hs, {
         sums[3] += hs_iter_value(&iter);
     });
 
-    FOR_EACH_REV(h, heap, h, {
+    CMC_FOR_EACH_REV(h, heap, h, {
         sums[4] += h_iter_value(&iter);
     });
 
-    FOR_EACH_REV(ll, linked, ll, {
+    CMC_FOR_EACH_REV(ll, linked, ll, {
         sums[5] += ll_iter_value(&iter);
     });
 
-    FOR_EACH_REV(l, list, l, {
+    CMC_FOR_EACH_REV(l, list, l, {
         sums[6] += l_iter_value(&iter);
     });
 
-    FOR_EACH_REV(q, queue, q, {
+    CMC_FOR_EACH_REV(q, queue, q, {
         sums[7] += q_iter_value(&iter);
     });
 
-    FOR_EACH_REV(s, stack, s, {
+    CMC_FOR_EACH_REV(s, stack, s, {
         sums[8] += s_iter_value(&iter);
     });
 
-    FOR_EACH_REV(tm, tmap, tm, {
+    CMC_FOR_EACH_REV(tm, tmap, tm, {
         sums[9] += tm_iter_key(&iter);
         sums[10] += tm_iter_value(&iter);
     });
 
-    FOR_EACH_REV(ts, tset, ts, {
+    CMC_FOR_EACH_REV(ts, tset, ts, {
         sums[11] += ts_iter_value(&iter);
     });
 
-    FOR_EACH_REV(ih, iheap, ih, {
+    CMC_FOR_EACH_REV(ih, iheap, ih, {
         sums[12] += ih_iter_value(&iter);
     });
 
-    FOR_EACH_REV(mm, mmap, mm, {
+    CMC_FOR_EACH_REV(mm, mmap, mm, {
         sums[13] += mm_iter_key(&iter);
         sums[14] += mm_iter_value(&iter);
     });
 
-    FOR_EACH_REV(ms, mset, ms, {
+    CMC_FOR_EACH_REV(ms, mset, ms, {
         sums[15] += ms_iter_value(&iter);
     });
 
-    printf("-------------------- FOR_EACH_REV --------------------\n");
+    printf("-------------------- CMC_FOR_EACH_REV --------------------\n");
     if (sums[0] == 50005000)
         printf("%12s PASSED\n", "DEQUE");
     else
