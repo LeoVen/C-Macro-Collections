@@ -3,7 +3,7 @@
 Header only, macro generated, generic and type-safe Collections in C.
 
 ![License](https://img.shields.io/badge/License-MIT-blue.svg)
-![Version](https://img.shields.io/badge/Version-v1.6.3-orange.svg)
+![Version](https://img.shields.io/badge/Version-v1.7.0-orange.svg)
 [![Build](https://travis-ci.org/LeoVen/C-Macro-Collections.svg?branch=master)](https://travis-ci.org/LeoVen/C-Macro-Collections)
 [![codecov](https://codecov.io/gh/LeoVen/C-Macro-Collections/branch/master/graph/badge.svg)](https://codecov.io/gh/LeoVen/C-Macro-Collections)
 
@@ -140,7 +140,6 @@ When including `macro_collections.h` in your source code you gain access to a ma
 * __C__ - Container name in uppercase (*LIST*, *LINKEDLIST*, *STACK*, *QUEUE*, *DEQUE*, *HEAP*, *TREESET*, *TREEMAP*, *HASHSET*, *HASHMAP*).
 * __PFX__ - Functions prefix or namespace.
 * __SNAME__ - Structure name (`typedef struct SNAME##_s SNAME`).
-* __FMOD__ - Function modifier (`static` or empty).
 * \*__K__ - Key type. Only used in *HASHMAP* and *TREEMAP*; ignored by others.
 * __V__ - Value type. Primary type for most collections, or value to be mapped by *HASHMAP* and *TREEMAP*.
 

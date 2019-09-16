@@ -1,5 +1,9 @@
 # RELEASE.MAJOR.MINOR
 
+1.7.0
+    - Removed FMOD (function modifier)
+    - Added CMC prefix to all macros defined within the library
+
 1.6.3
     - Added iterator functions to all collections:
         - iter_advance
