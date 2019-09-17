@@ -1,11 +1,22 @@
-# C-Macro-Collections
+# C Macro Collections
 
-Header only, macro generated, generic and type-safe Collections in C.
+<p align="center">
+    <img src="https://leoven.github.io/C-Macro-Collections/images/logo.png" alt="C Macro Collections Logo" width="300"/>
+</p>
 
-![License](https://img.shields.io/badge/License-MIT-blue.svg)
-![Version](https://img.shields.io/badge/Version-v1.7.0-orange.svg)
-[![Build](https://travis-ci.org/LeoVen/C-Macro-Collections.svg?branch=master)](https://travis-ci.org/LeoVen/C-Macro-Collections)
-[![codecov](https://codecov.io/gh/LeoVen/C-Macro-Collections/branch/master/graph/badge.svg)](https://codecov.io/gh/LeoVen/C-Macro-Collections)
+<p align="center">Header only, macro generated, generic and type-safe Collections in C.</p>
+
+<p align="center">
+    <a href="https://github.com/LeoVen/C-Macro-Collections"><img src="https://img.shields.io/badge/GitHub-C%20Macro%20Collections-lightgrey.svg?logo=github" alt="LinkToRepo"/></a>
+    <a href="https://leoven.github.io/C-Macro-Collections/"><img style="color: #ffffff;" src="https://img.shields.io/badge/Read%20the%20Docs-5A5A5A.svg?logo=data:image/svg xml;base64,PHN2ZyB3aWR0aD0iMTYiIGhlaWdodD0iMTYiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI IDx0aXRsZT5pY24vZG9jLXRleHQ8L3RpdGxlPiA8Zz4gIDx0aXRsZT5iYWNrZ3JvdW5kPC90aXRsZT4gIDxyZWN0IGZpbGw9Im5vbmUiIGlkPSJjYW52YXNfYmFja2dyb3VuZCIgaGVpZ2h0PSI0MDIiIHdpZHRoPSI1ODIiIHk9Ii0xIiB4PSItMSIvPiA8L2c IDxnPiAgPHRpdGxlPkxheWVyIDE8L3RpdGxlPiAgPHBhdGggZmlsbD0iI2ZmZmZmZiIgaWQ9ImEiIGQ9Im01LDFsNC4yNDQsMGEyLDIgMCAwIDEgMS40MzQsMC42MDZsMi43NTYsMi44MzRhMiwyIDAgMCAxIDAuNTY2LDEuMzk1bDAsNi4xNjVhMywzIDAgMCAxIC0zLDNsLTYsMGEzLDMgMCAwIDEgLTMsLTNsMCwtOGEzLDMgMCAwIDEgMywtM3ptMCwyYTEsMSAwIDAgMCAtMSwxbDAsOGExLDEgMCAwIDAgMSwxbDYsMGExLDEgMCAwIDAgMSwtMWwwLC02LjE2NWwtMi43NTYsLTIuODM1bC00LjI0NCwwem0xLjUsN2wzLDBhMC41LDAuNSAwIDEgMSAwLDFsLTMsMGEwLjUsMC41IDAgMSAxIDAsLTF6bTAsLTJsMiwwYTAuNSwwLjUgMCAwIDEgMCwxbC0yLDBhMC41LDAuNSAwIDAgMSAwLC0xem0xLjUsLTZsMywxLjk5NWwyLDMuMDA1bC00LDBhMSwxIDAgMCAxIC0xLC0xbDAsLTR6Ii8 IDwvZz48L3N2Zz4=" alt="LinkToDocs"/></a>
+</p>
+
+<p align="center">
+    <a href="https://github.com/LeoVen/C-Macro-Collections/blob/master/LICENSE"><img src="https://img.shields.io/badge/License-MIT-blue.svg" alt="License"/></a>
+    <a href="#"><img src="https://img.shields.io/badge/Version-v1.7.0-orange.svg" alt="Version"/></a>
+    <a href="https://travis-ci.org/LeoVen/C-Macro-Collections"><img src="https://travis-ci.org/LeoVen/C-Macro-Collections.svg?branch=master" alt="travis-ci"/></a>
+    <a href="https://codecov.io/gh/LeoVen/C-Macro-Collections"><img src="https://codecov.io/gh/LeoVen/C-Macro-Collections/branch/master/graph/badge.svg" alt="codecov"/></a>
+</p>
 
 ## Table of Contents
 
@@ -13,8 +24,8 @@ Header only, macro generated, generic and type-safe Collections in C.
 * Available Collections
 * Overall To-Do
 * Design Decisions
-* What to Use
-* How to Use
+* What to use
+* How to use
 
 ## Project Structure
 
@@ -31,28 +42,14 @@ Header only, macro generated, generic and type-safe Collections in C.
 
 ## Available Collections
 
-* Main C Macro Collections Library
-    * Deque
-    * HashMap
-    * HashSet
-    * Heap
-    * LinkedList
-    * List
-    * Queue
-    * Stack
-    * TreeMap
-    * TreeSet
-* Extra Collections Library
-    * IntervalHeap
-    * MultiMap
-    * MultiSet
-* Statically  Allocated Collections Library
-    * Queue
-    * Stack
-* Development Collections Library
-    * Deque
-
-Check out **Documentation.md** for more information about each collection. The documentation is still being written.
+* Linear Collections
+    * List, LinkedList, Deque, Stack, Queue
+* Sets
+    * HashSet, TreeSet, MultiSet
+* Maps
+    * HashMap, TreeMap, MultiMap
+* Heaps
+    * Heap, IntervalHeap
 
 ## Overall To-Do
 
@@ -117,21 +114,21 @@ Every collection is separated by two parts:
 
 All collections have three main macros:
 
-* `SNAME_GENERATE` - Generates `SNAME_GENERATE_HEADER` and `SNAME_GENERATE_SOURCE`.
+* `CMC_GENERATE_SNAME` - Generates `CMC_GENERATE_SNAME_HEADER` and `CMC_GENERATE_SNAME_SOURCE`.
 
 Or you can generate each part individually:
 
-* `SNAME_GENERATE_HEADER` - Generates all struct definitions and function definitions.
-* `SNAME_GENERATE_SOURCE` - Generates all function implementations.
+* `CMC_GENERATE_SNAME_HEADER` - Generates all struct definitions and function definitions.
+* `CMC_GENERATE_SNAME_SOURCE` - Generates all function implementations.
 
 ### For Each
 
 There are 2 for-each macros:
 
-* `FOR_EACH` - Starts at the start of the collection towards the end.
-* `FOR_EACH_REV` - Starts at the end of the collection towards the start.
+* `CMC_FOR_EACH` - Starts at the start of the collection towards the end.
+* `CMC_FOR_EACH_REV` - Starts at the end of the collection towards the start.
 
-Check out the **Documentation.md** to know exactly what represents the *end* and the *start* of each collection.
+Check out the documentation to know more.
 
 ### Parameters
 
