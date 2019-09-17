@@ -19,11 +19,15 @@
 #ifndef CMC_TREESET_H
 #define CMC_TREESET_H
 
+#include <inttypes.h>
 #include <stdbool.h>
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
 #include "../utl/cmc_string.h"
+
+/* to_string format */
+static const char *cmc_string_fmt_treeset = "%s at %p { root:%p, count:%" PRIuMAX ", cmp:%p }";
 
 #define CMC_GENERATE_TREESET(PFX, SNAME, V)    \
     CMC_GENERATE_TREESET_HEADER(PFX, SNAME, V) \

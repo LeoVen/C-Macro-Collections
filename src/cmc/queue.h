@@ -43,11 +43,15 @@
 #ifndef CMC_QUEUE_H
 #define CMC_QUEUE_H
 
+#include <inttypes.h>
 #include <stdbool.h>
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
 #include "../utl/cmc_string.h"
+
+/* to_string format */
+static const char *cmc_string_fmt_queue = "%s at %p { buffer:%p, capacity:%" PRIuMAX ", count:%" PRIuMAX ", front:%" PRIuMAX ", back:%" PRIuMAX " }";
 
 #define CMC_GENERATE_QUEUE(PFX, SNAME, V)    \
     CMC_GENERATE_QUEUE_HEADER(PFX, SNAME, V) \

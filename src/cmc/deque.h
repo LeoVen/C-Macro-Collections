@@ -31,11 +31,15 @@
 #ifndef CMC_DEQUE_H
 #define CMC_DEQUE_H
 
+#include <inttypes.h>
 #include <stdbool.h>
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
 #include "../utl/cmc_string.h"
+
+/* to_string format */
+static const char *cmc_string_fmt_deque = "%s at %p { buffer:%p, capacity:%" PRIuMAX ", count:%" PRIuMAX ", front:%" PRIuMAX ", back:%" PRIuMAX " }";
 
 #define CMC_GENERATE_DEQUE(PFX, SNAME, V)    \
     CMC_GENERATE_DEQUE_HEADER(PFX, SNAME, V) \
@@ -403,7 +407,7 @@
         size_t i, j, k;                                                                                      \
         for (i = _deque1_->front, j = _deque2_->front, k = 0; k < PFX##_count(_deque1_); k++)                \
         {                                                                                                    \
-            if (comparator(_deque1_->buffer[i], _deque2_->buffer[j]) == 0)                                   \
+            if (comparator(_deque1_->buffer[i], _deque2_->buffer[j]) != 0)                                   \
                 return false;                                                                                \
                                                                                                              \
             i = (i + 1) % _deque1_->capacity;                                                                \

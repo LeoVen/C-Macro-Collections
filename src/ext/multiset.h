@@ -21,11 +21,15 @@
 #ifndef CMC_MULTISET_H
 #define CMC_MULTISET_H
 
+#include <inttypes.h>
 #include <stdbool.h>
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
 #include "../utl/cmc_string.h"
+
+/* to_string format */
+static const char *cmc_string_fmt_multiset = "%s at %p { buffer:%p, capacity:%" PRIuMAX ", count:%" PRIuMAX ", cardinality:%" PRIuMAX ", load:%lf, cmp:%p, hash:%p }";
 
 #ifndef CMC_HASH_TABLE_SETUP
 #define CMC_HASH_TABLE_SETUP

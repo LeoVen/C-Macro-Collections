@@ -21,11 +21,15 @@
 #ifndef CMC_INTERVALHEAP_H
 #define CMC_INTERVALHEAP_H
 
+#include <inttypes.h>
 #include <stdbool.h>
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
 #include "../utl/cmc_string.h"
+
+/* to_string format */
+static const char *cmc_string_fmt_intervalheap = "%s at %p { buffer:%p, capacity:%" PRIuMAX ", size:%" PRIuMAX ", count:%" PRIuMAX ", cmp:%p }";
 
 #define CMC_GENERATE_INTERVALHEAP(PFX, SNAME, V)    \
     CMC_GENERATE_INTERVALHEAP_HEADER(PFX, SNAME, V) \

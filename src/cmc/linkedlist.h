@@ -28,11 +28,15 @@
 #ifndef CMC_LINKEDLIST_H
 #define CMC_LINKEDLIST_H
 
+#include <inttypes.h>
 #include <stdbool.h>
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
 #include "../utl/cmc_string.h"
+
+/* to_string format */
+static const char *cmc_string_fmt_linkedlist = "%s at %p { count:%" PRIuMAX ", head:%p, tail:%p }";
 
 #define CMC_GENERATE_LINKEDLIST(PFX, SNAME, V)    \
     CMC_GENERATE_LINKEDLIST_HEADER(PFX, SNAME, V) \

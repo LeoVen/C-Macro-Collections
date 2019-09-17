@@ -30,11 +30,15 @@
 #ifndef CMC_HEAP_H
 #define CMC_HEAP_H
 
+#include <inttypes.h>
 #include <stdbool.h>
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
 #include "../utl/cmc_string.h"
+
+/* to_string format */
+static const char *cmc_string_fmt_heap = "%s at %p { buffer:%p, capacity:%" PRIuMAX ", count:%" PRIuMAX ", type:%s, cmp:%p }";
 
 typedef enum cmc_heap_order_e
 {

@@ -18,11 +18,15 @@
 #ifndef CMC_HASHSET_H
 #define CMC_HASHSET_H
 
+#include <inttypes.h>
 #include <stdbool.h>
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
 #include "../utl/cmc_string.h"
+
+/* to_string format */
+static const char *cmc_string_fmt_hashset = "%s at %p { buffer:%p, capacity:%" PRIuMAX ", count:%" PRIuMAX ", load:%lf, cmp:%p, hash:%p }";
 
 #ifndef CMC_HASH_TABLE_SETUP
 #define CMC_HASH_TABLE_SETUP
