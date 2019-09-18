@@ -40,6 +40,9 @@
  * - ptr
  * - bool (only for equals and not_equals)
  *
+ * Specialized assertions:
+ *
+ * - cmc_assert_sorted
  */
 
 #ifndef CMC_ASSERT_H
@@ -157,6 +160,46 @@ static bool cmc_assert_state = true;
 #define cmc_assert_not_in_range(dtype, lower_bound, upper_bound, actual) \
     CMC_ASSERT_GLUE(dtype, not_in_range)                                 \
     (lower_bound, upper_bound, actual)
+
+/**
+ * dtype      : The type of the array
+ * array      : Array to be checked if it is sorted
+ * comparator : A function that has two 'dtype' arguments and returns -1 if the
+ *              first is less then the second, 0 if both are equal or 1 if the
+ *              first is greater then the second.
+ * from       : First index to compare (inclusive)
+ * to         : Last index to compare (inclusive)
+ *
+ * This macro can be used for any data type.
+ */
+#define cmc_assert_sorted(dtype, array, comparator, from, to)                                                                         \
+    do                                                                                                                                \
+    {                                                                                                                                 \
+        const char *str = #array;                                                                                                     \
+        dtype *arr__ = array;                                                                                                         \
+        size_t from__ = from;                                                                                                         \
+        size_t to__ = to;                                                                                                             \
+        int (*cmp__)(dtype, dtype) = comparator;                                                                                      \
+                                                                                                                                      \
+        size_t iprev__ = from__;                                                                                                      \
+                                                                                                                                      \
+        for (size_t i__ = from__ + 1; i__ <= to__; i__++)                                                                             \
+        {                                                                                                                             \
+            if (cmp__(arr__[iprev__], arr__[i__]) > 0)                                                                                \
+            {                                                                                                                         \
+                cmc_assert_state = false;                                                                                             \
+                                                                                                                                      \
+                fprintf(stderr,                                                                                                       \
+                        "Assertion Failed at %s:%s:%u for { %s }: Not sorted when comparing indexes %" PRIuMAX " and %" PRIuMAX "\n", \
+                        __FILE__, __func__, __LINE__, str, iprev__, i__);                                                             \
+                                                                                                                                      \
+                break;                                                                                                                \
+            }                                                                                                                         \
+                                                                                                                                      \
+            iprev__ = i__;                                                                                                            \
+        }                                                                                                                             \
+                                                                                                                                      \
+    } while (0)
 
 #define cmc_assert_equals_int8_t(expected, actual)                                                        \
     do                                                                                                    \
