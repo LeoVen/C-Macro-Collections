@@ -13,7 +13,7 @@
 
 <p align="center">
     <a href="https://github.com/LeoVen/C-Macro-Collections/blob/master/LICENSE"><img src="https://img.shields.io/badge/License-MIT-blue.svg" alt="License"/></a>
-    <a href="#"><img src="https://img.shields.io/badge/Version-v1.7.0-orange.svg" alt="Version"/></a>
+    <a href="#"><img src="https://img.shields.io/badge/Version-v1.7.1-orange.svg" alt="Version"/></a>
     <a href="https://travis-ci.org/LeoVen/C-Macro-Collections"><img src="https://travis-ci.org/LeoVen/C-Macro-Collections.svg?branch=master" alt="travis-ci"/></a>
     <a href="https://codecov.io/gh/LeoVen/C-Macro-Collections"><img src="https://codecov.io/gh/LeoVen/C-Macro-Collections/branch/master/graph/badge.svg" alt="codecov"/></a>
 </p>

@@ -63,3 +63,8 @@ TODO
     [X] log.h
     [X] test.h
     [X] timer.h
+
+[ ] Optimizations
+    [ ] Hashtable insertion can avoid a call to impl_get_entry to check if a key already exists
+    [ ] Use binary search to find optimum hashtable prime size inside impl_calculate_size
+

@@ -1,5 +1,12 @@
 # RELEASE.MAJOR.MINOR
 
+1.7.1
+    - Added new assert macro cmc_assert_sorted
+    - Fixed some include guards for hashtables
+    - Moved the cmc string format to each file
+    - Renamed some list functions (sequence input/output)
+    - Renamed list and linkedlist functions push and pop to push_at and pop_at
+
 1.7.0
     - Removed FMOD (function modifier)
     - Added CMC prefix to all macros defined within the library
