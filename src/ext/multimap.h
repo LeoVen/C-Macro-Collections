@@ -53,8 +53,8 @@
 /* to_string format */
 static const char *cmc_string_fmt_multimap = "%s at %p { buffer:%p, capacity:%" PRIuMAX ", count:%" PRIuMAX ", load:%lf, cmp:%p, hash:%p }";
 
-#ifndef CMC_HASH_TABLE_SETUP
-#define CMC_HASH_TABLE_SETUP
+#ifndef CMC_IMPL_HASHTABLE_SETUP
+#define CMC_IMPL_HASHTABLE_SETUP
 
 static const size_t cmc_hashtable_primes[] = {53, 97, 191, 383, 769, 1531,
                                               3067, 6143, 12289, 24571, 49157,
@@ -88,7 +88,7 @@ static const size_t cmc_hashtable_primes[] = {53, 97, 191, 383, 769, 1531,
                                               6917529027641081903,
                                               13835058055282163729llu};
 
-#endif /* CMC_HASH_TABLE_SETUP */
+#endif /* CMC_IMPL_HASHTABLE_SETUP */
 
 #define CMC_GENERATE_MULTIMAP(PFX, SNAME, K, V)    \
     CMC_GENERATE_MULTIMAP_HEADER(PFX, SNAME, K, V) \
