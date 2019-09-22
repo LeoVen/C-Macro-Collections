@@ -28,11 +28,15 @@
 #ifndef CMC_STACK_H
 #define CMC_STACK_H
 
+#include <inttypes.h>
 #include <stdbool.h>
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
 #include "../utl/cmc_string.h"
+
+/* to_string format */
+static const char *cmc_string_fmt_stack = "%s at %p { buffer:%p, capacity:%" PRIuMAX ", count:%" PRIuMAX " }";
 
 #define CMC_GENERATE_STACK(PFX, SNAME, V)    \
     CMC_GENERATE_STACK_HEADER(PFX, SNAME, V) \

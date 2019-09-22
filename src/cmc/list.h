@@ -43,11 +43,15 @@
 #ifndef CMC_LIST_H
 #define CMC_LIST_H
 
+#include <inttypes.h>
 #include <stdbool.h>
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
 #include "../utl/cmc_string.h"
+
+/* to_string format */
+static const char *cmc_string_fmt_list = "%s at %p { buffer:%p, capacity:%" PRIuMAX ", count:%" PRIuMAX " }";
 
 #define CMC_GENERATE_LIST(PFX, SNAME, V)    \
     CMC_GENERATE_LIST_HEADER(PFX, SNAME, V) \
@@ -107,20 +111,20 @@
     void PFX##_free(SNAME *_list_, void (*deallocator)(V));                                   \
     /* Collection Input and Output */                                                         \
     bool PFX##_push_front(SNAME *_list_, V element);                                          \
-    bool PFX##_push(SNAME *_list_, V element, size_t index);                                  \
+    bool PFX##_push_at(SNAME *_list_, V element, size_t index);                               \
     bool PFX##_push_back(SNAME *_list_, V element);                                           \
     bool PFX##_pop_front(SNAME *_list_);                                                      \
-    bool PFX##_pop(SNAME *_list_, size_t index);                                              \
+    bool PFX##_pop_at(SNAME *_list_, size_t index);                                           \
     bool PFX##_pop_back(SNAME *_list_);                                                       \
     /* Conditional Input and Output */                                                        \
     bool PFX##_push_if(SNAME *_list_, V element, size_t index, bool condition);               \
     bool PFX##_pop_if(SNAME *_list_, size_t index, bool condition);                           \
-    /* Collection Range Input and Output */                                                   \
-    bool PFX##_prepend(SNAME *_list_, V *elements, size_t size);                              \
-    bool PFX##_insert(SNAME *_list_, V *elements, size_t size, size_t index);                 \
-    bool PFX##_append(SNAME *_list_, V *elements, size_t size);                               \
-    bool PFX##_remove(SNAME *_list_, size_t from, size_t to);                                 \
-    SNAME *PFX##_extract(SNAME *_list_, size_t from, size_t to);                              \
+    /* Collection Sequence Input and Output */                                                \
+    bool PFX##_seq_push_front(SNAME *_list_, V *elements, size_t size);                       \
+    bool PFX##_seq_push_at(SNAME *_list_, V *elements, size_t size, size_t index);            \
+    bool PFX##_seq_push_back(SNAME *_list_, V *elements, size_t size);                        \
+    bool PFX##_seq_pop_at(SNAME *_list_, size_t from, size_t to);                             \
+    SNAME *PFX##_seq_sublist(SNAME *_list_, size_t from, size_t to);                          \
     /* Element Access */                                                                      \
     V PFX##_front(SNAME *_list_);                                                             \
     V PFX##_get(SNAME *_list_, size_t index);                                                 \
@@ -270,7 +274,7 @@
         return true;                                                                                             \
     }                                                                                                            \
                                                                                                                  \
-    bool PFX##_push(SNAME *_list_, V element, size_t index)                                                      \
+    bool PFX##_push_at(SNAME *_list_, V element, size_t index)                                                   \
     {                                                                                                            \
         if (index > _list_->count)                                                                               \
             return false;                                                                                        \
@@ -324,7 +328,7 @@
         return true;                                                                                             \
     }                                                                                                            \
                                                                                                                  \
-    bool PFX##_pop(SNAME *_list_, size_t index)                                                                  \
+    bool PFX##_pop_at(SNAME *_list_, size_t index)                                                               \
     {                                                                                                            \
         if (PFX##_empty(_list_))                                                                                 \
             return false;                                                                                        \
@@ -361,7 +365,7 @@
     bool PFX##_push_if(SNAME *_list_, V element, size_t index, bool condition)                                   \
     {                                                                                                            \
         if (condition)                                                                                           \
-            return PFX##_push(_list_, element, index);                                                           \
+            return PFX##_push_at(_list_, element, index);                                                        \
                                                                                                                  \
         return false;                                                                                            \
     }                                                                                                            \
@@ -369,12 +373,12 @@
     bool PFX##_pop_if(SNAME *_list_, size_t index, bool condition)                                               \
     {                                                                                                            \
         if (condition)                                                                                           \
-            return PFX##_pop(_list_, index);                                                                     \
+            return PFX##_pop_at(_list_, index);                                                                  \
                                                                                                                  \
         return false;                                                                                            \
     }                                                                                                            \
                                                                                                                  \
-    bool PFX##_prepend(SNAME *_list_, V *elements, size_t size)                                                  \
+    bool PFX##_seq_push_front(SNAME *_list_, V *elements, size_t size)                                           \
     {                                                                                                            \
         if (size == 0)                                                                                           \
             return false;                                                                                        \
@@ -394,15 +398,15 @@
         return true;                                                                                             \
     }                                                                                                            \
                                                                                                                  \
-    bool PFX##_insert(SNAME *_list_, V *elements, size_t size, size_t index)                                     \
+    bool PFX##_seq_push_at(SNAME *_list_, V *elements, size_t size, size_t index)                                \
     {                                                                                                            \
         if (size == 0 || index > _list_->count)                                                                  \
             return false;                                                                                        \
                                                                                                                  \
         if (index == 0)                                                                                          \
-            return PFX##_prepend(_list_, elements, size);                                                        \
+            return PFX##_seq_push_front(_list_, elements, size);                                                 \
         else if (index == _list_->count)                                                                         \
-            return PFX##_append(_list_, elements, size);                                                         \
+            return PFX##_seq_push_back(_list_, elements, size);                                                  \
         else                                                                                                     \
         {                                                                                                        \
             if (!PFX##_fits(_list_, size))                                                                       \
@@ -421,7 +425,7 @@
         return true;                                                                                             \
     }                                                                                                            \
                                                                                                                  \
-    bool PFX##_append(SNAME *_list_, V *elements, size_t size)                                                   \
+    bool PFX##_seq_push_back(SNAME *_list_, V *elements, size_t size)                                            \
     {                                                                                                            \
         if (size == 0)                                                                                           \
             return false;                                                                                        \
@@ -439,7 +443,7 @@
         return true;                                                                                             \
     }                                                                                                            \
                                                                                                                  \
-    bool PFX##_remove(SNAME *_list_, size_t from, size_t to)                                                     \
+    bool PFX##_seq_pop_at(SNAME *_list_, size_t from, size_t to)                                                 \
     {                                                                                                            \
         if (from > to || to >= _list_->count)                                                                    \
             return false;                                                                                        \
@@ -455,23 +459,26 @@
         return true;                                                                                             \
     }                                                                                                            \
                                                                                                                  \
-    SNAME *PFX##_extract(SNAME *_list_, size_t from, size_t to)                                                  \
+    SNAME *PFX##_seq_sublist(SNAME *_list_, size_t from, size_t to)                                              \
     {                                                                                                            \
         if (from > to || to >= _list_->count)                                                                    \
             return false;                                                                                        \
                                                                                                                  \
         size_t length = to - from + 1;                                                                           \
                                                                                                                  \
-        SNAME *result = PFX##_new_from(_list_->buffer + from, length);                                           \
+        SNAME *result = PFX##_new(length);                                                                       \
                                                                                                                  \
         if (!result)                                                                                             \
             return NULL;                                                                                         \
+                                                                                                                 \
+        memcpy(result->buffer, _list_->buffer, _list_->count * sizeof(V));                                       \
                                                                                                                  \
         memmove(_list_->buffer + from, _list_->buffer + to + 1, (_list_->count - to - 1) * sizeof(V));           \
                                                                                                                  \
         memset(_list_->buffer + _list_->count - length, 0, length * sizeof(V));                                  \
                                                                                                                  \
         _list_->count -= length;                                                                                 \
+        result->count = length;                                                                                  \
                                                                                                                  \
         return result;                                                                                           \
     }                                                                                                            \

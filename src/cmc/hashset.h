@@ -18,21 +18,30 @@
 #ifndef CMC_HASHSET_H
 #define CMC_HASHSET_H
 
+#include <inttypes.h>
 #include <stdbool.h>
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
 #include "../utl/cmc_string.h"
 
-#ifndef CMC_HASH_TABLE_SETUP
-#define CMC_HASH_TABLE_SETUP
+/* to_string format */
+static const char *cmc_string_fmt_hashset = "%s at %p { buffer:%p, capacity:%" PRIuMAX ", count:%" PRIuMAX ", load:%lf, cmp:%p, hash:%p }";
 
-typedef enum cmc_entry_state_e
+#ifndef CMC_IMPL_HASHTABLE_STATE
+#define CMC_IMPL_HASHTABLE_STATE
+
+enum cmc_entry_state_e
 {
     CMC_ES_DELETED = -1,
     CMC_ES_EMPTY = 0,
     CMC_ES_FILLED = 1
-} cmc_entry_state;
+};
+
+#endif /* CMC_IMPL_HASHTABLE_STATE */
+
+#ifndef CMC_IMPL_HASHTABLE_SETUP
+#define CMC_IMPL_HASHTABLE_SETUP
 
 static const size_t cmc_hashtable_primes[] = {53, 97, 191, 383, 769, 1531,
                                               3067, 6143, 12289, 24571, 49157,
@@ -66,7 +75,7 @@ static const size_t cmc_hashtable_primes[] = {53, 97, 191, 383, 769, 1531,
                                               6917529027641081903,
                                               13835058055282163729llu};
 
-#endif /* CMC_HASH_TABLE_SETUP */
+#endif /* CMC_IMPL_HASHTABLE_SETUP */
 
 #define CMC_GENERATE_HASHSET(PFX, SNAME, V)    \
     CMC_GENERATE_HASHSET_HEADER(PFX, SNAME, V) \

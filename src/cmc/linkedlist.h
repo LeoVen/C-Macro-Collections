@@ -28,11 +28,15 @@
 #ifndef CMC_LINKEDLIST_H
 #define CMC_LINKEDLIST_H
 
+#include <inttypes.h>
 #include <stdbool.h>
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
 #include "../utl/cmc_string.h"
+
+/* to_string format */
+static const char *cmc_string_fmt_linkedlist = "%s at %p { count:%" PRIuMAX ", head:%p, tail:%p }";
 
 #define CMC_GENERATE_LINKEDLIST(PFX, SNAME, V)    \
     CMC_GENERATE_LINKEDLIST_HEADER(PFX, SNAME, V) \
@@ -108,10 +112,10 @@
     void PFX##_free(SNAME *_list_, void (*deallocator)(V));                     \
     /* Collection Input and Output */                                           \
     bool PFX##_push_front(SNAME *_list_, V element);                            \
-    bool PFX##_push(SNAME *_list_, V element, size_t index);                    \
+    bool PFX##_push_at(SNAME *_list_, V element, size_t index);                 \
     bool PFX##_push_back(SNAME *_list_, V element);                             \
     bool PFX##_pop_front(SNAME *_list_);                                        \
-    bool PFX##_pop(SNAME *_list_, size_t index);                                \
+    bool PFX##_pop_at(SNAME *_list_, size_t index);                             \
     bool PFX##_pop_back(SNAME *_list_);                                         \
     /* Conditional Input and Output */                                          \
     bool PFX##_push_if(SNAME *_list_, V element, size_t index, bool condition); \
@@ -259,7 +263,7 @@
         return true;                                                               \
     }                                                                              \
                                                                                    \
-    bool PFX##_push(SNAME *_list_, V element, size_t index)                        \
+    bool PFX##_push_at(SNAME *_list_, V element, size_t index)                     \
     {                                                                              \
         if (index > _list_->count)                                                 \
             return false;                                                          \
@@ -334,7 +338,7 @@
         return true;                                                               \
     }                                                                              \
                                                                                    \
-    bool PFX##_pop(SNAME *_list_, size_t index)                                    \
+    bool PFX##_pop_at(SNAME *_list_, size_t index)                                 \
     {                                                                              \
         if (PFX##_empty(_list_))                                                   \
             return false;                                                          \
@@ -389,7 +393,7 @@
     bool PFX##_push_if(SNAME *_list_, V element, size_t index, bool condition)     \
     {                                                                              \
         if (condition)                                                             \
-            return PFX##_push(_list_, element, index);                             \
+            return PFX##_push_at(_list_, element, index);                          \
                                                                                    \
         return false;                                                              \
     }                                                                              \
@@ -397,7 +401,7 @@
     bool PFX##_pop_if(SNAME *_list_, size_t index, bool condition)                 \
     {                                                                              \
         if (condition)                                                             \
-            return PFX##_pop(_list_, index);                                       \
+            return PFX##_pop_at(_list_, index);                                    \
                                                                                    \
         return false;                                                              \
     }                                                                              \

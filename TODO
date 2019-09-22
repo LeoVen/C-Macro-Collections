@@ -5,12 +5,12 @@ TODO
 [~] - Needs to be reviewed
 
 [ ] Future possible Collections
-    [ ] Add TreeHashMap
     [ ] Add SortedList
     [ ] Add BiDiMap
     [ ] Add Trie (or any variant)
 
 [/] Documentation
+[/] Tests
 [X] Remove PUBLIC and PRIVATE
 [X] Extra Collections
     [X] Add MultiSet
@@ -57,9 +57,14 @@ TODO
     [ ] Stack
     [ ] TreeMap
     [ ] TreeSet
-[~] Utility
-    [~] assert.h
+[X] Utility
+    [X] assert.h
     [X] foreach.h
-    [~] log.h
-    [~] test.h
+    [X] log.h
+    [X] test.h
     [X] timer.h
+
+[ ] Optimizations
+    [ ] Hashtable insertion can avoid a call to impl_get_entry to check if a key already exists
+    [ ] Use binary search to find optimum hashtable prime size inside impl_calculate_size
+

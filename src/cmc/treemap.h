@@ -19,11 +19,15 @@
 #ifndef CMC_TREEMAP_H
 #define CMC_TREEMAP_H
 
+#include <inttypes.h>
 #include <stdbool.h>
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
 #include "../utl/cmc_string.h"
+
+/* to_string format */
+static const char *cmc_string_fmt_treemap = "%s at %p { root:%p, count:%" PRIuMAX ", cmp:%p }";
 
 #define CMC_GENERATE_TREEMAP(PFX, SNAME, K, V)    \
     CMC_GENERATE_TREEMAP_HEADER(PFX, SNAME, K, V) \
