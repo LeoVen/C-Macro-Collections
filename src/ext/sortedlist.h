@@ -1,5 +1,5 @@
 /**
- * list.h
+ * sortedlist.h
  *
  * Creation Date: 17/09/2019
  *
@@ -10,6 +10,14 @@
 
 /**
  * THIS IS ONLY A PREVIEW
+ *
+ * SortedList
+ *
+ * A sorted list is a dynamic array, meaning that you can store as many elements
+ * as you like and when its capacity is full, the buffer is reallocated. The
+ * elements are only sorted when a certain action requires that the array is
+ * sorted like accessing min() or max(). This prevents the array from being
+ * sorted after every insertion or removal of elements.
  */
 
 #ifndef CMC_SORTEDLIST_H
@@ -89,9 +97,6 @@ static const char *cmc_string_fmt_sortedlist = "%s at %p { buffer:%p, capacity:%
     /* Collection Input and Output */                                    \
     bool PFX##_insert(SNAME *_list_, V element);                         \
     bool PFX##_remove(SNAME *_list_, size_t index);                      \
-    /* Conditional Input and Output */                                   \
-    bool PFX##_insert_if(SNAME *_list_, V element, bool condition);      \
-    bool PFX##_remove_if(SNAME *_list_, size_t index, bool condition);   \
     /* Element Access */                                                 \
     bool PFX##_max(SNAME *_list_, V *result);                            \
     bool PFX##_min(SNAME *_list_, V *result);                            \
@@ -227,6 +232,11 @@ static const char *cmc_string_fmt_sortedlist = "%s at %p { buffer:%p, capacity:%
     {                                                                                     \
         if (index >= PFX##_count(_list_))                                                 \
             return false;                                                                 \
+        \
+        if (index == 0)\
+        {\
+            \
+        }\
                                                                                           \
         return false;                                                                     \
     }                                                                                     \
@@ -257,8 +267,10 @@ static const char *cmc_string_fmt_sortedlist = "%s at %p { buffer:%p, capacity:%
                                                                                           \
     V PFX##_get(SNAME *_list_, size_t index)                                              \
     {                                                                                     \
-        if (index >= _list_->count || PFX##_empty(_list_))                                \
+        if (index >= _list_->count)                                                       \
             return PFX##_impl_default_value();                                            \
+                                                                                          \
+        PFX##_sort(_list_);                                                               \
                                                                                           \
         return _list_->buffer[index];                                                     \
     }                                                                                     \
@@ -271,6 +283,14 @@ static const char *cmc_string_fmt_sortedlist = "%s at %p { buffer:%p, capacity:%
         PFX##_sort(_list_);                                                               \
                                                                                           \
         /* TODO Do a binary search */                                                     \
+        if (from_start)                                                                   \
+        {                                                                                 \
+            /* Do a binary_search_first */                                                \
+        }                                                                                 \
+        else                                                                              \
+        {                                                                                 \
+            /* Do a binary_search_last */                                                 \
+        }                                                                                 \
                                                                                           \
         /* Not found */                                                                   \
         return _list_->count;                                                             \
@@ -601,6 +621,7 @@ static const char *cmc_string_fmt_sortedlist = "%s at %p { buffer:%p, capacity:%
                 array[pindex] = array[high];                                              \
                 array[high] = _tmp_;                                                      \
                                                                                           \
+                /* Tail recursion */                                                      \
                 if (pindex - low < high - pindex)                                         \
                 {                                                                         \
                     PFX##_impl_sort_quicksort(array, cmp, low, pindex - 1);               \
