@@ -167,18 +167,18 @@ static bool cmc_assert_state = true;
  * comparator : A function that has two 'dtype' arguments and returns -1 if the
  *              first is less then the second, 0 if both are equal or 1 if the
  *              first is greater then the second.
- * from       : First index to compare (inclusive)
- * to         : Last index to compare (inclusive)
+ * from_index : First index from the array to compare (inclusive)
+ * to_index   : Last index from the array to compare (inclusive)
  *
  * This macro can be used for any data type.
  */
-#define cmc_assert_sorted(dtype, array, comparator, from, to)                                                                         \
+#define cmc_assert_sorted(dtype, array, comparator, from_index, to_index)                                                             \
     do                                                                                                                                \
     {                                                                                                                                 \
         const char *str = #array;                                                                                                     \
         dtype *arr__ = array;                                                                                                         \
-        size_t from__ = from;                                                                                                         \
-        size_t to__ = to;                                                                                                             \
+        size_t from__ = from_index;                                                                                                   \
+        size_t to__ = to_index;                                                                                                       \
         int (*cmp__)(dtype, dtype) = comparator;                                                                                      \
                                                                                                                                       \
         size_t iprev__ = from__;                                                                                                      \
