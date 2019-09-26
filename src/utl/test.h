@@ -59,14 +59,14 @@
 static const char *cmc_test_color[] = {"\x1b[32m", "\x1b[31m", "\x1b[35m"};
 #endif
 
-typedef struct cmc_test_info_s
+struct cmc_test_info
 {
     uintmax_t total;
     uintmax_t passed;
     uintmax_t failed;
     bool aborted;
     bool verbose;
-} cmc_test_info;
+};
 
 /* Logging function */
 static void cmc_test_log(const char *unit_name, const char *current_test, bool aborted, bool passed)
@@ -102,7 +102,7 @@ static void cmc_test_log(const char *unit_name, const char *current_test, bool a
         const char *unit_name = #UNAME;                                                     \
         const char *current_test = NULL;                                                    \
                                                                                             \
-        cmc_test_info tinfo = {0};                                                          \
+        struct cmc_test_info tinfo = {0};                                                   \
         cmc_timer timer = {0};                                                              \
                                                                                             \
         tinfo.verbose = VERBOSE;                                                            \
@@ -133,29 +133,32 @@ static void cmc_test_log(const char *unit_name, const char *current_test, bool a
         return tinfo.failed;                                                                \
     }
 
-#define CMC_CREATE_TEST(TNAME, BODY)                             \
-    do                                                           \
-    {                                                            \
-        current_test = #TNAME;                                   \
-                                                                 \
-        tinfo.total += 1;                                        \
-                                                                 \
-        /* Provided by assert.h */                               \
-        cmc_assert_state = true;                                 \
-                                                                 \
-        BODY;                                                    \
-                                                                 \
-        if (!cmc_assert_state)                                   \
-        {                                                        \
-            tinfo.failed += 1;                                   \
-            cmc_test_log(unit_name, current_test, false, false); \
-        }                                                        \
-        else                                                     \
-        {                                                        \
-            tinfo.passed += 1;                                   \
-            cmc_test_log(unit_name, current_test, false, true);  \
-        }                                                        \
-                                                                 \
+#define CMC_CREATE_TEST(TNAME, BODY)                                 \
+    do                                                               \
+    {                                                                \
+        current_test = #TNAME;                                       \
+                                                                     \
+        tinfo.total += 1;                                            \
+                                                                     \
+        /* Provided by assert.h */                                   \
+        cmc_assert_state = true;                                     \
+                                                                     \
+        BODY;                                                        \
+                                                                     \
+        if (tinfo.verbose)                                           \
+        {                                                            \
+            if (!cmc_assert_state)                                   \
+            {                                                        \
+                tinfo.failed += 1;                                   \
+                cmc_test_log(unit_name, current_test, false, false); \
+            }                                                        \
+            else                                                     \
+            {                                                        \
+                tinfo.passed += 1;                                   \
+                cmc_test_log(unit_name, current_test, false, true);  \
+            }                                                        \
+        }                                                            \
+                                                                     \
     } while (0)
 
 #define CMC_TEST_ABORT()      \

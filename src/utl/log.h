@@ -83,7 +83,7 @@ static struct
 
 } cmc_log_config = {0, 0, true, true, NULL, true};
 
-typedef enum cmc_log_type_e
+enum cmc_log_type
 {
     CMC_LOG_TRACE = 1,
     CMC_LOG_DEBUG = 2,
@@ -92,7 +92,7 @@ typedef enum cmc_log_type_e
     CMC_LOG_ERROR = 5,
     CMC_LOG_FATAL = 6
 
-} cmc_log_type;
+};
 
 #define cmc_log_trace(fmt, ...) cmc_log(CMC_LOG_TRACE, __FILE__, __func__, __LINE__, fmt, __VA_ARGS__)
 #define cmc_log_debug(fmt, ...) cmc_log(CMC_LOG_DEBUG, __FILE__, __func__, __LINE__, fmt, __VA_ARGS__)
@@ -101,7 +101,7 @@ typedef enum cmc_log_type_e
 #define cmc_log_error(fmt, ...) cmc_log(CMC_LOG_ERROR, __FILE__, __func__, __LINE__, fmt, __VA_ARGS__)
 #define cmc_log_fatal(fmt, ...) cmc_log(CMC_LOG_FATAL, __FILE__, __func__, __LINE__, fmt, __VA_ARGS__)
 
-static void cmc_log(cmc_log_type log, const char *filename, const char *funcname, int line, const char *fmt, ...)
+static void cmc_log(enum cmc_log_type log, const char *filename, const char *funcname, int line, const char *fmt, ...)
 {
     if (!cmc_log_config.enabled)
         return;
