@@ -108,12 +108,12 @@ static void cmc_test_log(const char *unit_name, const char *current_test, bool a
         tinfo.verbose = VERBOSE;                                                            \
                                                                                             \
         /* Tests */                                                                         \
-        timer_start(timer);                                                                 \
+        cmc_timer_start(timer);                                                             \
                                                                                             \
         BODY;                                                                               \
                                                                                             \
-        timer_stop(timer);                                                                  \
-        timer_calc(timer);                                                                  \
+        cmc_timer_stop(timer);                                                              \
+        cmc_timer_calc(timer);                                                              \
                                                                                             \
     unittest_abort:                                                                         \
         if (tinfo.aborted)                                                                  \

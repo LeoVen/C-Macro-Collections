@@ -22,7 +22,7 @@ typedef struct cmc_timer_s
     double result;
 } cmc_timer;
 
-#define timer_start(timer)       \
+#define cmc_timer_start(timer)   \
     do                           \
     {                            \
         cmc_timer *t = &(timer); \
@@ -30,15 +30,15 @@ typedef struct cmc_timer_s
                                  \
     } while (0)
 
-#define timer_stop(timer)       \
-    do                          \
-    {                           \
-        cmc_timer *t = &(timer);\
-        t->stop = clock();      \
-                                \
+#define cmc_timer_stop(timer)    \
+    do                           \
+    {                            \
+        cmc_timer *t = &(timer); \
+        t->stop = clock();       \
+                                 \
     } while (0)
 
-#define timer_calc(timer)                                                   \
+#define cmc_timer_calc(timer)                                               \
     do                                                                      \
     {                                                                       \
         cmc_timer *t = &(timer);                                            \
