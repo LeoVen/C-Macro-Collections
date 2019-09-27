@@ -171,6 +171,9 @@ static const char *cmc_string_fmt_intervalheap = "%s at %p { buffer:%p, capacity
                                                                                                   \
     SNAME *PFX##_new(size_t capacity, int (*compare)(V, V))                                       \
     {                                                                                             \
+        if (capacity == 0 || capacity == UINT64_MAX)                                              \
+            return NULL;                                                                          \
+                                                                                                  \
         SNAME *_heap_ = malloc(sizeof(SNAME));                                                    \
                                                                                                   \
         if (!_heap_)                                                                              \
