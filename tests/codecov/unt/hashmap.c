@@ -1,13 +1,10 @@
+#include "utl/assert.h"
+#include "utl/test.h"
+#include "../src/hashmap.c"
+
 #include "utl.c"
-#include <utl/assert.h>
-#include <utl/log.h>
-#include <utl/test.h>
 
-#include <cmc/hashmap.h>
-
-CMC_GENERATE_HASHMAP(hm, hashmap, size_t, size_t)
-
-CMC_CREATE_UNIT(hashmap_test, true, {
+CMC_CREATE_UNIT(hashmap_test, false, {
     CMC_CREATE_TEST(new, {
         hashmap *map = hm_new(943722, 0.6, cmp, hash);
 
@@ -16,7 +13,7 @@ CMC_CREATE_UNIT(hashmap_test, true, {
         cmc_assert_equals(size_t, 0, hm_count(map));
         cmc_assert_greater_equals(size_t, (943722 / 0.6), hm_capacity(map));
 
-        hm_free(map, NULL);
+        hm_free(map);
     });
 
     CMC_CREATE_TEST(new[edge_case:capacity = 0], {
@@ -41,11 +38,11 @@ CMC_CREATE_UNIT(hashmap_test, true, {
 
         cmc_assert_equals(size_t, 50, hm_count(map));
 
-        hm_clear(map, NULL);
+        hm_clear(map);
 
         cmc_assert_equals(size_t, 0, hm_count(map));
 
-        hm_free(map, NULL);
+        hm_free(map);
     });
 
 });

@@ -1,13 +1,10 @@
+#include "utl/assert.h"
+#include "utl/test.h"
+#include "../src/multiset.c"
+
 #include "utl.c"
-#include <utl/assert.h>
-#include <utl/log.h>
-#include <utl/test.h>
 
-#include <ext/multiset.h>
-
-CMC_GENERATE_MULTISET(ms, multiset, size_t)
-
-CMC_CREATE_UNIT(multiset_test, true, {
+CMC_CREATE_UNIT(multiset_test, false, {
     CMC_CREATE_TEST(new, {
         multiset *set = ms_new(943722, 0.6, cmp, hash);
 
@@ -16,7 +13,7 @@ CMC_CREATE_UNIT(multiset_test, true, {
         cmc_assert_equals(size_t, 0, ms_count(set));
         cmc_assert_greater_equals(size_t, ((size_t)(943722 / 0.6)), ms_capacity(set));
 
-        ms_free(set, NULL);
+        ms_free(set);
     });
 
     CMC_CREATE_TEST(new[edge_case:capacity = 0], {
@@ -41,11 +38,11 @@ CMC_CREATE_UNIT(multiset_test, true, {
 
         cmc_assert_equals(size_t, 50, ms_count(set));
 
-        ms_clear(set, NULL);
+        ms_clear(set);
 
         cmc_assert_equals(size_t, 0, ms_count(set));
 
-        ms_free(set, NULL);
+        ms_free(set);
     });
 
     CMC_CREATE_TEST(insert[count cardinality multiplicity], {
@@ -66,7 +63,7 @@ CMC_CREATE_UNIT(multiset_test, true, {
         for (size_t i = 0; i <= 3; i++)
             cmc_assert_equals(size_t, i, ms_multiplicity_of(set, i));
 
-        ms_free(set, NULL);
+        ms_free(set);
     });
 
     CMC_CREATE_TEST(multiplicity, {
@@ -83,7 +80,7 @@ CMC_CREATE_UNIT(multiset_test, true, {
         for (size_t i = 0; i < 20; i++)
             cmc_assert_equals(size_t, 5, ms_multiplicity_of(set, i));
 
-        ms_free(set, NULL);
+        ms_free(set);
     });
 
 });

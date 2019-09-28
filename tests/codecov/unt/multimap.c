@@ -1,13 +1,10 @@
+#include "utl/assert.h"
+#include "utl/test.h"
+#include "../src/multimap.c"
+
 #include "utl.c"
-#include <utl/assert.h>
-#include <utl/log.h>
-#include <utl/test.h>
 
-#include <ext/multimap.h>
-
-CMC_GENERATE_MULTIMAP(mm, multimap, size_t, size_t)
-
-CMC_CREATE_UNIT(multimap_test, true, {
+CMC_CREATE_UNIT(multimap_test, false, {
     CMC_CREATE_TEST(new, {
         multimap *map = mm_new(943722, 0.8, cmp, hash);
 
@@ -16,7 +13,7 @@ CMC_CREATE_UNIT(multimap_test, true, {
         cmc_assert_equals(size_t, 0, mm_count(map));
         cmc_assert_greater_equals(size_t, (943722 / 0.8), mm_capacity(map));
 
-        mm_free(map, NULL);
+        mm_free(map);
     });
 
     CMC_CREATE_TEST(new[edge_case:capacity = 0], {
@@ -41,11 +38,11 @@ CMC_CREATE_UNIT(multimap_test, true, {
 
         cmc_assert_equals(size_t, 50, mm_count(map));
 
-        mm_clear(map, NULL);
+        mm_clear(map);
 
         cmc_assert_equals(size_t, 0, mm_count(map));
 
-        mm_free(map, NULL);
+        mm_free(map);
     });
 
     CMC_CREATE_TEST(insert[count], {
@@ -58,7 +55,7 @@ CMC_CREATE_UNIT(multimap_test, true, {
 
         cmc_assert_equals(size_t, 200, mm_count(map));
 
-        mm_free(map, NULL);
+        mm_free(map);
     });
 
     CMC_CREATE_TEST(remove[count], {
@@ -76,7 +73,7 @@ CMC_CREATE_UNIT(multimap_test, true, {
 
         cmc_assert_equals(size_t, 140, mm_count(map));
 
-        mm_free(map, NULL);
+        mm_free(map);
     });
 
     CMC_CREATE_TEST(remove[edge_case:count = 0], {
@@ -88,7 +85,7 @@ CMC_CREATE_UNIT(multimap_test, true, {
 
         cmc_assert(!mm_remove(map, 10, &r));
 
-        mm_free(map, NULL);
+        mm_free(map);
     });
 
     CMC_CREATE_TEST(remove[edge_case:count = 1], {
@@ -101,7 +98,38 @@ CMC_CREATE_UNIT(multimap_test, true, {
         cmc_assert(mm_insert(map, 10, 11));
         cmc_assert(mm_remove(map, 10, &r));
 
-        mm_free(map, NULL);
+        mm_free(map);
+    });
+
+    CMC_CREATE_TEST(insert_if, {
+        multimap *map = mm_new(100, 0.8, cmp, hash);
+
+        cmc_assert_not_equals(ptr, NULL, map);
+
+        for (size_t i = 1; i <= 100; i++)
+            cmc_assert(mm_insert_if(map, i % 20, i, i % 2 == 0) || i % 2 != 0);
+
+        cmc_assert_equals(size_t, 50, mm_count(map));
+
+        mm_free(map);
+    });
+
+    CMC_CREATE_TEST(remove_if, {
+        multimap *map = mm_new(100, 0.8, cmp, hash);
+
+        cmc_assert_not_equals(ptr, NULL, map);
+
+        for (size_t i = 1; i <= 100; i++)
+            cmc_assert(mm_insert(map, i % 20, i));
+
+        size_t r;
+
+        for (size_t i = 1; i <= 100; i++)
+            cmc_assert(mm_remove_if(map, i % 20, &r, i % 2 == 0) || i % 2 != 0);
+
+        cmc_assert_equals(size_t, 50, mm_count(map));
+
+        mm_free(map);
     });
 
     CMC_CREATE_TEST(get[key_ordering], {
@@ -117,7 +145,7 @@ CMC_CREATE_UNIT(multimap_test, true, {
 
         cmc_assert_equals(size_t, 100, mm_get(map, 10));
 
-        mm_free(map, NULL);
+        mm_free(map);
     });
 
 });

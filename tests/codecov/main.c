@@ -1,5 +1,3 @@
-#include <utl/timer.h>
-
 #include "unt/deque.c"
 #include "unt/hashmap.c"
 #include "unt/hashset.c"
@@ -11,15 +9,11 @@
 #include "unt/treemap.c"
 #include "unt/treeset.c"
 
-#include "unt/intervalheap.c"
 #include "unt/multimap.c"
 #include "unt/multiset.c"
 
 int main(void)
 {
-    cmc_timer timer;
-
-    cmc_timer_start(timer);
     uintmax_t failed = 0;
 
     failed += deque_test();
@@ -34,16 +28,8 @@ int main(void)
     failed += treeset_test();
 
     /* ext */
-    failed += intervalheap_test();
     failed += multimap_test();
     failed += multiset_test();
-
-    cmc_timer_stop(timer);
-    cmc_timer_calc(timer);
-
-    printf("+--------------------------------------------------+\n");
-    printf("| Total running time : %14.0lf milliseconds |\n", timer.result);
-    printf("+--------------------------------------------------+\n");
 
     return failed;
 }

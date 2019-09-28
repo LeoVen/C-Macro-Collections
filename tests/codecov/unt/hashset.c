@@ -1,13 +1,10 @@
+#include "utl/assert.h"
+#include "utl/test.h"
+#include "../src/hashset.c"
+
 #include "utl.c"
-#include <utl/assert.h>
-#include <utl/log.h>
-#include <utl/test.h>
 
-#include <cmc/hashset.h>
-
-CMC_GENERATE_HASHSET(hs, hashset, size_t)
-
-CMC_CREATE_UNIT(hashset_test, true, {
+CMC_CREATE_UNIT(hashset_test, false, {
     CMC_CREATE_TEST(new, {
         hashset *set = hs_new(943722, 0.6, cmp, hash);
 
@@ -16,7 +13,7 @@ CMC_CREATE_UNIT(hashset_test, true, {
         cmc_assert_equals(size_t, 0, hs_count(set));
         cmc_assert_greater_equals(size_t, (943722 / 0.6), hs_capacity(set));
 
-        hs_free(set, NULL);
+        hs_free(set);
     });
 
     CMC_CREATE_TEST(new[edge_case:capacity = 0], {
@@ -41,11 +38,11 @@ CMC_CREATE_UNIT(hashset_test, true, {
 
         cmc_assert_equals(size_t, 50, hs_count(set));
 
-        hs_clear(set, NULL);
+        hs_clear(set);
 
         cmc_assert_equals(size_t, 0, hs_count(set));
 
-        hs_free(set, NULL);
+        hs_free(set);
     });
 
 });

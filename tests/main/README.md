@@ -1,7 +1,5 @@
 # main
 
-Tests for the main C Macro Collections library. In order to provide a good code coverage, all macros have been expanded and added to `src/*.c`.
+This folder hosts the main tests for the C Macro Collections Library. While this library is under development with breaking changes the old unit tests were moved to codecov to keep track of code coverage without breaking the test.
 
-* `src` - Since gcov fails to detect code that was expanded by macro, all collections where manually expanded and dumped into their respective source files;
-* `unt` - Unit Tests;
-* `main.c` - Where all tests are compiled together and called by main().
+This new folder however will contain up-to-date changes and tests in order to have any modifications done to the library tracked and where they were broken.

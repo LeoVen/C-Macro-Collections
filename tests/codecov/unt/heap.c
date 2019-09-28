@@ -1,13 +1,10 @@
+#include "utl/assert.h"
+#include "utl/test.h"
+#include "../src/heap.c"
+
 #include "utl.c"
-#include <utl/assert.h>
-#include <utl/log.h>
-#include <utl/test.h>
 
-#include <cmc/heap.h>
-
-CMC_GENERATE_HEAP(h, heap, size_t)
-
-CMC_CREATE_UNIT(heap_test, true, {
+CMC_CREATE_UNIT(heap_test, false, {
     CMC_CREATE_TEST(new, {
         heap *h = h_new(1000000, cmc_max_heap, cmp);
 
@@ -16,7 +13,7 @@ CMC_CREATE_UNIT(heap_test, true, {
         cmc_assert_equals(size_t, 1000000, h_capacity(h));
         cmc_assert_equals(size_t, 0, h_count(h));
 
-        h_free(h, NULL);
+        h_free(h);
     });
 
     CMC_CREATE_TEST(new[edge_case:capacity = 0], {
@@ -41,12 +38,12 @@ CMC_CREATE_UNIT(heap_test, true, {
 
         cmc_assert_equals(size_t, 50, h_count(h));
 
-        h_clear(h, NULL);
+        h_clear(h);
 
         cmc_assert_equals(size_t, 0, h_count(h));
         cmc_assert_equals(size_t, 100, h_capacity(h));
 
-        h_free(h, NULL);
+        h_free(h);
     });
 
     CMC_CREATE_TEST(buffer_growth[edge_case:capacity = 1], {
@@ -59,7 +56,7 @@ CMC_CREATE_UNIT(heap_test, true, {
 
         cmc_assert_equals(size_t, 50, h_count(h));
 
-        h_free(h, NULL);
+        h_free(h);
     });
 
 });
