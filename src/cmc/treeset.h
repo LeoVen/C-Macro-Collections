@@ -116,9 +116,6 @@ static const char *cmc_string_fmt_treeset = "%s at %p { root:%p, count:%" PRIuMA
     /* Collection Input and Output */                                       \
     bool PFX##_insert(SNAME *_set_, V element);                             \
     bool PFX##_remove(SNAME *_set_, V element);                             \
-    /* Conditional Input and Output */                                      \
-    bool PFX##_insert_if(SNAME *_set_, V element, bool condition);          \
-    bool PFX##_remove_if(SNAME *_set_, V element, bool condition);          \
     /* Element Access */                                                    \
     bool PFX##_max(SNAME *_set_, V *value);                                 \
     bool PFX##_min(SNAME *_set_, V *value);                                 \
@@ -448,22 +445,6 @@ static const char *cmc_string_fmt_treeset = "%s at %p { root:%p, count:%" PRIuMA
             _set_->root = NULL;                                                              \
                                                                                              \
         return true;                                                                         \
-    }                                                                                        \
-                                                                                             \
-    bool PFX##_insert_if(SNAME *_set_, V element, bool condition)                            \
-    {                                                                                        \
-        if (condition)                                                                       \
-            return PFX##_insert(_set_, element);                                             \
-                                                                                             \
-        return false;                                                                        \
-    }                                                                                        \
-                                                                                             \
-    bool PFX##_remove_if(SNAME *_set_, V element, bool condition)                            \
-    {                                                                                        \
-        if (condition)                                                                       \
-            return PFX##_remove(_set_, element);                                             \
-                                                                                             \
-        return false;                                                                        \
     }                                                                                        \
                                                                                              \
     bool PFX##_max(SNAME *_set_, V *value)                                                   \

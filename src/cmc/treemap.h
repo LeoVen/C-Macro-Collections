@@ -120,9 +120,6 @@ static const char *cmc_string_fmt_treemap = "%s at %p { root:%p, count:%" PRIuMA
     bool PFX##_insert(SNAME *_map_, K key, V value);                                    \
     bool PFX##_update(SNAME *_map_, K key, V new_value, V *old_value);                  \
     bool PFX##_remove(SNAME *_map_, K key, V *out_value);                               \
-    /* Conditional Input and Output */                                                  \
-    bool PFX##_insert_if(SNAME *_map_, K key, V value, bool condition);                 \
-    bool PFX##_remove_if(SNAME *_map_, K key, V *out_value, bool condition);            \
     /* Element Access */                                                                \
     bool PFX##_max(SNAME *_map_, K *key, V *value);                                     \
     bool PFX##_min(SNAME *_map_, K *key, V *value);                                     \
@@ -475,22 +472,6 @@ static const char *cmc_string_fmt_treemap = "%s at %p { root:%p, count:%" PRIuMA
             _map_->root = NULL;                                                              \
                                                                                              \
         return true;                                                                         \
-    }                                                                                        \
-                                                                                             \
-    bool PFX##_insert_if(SNAME *_map_, K key, V value, bool condition)                       \
-    {                                                                                        \
-        if (condition)                                                                       \
-            return PFX##_insert(_map_, key, value);                                          \
-                                                                                             \
-        return false;                                                                        \
-    }                                                                                        \
-                                                                                             \
-    bool PFX##_remove_if(SNAME *_map_, K key, V *out_value, bool condition)                  \
-    {                                                                                        \
-        if (condition)                                                                       \
-            return PFX##_remove(_map_, key, out_value);                                      \
-                                                                                             \
-        return false;                                                                        \
     }                                                                                        \
                                                                                              \
     bool PFX##_max(SNAME *_map_, K *key, V *value)                                           \

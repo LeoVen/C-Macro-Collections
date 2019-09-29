@@ -105,10 +105,6 @@ static const char *cmc_string_fmt_intervalheap = "%s at %p { buffer:%p, capacity
     bool PFX##_insert(SNAME *_heap_, V element);                         \
     bool PFX##_remove_max(SNAME *_heap_, V *result);                     \
     bool PFX##_remove_min(SNAME *_heap_, V *result);                     \
-    /* Conditional Input and Output */                                   \
-    bool PFX##_insert_if(SNAME *_heap_, V element, bool condition);      \
-    bool PFX##_remove_max_if(SNAME *_heap_, V *result, bool condition);  \
-    bool PFX##_remove_min_if(SNAME *_heap_, V *result, bool condition);  \
     /* Collection Update */                                              \
     bool PFX##_update_max(SNAME *_heap_, V element);                     \
     bool PFX##_update_min(SNAME *_heap_, V element);                     \
@@ -372,30 +368,6 @@ static const char *cmc_string_fmt_intervalheap = "%s at %p { buffer:%p, capacity
         PFX##_impl_float_down_min(_heap_);                                                        \
                                                                                                   \
         return true;                                                                              \
-    }                                                                                             \
-                                                                                                  \
-    bool PFX##_insert_if(SNAME *_heap_, V element, bool condition)                                \
-    {                                                                                             \
-        if (condition)                                                                            \
-            return PFX##_insert(_heap_, element);                                                 \
-                                                                                                  \
-        return false;                                                                             \
-    }                                                                                             \
-                                                                                                  \
-    bool PFX##_remove_max_if(SNAME *_heap_, V *result, bool condition)                            \
-    {                                                                                             \
-        if (condition)                                                                            \
-            return PFX##_remove_max(_heap_, result);                                              \
-                                                                                                  \
-        return false;                                                                             \
-    }                                                                                             \
-                                                                                                  \
-    bool PFX##_remove_min_if(SNAME *_heap_, V *result, bool condition)                            \
-    {                                                                                             \
-        if (condition)                                                                            \
-            return PFX##_remove_min(_heap_, result);                                              \
-                                                                                                  \
-        return false;                                                                             \
     }                                                                                             \
                                                                                                   \
     bool PFX##_update_max(SNAME *_heap_, V element)                                               \

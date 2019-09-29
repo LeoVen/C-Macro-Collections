@@ -110,11 +110,6 @@ static const char *cmc_string_fmt_deque = "%s at %p { buffer:%p, capacity:%" PRI
     bool PFX##_push_back(SNAME *_deque_, V element);                              \
     bool PFX##_pop_front(SNAME *_deque_);                                         \
     bool PFX##_pop_back(SNAME *_deque_);                                          \
-    /* Conditional Input and Output */                                            \
-    bool PFX##_push_front_if(SNAME *_deque_, V element, bool condition);          \
-    bool PFX##_push_back_if(SNAME *_deque_, V element, bool condition);           \
-    bool PFX##_pop_front_if(SNAME *_deque_, bool condition);                      \
-    bool PFX##_pop_back_if(SNAME *_deque_, bool condition);                       \
     /* Element Access */                                                          \
     V PFX##_front(SNAME *_deque_);                                                \
     V PFX##_back(SNAME *_deque_);                                                 \
@@ -291,38 +286,6 @@ static const char *cmc_string_fmt_deque = "%s at %p { buffer:%p, capacity:%" PRI
         _deque_->count--;                                                                                    \
                                                                                                              \
         return true;                                                                                         \
-    }                                                                                                        \
-                                                                                                             \
-    bool PFX##_push_front_if(SNAME *_deque_, V element, bool condition)                                      \
-    {                                                                                                        \
-        if (condition)                                                                                       \
-            return PFX##_push_front(_deque_, element);                                                       \
-                                                                                                             \
-        return false;                                                                                        \
-    }                                                                                                        \
-                                                                                                             \
-    bool PFX##_push_back_if(SNAME *_deque_, V element, bool condition)                                       \
-    {                                                                                                        \
-        if (condition)                                                                                       \
-            return PFX##_push_back(_deque_, element);                                                        \
-                                                                                                             \
-        return false;                                                                                        \
-    }                                                                                                        \
-                                                                                                             \
-    bool PFX##_pop_front_if(SNAME *_deque_, bool condition)                                                  \
-    {                                                                                                        \
-        if (condition)                                                                                       \
-            return PFX##_pop_front(_deque_);                                                                 \
-                                                                                                             \
-        return false;                                                                                        \
-    }                                                                                                        \
-                                                                                                             \
-    bool PFX##_pop_back_if(SNAME *_deque_, bool condition)                                                   \
-    {                                                                                                        \
-        if (condition)                                                                                       \
-            return PFX##_pop_back(_deque_);                                                                  \
-                                                                                                             \
-        return false;                                                                                        \
     }                                                                                                        \
                                                                                                              \
     V PFX##_front(SNAME *_deque_)                                                                            \

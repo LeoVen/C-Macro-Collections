@@ -117,9 +117,6 @@ static const char *cmc_string_fmt_linkedlist = "%s at %p { count:%" PRIuMAX ", h
     bool PFX##_pop_front(SNAME *_list_);                                        \
     bool PFX##_pop_at(SNAME *_list_, size_t index);                             \
     bool PFX##_pop_back(SNAME *_list_);                                         \
-    /* Conditional Input and Output */                                          \
-    bool PFX##_push_if(SNAME *_list_, V element, size_t index, bool condition); \
-    bool PFX##_pop_if(SNAME *_list_, size_t index, bool condition);             \
     /* Element Access */                                                        \
     V PFX##_front(SNAME *_list_);                                               \
     V PFX##_get(SNAME *_list_, size_t index);                                   \
@@ -388,22 +385,6 @@ static const char *cmc_string_fmt_linkedlist = "%s at %p { count:%" PRIuMAX ", h
         _list_->count--;                                                           \
                                                                                    \
         return true;                                                               \
-    }                                                                              \
-                                                                                   \
-    bool PFX##_push_if(SNAME *_list_, V element, size_t index, bool condition)     \
-    {                                                                              \
-        if (condition)                                                             \
-            return PFX##_push_at(_list_, element, index);                          \
-                                                                                   \
-        return false;                                                              \
-    }                                                                              \
-                                                                                   \
-    bool PFX##_pop_if(SNAME *_list_, size_t index, bool condition)                 \
-    {                                                                              \
-        if (condition)                                                             \
-            return PFX##_pop_at(_list_, index);                                    \
-                                                                                   \
-        return false;                                                              \
     }                                                                              \
                                                                                    \
     V PFX##_front(SNAME *_list_)                                                   \

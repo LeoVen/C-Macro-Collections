@@ -166,9 +166,6 @@ static const size_t cmc_hashtable_primes[] = {53, 97, 191, 383, 769, 1531,
     /* Collection Input and Output */                                                        \
     bool PFX##_insert(SNAME *_set_, V element);                                              \
     bool PFX##_remove(SNAME *_set_, V element);                                              \
-    /* Conditional Input and Output */                                                       \
-    bool PFX##_insert_if(SNAME *_set_, V element, bool condition);                           \
-    bool PFX##_remove_if(SNAME *_set_, V element, bool condition);                           \
     /* Element Access */                                                                     \
     bool PFX##_max(SNAME *_set_, V *value);                                                  \
     bool PFX##_min(SNAME *_set_, V *value);                                                  \
@@ -382,22 +379,6 @@ static const size_t cmc_hashtable_primes[] = {53, 97, 191, 383, 769, 1531,
         _set_->count--;                                                                        \
                                                                                                \
         return true;                                                                           \
-    }                                                                                          \
-                                                                                               \
-    bool PFX##_insert_if(SNAME *_set_, V element, bool condition)                              \
-    {                                                                                          \
-        if (condition)                                                                         \
-            return PFX##_insert(_set_, element);                                               \
-                                                                                               \
-        return false;                                                                          \
-    }                                                                                          \
-                                                                                               \
-    bool PFX##_remove_if(SNAME *_set_, V element, bool condition)                              \
-    {                                                                                          \
-        if (condition)                                                                         \
-            return PFX##_remove(_set_, element);                                               \
-                                                                                               \
-        return false;                                                                          \
     }                                                                                          \
                                                                                                \
     bool PFX##_max(SNAME *_set_, V *value)                                                     \

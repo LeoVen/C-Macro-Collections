@@ -188,9 +188,6 @@ static const size_t cmc_hashtable_primes[] = {53, 97, 191, 383, 769, 1531,
     size_t PFX##_update_all(SNAME *_map_, K key, V new_value, V **old_values);               \
     bool PFX##_remove(SNAME *_map_, K key, V *out_value);                                    \
     size_t PFX##_remove_all(SNAME *_map_, K key, V **out_values);                            \
-    /* Conditional Input and Output */                                                       \
-    bool PFX##_insert_if(SNAME *_map_, K key, V value, bool condition);                      \
-    bool PFX##_remove_if(SNAME *_map_, K key, V *out_value, bool condition);                 \
     /* Element Access */                                                                     \
     bool PFX##_max(SNAME *_map_, K *key, V *value);                                          \
     bool PFX##_min(SNAME *_map_, K *key, V *value);                                          \
@@ -585,22 +582,6 @@ static const size_t cmc_hashtable_primes[] = {53, 97, 191, 383, 769, 1531,
         _map_->count -= index;                                                                \
                                                                                               \
         return index;                                                                         \
-    }                                                                                         \
-                                                                                              \
-    bool PFX##_insert_if(SNAME *_map_, K key, V value, bool condition)                        \
-    {                                                                                         \
-        if (condition)                                                                        \
-            return PFX##_insert(_map_, key, value);                                           \
-                                                                                              \
-        return false;                                                                         \
-    }                                                                                         \
-                                                                                              \
-    bool PFX##_remove_if(SNAME *_map_, K key, V *out_value, bool condition)                   \
-    {                                                                                         \
-        if (condition)                                                                        \
-            return PFX##_remove(_map_, key, out_value);                                       \
-                                                                                              \
-        return false;                                                                         \
     }                                                                                         \
                                                                                               \
     bool PFX##_max(SNAME *_map_, K *key, V *value)                                            \

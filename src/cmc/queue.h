@@ -120,9 +120,6 @@ static const char *cmc_string_fmt_queue = "%s at %p { buffer:%p, capacity:%" PRI
     /* Collection Input and Output */                                             \
     bool PFX##_enqueue(SNAME *_queue_, V element);                                \
     bool PFX##_dequeue(SNAME *_queue_);                                           \
-    /* Conditional Input and Output */                                            \
-    bool PFX##_enqueue_if(SNAME *_queue_, V element, bool condition);             \
-    bool PFX##_dequeue_if(SNAME *_queue_, bool condition);                        \
     /* Element Access */                                                          \
     V PFX##_peek(SNAME *_queue_);                                                 \
     /* Collection State */                                                        \
@@ -265,22 +262,6 @@ static const char *cmc_string_fmt_queue = "%s at %p { buffer:%p, capacity:%" PRI
         _queue_->count--;                                                                                    \
                                                                                                              \
         return true;                                                                                         \
-    }                                                                                                        \
-                                                                                                             \
-    bool PFX##_enqueue_if(SNAME *_queue_, V element, bool condition)                                         \
-    {                                                                                                        \
-        if (condition)                                                                                       \
-            return PFX##_enqueue(_queue_, element);                                                          \
-                                                                                                             \
-        return false;                                                                                        \
-    }                                                                                                        \
-                                                                                                             \
-    bool PFX##_dequeue_if(SNAME *_queue_, bool condition)                                                    \
-    {                                                                                                        \
-        if (condition)                                                                                       \
-            return PFX##_dequeue(_queue_);                                                                   \
-                                                                                                             \
-        return false;                                                                                        \
     }                                                                                                        \
                                                                                                              \
     V PFX##_peek(SNAME *_queue_)                                                                             \

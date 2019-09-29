@@ -96,9 +96,6 @@ static const char *cmc_string_fmt_stack = "%s at %p { buffer:%p, capacity:%" PRI
     /* Collection Input and Output */                                             \
     bool PFX##_push(SNAME *_stack_, V element);                                   \
     bool PFX##_pop(SNAME *_stack_);                                               \
-    /* Conditional Input and Output */                                            \
-    bool PFX##_push_if(SNAME *_stack_, V element, bool condition);                \
-    bool PFX##_pop_if(SNAME *_stack_, bool condition);                            \
     /* Element Access */                                                          \
     V PFX##_top(SNAME *_stack_);                                                  \
     /* Collection State */                                                        \
@@ -145,398 +142,382 @@ static const char *cmc_string_fmt_stack = "%s at %p { buffer:%p, capacity:%" PRI
     }                                                                             \
                                                                                   \
 /* SOURCE ********************************************************************/
-#define CMC_GENERATE_STACK_SOURCE(PFX, SNAME, V)                                   \
-                                                                                   \
-    /* Implementation Detail Functions */                                          \
-    static bool PFX##_impl_grow(SNAME *_stack_);                                   \
-    static SNAME##_iter PFX##_impl_it_start(SNAME *_stack_);                       \
-    static SNAME##_iter PFX##_impl_it_end(SNAME *_stack_);                         \
-                                                                                   \
-    SNAME *PFX##_new(size_t capacity)                                              \
-    {                                                                              \
-        if (capacity < 1)                                                          \
-            return NULL;                                                           \
-                                                                                   \
-        SNAME *_stack_ = malloc(sizeof(SNAME));                                    \
-                                                                                   \
-        if (!_stack_)                                                              \
-            return NULL;                                                           \
-                                                                                   \
-        _stack_->buffer = malloc(sizeof(V) * capacity);                            \
-                                                                                   \
-        if (!_stack_->buffer)                                                      \
-        {                                                                          \
-            free(_stack_);                                                         \
-            return NULL;                                                           \
-        }                                                                          \
-                                                                                   \
-        memset(_stack_->buffer, 0, sizeof(V) * capacity);                          \
-                                                                                   \
-        _stack_->capacity = capacity;                                              \
-        _stack_->count = 0;                                                        \
-                                                                                   \
-        _stack_->it_start = PFX##_impl_it_start;                                   \
-        _stack_->it_end = PFX##_impl_it_end;                                       \
-                                                                                   \
-        return _stack_;                                                            \
-    }                                                                              \
-                                                                                   \
-    void PFX##_clear(SNAME *_stack_, void (*deallocator)(V))                       \
-    {                                                                              \
-        if (deallocator)                                                           \
-        {                                                                          \
-            for (size_t i = 0; i < _stack_->count; i++)                            \
-                deallocator(_stack_->buffer[i]);                                   \
-        }                                                                          \
-                                                                                   \
-        memset(_stack_->buffer, 0, sizeof(V) * _stack_->capacity);                 \
-                                                                                   \
-        _stack_->count = 0;                                                        \
-    }                                                                              \
-                                                                                   \
-    void PFX##_free(SNAME *_stack_, void (*deallocator)(V))                        \
-    {                                                                              \
-        free(_stack_->buffer);                                                     \
-        if (deallocator)                                                           \
-        {                                                                          \
-            for (size_t i = 0; i < _stack_->count; i++)                            \
-                deallocator(_stack_->buffer[i]);                                   \
-        }                                                                          \
-                                                                                   \
-        free(_stack_);                                                             \
-    }                                                                              \
-                                                                                   \
-    bool PFX##_push(SNAME *_stack_, V element)                                     \
-    {                                                                              \
-        if (PFX##_full(_stack_))                                                   \
-        {                                                                          \
-            if (!PFX##_impl_grow(_stack_))                                         \
-                return false;                                                      \
-        }                                                                          \
-                                                                                   \
-        _stack_->buffer[_stack_->count++] = element;                               \
-                                                                                   \
-        return true;                                                               \
-    }                                                                              \
-                                                                                   \
-    bool PFX##_pop(SNAME *_stack_)                                                 \
-    {                                                                              \
-        if (PFX##_empty(_stack_))                                                  \
-            return false;                                                          \
-                                                                                   \
-        _stack_->buffer[--_stack_->count] = PFX##_impl_default_value();            \
-                                                                                   \
-        return true;                                                               \
-    }                                                                              \
-                                                                                   \
-    bool PFX##_push_if(SNAME *_stack_, V element, bool condition)                  \
-    {                                                                              \
-        if (condition)                                                             \
-            return PFX##_push(_stack_, element);                                   \
-                                                                                   \
-        return false;                                                              \
-    }                                                                              \
-                                                                                   \
-    bool PFX##_pop_if(SNAME *_stack_, bool condition)                              \
-    {                                                                              \
-        if (condition)                                                             \
-            return PFX##_pop(_stack_);                                             \
-                                                                                   \
-        return false;                                                              \
-    }                                                                              \
-                                                                                   \
-    V PFX##_top(SNAME *_stack_)                                                    \
-    {                                                                              \
-        if (PFX##_empty(_stack_))                                                  \
-            return PFX##_impl_default_value();                                     \
-                                                                                   \
-        return _stack_->buffer[_stack_->count - 1];                                \
-    }                                                                              \
-                                                                                   \
-    bool PFX##_contains(SNAME *_stack_, V element, int (*comparator)(V, V))        \
-    {                                                                              \
-        for (size_t i = 0; i < _stack_->count; i++)                                \
-        {                                                                          \
-            if (comparator(_stack_->buffer[i], element) == 0)                      \
-                return true;                                                       \
-        }                                                                          \
-                                                                                   \
-        return false;                                                              \
-    }                                                                              \
-                                                                                   \
-    bool PFX##_empty(SNAME *_stack_)                                               \
-    {                                                                              \
-        return _stack_->count == 0;                                                \
-    }                                                                              \
-                                                                                   \
-    bool PFX##_full(SNAME *_stack_)                                                \
-    {                                                                              \
-        return _stack_->count >= _stack_->capacity;                                \
-    }                                                                              \
-                                                                                   \
-    size_t PFX##_count(SNAME *_stack_)                                             \
-    {                                                                              \
-        return _stack_->count;                                                     \
-    }                                                                              \
-                                                                                   \
-    size_t PFX##_capacity(SNAME *_stack_)                                          \
-    {                                                                              \
-        return _stack_->capacity;                                                  \
-    }                                                                              \
-                                                                                   \
-    SNAME *PFX##_copy_of(SNAME *_stack_, V (*copy_func)(V))                        \
-    {                                                                              \
-        SNAME *result = PFX##_new(_stack_->capacity);                              \
-                                                                                   \
-        if (!result)                                                               \
-            return NULL;                                                           \
-                                                                                   \
-        if (copy_func)                                                             \
-        {                                                                          \
-            for (size_t i = 0; i < _stack_->count; i++)                            \
-                result->buffer[i] = copy_func(_stack_->buffer[i]);                 \
-        }                                                                          \
-        else                                                                       \
-            memcpy(result->buffer, _stack_->buffer, sizeof(V) * _stack_->count);   \
-                                                                                   \
-        result->count = _stack_->count;                                            \
-                                                                                   \
-        return result;                                                             \
-    }                                                                              \
-                                                                                   \
-    bool PFX##_equals(SNAME *_stack1_, SNAME *_stack2_, int (*comparator)(V, V))   \
-    {                                                                              \
-        if (PFX##_count(_stack1_) != PFX##_count(_stack2_))                        \
-            return false;                                                          \
-                                                                                   \
-        for (size_t i = 0; i < PFX##_count(_stack1_); i++)                         \
-        {                                                                          \
-            if (comparator(_stack1_->buffer[i], _stack2_->buffer[i]) != 0)         \
-                return false;                                                      \
-        }                                                                          \
-                                                                                   \
-        return true;                                                               \
-    }                                                                              \
-                                                                                   \
-    cmc_string PFX##_to_string(SNAME *_stack_)                                     \
-    {                                                                              \
-        cmc_string str;                                                            \
-        SNAME *s_ = _stack_;                                                       \
-        const char *name = #SNAME;                                                 \
-                                                                                   \
-        snprintf(str.s, cmc_string_len, cmc_string_fmt_stack,                      \
-                 name, s_, s_->buffer, s_->capacity, s_->count);                   \
-                                                                                   \
-        return str;                                                                \
-    }                                                                              \
-                                                                                   \
-    SNAME##_iter *PFX##_iter_new(SNAME *target)                                    \
-    {                                                                              \
-        SNAME##_iter *iter = malloc(sizeof(SNAME##_iter));                         \
-                                                                                   \
-        if (!iter)                                                                 \
-            return NULL;                                                           \
-                                                                                   \
-        PFX##_iter_init(iter, target);                                             \
-                                                                                   \
-        return iter;                                                               \
-    }                                                                              \
-                                                                                   \
-    void PFX##_iter_free(SNAME##_iter *iter)                                       \
-    {                                                                              \
-        free(iter);                                                                \
-    }                                                                              \
-                                                                                   \
-    void PFX##_iter_init(SNAME##_iter *iter, SNAME *target)                        \
-    {                                                                              \
-        iter->target = target;                                                     \
-        iter->cursor = PFX##_empty(target) ? 0 : iter->target->count - 1;          \
-        iter->start = true;                                                        \
-        iter->end = PFX##_empty(target);                                           \
-    }                                                                              \
-                                                                                   \
-    bool PFX##_iter_start(SNAME##_iter *iter)                                      \
-    {                                                                              \
-        return PFX##_empty(iter->target) || iter->start;                           \
-    }                                                                              \
-                                                                                   \
-    bool PFX##_iter_end(SNAME##_iter *iter)                                        \
-    {                                                                              \
-        return PFX##_empty(iter->target) || iter->end;                             \
-    }                                                                              \
-                                                                                   \
-    void PFX##_iter_to_start(SNAME##_iter *iter)                                   \
-    {                                                                              \
-        if (!PFX##_empty(iter->target))                                            \
-        {                                                                          \
-            iter->cursor = iter->target->count - 1;                                \
-            iter->start = true;                                                    \
-            iter->end = PFX##_empty(iter->target);                                 \
-        }                                                                          \
-    }                                                                              \
-                                                                                   \
-    void PFX##_iter_to_end(SNAME##_iter *iter)                                     \
-    {                                                                              \
-        if (!PFX##_empty(iter->target))                                            \
-        {                                                                          \
-            iter->cursor = 0;                                                      \
-            iter->start = PFX##_empty(iter->target);                               \
-            iter->end = true;                                                      \
-        }                                                                          \
-    }                                                                              \
-                                                                                   \
-    bool PFX##_iter_next(SNAME##_iter *iter)                                       \
-    {                                                                              \
-        if (iter->end)                                                             \
-            return false;                                                          \
-                                                                                   \
-        if (iter->cursor == 0)                                                     \
-        {                                                                          \
-            iter->end = true;                                                      \
-            return false;                                                          \
-        }                                                                          \
-                                                                                   \
-        iter->start = PFX##_empty(iter->target);                                   \
-                                                                                   \
-        iter->cursor--;                                                            \
-                                                                                   \
-        return true;                                                               \
-    }                                                                              \
-                                                                                   \
-    bool PFX##_iter_prev(SNAME##_iter *iter)                                       \
-    {                                                                              \
-        if (iter->start)                                                           \
-            return false;                                                          \
-                                                                                   \
-        if (iter->cursor + 1 == PFX##_count(iter->target))                         \
-        {                                                                          \
-            iter->start = true;                                                    \
-            return false;                                                          \
-        }                                                                          \
-                                                                                   \
-        iter->end = PFX##_empty(iter->target);                                     \
-                                                                                   \
-        iter->cursor++;                                                            \
-                                                                                   \
-        return true;                                                               \
-    }                                                                              \
-                                                                                   \
-    /* Returns true only if the iterator moved */                                  \
-    bool PFX##_iter_advance(SNAME##_iter *iter, size_t steps)                      \
-    {                                                                              \
-        if (iter->end)                                                             \
-            return false;                                                          \
-                                                                                   \
-        if (iter->cursor == 0)                                                     \
-        {                                                                          \
-            iter->end = true;                                                      \
-            return false;                                                          \
-        }                                                                          \
-                                                                                   \
-        if (steps == 0 || iter->cursor < steps)                                    \
-            return false;                                                          \
-                                                                                   \
-        iter->start = PFX##_empty(iter->target);                                   \
-                                                                                   \
-        iter->cursor -= steps;                                                     \
-                                                                                   \
-        return true;                                                               \
-    }                                                                              \
-                                                                                   \
-    /* Returns true only if the iterator moved */                                  \
-    bool PFX##_iter_rewind(SNAME##_iter *iter, size_t steps)                       \
-    {                                                                              \
-        if (iter->start)                                                           \
-            return false;                                                          \
-                                                                                   \
-        if (iter->cursor + 1 == PFX##_count(iter->target))                         \
-        {                                                                          \
-            iter->start = true;                                                    \
-            return false;                                                          \
-        }                                                                          \
-                                                                                   \
-        if (steps == 0 || iter->cursor + steps >= PFX##_count(iter->target))       \
-            return false;                                                          \
-                                                                                   \
-        iter->end = PFX##_empty(iter->target);                                     \
-                                                                                   \
-        iter->cursor += steps;                                                     \
-                                                                                   \
-        return true;                                                               \
-    }                                                                              \
-                                                                                   \
-    /* Returns true only if the iterator was able to be positioned at the given */ \
-    /* index */                                                                    \
-    bool PFX##_iter_go_to(SNAME##_iter *iter, size_t index)                        \
-    {                                                                              \
-        if (index >= PFX##_count(iter->target))                                    \
-            return false;                                                          \
-                                                                                   \
-        if (iter->cursor > index)                                                  \
-            return PFX##_iter_rewind(iter, iter->cursor - index);                  \
-        else if (iter->cursor < index)                                             \
-            return PFX##_iter_advance(iter, index - iter->cursor);                 \
-                                                                                   \
-        return true;                                                               \
-    }                                                                              \
-                                                                                   \
-    V PFX##_iter_value(SNAME##_iter *iter)                                         \
-    {                                                                              \
-        if (PFX##_empty(iter->target))                                             \
-            return PFX##_impl_default_value();                                     \
-                                                                                   \
-        return iter->target->buffer[iter->cursor];                                 \
-    }                                                                              \
-                                                                                   \
-    V *PFX##_iter_rvalue(SNAME##_iter *iter)                                       \
-    {                                                                              \
-        if (PFX##_empty(iter->target))                                             \
-            return NULL;                                                           \
-                                                                                   \
-        return &(iter->target->buffer[iter->cursor]);                              \
-    }                                                                              \
-                                                                                   \
-    size_t PFX##_iter_index(SNAME##_iter *iter)                                    \
-    {                                                                              \
-        if (PFX##_empty(iter->target))                                             \
-            return 0;                                                              \
-                                                                                   \
-        return iter->target->count - 1 - iter->cursor;                             \
-    }                                                                              \
-                                                                                   \
-    static bool PFX##_impl_grow(SNAME *_stack_)                                    \
-    {                                                                              \
-        size_t new_capacity = _stack_->capacity * 2;                               \
-                                                                                   \
-        V *new_buffer = realloc(_stack_->buffer, sizeof(V) * new_capacity);        \
-                                                                                   \
-        if (!new_buffer)                                                           \
-            return false;                                                          \
-                                                                                   \
-        _stack_->buffer = new_buffer;                                              \
-        _stack_->capacity = new_capacity;                                          \
-                                                                                   \
-        return true;                                                               \
-    }                                                                              \
-                                                                                   \
-    static SNAME##_iter PFX##_impl_it_start(SNAME *_stack_)                        \
-    {                                                                              \
-        SNAME##_iter iter;                                                         \
-                                                                                   \
-        PFX##_iter_init(&iter, _stack_);                                           \
-        PFX##_iter_to_start(&iter);                                                \
-                                                                                   \
-        return iter;                                                               \
-    }                                                                              \
-                                                                                   \
-    static SNAME##_iter PFX##_impl_it_end(SNAME *_stack_)                          \
-    {                                                                              \
-        SNAME##_iter iter;                                                         \
-                                                                                   \
-        PFX##_iter_init(&iter, _stack_);                                           \
-        PFX##_iter_to_end(&iter);                                                  \
-                                                                                   \
-        return iter;                                                               \
+#define CMC_GENERATE_STACK_SOURCE(PFX, SNAME, V)                                 \
+                                                                                 \
+    /* Implementation Detail Functions */                                        \
+    static bool PFX##_impl_grow(SNAME *_stack_);                                 \
+    static SNAME##_iter PFX##_impl_it_start(SNAME *_stack_);                     \
+    static SNAME##_iter PFX##_impl_it_end(SNAME *_stack_);                       \
+                                                                                 \
+    SNAME *PFX##_new(size_t capacity)                                            \
+    {                                                                            \
+        if (capacity < 1)                                                        \
+            return NULL;                                                         \
+                                                                                 \
+        SNAME *_stack_ = malloc(sizeof(SNAME));                                  \
+                                                                                 \
+        if (!_stack_)                                                            \
+            return NULL;                                                         \
+                                                                                 \
+        _stack_->buffer = malloc(sizeof(V) * capacity);                          \
+                                                                                 \
+        if (!_stack_->buffer)                                                    \
+        {                                                                        \
+            free(_stack_);                                                       \
+            return NULL;                                                         \
+        }                                                                        \
+                                                                                 \
+        memset(_stack_->buffer, 0, sizeof(V) * capacity);                        \
+                                                                                 \
+        _stack_->capacity = capacity;                                            \
+        _stack_->count = 0;                                                      \
+                                                                                 \
+        _stack_->it_start = PFX##_impl_it_start;                                 \
+        _stack_->it_end = PFX##_impl_it_end;                                     \
+                                                                                 \
+        return _stack_;                                                          \
+    }                                                                            \
+                                                                                 \
+    void PFX##_clear(SNAME *_stack_, void (*deallocator)(V))                     \
+    {                                                                            \
+        if (deallocator)                                                         \
+        {                                                                        \
+            for (size_t i = 0; i < _stack_->count; i++)                          \
+                deallocator(_stack_->buffer[i]);                                 \
+        }                                                                        \
+                                                                                 \
+        memset(_stack_->buffer, 0, sizeof(V) * _stack_->capacity);               \
+                                                                                 \
+        _stack_->count = 0;                                                      \
+    }                                                                            \
+                                                                                 \
+    void PFX##_free(SNAME *_stack_, void (*deallocator)(V))                      \
+    {                                                                            \
+        free(_stack_->buffer);                                                   \
+        if (deallocator)                                                         \
+        {                                                                        \
+            for (size_t i = 0; i < _stack_->count; i++)                          \
+                deallocator(_stack_->buffer[i]);                                 \
+        }                                                                        \
+                                                                                 \
+        free(_stack_);                                                           \
+    }                                                                            \
+                                                                                 \
+    bool PFX##_push(SNAME *_stack_, V element)                                   \
+    {                                                                            \
+        if (PFX##_full(_stack_))                                                 \
+        {                                                                        \
+            if (!PFX##_impl_grow(_stack_))                                       \
+                return false;                                                    \
+        }                                                                        \
+                                                                                 \
+        _stack_->buffer[_stack_->count++] = element;                             \
+                                                                                 \
+        return true;                                                             \
+    }                                                                            \
+                                                                                 \
+    bool PFX##_pop(SNAME *_stack_)                                               \
+    {                                                                            \
+        if (PFX##_empty(_stack_))                                                \
+            return false;                                                        \
+                                                                                 \
+        _stack_->buffer[--_stack_->count] = PFX##_impl_default_value();          \
+                                                                                 \
+        return true;                                                             \
+    }                                                                            \
+                                                                                 \
+    V PFX##_top(SNAME *_stack_)                                                  \
+    {                                                                            \
+        if (PFX##_empty(_stack_))                                                \
+            return PFX##_impl_default_value();                                   \
+                                                                                 \
+        return _stack_->buffer[_stack_->count - 1];                              \
+    }                                                                            \
+                                                                                 \
+    bool PFX##_contains(SNAME *_stack_, V element, int (*comparator)(V, V))      \
+    {                                                                            \
+        for (size_t i = 0; i < _stack_->count; i++)                              \
+        {                                                                        \
+            if (comparator(_stack_->buffer[i], element) == 0)                    \
+                return true;                                                     \
+        }                                                                        \
+                                                                                 \
+        return false;                                                            \
+    }                                                                            \
+                                                                                 \
+    bool PFX##_empty(SNAME *_stack_)                                             \
+    {                                                                            \
+        return _stack_->count == 0;                                              \
+    }                                                                            \
+                                                                                 \
+    bool PFX##_full(SNAME *_stack_)                                              \
+    {                                                                            \
+        return _stack_->count >= _stack_->capacity;                              \
+    }                                                                            \
+                                                                                 \
+    size_t PFX##_count(SNAME *_stack_)                                           \
+    {                                                                            \
+        return _stack_->count;                                                   \
+    }                                                                            \
+                                                                                 \
+    size_t PFX##_capacity(SNAME *_stack_)                                        \
+    {                                                                            \
+        return _stack_->capacity;                                                \
+    }                                                                            \
+                                                                                 \
+    SNAME *PFX##_copy_of(SNAME *_stack_, V (*copy_func)(V))                      \
+    {                                                                            \
+        SNAME *result = PFX##_new(_stack_->capacity);                            \
+                                                                                 \
+        if (!result)                                                             \
+            return NULL;                                                         \
+                                                                                 \
+        if (copy_func)                                                           \
+        {                                                                        \
+            for (size_t i = 0; i < _stack_->count; i++)                          \
+                result->buffer[i] = copy_func(_stack_->buffer[i]);               \
+        }                                                                        \
+        else                                                                     \
+            memcpy(result->buffer, _stack_->buffer, sizeof(V) * _stack_->count); \
+                                                                                 \
+        result->count = _stack_->count;                                          \
+                                                                                 \
+        return result;                                                           \
+    }                                                                            \
+                                                                                 \
+    bool PFX##_equals(SNAME *_stack1_, SNAME *_stack2_, int (*comparator)(V, V)) \
+    {                                                                            \
+        if (PFX##_count(_stack1_) != PFX##_count(_stack2_))                      \
+            return false;                                                        \
+                                                                                 \
+        for (size_t i = 0; i < PFX##_count(_stack1_); i++)                       \
+        {                                                                        \
+            if (comparator(_stack1_->buffer[i], _stack2_->buffer[i]) != 0)       \
+                return false;                                                    \
+        }                                                                        \
+                                                                                 \
+        return true;                                                             \
+    }                                                                            \
+                                                                                 \
+    cmc_string PFX##_to_string(SNAME *_stack_)                                   \
+    {                                                                            \
+        cmc_string str;                                                          \
+        SNAME *s_ = _stack_;                                                     \
+        const char *name = #SNAME;                                               \
+                                                                                 \
+        snprintf(str.s, cmc_string_len, cmc_string_fmt_stack,                    \
+                 name, s_, s_->buffer, s_->capacity, s_->count);                 \
+                                                                                 \
+        return str;                                                              \
+    }                                                                            \
+                                                                                 \
+    SNAME##_iter *PFX##_iter_new(SNAME *target)                                  \
+    {                                                                            \
+        SNAME##_iter *iter = malloc(sizeof(SNAME##_iter));                       \
+                                                                                 \
+        if (!iter)                                                               \
+            return NULL;                                                         \
+                                                                                 \
+        PFX##_iter_init(iter, target);                                           \
+                                                                                 \
+        return iter;                                                             \
+    }                                                                            \
+                                                                                 \
+    void PFX##_iter_free(SNAME##_iter *iter)                                     \
+    {                                                                            \
+        free(iter);                                                              \
+    }                                                                            \
+                                                                                 \
+    void PFX##_iter_init(SNAME##_iter *iter, SNAME *target)                      \
+    {                                                                            \
+        iter->target = target;                                                   \
+        iter->cursor = PFX##_empty(target) ? 0 : iter->target->count - 1;        \
+        iter->start = true;                                                      \
+        iter->end = PFX##_empty(target);                                         \
+    }                                                                            \
+                                                                                 \
+    bool PFX##_iter_start(SNAME##_iter *iter)                                    \
+    {                                                                            \
+        return PFX##_empty(iter->target) || iter->start;                         \
+    }                                                                            \
+                                                                                 \
+    bool PFX##_iter_end(SNAME##_iter *iter)                                      \
+    {                                                                            \
+        return PFX##_empty(iter->target) || iter->end;                           \
+    }                                                                            \
+                                                                                 \
+    void PFX##_iter_to_start(SNAME##_iter *iter)                                 \
+    {                                                                            \
+        if (!PFX##_empty(iter->target))                                          \
+        {                                                                        \
+            iter->cursor = iter->target->count - 1;                              \
+            iter->start = true;                                                  \
+            iter->end = PFX##_empty(iter->target);                               \
+        }                                                                        \
+    }                                                                            \
+                                                                                 \
+    void PFX##_iter_to_end(SNAME##_iter *iter)                                   \
+    {                                                                            \
+        if (!PFX##_empty(iter->target))                                          \
+        {                                                                        \
+            iter->cursor = 0;                                                    \
+            iter->start = PFX##_empty(iter->target);                             \
+            iter->end = true;                                                    \
+        }                                                                        \
+    }                                                                            \
+                                                                                 \
+    bool PFX##_iter_next(SNAME##_iter *iter)                                     \
+    {                                                                            \
+        if (iter->end)                                                           \
+            return false;                                                        \
+                                                                                 \
+        if (iter->cursor == 0)                                                   \
+        {                                                                        \
+            iter->end = true;                                                    \
+            return false;                                                        \
+        }                                                                        \
+                                                                                 \
+        iter->start = PFX##_empty(iter->target);                                 \
+                                                                                 \
+        iter->cursor--;                                                          \
+                                                                                 \
+        return true;                                                             \
+    }                                                                            \
+                                                                                 \
+    bool PFX##_iter_prev(SNAME##_iter *iter)                                     \
+    {                                                                            \
+        if (iter->start)                                                         \
+            return false;                                                        \
+                                                                                 \
+        if (iter->cursor + 1 == PFX##_count(iter->target))                       \
+        {                                                                        \
+            iter->start = true;                                                  \
+            return false;                                                        \
+        }                                                                        \
+                                                                                 \
+        iter->end = PFX##_empty(iter->target);                                   \
+                                                                                 \
+        iter->cursor++;                                                          \
+                                                                                 \
+        return true;                                                             \
+    }                                                                            \
+                                                                                 \
+    /* Returns true only if the iterator moved */                                \
+    bool PFX##_iter_advance(SNAME##_iter *iter, size_t steps)                    \
+    {                                                                            \
+        if (iter->end)                                                           \
+            return false;                                                        \
+                                                                                 \
+        if (iter->cursor == 0)                                                   \
+        {                                                                        \
+            iter->end = true;                                                    \
+            return false;                                                        \
+        }                                                                        \
+                                                                                 \
+        if (steps == 0 || iter->cursor < steps)                                  \
+            return false;                                                        \
+                                                                                 \
+        iter->start = PFX##_empty(iter->target);                                 \
+                                                                                 \
+        iter->cursor -= steps;                                                   \
+                                                                                 \
+        return true;                                                             \
+    }                                                                            \
+                                                                                 \
+    /* Returns true only if the iterator moved */                                \
+    bool PFX##_iter_rewind(SNAME##_iter *iter, size_t steps)                     \
+    {                                                                            \
+        if (iter->start)                                                         \
+            return false;                                                        \
+                                                                                 \
+        if (iter->cursor + 1 == PFX##_count(iter->target))                       \
+        {                                                                        \
+            iter->start = true;                                                  \
+            return false;                                                        \
+        }                                                                        \
+                                                                                 \
+        if (steps == 0 || iter->cursor + steps >= PFX##_count(iter->target))     \
+            return false;                                                        \
+                                                                                 \
+        iter->end = PFX##_empty(iter->target);                                   \
+                                                                                 \
+        iter->cursor += steps;                                                   \
+                                                                                 \
+        return true;                                                             \
+    }                                                                            \
+                                                                                 \
+    /* Returns true only if the iterator was able to be positioned at the */     \
+    /* given index */                                                            \
+    bool PFX##_iter_go_to(SNAME##_iter *iter, size_t index)                      \
+    {                                                                            \
+        if (index >= PFX##_count(iter->target))                                  \
+            return false;                                                        \
+                                                                                 \
+        if (iter->cursor > index)                                                \
+            return PFX##_iter_rewind(iter, iter->cursor - index);                \
+        else if (iter->cursor < index)                                           \
+            return PFX##_iter_advance(iter, index - iter->cursor);               \
+                                                                                 \
+        return true;                                                             \
+    }                                                                            \
+                                                                                 \
+    V PFX##_iter_value(SNAME##_iter *iter)                                       \
+    {                                                                            \
+        if (PFX##_empty(iter->target))                                           \
+            return PFX##_impl_default_value();                                   \
+                                                                                 \
+        return iter->target->buffer[iter->cursor];                               \
+    }                                                                            \
+                                                                                 \
+    V *PFX##_iter_rvalue(SNAME##_iter *iter)                                     \
+    {                                                                            \
+        if (PFX##_empty(iter->target))                                           \
+            return NULL;                                                         \
+                                                                                 \
+        return &(iter->target->buffer[iter->cursor]);                            \
+    }                                                                            \
+                                                                                 \
+    size_t PFX##_iter_index(SNAME##_iter *iter)                                  \
+    {                                                                            \
+        if (PFX##_empty(iter->target))                                           \
+            return 0;                                                            \
+                                                                                 \
+        return iter->target->count - 1 - iter->cursor;                           \
+    }                                                                            \
+                                                                                 \
+    static bool PFX##_impl_grow(SNAME *_stack_)                                  \
+    {                                                                            \
+        size_t new_capacity = _stack_->capacity * 2;                             \
+                                                                                 \
+        V *new_buffer = realloc(_stack_->buffer, sizeof(V) * new_capacity);      \
+                                                                                 \
+        if (!new_buffer)                                                         \
+            return false;                                                        \
+                                                                                 \
+        _stack_->buffer = new_buffer;                                            \
+        _stack_->capacity = new_capacity;                                        \
+                                                                                 \
+        return true;                                                             \
+    }                                                                            \
+                                                                                 \
+    static SNAME##_iter PFX##_impl_it_start(SNAME *_stack_)                      \
+    {                                                                            \
+        SNAME##_iter iter;                                                       \
+                                                                                 \
+        PFX##_iter_init(&iter, _stack_);                                         \
+        PFX##_iter_to_start(&iter);                                              \
+                                                                                 \
+        return iter;                                                             \
+    }                                                                            \
+                                                                                 \
+    static SNAME##_iter PFX##_impl_it_end(SNAME *_stack_)                        \
+    {                                                                            \
+        SNAME##_iter iter;                                                       \
+                                                                                 \
+        PFX##_iter_init(&iter, _stack_);                                         \
+        PFX##_iter_to_end(&iter);                                                \
+                                                                                 \
+        return iter;                                                             \
     }
 
 #endif /* CMC_STACK_H */

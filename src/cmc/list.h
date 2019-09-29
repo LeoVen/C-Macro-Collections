@@ -116,9 +116,6 @@ static const char *cmc_string_fmt_list = "%s at %p { buffer:%p, capacity:%" PRIu
     bool PFX##_pop_front(SNAME *_list_);                                                      \
     bool PFX##_pop_at(SNAME *_list_, size_t index);                                           \
     bool PFX##_pop_back(SNAME *_list_);                                                       \
-    /* Conditional Input and Output */                                                        \
-    bool PFX##_push_if(SNAME *_list_, V element, size_t index, bool condition);               \
-    bool PFX##_pop_if(SNAME *_list_, size_t index, bool condition);                           \
     /* Collection Sequence Input and Output */                                                \
     bool PFX##_seq_push_front(SNAME *_list_, V *elements, size_t size);                       \
     bool PFX##_seq_push_at(SNAME *_list_, V *elements, size_t size, size_t index);            \
@@ -360,22 +357,6 @@ static const char *cmc_string_fmt_list = "%s at %p { buffer:%p, capacity:%" PRIu
         _list_->buffer[--_list_->count] = PFX##_impl_default_value();                                            \
                                                                                                                  \
         return true;                                                                                             \
-    }                                                                                                            \
-                                                                                                                 \
-    bool PFX##_push_if(SNAME *_list_, V element, size_t index, bool condition)                                   \
-    {                                                                                                            \
-        if (condition)                                                                                           \
-            return PFX##_push_at(_list_, element, index);                                                        \
-                                                                                                                 \
-        return false;                                                                                            \
-    }                                                                                                            \
-                                                                                                                 \
-    bool PFX##_pop_if(SNAME *_list_, size_t index, bool condition)                                               \
-    {                                                                                                            \
-        if (condition)                                                                                           \
-            return PFX##_pop_at(_list_, index);                                                                  \
-                                                                                                                 \
-        return false;                                                                                            \
     }                                                                                                            \
                                                                                                                  \
     bool PFX##_seq_push_front(SNAME *_list_, V *elements, size_t size)                                           \

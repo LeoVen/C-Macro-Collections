@@ -110,9 +110,6 @@ typedef enum cmc_heap_order_e
     /* Collection Input and Output */                                           \
     bool PFX##_insert(SNAME *_heap_, V element);                                \
     bool PFX##_remove(SNAME *_heap_, V *result);                                \
-    /* Conditional Input and Output */                                          \
-    bool PFX##_insert_if(SNAME *_heap_, V element, bool condition);             \
-    bool PFX##_remove_if(SNAME *_heap_, V *result, bool condition);             \
     /* Element Access */                                                        \
     V PFX##_peek(SNAME *_heap_);                                                \
     V *PFX##_peek_ref(SNAME *_heap_);                                           \
@@ -268,22 +265,6 @@ typedef enum cmc_heap_order_e
             return false;                                                                         \
                                                                                                   \
         return true;                                                                              \
-    }                                                                                             \
-                                                                                                  \
-    bool PFX##_insert_if(SNAME *_heap_, V element, bool condition)                                \
-    {                                                                                             \
-        if (condition)                                                                            \
-            return PFX##_insert(_heap_, element);                                                 \
-                                                                                                  \
-        return false;                                                                             \
-    }                                                                                             \
-                                                                                                  \
-    bool PFX##_remove_if(SNAME *_heap_, V *result, bool condition)                                \
-    {                                                                                             \
-        if (condition)                                                                            \
-            return PFX##_remove(_heap_, result);                                                  \
-                                                                                                  \
-        return false;                                                                             \
     }                                                                                             \
                                                                                                   \
     V PFX##_peek(SNAME *_heap_)                                                                   \
