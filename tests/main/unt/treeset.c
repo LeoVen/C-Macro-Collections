@@ -33,5 +33,4 @@ CMC_CREATE_UNIT(treeset_test, true, {
 
         ts_free(set, NULL);
     });
-
 });

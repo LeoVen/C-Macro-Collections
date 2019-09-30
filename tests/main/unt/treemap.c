@@ -33,5 +33,4 @@ CMC_CREATE_UNIT(treemap_test, true, {
 
         tm_free(map, NULL);
     });
-
 });

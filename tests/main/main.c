@@ -14,6 +14,7 @@
 #include "unt/intervalheap.c"
 #include "unt/multimap.c"
 #include "unt/multiset.c"
+#include "unt/sortedlist.c"
 
 int main(void)
 {
@@ -37,6 +38,7 @@ int main(void)
     failed += intervalheap_test();
     failed += multimap_test();
     failed += multiset_test();
+    failed += sortedlist_test();
 
     cmc_timer_stop(timer);
     cmc_timer_calc(timer);
