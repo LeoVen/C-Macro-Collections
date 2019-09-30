@@ -327,20 +327,8 @@ static const char *cmc_string_fmt_list = "%s at %p { buffer:%p, capacity:%" PRIu
                                                                                                                  \
     bool PFX##_pop_at(SNAME *_list_, size_t index)                                                               \
     {                                                                                                            \
-        if (PFX##_empty(_list_))                                                                                 \
-            return false;                                                                                        \
-                                                                                                                 \
         if (index >= _list_->count)                                                                              \
             return false;                                                                                        \
-                                                                                                                 \
-        if (index == 0)                                                                                          \
-        {                                                                                                        \
-            return PFX##_pop_front(_list_);                                                                      \
-        }                                                                                                        \
-        else if (index == _list_->count - 1)                                                                     \
-        {                                                                                                        \
-            return PFX##_pop_back(_list_);                                                                       \
-        }                                                                                                        \
                                                                                                                  \
         memmove(_list_->buffer + index, _list_->buffer + index + 1, (_list_->count - index) * sizeof(V));        \
                                                                                                                  \
