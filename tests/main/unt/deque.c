@@ -276,4 +276,191 @@ CMC_CREATE_UNIT(deque_test, true, {
 
         d_free(d, NULL);
     });
+
+    CMC_CREATE_TEST(front [edge_case:count = 0], {
+        deque *d = d_new(100);
+
+        cmc_assert_not_equals(ptr, NULL, d);
+
+        size_t r = d_front(d);
+
+        cmc_assert_equals(size_t, d_impl_default_value(), r);
+
+        d_free(d, NULL);
+    });
+
+    CMC_CREATE_TEST(front[sum], {
+        deque *d = d_new(100);
+
+        cmc_assert_not_equals(ptr, NULL, d);
+
+        size_t sum = 0;
+
+        for (size_t i = 0; i <= 100; i++)
+        {
+            if (i % 2 == 0)
+                cmc_assert(d_push_back(d, i));
+            else
+                cmc_assert(d_push_front(d, i));
+        }
+
+        while (!d_empty(d))
+        {
+            size_t r = d_front(d);
+
+            sum += r;
+
+            cmc_assert(d_pop_front(d));
+        }
+
+        cmc_assert_equals(size_t, 5050, sum);
+
+        d_free(d, NULL);
+    });
+
+    CMC_CREATE_TEST(back [edge_case:count = 0], {
+        deque *d = d_new(100);
+
+        cmc_assert_not_equals(ptr, NULL, d);
+
+        size_t r = d_back(d);
+
+        cmc_assert_equals(size_t, d_impl_default_value(), r);
+
+        d_free(d, NULL);
+    });
+
+    CMC_CREATE_TEST(back[sum], {
+        deque *d = d_new(100);
+
+        cmc_assert_not_equals(ptr, NULL, d);
+
+        size_t sum = 0;
+
+        for (size_t i = 0; i <= 100; i++)
+        {
+            if (i % 2 == 0)
+                cmc_assert(d_push_back(d, i));
+            else
+                cmc_assert(d_push_front(d, i));
+        }
+
+        while (!d_empty(d))
+        {
+            size_t r = d_back(d);
+
+            sum += r;
+
+            cmc_assert(d_pop_back(d));
+        }
+
+        cmc_assert_equals(size_t, 5050, sum);
+
+        d_free(d, NULL);
+    });
+
+    CMC_CREATE_TEST(contains, {
+        deque *d = d_new(100);
+
+        cmc_assert_not_equals(ptr, NULL, d);
+
+        for (size_t i = 1; i <= 20; i++)
+            cmc_assert(d_push_back(d, i));
+
+        for (size_t i = 1; i <= 20; i++)
+            cmc_assert(d_contains(d, i, cmp));
+
+        d_clear(d, NULL);
+
+        for (size_t i = 1; i <= 20; i++)
+            cmc_assert(d_push_front(d, i));
+
+        for (size_t i = 1; i <= 20; i++)
+            cmc_assert(d_contains(d, i, cmp));
+
+        d_free(d, NULL);
+    });
+
+    CMC_CREATE_TEST(contains [edge_case:count = 0], {
+        deque *d = d_new(100);
+
+        cmc_assert_not_equals(ptr, NULL, d);
+
+        cmc_assert(!d_contains(d, 10, cmp));
+
+        d_free(d, NULL);
+    });
+
+    CMC_CREATE_TEST(contains [edge_case:count = 1], {
+        deque *d = d_new(100);
+
+        cmc_assert_not_equals(ptr, NULL, d);
+
+        cmc_assert(!d_contains(d, 10, cmp));
+
+        cmc_assert(d_push_back(d, 100));
+
+        cmc_assert(d_contains(d, 100, cmp));
+        cmc_assert(!d_contains(d, 101, cmp));
+
+        cmc_assert(d_pop_front(d));
+        cmc_assert(d_push_front(d, 100));
+
+        cmc_assert(d_contains(d, 100, cmp));
+        cmc_assert(!d_contains(d, 101, cmp));
+
+        d_free(d, NULL);
+    });
+
+    CMC_CREATE_TEST(empty, {
+        deque *d = d_new(100);
+
+        cmc_assert_not_equals(ptr, NULL, d);
+
+        cmc_assert(d_empty(d));
+
+        cmc_assert(d_push_front(d, 1));
+
+        cmc_assert(!d_empty(d));
+
+        d_free(d, NULL);
+    });
+
+    CMC_CREATE_TEST(full, {
+        deque *d = d_new(100);
+
+        cmc_assert_not_equals(ptr, NULL, d);
+
+        cmc_assert(!d_full(d));
+
+        for (size_t i = 0; i != d_capacity(d); i++)
+            cmc_assert(d_push_front(d, i));
+
+        cmc_assert(d_full(d));
+
+        d_free(d, NULL);
+    });
+
+    CMC_CREATE_TEST(count, {
+        deque *d = d_new(100);
+
+        cmc_assert_not_equals(ptr, NULL, d);
+
+        cmc_assert_equals(size_t, 0, d_count(d));
+
+        for (size_t i = 0; i < 100; i++)
+            cmc_assert(d_push_back(d, i));
+
+        cmc_assert_equals(size_t, 100, d_count(d));
+
+        d_free(d, NULL);
+    });
+
+    CMC_CREATE_TEST(capacity, {
+        deque *d = d_new(100);
+
+        cmc_assert_equals(size_t, 100, d_capacity(d));
+
+        d_free(d, NULL);
+    });
 });

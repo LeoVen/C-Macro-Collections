@@ -274,7 +274,7 @@ static const char *cmc_string_fmt_queue = "%s at %p { buffer:%p, capacity:%" PRI
                                                                                                              \
     bool PFX##_contains(SNAME *_queue_, V element, int (*comparator)(V, V))                                  \
     {                                                                                                        \
-        for (size_t i = _queue_->front, j = 0; j < _queue_->count; i = (i + 1) % _queue_->count, j++)        \
+        for (size_t i = _queue_->front, j = 0; j < _queue_->count; i = (i + 1) % _queue_->capacity, j++)     \
         {                                                                                                    \
             if (comparator(_queue_->buffer[i], element) == 0)                                                \
                 return true;                                                                                 \

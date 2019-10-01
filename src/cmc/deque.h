@@ -306,7 +306,7 @@ static const char *cmc_string_fmt_deque = "%s at %p { buffer:%p, capacity:%" PRI
                                                                                                              \
     bool PFX##_contains(SNAME *_deque_, V element, int (*comparator)(V, V))                                  \
     {                                                                                                        \
-        for (size_t i = _deque_->front, j = 0; j < _deque_->count; i = (i + 1) % _deque_->count, j++)        \
+        for (size_t i = _deque_->front, j = 0; j < _deque_->count; i = (i + 1) % _deque_->capacity, j++)     \
         {                                                                                                    \
             if (comparator(_deque_->buffer[i], element) == 0)                                                \
                 return true;                                                                                 \
