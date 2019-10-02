@@ -59,20 +59,20 @@ void shuffle(int *array, mt_state_ptr st)
     }
 }
 
-COLLECTION_GENERATE(DEQUE, d, deque, /* FMOD */, /* K */, int)
-COLLECTION_GENERATE(HASHMAP, hm, hmap, /* FMOD */, int, int)
-COLLECTION_GENERATE(HASHSET, hs, hset, /* FMOD */, /* K */, int)
-COLLECTION_GENERATE(HEAP, h, heap, /* FMOD */, /* K */, int)
-COLLECTION_GENERATE(LINKEDLIST, ll, linked, /* FMOD */, /* K */, int)
-COLLECTION_GENERATE(LIST, l, list, /* FMOD */, /* K */, int)
-COLLECTION_GENERATE(QUEUE, q, queue, /* FMOD */, /* K */, int)
-COLLECTION_GENERATE(STACK, s, stack, /* FMOD */, /* K */, int)
-COLLECTION_GENERATE(TREEMAP, tm, tmap, /* FMOD */, int, int)
-COLLECTION_GENERATE(TREESET, ts, tset, /* FMOD */, /* K */, int)
+CMC_COLLECTION_GENERATE(DEQUE, d, deque, /* K */, int)
+CMC_COLLECTION_GENERATE(HASHMAP, hm, hmap, int, int)
+CMC_COLLECTION_GENERATE(HASHSET, hs, hset, /* K */, int)
+CMC_COLLECTION_GENERATE(HEAP, h, heap, /* K */, int)
+CMC_COLLECTION_GENERATE(LINKEDLIST, ll, linked, /* K */, int)
+CMC_COLLECTION_GENERATE(LIST, l, list, /* K */, int)
+CMC_COLLECTION_GENERATE(QUEUE, q, queue, /* K */, int)
+CMC_COLLECTION_GENERATE(STACK, s, stack, /* K */, int)
+CMC_COLLECTION_GENERATE(TREEMAP, tm, tmap, int, int)
+CMC_COLLECTION_GENERATE(TREESET, ts, tset, /* K */, int)
 
-COLLECTION_GENERATE(INTERVALHEAP, ih, iheap, , , int)
-COLLECTION_GENERATE(MULTIMAP, mm, mmap, /* FMOD */, int, int)
-COLLECTION_GENERATE(MULTISET, ms, mset, /* FMOD */, /* K */, int)
+CMC_COLLECTION_GENERATE(INTERVALHEAP, ih, iheap, /* k */, int)
+CMC_COLLECTION_GENERATE(MULTIMAP, mm, mmap, int, int)
+CMC_COLLECTION_GENERATE(MULTISET, ms, mset, /* K */, int)
 
 #define BENCHMARK(NAME, PFX, sname, initfunc, insertbody, removebody, searchbody)                                \
     void NAME##_io_benchmark(int *array, int *sarray, size_t s)                                                  \
@@ -85,17 +85,17 @@ COLLECTION_GENERATE(MULTISET, ms, mset, /* FMOD */, /* K */, int)
                                                                                                                  \
         sname *coll = initfunc;                                                                                  \
                                                                                                                  \
-        timer_start(total);                                                                                      \
-        timer_start(timer);                                                                                      \
+        cmc_timer_start(total);                                                                                  \
+        cmc_timer_start(timer);                                                                                  \
                                                                                                                  \
         for (size_t i = 0; i < NTOTAL; i++)                                                                      \
         {                                                                                                        \
             insertbody;                                                                                          \
         }                                                                                                        \
                                                                                                                  \
-        timer_stop(timer);                                                                                       \
+        cmc_timer_stop(timer);                                                                                   \
                                                                                                                  \
-        timer_calc(timer);                                                                                       \
+        cmc_timer_calc(timer);                                                                                   \
                                                                                                                  \
         size_t s1 = PFX##_count(coll);                                                                           \
                                                                                                                  \
@@ -103,16 +103,16 @@ COLLECTION_GENERATE(MULTISET, ms, mset, /* FMOD */, /* K */, int)
                                                                                                                  \
         double input_time = timer.result;                                                                        \
                                                                                                                  \
-        timer_start(timer);                                                                                      \
+        cmc_timer_start(timer);                                                                                  \
                                                                                                                  \
         for (size_t i = 0; i < s; i++)                                                                           \
         {                                                                                                        \
             searchbody;                                                                                          \
         }                                                                                                        \
                                                                                                                  \
-        timer_stop(timer);                                                                                       \
+        cmc_timer_stop(timer);                                                                                   \
                                                                                                                  \
-        timer_calc(timer);                                                                                       \
+        cmc_timer_calc(timer);                                                                                   \
                                                                                                                  \
         printf("   SEARCH %10s TOOK %8.0lf milliseconds for %8" PRIuMAX " elements\n", #NAME, timer.result, s);  \
                                                                                                                  \
@@ -120,30 +120,30 @@ COLLECTION_GENERATE(MULTISET, ms, mset, /* FMOD */, /* K */, int)
                                                                                                                  \
         sname##_iter iter;                                                                                       \
                                                                                                                  \
-        timer_start(timer);                                                                                      \
+        cmc_timer_start(timer);                                                                                  \
                                                                                                                  \
         for (PFX##_iter_init(&iter, coll); !PFX##_iter_end(&iter); PFX##_iter_next(&iter))                       \
         {                                                                                                        \
         }                                                                                                        \
                                                                                                                  \
-        timer_stop(timer);                                                                                       \
+        cmc_timer_stop(timer);                                                                                   \
                                                                                                                  \
-        timer_calc(timer);                                                                                       \
+        cmc_timer_calc(timer);                                                                                   \
                                                                                                                  \
         printf("ITERATION %10s TOOK %8.0lf milliseconds for %8" PRIuMAX " elements\n", #NAME, timer.result, s1); \
                                                                                                                  \
         double iter_time = timer.result;                                                                         \
                                                                                                                  \
-        timer_start(timer);                                                                                      \
+        cmc_timer_start(timer);                                                                                  \
                                                                                                                  \
         for (size_t i = 0; i < NTOTAL; i++)                                                                      \
         {                                                                                                        \
             removebody;                                                                                          \
         }                                                                                                        \
                                                                                                                  \
-        timer_stop(timer);                                                                                       \
+        cmc_timer_stop(timer);                                                                                   \
                                                                                                                  \
-        timer_calc(timer);                                                                                       \
+        cmc_timer_calc(timer);                                                                                   \
                                                                                                                  \
         size_t s2 = PFX##_count(coll);                                                                           \
                                                                                                                  \
@@ -151,8 +151,8 @@ COLLECTION_GENERATE(MULTISET, ms, mset, /* FMOD */, /* K */, int)
                                                                                                                  \
         double output_time = timer.result;                                                                       \
                                                                                                                  \
-        timer_stop(total);                                                                                       \
-        timer_calc(total);                                                                                       \
+        cmc_timer_stop(total);                                                                                   \
+        cmc_timer_calc(total);                                                                                   \
                                                                                                                  \
         PFX##_free(coll, NULL);                                                                                  \
                                                                                                                  \
@@ -221,6 +221,9 @@ int main(void)
 
     // Linear containers have to search for NMIN elements and non-linear (hash
     // and tree) have to search for all elements.
+    cmc_timer timer;
+    cmc_timer_start(timer);
+
     DEQUE_io_benchmark(array, sarray, NMIN);
     HASHMAP_io_benchmark(array, sarray, NTOTAL);
     HASHSET_io_benchmark(array, sarray, NTOTAL);
@@ -235,6 +238,13 @@ int main(void)
     INTERVALHEAP_io_benchmark(array, array, NMIN);
     MULTIMAP_io_benchmark(array, array, NTOTAL);
     MULTISET_io_benchmark(array, array, NTOTAL);
+
+    cmc_timer_stop(timer);
+    cmc_timer_calc(timer);
+
+    printf("+-----------------------------------------------------------+ \n");
+    printf("| Total Benchmark Running Time : %12.0lf seconds       | \n", timer.result / 1000);
+    printf("+-----------------------------------------------------------+ \n");
 
     free(array);
     free(sarray);

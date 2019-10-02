@@ -50,6 +50,26 @@
     * HashMap, TreeMap, MultiMap
 * Heaps
     * Heap, IntervalHeap
+* Coming Soon
+    * BidiMap, SortedList
+
+| Collection <img width=250/>        | Abstract Data Type <img width=250/> | Data Structure <img width=250/> | Details                               |
+| :--------------------------------: | :---------------------------------: | :-----------------------------: | :-----------------------------------: |
+| BidiMap      <br> _bidimap.h_      | Bidirectional Map                   | Two Hashtables                  | A bijection between two sets of unique keys and unique values `K <-> V` using two hashtables |
+| Deque        <br> _deque.h_        | Double-Ended Queue                  | Dynamic Circular Array          | A circular array that allows `push` and `pop` on both ends (only) at constant time |
+| HashMap      <br> _hashmap.h_      | Map                                 | Hashtable                       | A unique set of keys associated with a value `K -> V` with constant time look up using a hashtable with open addressing and robin hood hashing |
+| HashSet      <br> _hashset.h_      | Set                                 | Hashtable                       | A unique set of values with constant time look up  using a hashtable with open addressing and robin hood hashing |
+| Heap         <br> _heap.h_         | Priority Queue                      | Dynamic Array                   | A binary heap as a dynamic array as an implicit data structure |
+| IntervalHeap <br> _intervalheap.h_ | Double-Ended Priority Queue         | Custom Dynamic Array            | A dynamic array of nodes, each hosting one value from the MinHeap and one from the MaxHeap |
+| LinkedList   <br> _linkedlist.h_   | List                                | Doubly-Linked List              | A default doubly-linked list |
+| List         <br> _list.h_         | List                                | Dynamic Array                   | A dynamic array with `push` and `pop` anywhere on the array |
+| MultiMap     <br> _multimap.h_     | Multimap                            | Custom Hashtable                | A mapping of multiple keys with one node per key using a hashtable with separate chaining |
+| Multiset     <br> _multiset.h_     | Multiset                            | Hashtable                       | A mapping of a value and its multiplicity using a hashtable with open addressing and robin hood hashing |
+| Queue        <br> _queue.h_        | FIFO                                | Dynamic Circular Array          | A queue using a circular array with `enqueue` at the `back` index and `dequeue` at the `front` index |
+| SortedList   <br> _sortedlist.h_   | Sorted List                         | Sorted Dynamic Array            | A lazily sorted dynamic array that is sorted only when necessary |
+| Stack        <br> _stack.h_        | FILO                                | Dynamic Array                   | A stack with push and pop at the end of a dynamic array |
+| TreeMap      <br> _treemap.h_      | Sorted Map                          | AVL Tree                        | A unique set of keys associated with a value `K -> V` using an AVL tree with `log(n)` look up and sorted iteration |
+| TreeSet      <br> _treeset.h_      | Sorted Set                          | AVL Tree                        | A unique set of keys using an AVL tree with `log(n)` look up and sorted iteration |
 
 ## Overall To-Do
 
@@ -121,28 +141,24 @@ Or you can generate each part individually:
 * `CMC_GENERATE_SNAME_HEADER` - Generates all struct definitions and function definitions.
 * `CMC_GENERATE_SNAME_SOURCE` - Generates all function implementations.
 
+### Parameters
+
+When including `macro_collections.h` in your source code you gain access to a macro called `CMC_COLLECTION_GENERATE` with the following parameters:
+
+* __C__ - Container name in uppercase (*LIST*, *LINKEDLIST*, *STACK*, *QUEUE*, *DEQUE*, *HEAP*, *TREESET*, *TREEMAP*, *HASHSET*, *HASHMAP*).
+* __PFX__ - Functions prefix or namespace.
+* __SNAME__ - Structure name (`typedef struct SNAME##_s SNAME`).
+* __K__ - Key type. Only used in *HASHMAP*, *TREEMAP*, *MULTIMAP* and *BIDIMAP*; ignored by others.
+* __V__ - Value type. Primary type for most collections, or value to be mapped by *HASHMAP*, *TREEMAP*, *MULTIMAP* and *BIDIMAP*.
+
+**In fact, all macros follow this pattern.** So whenever you see a macro with a bunch of parameters and you don't know what they are, you can check out the above list.
+
 ### For Each
 
 There are 2 for-each macros:
 
 * `CMC_FOR_EACH` - Starts at the start of the collection towards the end.
 * `CMC_FOR_EACH_REV` - Starts at the end of the collection towards the start.
-
-Check out the documentation to know more.
-
-### Parameters
-
-When including `macro_collections.h` in your source code you gain access to a macro called `COLLECTION_GENERATE` with the following parameters:
-
-* __C__ - Container name in uppercase (*LIST*, *LINKEDLIST*, *STACK*, *QUEUE*, *DEQUE*, *HEAP*, *TREESET*, *TREEMAP*, *HASHSET*, *HASHMAP*).
-* __PFX__ - Functions prefix or namespace.
-* __SNAME__ - Structure name (`typedef struct SNAME##_s SNAME`).
-* \*__K__ - Key type. Only used in *HASHMAP* and *TREEMAP*; ignored by others.
-* __V__ - Value type. Primary type for most collections, or value to be mapped by *HASHMAP* and *TREEMAP*.
-
-\* Required only by *HASHMAP* and *TREEMAP*
-
-**In fact, all macros follow this pattern.** So whenever you see a macro with a bunch of parameters and you don't know what they are, you can check out the above list.
 
 When including `foreach.h` in your source code you gain access to all for-each macros with the following parameters:
 
@@ -151,7 +167,7 @@ When including `foreach.h` in your source code you gain access to all for-each m
 * __TARGET__ - The variable name of the collection you wish to iterate over.
 * __BODY__ - Block of code.
 
-Inside body you will have access to the iterator variable. With it you can use functions to access the key, value or index from the iterator. Checkout the documentation for more details.
+Inside body you will have access to the iterator variable `iter`. With it you can use functions to access the key, value or index from the iterator. Checkout the documentation for more details.
 
 <hr>
 
