@@ -36,7 +36,7 @@ CMC_CREATE_UNIT(linkedlist_test, true, {
         ll_free(ll, NULL);
     });
 
-    CMC_CREATE_TEST(clear [edge_case:count = 0], {
+    CMC_CREATE_TEST(clear[edge_case count = 0], {
         linkedlist *ll = ll_new();
 
         cmc_assert_not_equals(ptr, NULL, ll);

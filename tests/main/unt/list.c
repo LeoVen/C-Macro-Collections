@@ -19,13 +19,13 @@ CMC_CREATE_UNIT(list_test, true, {
         l_free(l, NULL);
     });
 
-    CMC_CREATE_TEST(new [edge_case:capacity = 0], {
+    CMC_CREATE_TEST(new[edge_case capacity = 0], {
         list *l = l_new(0);
 
         cmc_assert_equals(ptr, NULL, l);
     });
 
-    CMC_CREATE_TEST(new [edge_case:capacity = UINT64_MAX], {
+    CMC_CREATE_TEST(new[edge_case capacity = UINT64_MAX], {
         list *l = l_new(UINT64_MAX);
 
         cmc_assert_equals(ptr, NULL, l);
@@ -49,7 +49,7 @@ CMC_CREATE_UNIT(list_test, true, {
         l_free(l, NULL);
     });
 
-    CMC_CREATE_TEST(new_from [edge_case:size = 1], {
+    CMC_CREATE_TEST(new_from[edge_case size = 1], {
         size_t a = 10;
 
         size_t *values = &a;
@@ -79,7 +79,7 @@ CMC_CREATE_UNIT(list_test, true, {
         l_free(l, NULL);
     });
 
-    CMC_CREATE_TEST(buffer_growth [edge_case:capacity = 1], {
+    CMC_CREATE_TEST(buffer_growth[edge_case capacity = 1], {
         list *l = l_new(1);
 
         cmc_assert_not_equals(ptr, NULL, l);
@@ -253,7 +253,7 @@ CMC_CREATE_UNIT(list_test, true, {
         l_free(l, NULL);
     });
 
-    CMC_CREATE_TEST(pop_front [edge_case:count = 0], {
+    CMC_CREATE_TEST(pop_front[edge_case count = 0], {
         list *l = l_new(100);
 
         cmc_assert_not_equals(ptr, NULL, l);
@@ -262,7 +262,7 @@ CMC_CREATE_UNIT(list_test, true, {
         l_free(l, NULL);
     });
 
-    CMC_CREATE_TEST(pop_front [edge_case:count = 1], {
+    CMC_CREATE_TEST(pop_front[edge_case count = 1], {
         list *l = l_new(100);
 
         cmc_assert_not_equals(ptr, NULL, l);
@@ -286,7 +286,7 @@ CMC_CREATE_UNIT(list_test, true, {
         l_free(l, NULL);
     });
 
-    CMC_CREATE_TEST(pop_at [edge_case:count = 0], {
+    CMC_CREATE_TEST(pop_at[edge_case count = 0], {
         list *l = l_new(100);
 
         cmc_assert_not_equals(ptr, NULL, l);
@@ -295,7 +295,7 @@ CMC_CREATE_UNIT(list_test, true, {
         l_free(l, NULL);
     });
 
-    CMC_CREATE_TEST(pop_at [edge_case:count = 1], {
+    CMC_CREATE_TEST(pop_at[edge_case count = 1], {
         list *l = l_new(100);
 
         cmc_assert_not_equals(ptr, NULL, l);
@@ -319,7 +319,7 @@ CMC_CREATE_UNIT(list_test, true, {
         l_free(l, NULL);
     });
 
-    CMC_CREATE_TEST(pop_back [edge_case:count = 0], {
+    CMC_CREATE_TEST(pop_back[edge_case count = 0], {
         list *l = l_new(100);
 
         cmc_assert_not_equals(ptr, NULL, l);
@@ -328,7 +328,7 @@ CMC_CREATE_UNIT(list_test, true, {
         l_free(l, NULL);
     });
 
-    CMC_CREATE_TEST(pop_back [edge_case:count = 1], {
+    CMC_CREATE_TEST(pop_back[edge_case count = 1], {
         list *l = l_new(100);
 
         cmc_assert_not_equals(ptr, NULL, l);

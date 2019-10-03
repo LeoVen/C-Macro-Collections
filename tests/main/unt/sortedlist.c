@@ -20,13 +20,13 @@ CMC_CREATE_UNIT(sortedlist_test, true, {
         sl_free(sl, NULL);
     });
 
-    CMC_CREATE_TEST(new [edge_case:capacity = 0], {
+    CMC_CREATE_TEST(new[edge_case capacity = 0], {
         sortedlist *sl = sl_new(0, cmp);
 
         cmc_assert_equals(ptr, NULL, sl);
     });
 
-    CMC_CREATE_TEST(new [edge_case:capacity = UINT64_MAX], {
+    CMC_CREATE_TEST(new[edge_case capacity = UINT64_MAX], {
         sortedlist *sl = sl_new(UINT64_MAX, cmp);
 
         cmc_assert_equals(ptr, NULL, sl);
@@ -50,7 +50,7 @@ CMC_CREATE_UNIT(sortedlist_test, true, {
         sl_free(sl, NULL);
     });
 
-    CMC_CREATE_TEST(buffer_growth [edge_case:capacity = 1], {
+    CMC_CREATE_TEST(buffer_growth[edge_case capacity = 1], {
         sortedlist *sl = sl_new(1, cmp);
 
         cmc_assert_not_equals(ptr, NULL, sl);

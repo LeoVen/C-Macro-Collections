@@ -19,13 +19,13 @@ CMC_CREATE_UNIT(heap_test, true, {
         h_free(h, NULL);
     });
 
-    CMC_CREATE_TEST(new [edge_case:capacity = 0], {
+    CMC_CREATE_TEST(new[edge_case capacity = 0], {
         heap *h = h_new(0, cmc_max_heap, cmp);
 
         cmc_assert_equals(ptr, NULL, h);
     });
 
-    CMC_CREATE_TEST(new [edge_case:capacity = UINT64_MAX], {
+    CMC_CREATE_TEST(new[edge_case capacity = UINT64_MAX], {
         heap *h = h_new(UINT64_MAX, cmc_max_heap, cmp);
 
         cmc_assert_equals(ptr, NULL, h);
@@ -49,7 +49,7 @@ CMC_CREATE_UNIT(heap_test, true, {
         h_free(h, NULL);
     });
 
-    CMC_CREATE_TEST(buffer_growth [edge_case:capacity = 1], {
+    CMC_CREATE_TEST(buffer_growth[edge_case capacity = 1], {
         heap *h = h_new(1, cmc_max_heap, cmp);
 
         cmc_assert_not_equals(ptr, NULL, h);

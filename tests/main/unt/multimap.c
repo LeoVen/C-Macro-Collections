@@ -19,14 +19,14 @@ CMC_CREATE_UNIT(multimap_test, true, {
         mm_free(map, NULL);
     });
 
-    CMC_CREATE_TEST(new [edge_case:capacity = 0], {
+    CMC_CREATE_TEST(new[edge_case capacity = 0], {
         multimap *map = mm_new(0, 0.8, cmp, hash);
 
         cmc_assert_equals(ptr, NULL, map);
     });
 
-    CMC_CREATE_TEST(new [edge_case:capacity = UINT64_MAX], {
-        multimap *map = mm_new(UINT64_MAX, 0.8, cmp, hash);
+    CMC_CREATE_TEST(new[edge_case capacity = UINT64_MAX], {
+        multimap *map = mm_new(UINT64_MAX, 0.99, cmp, hash);
 
         cmc_assert_equals(ptr, NULL, map);
     });
@@ -79,7 +79,7 @@ CMC_CREATE_UNIT(multimap_test, true, {
         mm_free(map, NULL);
     });
 
-    CMC_CREATE_TEST(remove [edge_case:count = 0], {
+    CMC_CREATE_TEST(remove[edge_case count = 0], {
         multimap *map = mm_new(100, 0.8, cmp, hash);
 
         cmc_assert_not_equals(ptr, NULL, map);
@@ -91,7 +91,7 @@ CMC_CREATE_UNIT(multimap_test, true, {
         mm_free(map, NULL);
     });
 
-    CMC_CREATE_TEST(remove [edge_case:count = 1], {
+    CMC_CREATE_TEST(remove[edge_case count = 1], {
         multimap *map = mm_new(100, 0.8, cmp, hash);
 
         cmc_assert_not_equals(ptr, NULL, map);

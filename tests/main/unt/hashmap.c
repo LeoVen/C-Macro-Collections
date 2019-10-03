@@ -19,14 +19,14 @@ CMC_CREATE_UNIT(hashmap_test, true, {
         hm_free(map, NULL);
     });
 
-    CMC_CREATE_TEST(new [edge_case:capacity = 0], {
+    CMC_CREATE_TEST(new[edge_case capacity = 0], {
         hashmap *map = hm_new(0, 0.6, cmp, hash);
 
         cmc_assert_equals(ptr, NULL, map);
     });
 
-    CMC_CREATE_TEST(new [edge_case:capacity = UINT64_MAX], {
-        hashmap *map = hm_new(UINT64_MAX, 0.6, cmp, hash);
+    CMC_CREATE_TEST(new[edge_case capacity = UINT64_MAX], {
+        hashmap *map = hm_new(UINT64_MAX, 0.99, cmp, hash);
 
         cmc_assert_equals(ptr, NULL, map);
     });
