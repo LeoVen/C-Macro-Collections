@@ -120,6 +120,7 @@ static const char *cmc_string_fmt_deque = "%s at %p { buffer:%p, capacity:%" PRI
     size_t PFX##_count(SNAME *_deque_);                                           \
     size_t PFX##_capacity(SNAME *_deque_);                                        \
     /* Collection Utility */                                                      \
+    bool PFX##_resize(SNAME *_deque_, size_t capacity);                           \
     SNAME *PFX##_copy_of(SNAME *_deque_, V (*copy_func)(V));                      \
     bool PFX##_equals(SNAME *_deque1_, SNAME *_deque2_, int (*comparator)(V, V)); \
     cmc_string PFX##_to_string(SNAME *_deque_);                                   \
@@ -157,467 +158,502 @@ static const char *cmc_string_fmt_deque = "%s at %p { buffer:%p, capacity:%" PRI
     }                                                                             \
                                                                                   \
 /* SOURCE ********************************************************************/
-#define CMC_GENERATE_DEQUE_SOURCE(PFX, SNAME, V)                                                             \
-                                                                                                             \
-    /* Implementation Detail Functions */                                                                    \
-    static bool PFX##_impl_grow(SNAME *_deque_);                                                             \
-    static SNAME##_iter PFX##_impl_it_start(SNAME *_deque_);                                                 \
-    static SNAME##_iter PFX##_impl_it_end(SNAME *_deque_);                                                   \
-                                                                                                             \
-    SNAME *PFX##_new(size_t capacity)                                                                        \
-    {                                                                                                        \
-        if (capacity < 1)                                                                                    \
-            return NULL;                                                                                     \
-                                                                                                             \
-        SNAME *_deque_ = malloc(sizeof(SNAME));                                                              \
-                                                                                                             \
-        if (!_deque_)                                                                                        \
-            return NULL;                                                                                     \
-                                                                                                             \
-        _deque_->buffer = malloc(sizeof(V) * capacity);                                                      \
-                                                                                                             \
-        if (!_deque_->buffer)                                                                                \
-        {                                                                                                    \
-            free(_deque_);                                                                                   \
-            return NULL;                                                                                     \
-        }                                                                                                    \
-                                                                                                             \
-        memset(_deque_->buffer, 0, sizeof(V) * capacity);                                                    \
-                                                                                                             \
-        _deque_->capacity = capacity;                                                                        \
-        _deque_->count = 0;                                                                                  \
-        _deque_->front = 0;                                                                                  \
-        _deque_->back = 0;                                                                                   \
-                                                                                                             \
-        _deque_->it_start = PFX##_impl_it_start;                                                             \
-        _deque_->it_end = PFX##_impl_it_end;                                                                 \
-                                                                                                             \
-        return _deque_;                                                                                      \
-    }                                                                                                        \
-                                                                                                             \
-    void PFX##_clear(SNAME *_deque_, void (*deallocator)(V))                                                 \
-    {                                                                                                        \
-        if (deallocator)                                                                                     \
-        {                                                                                                    \
-            for (size_t i = _deque_->front, j = 0; j < _deque_->count; i = (i + 1) % _deque_->capacity, j++) \
-            {                                                                                                \
-                deallocator(_deque_->buffer[i]);                                                             \
-            }                                                                                                \
-        }                                                                                                    \
-                                                                                                             \
-        memset(_deque_->buffer, 0, sizeof(V) * _deque_->capacity);                                           \
-                                                                                                             \
-        _deque_->count = 0;                                                                                  \
-        _deque_->front = 0;                                                                                  \
-        _deque_->back = 0;                                                                                   \
-    }                                                                                                        \
-                                                                                                             \
-    void PFX##_free(SNAME *_deque_, void (*deallocator)(V))                                                  \
-    {                                                                                                        \
-        if (deallocator)                                                                                     \
-        {                                                                                                    \
-            for (size_t i = _deque_->front, j = 0; j < _deque_->count; i = (i + 1) % _deque_->capacity, j++) \
-            {                                                                                                \
-                deallocator(_deque_->buffer[i]);                                                             \
-            }                                                                                                \
-        }                                                                                                    \
-                                                                                                             \
-        free(_deque_->buffer);                                                                               \
-        free(_deque_);                                                                                       \
-    }                                                                                                        \
-                                                                                                             \
-    bool PFX##_push_front(SNAME *_deque_, V element)                                                         \
-    {                                                                                                        \
-        if (PFX##_full(_deque_))                                                                             \
-        {                                                                                                    \
-            if (!PFX##_impl_grow(_deque_))                                                                   \
-                return false;                                                                                \
-        }                                                                                                    \
-                                                                                                             \
-        _deque_->front = (_deque_->front == 0) ? _deque_->capacity - 1 : _deque_->front - 1;                 \
-                                                                                                             \
-        _deque_->buffer[_deque_->front] = element;                                                           \
-                                                                                                             \
-        _deque_->count++;                                                                                    \
-                                                                                                             \
-        return true;                                                                                         \
-    }                                                                                                        \
-                                                                                                             \
-    bool PFX##_push_back(SNAME *_deque_, V element)                                                          \
-    {                                                                                                        \
-        if (PFX##_full(_deque_))                                                                             \
-        {                                                                                                    \
-            if (!PFX##_impl_grow(_deque_))                                                                   \
-                return false;                                                                                \
-        }                                                                                                    \
-                                                                                                             \
-        _deque_->buffer[_deque_->back] = element;                                                            \
-                                                                                                             \
-        _deque_->back = (_deque_->back == _deque_->capacity - 1) ? 0 : _deque_->back + 1;                    \
-                                                                                                             \
-        _deque_->count++;                                                                                    \
-                                                                                                             \
-        return true;                                                                                         \
-    }                                                                                                        \
-                                                                                                             \
-    bool PFX##_pop_front(SNAME *_deque_)                                                                     \
-    {                                                                                                        \
-        if (PFX##_empty(_deque_))                                                                            \
-            return false;                                                                                    \
-                                                                                                             \
-        _deque_->buffer[_deque_->front] = PFX##_impl_default_value();                                        \
-                                                                                                             \
-        _deque_->front = (_deque_->front == _deque_->capacity - 1) ? 0 : _deque_->front + 1;                 \
-                                                                                                             \
-        _deque_->count--;                                                                                    \
-                                                                                                             \
-        return true;                                                                                         \
-    }                                                                                                        \
-                                                                                                             \
-    bool PFX##_pop_back(SNAME *_deque_)                                                                      \
-    {                                                                                                        \
-        if (PFX##_empty(_deque_))                                                                            \
-            return false;                                                                                    \
-                                                                                                             \
-        _deque_->back = (_deque_->back == 0) ? _deque_->capacity - 1 : _deque_->back - 1;                    \
-                                                                                                             \
-        _deque_->buffer[_deque_->back] = PFX##_impl_default_value();                                         \
-                                                                                                             \
-        _deque_->count--;                                                                                    \
-                                                                                                             \
-        return true;                                                                                         \
-    }                                                                                                        \
-                                                                                                             \
-    V PFX##_front(SNAME *_deque_)                                                                            \
-    {                                                                                                        \
-        if (PFX##_empty(_deque_))                                                                            \
-            return PFX##_impl_default_value();                                                               \
-                                                                                                             \
-        return _deque_->buffer[_deque_->front];                                                              \
-    }                                                                                                        \
-                                                                                                             \
-    V PFX##_back(SNAME *_deque_)                                                                             \
-    {                                                                                                        \
-        if (PFX##_empty(_deque_))                                                                            \
-            return PFX##_impl_default_value();                                                               \
-                                                                                                             \
-        return _deque_->buffer[(_deque_->back == 0) ? _deque_->capacity - 1 : _deque_->back - 1];            \
-    }                                                                                                        \
-                                                                                                             \
-    bool PFX##_contains(SNAME *_deque_, V element, int (*comparator)(V, V))                                  \
-    {                                                                                                        \
-        for (size_t i = _deque_->front, j = 0; j < _deque_->count; i = (i + 1) % _deque_->capacity, j++)     \
-        {                                                                                                    \
-            if (comparator(_deque_->buffer[i], element) == 0)                                                \
-                return true;                                                                                 \
-        }                                                                                                    \
-                                                                                                             \
-        return false;                                                                                        \
-    }                                                                                                        \
-                                                                                                             \
-    bool PFX##_empty(SNAME *_deque_)                                                                         \
-    {                                                                                                        \
-        return _deque_->count == 0;                                                                          \
-    }                                                                                                        \
-                                                                                                             \
-    bool PFX##_full(SNAME *_deque_)                                                                          \
-    {                                                                                                        \
-        return _deque_->count >= _deque_->capacity;                                                          \
-    }                                                                                                        \
-                                                                                                             \
-    size_t PFX##_count(SNAME *_deque_)                                                                       \
-    {                                                                                                        \
-        return _deque_->count;                                                                               \
-    }                                                                                                        \
-                                                                                                             \
-    size_t PFX##_capacity(SNAME *_deque_)                                                                    \
-    {                                                                                                        \
-        return _deque_->capacity;                                                                            \
-    }                                                                                                        \
-                                                                                                             \
-    SNAME *PFX##_copy_of(SNAME *_deque_, V (*copy_func)(V))                                                  \
-    {                                                                                                        \
-        SNAME *result = PFX##_new(_deque_->capacity);                                                        \
-                                                                                                             \
-        if (!result)                                                                                         \
-            return NULL;                                                                                     \
-                                                                                                             \
-        if (copy_func)                                                                                       \
-        {                                                                                                    \
-            for (size_t i = _deque_->front, j = 0; j < _deque_->count; i = (i + 1) % _deque_->capacity, j++) \
-            {                                                                                                \
-                result->buffer[j] = copy_func(_deque_->buffer[i]);                                           \
-            }                                                                                                \
-        }                                                                                                    \
-        else                                                                                                 \
-        {                                                                                                    \
-            for (size_t i = _deque_->front, j = 0; j < _deque_->count; i = (i + 1) % _deque_->capacity, j++) \
-            {                                                                                                \
-                result->buffer[j] = _deque_->buffer[i];                                                      \
-            }                                                                                                \
-        }                                                                                                    \
-                                                                                                             \
-        result->count = _deque_->count;                                                                      \
-                                                                                                             \
-        return result;                                                                                       \
-    }                                                                                                        \
-                                                                                                             \
-    bool PFX##_equals(SNAME *_deque1_, SNAME *_deque2_, int (*comparator)(V, V))                             \
-    {                                                                                                        \
-        if (PFX##_count(_deque1_) != PFX##_count(_deque2_))                                                  \
-            return false;                                                                                    \
-                                                                                                             \
-        size_t i, j, k;                                                                                      \
-        for (i = _deque1_->front, j = _deque2_->front, k = 0; k < PFX##_count(_deque1_); k++)                \
-        {                                                                                                    \
-            if (comparator(_deque1_->buffer[i], _deque2_->buffer[j]) != 0)                                   \
-                return false;                                                                                \
-                                                                                                             \
-            i = (i + 1) % _deque1_->capacity;                                                                \
-            j = (j + 1) % _deque2_->capacity;                                                                \
-        }                                                                                                    \
-                                                                                                             \
-        return true;                                                                                         \
-    }                                                                                                        \
-                                                                                                             \
-    cmc_string PFX##_to_string(SNAME *_deque_)                                                               \
-    {                                                                                                        \
-        cmc_string str;                                                                                      \
-        SNAME *d_ = _deque_;                                                                                 \
-        const char *name = #SNAME;                                                                           \
-                                                                                                             \
-        snprintf(str.s, cmc_string_len, cmc_string_fmt_deque,                                                \
-                 name, d_, d_->buffer, d_->capacity, d_->count, d_->front, d_->back);                        \
-                                                                                                             \
-        return str;                                                                                          \
-    }                                                                                                        \
-                                                                                                             \
-    SNAME##_iter *PFX##_iter_new(SNAME *target)                                                              \
-    {                                                                                                        \
-        SNAME##_iter *iter = malloc(sizeof(SNAME##_iter));                                                   \
-                                                                                                             \
-        if (!iter)                                                                                           \
-            return NULL;                                                                                     \
-                                                                                                             \
-        PFX##_iter_init(iter, target);                                                                       \
-                                                                                                             \
-        return iter;                                                                                         \
-    }                                                                                                        \
-                                                                                                             \
-    void PFX##_iter_free(SNAME##_iter *iter)                                                                 \
-    {                                                                                                        \
-        free(iter);                                                                                          \
-    }                                                                                                        \
-                                                                                                             \
-    void PFX##_iter_init(SNAME##_iter *iter, SNAME *target)                                                  \
-    {                                                                                                        \
-        iter->target = target;                                                                               \
-        iter->cursor = target->front;                                                                        \
-        iter->index = 0;                                                                                     \
-        iter->start = true;                                                                                  \
-        iter->end = PFX##_empty(target);                                                                     \
-    }                                                                                                        \
-                                                                                                             \
-    bool PFX##_iter_start(SNAME##_iter *iter)                                                                \
-    {                                                                                                        \
-        return PFX##_empty(iter->target) || iter->start;                                                     \
-    }                                                                                                        \
-                                                                                                             \
-    bool PFX##_iter_end(SNAME##_iter *iter)                                                                  \
-    {                                                                                                        \
-        return PFX##_empty(iter->target) || iter->end;                                                       \
-    }                                                                                                        \
-                                                                                                             \
-    void PFX##_iter_to_start(SNAME##_iter *iter)                                                             \
-    {                                                                                                        \
-        iter->cursor = iter->target->front;                                                                  \
-        iter->index = 0;                                                                                     \
-        iter->start = true;                                                                                  \
-        iter->end = PFX##_empty(iter->target);                                                               \
-    }                                                                                                        \
-                                                                                                             \
-    void PFX##_iter_to_end(SNAME##_iter *iter)                                                               \
-    {                                                                                                        \
-        if (PFX##_empty(iter->target))                                                                       \
-        {                                                                                                    \
-            iter->cursor = 0;                                                                                \
-            iter->index = 0;                                                                                 \
-        }                                                                                                    \
-        else                                                                                                 \
-        {                                                                                                    \
-            iter->cursor = (iter->target->back == 0) ? iter->target->capacity - 1 : iter->target->back - 1;  \
-            iter->index = PFX##_count(iter->target) - 1;                                                     \
-        }                                                                                                    \
-                                                                                                             \
-        iter->start = PFX##_empty(iter->target);                                                             \
-        iter->end = true;                                                                                    \
-    }                                                                                                        \
-                                                                                                             \
-    bool PFX##_iter_next(SNAME##_iter *iter)                                                                 \
-    {                                                                                                        \
-        if (iter->end)                                                                                       \
-            return false;                                                                                    \
-                                                                                                             \
-        if (iter->index + 1 == PFX##_count(iter->target))                                                    \
-        {                                                                                                    \
-            iter->end = true;                                                                                \
-            return false;                                                                                    \
-        }                                                                                                    \
-                                                                                                             \
-        iter->start = PFX##_empty(iter->target);                                                             \
-                                                                                                             \
-        iter->cursor = (iter->cursor + 1) % (iter->target->capacity);                                        \
-        iter->index++;                                                                                       \
-                                                                                                             \
-        return true;                                                                                         \
-    }                                                                                                        \
-                                                                                                             \
-    bool PFX##_iter_prev(SNAME##_iter *iter)                                                                 \
-    {                                                                                                        \
-        if (iter->start)                                                                                     \
-            return false;                                                                                    \
-                                                                                                             \
-        if (iter->index == 0)                                                                                \
-        {                                                                                                    \
-            iter->start = true;                                                                              \
-            return false;                                                                                    \
-        }                                                                                                    \
-                                                                                                             \
-        iter->end = PFX##_empty(iter->target);                                                               \
-                                                                                                             \
-        iter->cursor = (iter->cursor == 0) ? iter->target->capacity - 1 : iter->cursor - 1;                  \
-        iter->index--;                                                                                       \
-                                                                                                             \
-        return true;                                                                                         \
-    }                                                                                                        \
-                                                                                                             \
-    /* Returns true only if the iterator moved */                                                            \
-    bool PFX##_iter_advance(SNAME##_iter *iter, size_t steps)                                                \
-    {                                                                                                        \
-        if (iter->end)                                                                                       \
-            return false;                                                                                    \
-                                                                                                             \
-        if (iter->index + 1 == PFX##_count(iter->target))                                                    \
-        {                                                                                                    \
-            iter->end = true;                                                                                \
-            return false;                                                                                    \
-        }                                                                                                    \
-                                                                                                             \
-        if (steps == 0 || iter->index + steps >= PFX##_count(iter->target))                                  \
-            return false;                                                                                    \
-                                                                                                             \
-        iter->start = PFX##_empty(iter->target);                                                             \
-                                                                                                             \
-        iter->index += steps;                                                                                \
-        iter->cursor = (iter->cursor + steps) % iter->target->capacity;                                      \
-                                                                                                             \
-        return true;                                                                                         \
-    }                                                                                                        \
-                                                                                                             \
-    /* Returns true only if the iterator moved */                                                            \
-    bool PFX##_iter_rewind(SNAME##_iter *iter, size_t steps)                                                 \
-    {                                                                                                        \
-        if (iter->start)                                                                                     \
-            return false;                                                                                    \
-                                                                                                             \
-        if (iter->index == 0)                                                                                \
-        {                                                                                                    \
-            iter->start = true;                                                                              \
-            return false;                                                                                    \
-        }                                                                                                    \
-                                                                                                             \
-        if (steps == 0 || iter->index < steps)                                                               \
-            return false;                                                                                    \
-                                                                                                             \
-        iter->end = PFX##_empty(iter->target);                                                               \
-                                                                                                             \
-        iter->index -= steps;                                                                                \
-                                                                                                             \
-        /* Prevent underflow */                                                                              \
-        if (iter->cursor < steps)                                                                            \
-            iter->cursor += PFX##_capacity(iter->target);                                                    \
-                                                                                                             \
-        iter->cursor -= steps;                                                                               \
-                                                                                                             \
-        return true;                                                                                         \
-    }                                                                                                        \
-                                                                                                             \
-    /* Returns true only if the iterator was able to be positioned at the given index */                     \
-    bool PFX##_iter_go_to(SNAME##_iter *iter, size_t index)                                                  \
-    {                                                                                                        \
-        if (index >= PFX##_count(iter->target))                                                              \
-            return false;                                                                                    \
-                                                                                                             \
-        if (iter->index > index)                                                                             \
-            return PFX##_iter_rewind(iter, iter->index - index);                                             \
-        else if (iter->index < index)                                                                        \
-            return PFX##_iter_advance(iter, index - iter->index);                                            \
-                                                                                                             \
-        return true;                                                                                         \
-    }                                                                                                        \
-                                                                                                             \
-    V PFX##_iter_value(SNAME##_iter *iter)                                                                   \
-    {                                                                                                        \
-        if (PFX##_empty(iter->target))                                                                       \
-            return PFX##_impl_default_value();                                                               \
-                                                                                                             \
-        return iter->target->buffer[iter->cursor];                                                           \
-    }                                                                                                        \
-                                                                                                             \
-    V *PFX##_iter_rvalue(SNAME##_iter *iter)                                                                 \
-    {                                                                                                        \
-        if (PFX##_empty(iter->target))                                                                       \
-            return NULL;                                                                                     \
-                                                                                                             \
-        return &(iter->target->buffer[iter->cursor]);                                                        \
-    }                                                                                                        \
-                                                                                                             \
-    size_t PFX##_iter_index(SNAME##_iter *iter)                                                              \
-    {                                                                                                        \
-        return iter->index;                                                                                  \
-    }                                                                                                        \
-                                                                                                             \
-    static bool PFX##_impl_grow(SNAME *_deque_)                                                              \
-    {                                                                                                        \
-        size_t new_capacity = _deque_->capacity * 2;                                                         \
-                                                                                                             \
-        V *new_buffer = malloc(sizeof(V) * new_capacity);                                                    \
-                                                                                                             \
-        if (!new_buffer)                                                                                     \
-            return false;                                                                                    \
-                                                                                                             \
-        for (size_t i = _deque_->front, j = 0; j < _deque_->count; i = (i + 1) % _deque_->capacity, j++)     \
-        {                                                                                                    \
-            new_buffer[j] = _deque_->buffer[i];                                                              \
-        }                                                                                                    \
-                                                                                                             \
-        free(_deque_->buffer);                                                                               \
-                                                                                                             \
-        _deque_->buffer = new_buffer;                                                                        \
-        _deque_->capacity = new_capacity;                                                                    \
-        _deque_->front = 0;                                                                                  \
-        _deque_->back = _deque_->count;                                                                      \
-                                                                                                             \
-        return true;                                                                                         \
-    }                                                                                                        \
-                                                                                                             \
-    static SNAME##_iter PFX##_impl_it_start(SNAME *_deque_)                                                  \
-    {                                                                                                        \
-        SNAME##_iter iter;                                                                                   \
-                                                                                                             \
-        PFX##_iter_init(&iter, _deque_);                                                                     \
-                                                                                                             \
-        return iter;                                                                                         \
-    }                                                                                                        \
-                                                                                                             \
-    static SNAME##_iter PFX##_impl_it_end(SNAME *_deque_)                                                    \
-    {                                                                                                        \
-        SNAME##_iter iter;                                                                                   \
-                                                                                                             \
-        PFX##_iter_init(&iter, _deque_);                                                                     \
-        PFX##_iter_to_end(&iter);                                                                            \
-                                                                                                             \
-        return iter;                                                                                         \
+#define CMC_GENERATE_DEQUE_SOURCE(PFX, SNAME, V)                                                  \
+                                                                                                  \
+    /* Implementation Detail Functions */                                                         \
+    static SNAME##_iter PFX##_impl_it_start(SNAME *_deque_);                                      \
+    static SNAME##_iter PFX##_impl_it_end(SNAME *_deque_);                                        \
+                                                                                                  \
+    SNAME *PFX##_new(size_t capacity)                                                             \
+    {                                                                                             \
+        if (capacity < 1)                                                                         \
+            return NULL;                                                                          \
+                                                                                                  \
+        SNAME *_deque_ = malloc(sizeof(SNAME));                                                   \
+                                                                                                  \
+        if (!_deque_)                                                                             \
+            return NULL;                                                                          \
+                                                                                                  \
+        _deque_->buffer = malloc(sizeof(V) * capacity);                                           \
+                                                                                                  \
+        if (!_deque_->buffer)                                                                     \
+        {                                                                                         \
+            free(_deque_);                                                                        \
+            return NULL;                                                                          \
+        }                                                                                         \
+                                                                                                  \
+        memset(_deque_->buffer, 0, sizeof(V) * capacity);                                         \
+                                                                                                  \
+        _deque_->capacity = capacity;                                                             \
+        _deque_->count = 0;                                                                       \
+        _deque_->front = 0;                                                                       \
+        _deque_->back = 0;                                                                        \
+                                                                                                  \
+        _deque_->it_start = PFX##_impl_it_start;                                                  \
+        _deque_->it_end = PFX##_impl_it_end;                                                      \
+                                                                                                  \
+        return _deque_;                                                                           \
+    }                                                                                             \
+                                                                                                  \
+    void PFX##_clear(SNAME *_deque_, void (*deallocator)(V))                                      \
+    {                                                                                             \
+        if (deallocator)                                                                          \
+        {                                                                                         \
+            for (size_t i = _deque_->front, j = 0; j < _deque_->count; j++)                       \
+            {                                                                                     \
+                deallocator(_deque_->buffer[i]);                                                  \
+                                                                                                  \
+                i = (i + 1) % _deque_->capacity;                                                  \
+            }                                                                                     \
+        }                                                                                         \
+                                                                                                  \
+        memset(_deque_->buffer, 0, sizeof(V) * _deque_->capacity);                                \
+                                                                                                  \
+        _deque_->count = 0;                                                                       \
+        _deque_->front = 0;                                                                       \
+        _deque_->back = 0;                                                                        \
+    }                                                                                             \
+                                                                                                  \
+    void PFX##_free(SNAME *_deque_, void (*deallocator)(V))                                       \
+    {                                                                                             \
+        if (deallocator)                                                                          \
+        {                                                                                         \
+            for (size_t i = _deque_->front, j = 0; j < _deque_->count; j++)                       \
+            {                                                                                     \
+                deallocator(_deque_->buffer[i]);                                                  \
+                                                                                                  \
+                i = (i + 1) % _deque_->capacity;                                                  \
+            }                                                                                     \
+        }                                                                                         \
+                                                                                                  \
+        free(_deque_->buffer);                                                                    \
+        free(_deque_);                                                                            \
+    }                                                                                             \
+                                                                                                  \
+    bool PFX##_push_front(SNAME *_deque_, V element)                                              \
+    {                                                                                             \
+        if (PFX##_full(_deque_))                                                                  \
+        {                                                                                         \
+            if (!PFX##_resize(_deque_, PFX##_capacity(_deque_) * 2))                              \
+                return false;                                                                     \
+        }                                                                                         \
+                                                                                                  \
+        _deque_->front = (_deque_->front == 0) ? _deque_->capacity - 1 : _deque_->front - 1;      \
+                                                                                                  \
+        _deque_->buffer[_deque_->front] = element;                                                \
+                                                                                                  \
+        _deque_->count++;                                                                         \
+                                                                                                  \
+        return true;                                                                              \
+    }                                                                                             \
+                                                                                                  \
+    bool PFX##_push_back(SNAME *_deque_, V element)                                               \
+    {                                                                                             \
+        if (PFX##_full(_deque_))                                                                  \
+        {                                                                                         \
+            if (!PFX##_resize(_deque_, PFX##_capacity(_deque_) * 2))                              \
+                return false;                                                                     \
+        }                                                                                         \
+                                                                                                  \
+        _deque_->buffer[_deque_->back] = element;                                                 \
+                                                                                                  \
+        _deque_->back = (_deque_->back == _deque_->capacity - 1) ? 0 : _deque_->back + 1;         \
+                                                                                                  \
+        _deque_->count++;                                                                         \
+                                                                                                  \
+        return true;                                                                              \
+    }                                                                                             \
+                                                                                                  \
+    bool PFX##_pop_front(SNAME *_deque_)                                                          \
+    {                                                                                             \
+        if (PFX##_empty(_deque_))                                                                 \
+            return false;                                                                         \
+                                                                                                  \
+        _deque_->buffer[_deque_->front] = PFX##_impl_default_value();                             \
+                                                                                                  \
+        _deque_->front = (_deque_->front == _deque_->capacity - 1) ? 0 : _deque_->front + 1;      \
+                                                                                                  \
+        _deque_->count--;                                                                         \
+                                                                                                  \
+        return true;                                                                              \
+    }                                                                                             \
+                                                                                                  \
+    bool PFX##_pop_back(SNAME *_deque_)                                                           \
+    {                                                                                             \
+        if (PFX##_empty(_deque_))                                                                 \
+            return false;                                                                         \
+                                                                                                  \
+        _deque_->back = (_deque_->back == 0) ? _deque_->capacity - 1 : _deque_->back - 1;         \
+                                                                                                  \
+        _deque_->buffer[_deque_->back] = PFX##_impl_default_value();                              \
+                                                                                                  \
+        _deque_->count--;                                                                         \
+                                                                                                  \
+        return true;                                                                              \
+    }                                                                                             \
+                                                                                                  \
+    V PFX##_front(SNAME *_deque_)                                                                 \
+    {                                                                                             \
+        if (PFX##_empty(_deque_))                                                                 \
+            return PFX##_impl_default_value();                                                    \
+                                                                                                  \
+        return _deque_->buffer[_deque_->front];                                                   \
+    }                                                                                             \
+                                                                                                  \
+    V PFX##_back(SNAME *_deque_)                                                                  \
+    {                                                                                             \
+        if (PFX##_empty(_deque_))                                                                 \
+            return PFX##_impl_default_value();                                                    \
+                                                                                                  \
+        return _deque_->buffer[(_deque_->back == 0) ? _deque_->capacity - 1 : _deque_->back - 1]; \
+    }                                                                                             \
+                                                                                                  \
+    bool PFX##_contains(SNAME *_deque_, V element, int (*comparator)(V, V))                       \
+    {                                                                                             \
+        for (size_t i = _deque_->front, j = 0; j < _deque_->count; j++)                           \
+        {                                                                                         \
+            if (comparator(_deque_->buffer[i], element) == 0)                                     \
+                return true;                                                                      \
+                                                                                                  \
+            i = (i + 1) % _deque_->capacity;                                                      \
+        }                                                                                         \
+                                                                                                  \
+        return false;                                                                             \
+    }                                                                                             \
+                                                                                                  \
+    bool PFX##_empty(SNAME *_deque_)                                                              \
+    {                                                                                             \
+        return _deque_->count == 0;                                                               \
+    }                                                                                             \
+                                                                                                  \
+    bool PFX##_full(SNAME *_deque_)                                                               \
+    {                                                                                             \
+        return _deque_->count >= _deque_->capacity;                                               \
+    }                                                                                             \
+                                                                                                  \
+    size_t PFX##_count(SNAME *_deque_)                                                            \
+    {                                                                                             \
+        return _deque_->count;                                                                    \
+    }                                                                                             \
+                                                                                                  \
+    size_t PFX##_capacity(SNAME *_deque_)                                                         \
+    {                                                                                             \
+        return _deque_->capacity;                                                                 \
+    }                                                                                             \
+                                                                                                  \
+    bool PFX##_resize(SNAME *_deque_, size_t capacity)                                            \
+    {                                                                                             \
+        if (PFX##_capacity(_deque_) == capacity)                                                  \
+            return true;                                                                          \
+                                                                                                  \
+        size_t new_capacity = 0;                                                                  \
+                                                                                                  \
+        if (capacity < PFX##_capacity(_deque_))                                                   \
+        {                                                                                         \
+            /* Shrink */                                                                          \
+            if (capacity < PFX##_count(_deque_))                                                  \
+                return false;                                                                     \
+                                                                                                  \
+            new_capacity = capacity;                                                              \
+        }                                                                                         \
+        else                                                                                      \
+        {                                                                                         \
+            /* Grow */                                                                            \
+            if (PFX##_capacity(_deque_) * 2 < capacity)                                           \
+                new_capacity = capacity;                                                          \
+            else                                                                                  \
+                new_capacity = PFX##_capacity(_deque_) * 2;                                       \
+        }                                                                                         \
+                                                                                                  \
+        V *new_buffer = malloc(sizeof(V) * new_capacity);                                         \
+                                                                                                  \
+        if (!new_buffer)                                                                          \
+            return false;                                                                         \
+                                                                                                  \
+        for (size_t i = _deque_->front, j = 0; j < _deque_->count; j++)                           \
+        {                                                                                         \
+            new_buffer[j] = _deque_->buffer[i];                                                   \
+                                                                                                  \
+            i = (i + 1) % PFX##_capacity(_deque_);                                                \
+        }                                                                                         \
+                                                                                                  \
+        free(_deque_->buffer);                                                                    \
+                                                                                                  \
+        _deque_->buffer = new_buffer;                                                             \
+        _deque_->capacity = new_capacity;                                                         \
+        _deque_->front = 0;                                                                       \
+        _deque_->back = _deque_->count;                                                           \
+                                                                                                  \
+        return true;                                                                              \
+    }                                                                                             \
+                                                                                                  \
+    SNAME *PFX##_copy_of(SNAME *_deque_, V (*copy_func)(V))                                       \
+    {                                                                                             \
+        SNAME *result = PFX##_new(_deque_->capacity);                                             \
+                                                                                                  \
+        if (!result)                                                                              \
+            return NULL;                                                                          \
+                                                                                                  \
+        if (copy_func)                                                                            \
+        {                                                                                         \
+            for (size_t i = _deque_->front, j = 0; j < _deque_->count; j++)                       \
+            {                                                                                     \
+                result->buffer[j] = copy_func(_deque_->buffer[i]);                                \
+                                                                                                  \
+                i = (i + 1) % _deque_->capacity;                                                  \
+            }                                                                                     \
+        }                                                                                         \
+        else                                                                                      \
+        {                                                                                         \
+            for (size_t i = _deque_->front, j = 0; j < _deque_->count; j++)                       \
+            {                                                                                     \
+                result->buffer[j] = _deque_->buffer[i];                                           \
+                                                                                                  \
+                i = (i + 1) % _deque_->capacity;                                                  \
+            }                                                                                     \
+        }                                                                                         \
+                                                                                                  \
+        result->count = _deque_->count;                                                           \
+                                                                                                  \
+        return result;                                                                            \
+    }                                                                                             \
+                                                                                                  \
+    bool PFX##_equals(SNAME *_deque1_, SNAME *_deque2_, int (*comparator)(V, V))                  \
+    {                                                                                             \
+        if (PFX##_count(_deque1_) != PFX##_count(_deque2_))                                       \
+            return false;                                                                         \
+                                                                                                  \
+        size_t i, j, k;                                                                           \
+        for (i = _deque1_->front, j = _deque2_->front, k = 0; k < PFX##_count(_deque1_); k++)     \
+        {                                                                                         \
+            if (comparator(_deque1_->buffer[i], _deque2_->buffer[j]) != 0)                        \
+                return false;                                                                     \
+                                                                                                  \
+            i = (i + 1) % _deque1_->capacity;                                                     \
+            j = (j + 1) % _deque2_->capacity;                                                     \
+        }                                                                                         \
+                                                                                                  \
+        return true;                                                                              \
+    }                                                                                             \
+                                                                                                  \
+    cmc_string PFX##_to_string(SNAME *_deque_)                                                    \
+    {                                                                                             \
+        cmc_string str;                                                                           \
+        SNAME *d_ = _deque_;                                                                      \
+        const char *name = #SNAME;                                                                \
+                                                                                                  \
+        snprintf(str.s, cmc_string_len, cmc_string_fmt_deque,                                     \
+                 name, d_, d_->buffer, d_->capacity, d_->count, d_->front, d_->back);             \
+                                                                                                  \
+        return str;                                                                               \
+    }                                                                                             \
+                                                                                                  \
+    SNAME##_iter *PFX##_iter_new(SNAME *target)                                                   \
+    {                                                                                             \
+        SNAME##_iter *iter = malloc(sizeof(SNAME##_iter));                                        \
+                                                                                                  \
+        if (!iter)                                                                                \
+            return NULL;                                                                          \
+                                                                                                  \
+        PFX##_iter_init(iter, target);                                                            \
+                                                                                                  \
+        return iter;                                                                              \
+    }                                                                                             \
+                                                                                                  \
+    void PFX##_iter_free(SNAME##_iter *iter)                                                      \
+    {                                                                                             \
+        free(iter);                                                                               \
+    }                                                                                             \
+                                                                                                  \
+    void PFX##_iter_init(SNAME##_iter *iter, SNAME *target)                                       \
+    {                                                                                             \
+        iter->target = target;                                                                    \
+        iter->cursor = target->front;                                                             \
+        iter->index = 0;                                                                          \
+        iter->start = true;                                                                       \
+        iter->end = PFX##_empty(target);                                                          \
+    }                                                                                             \
+                                                                                                  \
+    bool PFX##_iter_start(SNAME##_iter *iter)                                                     \
+    {                                                                                             \
+        return PFX##_empty(iter->target) || iter->start;                                          \
+    }                                                                                             \
+                                                                                                  \
+    bool PFX##_iter_end(SNAME##_iter *iter)                                                       \
+    {                                                                                             \
+        return PFX##_empty(iter->target) || iter->end;                                            \
+    }                                                                                             \
+                                                                                                  \
+    void PFX##_iter_to_start(SNAME##_iter *iter)                                                  \
+    {                                                                                             \
+        iter->cursor = iter->target->front;                                                       \
+        iter->index = 0;                                                                          \
+        iter->start = true;                                                                       \
+        iter->end = PFX##_empty(iter->target);                                                    \
+    }                                                                                             \
+                                                                                                  \
+    void PFX##_iter_to_end(SNAME##_iter *iter)                                                    \
+    {                                                                                             \
+        if (PFX##_empty(iter->target))                                                            \
+        {                                                                                         \
+            iter->cursor = 0;                                                                     \
+            iter->index = 0;                                                                      \
+        }                                                                                         \
+        else                                                                                      \
+        {                                                                                         \
+            if (iter->target->back == 0)                                                          \
+                iter->cursor = iter->target->capacity - 1;                                        \
+            else                                                                                  \
+                iter->cursor = iter->target->back - 1;                                            \
+                                                                                                  \
+            iter->index = PFX##_count(iter->target) - 1;                                          \
+        }                                                                                         \
+                                                                                                  \
+        iter->start = PFX##_empty(iter->target);                                                  \
+        iter->end = true;                                                                         \
+    }                                                                                             \
+                                                                                                  \
+    bool PFX##_iter_next(SNAME##_iter *iter)                                                      \
+    {                                                                                             \
+        if (iter->end)                                                                            \
+            return false;                                                                         \
+                                                                                                  \
+        if (iter->index + 1 == PFX##_count(iter->target))                                         \
+        {                                                                                         \
+            iter->end = true;                                                                     \
+            return false;                                                                         \
+        }                                                                                         \
+                                                                                                  \
+        iter->start = PFX##_empty(iter->target);                                                  \
+                                                                                                  \
+        iter->cursor = (iter->cursor + 1) % (iter->target->capacity);                             \
+        iter->index++;                                                                            \
+                                                                                                  \
+        return true;                                                                              \
+    }                                                                                             \
+                                                                                                  \
+    bool PFX##_iter_prev(SNAME##_iter *iter)                                                      \
+    {                                                                                             \
+        if (iter->start)                                                                          \
+            return false;                                                                         \
+                                                                                                  \
+        if (iter->index == 0)                                                                     \
+        {                                                                                         \
+            iter->start = true;                                                                   \
+            return false;                                                                         \
+        }                                                                                         \
+                                                                                                  \
+        iter->end = PFX##_empty(iter->target);                                                    \
+                                                                                                  \
+        iter->cursor = (iter->cursor == 0) ? iter->target->capacity - 1 : iter->cursor - 1;       \
+        iter->index--;                                                                            \
+                                                                                                  \
+        return true;                                                                              \
+    }                                                                                             \
+                                                                                                  \
+    /* Returns true only if the iterator moved */                                                 \
+    bool PFX##_iter_advance(SNAME##_iter *iter, size_t steps)                                     \
+    {                                                                                             \
+        if (iter->end)                                                                            \
+            return false;                                                                         \
+                                                                                                  \
+        if (iter->index + 1 == PFX##_count(iter->target))                                         \
+        {                                                                                         \
+            iter->end = true;                                                                     \
+            return false;                                                                         \
+        }                                                                                         \
+                                                                                                  \
+        if (steps == 0 || iter->index + steps >= PFX##_count(iter->target))                       \
+            return false;                                                                         \
+                                                                                                  \
+        iter->start = PFX##_empty(iter->target);                                                  \
+                                                                                                  \
+        iter->index += steps;                                                                     \
+        iter->cursor = (iter->cursor + steps) % iter->target->capacity;                           \
+                                                                                                  \
+        return true;                                                                              \
+    }                                                                                             \
+                                                                                                  \
+    /* Returns true only if the iterator moved */                                                 \
+    bool PFX##_iter_rewind(SNAME##_iter *iter, size_t steps)                                      \
+    {                                                                                             \
+        if (iter->start)                                                                          \
+            return false;                                                                         \
+                                                                                                  \
+        if (iter->index == 0)                                                                     \
+        {                                                                                         \
+            iter->start = true;                                                                   \
+            return false;                                                                         \
+        }                                                                                         \
+                                                                                                  \
+        if (steps == 0 || iter->index < steps)                                                    \
+            return false;                                                                         \
+                                                                                                  \
+        iter->end = PFX##_empty(iter->target);                                                    \
+                                                                                                  \
+        iter->index -= steps;                                                                     \
+                                                                                                  \
+        /* Prevent underflow */                                                                   \
+        if (iter->cursor < steps)                                                                 \
+            iter->cursor += PFX##_capacity(iter->target);                                         \
+                                                                                                  \
+        iter->cursor -= steps;                                                                    \
+                                                                                                  \
+        return true;                                                                              \
+    }                                                                                             \
+                                                                                                  \
+    /* Returns true only if the iterator was able to be positioned at the given index */          \
+    bool PFX##_iter_go_to(SNAME##_iter *iter, size_t index)                                       \
+    {                                                                                             \
+        if (index >= PFX##_count(iter->target))                                                   \
+            return false;                                                                         \
+                                                                                                  \
+        if (iter->index > index)                                                                  \
+            return PFX##_iter_rewind(iter, iter->index - index);                                  \
+        else if (iter->index < index)                                                             \
+            return PFX##_iter_advance(iter, index - iter->index);                                 \
+                                                                                                  \
+        return true;                                                                              \
+    }                                                                                             \
+                                                                                                  \
+    V PFX##_iter_value(SNAME##_iter *iter)                                                        \
+    {                                                                                             \
+        if (PFX##_empty(iter->target))                                                            \
+            return PFX##_impl_default_value();                                                    \
+                                                                                                  \
+        return iter->target->buffer[iter->cursor];                                                \
+    }                                                                                             \
+                                                                                                  \
+    V *PFX##_iter_rvalue(SNAME##_iter *iter)                                                      \
+    {                                                                                             \
+        if (PFX##_empty(iter->target))                                                            \
+            return NULL;                                                                          \
+                                                                                                  \
+        return &(iter->target->buffer[iter->cursor]);                                             \
+    }                                                                                             \
+                                                                                                  \
+    size_t PFX##_iter_index(SNAME##_iter *iter)                                                   \
+    {                                                                                             \
+        return iter->index;                                                                       \
+    }                                                                                             \
+                                                                                                  \
+    static SNAME##_iter PFX##_impl_it_start(SNAME *_deque_)                                       \
+    {                                                                                             \
+        SNAME##_iter iter;                                                                        \
+                                                                                                  \
+        PFX##_iter_init(&iter, _deque_);                                                          \
+                                                                                                  \
+        return iter;                                                                              \
+    }                                                                                             \
+                                                                                                  \
+    static SNAME##_iter PFX##_impl_it_end(SNAME *_deque_)                                         \
+    {                                                                                             \
+        SNAME##_iter iter;                                                                        \
+                                                                                                  \
+        PFX##_iter_init(&iter, _deque_);                                                          \
+        PFX##_iter_to_end(&iter);                                                                 \
+                                                                                                  \
+        return iter;                                                                              \
     }
 
 #endif /* CMC_DEQUE_H */
