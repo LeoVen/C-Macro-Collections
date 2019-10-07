@@ -9,8 +9,8 @@ main: FORCE
 	./main
 
 dev: FORCE
-	$(CC) main.c -o main $(CFLAGS) -I $(INCLUDE)
-	./main
+	$(CC) main.c -o main.exe $(CFLAGS) -I $(INCLUDE)
+	./main.exe
 	rm *.exe
 
 windev: FORCE

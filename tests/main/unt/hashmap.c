@@ -124,6 +124,30 @@ CMC_CREATE_UNIT(hashmap_test, true, {
         hm_free(map, NULL);
     });
 
+    CMC_CREATE_TEST(insert[buffer growth and item preservation], {
+        hashmap *map = hm_new(1, 0.99, cmp, hash);
+
+        cmc_assert_not_equals(ptr, NULL, map);
+
+        cmc_assert_equals(size_t, cmc_hashtable_primes[0], hm_capacity(map));
+
+        size_t p = 0;
+        for (size_t i = 0; i < 100000; i++)
+        {
+            if (hm_full(map))
+                p++;
+
+            cmc_assert(hm_insert(map, i, i));
+        }
+
+        cmc_assert_equals(size_t, cmc_hashtable_primes[p], hm_capacity(map));
+
+        for (size_t i = 0; i < 100000; i++)
+            cmc_assert(hm_contains(map, i));
+
+        hm_free(map, NULL);
+    });
+
     CMC_CREATE_TEST(update, {
         hashmap *map = hm_new(100, 0.6, cmp, hash);
 
@@ -162,6 +186,17 @@ CMC_CREATE_UNIT(hashmap_test, true, {
 
         for (size_t i = 0; i < 100; i++)
             cmc_assert(hm_remove(map, i, NULL));
+
+        hm_free(map, NULL);
+    });
+
+    CMC_CREATE_TEST(remove[edge_case count = 0], {
+        hashmap *map = hm_new(100, 0.6, cmp, hash);
+
+        cmc_assert_not_equals(ptr, NULL, map);
+
+        for (size_t i = 100; i < 200; i++)
+            cmc_assert(!hm_remove(map, i, NULL));
 
         hm_free(map, NULL);
     });
@@ -327,6 +362,27 @@ CMC_CREATE_UNIT(hashmap_test, true, {
         hm_free(map, NULL);
     });
 
+    CMC_CREATE_TEST(full, {
+        hashmap *map = hm_new(cmc_hashtable_primes[0], 0.99999, cmp, hash);
+
+        cmc_assert_not_equals(ptr, NULL, map);
+
+        cmc_assert_equals(size_t, cmc_hashtable_primes[0], hm_capacity(map));
+
+        for (size_t i = 0; i < hm_capacity(map); i++)
+            cmc_assert(hm_insert(map, i, i));
+
+        cmc_assert(hm_full(map));
+
+        cmc_assert(hm_insert(map, 10000, 10000));
+
+        cmc_assert_equals(size_t, cmc_hashtable_primes[1], hm_capacity(map));
+
+        cmc_assert(!hm_full(map));
+
+        hm_free(map, NULL);
+    });
+
     CMC_CREATE_TEST(count, {
         hashmap *map = hm_new(100, 0.6, cmp, hash);
 
@@ -357,6 +413,16 @@ CMC_CREATE_UNIT(hashmap_test, true, {
         cmc_assert_not_equals(ptr, NULL, map);
 
         cmc_assert_equals(size_t, cmc_hashtable_primes[0], hm_capacity(map));
+
+        hm_free(map, NULL);
+    });
+
+    CMC_CREATE_TEST(load, {
+        hashmap *map = hm_new(1, 0.99, cmp, hash);
+
+        cmc_assert_not_equals(ptr, NULL, map);
+
+        cmc_assert_in_range(double, 0.99 - 0.0001, 0.99 + 0.0001, hm_load(map));
 
         hm_free(map, NULL);
     });
