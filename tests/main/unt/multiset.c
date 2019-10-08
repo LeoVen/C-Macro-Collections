@@ -19,13 +19,13 @@ CMC_CREATE_UNIT(multiset_test, true, {
         ms_free(set, NULL);
     });
 
-    CMC_CREATE_TEST(new[edge_case capacity = 0], {
+    CMC_CREATE_TEST(new[capacity = 0], {
         multiset *set = ms_new(0, 0.6, cmp, hash);
 
         cmc_assert_equals(ptr, NULL, set);
     });
 
-    CMC_CREATE_TEST(new[edge_case capacity = UINT64_MAX], {
+    CMC_CREATE_TEST(new[capacity = UINT64_MAX], {
         multiset *set = ms_new(UINT64_MAX, 0.99, cmp, hash);
 
         cmc_assert_equals(ptr, NULL, set);

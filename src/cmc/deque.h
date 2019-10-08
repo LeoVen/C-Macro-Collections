@@ -346,26 +346,10 @@ static const char *cmc_string_fmt_deque = "%s at %p { buffer:%p, capacity:%" PRI
         if (PFX##_capacity(_deque_) == capacity)                                                  \
             return true;                                                                          \
                                                                                                   \
-        size_t new_capacity = 0;                                                                  \
+        if (capacity < PFX##_count(_deque_))                                                      \
+            return false;                                                                         \
                                                                                                   \
-        if (capacity < PFX##_capacity(_deque_))                                                   \
-        {                                                                                         \
-            /* Shrink */                                                                          \
-            if (capacity < PFX##_count(_deque_))                                                  \
-                return false;                                                                     \
-                                                                                                  \
-            new_capacity = capacity;                                                              \
-        }                                                                                         \
-        else                                                                                      \
-        {                                                                                         \
-            /* Grow */                                                                            \
-            if (PFX##_capacity(_deque_) * 2 < capacity)                                           \
-                new_capacity = capacity;                                                          \
-            else                                                                                  \
-                new_capacity = PFX##_capacity(_deque_) * 2;                                       \
-        }                                                                                         \
-                                                                                                  \
-        V *new_buffer = malloc(sizeof(V) * new_capacity);                                         \
+        V *new_buffer = malloc(sizeof(V) * capacity);                                             \
                                                                                                   \
         if (!new_buffer)                                                                          \
             return false;                                                                         \
@@ -380,7 +364,7 @@ static const char *cmc_string_fmt_deque = "%s at %p { buffer:%p, capacity:%" PRI
         free(_deque_->buffer);                                                                    \
                                                                                                   \
         _deque_->buffer = new_buffer;                                                             \
-        _deque_->capacity = new_capacity;                                                         \
+        _deque_->capacity = capacity;                                                             \
         _deque_->front = 0;                                                                       \
         _deque_->back = _deque_->count;                                                           \
                                                                                                   \

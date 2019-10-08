@@ -36,7 +36,7 @@ CMC_CREATE_UNIT(linkedlist_test, true, {
         ll_free(ll, NULL);
     });
 
-    CMC_CREATE_TEST(clear[edge_case count = 0], {
+    CMC_CREATE_TEST(clear[count = 0], {
         linkedlist *ll = ll_new();
 
         cmc_assert_not_equals(ptr, NULL, ll);
@@ -62,7 +62,7 @@ CMC_CREATE_UNIT(linkedlist_test, true, {
         ll_free(ll, NULL);
     });
 
-    CMC_CREATE_TEST(push_front[item_preservation], {
+    CMC_CREATE_TEST(push_front[item preservation], {
         linkedlist *ll = ll_new();
 
         cmc_assert_not_equals(ptr, NULL, ll);

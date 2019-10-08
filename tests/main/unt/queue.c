@@ -20,13 +20,13 @@ CMC_CREATE_UNIT(queue_test, true, {
         q_free(q, NULL);
     });
 
-    CMC_CREATE_TEST(new[edge_case capacity = 0], {
+    CMC_CREATE_TEST(new[capacity = 0], {
         queue *q = q_new(0);
 
         cmc_assert_equals(ptr, NULL, q);
     });
 
-    CMC_CREATE_TEST(new[edge_case capacity = UINT64_MAX], {
+    CMC_CREATE_TEST(new[capacity = UINT64_MAX], {
         queue *q = q_new(UINT64_MAX);
 
         cmc_assert_equals(ptr, NULL, q);
@@ -50,7 +50,7 @@ CMC_CREATE_UNIT(queue_test, true, {
         q_free(q, NULL);
     });
 
-    CMC_CREATE_TEST(buffer_growth[edge_case capacity = 1], {
+    CMC_CREATE_TEST(buffer_growth[capacity = 1], {
         queue *q = q_new(1);
 
         cmc_assert_not_equals(ptr, NULL, q);

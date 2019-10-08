@@ -20,13 +20,13 @@ CMC_CREATE_UNIT(stack_test, true, {
         s_free(s, NULL);
     });
 
-    CMC_CREATE_TEST(new[edge_case capacity = 0], {
+    CMC_CREATE_TEST(new[capacity = 0], {
         stack *s = s_new(0);
 
         cmc_assert_equals(ptr, NULL, s);
     });
 
-    CMC_CREATE_TEST(new[edge_case capacity = UINT64_MAX], {
+    CMC_CREATE_TEST(new[capacity = UINT64_MAX], {
         stack *s = s_new(UINT64_MAX);
 
         cmc_assert_equals(ptr, NULL, s);
@@ -50,7 +50,7 @@ CMC_CREATE_UNIT(stack_test, true, {
         s_free(s, NULL);
     });
 
-    CMC_CREATE_TEST(buffer_growth[edge_case capacity = 1], {
+    CMC_CREATE_TEST(buffer_growth[capacity = 1], {
         stack *s = s_new(1);
 
         cmc_assert_not_equals(ptr, NULL, s);
@@ -90,7 +90,7 @@ CMC_CREATE_UNIT(stack_test, true, {
         s_free(s, NULL);
     });
 
-    CMC_CREATE_TEST(push[item_preservation], {
+    CMC_CREATE_TEST(push[item preservation], {
         stack *s = s_new(100);
 
         cmc_assert_not_equals(ptr, NULL, s);
@@ -134,7 +134,7 @@ CMC_CREATE_UNIT(stack_test, true, {
         s_free(s, NULL);
     });
 
-    CMC_CREATE_TEST(pop[item_preservation], {
+    CMC_CREATE_TEST(pop[item preservation], {
         stack *s = s_new(100);
 
         cmc_assert_not_equals(ptr, NULL, s);
@@ -151,7 +151,7 @@ CMC_CREATE_UNIT(stack_test, true, {
         s_free(s, NULL);
     });
 
-    CMC_CREATE_TEST(pop[edge_case count = 0], {
+    CMC_CREATE_TEST(pop[count = 0], {
         stack *s = s_new(100);
 
         cmc_assert_not_equals(ptr, NULL, s);
@@ -177,7 +177,7 @@ CMC_CREATE_UNIT(stack_test, true, {
         s_free(s, NULL);
     });
 
-    CMC_CREATE_TEST(top[edge_case count = 0], {
+    CMC_CREATE_TEST(top[count = 0], {
         stack *s = s_new(100);
 
         cmc_assert_not_equals(ptr, NULL, s);
@@ -191,7 +191,7 @@ CMC_CREATE_UNIT(stack_test, true, {
         s_free(s, NULL);
     });
 
-    CMC_CREATE_TEST(top[edge_case count = 1], {
+    CMC_CREATE_TEST(top[count = 1], {
         stack *s = s_new(100);
 
         cmc_assert_not_equals(ptr, NULL, s);
@@ -217,7 +217,7 @@ CMC_CREATE_UNIT(stack_test, true, {
         s_free(s, NULL);
     });
 
-    CMC_CREATE_TEST(contains[edge_case count = 0], {
+    CMC_CREATE_TEST(contains[count = 0], {
         stack *s = s_new(100);
 
         cmc_assert_not_equals(ptr, NULL, s);
@@ -262,7 +262,7 @@ CMC_CREATE_UNIT(stack_test, true, {
         s_free(s, NULL);
     });
 
-    CMC_CREATE_TEST(full[edge_case capacity = 1], {
+    CMC_CREATE_TEST(full[capacity = 1], {
         stack *s = s_new(1);
 
         cmc_assert_not_equals(ptr, NULL, s);
@@ -287,7 +287,7 @@ CMC_CREATE_UNIT(stack_test, true, {
         s_free(s, NULL);
     });
 
-    CMC_CREATE_TEST(iter_init[edge_case count = 0], {
+    CMC_CREATE_TEST(iter_init[count = 0], {
         stack *s = s_new(100);
 
         cmc_assert_not_equals(ptr, NULL, s);
@@ -304,7 +304,7 @@ CMC_CREATE_UNIT(stack_test, true, {
         s_free(s, NULL);
     });
 
-    CMC_CREATE_TEST(iter_start[edge_case count = 0], {
+    CMC_CREATE_TEST(iter_start[count = 0], {
         stack *s = s_new(100);
 
         cmc_assert_not_equals(ptr, NULL, s);
@@ -318,7 +318,7 @@ CMC_CREATE_UNIT(stack_test, true, {
         s_free(s, NULL);
     });
 
-    CMC_CREATE_TEST(iter_end[edge_case count = 0], {
+    CMC_CREATE_TEST(iter_end[count = 0], {
         stack *s = s_new(100);
 
         cmc_assert_not_equals(ptr, NULL, s);
@@ -389,7 +389,7 @@ CMC_CREATE_UNIT(stack_test, true, {
         s_free(s, NULL);
     });
 
-    CMC_CREATE_TEST(iteration[edge_case count = 1], {
+    CMC_CREATE_TEST(iteration[count = 1], {
         stack *s = s_new(100);
 
         cmc_assert_not_equals(ptr, NULL, s);
@@ -412,7 +412,7 @@ CMC_CREATE_UNIT(stack_test, true, {
         s_free(s, NULL);
     });
 
-    CMC_CREATE_TEST(iteration[edge_case count = capacity], {
+    CMC_CREATE_TEST(iteration[count = capacity], {
         stack *s = s_new(100);
 
         cmc_assert_not_equals(ptr, NULL, s);
@@ -517,7 +517,7 @@ CMC_CREATE_UNIT(stack_test, true, {
         s_free(s, NULL);
     });
 
-    CMC_CREATE_TEST(iter_value[edge_case count = 0], {
+    CMC_CREATE_TEST(iter_value[count = 0], {
         stack *s = s_new(100);
 
         cmc_assert_not_equals(ptr, NULL, s);
@@ -531,7 +531,7 @@ CMC_CREATE_UNIT(stack_test, true, {
         s_free(s, NULL);
     });
 
-    CMC_CREATE_TEST(iter_rvalue[edge_case count = 0], {
+    CMC_CREATE_TEST(iter_rvalue[count = 0], {
         stack *s = s_new(100);
 
         cmc_assert_not_equals(ptr, NULL, s);
@@ -584,7 +584,7 @@ CMC_CREATE_UNIT(stack_test, true, {
         s_free(s, NULL);
     });
 
-    CMC_CREATE_TEST(index[edge_case count = 0], {
+    CMC_CREATE_TEST(index[count = 0], {
         stack *s = s_new(100);
 
         cmc_assert_not_equals(ptr, NULL, s);

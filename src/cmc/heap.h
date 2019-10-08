@@ -112,7 +112,6 @@ typedef enum cmc_heap_order_e
     bool PFX##_remove(SNAME *_heap_, V *result);                                \
     /* Element Access */                                                        \
     V PFX##_peek(SNAME *_heap_);                                                \
-    V *PFX##_peek_ref(SNAME *_heap_);                                           \
     /* Collection State */                                                      \
     bool PFX##_contains(SNAME *_heap_, V element);                              \
     bool PFX##_empty(SNAME *_heap_);                                            \
@@ -120,6 +119,7 @@ typedef enum cmc_heap_order_e
     size_t PFX##_count(SNAME *_heap_);                                          \
     size_t PFX##_capacity(SNAME *_heap_);                                       \
     /* Collection Utility */                                                    \
+    bool PFX##_resize(SNAME *_heap_, size_t capacity);                          \
     SNAME *PFX##_copy_of(SNAME *_heap_, V (*copy_func)(V));                     \
     bool PFX##_equals(SNAME *_heap1_, SNAME *_heap2_);                          \
     cmc_string PFX##_to_string(SNAME *_heap_);                                  \
@@ -159,7 +159,6 @@ typedef enum cmc_heap_order_e
 #define CMC_GENERATE_HEAP_SOURCE(PFX, SNAME, V)                                                   \
                                                                                                   \
     /* Implementation Detail Functions */                                                         \
-    static bool PFX##_impl_grow(SNAME *_heap_);                                                   \
     static bool PFX##_impl_float_up(SNAME *_heap_, size_t index);                                 \
     static bool PFX##_impl_float_down(SNAME *_heap_, size_t index);                               \
     static SNAME##_iter PFX##_impl_it_start(SNAME *_heap_);                                       \
@@ -232,7 +231,7 @@ typedef enum cmc_heap_order_e
     {                                                                                             \
         if (PFX##_full(_heap_))                                                                   \
         {                                                                                         \
-            if (!PFX##_impl_grow(_heap_))                                                         \
+            if (!PFX##_resize(_heap_, PFX##_count(_heap_) * 2))                                   \
                 return false;                                                                     \
         }                                                                                         \
                                                                                                   \
@@ -275,14 +274,6 @@ typedef enum cmc_heap_order_e
         return _heap_->buffer[0];                                                                 \
     }                                                                                             \
                                                                                                   \
-    V *PFX##_peek_ref(SNAME *_heap_)                                                              \
-    {                                                                                             \
-        if (PFX##_empty(_heap_))                                                                  \
-            return NULL;                                                                          \
-                                                                                                  \
-        return &(_heap_->buffer[0]);                                                              \
-    }                                                                                             \
-                                                                                                  \
     bool PFX##_contains(SNAME *_heap_, V element)                                                 \
     {                                                                                             \
         for (size_t i = 0; i < _heap_->count; i++)                                                \
@@ -312,6 +303,22 @@ typedef enum cmc_heap_order_e
     size_t PFX##_capacity(SNAME *_heap_)                                                          \
     {                                                                                             \
         return _heap_->capacity;                                                                  \
+    }                                                                                             \
+                                                                                                  \
+    bool PFX##_resize(SNAME *_heap_, size_t capacity)                                             \
+    {                                                                                             \
+        if (capacity < PFX##_count(_heap_))                                                       \
+            return false;                                                                         \
+                                                                                                  \
+        V *new_buffer = realloc(_heap_->buffer, sizeof(V) * capacity);                            \
+                                                                                                  \
+        if (!new_buffer)                                                                          \
+            return false;                                                                         \
+                                                                                                  \
+        _heap_->buffer = new_buffer;                                                              \
+        _heap_->capacity = capacity;                                                              \
+                                                                                                  \
+        return true;                                                                              \
     }                                                                                             \
                                                                                                   \
     SNAME *PFX##_copy_of(SNAME *_heap_, V (*copy_func)(V))                                        \
@@ -524,21 +531,6 @@ typedef enum cmc_heap_order_e
     size_t PFX##_iter_index(SNAME##_iter *iter)                                                   \
     {                                                                                             \
         return iter->cursor;                                                                      \
-    }                                                                                             \
-                                                                                                  \
-    static bool PFX##_impl_grow(SNAME *_heap_)                                                    \
-    {                                                                                             \
-        size_t new_capacity = _heap_->capacity * 2;                                               \
-                                                                                                  \
-        V *new_buffer = realloc(_heap_->buffer, sizeof(V) * new_capacity);                        \
-                                                                                                  \
-        if (!new_buffer)                                                                          \
-            return false;                                                                         \
-                                                                                                  \
-        _heap_->buffer = new_buffer;                                                              \
-        _heap_->capacity = new_capacity;                                                          \
-                                                                                                  \
-        return true;                                                                              \
     }                                                                                             \
                                                                                                   \
     static bool PFX##_impl_float_up(SNAME *_heap_, size_t index)                                  \

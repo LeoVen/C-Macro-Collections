@@ -19,13 +19,13 @@ CMC_CREATE_UNIT(hashmap_test, true, {
         hm_free(map, NULL);
     });
 
-    CMC_CREATE_TEST(new[edge_case capacity = 0], {
+    CMC_CREATE_TEST(new[capacity = 0], {
         hashmap *map = hm_new(0, 0.6, cmp, hash);
 
         cmc_assert_equals(ptr, NULL, map);
     });
 
-    CMC_CREATE_TEST(new[edge_case capacity = UINT64_MAX], {
+    CMC_CREATE_TEST(new[capacity = UINT64_MAX], {
         hashmap *map = hm_new(UINT64_MAX, 0.99, cmp, hash);
 
         cmc_assert_equals(ptr, NULL, map);
@@ -59,7 +59,7 @@ CMC_CREATE_UNIT(hashmap_test, true, {
         hm_free(map, NULL);
     });
 
-    CMC_CREATE_TEST(insert[edge_case smallest capacity], {
+    CMC_CREATE_TEST(insert[smallest capacity], {
         hashmap *map = hm_new(1, 0.99, cmp, hash);
 
         cmc_assert_not_equals(ptr, NULL, map);
@@ -190,7 +190,7 @@ CMC_CREATE_UNIT(hashmap_test, true, {
         hm_free(map, NULL);
     });
 
-    CMC_CREATE_TEST(remove[edge_case count = 0], {
+    CMC_CREATE_TEST(remove[count = 0], {
         hashmap *map = hm_new(100, 0.6, cmp, hash);
 
         cmc_assert_not_equals(ptr, NULL, map);
@@ -233,7 +233,7 @@ CMC_CREATE_UNIT(hashmap_test, true, {
         hm_free(map, NULL);
     });
 
-    CMC_CREATE_TEST(max[edge_case count = 0], {
+    CMC_CREATE_TEST(max[count = 0], {
         hashmap *map = hm_new(100, 0.6, cmp, hash);
 
         cmc_assert_not_equals(ptr, NULL, map);
@@ -261,7 +261,7 @@ CMC_CREATE_UNIT(hashmap_test, true, {
         hm_free(map, NULL);
     });
 
-    CMC_CREATE_TEST(min[edge_case count = 0], {
+    CMC_CREATE_TEST(min[count = 0], {
         hashmap *map = hm_new(100, 0.6, cmp, hash);
 
         cmc_assert_not_equals(ptr, NULL, map);
@@ -283,7 +283,7 @@ CMC_CREATE_UNIT(hashmap_test, true, {
         hm_free(map, NULL);
     });
 
-    CMC_CREATE_TEST(get[edge_case count = 0], {
+    CMC_CREATE_TEST(get[count = 0], {
         hashmap *map = hm_new(100, 0.6, cmp, hash);
 
         cmc_assert_not_equals(ptr, NULL, map);
@@ -308,7 +308,7 @@ CMC_CREATE_UNIT(hashmap_test, true, {
         hm_free(map, NULL);
     });
 
-    CMC_CREATE_TEST(get_ref[edge_case count = 0], {
+    CMC_CREATE_TEST(get_ref[count = 0], {
         hashmap *map = hm_new(100, 0.6, cmp, hash);
 
         cmc_assert_not_equals(ptr, NULL, map);
@@ -326,6 +326,16 @@ CMC_CREATE_UNIT(hashmap_test, true, {
         cmc_assert(hm_insert(map, 987654321, 1));
 
         cmc_assert(hm_contains(map, 987654321));
+
+        hm_free(map, NULL);
+    });
+
+    CMC_CREATE_TEST(contains[count = 0], {
+        hashmap *map = hm_new(100, 0.6, cmp, hash);
+
+        cmc_assert_not_equals(ptr, NULL, map);
+
+        cmc_assert(!hm_contains(map, 987654321));
 
         hm_free(map, NULL);
     });

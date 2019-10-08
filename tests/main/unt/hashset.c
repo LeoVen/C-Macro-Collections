@@ -19,13 +19,13 @@ CMC_CREATE_UNIT(hashset_test, true, {
         hs_free(set, NULL);
     });
 
-    CMC_CREATE_TEST(new[edge_case capacity = 0], {
+    CMC_CREATE_TEST(new[capacity = 0], {
         hashset *set = hs_new(0, 0.6, cmp, hash);
 
         cmc_assert_equals(ptr, NULL, set);
     });
 
-    CMC_CREATE_TEST(new[edge_case capacity = UINT64_MAX], {
+    CMC_CREATE_TEST(new[capacity = UINT64_MAX], {
         hashset *set = hs_new(UINT64_MAX, 0.99, cmp, hash);
 
         cmc_assert_equals(ptr, NULL, set);
@@ -59,7 +59,7 @@ CMC_CREATE_UNIT(hashset_test, true, {
         hs_free(set, NULL);
     });
 
-    CMC_CREATE_TEST(insert[edge_case smallest capacity], {
+    CMC_CREATE_TEST(insert[smallest capacity], {
         hashset *set = hs_new(1, 0.99, cmp, hash);
 
         cmc_assert_not_equals(ptr, NULL, set);
@@ -162,7 +162,7 @@ CMC_CREATE_UNIT(hashset_test, true, {
         hs_free(set, NULL);
     });
 
-    CMC_CREATE_TEST(remove[edge_case count = 0], {
+    CMC_CREATE_TEST(remove[count = 0], {
         hashset *set = hs_new(100, 0.6, cmp, hash);
 
         cmc_assert_not_equals(ptr, NULL, set);
@@ -203,7 +203,7 @@ CMC_CREATE_UNIT(hashset_test, true, {
         hs_free(set, NULL);
     });
 
-    CMC_CREATE_TEST(max[edge_case count = 0], {
+    CMC_CREATE_TEST(max[count = 0], {
         hashset *set = hs_new(100, 0.6, cmp, hash);
 
         cmc_assert_not_equals(ptr, NULL, set);
@@ -229,7 +229,7 @@ CMC_CREATE_UNIT(hashset_test, true, {
         hs_free(set, NULL);
     });
 
-    CMC_CREATE_TEST(min[edge_case count = 0], {
+    CMC_CREATE_TEST(min[count = 0], {
         hashset *set = hs_new(100, 0.6, cmp, hash);
 
         cmc_assert_not_equals(ptr, NULL, set);
@@ -247,6 +247,16 @@ CMC_CREATE_UNIT(hashset_test, true, {
         cmc_assert(hs_insert(set, 987654321));
 
         cmc_assert(hs_contains(set, 987654321));
+
+        hs_free(set, NULL);
+    });
+
+    CMC_CREATE_TEST(contains[count = 0], {
+        hashset *set = hs_new(100, 0.6, cmp, hash);
+
+        cmc_assert_not_equals(ptr, NULL, set);
+
+        cmc_assert(!hs_contains(set, 987654321));
 
         hs_free(set, NULL);
     });
