@@ -360,7 +360,7 @@ static const size_t cmc_hashtable_primes[] = {53, 97, 191, 383, 769, 1531,
                                                                                                 \
                     break;                                                                      \
                 }                                                                               \
-                else if (target->dist < original_pos - pos)                                     \
+                else if (target->dist < pos - original_pos)                                     \
                 {                                                                               \
                     K tmp_k = target->key;                                                      \
                     V tmp_v = target->value;                                                    \
@@ -527,6 +527,7 @@ static const size_t cmc_hashtable_primes[] = {53, 97, 191, 383, 769, 1531,
     {                                                                                           \
         return _map_->capacity;                                                                 \
     }                                                                                           \
+                                                                                                \
     double PFX##_load(SNAME *_map_)                                                             \
     {                                                                                           \
         return _map_->load;                                                                     \

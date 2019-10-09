@@ -124,6 +124,22 @@ CMC_CREATE_UNIT(hashmap_test, true, {
         hm_free(map, NULL);
     });
 
+    CMC_CREATE_TEST(insert[distances], {
+        hashmap *map = hm_new(1, 0.99, cmp, hashcapminus4);
+
+        cmc_assert_not_equals(ptr, NULL, map);
+
+        cmc_assert_equals(size_t, cmc_hashtable_primes[0], hm_capacity(map));
+
+        for (size_t i = 0; i < 6; i++)
+            cmc_assert(hm_insert(map, i, i));
+
+        for (size_t i = 0; i < 6; i++)
+            cmc_assert_equals(size_t, i, hm_impl_get_entry(map, i)->dist);
+
+        hm_free(map, NULL);
+    });
+
     CMC_CREATE_TEST(insert[buffer growth and item preservation], {
         hashmap *map = hm_new(1, 0.99, cmp, hash);
 
