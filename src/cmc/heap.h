@@ -307,6 +307,9 @@ typedef enum cmc_heap_order_e
                                                                                                   \
     bool PFX##_resize(SNAME *_heap_, size_t capacity)                                             \
     {                                                                                             \
+        if (PFX##_capacity(_heap_) == capacity)                                                   \
+            return true;                                                                          \
+                                                                                                  \
         if (capacity < PFX##_count(_heap_))                                                       \
             return false;                                                                         \
                                                                                                   \

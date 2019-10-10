@@ -105,6 +105,7 @@ static const char *cmc_string_fmt_stack = "%s at %p { buffer:%p, capacity:%" PRI
     size_t PFX##_count(SNAME *_stack_);                                           \
     size_t PFX##_capacity(SNAME *_stack_);                                        \
     /* Collection Utility */                                                      \
+    bool PFX##_resize(SNAME *_stack_, size_t capacity);                           \
     SNAME *PFX##_copy_of(SNAME *_stack_, V (*copy_func)(V));                      \
     bool PFX##_equals(SNAME *_stack1_, SNAME *_stack2_, int (*comparator)(V, V)); \
     cmc_string PFX##_to_string(SNAME *_stack_);                                   \
@@ -145,7 +146,6 @@ static const char *cmc_string_fmt_stack = "%s at %p { buffer:%p, capacity:%" PRI
 #define CMC_GENERATE_STACK_SOURCE(PFX, SNAME, V)                                 \
                                                                                  \
     /* Implementation Detail Functions */                                        \
-    static bool PFX##_impl_grow(SNAME *_stack_);                                 \
     static SNAME##_iter PFX##_impl_it_start(SNAME *_stack_);                     \
     static SNAME##_iter PFX##_impl_it_end(SNAME *_stack_);                       \
                                                                                  \
@@ -207,7 +207,7 @@ static const char *cmc_string_fmt_stack = "%s at %p { buffer:%p, capacity:%" PRI
     {                                                                            \
         if (PFX##_full(_stack_))                                                 \
         {                                                                        \
-            if (!PFX##_impl_grow(_stack_))                                       \
+            if (!PFX##_resize(_stack_, PFX##_capacity(_stack_) * 2))             \
                 return false;                                                    \
         }                                                                        \
                                                                                  \
@@ -263,6 +263,25 @@ static const char *cmc_string_fmt_stack = "%s at %p { buffer:%p, capacity:%" PRI
     size_t PFX##_capacity(SNAME *_stack_)                                        \
     {                                                                            \
         return _stack_->capacity;                                                \
+    }                                                                            \
+                                                                                 \
+    bool PFX##_resize(SNAME *_stack_, size_t capacity)                           \
+    {                                                                            \
+        if (PFX##_capacity(_stack_) == capacity)                                 \
+            return true;                                                         \
+                                                                                 \
+        if (capacity < PFX##_count(_stack_))                                     \
+            return false;                                                        \
+                                                                                 \
+        V *new_buffer = realloc(_stack_->buffer, sizeof(V) * capacity);          \
+                                                                                 \
+        if (!new_buffer)                                                         \
+            return false;                                                        \
+                                                                                 \
+        _stack_->buffer = new_buffer;                                            \
+        _stack_->capacity = capacity;                                            \
+                                                                                 \
+        return true;                                                             \
     }                                                                            \
                                                                                  \
     SNAME *PFX##_copy_of(SNAME *_stack_, V (*copy_func)(V))                      \
@@ -483,21 +502,6 @@ static const char *cmc_string_fmt_stack = "%s at %p { buffer:%p, capacity:%" PRI
             return 0;                                                            \
                                                                                  \
         return iter->target->count - 1 - iter->cursor;                           \
-    }                                                                            \
-                                                                                 \
-    static bool PFX##_impl_grow(SNAME *_stack_)                                  \
-    {                                                                            \
-        size_t new_capacity = _stack_->capacity * 2;                             \
-                                                                                 \
-        V *new_buffer = realloc(_stack_->buffer, sizeof(V) * new_capacity);      \
-                                                                                 \
-        if (!new_buffer)                                                         \
-            return false;                                                        \
-                                                                                 \
-        _stack_->buffer = new_buffer;                                            \
-        _stack_->capacity = new_capacity;                                        \
-                                                                                 \
-        return true;                                                             \
     }                                                                            \
                                                                                  \
     static SNAME##_iter PFX##_impl_it_start(SNAME *_stack_)                      \

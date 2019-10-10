@@ -542,6 +542,9 @@ static const char *cmc_string_fmt_list = "%s at %p { buffer:%p, capacity:%" PRIu
                                                                                              \
     bool PFX##_resize(SNAME *_list_, size_t capacity)                                        \
     {                                                                                        \
+        if (PFX##_capacity(_list_) == capacity)                                              \
+            return true;                                                                     \
+                                                                                             \
         if (capacity < PFX##_count(_list_))                                                  \
             return false;                                                                    \
                                                                                              \

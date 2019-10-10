@@ -31,14 +31,14 @@ size_t hashcapminus1(size_t a)
     return cmc_hashtable_primes[0] - 1;
 }
 
+size_t hashcapminus4(size_t a)
+{
+    return cmc_hashtable_primes[0] - 1;
+}
+
 size_t hash0(size_t a)
 {
     return 0;
-}
-
-size_t hashmod40(size_t a)
-{
-    return a % 40;
 }
 
 #endif /* CMC_UNIT_TEST_UTL__ */
