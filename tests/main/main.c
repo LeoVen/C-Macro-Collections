@@ -11,6 +11,7 @@
 #include "unt/treemap.c"
 #include "unt/treeset.c"
 
+#include "unt/bidimap.c"
 #include "unt/intervalheap.c"
 #include "unt/multimap.c"
 #include "unt/multiset.c"
@@ -35,6 +36,7 @@ int main(void)
     failed += treeset_test();
 
     /* ext */
+    failed += bidimap_test();
     failed += intervalheap_test();
     failed += multimap_test();
     failed += multiset_test();

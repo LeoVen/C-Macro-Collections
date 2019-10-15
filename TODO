@@ -5,8 +5,8 @@ TODO
 [~] - Needs to be reviewed
 
 [ ] Future possible Collections
-    [ ] Add SortedList
-    [ ] Add BiDiMap
+    [/] Add SortedList
+    [/] Add BiDiMap
     [ ] Add Trie (or any variant)
 
 [/] Documentation
@@ -27,7 +27,7 @@ TODO
     [ ] to_array     {all}
     [X] equals       {all}
     [X] copy_of      {all}
-    [ ] resize       {dynamic arrays and circular buffers}
+    [/] resize       {array based collections}
 [ ] Serialization
     [ ] save         {all}
     [ ] load         {all}
