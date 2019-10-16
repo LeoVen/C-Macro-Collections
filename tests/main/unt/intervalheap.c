@@ -28,6 +28,36 @@ CMC_CREATE_UNIT(intervalheap_test, true, {
             ih_free(ih, NULL);
     });
 
+    CMC_CREATE_TEST(new[capacity], {
+        intervalheap *ih = ih_new(1, cmp);
+
+        cmc_assert_not_equals(ptr, NULL, ih);
+        cmc_assert_equals(size_t, 1, ih_capacity(ih));
+
+        ih_free(ih, NULL);
+
+        ih = ih_new(2, cmp);
+
+        cmc_assert_not_equals(ptr, NULL, ih);
+        cmc_assert_equals(size_t, 1, ih_capacity(ih));
+
+        ih_free(ih, NULL);
+
+        ih = ih_new(3, cmp);
+
+        cmc_assert_not_equals(ptr, NULL, ih);
+        cmc_assert_equals(size_t, 2, ih_capacity(ih));
+
+        ih_free(ih, NULL);
+
+        ih = ih_new(4, cmp);
+
+        cmc_assert_not_equals(ptr, NULL, ih);
+        cmc_assert_equals(size_t, 2, ih_capacity(ih));
+
+        ih_free(ih, NULL);
+    });
+
     CMC_CREATE_TEST(new[capacity = UINT64_MAX], {
         intervalheap *ih = ih_new(UINT64_MAX, cmp);
 
@@ -43,7 +73,7 @@ CMC_CREATE_UNIT(intervalheap_test, true, {
         cmc_assert_not_equals(ptr, NULL, ih);
 
         for (size_t i = 0; i < 50; i++)
-            ih_insert(ih, i);
+            cmc_assert(ih_insert(ih, i));
 
         cmc_assert_equals(size_t, 50, ih_count(ih));
 
@@ -61,9 +91,43 @@ CMC_CREATE_UNIT(intervalheap_test, true, {
         cmc_assert_not_equals(ptr, NULL, ih);
 
         for (size_t i = 0; i < 50; i++)
-            ih_insert(ih, i);
+            cmc_assert(ih_insert(ih, i));
 
         cmc_assert_equals(size_t, 50, ih_count(ih));
+        cmc_assert_greater(size_t, 50, ih_capacity(ih) * 2);
+
+        ih_free(ih, NULL);
+    });
+
+    CMC_CREATE_TEST(insert[count], {
+        intervalheap *ih = ih_new(100, cmp);
+
+        cmc_assert_not_equals(ptr, NULL, ih);
+
+        cmc_assert(ih_insert(ih, 1));
+        cmc_assert(ih_insert(ih, 0));
+
+        cmc_assert_equals(size_t, 2, ih_count(ih));
+
+        ih_free(ih, NULL);
+    });
+
+    CMC_CREATE_TEST(insert[max min], {
+        intervalheap *ih = ih_new(1, cmp);
+
+        cmc_assert_not_equals(ptr, NULL, ih);
+
+        cmc_assert(ih_insert(ih, 1));
+        cmc_assert(ih_insert(ih, 0));
+
+        size_t min;
+        size_t max;
+
+        cmc_assert(ih_min(ih, &min));
+        cmc_assert(ih_max(ih, &max));
+
+        cmc_assert_equals(size_t, 0, min);
+        cmc_assert_equals(size_t, 1, max);
 
         ih_free(ih, NULL);
     });

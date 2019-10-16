@@ -118,6 +118,7 @@ static const char *cmc_string_fmt_intervalheap = "%s at %p { buffer:%p, capacity
     size_t PFX##_count(SNAME *_heap_);                                   \
     size_t PFX##_capacity(SNAME *_heap_);                                \
     /* Collection Utility */                                             \
+    bool PFX##_resize(SNAME *_heap_, size_t capacity);                   \
     SNAME *PFX##_copy_of(SNAME *_set_, V (*copy_func)(V));               \
     bool PFX##_equals(SNAME *_heap1_, SNAME *_heap2_);                   \
     cmc_string PFX##_to_string(SNAME *_heap_);                           \
@@ -157,7 +158,6 @@ static const char *cmc_string_fmt_intervalheap = "%s at %p { buffer:%p, capacity
 #define CMC_GENERATE_INTERVALHEAP_SOURCE(PFX, SNAME, V)                                           \
                                                                                                   \
     /* Implementation Detail Functions */                                                         \
-    static bool PFX##_impl_grow(SNAME *_heap_);                                                   \
     static void PFX##_impl_float_up_max(SNAME *_heap_);                                           \
     static void PFX##_impl_float_up_min(SNAME *_heap_);                                           \
     static void PFX##_impl_float_down_max(SNAME *_heap_);                                         \
@@ -235,7 +235,7 @@ static const char *cmc_string_fmt_intervalheap = "%s at %p { buffer:%p, capacity
     {                                                                                             \
         if (PFX##_full(_heap_))                                                                   \
         {                                                                                         \
-            if (!PFX##_impl_grow(_heap_))                                                         \
+            if (!PFX##_resize(_heap_, PFX##_capacity(_heap_) * 4))                                \
                 return false;                                                                     \
         }                                                                                         \
                                                                                                   \
@@ -485,6 +485,29 @@ static const char *cmc_string_fmt_intervalheap = "%s at %p { buffer:%p, capacity
         return _heap_->capacity;                                                                  \
     }                                                                                             \
                                                                                                   \
+    bool PFX##_resize(SNAME *_heap_, size_t capacity)                                             \
+    {                                                                                             \
+        if (PFX##_capacity(_heap_) == capacity)                                                   \
+            return true;                                                                          \
+                                                                                                  \
+        if (capacity < PFX##_count(_heap_))                                                       \
+            return false;                                                                         \
+                                                                                                  \
+        capacity = capacity % 2 == 0 ? capacity / 2 : (capacity + 1) / 2;                         \
+                                                                                                  \
+        SNAME##_node *new_buffer = realloc(_heap_->buffer, sizeof(SNAME##_node) * capacity);      \
+                                                                                                  \
+        if (!new_buffer)                                                                          \
+            return false;                                                                         \
+                                                                                                  \
+        memset(new_buffer + _heap_->capacity, 0, sizeof(SNAME##_node) * _heap_->capacity);        \
+                                                                                                  \
+        _heap_->buffer = new_buffer;                                                              \
+        _heap_->capacity = capacity;                                                              \
+                                                                                                  \
+        return true;                                                                              \
+    }                                                                                             \
+                                                                                                  \
     SNAME *PFX##_copy_of(SNAME *_heap_, V (*copy_func)(V))                                        \
     {                                                                                             \
         SNAME *result = malloc(sizeof(SNAME));                                                    \
@@ -702,23 +725,6 @@ static const char *cmc_string_fmt_intervalheap = "%s at %p { buffer:%p, capacity
     size_t PFX##_iter_index(SNAME##_iter *iter)                                                   \
     {                                                                                             \
         return iter->cursor;                                                                      \
-    }                                                                                             \
-                                                                                                  \
-    static bool PFX##_impl_grow(SNAME *_heap_)                                                    \
-    {                                                                                             \
-        size_t new_cap = _heap_->capacity * 2;                                                    \
-                                                                                                  \
-        SNAME##_node *new_buffer = realloc(_heap_->buffer, sizeof(SNAME##_node) * new_cap);       \
-                                                                                                  \
-        if (!new_buffer)                                                                          \
-            return false;                                                                         \
-                                                                                                  \
-        memset(new_buffer + _heap_->capacity, 0, sizeof(SNAME##_node) * _heap_->capacity);        \
-                                                                                                  \
-        _heap_->buffer = new_buffer;                                                              \
-        _heap_->capacity = new_cap;                                                               \
-                                                                                                  \
-        return true;                                                                              \
     }                                                                                             \
                                                                                                   \
     static void PFX##_impl_float_up_max(SNAME *_heap_)                                            \
