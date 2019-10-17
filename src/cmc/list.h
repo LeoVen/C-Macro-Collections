@@ -163,16 +163,6 @@ static const char *cmc_string_fmt_list = "%s at %p { buffer:%p, capacity:%" PRIu
     V *PFX##_iter_rvalue(SNAME##_iter *iter);                                                 \
     size_t PFX##_iter_index(SNAME##_iter *iter);                                              \
                                                                                               \
-    /* Default Value */                                                                       \
-    static inline V PFX##_impl_default_value(void)                                            \
-    {                                                                                         \
-        V _empty_value_;                                                                      \
-                                                                                              \
-        memset(&_empty_value_, 0, sizeof(V));                                                 \
-                                                                                              \
-        return _empty_value_;                                                                 \
-    }                                                                                         \
-                                                                                              \
 /* SOURCE ********************************************************************/
 #define CMC_GENERATE_LIST_SOURCE(PFX, SNAME, V)                                              \
                                                                                              \
@@ -311,7 +301,7 @@ static const char *cmc_string_fmt_list = "%s at %p { buffer:%p, capacity:%" PRIu
                                                                                              \
         memmove(_list_->buffer, _list_->buffer + 1, _list_->count * sizeof(V));              \
                                                                                              \
-        _list_->buffer[--_list_->count] = PFX##_impl_default_value();                        \
+        _list_->buffer[--_list_->count] = (V){0};                                            \
                                                                                              \
         return true;                                                                         \
     }                                                                                        \
@@ -324,7 +314,7 @@ static const char *cmc_string_fmt_list = "%s at %p { buffer:%p, capacity:%" PRIu
         memmove(_list_->buffer + index, _list_->buffer + index + 1,                          \
                 (_list_->count - index) * sizeof(V));                                        \
                                                                                              \
-        _list_->buffer[--_list_->count] = PFX##_impl_default_value();                        \
+        _list_->buffer[--_list_->count] = (V){0};                                            \
                                                                                              \
         return true;                                                                         \
     }                                                                                        \
@@ -334,7 +324,7 @@ static const char *cmc_string_fmt_list = "%s at %p { buffer:%p, capacity:%" PRIu
         if (PFX##_empty(_list_))                                                             \
             return false;                                                                    \
                                                                                              \
-        _list_->buffer[--_list_->count] = PFX##_impl_default_value();                        \
+        _list_->buffer[--_list_->count] = (V){0};                                            \
                                                                                              \
         return true;                                                                         \
     }                                                                                        \
@@ -450,7 +440,7 @@ static const char *cmc_string_fmt_list = "%s at %p { buffer:%p, capacity:%" PRIu
     V PFX##_front(SNAME *_list_)                                                             \
     {                                                                                        \
         if (PFX##_empty(_list_))                                                             \
-            return PFX##_impl_default_value();                                               \
+            return (V){0};                                                                   \
                                                                                              \
         return _list_->buffer[0];                                                            \
     }                                                                                        \
@@ -458,7 +448,7 @@ static const char *cmc_string_fmt_list = "%s at %p { buffer:%p, capacity:%" PRIu
     V PFX##_get(SNAME *_list_, size_t index)                                                 \
     {                                                                                        \
         if (index >= _list_->count || PFX##_empty(_list_))                                   \
-            return PFX##_impl_default_value();                                               \
+            return (V){0};                                                                   \
                                                                                              \
         return _list_->buffer[index];                                                        \
     }                                                                                        \
@@ -477,7 +467,7 @@ static const char *cmc_string_fmt_list = "%s at %p { buffer:%p, capacity:%" PRIu
     V PFX##_back(SNAME *_list_)                                                              \
     {                                                                                        \
         if (PFX##_empty(_list_))                                                             \
-            return PFX##_impl_default_value();                                               \
+            return (V){0};                                                                   \
                                                                                              \
         return _list_->buffer[_list_->count - 1];                                            \
     }                                                                                        \
@@ -757,7 +747,7 @@ static const char *cmc_string_fmt_list = "%s at %p { buffer:%p, capacity:%" PRIu
     V PFX##_iter_value(SNAME##_iter *iter)                                                   \
     {                                                                                        \
         if (PFX##_empty(iter->target))                                                       \
-            return PFX##_impl_default_value();                                               \
+            return (V){0};                                                                   \
                                                                                              \
         return iter->target->buffer[iter->cursor];                                           \
     }                                                                                        \

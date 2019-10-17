@@ -147,16 +147,6 @@ static const char *cmc_string_fmt_deque = "%s at %p { buffer:%p, capacity:%" PRI
     V *PFX##_iter_rvalue(SNAME##_iter *iter);                                     \
     size_t PFX##_iter_index(SNAME##_iter *iter);                                  \
                                                                                   \
-    /* Default Value */                                                           \
-    static inline V PFX##_impl_default_value(void)                                \
-    {                                                                             \
-        V _empty_value_;                                                          \
-                                                                                  \
-        memset(&_empty_value_, 0, sizeof(V));                                     \
-                                                                                  \
-        return _empty_value_;                                                     \
-    }                                                                             \
-                                                                                  \
 /* SOURCE ********************************************************************/
 #define CMC_GENERATE_DEQUE_SOURCE(PFX, SNAME, V)                                                  \
                                                                                                   \
@@ -269,7 +259,7 @@ static const char *cmc_string_fmt_deque = "%s at %p { buffer:%p, capacity:%" PRI
         if (PFX##_empty(_deque_))                                                                 \
             return false;                                                                         \
                                                                                                   \
-        _deque_->buffer[_deque_->front] = PFX##_impl_default_value();                             \
+        _deque_->buffer[_deque_->front] = (V){0};                                                 \
                                                                                                   \
         _deque_->front = (_deque_->front == _deque_->capacity - 1) ? 0 : _deque_->front + 1;      \
                                                                                                   \
@@ -285,7 +275,7 @@ static const char *cmc_string_fmt_deque = "%s at %p { buffer:%p, capacity:%" PRI
                                                                                                   \
         _deque_->back = (_deque_->back == 0) ? _deque_->capacity - 1 : _deque_->back - 1;         \
                                                                                                   \
-        _deque_->buffer[_deque_->back] = PFX##_impl_default_value();                              \
+        _deque_->buffer[_deque_->back] = (V){0};                                                  \
                                                                                                   \
         _deque_->count--;                                                                         \
                                                                                                   \
@@ -295,7 +285,7 @@ static const char *cmc_string_fmt_deque = "%s at %p { buffer:%p, capacity:%" PRI
     V PFX##_front(SNAME *_deque_)                                                                 \
     {                                                                                             \
         if (PFX##_empty(_deque_))                                                                 \
-            return PFX##_impl_default_value();                                                    \
+            return (V){0};                                                                        \
                                                                                                   \
         return _deque_->buffer[_deque_->front];                                                   \
     }                                                                                             \
@@ -303,7 +293,7 @@ static const char *cmc_string_fmt_deque = "%s at %p { buffer:%p, capacity:%" PRI
     V PFX##_back(SNAME *_deque_)                                                                  \
     {                                                                                             \
         if (PFX##_empty(_deque_))                                                                 \
-            return PFX##_impl_default_value();                                                    \
+            return (V){0};                                                                        \
                                                                                                   \
         return _deque_->buffer[(_deque_->back == 0) ? _deque_->capacity - 1 : _deque_->back - 1]; \
     }                                                                                             \
@@ -603,7 +593,7 @@ static const char *cmc_string_fmt_deque = "%s at %p { buffer:%p, capacity:%" PRI
     V PFX##_iter_value(SNAME##_iter *iter)                                                        \
     {                                                                                             \
         if (PFX##_empty(iter->target))                                                            \
-            return PFX##_impl_default_value();                                                    \
+            return (V){0};                                                                        \
                                                                                                   \
         return iter->target->buffer[iter->cursor];                                                \
     }                                                                                             \

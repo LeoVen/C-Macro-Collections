@@ -186,7 +186,7 @@ CMC_CREATE_UNIT(stack_test, true, {
 
         cmc_assert(s_pop(s));
 
-        cmc_assert_equals(size_t, s_impl_default_value(), s_top(s));
+        cmc_assert_equals(size_t, (size_t){0}, s_top(s));
 
         s_free(s, NULL);
     });
@@ -526,7 +526,7 @@ CMC_CREATE_UNIT(stack_test, true, {
 
         s_iter_init(&iter, s);
 
-        cmc_assert_equals(size_t, s_impl_default_value(), s_iter_value(&iter));
+        cmc_assert_equals(size_t, (size_t){0}, s_iter_value(&iter));
 
         s_free(s, NULL);
     });

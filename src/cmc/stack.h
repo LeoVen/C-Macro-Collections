@@ -132,16 +132,6 @@ static const char *cmc_string_fmt_stack = "%s at %p { buffer:%p, capacity:%" PRI
     V *PFX##_iter_rvalue(SNAME##_iter *iter);                                     \
     size_t PFX##_iter_index(SNAME##_iter *iter);                                  \
                                                                                   \
-    /* Default Value */                                                           \
-    static inline V PFX##_impl_default_value(void)                                \
-    {                                                                             \
-        V _empty_value_;                                                          \
-                                                                                  \
-        memset(&_empty_value_, 0, sizeof(V));                                     \
-                                                                                  \
-        return _empty_value_;                                                     \
-    }                                                                             \
-                                                                                  \
 /* SOURCE ********************************************************************/
 #define CMC_GENERATE_STACK_SOURCE(PFX, SNAME, V)                                 \
                                                                                  \
@@ -221,7 +211,7 @@ static const char *cmc_string_fmt_stack = "%s at %p { buffer:%p, capacity:%" PRI
         if (PFX##_empty(_stack_))                                                \
             return false;                                                        \
                                                                                  \
-        _stack_->buffer[--_stack_->count] = PFX##_impl_default_value();          \
+        _stack_->buffer[--_stack_->count] = (V){0};                              \
                                                                                  \
         return true;                                                             \
     }                                                                            \
@@ -229,7 +219,7 @@ static const char *cmc_string_fmt_stack = "%s at %p { buffer:%p, capacity:%" PRI
     V PFX##_top(SNAME *_stack_)                                                  \
     {                                                                            \
         if (PFX##_empty(_stack_))                                                \
-            return PFX##_impl_default_value();                                   \
+            return (V){0};                                                       \
                                                                                  \
         return _stack_->buffer[_stack_->count - 1];                              \
     }                                                                            \
@@ -483,7 +473,7 @@ static const char *cmc_string_fmt_stack = "%s at %p { buffer:%p, capacity:%" PRI
     V PFX##_iter_value(SNAME##_iter *iter)                                       \
     {                                                                            \
         if (PFX##_empty(iter->target))                                           \
-            return PFX##_impl_default_value();                                   \
+            return (V){0};                                                       \
                                                                                  \
         return iter->target->buffer[iter->cursor];                               \
     }                                                                            \

@@ -214,16 +214,6 @@ static const size_t cmc_hashtable_primes[] = {53, 97, 191, 383, 769, 1531,
     V PFX##_iter_value(SNAME##_iter *iter);                                                  \
     size_t PFX##_iter_index(SNAME##_iter *iter);                                             \
                                                                                              \
-    /* Default Value */                                                                      \
-    static inline V PFX##_impl_default_value(void)                                           \
-    {                                                                                        \
-        V _empty_value_;                                                                     \
-                                                                                             \
-        memset(&_empty_value_, 0, sizeof(V));                                                \
-                                                                                             \
-        return _empty_value_;                                                                \
-    }                                                                                        \
-                                                                                             \
 /* SOURCE ********************************************************************/
 #define CMC_GENERATE_HASHSET_SOURCE(PFX, SNAME, V)                                              \
                                                                                                 \
@@ -374,7 +364,7 @@ static const size_t cmc_hashtable_primes[] = {53, 97, 191, 383, 769, 1531,
         if (result == NULL)                                                                     \
             return false;                                                                       \
                                                                                                 \
-        result->value = PFX##_impl_default_value();                                             \
+        result->value = (V){0};                                                                 \
         result->dist = 0;                                                                       \
         result->state = CMC_ES_DELETED;                                                         \
                                                                                                 \
@@ -978,7 +968,7 @@ static const size_t cmc_hashtable_primes[] = {53, 97, 191, 383, 769, 1531,
     V PFX##_iter_value(SNAME##_iter *iter)                                                      \
     {                                                                                           \
         if (PFX##_empty(iter->target))                                                          \
-            return PFX##_impl_default_value();                                                  \
+            return (V){0};                                                                      \
                                                                                                 \
         return iter->target->buffer[iter->cursor].value;                                        \
     }                                                                                           \

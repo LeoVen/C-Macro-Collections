@@ -165,7 +165,7 @@ CMC_CREATE_UNIT(queue_test, true, {
 
         size_t r = q_peek(q);
 
-        cmc_assert_equals(size_t, q_impl_default_value(), r);
+        cmc_assert_equals(size_t, (size_t){0}, r);
 
         q_free(q, NULL);
     });

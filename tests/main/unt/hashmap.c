@@ -304,7 +304,7 @@ CMC_CREATE_UNIT(hashmap_test, true, {
 
         cmc_assert_not_equals(ptr, NULL, map);
 
-        cmc_assert_equals(size_t, hm_impl_default_value(), hm_get(map, 4321));
+        cmc_assert_equals(size_t, (size_t){0}, hm_get(map, 4321));
 
         hm_free(map, NULL);
     });

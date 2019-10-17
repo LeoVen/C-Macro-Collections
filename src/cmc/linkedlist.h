@@ -172,16 +172,6 @@ static const char *cmc_string_fmt_linkedlist = "%s at %p { count:%" PRIuMAX ", h
     size_t PFX##_iter_index(SNAME##_iter *iter);                                \
     SNAME##_node *PFX##_iter_node(SNAME##_iter *iter);                          \
                                                                                 \
-    /* Default Value */                                                         \
-    static inline V PFX##_impl_default_value(void)                              \
-    {                                                                           \
-        V _empty_value_;                                                        \
-                                                                                \
-        memset(&_empty_value_, 0, sizeof(V));                                   \
-                                                                                \
-        return _empty_value_;                                                   \
-    }                                                                           \
-                                                                                \
 /* SOURCE ********************************************************************/
 #define CMC_GENERATE_LINKEDLIST_SOURCE(PFX, SNAME, V)                              \
                                                                                    \
@@ -390,7 +380,7 @@ static const char *cmc_string_fmt_linkedlist = "%s at %p { count:%" PRIuMAX ", h
     V PFX##_front(SNAME *_list_)                                                   \
     {                                                                              \
         if (PFX##_empty(_list_))                                                   \
-            return PFX##_impl_default_value();                                     \
+            return (V){0};                                                         \
                                                                                    \
         return _list_->head->data;                                                 \
     }                                                                              \
@@ -398,12 +388,12 @@ static const char *cmc_string_fmt_linkedlist = "%s at %p { count:%" PRIuMAX ", h
     V PFX##_get(SNAME *_list_, size_t index)                                       \
     {                                                                              \
         if (index >= _list_->count || PFX##_empty(_list_))                         \
-            return PFX##_impl_default_value();                                     \
+            return (V){0};                                                         \
                                                                                    \
         SNAME##_node *scan = PFX##_get_node(_list_, index);                        \
                                                                                    \
         if (scan == NULL)                                                          \
-            return PFX##_impl_default_value();                                     \
+            return (V){0};                                                         \
                                                                                    \
         return scan->data;                                                         \
     }                                                                              \
@@ -427,7 +417,7 @@ static const char *cmc_string_fmt_linkedlist = "%s at %p { count:%" PRIuMAX ", h
     V PFX##_back(SNAME *_list_)                                                    \
     {                                                                              \
         if (PFX##_empty(_list_))                                                   \
-            return PFX##_impl_default_value();                                     \
+            return (V){0};                                                         \
                                                                                    \
         return _list_->tail->data;                                                 \
     }                                                                              \
@@ -869,7 +859,7 @@ static const char *cmc_string_fmt_linkedlist = "%s at %p { count:%" PRIuMAX ", h
     V PFX##_iter_value(SNAME##_iter *iter)                                         \
     {                                                                              \
         if (PFX##_empty(iter->target))                                             \
-            return PFX##_impl_default_value();                                     \
+            return (V){0};                                                         \
                                                                                    \
         return iter->cursor->data;                                                 \
     }                                                                              \

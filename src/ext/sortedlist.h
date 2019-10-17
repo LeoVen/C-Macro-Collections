@@ -136,16 +136,6 @@ static const char *cmc_string_fmt_sortedlist = "%s at %p { buffer:%p, capacity:%
     V PFX##_iter_value(SNAME##_iter *iter);                              \
     size_t PFX##_iter_index(SNAME##_iter *iter);                         \
                                                                          \
-    /* Default Value */                                                  \
-    static inline V PFX##_impl_default_value(void)                       \
-    {                                                                    \
-        V _empty_value_;                                                 \
-                                                                         \
-        memset(&_empty_value_, 0, sizeof(V));                            \
-                                                                         \
-        return _empty_value_;                                            \
-    }                                                                    \
-                                                                         \
 /* SOURCE ********************************************************************/
 #define CMC_GENERATE_SORTEDLIST_SOURCE(PFX, SNAME, V)                                     \
                                                                                           \
@@ -234,7 +224,7 @@ static const char *cmc_string_fmt_sortedlist = "%s at %p { buffer:%p, capacity:%
         memmove(_list_->buffer + index, _list_->buffer + index + 1,                       \
                 (_list_->count - index) * sizeof(V));                                     \
                                                                                           \
-        _list_->buffer[--_list_->count] = PFX##_impl_default_value();                     \
+        _list_->buffer[--_list_->count] = (V){0};                                         \
                                                                                           \
         return true;                                                                      \
     }                                                                                     \
@@ -266,7 +256,7 @@ static const char *cmc_string_fmt_sortedlist = "%s at %p { buffer:%p, capacity:%
     V PFX##_get(SNAME *_list_, size_t index)                                              \
     {                                                                                     \
         if (index >= _list_->count)                                                       \
-            return PFX##_impl_default_value();                                            \
+            return (V){0};                                                                \
                                                                                           \
         PFX##_sort(_list_);                                                               \
                                                                                           \
@@ -545,7 +535,7 @@ static const char *cmc_string_fmt_sortedlist = "%s at %p { buffer:%p, capacity:%
     V PFX##_iter_value(SNAME##_iter *iter)                                                \
     {                                                                                     \
         if (PFX##_empty(iter->target))                                                    \
-            return PFX##_impl_default_value();                                            \
+            return (V){0};                                                                \
                                                                                           \
         return iter->target->buffer[iter->cursor];                                        \
     }                                                                                     \

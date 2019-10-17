@@ -307,7 +307,7 @@ CMC_CREATE_UNIT(deque_test, true, {
 
         size_t r = d_front(d);
 
-        cmc_assert_equals(size_t, d_impl_default_value(), r);
+        cmc_assert_equals(size_t, (size_t){0}, r);
 
         d_free(d, NULL);
     });
@@ -348,7 +348,7 @@ CMC_CREATE_UNIT(deque_test, true, {
 
         size_t r = d_back(d);
 
-        cmc_assert_equals(size_t, d_impl_default_value(), r);
+        cmc_assert_equals(size_t, (size_t){0}, r);
 
         d_free(d, NULL);
     });

@@ -156,16 +156,6 @@ static const char *cmc_string_fmt_queue = "%s at %p { buffer:%p, capacity:%" PRI
     V *PFX##_iter_rvalue(SNAME##_iter *iter);                                     \
     size_t PFX##_iter_index(SNAME##_iter *iter);                                  \
                                                                                   \
-    /* Default Value */                                                           \
-    static inline V PFX##_impl_default_value(void)                                \
-    {                                                                             \
-        V _empty_value_;                                                          \
-                                                                                  \
-        memset(&_empty_value_, 0, sizeof(V));                                     \
-                                                                                  \
-        return _empty_value_;                                                     \
-    }                                                                             \
-                                                                                  \
 /* SOURCE ********************************************************************/
 #define CMC_GENERATE_QUEUE_SOURCE(PFX, SNAME, V)                                              \
                                                                                               \
@@ -260,7 +250,7 @@ static const char *cmc_string_fmt_queue = "%s at %p { buffer:%p, capacity:%" PRI
         if (PFX##_empty(_queue_))                                                             \
             return false;                                                                     \
                                                                                               \
-        _queue_->buffer[_queue_->front] = PFX##_impl_default_value();                         \
+        _queue_->buffer[_queue_->front] = (V){0};                                             \
                                                                                               \
         _queue_->front = (_queue_->front == _queue_->capacity - 1) ? 0 : _queue_->front + 1;  \
         _queue_->count--;                                                                     \
@@ -271,7 +261,7 @@ static const char *cmc_string_fmt_queue = "%s at %p { buffer:%p, capacity:%" PRI
     V PFX##_peek(SNAME *_queue_)                                                              \
     {                                                                                         \
         if (PFX##_empty(_queue_))                                                             \
-            return PFX##_impl_default_value();                                                \
+            return (V){0};                                                                    \
                                                                                               \
         return _queue_->buffer[_queue_->front];                                               \
     }                                                                                         \
@@ -567,7 +557,7 @@ static const char *cmc_string_fmt_queue = "%s at %p { buffer:%p, capacity:%" PRI
     V PFX##_iter_value(SNAME##_iter *iter)                                                    \
     {                                                                                         \
         if (PFX##_empty(iter->target))                                                        \
-            return PFX##_impl_default_value();                                                \
+            return (V){0};                                                                    \
                                                                                               \
         return iter->target->buffer[iter->cursor];                                            \
     }                                                                                         \

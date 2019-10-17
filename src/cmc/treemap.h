@@ -157,26 +157,6 @@ static const char *cmc_string_fmt_treemap = "%s at %p { root:%p, count:%" PRIuMA
     V *PFX##_iter_rvalue(SNAME##_iter *iter);                                           \
     size_t PFX##_iter_index(SNAME##_iter *iter);                                        \
                                                                                         \
-    /* Default Key */                                                                   \
-    static inline K PFX##_impl_default_key(void)                                        \
-    {                                                                                   \
-        K _empty_key_;                                                                  \
-                                                                                        \
-        memset(&_empty_key_, 0, sizeof(K));                                             \
-                                                                                        \
-        return _empty_key_;                                                             \
-    }                                                                                   \
-                                                                                        \
-    /* Default Value */                                                                 \
-    static inline V PFX##_impl_default_value(void)                                      \
-    {                                                                                   \
-        V _empty_value_;                                                                \
-                                                                                        \
-        memset(&_empty_value_, 0, sizeof(V));                                           \
-                                                                                        \
-        return _empty_value_;                                                           \
-    }                                                                                   \
-                                                                                        \
 /* SOURCE ********************************************************************/
 #define CMC_GENERATE_TREEMAP_SOURCE(PFX, SNAME, K, V)                                        \
                                                                                              \
@@ -511,7 +491,7 @@ static const char *cmc_string_fmt_treemap = "%s at %p { root:%p, count:%" PRIuMA
         SNAME##_node *node = PFX##_impl_get_node(_map_, key);                                \
                                                                                              \
         if (!node)                                                                           \
-            return PFX##_impl_default_value();                                               \
+            return (V){0};                                                                   \
                                                                                              \
         return node->value;                                                                  \
     }                                                                                        \
@@ -834,7 +814,7 @@ static const char *cmc_string_fmt_treemap = "%s at %p { root:%p, count:%" PRIuMA
     K PFX##_iter_key(SNAME##_iter *iter)                                                     \
     {                                                                                        \
         if (PFX##_empty(iter->target))                                                       \
-            return PFX##_impl_default_key();                                                 \
+            return (K){0};                                                                   \
                                                                                              \
         return iter->cursor->key;                                                            \
     }                                                                                        \
@@ -842,7 +822,7 @@ static const char *cmc_string_fmt_treemap = "%s at %p { root:%p, count:%" PRIuMA
     V PFX##_iter_value(SNAME##_iter *iter)                                                   \
     {                                                                                        \
         if (PFX##_empty(iter->target))                                                       \
-            return PFX##_impl_default_value();                                               \
+            return (V){0};                                                                   \
                                                                                              \
         return iter->cursor->value;                                                          \
     }                                                                                        \

@@ -145,16 +145,6 @@ typedef enum cmc_heap_order_e
     V PFX##_iter_value(SNAME##_iter *iter);                                     \
     size_t PFX##_iter_index(SNAME##_iter *iter);                                \
                                                                                 \
-    /* Default Value */                                                         \
-    static inline V PFX##_impl_default_value(void)                              \
-    {                                                                           \
-        V _empty_value_;                                                        \
-                                                                                \
-        memset(&_empty_value_, 0, sizeof(V));                                   \
-                                                                                \
-        return _empty_value_;                                                   \
-    }                                                                           \
-                                                                                \
 /* SOURCE ********************************************************************/
 #define CMC_GENERATE_HEAP_SOURCE(PFX, SNAME, V)                                                   \
                                                                                                   \
@@ -256,7 +246,7 @@ typedef enum cmc_heap_order_e
                                                                                                   \
         *result = _heap_->buffer[0];                                                              \
         _heap_->buffer[0] = _heap_->buffer[_heap_->count - 1];                                    \
-        _heap_->buffer[_heap_->count - 1] = PFX##_impl_default_value();                           \
+        _heap_->buffer[_heap_->count - 1] = (V){0};                                               \
                                                                                                   \
         _heap_->count--;                                                                          \
                                                                                                   \
@@ -269,7 +259,7 @@ typedef enum cmc_heap_order_e
     V PFX##_peek(SNAME *_heap_)                                                                   \
     {                                                                                             \
         if (PFX##_empty(_heap_))                                                                  \
-            return PFX##_impl_default_value();                                                    \
+            return (V){0};                                                                        \
                                                                                                   \
         return _heap_->buffer[0];                                                                 \
     }                                                                                             \
@@ -526,7 +516,7 @@ typedef enum cmc_heap_order_e
     V PFX##_iter_value(SNAME##_iter *iter)                                                        \
     {                                                                                             \
         if (PFX##_empty(iter->target))                                                            \
-            return PFX##_impl_default_value();                                                    \
+            return (V){0};                                                                        \
                                                                                                   \
         return iter->target->buffer[iter->cursor];                                                \
     }                                                                                             \

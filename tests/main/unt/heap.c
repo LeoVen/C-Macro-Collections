@@ -157,7 +157,7 @@ CMC_CREATE_UNIT(heap_test, true, {
 
         cmc_assert_not_equals(ptr, NULL, h);
 
-        cmc_assert_equals(size_t, h_impl_default_value(), h_peek(h));
+        cmc_assert_equals(size_t, (size_t){0}, h_peek(h));
 
         h_free(h, NULL);
     });

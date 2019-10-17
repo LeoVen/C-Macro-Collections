@@ -144,16 +144,6 @@ static const char *cmc_string_fmt_intervalheap = "%s at %p { buffer:%p, capacity
     V PFX##_iter_value(SNAME##_iter *iter);                              \
     size_t PFX##_iter_index(SNAME##_iter *iter);                         \
                                                                          \
-    /* Default Value */                                                  \
-    static inline V PFX##_impl_default_value(void)                       \
-    {                                                                    \
-        V _empty_value_;                                                 \
-                                                                         \
-        memset(&_empty_value_, 0, sizeof(V));                            \
-                                                                         \
-        return _empty_value_;                                            \
-    }                                                                    \
-                                                                         \
 /* SOURCE ********************************************************************/
 #define CMC_GENERATE_INTERVALHEAP_SOURCE(PFX, SNAME, V)                                           \
                                                                                                   \
@@ -243,7 +233,7 @@ static const char *cmc_string_fmt_intervalheap = "%s at %p { buffer:%p, capacity
         {                                                                                         \
             /* Occupying a new node */                                                            \
             _heap_->buffer[_heap_->size].data[0] = element;                                       \
-            _heap_->buffer[_heap_->size].data[1] = PFX##_impl_default_value();                    \
+            _heap_->buffer[_heap_->size].data[1] = (V){0};                                        \
                                                                                                   \
             _heap_->size++;                                                                       \
         }                                                                                         \
@@ -291,7 +281,7 @@ static const char *cmc_string_fmt_intervalheap = "%s at %p { buffer:%p, capacity
         {                                                                                         \
             *result = _heap_->buffer[0].data[0];                                                  \
                                                                                                   \
-            _heap_->buffer[0].data[0] = PFX##_impl_default_value();                               \
+            _heap_->buffer[0].data[0] = (V){0};                                                   \
                                                                                                   \
             _heap_->count--;                                                                      \
                                                                                                   \
@@ -308,7 +298,7 @@ static const char *cmc_string_fmt_intervalheap = "%s at %p { buffer:%p, capacity
             /* Grab from MinHeap and discard last node */                                         \
             _heap_->buffer[0].data[1] = last_node->data[0];                                       \
                                                                                                   \
-            last_node->data[0] = PFX##_impl_default_value();                                      \
+            last_node->data[0] = (V){0};                                                          \
                                                                                                   \
             _heap_->size--;                                                                       \
         }                                                                                         \
@@ -316,7 +306,7 @@ static const char *cmc_string_fmt_intervalheap = "%s at %p { buffer:%p, capacity
         {                                                                                         \
             _heap_->buffer[0].data[1] = last_node->data[1];                                       \
                                                                                                   \
-            last_node->data[1] = PFX##_impl_default_value();                                      \
+            last_node->data[1] = (V){0};                                                          \
         }                                                                                         \
                                                                                                   \
         _heap_->count--;                                                                          \
@@ -336,7 +326,7 @@ static const char *cmc_string_fmt_intervalheap = "%s at %p { buffer:%p, capacity
                                                                                                   \
         if (PFX##_count(_heap_) == 1)                                                             \
         {                                                                                         \
-            _heap_->buffer[0].data[0] = PFX##_impl_default_value();                               \
+            _heap_->buffer[0].data[0] = (V){0};                                                   \
                                                                                                   \
             _heap_->count--;                                                                      \
                                                                                                   \
@@ -351,7 +341,7 @@ static const char *cmc_string_fmt_intervalheap = "%s at %p { buffer:%p, capacity
         if (PFX##_count(_heap_) % 2 == 1)                                                         \
         {                                                                                         \
             /* Discard last node */                                                               \
-            last_node->data[0] = PFX##_impl_default_value();                                      \
+            last_node->data[0] = (V){0};                                                          \
                                                                                                   \
             _heap_->size--;                                                                       \
         }                                                                                         \
@@ -359,7 +349,7 @@ static const char *cmc_string_fmt_intervalheap = "%s at %p { buffer:%p, capacity
         {                                                                                         \
             /* Place the MaxHeap value in the MinHeap value spot */                               \
             last_node->data[0] = last_node->data[1];                                              \
-            last_node->data[1] = PFX##_impl_default_value();                                      \
+            last_node->data[1] = (V){0};                                                          \
         }                                                                                         \
                                                                                                   \
         _heap_->count--;                                                                          \
@@ -717,7 +707,7 @@ static const char *cmc_string_fmt_intervalheap = "%s at %p { buffer:%p, capacity
     V PFX##_iter_value(SNAME##_iter *iter)                                                        \
     {                                                                                             \
         if (PFX##_empty(iter->target))                                                            \
-            return PFX##_impl_default_value();                                                    \
+            return (V){0};                                                                        \
                                                                                                   \
         return iter->target->buffer[iter->cursor / 2].data[iter->cursor % 2];                     \
     }                                                                                             \

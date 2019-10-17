@@ -977,7 +977,7 @@ static const char *cmc_string_fmt_treeset = "%s at %p { root:%p, count:%" PRIuMA
     V PFX##_iter_value(SNAME##_iter *iter)                                                   \
     {                                                                                        \
         if (PFX##_empty(iter->target))                                                       \
-            return PFX##_impl_default_value();                                               \
+            return (V){0};                                                                   \
                                                                                              \
         return iter->cursor->value;                                                          \
     }                                                                                        \
