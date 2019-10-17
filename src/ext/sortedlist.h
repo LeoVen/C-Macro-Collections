@@ -109,6 +109,7 @@ static const char *cmc_string_fmt_sortedlist = "%s at %p { buffer:%p, capacity:%
     size_t PFX##_count(SNAME *_list_);                                   \
     size_t PFX##_capacity(SNAME *_list_);                                \
     /* Collection Utility */                                             \
+    bool PFX##_resize(SNAME *_list_, size_t capacity);                   \
     void PFX##_sort(SNAME *_list_);                                      \
     SNAME *PFX##_copy_of(SNAME *_list_, V (*copy_func)(V));              \
     bool PFX##_equals(SNAME *_list1_, SNAME *_list2_);                   \
@@ -149,7 +150,6 @@ static const char *cmc_string_fmt_sortedlist = "%s at %p { buffer:%p, capacity:%
 #define CMC_GENERATE_SORTEDLIST_SOURCE(PFX, SNAME, V)                                     \
                                                                                           \
     /* Implementation Detail Functions */                                                 \
-    static bool PFX##_impl_grow(SNAME *_list_, size_t required);                          \
     static size_t PFX##_impl_binary_search_first(SNAME *_list_, V value);                 \
     static size_t PFX##_impl_binary_search_last(SNAME *_list_, V value);                  \
     void PFX##_impl_sort_quicksort(V *array, int (*cmp)(V, V), size_t low, size_t high);  \
@@ -215,7 +215,7 @@ static const char *cmc_string_fmt_sortedlist = "%s at %p { buffer:%p, capacity:%
     {                                                                                     \
         if (PFX##_full(_list_))                                                           \
         {                                                                                 \
-            if (!PFX##_impl_grow(_list_, _list_->count + 1))                              \
+            if (!PFX##_resize(_list_, PFX##_capacity(_list_) * 2))                        \
                 return false;                                                             \
         }                                                                                 \
                                                                                           \
@@ -313,6 +313,25 @@ static const char *cmc_string_fmt_sortedlist = "%s at %p { buffer:%p, capacity:%
     size_t PFX##_capacity(SNAME *_list_)                                                  \
     {                                                                                     \
         return _list_->capacity;                                                          \
+    }                                                                                     \
+                                                                                          \
+    bool PFX##_resize(SNAME *_list_, size_t capacity)                                     \
+    {                                                                                     \
+        if (PFX##_capacity(_list_) == capacity)                                           \
+            return true;                                                                  \
+                                                                                          \
+        if (capacity < PFX##_count(_list_))                                               \
+            return false;                                                                 \
+                                                                                          \
+        V *new_buffer = realloc(_list_->buffer, sizeof(V) * capacity);                    \
+                                                                                          \
+        if (!new_buffer)                                                                  \
+            return false;                                                                 \
+                                                                                          \
+        _list_->buffer = new_buffer;                                                      \
+        _list_->capacity = capacity;                                                      \
+                                                                                          \
+        return true;                                                                      \
     }                                                                                     \
                                                                                           \
     void PFX##_sort(SNAME *_list_)                                                        \
@@ -534,24 +553,6 @@ static const char *cmc_string_fmt_sortedlist = "%s at %p { buffer:%p, capacity:%
     size_t PFX##_iter_index(SNAME##_iter *iter)                                           \
     {                                                                                     \
         return iter->cursor;                                                              \
-    }                                                                                     \
-                                                                                          \
-    static bool PFX##_impl_grow(SNAME *_list_, size_t required)                           \
-    {                                                                                     \
-        size_t new_capacity = _list_->capacity * 2;                                       \
-                                                                                          \
-        if (new_capacity < required)                                                      \
-            new_capacity = required;                                                      \
-                                                                                          \
-        V *new_buffer = realloc(_list_->buffer, sizeof(V) * new_capacity);                \
-                                                                                          \
-        if (!new_buffer)                                                                  \
-            return false;                                                                 \
-                                                                                          \
-        _list_->buffer = new_buffer;                                                      \
-        _list_->capacity = new_capacity;                                                  \
-                                                                                          \
-        return true;                                                                      \
     }                                                                                     \
                                                                                           \
     static size_t PFX##_impl_binary_search_first(SNAME *_list_, V value)                  \

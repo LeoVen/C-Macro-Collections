@@ -185,10 +185,13 @@ static const size_t cmc_hashtable_primes[] = {53, 97, 191, 383, 769, 1531,
     /* Collection State */                                                                   \
     bool PFX##_contains(SNAME *_set_, V element);                                            \
     bool PFX##_empty(SNAME *_set_);                                                          \
+    bool PFX##_full(SNAME *_set_);                                                           \
     size_t PFX##_count(SNAME *_set_);                                                        \
     size_t PFX##_cardinality(SNAME *_set_);                                                  \
     size_t PFX##_capacity(SNAME *_set_);                                                     \
+    double PFX##_load(SNAME *_set_);                                                         \
     /* Collection Utility */                                                                 \
+    bool PFX##_resize(SNAME *_set_, size_t capacity);                                        \
     SNAME *PFX##_copy_of(SNAME *_set_, V (*copy_func)(V));                                   \
     bool PFX##_equals(SNAME *_set1_, SNAME *_set2_, bool ignore_multiplicity);               \
     cmc_string PFX##_to_string(SNAME *_set_);                                                \
@@ -242,7 +245,6 @@ static const size_t cmc_hashtable_primes[] = {53, 97, 191, 383, 769, 1531,
                                                                                                    \
     /* Implementation Detail Functions */                                                          \
     static SNAME##_entry *PFX##_impl_insert_and_return(SNAME *_set_, V element, bool *new_node);   \
-    static bool PFX##_impl_grow(SNAME *_set_);                                                     \
     static SNAME##_entry *PFX##_impl_get_entry(SNAME *_set_, V element);                           \
     static size_t PFX##_impl_calculate_size(size_t required);                                      \
     static SNAME##_iter PFX##_impl_it_start(SNAME *_set_);                                         \
@@ -493,6 +495,11 @@ static const size_t cmc_hashtable_primes[] = {53, 97, 191, 383, 769, 1531,
         return _set_->count == 0;                                                                  \
     }                                                                                              \
                                                                                                    \
+    bool PFX##_full(SNAME *_set_)                                                                  \
+    {                                                                                              \
+        return (double)PFX##_capacity(_set_) * PFX##_load(_set_) <= (double)PFX##_count(_set_);    \
+    }                                                                                              \
+                                                                                                   \
     size_t PFX##_count(SNAME *_set_)                                                               \
     {                                                                                              \
         return _set_->count;                                                                       \
@@ -506,6 +513,61 @@ static const size_t cmc_hashtable_primes[] = {53, 97, 191, 383, 769, 1531,
     size_t PFX##_capacity(SNAME *_set_)                                                            \
     {                                                                                              \
         return _set_->capacity;                                                                    \
+    }                                                                                              \
+                                                                                                   \
+    double PFX##_load(SNAME *_set_)                                                                \
+    {                                                                                              \
+        return _set_->load;                                                                        \
+    }                                                                                              \
+                                                                                                   \
+    bool PFX##_resize(SNAME *_set_, size_t capacity)                                               \
+    {                                                                                              \
+        if (PFX##_capacity(_set_) == capacity)                                                     \
+            return true;                                                                           \
+                                                                                                   \
+        if (PFX##_capacity(_set_) > capacity / PFX##_load(_set_))                                  \
+            return true;                                                                           \
+                                                                                                   \
+        /* Prevent integer overflow */                                                             \
+        if (capacity >= UINTMAX_MAX * PFX##_load(_set_))                                           \
+            return false;                                                                          \
+                                                                                                   \
+        /* Calculate required capacity based on the prime numbers */                               \
+        size_t theoretical_size = PFX##_impl_calculate_size(capacity);                             \
+                                                                                                   \
+        /* Not possible to shrink with current available prime numbers */                          \
+        if (theoretical_size < PFX##_count(_set_) / PFX##_load(_set_))                             \
+            return false;                                                                          \
+                                                                                                   \
+        SNAME *_new_set_ = PFX##_new(capacity, PFX##_load(_set_), _set_->cmp, _set_->hash);        \
+                                                                                                   \
+        if (!_new_set_)                                                                            \
+            return false;                                                                          \
+                                                                                                   \
+        SNAME##_iter iter;                                                                         \
+                                                                                                   \
+        for (PFX##_iter_init(&iter, _set_); !PFX##_iter_end(&iter); PFX##_iter_next(&iter))        \
+        {                                                                                          \
+            PFX##_insert_many(_new_set_, PFX##_iter_value(&iter), PFX##_iter_multiplicity(&iter)); \
+        }                                                                                          \
+                                                                                                   \
+        if (PFX##_count(_set_) != PFX##_count(_new_set_))                                          \
+        {                                                                                          \
+            PFX##_free(_new_set_, NULL);                                                           \
+            return false;                                                                          \
+        }                                                                                          \
+                                                                                                   \
+        SNAME##_entry *tmp_b = _set_->buffer;                                                      \
+        _set_->buffer = _new_set_->buffer;                                                         \
+        _new_set_->buffer = tmp_b;                                                                 \
+                                                                                                   \
+        size_t tmp_c = _set_->capacity;                                                            \
+        _set_->capacity = _new_set_->capacity;                                                     \
+        _new_set_->capacity = tmp_c;                                                               \
+                                                                                                   \
+        PFX##_free(_new_set_, NULL);                                                               \
+                                                                                                   \
+        return true;                                                                               \
     }                                                                                              \
                                                                                                    \
     SNAME *PFX##_copy_of(SNAME *_set_, V (*copy_func)(V))                                          \
@@ -1063,9 +1125,9 @@ static const size_t cmc_hashtable_primes[] = {53, 97, 191, 383, 769, 1531,
                                                                                                    \
         *new_node = true;                                                                          \
                                                                                                    \
-        if ((double)_set_->capacity * _set_->load <= (double)_set_->count)                         \
+        if (PFX##_full(_set_))                                                                     \
         {                                                                                          \
-            if (!PFX##_impl_grow(_set_))                                                           \
+            if (!PFX##_resize(_set_, PFX##_capacity(_set_) + 1))                                   \
                 return NULL;                                                                       \
         }                                                                                          \
                                                                                                    \
@@ -1121,40 +1183,6 @@ static const size_t cmc_hashtable_primes[] = {53, 97, 191, 383, 769, 1531,
         _set_->count++;                                                                            \
                                                                                                    \
         return target;                                                                             \
-    }                                                                                              \
-                                                                                                   \
-    static bool PFX##_impl_grow(SNAME *_set_)                                                      \
-    {                                                                                              \
-        size_t new_size = PFX##_impl_calculate_size(_set_->capacity + _set_->capacity / 2);        \
-                                                                                                   \
-        SNAME *_new_set_ = PFX##_new(new_size, _set_->load, _set_->cmp, _set_->hash);              \
-                                                                                                   \
-        if (!_new_set_)                                                                            \
-            return false;                                                                          \
-                                                                                                   \
-        SNAME##_iter iter;                                                                         \
-                                                                                                   \
-        for (PFX##_iter_init(&iter, _set_); !PFX##_iter_end(&iter); PFX##_iter_next(&iter))        \
-        {                                                                                          \
-            PFX##_insert_many(_new_set_, PFX##_iter_value(&iter), PFX##_iter_multiplicity(&iter)); \
-        }                                                                                          \
-                                                                                                   \
-        if (_set_->count != _new_set_->count)                                                      \
-        {                                                                                          \
-            PFX##_free(_new_set_, NULL);                                                           \
-                                                                                                   \
-            return false;                                                                          \
-        }                                                                                          \
-                                                                                                   \
-        SNAME##_entry *tmp = _set_->buffer;                                                        \
-        _set_->buffer = _new_set_->buffer;                                                         \
-        _new_set_->buffer = tmp;                                                                   \
-                                                                                                   \
-        _set_->capacity = _new_set_->capacity;                                                     \
-                                                                                                   \
-        PFX##_free(_new_set_, NULL);                                                               \
-                                                                                                   \
-        return true;                                                                               \
     }                                                                                              \
                                                                                                    \
     static SNAME##_entry *PFX##_impl_get_entry(SNAME *_set_, V element)                            \

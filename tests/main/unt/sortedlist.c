@@ -51,7 +51,7 @@ CMC_CREATE_UNIT(sortedlist_test, true, {
     });
 
     CMC_CREATE_TEST(buffer_growth[capacity = 1], {
-        sortedlist *sl = sl_new(100, cmp);
+        sortedlist *sl = sl_new(1, cmp);
 
         cmc_assert_not_equals(ptr, NULL, sl);
 

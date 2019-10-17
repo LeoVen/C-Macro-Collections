@@ -53,10 +53,10 @@ CMC_CREATE_UNIT(multimap_test, true, {
 
         cmc_assert_not_equals(ptr, NULL, map);
 
-        for (size_t i = 0; i < 200; i++)
+        for (size_t i = 0; i < 100; i++)
             cmc_assert(mm_insert(map, i % 20, i % 20));
 
-        cmc_assert_equals(size_t, 200, mm_count(map));
+        cmc_assert_equals(size_t, 100, mm_count(map));
 
         mm_free(map, NULL);
     });
@@ -116,6 +116,22 @@ CMC_CREATE_UNIT(multimap_test, true, {
         cmc_assert(mm_insert(map, 10, 101));
 
         cmc_assert_equals(size_t, 100, mm_get(map, 10));
+
+        mm_free(map, NULL);
+    });
+
+    CMC_CREATE_TEST(key_count, {
+        multimap *map = mm_new(50, 0.8, cmp, hash);
+
+        cmc_assert_not_equals(ptr, NULL, map);
+
+        for (size_t i = 0; i < 1000; i++)
+            cmc_assert(mm_insert(map, i % 20, i % 20));
+
+        cmc_assert_equals(size_t, 1000, mm_count(map));
+
+        for (size_t i = 0; i < 20; i++)
+            cmc_assert_equals(size_t, 50, mm_key_count(map, i));
 
         mm_free(map, NULL);
     });
