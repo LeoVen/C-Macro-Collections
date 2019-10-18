@@ -1,5 +1,16 @@
 # RELEASE.MAJOR.MINOR
 
+1.7.2
+    - Added resize function to array based collections
+    - Added the following functions to hashtable based collections:
+        - load
+        - full
+    - Added more assert macros utility
+    - Added plenty more tests
+    - Substituted impl_default_value / key by compound literals
+    - Removed unnecessary conditional input and output functions
+    - Minor fixes throughout the library
+
 1.7.1
     - Added new assert macro cmc_assert_sorted
     - Fixed some include guards for hashtables

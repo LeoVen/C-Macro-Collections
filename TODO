@@ -4,11 +4,6 @@ TODO
 [X] - Finished
 [~] - Needs to be reviewed
 
-[ ] Future possible Collections
-    [/] Add SortedList
-    [/] Add BiDiMap
-    [ ] Add Trie (or any variant)
-
 [/] Documentation
 [/] Tests
 [X] Remove PUBLIC and PRIVATE
@@ -16,7 +11,9 @@ TODO
     [X] Add MultiSet
     [X] Add MultiMap
     [X] Add IntervalHeap
-[ ] Add functions
+    [/] Add SortedList
+    [/] Add BiDiMap
+[/] Add functions
     [X] update       {hashmap, treemap, multimap}
     [X] set          {hashmap, treemap, multimap}
     [X] to_string    {all}
@@ -27,15 +24,15 @@ TODO
     [ ] to_array     {all}
     [X] equals       {all}
     [X] copy_of      {all}
-    [/] resize       {array based collections}
+    [X] resize       {array based collections}
 [ ] Serialization
     [ ] save         {all}
     [ ] load         {all}
     [ ] serialize    {all}
     [ ] deserialize  {all}
-[ ] Add callback utility
+[ ] Callback utility
 [ ] Zip Iterators
-[ ] Stack Allocated Collections
+[ ] Statically Allocated Collections
     [ ] Deque
     [ ] HashMap
     [ ] HashSet
