@@ -3,7 +3,7 @@
 #include <utl/log.h>
 #include <utl/test.h>
 
-#include <ext/sortedlist.h>
+#include <cmc/sortedlist.h>
 
 CMC_GENERATE_SORTEDLIST(sl, sortedlist, size_t)
 

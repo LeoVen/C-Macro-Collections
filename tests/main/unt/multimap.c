@@ -3,7 +3,7 @@
 #include <utl/log.h>
 #include <utl/test.h>
 
-#include <ext/multimap.h>
+#include <cmc/multimap.h>
 
 CMC_GENERATE_MULTIMAP(mm, multimap, size_t, size_t)
 

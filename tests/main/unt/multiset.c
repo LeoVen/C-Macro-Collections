@@ -3,7 +3,7 @@
 #include <utl/log.h>
 #include <utl/test.h>
 
-#include <ext/multiset.h>
+#include <cmc/multiset.h>
 
 CMC_GENERATE_MULTISET(ms, multiset, size_t)
 

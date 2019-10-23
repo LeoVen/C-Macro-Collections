@@ -91,7 +91,6 @@ enum cmc_log_type
     CMC_LOG_WARN = 4,
     CMC_LOG_ERROR = 5,
     CMC_LOG_FATAL = 6
-
 };
 
 #define cmc_log_trace(fmt, ...) cmc_log(CMC_LOG_TRACE, __FILE__, __func__, __LINE__, fmt, __VA_ARGS__)

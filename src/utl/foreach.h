@@ -1,5 +1,5 @@
 /**
- * for_each.h
+ * foreach.h
  *
  * Creation Date: 25/02/2019
  *

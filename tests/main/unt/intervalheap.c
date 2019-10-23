@@ -3,7 +3,7 @@
 #include <utl/log.h>
 #include <utl/test.h>
 
-#include <ext/intervalheap.h>
+#include <cmc/intervalheap.h>
 
 CMC_GENERATE_INTERVALHEAP(ih, intervalheap, size_t)
 

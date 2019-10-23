@@ -3,7 +3,7 @@
 #include <utl/log.h>
 #include <utl/test.h>
 
-#include <ext/bidimap.h>
+#include <cmc/bidimap.h>
 
 CMC_GENERATE_BIDIMAP(bm, bidimap, size_t, size_t)
 
