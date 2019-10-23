@@ -1,6 +1,6 @@
-#include "cmc/heap.h"
+#include <cmc/heap.h>
 
-//HEAP_GENERATE(h, heap, , size_t)
+//CMC_GENERATE_HEAP(h, heap, size_t)
 
 typedef struct heap_s
 {
@@ -16,59 +16,56 @@ typedef struct heap_iter_s
 {
     struct heap_s *target;
     size_t cursor;
-    bool start;
-    bool end;
+    _Bool start;
+    _Bool end;
 } heap_iter, *heap_iter_ptr;
 heap *h_new(size_t capacity, cmc_heap_order HO, int (*compare)(size_t, size_t));
-void h_clear(heap *_heap_);
-void h_free(heap *_heap_);
-bool h_insert(heap *_heap_, size_t element);
-bool h_remove(heap *_heap_, size_t *result);
-bool h_insert_if(heap *_heap_, size_t element, bool condition);
-bool h_remove_if(heap *_heap_, size_t *result, bool condition);
+void h_clear(heap *_heap_, void (*deallocator)(size_t));
+void h_free(heap *_heap_, void (*deallocator)(size_t));
+_Bool h_insert(heap *_heap_, size_t element);
+_Bool h_remove(heap *_heap_, size_t *result);
 size_t h_peek(heap *_heap_);
-size_t *h_peek_ref(heap *_heap_);
-bool h_contains(heap *_heap_, size_t element);
-bool h_empty(heap *_heap_);
-bool h_full(heap *_heap_);
+_Bool h_contains(heap *_heap_, size_t element);
+_Bool h_empty(heap *_heap_);
+_Bool h_full(heap *_heap_);
 size_t h_count(heap *_heap_);
 size_t h_capacity(heap *_heap_);
+_Bool h_resize(heap *_heap_, size_t capacity);
+heap *h_copy_of(heap *_heap_, size_t (*copy_func)(size_t));
+_Bool h_equals(heap *_heap1_, heap *_heap2_);
+cmc_string h_to_string(heap *_heap_);
 heap_iter *h_iter_new(heap *target);
 void h_iter_free(heap_iter *iter);
 void h_iter_init(heap_iter *iter, heap *target);
-bool h_iter_start(heap_iter *iter);
-bool h_iter_end(heap_iter *iter);
+_Bool h_iter_start(heap_iter *iter);
+_Bool h_iter_end(heap_iter *iter);
 void h_iter_to_start(heap_iter *iter);
 void h_iter_to_end(heap_iter *iter);
-bool h_iter_next(heap_iter *iter);
-bool h_iter_prev(heap_iter *iter);
+_Bool h_iter_next(heap_iter *iter);
+_Bool h_iter_prev(heap_iter *iter);
+_Bool h_iter_advance(heap_iter *iter, size_t steps);
+_Bool h_iter_rewind(heap_iter *iter, size_t steps);
+_Bool h_iter_go_to(heap_iter *iter, size_t index);
 size_t h_iter_value(heap_iter *iter);
 size_t h_iter_index(heap_iter *iter);
-static inline size_t h_impl_default_value(void)
-{
-    size_t _empty_value_;
-    memset(&_empty_value_, 0, sizeof(size_t));
-    return _empty_value_;
-}
-static bool h_impl_grow(heap *_heap_);
-static bool h_impl_float_up(heap *_heap_, size_t index);
-static bool h_impl_float_down(heap *_heap_, size_t index);
+static _Bool h_impl_float_up(heap *_heap_, size_t index);
+static _Bool h_impl_float_down(heap *_heap_, size_t index);
 static heap_iter h_impl_it_start(heap *_heap_);
 static heap_iter h_impl_it_end(heap *_heap_);
 heap *h_new(size_t capacity, cmc_heap_order HO, int (*compare)(size_t, size_t))
 {
     if (capacity < 1)
-        return NULL;
+        return ((void *)0);
     if (HO != cmc_min_heap && HO != cmc_max_heap)
-        return NULL;
+        return ((void *)0);
     heap *_heap_ = malloc(sizeof(heap));
     if (!_heap_)
-        return NULL;
+        return ((void *)0);
     _heap_->buffer = malloc(sizeof(size_t) * capacity);
     if (!_heap_->buffer)
     {
         free(_heap_);
-        return NULL;
+        return ((void *)0);
     }
     memset(_heap_->buffer, 0, sizeof(size_t) * capacity);
     _heap_->capacity = capacity;
@@ -79,87 +76,131 @@ heap *h_new(size_t capacity, cmc_heap_order HO, int (*compare)(size_t, size_t))
     _heap_->it_end = h_impl_it_end;
     return _heap_;
 }
-void h_clear(heap *_heap_)
+void h_clear(heap *_heap_, void (*deallocator)(size_t))
 {
+    if (deallocator)
+    {
+        for (size_t i = 0; i < _heap_->count; i++)
+        {
+            deallocator(_heap_->buffer[i]);
+        }
+    }
     memset(_heap_->buffer, 0, sizeof(size_t) * _heap_->capacity);
     _heap_->count = 0;
 }
-void h_free(heap *_heap_)
+void h_free(heap *_heap_, void (*deallocator)(size_t))
 {
+    if (deallocator)
+    {
+        for (size_t i = 0; i < _heap_->count; i++)
+        {
+            deallocator(_heap_->buffer[i]);
+        }
+    }
     free(_heap_->buffer);
     free(_heap_);
 }
-bool h_insert(heap *_heap_, size_t element)
+_Bool h_insert(heap *_heap_, size_t element)
 {
     if (h_full(_heap_))
     {
-        if (!h_impl_grow(_heap_))
-            return false;
+        if (!h_resize(_heap_, h_count(_heap_) * 2))
+            return 0;
     }
-    if (_heap_->count == 0)
+    if (h_empty(_heap_))
     {
         _heap_->buffer[_heap_->count++] = element;
-        return true;
+        return 1;
     }
     _heap_->buffer[_heap_->count++] = element;
     if (!h_impl_float_up(_heap_, _heap_->count - 1))
-        return false;
-    return true;
+        return 0;
+    return 1;
 }
-bool h_remove(heap *_heap_, size_t *result)
+_Bool h_remove(heap *_heap_, size_t *result)
 {
     if (h_empty(_heap_))
-        return false;
+        return 0;
     *result = _heap_->buffer[0];
     _heap_->buffer[0] = _heap_->buffer[_heap_->count - 1];
-    _heap_->buffer[_heap_->count - 1] = h_impl_default_value();
+    _heap_->buffer[_heap_->count - 1] = (size_t){0};
     _heap_->count--;
     if (!h_impl_float_down(_heap_, 0))
-        return false;
-    return true;
-}
-bool h_insert_if(heap *_heap_, size_t element, bool condition)
-{
-    if (condition)
-        return h_insert(_heap_, element);
-    return false;
-}
-bool h_remove_if(heap *_heap_, size_t *result, bool condition)
-{
-    if (condition)
-        return h_remove(_heap_, result);
-    return false;
+        return 0;
+    return 1;
 }
 size_t h_peek(heap *_heap_)
 {
     if (h_empty(_heap_))
-        return h_impl_default_value();
+        return (size_t){0};
     return _heap_->buffer[0];
 }
-size_t *h_peek_ref(heap *_heap_)
-{
-    if (h_empty(_heap_))
-        return NULL;
-    return &(_heap_->buffer[0]);
-}
-bool h_contains(heap *_heap_, size_t element)
+_Bool h_contains(heap *_heap_, size_t element)
 {
     for (size_t i = 0; i < _heap_->count; i++)
     {
         if (_heap_->cmp(_heap_->buffer[i], element) == 0)
-            return true;
+            return 1;
     }
-    return false;
+    return 0;
 }
-bool h_empty(heap *_heap_) { return _heap_->count == 0; }
-bool h_full(heap *_heap_) { return _heap_->count >= _heap_->capacity; }
+_Bool h_empty(heap *_heap_) { return _heap_->count == 0; }
+_Bool h_full(heap *_heap_) { return _heap_->count >= _heap_->capacity; }
 size_t h_count(heap *_heap_) { return _heap_->count; }
 size_t h_capacity(heap *_heap_) { return _heap_->capacity; }
+_Bool h_resize(heap *_heap_, size_t capacity)
+{
+    if (h_capacity(_heap_) == capacity)
+        return 1;
+    if (capacity < h_count(_heap_))
+        return 0;
+    size_t *new_buffer = realloc(_heap_->buffer, sizeof(size_t) * capacity);
+    if (!new_buffer)
+        return 0;
+    _heap_->buffer = new_buffer;
+    _heap_->capacity = capacity;
+    return 1;
+}
+heap *h_copy_of(heap *_heap_, size_t (*copy_func)(size_t))
+{
+    heap *result = h_new(_heap_->capacity, _heap_->HO, _heap_->cmp);
+    if (!result)
+        return ((void *)0);
+    if (copy_func)
+    {
+        for (size_t i = 0; i < _heap_->count; i++)
+            result->buffer[i] = copy_func(_heap_->buffer[i]);
+    }
+    else
+        memcpy(result->buffer, _heap_->buffer, sizeof(size_t) * _heap_->count);
+    result->count = _heap_->count;
+    return result;
+}
+_Bool h_equals(heap *_heap1_, heap *_heap2_)
+{
+    if (h_count(_heap1_) != h_count(_heap2_))
+        return 0;
+    for (size_t i = 0; i < h_count(_heap1_); i++)
+    {
+        if (_heap1_->cmp(_heap1_->buffer[i], _heap2_->buffer[i]) != 0)
+            return 0;
+    }
+    return 1;
+}
+cmc_string h_to_string(heap *_heap_)
+{
+    cmc_string str;
+    heap *h_ = _heap_;
+    const char *name = "heap";
+    const char *t = h_->HO == 1 ? "MaxHeap" : "MinHeap";
+    snprintf(str.s, cmc_string_len, cmc_string_fmt_heap, name, h_, h_->buffer, h_->capacity, h_->count, t, h_->cmp);
+    return str;
+}
 heap_iter *h_iter_new(heap *target)
 {
     heap_iter *iter = malloc(sizeof(heap_iter));
     if (!iter)
-        return NULL;
+        return ((void *)0);
     h_iter_init(iter, target);
     return iter;
 }
@@ -168,63 +209,105 @@ void h_iter_init(heap_iter *iter, heap *target)
 {
     iter->target = target;
     iter->cursor = 0;
-    iter->start = true;
+    iter->start = 1;
     iter->end = h_empty(target);
 }
-bool h_iter_start(heap_iter *iter) { return h_empty(iter->target) || iter->start; }
-bool h_iter_end(heap_iter *iter) { return h_empty(iter->target) || iter->end; }
+_Bool h_iter_start(heap_iter *iter) { return h_empty(iter->target) || iter->start; }
+_Bool h_iter_end(heap_iter *iter) { return h_empty(iter->target) || iter->end; }
 void h_iter_to_start(heap_iter *iter)
 {
-    iter->cursor = 0;
-    iter->start = true;
-    iter->end = h_empty(iter->target);
+    if (!h_empty(iter->target))
+    {
+        iter->cursor = 0;
+        iter->start = 1;
+        iter->end = h_empty(iter->target);
+    }
 }
 void h_iter_to_end(heap_iter *iter)
 {
-    iter->cursor = iter->target->count - 1;
-    iter->start = h_empty(iter->target);
-    iter->end = true;
+    if (!h_empty(iter->target))
+    {
+        iter->cursor = h_count(iter->target) - 1;
+        iter->start = h_empty(iter->target);
+        iter->end = 1;
+    }
 }
-bool h_iter_next(heap_iter *iter)
+_Bool h_iter_next(heap_iter *iter)
 {
     if (iter->end)
-        return false;
-    iter->start = false;
-    if (iter->cursor == iter->target->count - 1)
-        iter->end = true;
-    else
-        iter->cursor++;
-    return true;
+        return 0;
+    if (iter->cursor + 1 == h_count(iter->target))
+    {
+        iter->end = 1;
+        return 0;
+    }
+    iter->start = h_empty(iter->target);
+    iter->cursor++;
+    return 1;
 }
-bool h_iter_prev(heap_iter *iter)
+_Bool h_iter_prev(heap_iter *iter)
 {
     if (iter->start)
-        return false;
-    iter->end = false;
+        return 0;
     if (iter->cursor == 0)
-        iter->start = true;
-    else
-        iter->cursor--;
-    return true;
+    {
+        iter->start = 1;
+        return 0;
+    }
+    iter->end = h_empty(iter->target);
+    iter->cursor--;
+    return 1;
+}
+_Bool h_iter_advance(heap_iter *iter, size_t steps)
+{
+    if (iter->start)
+        return 0;
+    if (iter->cursor + 1 == h_count(iter->target))
+    {
+        iter->end = 1;
+        return 0;
+    }
+    if (steps == 0 || iter->cursor + steps >= h_count(iter->target))
+        return 0;
+    iter->start = h_empty(iter->target);
+    if (iter->end)
+        return 0;
+    iter->cursor += steps;
+    return 1;
+}
+_Bool h_iter_rewind(heap_iter *iter, size_t steps)
+{
+    if (iter->start)
+        return 0;
+    if (iter->cursor == 0)
+    {
+        iter->start = 1;
+        return 0;
+    }
+    if (steps == 0 || iter->cursor < steps)
+        return 0;
+    iter->end = h_empty(iter->target);
+    iter->cursor -= steps;
+    return 1;
+}
+_Bool h_iter_go_to(heap_iter *iter, size_t index)
+{
+    if (index >= h_count(iter->target))
+        return 0;
+    if (iter->cursor > index)
+        return h_iter_rewind(iter, iter->cursor - index);
+    else if (iter->cursor < index)
+        return h_iter_advance(iter, index - iter->cursor);
+    return 1;
 }
 size_t h_iter_value(heap_iter *iter)
 {
     if (h_empty(iter->target))
-        return h_impl_default_value();
+        return (size_t){0};
     return iter->target->buffer[iter->cursor];
 }
 size_t h_iter_index(heap_iter *iter) { return iter->cursor; }
-static bool h_impl_grow(heap *_heap_)
-{
-    size_t new_capacity = _heap_->capacity * 2;
-    size_t *new_buffer = realloc(_heap_->buffer, sizeof(size_t) * new_capacity);
-    if (!new_buffer)
-        return false;
-    _heap_->buffer = new_buffer;
-    _heap_->capacity = new_capacity;
-    return true;
-}
-static bool h_impl_float_up(heap *_heap_, size_t index)
+static _Bool h_impl_float_up(heap *_heap_, size_t index)
 {
     size_t C = index;
     size_t child = _heap_->buffer[C];
@@ -233,15 +316,15 @@ static bool h_impl_float_up(heap *_heap_, size_t index)
     while (C > 0 && _heap_->cmp(child, parent) * mod > 0)
     {
         size_t tmp = _heap_->buffer[C];
-        _heap_->buffer[C] = _heap_->buffer[(index - 1) / 2];
-        _heap_->buffer[(index - 1) / 2] = tmp;
-        C = (index - 1) / 2;
+        _heap_->buffer[C] = _heap_->buffer[(C - 1) / 2];
+        _heap_->buffer[(C - 1) / 2] = tmp;
+        C = (C - 1) / 2;
         child = _heap_->buffer[C];
-        parent = _heap_->buffer[(index - 1) / 2];
+        parent = _heap_->buffer[(C - 1) / 2];
     }
-    return true;
+    return 1;
 }
-static bool h_impl_float_down(heap *_heap_, size_t index)
+static _Bool h_impl_float_down(heap *_heap_, size_t index)
 {
     int mod = _heap_->HO;
     while (index < _heap_->count)
@@ -267,7 +350,7 @@ static bool h_impl_float_down(heap *_heap_, size_t index)
         else
             break;
     }
-    return true;
+    return 1;
 }
 static heap_iter h_impl_it_start(heap *_heap_)
 {

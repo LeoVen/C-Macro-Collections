@@ -1,8 +1,9 @@
-#include "utl/assert.h"
-#include "utl/test.h"
-#include "../src/multimap.c"
-
 #include "utl.c"
+#include <utl/assert.h>
+#include <utl/log.h>
+#include <utl/test.h>
+
+#include "../src/multimap.c"
 
 CMC_CREATE_UNIT(multimap_test, false, {
     CMC_CREATE_TEST(new, {
@@ -13,17 +14,17 @@ CMC_CREATE_UNIT(multimap_test, false, {
         cmc_assert_equals(size_t, 0, mm_count(map));
         cmc_assert_greater_equals(size_t, (943722 / 0.8), mm_capacity(map));
 
-        mm_free(map);
+        mm_free(map, NULL);
     });
 
-    CMC_CREATE_TEST(new[edge_case:capacity = 0], {
+    CMC_CREATE_TEST(new[capacity = 0], {
         multimap *map = mm_new(0, 0.8, cmp, hash);
 
         cmc_assert_equals(ptr, NULL, map);
     });
 
-    CMC_CREATE_TEST(new[edge_case:capacity = UINT64_MAX], {
-        multimap *map = mm_new(UINT64_MAX, 0.8, cmp, hash);
+    CMC_CREATE_TEST(new[capacity = UINT64_MAX], {
+        multimap *map = mm_new(UINT64_MAX, 0.99, cmp, hash);
 
         cmc_assert_equals(ptr, NULL, map);
     });
@@ -38,11 +39,11 @@ CMC_CREATE_UNIT(multimap_test, false, {
 
         cmc_assert_equals(size_t, 50, mm_count(map));
 
-        mm_clear(map);
+        mm_clear(map, NULL);
 
         cmc_assert_equals(size_t, 0, mm_count(map));
 
-        mm_free(map);
+        mm_free(map, NULL);
     });
 
     CMC_CREATE_TEST(insert[count], {
@@ -50,12 +51,12 @@ CMC_CREATE_UNIT(multimap_test, false, {
 
         cmc_assert_not_equals(ptr, NULL, map);
 
-        for (size_t i = 0; i < 200; i++)
+        for (size_t i = 0; i < 100; i++)
             cmc_assert(mm_insert(map, i % 20, i % 20));
 
-        cmc_assert_equals(size_t, 200, mm_count(map));
+        cmc_assert_equals(size_t, 100, mm_count(map));
 
-        mm_free(map);
+        mm_free(map, NULL);
     });
 
     CMC_CREATE_TEST(remove[count], {
@@ -73,10 +74,10 @@ CMC_CREATE_UNIT(multimap_test, false, {
 
         cmc_assert_equals(size_t, 140, mm_count(map));
 
-        mm_free(map);
+        mm_free(map, NULL);
     });
 
-    CMC_CREATE_TEST(remove[edge_case:count = 0], {
+    CMC_CREATE_TEST(remove[count = 0], {
         multimap *map = mm_new(100, 0.8, cmp, hash);
 
         cmc_assert_not_equals(ptr, NULL, map);
@@ -85,10 +86,10 @@ CMC_CREATE_UNIT(multimap_test, false, {
 
         cmc_assert(!mm_remove(map, 10, &r));
 
-        mm_free(map);
+        mm_free(map, NULL);
     });
 
-    CMC_CREATE_TEST(remove[edge_case:count = 1], {
+    CMC_CREATE_TEST(remove[count = 1], {
         multimap *map = mm_new(100, 0.8, cmp, hash);
 
         cmc_assert_not_equals(ptr, NULL, map);
@@ -98,41 +99,10 @@ CMC_CREATE_UNIT(multimap_test, false, {
         cmc_assert(mm_insert(map, 10, 11));
         cmc_assert(mm_remove(map, 10, &r));
 
-        mm_free(map);
+        mm_free(map, NULL);
     });
 
-    CMC_CREATE_TEST(insert_if, {
-        multimap *map = mm_new(100, 0.8, cmp, hash);
-
-        cmc_assert_not_equals(ptr, NULL, map);
-
-        for (size_t i = 1; i <= 100; i++)
-            cmc_assert(mm_insert_if(map, i % 20, i, i % 2 == 0) || i % 2 != 0);
-
-        cmc_assert_equals(size_t, 50, mm_count(map));
-
-        mm_free(map);
-    });
-
-    CMC_CREATE_TEST(remove_if, {
-        multimap *map = mm_new(100, 0.8, cmp, hash);
-
-        cmc_assert_not_equals(ptr, NULL, map);
-
-        for (size_t i = 1; i <= 100; i++)
-            cmc_assert(mm_insert(map, i % 20, i));
-
-        size_t r;
-
-        for (size_t i = 1; i <= 100; i++)
-            cmc_assert(mm_remove_if(map, i % 20, &r, i % 2 == 0) || i % 2 != 0);
-
-        cmc_assert_equals(size_t, 50, mm_count(map));
-
-        mm_free(map);
-    });
-
-    CMC_CREATE_TEST(get[key_ordering], {
+    CMC_CREATE_TEST(get[key ordering], {
         multimap *map = mm_new(100, 0.8, cmp, hash);
 
         cmc_assert_not_equals(ptr, NULL, map);
@@ -145,7 +115,22 @@ CMC_CREATE_UNIT(multimap_test, false, {
 
         cmc_assert_equals(size_t, 100, mm_get(map, 10));
 
-        mm_free(map);
+        mm_free(map, NULL);
     });
 
+    CMC_CREATE_TEST(key_count, {
+        multimap *map = mm_new(50, 0.8, cmp, hash);
+
+        cmc_assert_not_equals(ptr, NULL, map);
+
+        for (size_t i = 0; i < 1000; i++)
+            cmc_assert(mm_insert(map, i % 20, i % 20));
+
+        cmc_assert_equals(size_t, 1000, mm_count(map));
+
+        for (size_t i = 0; i < 20; i++)
+            cmc_assert_equals(size_t, 50, mm_key_count(map, i));
+
+        mm_free(map, NULL);
+    });
 });

@@ -1,5 +1,8 @@
-#include "utl/assert.h"
-#include "utl/test.h"
+#include "utl.c"
+#include <utl/assert.h>
+#include <utl/log.h>
+#include <utl/test.h>
+
 #include "../src/linkedlist.c"
 
 CMC_CREATE_UNIT(linkedlist_test, false, {
@@ -11,7 +14,7 @@ CMC_CREATE_UNIT(linkedlist_test, false, {
         cmc_assert_equals(ptr, NULL, ll->head);
         cmc_assert_equals(ptr, NULL, ll->tail);
 
-        ll_free(ll);
+        ll_free(ll, NULL);
     });
 
     CMC_CREATE_TEST(clear[count capacity], {
@@ -24,23 +27,23 @@ CMC_CREATE_UNIT(linkedlist_test, false, {
 
         cmc_assert_equals(size_t, 50, ll_count(ll));
 
-        ll_clear(ll);
+        ll_clear(ll, NULL);
 
         cmc_assert_equals(size_t, 0, ll_count(ll));
 
-        ll_free(ll);
+        ll_free(ll, NULL);
     });
 
-    CMC_CREATE_TEST(clear[edge_case:count = 0], {
+    CMC_CREATE_TEST(clear[count = 0], {
         linkedlist *ll = ll_new();
 
         cmc_assert_not_equals(ptr, NULL, ll);
 
-        ll_clear(ll);
+        ll_clear(ll, NULL);
 
         cmc_assert_equals(size_t, 0, ll_count(ll));
 
-        ll_free(ll);
+        ll_free(ll, NULL);
     });
 
     CMC_CREATE_TEST(push_front[count], {
@@ -54,10 +57,10 @@ CMC_CREATE_UNIT(linkedlist_test, false, {
         cmc_assert_not_equals(ptr, NULL, ll->tail);
         cmc_assert_equals(size_t, 1, ll_count(ll));
 
-        ll_free(ll);
+        ll_free(ll, NULL);
     });
 
-    CMC_CREATE_TEST(push_front[item_preservation], {
+    CMC_CREATE_TEST(push_front[item preservation], {
         linkedlist *ll = ll_new();
 
         cmc_assert_not_equals(ptr, NULL, ll);
@@ -68,7 +71,6 @@ CMC_CREATE_UNIT(linkedlist_test, false, {
         for (size_t i = 0; i < ll_count(ll); i++)
             cmc_assert_equals(size_t, ll_get(ll, i), ll_count(ll) - i - 1);
 
-        ll_free(ll);
+        ll_free(ll, NULL);
     });
-
 });
