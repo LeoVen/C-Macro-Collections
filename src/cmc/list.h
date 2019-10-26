@@ -180,15 +180,13 @@ static const char *cmc_string_fmt_list = "%s at %p { buffer:%p, capacity:%" PRIu
         if (!_list_)                                                                         \
             return NULL;                                                                     \
                                                                                              \
-        _list_->buffer = malloc(capacity * sizeof(V));                                       \
+        _list_->buffer = calloc(capacity, sizeof(V));                                        \
                                                                                              \
         if (!_list_->buffer)                                                                 \
         {                                                                                    \
             free(_list_);                                                                    \
             return NULL;                                                                     \
         }                                                                                    \
-                                                                                             \
-        memset(_list_->buffer, 0, capacity * sizeof(V));                                     \
                                                                                              \
         _list_->capacity = capacity;                                                         \
         _list_->count = 0;                                                                   \

@@ -164,15 +164,13 @@ static const char *cmc_string_fmt_deque = "%s at %p { buffer:%p, capacity:%" PRI
         if (!_deque_)                                                                             \
             return NULL;                                                                          \
                                                                                                   \
-        _deque_->buffer = malloc(sizeof(V) * capacity);                                           \
+        _deque_->buffer = calloc(capacity, sizeof(V));                                            \
                                                                                                   \
         if (!_deque_->buffer)                                                                     \
         {                                                                                         \
             free(_deque_);                                                                        \
             return NULL;                                                                          \
         }                                                                                         \
-                                                                                                  \
-        memset(_deque_->buffer, 0, sizeof(V) * capacity);                                         \
                                                                                                   \
         _deque_->capacity = capacity;                                                             \
         _deque_->count = 0;                                                                       \

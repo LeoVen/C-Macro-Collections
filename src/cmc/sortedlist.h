@@ -9,8 +9,6 @@
  */
 
 /**
- * THIS IS ONLY A PREVIEW
- *
  * SortedList
  *
  * A sorted list is a dynamic array, meaning that you can store as many elements
@@ -359,6 +357,9 @@ static const char *cmc_string_fmt_sortedlist = "%s at %p { buffer:%p, capacity:%
     {                                                                                     \
         if (PFX##_count(_list1_) != PFX##_count(_list2_))                                 \
             return false;                                                                 \
+                                                                                          \
+        PFX##_sort(_list1_);                                                              \
+        PFX##_sort(_list2_);                                                              \
                                                                                           \
         for (size_t i = 0; i < PFX##_count(_list1_); i++)                                 \
         {                                                                                 \

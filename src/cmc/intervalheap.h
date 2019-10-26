@@ -169,15 +169,13 @@ static const char *cmc_string_fmt_intervalheap = "%s at %p { buffer:%p, capacity
         /* Round the capacity of nodes up */                                                      \
         capacity = capacity % 2 == 0 ? capacity / 2 : (capacity + 1) / 2;                         \
                                                                                                   \
-        _heap_->buffer = malloc(sizeof(SNAME##_node) * capacity);                                 \
+        _heap_->buffer = calloc(capacity, sizeof(SNAME##_node));                                  \
                                                                                                   \
         if (!_heap_->buffer)                                                                      \
         {                                                                                         \
             free(_heap_);                                                                         \
             return NULL;                                                                          \
         }                                                                                         \
-                                                                                                  \
-        memset(_heap_->buffer, 0, sizeof(SNAME##_node) * capacity);                               \
                                                                                                   \
         _heap_->capacity = capacity;                                                              \
         _heap_->size = 0;                                                                         \

@@ -19,8 +19,6 @@
 #include "../utl/cmc_string.h"
 
 /**
- * THIS IS A PREVIEW ONLY
- *
  * BidiMap
  *
  * A bidirectional map is a map that allows you to create a bijection in both
@@ -197,6 +195,7 @@ static const size_t cmc_hashtable_primes[] = {53, 97, 191, 383, 769, 1531,
     size_t PFX##_capacity(SNAME *_map_);                                                \
     double PFX##_load(SNAME *_map_);                                                    \
     /* Collection Utility */                                                            \
+    bool PFX##_resize(SNAME *_map_, size_t capacity);                                   \
     SNAME *PFX##_copy_of(SNAME *_map_, K (*key_copy_func)(K), V (*value_copy_func)(V)); \
     bool PFX##_equals(SNAME *_map1_, SNAME *_map2_);                                    \
     cmc_string PFX##_to_string(SNAME *_map_);                                           \
@@ -227,7 +226,6 @@ static const size_t cmc_hashtable_primes[] = {53, 97, 191, 383, 769, 1531,
 #define CMC_GENERATE_BIDIMAP_SOURCE(PFX, SNAME, K, V)                                           \
                                                                                                 \
     /* Implementation Detail Functions */                                                       \
-    static bool PFX##_impl_grow(SNAME *_map_);                                                  \
     static SNAME##_entry *PFX##_impl_new_entry(K key, V value);                                 \
     static SNAME##_entry **PFX##_impl_get_entry_by_key(SNAME *_map_, K key);                    \
     static SNAME##_entry **PFX##_impl_get_entry_by_val(SNAME *_map_, V val);                    \
@@ -314,7 +312,7 @@ static const size_t cmc_hashtable_primes[] = {53, 97, 191, 383, 769, 1531,
     {                                                                                           \
         if (PFX##_full(_map_))                                                                  \
         {                                                                                       \
-            if (!PFX##_impl_grow(_map_))                                                        \
+            if (!PFX##_resize(_map_, PFX##_capacity(_map_) + 1))                                \
                 return false;                                                                   \
         }                                                                                       \
                                                                                                 \
@@ -431,14 +429,145 @@ static const size_t cmc_hashtable_primes[] = {53, 97, 191, 383, 769, 1531,
         return _map_->load;                                                                     \
     }                                                                                           \
                                                                                                 \
+    bool PFX##_resize(SNAME *_map_, size_t capacity)                                            \
+    {                                                                                           \
+        if (PFX##_capacity(_map_) == capacity)                                                  \
+            return true;                                                                        \
+                                                                                                \
+        if (PFX##_capacity(_map_) > capacity / PFX##_load(_map_))                               \
+            return true;                                                                        \
+                                                                                                \
+        /* Prevent integer overflow */                                                          \
+        if (capacity >= UINTMAX_MAX * PFX##_load(_map_))                                        \
+            return false;                                                                       \
+                                                                                                \
+        /* Calculate required capacity based on the prime numbers */                            \
+        size_t new_cap = PFX##_impl_calculate_size(capacity);                                   \
+                                                                                                \
+        /* Not possible to shrink with current available prime numbers */                       \
+        if (new_cap < PFX##_count(_map_) / PFX##_load(_map_))                                   \
+            return false;                                                                       \
+                                                                                                \
+        SNAME *_new_map_ = PFX##_new(capacity, PFX##_load(_map_),                               \
+                                     _map_->key_cmp, _map_->key_hash,                           \
+                                     _map_->val_cmp, _map_->val_hash);                          \
+                                                                                                \
+        if (!_new_map_)                                                                         \
+            return false;                                                                       \
+                                                                                                \
+        for (size_t i = 0; i < _map_->capacity; i++)                                            \
+        {                                                                                       \
+            SNAME##_entry *scan = _map_->key_buffer[i];                                         \
+                                                                                                \
+            if (scan && scan != CMC_ENTRY_DELETED)                                              \
+            {                                                                                   \
+                SNAME##_entry **e1 = PFX##_impl_add_entry_to_key(_new_map_, scan);              \
+                SNAME##_entry **e2 = PFX##_impl_add_entry_to_val(_new_map_, scan);              \
+                                                                                                \
+                if (!e1 || !e2)                                                                 \
+                {                                                                               \
+                    free(_new_map_->key_buffer);                                                \
+                    free(_new_map_->val_buffer);                                                \
+                    free(_new_map_);                                                            \
+                                                                                                \
+                    return false;                                                               \
+                }                                                                               \
+                                                                                                \
+                _new_map_->count++;                                                             \
+            }                                                                                   \
+        }                                                                                       \
+                                                                                                \
+        if (PFX##_count(_map_) != PFX##_count(_new_map_))                                       \
+        {                                                                                       \
+            free(_new_map_->key_buffer);                                                        \
+            free(_new_map_->val_buffer);                                                        \
+            free(_new_map_);                                                                    \
+                                                                                                \
+            return false;                                                                       \
+        }                                                                                       \
+                                                                                                \
+        SNAME##_entry **tmp_key_buf = _map_->key_buffer;                                        \
+        SNAME##_entry **tmp_val_buf = _map_->val_buffer;                                        \
+                                                                                                \
+        _map_->key_buffer = _new_map_->key_buffer;                                              \
+        _map_->val_buffer = _new_map_->val_buffer;                                              \
+        _map_->capacity = _new_map_->capacity;                                                  \
+                                                                                                \
+        free(tmp_key_buf);                                                                      \
+        free(tmp_val_buf);                                                                      \
+        free(_new_map_);                                                                        \
+                                                                                                \
+        return true;                                                                            \
+    }                                                                                           \
+                                                                                                \
     SNAME *PFX##_copy_of(SNAME *_map_, K (*key_copy_func)(K), V (*value_copy_func)(V))          \
     {                                                                                           \
-        return NULL;                                                                            \
+        SNAME *result = PFX##_new(PFX##_capacity(_map_), PFX##_load(_map_),                     \
+                                  _map_->key_cmp, _map_->key_hash,                              \
+                                  _map_->val_cmp, _map_->val_hash);                             \
+                                                                                                \
+        for (size_t i = 0; i < _map_->capacity; i++)                                            \
+        {                                                                                       \
+            SNAME##_entry *scan = _map_->key_buffer[i];                                         \
+                                                                                                \
+            if (scan && scan != CMC_ENTRY_DELETED)                                              \
+            {                                                                                   \
+                K tmp_key;                                                                      \
+                V tmp_val;                                                                      \
+                                                                                                \
+                if (key_copy_func)                                                              \
+                    tmp_key = key_copy_func(scan->key);                                         \
+                else                                                                            \
+                    tmp_key = scan->key;                                                        \
+                                                                                                \
+                if (value_copy_func)                                                            \
+                    tmp_val = value_copy_func(scan->value);                                     \
+                else                                                                            \
+                    tmp_val = scan->value;                                                      \
+                                                                                                \
+                PFX##_insert(result, tmp_key, tmp_val);                                         \
+            }                                                                                   \
+        }                                                                                       \
+                                                                                                \
+        return result;                                                                          \
     }                                                                                           \
                                                                                                 \
     bool PFX##_equals(SNAME *_map1_, SNAME *_map2_)                                             \
     {                                                                                           \
-        return false;                                                                           \
+        if (PFX##_count(_map1_) != PFX##_count(_map2_))                                         \
+            return false;                                                                       \
+                                                                                                \
+        SNAME *_mapA_;                                                                          \
+        SNAME *_mapB_;                                                                          \
+                                                                                                \
+        if (PFX##_capacity(_map1_) < PFX##_capacity(_map2_))                                    \
+        {                                                                                       \
+            _mapA_ = _map1_;                                                                    \
+            _mapB_ = _map2_;                                                                    \
+        }                                                                                       \
+        else                                                                                    \
+        {                                                                                       \
+            _mapA_ = _map2_;                                                                    \
+            _mapB_ = _map1_;                                                                    \
+        }                                                                                       \
+                                                                                                \
+        for (size_t i = 0; i < _mapA_->capacity; i++)                                           \
+        {                                                                                       \
+            SNAME##_entry *scan = _mapA_->key_buffer[i];                                        \
+                                                                                                \
+            if (scan && scan != CMC_ENTRY_DELETED)                                              \
+            {                                                                                   \
+                SNAME##_entry **entry_B = PFX##_impl_get_entry_by_key(_mapB_, scan->key);       \
+                                                                                                \
+                if (!entry_B)                                                                   \
+                    return false;                                                               \
+                                                                                                \
+                if (_mapA_->val_cmp((*entry_B)->value, scan->value) != 0)                       \
+                    return false;                                                               \
+            }                                                                                   \
+        }                                                                                       \
+                                                                                                \
+        return true;                                                                            \
     }                                                                                           \
                                                                                                 \
     cmc_string PFX##_to_string(SNAME *_map_)                                                    \
@@ -672,12 +801,6 @@ static const size_t cmc_hashtable_primes[] = {53, 97, 191, 383, 769, 1531,
     size_t PFX##_iter_index(SNAME##_iter *iter)                                                 \
     {                                                                                           \
         return iter->index;                                                                     \
-    }                                                                                           \
-                                                                                                \
-    static bool PFX##_impl_grow(SNAME *_map_)                                                   \
-    {                                                                                           \
-        /* TODO */                                                                              \
-        return false;                                                                           \
     }                                                                                           \
                                                                                                 \
     static SNAME##_entry *PFX##_impl_new_entry(K key, V value)                                  \

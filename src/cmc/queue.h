@@ -173,15 +173,13 @@ static const char *cmc_string_fmt_queue = "%s at %p { buffer:%p, capacity:%" PRI
         if (!_queue_)                                                                         \
             return NULL;                                                                      \
                                                                                               \
-        _queue_->buffer = malloc(sizeof(V) * capacity);                                       \
+        _queue_->buffer = calloc(capacity, sizeof(V));                                        \
                                                                                               \
         if (!_queue_->buffer)                                                                 \
         {                                                                                     \
             free(_queue_);                                                                    \
             return NULL;                                                                      \
         }                                                                                     \
-                                                                                              \
-        memset(_queue_->buffer, 0, sizeof(V) * capacity);                                     \
                                                                                               \
         _queue_->capacity = capacity;                                                         \
         _queue_->count = 0;                                                                   \

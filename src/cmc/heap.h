@@ -167,15 +167,13 @@ typedef enum cmc_heap_order_e
         if (!_heap_)                                                                              \
             return NULL;                                                                          \
                                                                                                   \
-        _heap_->buffer = malloc(sizeof(V) * capacity);                                            \
+        _heap_->buffer = calloc(capacity, sizeof(V));                                             \
                                                                                                   \
         if (!_heap_->buffer)                                                                      \
         {                                                                                         \
             free(_heap_);                                                                         \
             return NULL;                                                                          \
         }                                                                                         \
-                                                                                                  \
-        memset(_heap_->buffer, 0, sizeof(V) * capacity);                                          \
                                                                                                   \
         _heap_->capacity = capacity;                                                              \
         _heap_->count = 0;                                                                        \

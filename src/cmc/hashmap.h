@@ -239,15 +239,13 @@ static const size_t cmc_hashtable_primes[] = {53, 97, 191, 383, 769, 1531,
         if (!_map_)                                                                             \
             return NULL;                                                                        \
                                                                                                 \
-        _map_->buffer = malloc(sizeof(SNAME##_entry) * real_capacity);                          \
+        _map_->buffer = calloc(real_capacity, sizeof(SNAME##_entry));                           \
                                                                                                 \
         if (!_map_->buffer)                                                                     \
         {                                                                                       \
             free(_map_);                                                                        \
             return NULL;                                                                        \
         }                                                                                       \
-                                                                                                \
-        memset(_map_->buffer, 0, sizeof(SNAME##_entry) * real_capacity);                        \
                                                                                                 \
         _map_->count = 0;                                                                       \
         _map_->capacity = real_capacity;                                                        \

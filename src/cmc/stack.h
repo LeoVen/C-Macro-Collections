@@ -149,15 +149,13 @@ static const char *cmc_string_fmt_stack = "%s at %p { buffer:%p, capacity:%" PRI
         if (!_stack_)                                                            \
             return NULL;                                                         \
                                                                                  \
-        _stack_->buffer = malloc(sizeof(V) * capacity);                          \
+        _stack_->buffer = calloc(capacity, sizeof(V));                           \
                                                                                  \
         if (!_stack_->buffer)                                                    \
         {                                                                        \
             free(_stack_);                                                       \
             return NULL;                                                         \
         }                                                                        \
-                                                                                 \
-        memset(_stack_->buffer, 0, sizeof(V) * capacity);                        \
                                                                                  \
         _stack_->capacity = capacity;                                            \
         _stack_->count = 0;                                                      \
