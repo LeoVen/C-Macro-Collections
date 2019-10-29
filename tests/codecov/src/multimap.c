@@ -53,7 +53,7 @@ double mm_load(multimap *_map_);
 _Bool mm_resize(multimap *_map_, size_t capacity);
 multimap *mm_copy_of(multimap *_map_, size_t (*key_copy_func)(size_t), size_t (*value_copy_func)(size_t));
 _Bool mm_equals(multimap *_map1_, multimap *_map2_, _Bool ignore_key_count);
-cmc_string mm_to_string(multimap *_map_);
+struct cmc_string mm_to_string(multimap *_map_);
 multimap_iter *mm_iter_new(multimap *target);
 void mm_iter_free(multimap_iter *iter);
 void mm_iter_init(multimap_iter *iter, multimap *target);
@@ -483,9 +483,9 @@ _Bool mm_equals(multimap *_map1_, multimap *_map2_, _Bool ignore_key_count)
     }
     return 1;
 }
-cmc_string mm_to_string(multimap *_map_)
+struct cmc_string mm_to_string(multimap *_map_)
 {
-    cmc_string str;
+    struct cmc_string str;
     multimap *m_ = _map_;
     const char *name = "multimap";
     snprintf(str.s, cmc_string_len, cmc_string_fmt_multimap, name, m_, m_->buffer, m_->capacity, m_->count, m_->load, m_->cmp, m_->hash);

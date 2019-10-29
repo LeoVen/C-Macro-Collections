@@ -9,7 +9,7 @@ CMC_GENERATE_LINKEDLIST(ll, linkedlist, size_t)
 
 CMC_CREATE_UNIT(linkedlist_test, true, {
     CMC_CREATE_TEST(new, {
-        linkedlist *ll = ll_new();
+        struct linkedlist *ll = ll_new();
 
         cmc_assert_not_equals(ptr, NULL, ll);
         cmc_assert_equals(size_t, 0, ll_count(ll));
@@ -20,7 +20,7 @@ CMC_CREATE_UNIT(linkedlist_test, true, {
     });
 
     CMC_CREATE_TEST(clear[count capacity], {
-        linkedlist *ll = ll_new();
+        struct linkedlist *ll = ll_new();
 
         cmc_assert_not_equals(ptr, NULL, ll);
 
@@ -37,7 +37,7 @@ CMC_CREATE_UNIT(linkedlist_test, true, {
     });
 
     CMC_CREATE_TEST(clear[count = 0], {
-        linkedlist *ll = ll_new();
+        struct linkedlist *ll = ll_new();
 
         cmc_assert_not_equals(ptr, NULL, ll);
 
@@ -49,7 +49,7 @@ CMC_CREATE_UNIT(linkedlist_test, true, {
     });
 
     CMC_CREATE_TEST(push_front[count], {
-        linkedlist *ll = ll_new();
+        struct linkedlist *ll = ll_new();
 
         cmc_assert_not_equals(ptr, NULL, ll);
 
@@ -63,7 +63,7 @@ CMC_CREATE_UNIT(linkedlist_test, true, {
     });
 
     CMC_CREATE_TEST(push_front[item preservation], {
-        linkedlist *ll = ll_new();
+        struct linkedlist *ll = ll_new();
 
         cmc_assert_not_equals(ptr, NULL, ll);
 

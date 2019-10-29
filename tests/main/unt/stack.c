@@ -9,7 +9,7 @@ CMC_GENERATE_STACK(s, stack, size_t)
 
 CMC_CREATE_UNIT(stack_test, true, {
     CMC_CREATE_TEST(new, {
-        stack *s = s_new(1000000);
+        struct stack *s = s_new(1000000);
 
         cmc_assert_not_equals(ptr, NULL, s);
         cmc_assert_not_equals(ptr, NULL, s->buffer);
@@ -21,19 +21,19 @@ CMC_CREATE_UNIT(stack_test, true, {
     });
 
     CMC_CREATE_TEST(new[capacity = 0], {
-        stack *s = s_new(0);
+        struct stack *s = s_new(0);
 
         cmc_assert_equals(ptr, NULL, s);
     });
 
     CMC_CREATE_TEST(new[capacity = UINT64_MAX], {
-        stack *s = s_new(UINT64_MAX);
+        struct stack *s = s_new(UINT64_MAX);
 
         cmc_assert_equals(ptr, NULL, s);
     });
 
     CMC_CREATE_TEST(clear[count capacity], {
-        stack *s = s_new(100);
+        struct stack *s = s_new(100);
 
         cmc_assert_not_equals(ptr, NULL, s);
 
@@ -51,7 +51,7 @@ CMC_CREATE_UNIT(stack_test, true, {
     });
 
     CMC_CREATE_TEST(buffer_growth[capacity = 1], {
-        stack *s = s_new(1);
+        struct stack *s = s_new(1);
 
         cmc_assert_not_equals(ptr, NULL, s);
 
@@ -65,7 +65,7 @@ CMC_CREATE_UNIT(stack_test, true, {
     });
 
     CMC_CREATE_TEST(push[count], {
-        stack *s = s_new(100);
+        struct stack *s = s_new(100);
 
         cmc_assert_not_equals(ptr, NULL, s);
 
@@ -78,7 +78,7 @@ CMC_CREATE_UNIT(stack_test, true, {
     });
 
     CMC_CREATE_TEST(push[capacity], {
-        stack *s = s_new(100);
+        struct stack *s = s_new(100);
 
         cmc_assert_not_equals(ptr, NULL, s);
 
@@ -91,7 +91,7 @@ CMC_CREATE_UNIT(stack_test, true, {
     });
 
     CMC_CREATE_TEST(push[item preservation], {
-        stack *s = s_new(100);
+        struct stack *s = s_new(100);
 
         cmc_assert_not_equals(ptr, NULL, s);
 
@@ -105,7 +105,7 @@ CMC_CREATE_UNIT(stack_test, true, {
     });
 
     CMC_CREATE_TEST(pop[count], {
-        stack *s = s_new(100);
+        struct stack *s = s_new(100);
 
         cmc_assert_not_equals(ptr, NULL, s);
 
@@ -120,7 +120,7 @@ CMC_CREATE_UNIT(stack_test, true, {
     });
 
     CMC_CREATE_TEST(pop[capacity], {
-        stack *s = s_new(100);
+        struct stack *s = s_new(100);
 
         cmc_assert_not_equals(ptr, NULL, s);
 
@@ -135,7 +135,7 @@ CMC_CREATE_UNIT(stack_test, true, {
     });
 
     CMC_CREATE_TEST(pop[item preservation], {
-        stack *s = s_new(100);
+        struct stack *s = s_new(100);
 
         cmc_assert_not_equals(ptr, NULL, s);
 
@@ -152,7 +152,7 @@ CMC_CREATE_UNIT(stack_test, true, {
     });
 
     CMC_CREATE_TEST(pop[count = 0], {
-        stack *s = s_new(100);
+        struct stack *s = s_new(100);
 
         cmc_assert_not_equals(ptr, NULL, s);
 
@@ -162,7 +162,7 @@ CMC_CREATE_UNIT(stack_test, true, {
     });
 
     CMC_CREATE_TEST(top, {
-        stack *s = s_new(100);
+        struct stack *s = s_new(100);
 
         cmc_assert_not_equals(ptr, NULL, s);
 
@@ -178,7 +178,7 @@ CMC_CREATE_UNIT(stack_test, true, {
     });
 
     CMC_CREATE_TEST(top[count = 0], {
-        stack *s = s_new(100);
+        struct stack *s = s_new(100);
 
         cmc_assert_not_equals(ptr, NULL, s);
 
@@ -192,7 +192,7 @@ CMC_CREATE_UNIT(stack_test, true, {
     });
 
     CMC_CREATE_TEST(top[count = 1], {
-        stack *s = s_new(100);
+        struct stack *s = s_new(100);
 
         cmc_assert_not_equals(ptr, NULL, s);
 
@@ -204,7 +204,7 @@ CMC_CREATE_UNIT(stack_test, true, {
     });
 
     CMC_CREATE_TEST(contains, {
-        stack *s = s_new(100);
+        struct stack *s = s_new(100);
 
         cmc_assert_not_equals(ptr, NULL, s);
 
@@ -218,7 +218,7 @@ CMC_CREATE_UNIT(stack_test, true, {
     });
 
     CMC_CREATE_TEST(contains[count = 0], {
-        stack *s = s_new(100);
+        struct stack *s = s_new(100);
 
         cmc_assert_not_equals(ptr, NULL, s);
 
@@ -228,7 +228,7 @@ CMC_CREATE_UNIT(stack_test, true, {
     });
 
     CMC_CREATE_TEST(empty, {
-        stack *s = s_new(100);
+        struct stack *s = s_new(100);
 
         cmc_assert_not_equals(ptr, NULL, s);
 
@@ -238,7 +238,7 @@ CMC_CREATE_UNIT(stack_test, true, {
     });
 
     CMC_CREATE_TEST(empty[after_io], {
-        stack *s = s_new(100);
+        struct stack *s = s_new(100);
 
         cmc_assert_not_equals(ptr, NULL, s);
 
@@ -250,7 +250,7 @@ CMC_CREATE_UNIT(stack_test, true, {
     });
 
     CMC_CREATE_TEST(full, {
-        stack *s = s_new(100);
+        struct stack *s = s_new(100);
 
         cmc_assert_not_equals(ptr, NULL, s);
 
@@ -263,7 +263,7 @@ CMC_CREATE_UNIT(stack_test, true, {
     });
 
     CMC_CREATE_TEST(full[capacity = 1], {
-        stack *s = s_new(1);
+        struct stack *s = s_new(1);
 
         cmc_assert_not_equals(ptr, NULL, s);
 
@@ -275,11 +275,11 @@ CMC_CREATE_UNIT(stack_test, true, {
     });
 
     CMC_CREATE_TEST(iter_alloc, {
-        stack *s = s_new(100);
+        struct stack *s = s_new(100);
 
         cmc_assert_not_equals(ptr, NULL, s);
 
-        stack_iter *iter = s_iter_new(s);
+        struct stack_iter *iter = s_iter_new(s);
 
         cmc_assert_not_equals(ptr, NULL, iter);
 
@@ -288,11 +288,11 @@ CMC_CREATE_UNIT(stack_test, true, {
     });
 
     CMC_CREATE_TEST(iter_init[count = 0], {
-        stack *s = s_new(100);
+        struct stack *s = s_new(100);
 
         cmc_assert_not_equals(ptr, NULL, s);
 
-        stack_iter iter;
+        struct stack_iter iter;
 
         s_iter_init(&iter, s);
 
@@ -305,11 +305,11 @@ CMC_CREATE_UNIT(stack_test, true, {
     });
 
     CMC_CREATE_TEST(iter_start[count = 0], {
-        stack *s = s_new(100);
+        struct stack *s = s_new(100);
 
         cmc_assert_not_equals(ptr, NULL, s);
 
-        stack_iter iter;
+        struct stack_iter iter;
 
         s_iter_init(&iter, s);
 
@@ -319,11 +319,11 @@ CMC_CREATE_UNIT(stack_test, true, {
     });
 
     CMC_CREATE_TEST(iter_end[count = 0], {
-        stack *s = s_new(100);
+        struct stack *s = s_new(100);
 
         cmc_assert_not_equals(ptr, NULL, s);
 
-        stack_iter iter;
+        struct stack_iter iter;
 
         s_iter_init(&iter, s);
 
@@ -333,7 +333,7 @@ CMC_CREATE_UNIT(stack_test, true, {
     });
 
     CMC_CREATE_TEST(iteration, {
-        stack *s = s_new(100);
+        struct stack *s = s_new(100);
 
         cmc_assert_not_equals(ptr, NULL, s);
 
@@ -342,14 +342,14 @@ CMC_CREATE_UNIT(stack_test, true, {
 
         size_t total = 0;
 
-        for (stack_iter it = s->it_start(s); !s_iter_end(&it); s_iter_next(&it))
+        for (struct stack_iter it = s->it_start(s); !s_iter_end(&it); s_iter_next(&it))
         {
             total += s_iter_value(&it);
         }
 
         cmc_assert_equals(size_t, 20100, total);
 
-        for (stack_iter it = s->it_end(s); !s_iter_start(&it); s_iter_prev(&it))
+        for (struct stack_iter it = s->it_end(s); !s_iter_start(&it); s_iter_prev(&it))
         {
             total += s_iter_value(&it);
         }
@@ -360,7 +360,7 @@ CMC_CREATE_UNIT(stack_test, true, {
     });
 
     CMC_CREATE_TEST(iteration[while loop], {
-        stack *s = s_new(100);
+        struct stack *s = s_new(100);
 
         cmc_assert_not_equals(ptr, NULL, s);
 
@@ -368,7 +368,7 @@ CMC_CREATE_UNIT(stack_test, true, {
             cmc_assert(s_push(s, i));
 
         size_t total = 0;
-        stack_iter it = s->it_start(s);
+        struct stack_iter it = s->it_start(s);
 
         do
         {
@@ -390,19 +390,19 @@ CMC_CREATE_UNIT(stack_test, true, {
     });
 
     CMC_CREATE_TEST(iteration[count = 1], {
-        stack *s = s_new(100);
+        struct stack *s = s_new(100);
 
         cmc_assert_not_equals(ptr, NULL, s);
         cmc_assert(s_push(s, 10));
 
         size_t total = 0;
 
-        for (stack_iter it = s->it_start(s); !s_iter_end(&it); s_iter_next(&it))
+        for (struct stack_iter it = s->it_start(s); !s_iter_end(&it); s_iter_next(&it))
         {
             total += s_iter_value(&it);
         }
 
-        for (stack_iter it = s->it_end(s); !s_iter_start(&it); s_iter_prev(&it))
+        for (struct stack_iter it = s->it_end(s); !s_iter_start(&it); s_iter_prev(&it))
         {
             total += s_iter_value(&it);
         }
@@ -413,7 +413,7 @@ CMC_CREATE_UNIT(stack_test, true, {
     });
 
     CMC_CREATE_TEST(iteration[count = capacity], {
-        stack *s = s_new(100);
+        struct stack *s = s_new(100);
 
         cmc_assert_not_equals(ptr, NULL, s);
 
@@ -424,14 +424,14 @@ CMC_CREATE_UNIT(stack_test, true, {
 
         size_t total = 0;
 
-        for (stack_iter it = s->it_start(s); !s_iter_end(&it); s_iter_next(&it))
+        for (struct stack_iter it = s->it_start(s); !s_iter_end(&it); s_iter_next(&it))
         {
             total += s_iter_value(&it);
         }
 
         cmc_assert_equals(size_t, 1000, total);
 
-        for (stack_iter it = s->it_end(s); !s_iter_start(&it); s_iter_prev(&it))
+        for (struct stack_iter it = s->it_end(s); !s_iter_start(&it); s_iter_prev(&it))
         {
             total += *s_iter_rvalue(&it);
         }
@@ -442,18 +442,18 @@ CMC_CREATE_UNIT(stack_test, true, {
     });
 
     CMC_CREATE_TEST(iteration[to_start = it_start and to_end = it_end], {
-        stack *s = s_new(100);
+        struct stack *s = s_new(100);
 
         cmc_assert_not_equals(ptr, NULL, s);
 
         for (size_t i = 0; i < 50; i++)
             cmc_assert(s_push(s, i));
 
-        stack_iter it1;
-        stack_iter it2;
+        struct stack_iter it1;
+        struct stack_iter it2;
 
-        memset(&it1, 0, sizeof(stack_iter));
-        memset(&it2, 0, sizeof(stack_iter));
+        memset(&it1, 0, sizeof(struct stack_iter));
+        memset(&it2, 0, sizeof(struct stack_iter));
 
         s_iter_init(&it2, s);
 
@@ -477,11 +477,11 @@ CMC_CREATE_UNIT(stack_test, true, {
     });
 
     CMC_CREATE_TEST(iteration[boundaries count = 0], {
-        stack *s = s_new(100);
+        struct stack *s = s_new(100);
 
         cmc_assert_not_equals(ptr, NULL, s);
 
-        stack_iter iter;
+        struct stack_iter iter;
         s_iter_init(&iter, s);
 
         s_iter_to_end(&iter);
@@ -496,14 +496,14 @@ CMC_CREATE_UNIT(stack_test, true, {
     });
 
     CMC_CREATE_TEST(iteration[boundaries count > 0], {
-        stack *s = s_new(100);
+        struct stack *s = s_new(100);
 
         cmc_assert_not_equals(ptr, NULL, s);
 
         for (size_t i = 0; i < 200; i++)
             cmc_assert(s_push(s, i));
 
-        stack_iter iter;
+        struct stack_iter iter;
         s_iter_init(&iter, s);
 
         s_iter_to_end(&iter);
@@ -518,11 +518,11 @@ CMC_CREATE_UNIT(stack_test, true, {
     });
 
     CMC_CREATE_TEST(iter_value[count = 0], {
-        stack *s = s_new(100);
+        struct stack *s = s_new(100);
 
         cmc_assert_not_equals(ptr, NULL, s);
 
-        stack_iter iter;
+        struct stack_iter iter;
 
         s_iter_init(&iter, s);
 
@@ -532,11 +532,11 @@ CMC_CREATE_UNIT(stack_test, true, {
     });
 
     CMC_CREATE_TEST(iter_rvalue[count = 0], {
-        stack *s = s_new(100);
+        struct stack *s = s_new(100);
 
         cmc_assert_not_equals(ptr, NULL, s);
 
-        stack_iter iter;
+        struct stack_iter iter;
 
         s_iter_init(&iter, s);
 
@@ -546,7 +546,7 @@ CMC_CREATE_UNIT(stack_test, true, {
     });
 
     CMC_CREATE_TEST(index, {
-        stack *s = s_new(100);
+        struct stack *s = s_new(100);
 
         cmc_assert_not_equals(ptr, NULL, s);
 
@@ -557,24 +557,24 @@ CMC_CREATE_UNIT(stack_test, true, {
 
         size_t total = 0;
 
-        for (stack_iter it = s->it_start(s); false;)
+        for (struct stack_iter it = s->it_start(s); false;)
         {
             cmc_assert_equals(size_t, 0, s_iter_index(&it));
         }
 
-        for (stack_iter it = s->it_start(s); false;)
+        for (struct stack_iter it = s->it_start(s); false;)
         {
             cmc_assert_equals(size_t, s_count(s) - 1, s_iter_index(&it));
         }
 
-        for (stack_iter it = s->it_start(s); !s_iter_end(&it); s_iter_next(&it))
+        for (struct stack_iter it = s->it_start(s); !s_iter_end(&it); s_iter_next(&it))
         {
             total += s_iter_index(&it);
         }
 
         cmc_assert_equals(size_t, 45, total);
 
-        for (stack_iter it = s->it_end(s); !s_iter_start(&it); s_iter_prev(&it))
+        for (struct stack_iter it = s->it_end(s); !s_iter_start(&it); s_iter_prev(&it))
         {
             total += s_iter_index(&it);
         }
@@ -585,11 +585,11 @@ CMC_CREATE_UNIT(stack_test, true, {
     });
 
     CMC_CREATE_TEST(index[count = 0], {
-        stack *s = s_new(100);
+        struct stack *s = s_new(100);
 
         cmc_assert_not_equals(ptr, NULL, s);
 
-        stack_iter iter;
+        struct stack_iter iter;
         s_iter_init(&iter, s);
 
         cmc_assert_equals(size_t, 0, s_iter_index(&iter));

@@ -44,7 +44,7 @@ _Bool tm_empty(treemap *_map_);
 size_t tm_count(treemap *_map_);
 treemap *tm_copy_of(treemap *_map_, size_t (*key_copy_func)(size_t), size_t (*value_copy_func)(size_t));
 _Bool tm_equals(treemap *_map1_, treemap *_map2_, int (*value_comparator)(size_t, size_t));
-cmc_string tm_to_string(treemap *_map_);
+struct cmc_string tm_to_string(treemap *_map_);
 treemap_iter *tm_iter_new(treemap *target);
 void tm_iter_free(treemap_iter *iter);
 void tm_iter_init(treemap_iter *iter, treemap *target);
@@ -387,9 +387,9 @@ _Bool tm_equals(treemap *_map1_, treemap *_map2_, int (*value_comparator)(size_t
     }
     return 1;
 }
-cmc_string tm_to_string(treemap *_map_)
+struct cmc_string tm_to_string(treemap *_map_)
 {
-    cmc_string str;
+    struct cmc_string str;
     treemap *m_ = _map_;
     const char *name = "treemap";
     snprintf(str.s, cmc_string_len, cmc_string_fmt_treemap, name, m_, m_->root, m_->count, m_->cmp);

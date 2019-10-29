@@ -18,7 +18,7 @@
 
 int main(void)
 {
-    cmc_timer timer;
+    struct cmc_timer timer;
 
     cmc_timer_start(timer);
     uintmax_t failed = 0;

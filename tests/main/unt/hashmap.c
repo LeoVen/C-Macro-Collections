@@ -9,7 +9,7 @@ CMC_GENERATE_HASHMAP(hm, hashmap, size_t, size_t)
 
 CMC_CREATE_UNIT(hashmap_test, true, {
     CMC_CREATE_TEST(new, {
-        hashmap *map = hm_new(943722, 0.6, cmp, hash);
+        struct hashmap *map = hm_new(943722, 0.6, cmp, hash);
 
         cmc_assert_not_equals(ptr, NULL, map);
         cmc_assert_not_equals(ptr, NULL, map->buffer);
@@ -20,19 +20,19 @@ CMC_CREATE_UNIT(hashmap_test, true, {
     });
 
     CMC_CREATE_TEST(new[capacity = 0], {
-        hashmap *map = hm_new(0, 0.6, cmp, hash);
+        struct hashmap *map = hm_new(0, 0.6, cmp, hash);
 
         cmc_assert_equals(ptr, NULL, map);
     });
 
     CMC_CREATE_TEST(new[capacity = UINT64_MAX], {
-        hashmap *map = hm_new(UINT64_MAX, 0.99, cmp, hash);
+        struct hashmap *map = hm_new(UINT64_MAX, 0.99, cmp, hash);
 
         cmc_assert_equals(ptr, NULL, map);
     });
 
     CMC_CREATE_TEST(clear[count capacity], {
-        hashmap *map = hm_new(100, 0.6, cmp, hash);
+        struct hashmap *map = hm_new(100, 0.6, cmp, hash);
 
         cmc_assert_not_equals(ptr, NULL, map);
 
@@ -49,7 +49,7 @@ CMC_CREATE_UNIT(hashmap_test, true, {
     });
 
     CMC_CREATE_TEST(insert, {
-        hashmap *map = hm_new(100, 0.6, cmp, hash);
+        struct hashmap *map = hm_new(100, 0.6, cmp, hash);
 
         cmc_assert_not_equals(ptr, NULL, map);
 
@@ -60,7 +60,7 @@ CMC_CREATE_UNIT(hashmap_test, true, {
     });
 
     CMC_CREATE_TEST(insert[smallest capacity], {
-        hashmap *map = hm_new(1, 0.99, cmp, hash);
+        struct hashmap *map = hm_new(1, 0.99, cmp, hash);
 
         cmc_assert_not_equals(ptr, NULL, map);
 
@@ -72,7 +72,7 @@ CMC_CREATE_UNIT(hashmap_test, true, {
 
     CMC_CREATE_TEST(insert[element position], {
         // Using the numhash the key is the hash itself
-        hashmap *map = hm_new(1, 0.99, cmp, numhash);
+        struct hashmap *map = hm_new(1, 0.99, cmp, numhash);
 
         cmc_assert_not_equals(ptr, NULL, map);
 
@@ -90,7 +90,7 @@ CMC_CREATE_UNIT(hashmap_test, true, {
     });
 
     CMC_CREATE_TEST(insert[distance], {
-        hashmap *map = hm_new(500, 0.6, cmp, hash0);
+        struct hashmap *map = hm_new(500, 0.6, cmp, hash0);
 
         cmc_assert_not_equals(ptr, NULL, map);
 
@@ -105,7 +105,7 @@ CMC_CREATE_UNIT(hashmap_test, true, {
     });
 
     CMC_CREATE_TEST(insert[distance wrap], {
-        hashmap *map = hm_new(1, 0.99, cmp, hashcapminus1);
+        struct hashmap *map = hm_new(1, 0.99, cmp, hashcapminus1);
 
         cmc_assert_not_equals(ptr, NULL, map);
 
@@ -125,7 +125,7 @@ CMC_CREATE_UNIT(hashmap_test, true, {
     });
 
     CMC_CREATE_TEST(insert[distances], {
-        hashmap *map = hm_new(1, 0.99, cmp, hashcapminus4);
+        struct hashmap *map = hm_new(1, 0.99, cmp, hashcapminus4);
 
         cmc_assert_not_equals(ptr, NULL, map);
 
@@ -141,7 +141,7 @@ CMC_CREATE_UNIT(hashmap_test, true, {
     });
 
     CMC_CREATE_TEST(insert[buffer growth and item preservation], {
-        hashmap *map = hm_new(1, 0.99, cmp, hash);
+        struct hashmap *map = hm_new(1, 0.99, cmp, hash);
 
         cmc_assert_not_equals(ptr, NULL, map);
 
@@ -165,7 +165,7 @@ CMC_CREATE_UNIT(hashmap_test, true, {
     });
 
     CMC_CREATE_TEST(update, {
-        hashmap *map = hm_new(100, 0.6, cmp, hash);
+        struct hashmap *map = hm_new(100, 0.6, cmp, hash);
 
         cmc_assert_not_equals(ptr, NULL, map);
 
@@ -180,7 +180,7 @@ CMC_CREATE_UNIT(hashmap_test, true, {
     });
 
     CMC_CREATE_TEST(update[key not found], {
-        hashmap *map = hm_new(100, 0.6, cmp, hash);
+        struct hashmap *map = hm_new(100, 0.6, cmp, hash);
 
         cmc_assert_not_equals(ptr, NULL, map);
 
@@ -193,7 +193,7 @@ CMC_CREATE_UNIT(hashmap_test, true, {
     });
 
     CMC_CREATE_TEST(remove, {
-        hashmap *map = hm_new(100, 0.6, cmp, hash);
+        struct hashmap *map = hm_new(100, 0.6, cmp, hash);
 
         cmc_assert_not_equals(ptr, NULL, map);
 
@@ -207,7 +207,7 @@ CMC_CREATE_UNIT(hashmap_test, true, {
     });
 
     CMC_CREATE_TEST(remove[count = 0], {
-        hashmap *map = hm_new(100, 0.6, cmp, hash);
+        struct hashmap *map = hm_new(100, 0.6, cmp, hash);
 
         cmc_assert_not_equals(ptr, NULL, map);
 
@@ -218,7 +218,7 @@ CMC_CREATE_UNIT(hashmap_test, true, {
     });
 
     CMC_CREATE_TEST(remove[key not found], {
-        hashmap *map = hm_new(100, 0.6, cmp, hash);
+        struct hashmap *map = hm_new(100, 0.6, cmp, hash);
 
         cmc_assert_not_equals(ptr, NULL, map);
 
@@ -232,7 +232,7 @@ CMC_CREATE_UNIT(hashmap_test, true, {
     });
 
     CMC_CREATE_TEST(max, {
-        hashmap *map = hm_new(100, 0.6, cmp, hash);
+        struct hashmap *map = hm_new(100, 0.6, cmp, hash);
 
         cmc_assert_not_equals(ptr, NULL, map);
 
@@ -250,7 +250,7 @@ CMC_CREATE_UNIT(hashmap_test, true, {
     });
 
     CMC_CREATE_TEST(max[count = 0], {
-        hashmap *map = hm_new(100, 0.6, cmp, hash);
+        struct hashmap *map = hm_new(100, 0.6, cmp, hash);
 
         cmc_assert_not_equals(ptr, NULL, map);
 
@@ -260,7 +260,7 @@ CMC_CREATE_UNIT(hashmap_test, true, {
     });
 
     CMC_CREATE_TEST(min, {
-        hashmap *map = hm_new(100, 0.6, cmp, hash);
+        struct hashmap *map = hm_new(100, 0.6, cmp, hash);
 
         cmc_assert_not_equals(ptr, NULL, map);
 
@@ -278,7 +278,7 @@ CMC_CREATE_UNIT(hashmap_test, true, {
     });
 
     CMC_CREATE_TEST(min[count = 0], {
-        hashmap *map = hm_new(100, 0.6, cmp, hash);
+        struct hashmap *map = hm_new(100, 0.6, cmp, hash);
 
         cmc_assert_not_equals(ptr, NULL, map);
 
@@ -288,7 +288,7 @@ CMC_CREATE_UNIT(hashmap_test, true, {
     });
 
     CMC_CREATE_TEST(get, {
-        hashmap *map = hm_new(100, 0.6, cmp, hash);
+        struct hashmap *map = hm_new(100, 0.6, cmp, hash);
 
         cmc_assert_not_equals(ptr, NULL, map);
 
@@ -300,7 +300,7 @@ CMC_CREATE_UNIT(hashmap_test, true, {
     });
 
     CMC_CREATE_TEST(get[count = 0], {
-        hashmap *map = hm_new(100, 0.6, cmp, hash);
+        struct hashmap *map = hm_new(100, 0.6, cmp, hash);
 
         cmc_assert_not_equals(ptr, NULL, map);
 
@@ -310,7 +310,7 @@ CMC_CREATE_UNIT(hashmap_test, true, {
     });
 
     CMC_CREATE_TEST(get_ref, {
-        hashmap *map = hm_new(100, 0.6, cmp, hash);
+        struct hashmap *map = hm_new(100, 0.6, cmp, hash);
 
         cmc_assert_not_equals(ptr, NULL, map);
 
@@ -325,7 +325,7 @@ CMC_CREATE_UNIT(hashmap_test, true, {
     });
 
     CMC_CREATE_TEST(get_ref[count = 0], {
-        hashmap *map = hm_new(100, 0.6, cmp, hash);
+        struct hashmap *map = hm_new(100, 0.6, cmp, hash);
 
         cmc_assert_not_equals(ptr, NULL, map);
 
@@ -335,7 +335,7 @@ CMC_CREATE_UNIT(hashmap_test, true, {
     });
 
     CMC_CREATE_TEST(contains, {
-        hashmap *map = hm_new(100, 0.6, cmp, hash);
+        struct hashmap *map = hm_new(100, 0.6, cmp, hash);
 
         cmc_assert_not_equals(ptr, NULL, map);
 
@@ -347,7 +347,7 @@ CMC_CREATE_UNIT(hashmap_test, true, {
     });
 
     CMC_CREATE_TEST(contains[count = 0], {
-        hashmap *map = hm_new(100, 0.6, cmp, hash);
+        struct hashmap *map = hm_new(100, 0.6, cmp, hash);
 
         cmc_assert_not_equals(ptr, NULL, map);
 
@@ -357,7 +357,7 @@ CMC_CREATE_UNIT(hashmap_test, true, {
     });
 
     CMC_CREATE_TEST(contains[sum], {
-        hashmap *map = hm_new(100, 0.6, cmp, hash);
+        struct hashmap *map = hm_new(100, 0.6, cmp, hash);
 
         cmc_assert_not_equals(ptr, NULL, map);
 
@@ -375,7 +375,7 @@ CMC_CREATE_UNIT(hashmap_test, true, {
     });
 
     CMC_CREATE_TEST(empty, {
-        hashmap *map = hm_new(100, 0.6, cmp, hash);
+        struct hashmap *map = hm_new(100, 0.6, cmp, hash);
 
         cmc_assert_not_equals(ptr, NULL, map);
 
@@ -389,7 +389,7 @@ CMC_CREATE_UNIT(hashmap_test, true, {
     });
 
     CMC_CREATE_TEST(full, {
-        hashmap *map = hm_new(cmc_hashtable_primes[0], 0.99999, cmp, hash);
+        struct hashmap *map = hm_new(cmc_hashtable_primes[0], 0.99999, cmp, hash);
 
         cmc_assert_not_equals(ptr, NULL, map);
 
@@ -410,7 +410,7 @@ CMC_CREATE_UNIT(hashmap_test, true, {
     });
 
     CMC_CREATE_TEST(count, {
-        hashmap *map = hm_new(100, 0.6, cmp, hash);
+        struct hashmap *map = hm_new(100, 0.6, cmp, hash);
 
         cmc_assert_not_equals(ptr, NULL, map);
 
@@ -424,7 +424,7 @@ CMC_CREATE_UNIT(hashmap_test, true, {
     });
 
     CMC_CREATE_TEST(capacity, {
-        hashmap *map = hm_new(2500, 0.6, cmp, hash);
+        struct hashmap *map = hm_new(2500, 0.6, cmp, hash);
 
         cmc_assert_not_equals(ptr, NULL, map);
 
@@ -434,7 +434,7 @@ CMC_CREATE_UNIT(hashmap_test, true, {
     });
 
     CMC_CREATE_TEST(capacity[small], {
-        hashmap *map = hm_new(1, 0.99, cmp, hash);
+        struct hashmap *map = hm_new(1, 0.99, cmp, hash);
 
         cmc_assert_not_equals(ptr, NULL, map);
 
@@ -444,7 +444,7 @@ CMC_CREATE_UNIT(hashmap_test, true, {
     });
 
     CMC_CREATE_TEST(load, {
-        hashmap *map = hm_new(1, 0.99, cmp, hash);
+        struct hashmap *map = hm_new(1, 0.99, cmp, hash);
 
         cmc_assert_not_equals(ptr, NULL, map);
 

@@ -31,7 +31,7 @@ size_t s_capacity(stack *_stack_);
 _Bool s_resize(stack *_stack_, size_t capacity);
 stack *s_copy_of(stack *_stack_, size_t (*copy_func)(size_t));
 _Bool s_equals(stack *_stack1_, stack *_stack2_, int (*comparator)(size_t, size_t));
-cmc_string s_to_string(stack *_stack_);
+struct cmc_string s_to_string(stack *_stack_);
 stack_iter *s_iter_new(stack *target);
 void s_iter_free(stack_iter *iter);
 void s_iter_init(stack_iter *iter, stack *target);
@@ -164,9 +164,9 @@ _Bool s_equals(stack *_stack1_, stack *_stack2_, int (*comparator)(size_t, size_
     }
     return 1;
 }
-cmc_string s_to_string(stack *_stack_)
+struct cmc_string s_to_string(stack *_stack_)
 {
-    cmc_string str;
+    struct cmc_string str;
     stack *s_ = _stack_;
     const char *name = "stack";
     snprintf(str.s, cmc_string_len, cmc_string_fmt_stack, name, s_, s_->buffer, s_->capacity, s_->count);

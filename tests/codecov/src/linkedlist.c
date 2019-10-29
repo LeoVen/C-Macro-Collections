@@ -42,7 +42,7 @@ _Bool ll_empty(linkedlist *_list_);
 size_t ll_count(linkedlist *_list_);
 linkedlist *ll_copy_of(linkedlist *_list_, size_t (*copy_func)(size_t));
 _Bool ll_equals(linkedlist *_list1_, linkedlist *_list2_, int (*comparator)(size_t, size_t));
-cmc_string ll_to_string(linkedlist *_list_);
+struct cmc_string ll_to_string(linkedlist *_list_);
 linkedlist_node *ll_new_node(size_t element);
 void ll_free_node(linkedlist_node *_node_);
 linkedlist_node *ll_head(linkedlist *_list_);
@@ -308,9 +308,9 @@ _Bool ll_equals(linkedlist *_list1_, linkedlist *_list2_, int (*comparator)(size
     }
     return 1;
 }
-cmc_string ll_to_string(linkedlist *_list_)
+struct cmc_string ll_to_string(linkedlist *_list_)
 {
-    cmc_string str;
+    struct cmc_string str;
     linkedlist *l_ = _list_;
     const char *name = "linkedlist";
     snprintf(str.s, cmc_string_len, cmc_string_fmt_linkedlist, name, l_, l_->count, l_->head, l_->tail);

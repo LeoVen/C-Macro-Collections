@@ -37,20 +37,19 @@ CMC_COLLECTION_GENERATE(MULTISET, ms, mset, , int)
 
 int main(void)
 {
-    list *l = l_new(1000);
-    stack *s = s_new(1000);
-    queue *q = q_new(1000);
-    deque *d = d_new(1000);
-    linked *ll = ll_new();
-    heap *h = h_new(1000, cmc_max_heap, intcmp);
-    tset *ts = ts_new(intcmp);
-    tmap *tm = tm_new(intcmp);
-    hset *hs = hs_new(1000, 0.6, intcmp, inthash);
-    hmap *hm = hm_new(1000, 0.6, intcmp, inthash);
-
-    iheap *ih = ih_new(1000, intcmp);
-    mmap *mm = mm_new(1000, 0.8, intcmp, inthash);
-    mset *ms = ms_new(1000, 0.6, intcmp, inthash);
+    struct list *l = l_new(1000);
+    struct stack *s = s_new(1000);
+    struct queue *q = q_new(1000);
+    struct deque *d = d_new(1000);
+    struct linked *ll = ll_new();
+    struct heap *h = h_new(1000, cmc_max_heap, intcmp);
+    struct tset *ts = ts_new(intcmp);
+    struct tmap *tm = tm_new(intcmp);
+    struct hset *hs = hs_new(1000, 0.6, intcmp, inthash);
+    struct hmap *hm = hm_new(1000, 0.6, intcmp, inthash);
+    struct iheap *ih = ih_new(1000, intcmp);
+    struct mmap *mm = mm_new(1000, 0.8, intcmp, inthash);
+    struct mset *ms = ms_new(1000, 0.6, intcmp, inthash);
 
     bool a[13] = {false, false, false, false, false, false, false, false, false, false, false, false, false},
          b[13] = {false, false, false, false, false, false, false, false, false, false, false, false, false},

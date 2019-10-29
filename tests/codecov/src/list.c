@@ -46,7 +46,7 @@ size_t l_capacity(list *_list_);
 _Bool l_resize(list *_list_, size_t capacity);
 list *l_copy_of(list *_list_, size_t (*copy_func)(size_t));
 _Bool l_equals(list *_list1_, list *_list2_, int (*comparator)(size_t, size_t));
-cmc_string l_to_string(list *_list_);
+struct cmc_string l_to_string(list *_list_);
 list_iter *l_iter_new(list *target);
 void l_iter_free(list_iter *iter);
 void l_iter_init(list_iter *iter, list *target);
@@ -349,9 +349,9 @@ _Bool l_equals(list *_list1_, list *_list2_, int (*comparator)(size_t, size_t))
     }
     return 0;
 }
-cmc_string l_to_string(list *_list_)
+struct cmc_string l_to_string(list *_list_)
 {
-    cmc_string str;
+    struct cmc_string str;
     list *l_ = _list_;
     const char *name = "list";
     snprintf(str.s, cmc_string_len, cmc_string_fmt_list, name, l_, l_->buffer, l_->capacity, l_->count);

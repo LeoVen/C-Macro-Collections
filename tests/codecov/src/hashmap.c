@@ -18,7 +18,7 @@ typedef struct hashmap_entry_s
     size_t key;
     size_t value;
     size_t dist;
-    enum cmc_entry_state_e state;
+    enum cmc_entry_state state;
 } hashmap_entry, *hashmap_entry_ptr;
 typedef struct hashmap_iter_s
 {
@@ -49,7 +49,7 @@ double hm_load(hashmap *_map_);
 _Bool hm_resize(hashmap *_map_, size_t capacity);
 hashmap *hm_copy_of(hashmap *_map_, size_t (*key_copy_func)(size_t), size_t (*value_copy_func)(size_t));
 _Bool hm_equals(hashmap *_map1_, hashmap *_map2_, int (*value_comparator)(size_t, size_t));
-cmc_string hm_to_string(hashmap *_map_);
+struct cmc_string hm_to_string(hashmap *_map_);
 hashmap_iter *hm_iter_new(hashmap *target);
 void hm_iter_free(hashmap_iter *iter);
 void hm_iter_init(hashmap_iter *iter, hashmap *target);
@@ -363,9 +363,9 @@ _Bool hm_equals(hashmap *_map1_, hashmap *_map2_, int (*value_comparator)(size_t
     }
     return 1;
 }
-cmc_string hm_to_string(hashmap *_map_)
+struct cmc_string hm_to_string(hashmap *_map_)
 {
-    cmc_string str;
+    struct cmc_string str;
     hashmap *m_ = _map_;
     const char *name = "hashmap";
     snprintf(str.s, cmc_string_len, cmc_string_fmt_hashmap, name, m_, m_->buffer, m_->capacity, m_->count, m_->load, m_->cmp, m_->hash);

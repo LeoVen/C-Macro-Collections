@@ -15,33 +15,33 @@
 
 #include <time.h>
 
-typedef struct cmc_timer_s
+struct cmc_timer
 {
     clock_t start;
     clock_t stop;
     double result;
-} cmc_timer;
+};
 
-#define cmc_timer_start(timer)   \
-    do                           \
-    {                            \
-        cmc_timer *t = &(timer); \
-        t->start = clock();      \
-                                 \
+#define cmc_timer_start(timer)          \
+    do                                  \
+    {                                   \
+        struct cmc_timer *t = &(timer); \
+        t->start = clock();             \
+                                        \
     } while (0)
 
-#define cmc_timer_stop(timer)    \
-    do                           \
-    {                            \
-        cmc_timer *t = &(timer); \
-        t->stop = clock();       \
-                                 \
+#define cmc_timer_stop(timer)           \
+    do                                  \
+    {                                   \
+        struct cmc_timer *t = &(timer); \
+        t->stop = clock();              \
+                                        \
     } while (0)
 
 #define cmc_timer_calc(timer)                                               \
     do                                                                      \
     {                                                                       \
-        cmc_timer *t = &(timer);                                            \
+        struct cmc_timer *t = &(timer);                                     \
         t->result = (double)(t->stop - t->start) * 1000.0 / CLOCKS_PER_SEC; \
                                                                             \
     } while (0)

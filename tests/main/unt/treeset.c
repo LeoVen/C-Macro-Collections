@@ -9,7 +9,7 @@ CMC_GENERATE_TREESET(ts, treeset, size_t)
 
 CMC_CREATE_UNIT(treeset_test, true, {
     CMC_CREATE_TEST(new, {
-        treeset *set = ts_new(cmp);
+        struct treeset *set = ts_new(cmp);
 
         cmc_assert_not_equals(ptr, NULL, set);
 
@@ -17,7 +17,7 @@ CMC_CREATE_UNIT(treeset_test, true, {
     });
 
     CMC_CREATE_TEST(clear[count], {
-        treeset *set = ts_new(cmp);
+        struct treeset *set = ts_new(cmp);
 
         cmc_assert_not_equals(ptr, NULL, set);
 

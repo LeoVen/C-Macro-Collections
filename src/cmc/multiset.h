@@ -34,7 +34,7 @@ static const char *cmc_string_fmt_multiset = "%s at %p { buffer:%p, capacity:%" 
 #ifndef CMC_IMPL_HASHTABLE_STATE
 #define CMC_IMPL_HASHTABLE_STATE
 
-enum cmc_entry_state_e
+enum cmc_entry_state
 {
     CMC_ES_DELETED = -1,
     CMC_ES_EMPTY = 0,
@@ -94,10 +94,10 @@ static const size_t cmc_hashtable_primes[] = {53, 97, 191, 383, 769, 1531,
 #define CMC_GENERATE_MULTISET_HEADER(PFX, SNAME, V)                                          \
                                                                                              \
     /* Hashset Structure */                                                                  \
-    typedef struct SNAME##_s                                                                 \
+    struct SNAME                                                                             \
     {                                                                                        \
         /* Array of Entries */                                                               \
-        struct SNAME##_entry_s *buffer;                                                      \
+        struct SNAME##_entry *buffer;                                                        \
                                                                                              \
         /* Current Array Capcity */                                                          \
         size_t capacity;                                                                     \
@@ -118,14 +118,13 @@ static const size_t cmc_hashtable_primes[] = {53, 97, 191, 383, 769, 1531,
         size_t (*hash)(V);                                                                   \
                                                                                              \
         /* Function that returns an iterator to the start of the hashset */                  \
-        struct SNAME##_iter_s (*it_start)(struct SNAME##_s *);                               \
+        struct SNAME##_iter (*it_start)(struct SNAME *);                                     \
                                                                                              \
         /* Function that returns an iterator to the end of the hashset */                    \
-        struct SNAME##_iter_s (*it_end)(struct SNAME##_s *);                                 \
+        struct SNAME##_iter (*it_end)(struct SNAME *);                                       \
+    };                                                                                       \
                                                                                              \
-    } SNAME, *SNAME##_ptr;                                                                   \
-                                                                                             \
-    typedef struct SNAME##_entry_s                                                           \
+    struct SNAME##_entry                                                                     \
     {                                                                                        \
         /* Entry element */                                                                  \
         V value;                                                                             \
@@ -137,15 +136,14 @@ static const size_t cmc_hashtable_primes[] = {53, 97, 191, 383, 769, 1531,
         size_t dist;                                                                         \
                                                                                              \
         /* The sate of this node (DELETED, EMPTY, FILLED) */                                 \
-        enum cmc_entry_state_e state;                                                        \
-                                                                                             \
-    } SNAME##_entry, *SNAME##_entry_ptr;                                                     \
+        enum cmc_entry_state state;                                                          \
+    };                                                                                       \
                                                                                              \
     /* Hashset Iterator */                                                                   \
-    typedef struct SNAME##_iter_s                                                            \
+    struct SNAME##_iter                                                                      \
     {                                                                                        \
         /* Target Hashset */                                                                 \
-        struct SNAME##_s *target;                                                            \
+        struct SNAME *target;                                                                \
                                                                                              \
         /* Cursor's position (index) */                                                      \
         size_t cursor;                                                                       \
@@ -164,83 +162,84 @@ static const size_t cmc_hashtable_primes[] = {53, 97, 191, 383, 769, 1531,
                                                                                              \
         /* If the iterator has reached the end of the iteration */                           \
         bool end;                                                                            \
-                                                                                             \
-    } SNAME##_iter, *SNAME##_iter_ptr;                                                       \
+    };                                                                                       \
                                                                                              \
     /* Collection Functions */                                                               \
     /* Collection Allocation and Deallocation */                                             \
-    SNAME *PFX##_new(size_t capacity, double load, int (*compare)(V, V), size_t (*hash)(V)); \
-    void PFX##_clear(SNAME *_set_, void (*deallocator)(V));                                  \
-    void PFX##_free(SNAME *_set_, void (*deallocator)(V));                                   \
+    struct SNAME *PFX##_new(size_t capacity, double load, int (*compare)(V, V),              \
+                            size_t (*hash)(V));                                              \
+    void PFX##_clear(struct SNAME *_set_, void (*deallocator)(V));                           \
+    void PFX##_free(struct SNAME *_set_, void (*deallocator)(V));                            \
     /* Collection Input and Output */                                                        \
-    bool PFX##_insert(SNAME *_set_, V element);                                              \
-    bool PFX##_insert_many(SNAME *_set_, V element, size_t count);                           \
-    bool PFX##_update(SNAME *_set_, V element, size_t multiplicity);                         \
-    bool PFX##_remove(SNAME *_set_, V element);                                              \
-    size_t PFX##_remove_all(SNAME *_set_, V element);                                        \
+    bool PFX##_insert(struct SNAME *_set_, V element);                                       \
+    bool PFX##_insert_many(struct SNAME *_set_, V element, size_t count);                    \
+    bool PFX##_update(struct SNAME *_set_, V element, size_t multiplicity);                  \
+    bool PFX##_remove(struct SNAME *_set_, V element);                                       \
+    size_t PFX##_remove_all(struct SNAME *_set_, V element);                                 \
     /* Element Access */                                                                     \
-    bool PFX##_max(SNAME *_set_, V *value);                                                  \
-    bool PFX##_min(SNAME *_set_, V *value);                                                  \
-    size_t PFX##_multiplicity_of(SNAME *_set_, V element);                                   \
+    bool PFX##_max(struct SNAME *_set_, V *value);                                           \
+    bool PFX##_min(struct SNAME *_set_, V *value);                                           \
+    size_t PFX##_multiplicity_of(struct SNAME *_set_, V element);                            \
     /* Collection State */                                                                   \
-    bool PFX##_contains(SNAME *_set_, V element);                                            \
-    bool PFX##_empty(SNAME *_set_);                                                          \
-    bool PFX##_full(SNAME *_set_);                                                           \
-    size_t PFX##_count(SNAME *_set_);                                                        \
-    size_t PFX##_cardinality(SNAME *_set_);                                                  \
-    size_t PFX##_capacity(SNAME *_set_);                                                     \
-    double PFX##_load(SNAME *_set_);                                                         \
+    bool PFX##_contains(struct SNAME *_set_, V element);                                     \
+    bool PFX##_empty(struct SNAME *_set_);                                                   \
+    bool PFX##_full(struct SNAME *_set_);                                                    \
+    size_t PFX##_count(struct SNAME *_set_);                                                 \
+    size_t PFX##_cardinality(struct SNAME *_set_);                                           \
+    size_t PFX##_capacity(struct SNAME *_set_);                                              \
+    double PFX##_load(struct SNAME *_set_);                                                  \
     /* Collection Utility */                                                                 \
-    bool PFX##_resize(SNAME *_set_, size_t capacity);                                        \
-    SNAME *PFX##_copy_of(SNAME *_set_, V (*copy_func)(V));                                   \
-    bool PFX##_equals(SNAME *_set1_, SNAME *_set2_, bool ignore_multiplicity);               \
-    cmc_string PFX##_to_string(SNAME *_set_);                                                \
+    bool PFX##_resize(struct SNAME *_set_, size_t capacity);                                 \
+    struct SNAME *PFX##_copy_of(struct SNAME *_set_, V (*copy_func)(V));                     \
+    bool PFX##_equals(struct SNAME *_set1_, struct SNAME *_set2_, bool ignore_multiplicity); \
+    struct cmc_string PFX##_to_string(struct SNAME *_set_);                                  \
                                                                                              \
     /* Set Operations */                                                                     \
-    SNAME *PFX##_union(SNAME *_set1_, SNAME *_set2_);                                        \
-    SNAME *PFX##_intersection(SNAME *_set1_, SNAME *_set2_);                                 \
-    SNAME *PFX##_difference(SNAME *_set1_, SNAME *_set2_);                                   \
-    SNAME *PFX##_summation(SNAME *_set1_, SNAME *_set2_);                                    \
-    SNAME *PFX##_symmetric_difference(SNAME *_set1_, SNAME *_set2_);                         \
-    bool PFX##_is_subset(SNAME *_set1_, SNAME *_set2_);                                      \
-    bool PFX##_is_superset(SNAME *_set1_, SNAME *_set2_);                                    \
-    bool PFX##_is_proper_subset(SNAME *_set1_, SNAME *_set2_);                               \
-    bool PFX##_is_proper_superset(SNAME *_set1_, SNAME *_set2_);                             \
-    bool PFX##_is_disjointset(SNAME *_set1_, SNAME *_set2_);                                 \
+    struct SNAME *PFX##_union(struct SNAME *_set1_, struct SNAME *_set2_);                   \
+    struct SNAME *PFX##_intersection(struct SNAME *_set1_, struct SNAME *_set2_);            \
+    struct SNAME *PFX##_difference(struct SNAME *_set1_, struct SNAME *_set2_);              \
+    struct SNAME *PFX##_summation(struct SNAME *_set1_, struct SNAME *_set2_);               \
+    struct SNAME *PFX##_symmetric_difference(struct SNAME *_set1_, struct SNAME *_set2_);    \
+    bool PFX##_is_subset(struct SNAME *_set1_, struct SNAME *_set2_);                        \
+    bool PFX##_is_superset(struct SNAME *_set1_, struct SNAME *_set2_);                      \
+    bool PFX##_is_proper_subset(struct SNAME *_set1_, struct SNAME *_set2_);                 \
+    bool PFX##_is_proper_superset(struct SNAME *_set1_, struct SNAME *_set2_);               \
+    bool PFX##_is_disjointset(struct SNAME *_set1_, struct SNAME *_set2_);                   \
                                                                                              \
     /* Iterator Functions */                                                                 \
     /* Iterator Allocation and Deallocation */                                               \
-    SNAME##_iter *PFX##_iter_new(SNAME *target);                                             \
-    void PFX##_iter_free(SNAME##_iter *iter);                                                \
+    struct SNAME##_iter *PFX##_iter_new(struct SNAME *target);                               \
+    void PFX##_iter_free(struct SNAME##_iter *iter);                                         \
     /* Iterator Initialization */                                                            \
-    void PFX##_iter_init(SNAME##_iter *iter, SNAME *target);                                 \
+    void PFX##_iter_init(struct SNAME##_iter *iter, struct SNAME *target);                   \
     /* Iterator State */                                                                     \
-    bool PFX##_iter_start(SNAME##_iter *iter);                                               \
-    bool PFX##_iter_end(SNAME##_iter *iter);                                                 \
+    bool PFX##_iter_start(struct SNAME##_iter *iter);                                        \
+    bool PFX##_iter_end(struct SNAME##_iter *iter);                                          \
     /* Iterator Movement */                                                                  \
-    void PFX##_iter_to_start(SNAME##_iter *iter);                                            \
-    void PFX##_iter_to_end(SNAME##_iter *iter);                                              \
-    bool PFX##_iter_next(SNAME##_iter *iter);                                                \
-    bool PFX##_iter_prev(SNAME##_iter *iter);                                                \
-    bool PFX##_iter_advance(SNAME##_iter *iter, size_t steps);                               \
-    bool PFX##_iter_rewind(SNAME##_iter *iter, size_t steps);                                \
-    bool PFX##_iter_go_to(SNAME##_iter *iter, size_t index);                                 \
+    void PFX##_iter_to_start(struct SNAME##_iter *iter);                                     \
+    void PFX##_iter_to_end(struct SNAME##_iter *iter);                                       \
+    bool PFX##_iter_next(struct SNAME##_iter *iter);                                         \
+    bool PFX##_iter_prev(struct SNAME##_iter *iter);                                         \
+    bool PFX##_iter_advance(struct SNAME##_iter *iter, size_t steps);                        \
+    bool PFX##_iter_rewind(struct SNAME##_iter *iter, size_t steps);                         \
+    bool PFX##_iter_go_to(struct SNAME##_iter *iter, size_t index);                          \
     /* Iterator Access */                                                                    \
-    V PFX##_iter_value(SNAME##_iter *iter);                                                  \
-    size_t PFX##_iter_multiplicity(SNAME##_iter *iter);                                      \
-    size_t PFX##_iter_index(SNAME##_iter *iter);                                             \
+    V PFX##_iter_value(struct SNAME##_iter *iter);                                           \
+    size_t PFX##_iter_multiplicity(struct SNAME##_iter *iter);                               \
+    size_t PFX##_iter_index(struct SNAME##_iter *iter);                                      \
                                                                                              \
 /* SOURCE ********************************************************************/
 #define CMC_GENERATE_MULTISET_SOURCE(PFX, SNAME, V)                                                \
                                                                                                    \
     /* Implementation Detail Functions */                                                          \
-    static SNAME##_entry *PFX##_impl_insert_and_return(SNAME *_set_, V element, bool *new_node);   \
-    static SNAME##_entry *PFX##_impl_get_entry(SNAME *_set_, V element);                           \
+    static struct SNAME##_entry *PFX##_impl_insert_and_return(struct SNAME *_set_, V element,      \
+                                                              bool *new_node);                     \
+    static struct SNAME##_entry *PFX##_impl_get_entry(struct SNAME *_set_, V element);             \
     static size_t PFX##_impl_calculate_size(size_t required);                                      \
-    static SNAME##_iter PFX##_impl_it_start(SNAME *_set_);                                         \
-    static SNAME##_iter PFX##_impl_it_end(SNAME *_set_);                                           \
+    static struct SNAME##_iter PFX##_impl_it_start(struct SNAME *_set_);                           \
+    static struct SNAME##_iter PFX##_impl_it_end(struct SNAME *_set_);                             \
                                                                                                    \
-    SNAME *PFX##_new(size_t capacity, double load, int (*compare)(V, V), size_t (*hash)(V))        \
+    struct SNAME *PFX##_new(size_t capacity, double load, int (*compare)(V, V), size_t (*hash)(V)) \
     {                                                                                              \
         if (capacity == 0 || load <= 0 || load >= 1)                                               \
             return NULL;                                                                           \
@@ -251,12 +250,12 @@ static const size_t cmc_hashtable_primes[] = {53, 97, 191, 383, 769, 1531,
                                                                                                    \
         size_t real_capacity = PFX##_impl_calculate_size(capacity / load);                         \
                                                                                                    \
-        SNAME *_set_ = malloc(sizeof(SNAME));                                                      \
+        struct SNAME *_set_ = malloc(sizeof(struct SNAME));                                        \
                                                                                                    \
         if (!_set_)                                                                                \
             return NULL;                                                                           \
                                                                                                    \
-        _set_->buffer = calloc(real_capacity, sizeof(SNAME##_entry));                              \
+        _set_->buffer = calloc(real_capacity, sizeof(struct SNAME##_entry));                       \
                                                                                                    \
         if (!_set_->buffer)                                                                        \
         {                                                                                          \
@@ -277,13 +276,13 @@ static const size_t cmc_hashtable_primes[] = {53, 97, 191, 383, 769, 1531,
         return _set_;                                                                              \
     }                                                                                              \
                                                                                                    \
-    void PFX##_clear(SNAME *_set_, void (*deallocator)(V))                                         \
+    void PFX##_clear(struct SNAME *_set_, void (*deallocator)(V))                                  \
     {                                                                                              \
         if (deallocator)                                                                           \
         {                                                                                          \
             for (size_t i = 0; i < _set_->capacity; i++)                                           \
             {                                                                                      \
-                SNAME##_entry *entry = &(_set_->buffer[i]);                                        \
+                struct SNAME##_entry *entry = &(_set_->buffer[i]);                                 \
                                                                                                    \
                 if (entry->state == CMC_ES_FILLED)                                                 \
                 {                                                                                  \
@@ -292,18 +291,18 @@ static const size_t cmc_hashtable_primes[] = {53, 97, 191, 383, 769, 1531,
             }                                                                                      \
         }                                                                                          \
                                                                                                    \
-        memset(_set_->buffer, 0, sizeof(SNAME##_entry) * _set_->capacity);                         \
+        memset(_set_->buffer, 0, sizeof(struct SNAME##_entry) * _set_->capacity);                  \
                                                                                                    \
         _set_->count = 0;                                                                          \
     }                                                                                              \
                                                                                                    \
-    void PFX##_free(SNAME *_set_, void (*deallocator)(V))                                          \
+    void PFX##_free(struct SNAME *_set_, void (*deallocator)(V))                                   \
     {                                                                                              \
         if (deallocator)                                                                           \
         {                                                                                          \
             for (size_t i = 0; i < _set_->capacity; i++)                                           \
             {                                                                                      \
-                SNAME##_entry *entry = &(_set_->buffer[i]);                                        \
+                struct SNAME##_entry *entry = &(_set_->buffer[i]);                                 \
                                                                                                    \
                 if (entry->state == CMC_ES_FILLED)                                                 \
                 {                                                                                  \
@@ -316,11 +315,11 @@ static const size_t cmc_hashtable_primes[] = {53, 97, 191, 383, 769, 1531,
         free(_set_);                                                                               \
     }                                                                                              \
                                                                                                    \
-    bool PFX##_insert(SNAME *_set_, V element)                                                     \
+    bool PFX##_insert(struct SNAME *_set_, V element)                                              \
     {                                                                                              \
         bool new_node;                                                                             \
                                                                                                    \
-        SNAME##_entry *entry = PFX##_impl_insert_and_return(_set_, element, &new_node);            \
+        struct SNAME##_entry *entry = PFX##_impl_insert_and_return(_set_, element, &new_node);     \
                                                                                                    \
         if (!entry)                                                                                \
             return false;                                                                          \
@@ -333,14 +332,14 @@ static const size_t cmc_hashtable_primes[] = {53, 97, 191, 383, 769, 1531,
         return true;                                                                               \
     }                                                                                              \
                                                                                                    \
-    bool PFX##_insert_many(SNAME *_set_, V element, size_t count)                                  \
+    bool PFX##_insert_many(struct SNAME *_set_, V element, size_t count)                           \
     {                                                                                              \
         if (count == 0)                                                                            \
             return true;                                                                           \
                                                                                                    \
         bool new_node;                                                                             \
                                                                                                    \
-        SNAME##_entry *entry = PFX##_impl_insert_and_return(_set_, element, &new_node);            \
+        struct SNAME##_entry *entry = PFX##_impl_insert_and_return(_set_, element, &new_node);     \
                                                                                                    \
         if (!entry)                                                                                \
             return false;                                                                          \
@@ -355,14 +354,14 @@ static const size_t cmc_hashtable_primes[] = {53, 97, 191, 383, 769, 1531,
         return true;                                                                               \
     }                                                                                              \
                                                                                                    \
-    bool PFX##_update(SNAME *_set_, V element, size_t multiplicity)                                \
+    bool PFX##_update(struct SNAME *_set_, V element, size_t multiplicity)                         \
     {                                                                                              \
         if (multiplicity == 0)                                                                     \
             return PFX##_remove_all(_set_, element);                                               \
                                                                                                    \
         bool new_node;                                                                             \
                                                                                                    \
-        SNAME##_entry *entry = PFX##_impl_insert_and_return(_set_, element, &new_node);            \
+        struct SNAME##_entry *entry = PFX##_impl_insert_and_return(_set_, element, &new_node);     \
                                                                                                    \
         if (!entry)                                                                                \
             return false;                                                                          \
@@ -377,9 +376,9 @@ static const size_t cmc_hashtable_primes[] = {53, 97, 191, 383, 769, 1531,
         return true;                                                                               \
     }                                                                                              \
                                                                                                    \
-    bool PFX##_remove(SNAME *_set_, V element)                                                     \
+    bool PFX##_remove(struct SNAME *_set_, V element)                                              \
     {                                                                                              \
-        SNAME##_entry *result = PFX##_impl_get_entry(_set_, element);                              \
+        struct SNAME##_entry *result = PFX##_impl_get_entry(_set_, element);                       \
                                                                                                    \
         if (result == NULL)                                                                        \
             return false;                                                                          \
@@ -401,9 +400,9 @@ static const size_t cmc_hashtable_primes[] = {53, 97, 191, 383, 769, 1531,
         return true;                                                                               \
     }                                                                                              \
                                                                                                    \
-    size_t PFX##_remove_all(SNAME *_set_, V element)                                               \
+    size_t PFX##_remove_all(struct SNAME *_set_, V element)                                        \
     {                                                                                              \
-        SNAME##_entry *result = PFX##_impl_get_entry(_set_, element);                              \
+        struct SNAME##_entry *result = PFX##_impl_get_entry(_set_, element);                       \
                                                                                                    \
         if (result == NULL)                                                                        \
             return 0;                                                                              \
@@ -421,12 +420,12 @@ static const size_t cmc_hashtable_primes[] = {53, 97, 191, 383, 769, 1531,
         return removed;                                                                            \
     }                                                                                              \
                                                                                                    \
-    bool PFX##_max(SNAME *_set_, V *value)                                                         \
+    bool PFX##_max(struct SNAME *_set_, V *value)                                                  \
     {                                                                                              \
         if (PFX##_empty(_set_))                                                                    \
             return false;                                                                          \
                                                                                                    \
-        SNAME##_iter iter;                                                                         \
+        struct SNAME##_iter iter;                                                                  \
                                                                                                    \
         for (PFX##_iter_init(&iter, _set_); !PFX##_iter_end(&iter); PFX##_iter_next(&iter))        \
         {                                                                                          \
@@ -442,12 +441,12 @@ static const size_t cmc_hashtable_primes[] = {53, 97, 191, 383, 769, 1531,
         return true;                                                                               \
     }                                                                                              \
                                                                                                    \
-    bool PFX##_min(SNAME *_set_, V *value)                                                         \
+    bool PFX##_min(struct SNAME *_set_, V *value)                                                  \
     {                                                                                              \
         if (PFX##_empty(_set_))                                                                    \
             return false;                                                                          \
                                                                                                    \
-        SNAME##_iter iter;                                                                         \
+        struct SNAME##_iter iter;                                                                  \
                                                                                                    \
         for (PFX##_iter_init(&iter, _set_); !PFX##_iter_end(&iter); PFX##_iter_next(&iter))        \
         {                                                                                          \
@@ -463,9 +462,9 @@ static const size_t cmc_hashtable_primes[] = {53, 97, 191, 383, 769, 1531,
         return true;                                                                               \
     }                                                                                              \
                                                                                                    \
-    size_t PFX##_multiplicity_of(SNAME *_set_, V element)                                          \
+    size_t PFX##_multiplicity_of(struct SNAME *_set_, V element)                                   \
     {                                                                                              \
-        SNAME##_entry *entry = PFX##_impl_get_entry(_set_, element);                               \
+        struct SNAME##_entry *entry = PFX##_impl_get_entry(_set_, element);                        \
                                                                                                    \
         if (!entry)                                                                                \
             return 0;                                                                              \
@@ -473,42 +472,42 @@ static const size_t cmc_hashtable_primes[] = {53, 97, 191, 383, 769, 1531,
         return entry->multiplicity;                                                                \
     }                                                                                              \
                                                                                                    \
-    bool PFX##_contains(SNAME *_set_, V element)                                                   \
+    bool PFX##_contains(struct SNAME *_set_, V element)                                            \
     {                                                                                              \
         return PFX##_impl_get_entry(_set_, element) != NULL;                                       \
     }                                                                                              \
                                                                                                    \
-    bool PFX##_empty(SNAME *_set_)                                                                 \
+    bool PFX##_empty(struct SNAME *_set_)                                                          \
     {                                                                                              \
         return _set_->count == 0;                                                                  \
     }                                                                                              \
                                                                                                    \
-    bool PFX##_full(SNAME *_set_)                                                                  \
+    bool PFX##_full(struct SNAME *_set_)                                                           \
     {                                                                                              \
         return (double)PFX##_capacity(_set_) * PFX##_load(_set_) <= (double)PFX##_count(_set_);    \
     }                                                                                              \
                                                                                                    \
-    size_t PFX##_count(SNAME *_set_)                                                               \
+    size_t PFX##_count(struct SNAME *_set_)                                                        \
     {                                                                                              \
         return _set_->count;                                                                       \
     }                                                                                              \
                                                                                                    \
-    size_t PFX##_cardinality(SNAME *_set_)                                                         \
+    size_t PFX##_cardinality(struct SNAME *_set_)                                                  \
     {                                                                                              \
         return _set_->cardinality;                                                                 \
     }                                                                                              \
                                                                                                    \
-    size_t PFX##_capacity(SNAME *_set_)                                                            \
+    size_t PFX##_capacity(struct SNAME *_set_)                                                     \
     {                                                                                              \
         return _set_->capacity;                                                                    \
     }                                                                                              \
                                                                                                    \
-    double PFX##_load(SNAME *_set_)                                                                \
+    double PFX##_load(struct SNAME *_set_)                                                         \
     {                                                                                              \
         return _set_->load;                                                                        \
     }                                                                                              \
                                                                                                    \
-    bool PFX##_resize(SNAME *_set_, size_t capacity)                                               \
+    bool PFX##_resize(struct SNAME *_set_, size_t capacity)                                        \
     {                                                                                              \
         if (PFX##_capacity(_set_) == capacity)                                                     \
             return true;                                                                           \
@@ -527,12 +526,12 @@ static const size_t cmc_hashtable_primes[] = {53, 97, 191, 383, 769, 1531,
         if (theoretical_size < PFX##_count(_set_) / PFX##_load(_set_))                             \
             return false;                                                                          \
                                                                                                    \
-        SNAME *_new_set_ = PFX##_new(capacity, PFX##_load(_set_), _set_->cmp, _set_->hash);        \
+        struct SNAME *_new_set_ = PFX##_new(capacity, PFX##_load(_set_), _set_->cmp, _set_->hash); \
                                                                                                    \
         if (!_new_set_)                                                                            \
             return false;                                                                          \
                                                                                                    \
-        SNAME##_iter iter;                                                                         \
+        struct SNAME##_iter iter;                                                                  \
                                                                                                    \
         for (PFX##_iter_init(&iter, _set_); !PFX##_iter_end(&iter); PFX##_iter_next(&iter))        \
         {                                                                                          \
@@ -545,7 +544,7 @@ static const size_t cmc_hashtable_primes[] = {53, 97, 191, 383, 769, 1531,
             return false;                                                                          \
         }                                                                                          \
                                                                                                    \
-        SNAME##_entry *tmp_b = _set_->buffer;                                                      \
+        struct SNAME##_entry *tmp_b = _set_->buffer;                                               \
         _set_->buffer = _new_set_->buffer;                                                         \
         _new_set_->buffer = tmp_b;                                                                 \
                                                                                                    \
@@ -558,9 +557,9 @@ static const size_t cmc_hashtable_primes[] = {53, 97, 191, 383, 769, 1531,
         return true;                                                                               \
     }                                                                                              \
                                                                                                    \
-    SNAME *PFX##_copy_of(SNAME *_set_, V (*copy_func)(V))                                          \
+    struct SNAME *PFX##_copy_of(struct SNAME *_set_, V (*copy_func)(V))                            \
     {                                                                                              \
-        SNAME *result = PFX##_new(_set_->capacity, _set_->load, _set_->cmp, _set_->hash);          \
+        struct SNAME *result = PFX##_new(_set_->capacity, _set_->load, _set_->cmp, _set_->hash);   \
                                                                                                    \
         if (!result)                                                                               \
             return NULL;                                                                           \
@@ -569,11 +568,11 @@ static const size_t cmc_hashtable_primes[] = {53, 97, 191, 383, 769, 1531,
         {                                                                                          \
             for (size_t i = 0; i < _set_->capacity; i++)                                           \
             {                                                                                      \
-                SNAME##_entry *scan = &(_set_->buffer[i]);                                         \
+                struct SNAME##_entry *scan = &(_set_->buffer[i]);                                  \
                                                                                                    \
                 if (scan->state != CMC_ES_EMPTY)                                                   \
                 {                                                                                  \
-                    SNAME##_entry *target = &(result->buffer[i]);                                  \
+                    struct SNAME##_entry *target = &(result->buffer[i]);                           \
                                                                                                    \
                     if (scan->state == CMC_ES_DELETED)                                             \
                         target->state = CMC_ES_DELETED;                                            \
@@ -589,7 +588,7 @@ static const size_t cmc_hashtable_primes[] = {53, 97, 191, 383, 769, 1531,
             }                                                                                      \
         }                                                                                          \
         else                                                                                       \
-            memcpy(result->buffer, _set_->buffer, sizeof(SNAME##_entry) * _set_->capacity);        \
+            memcpy(result->buffer, _set_->buffer, sizeof(struct SNAME##_entry) * _set_->capacity); \
                                                                                                    \
         result->count = _set_->count;                                                              \
         result->cardinality = _set_->cardinality;                                                  \
@@ -597,7 +596,7 @@ static const size_t cmc_hashtable_primes[] = {53, 97, 191, 383, 769, 1531,
         return result;                                                                             \
     }                                                                                              \
                                                                                                    \
-    bool PFX##_equals(SNAME *_set1_, SNAME *_set2_, bool ignore_multiplicity)                      \
+    bool PFX##_equals(struct SNAME *_set1_, struct SNAME *_set2_, bool ignore_multiplicity)        \
     {                                                                                              \
         if (PFX##_count(_set1_) != PFX##_count(_set2_))                                            \
             return false;                                                                          \
@@ -608,12 +607,12 @@ static const size_t cmc_hashtable_primes[] = {53, 97, 191, 383, 769, 1531,
         if (PFX##_count(_set1_) == 0)                                                              \
             return true;                                                                           \
                                                                                                    \
-        SNAME##_iter iter;                                                                         \
+        struct SNAME##_iter iter;                                                                  \
         PFX##_iter_init(&iter, _set1_);                                                            \
                                                                                                    \
         for (PFX##_iter_to_start(&iter); !PFX##_iter_end(&iter); PFX##_iter_next(&iter))           \
         {                                                                                          \
-            SNAME##_entry *entry = PFX##_impl_get_entry(_set2_, PFX##_iter_value(&iter));          \
+            struct SNAME##_entry *entry = PFX##_impl_get_entry(_set2_, PFX##_iter_value(&iter));   \
                                                                                                    \
             if (entry == NULL)                                                                     \
                 return false;                                                                      \
@@ -625,10 +624,10 @@ static const size_t cmc_hashtable_primes[] = {53, 97, 191, 383, 769, 1531,
         return true;                                                                               \
     }                                                                                              \
                                                                                                    \
-    cmc_string PFX##_to_string(SNAME *_set_)                                                       \
+    struct cmc_string PFX##_to_string(struct SNAME *_set_)                                         \
     {                                                                                              \
-        cmc_string str;                                                                            \
-        SNAME *s_ = _set_;                                                                         \
+        struct cmc_string str;                                                                     \
+        struct SNAME *s_ = _set_;                                                                  \
         const char *name = #SNAME;                                                                 \
                                                                                                    \
         snprintf(str.s, cmc_string_len, cmc_string_fmt_multiset,                                   \
@@ -638,14 +637,15 @@ static const size_t cmc_hashtable_primes[] = {53, 97, 191, 383, 769, 1531,
         return str;                                                                                \
     }                                                                                              \
                                                                                                    \
-    SNAME *PFX##_union(SNAME *_set1_, SNAME *_set2_)                                               \
+    struct SNAME *PFX##_union(struct SNAME *_set1_, struct SNAME *_set2_)                          \
     {                                                                                              \
-        SNAME *_set_r_ = PFX##_new(_set1_->capacity, _set1_->load, _set1_->cmp, _set1_->hash);     \
+        struct SNAME *_set_r_ = PFX##_new(_set1_->capacity, _set1_->load, _set1_->cmp,             \
+                                          _set1_->hash);                                           \
                                                                                                    \
         if (!_set_r_)                                                                              \
             return NULL;                                                                           \
                                                                                                    \
-        SNAME##_iter iter1, iter2;                                                                 \
+        struct SNAME##_iter iter1, iter2;                                                          \
         PFX##_iter_init(&iter1, _set1_);                                                           \
         PFX##_iter_init(&iter2, _set2_);                                                           \
                                                                                                    \
@@ -674,17 +674,18 @@ static const size_t cmc_hashtable_primes[] = {53, 97, 191, 383, 769, 1531,
         return _set_r_;                                                                            \
     }                                                                                              \
                                                                                                    \
-    SNAME *PFX##_intersection(SNAME *_set1_, SNAME *_set2_)                                        \
+    struct SNAME *PFX##_intersection(struct SNAME *_set1_, struct SNAME *_set2_)                   \
     {                                                                                              \
-        SNAME *_set_r_ = PFX##_new(_set1_->capacity, _set1_->load, _set1_->cmp, _set1_->hash);     \
+        struct SNAME *_set_r_ = PFX##_new(_set1_->capacity, _set1_->load, _set1_->cmp,             \
+                                          _set1_->hash);                                           \
                                                                                                    \
         if (!_set_r_)                                                                              \
             return NULL;                                                                           \
                                                                                                    \
-        SNAME *_set_A_ = _set1_->count < _set2_->count ? _set1_ : _set2_;                          \
-        SNAME *_set_B_ = _set_A_ == _set1_ ? _set2_ : _set1_;                                      \
+        struct SNAME *_set_A_ = _set1_->count < _set2_->count ? _set1_ : _set2_;                   \
+        struct SNAME *_set_B_ = _set_A_ == _set1_ ? _set2_ : _set1_;                               \
                                                                                                    \
-        SNAME##_iter iter;                                                                         \
+        struct SNAME##_iter iter;                                                                  \
         PFX##_iter_init(&iter, _set_A_);                                                           \
                                                                                                    \
         for (PFX##_iter_to_start(&iter); !PFX##_iter_end(&iter); PFX##_iter_next(&iter))           \
@@ -701,14 +702,15 @@ static const size_t cmc_hashtable_primes[] = {53, 97, 191, 383, 769, 1531,
         return _set_r_;                                                                            \
     }                                                                                              \
                                                                                                    \
-    SNAME *PFX##_difference(SNAME *_set1_, SNAME *_set2_)                                          \
+    struct SNAME *PFX##_difference(struct SNAME *_set1_, struct SNAME *_set2_)                     \
     {                                                                                              \
-        SNAME *_set_r_ = PFX##_new(_set1_->capacity, _set1_->load, _set1_->cmp, _set1_->hash);     \
+        struct SNAME *_set_r_ = PFX##_new(_set1_->capacity, _set1_->load, _set1_->cmp,             \
+                                          _set1_->hash);                                           \
                                                                                                    \
         if (!_set_r_)                                                                              \
             return NULL;                                                                           \
                                                                                                    \
-        SNAME##_iter iter;                                                                         \
+        struct SNAME##_iter iter;                                                                  \
         PFX##_iter_init(&iter, _set1_);                                                            \
                                                                                                    \
         for (PFX##_iter_to_start(&iter); !PFX##_iter_end(&iter); PFX##_iter_next(&iter))           \
@@ -725,14 +727,15 @@ static const size_t cmc_hashtable_primes[] = {53, 97, 191, 383, 769, 1531,
         return _set_r_;                                                                            \
     }                                                                                              \
                                                                                                    \
-    SNAME *PFX##_summation(SNAME *_set1_, SNAME *_set2_)                                           \
+    struct SNAME *PFX##_summation(struct SNAME *_set1_, struct SNAME *_set2_)                      \
     {                                                                                              \
-        SNAME *_set_r_ = PFX##_new(_set1_->capacity, _set1_->load, _set1_->cmp, _set1_->hash);     \
+        struct SNAME *_set_r_ = PFX##_new(_set1_->capacity, _set1_->load, _set1_->cmp,             \
+                                          _set1_->hash);                                           \
                                                                                                    \
         if (!_set_r_)                                                                              \
             return NULL;                                                                           \
                                                                                                    \
-        SNAME##_iter iter1, iter2;                                                                 \
+        struct SNAME##_iter iter1, iter2;                                                          \
         PFX##_iter_init(&iter1, _set1_);                                                           \
         PFX##_iter_init(&iter2, _set2_);                                                           \
                                                                                                    \
@@ -749,11 +752,12 @@ static const size_t cmc_hashtable_primes[] = {53, 97, 191, 383, 769, 1531,
         return _set_r_;                                                                            \
     }                                                                                              \
                                                                                                    \
-    SNAME *PFX##_symmetric_difference(SNAME *_set1_, SNAME *_set2_)                                \
+    struct SNAME *PFX##_symmetric_difference(struct SNAME *_set1_, struct SNAME *_set2_)           \
     {                                                                                              \
-        SNAME##_iter iter1, iter2;                                                                 \
+        struct SNAME##_iter iter1, iter2;                                                          \
                                                                                                    \
-        SNAME *_set_r_ = PFX##_new(_set1_->capacity, _set1_->load, _set1_->cmp, _set1_->hash);     \
+        struct SNAME *_set_r_ = PFX##_new(_set1_->capacity, _set1_->load, _set1_->cmp,             \
+                                          _set1_->hash);                                           \
                                                                                                    \
         if (!_set_r_)                                                                              \
             return NULL;                                                                           \
@@ -796,7 +800,7 @@ static const size_t cmc_hashtable_primes[] = {53, 97, 191, 383, 769, 1531,
         return _set_r_;                                                                            \
     }                                                                                              \
                                                                                                    \
-    bool PFX##_is_subset(SNAME *_set1_, SNAME *_set2_)                                             \
+    bool PFX##_is_subset(struct SNAME *_set1_, struct SNAME *_set2_)                               \
     {                                                                                              \
         if (PFX##_count(_set1_) > PFX##_count(_set2_))                                             \
             return false;                                                                          \
@@ -804,7 +808,7 @@ static const size_t cmc_hashtable_primes[] = {53, 97, 191, 383, 769, 1531,
         if (PFX##_empty(_set1_))                                                                   \
             return true;                                                                           \
                                                                                                    \
-        SNAME##_iter iter;                                                                         \
+        struct SNAME##_iter iter;                                                                  \
                                                                                                    \
         PFX##_iter_init(&iter, _set1_);                                                            \
                                                                                                    \
@@ -822,12 +826,12 @@ static const size_t cmc_hashtable_primes[] = {53, 97, 191, 383, 769, 1531,
         return true;                                                                               \
     }                                                                                              \
                                                                                                    \
-    bool PFX##_is_superset(SNAME *_set1_, SNAME *_set2_)                                           \
+    bool PFX##_is_superset(struct SNAME *_set1_, struct SNAME *_set2_)                             \
     {                                                                                              \
         return PFX##_is_subset(_set2_, _set1_);                                                    \
     }                                                                                              \
                                                                                                    \
-    bool PFX##_is_proper_subset(SNAME *_set1_, SNAME *_set2_)                                      \
+    bool PFX##_is_proper_subset(struct SNAME *_set1_, struct SNAME *_set2_)                        \
     {                                                                                              \
         if (PFX##_count(_set1_) >= PFX##_count(_set2_))                                            \
             return false;                                                                          \
@@ -840,7 +844,7 @@ static const size_t cmc_hashtable_primes[] = {53, 97, 191, 383, 769, 1531,
                 return false;                                                                      \
         }                                                                                          \
                                                                                                    \
-        SNAME##_iter iter;                                                                         \
+        struct SNAME##_iter iter;                                                                  \
                                                                                                    \
         PFX##_iter_init(&iter, _set1_);                                                            \
                                                                                                    \
@@ -858,17 +862,17 @@ static const size_t cmc_hashtable_primes[] = {53, 97, 191, 383, 769, 1531,
         return true;                                                                               \
     }                                                                                              \
                                                                                                    \
-    bool PFX##_is_proper_superset(SNAME *_set1_, SNAME *_set2_)                                    \
+    bool PFX##_is_proper_superset(struct SNAME *_set1_, struct SNAME *_set2_)                      \
     {                                                                                              \
         return PFX##_is_proper_subset(_set2_, _set1_);                                             \
     }                                                                                              \
                                                                                                    \
-    bool PFX##_is_disjointset(SNAME *_set1_, SNAME *_set2_)                                        \
+    bool PFX##_is_disjointset(struct SNAME *_set1_, struct SNAME *_set2_)                          \
     {                                                                                              \
         if (PFX##_empty(_set1_))                                                                   \
             return true;                                                                           \
                                                                                                    \
-        SNAME##_iter iter;                                                                         \
+        struct SNAME##_iter iter;                                                                  \
                                                                                                    \
         PFX##_iter_init(&iter, _set1_);                                                            \
                                                                                                    \
@@ -883,9 +887,9 @@ static const size_t cmc_hashtable_primes[] = {53, 97, 191, 383, 769, 1531,
         return true;                                                                               \
     }                                                                                              \
                                                                                                    \
-    SNAME##_iter *PFX##_iter_new(SNAME *target)                                                    \
+    struct SNAME##_iter *PFX##_iter_new(struct SNAME *target)                                      \
     {                                                                                              \
-        SNAME##_iter *iter = malloc(sizeof(SNAME##_iter));                                         \
+        struct SNAME##_iter *iter = malloc(sizeof(struct SNAME##_iter));                           \
                                                                                                    \
         if (!iter)                                                                                 \
             return NULL;                                                                           \
@@ -895,14 +899,14 @@ static const size_t cmc_hashtable_primes[] = {53, 97, 191, 383, 769, 1531,
         return iter;                                                                               \
     }                                                                                              \
                                                                                                    \
-    void PFX##_iter_free(SNAME##_iter *iter)                                                       \
+    void PFX##_iter_free(struct SNAME##_iter *iter)                                                \
     {                                                                                              \
         free(iter);                                                                                \
     }                                                                                              \
                                                                                                    \
-    void PFX##_iter_init(SNAME##_iter *iter, SNAME *target)                                        \
+    void PFX##_iter_init(struct SNAME##_iter *iter, struct SNAME *target)                          \
     {                                                                                              \
-        memset(iter, 0, sizeof(SNAME##_iter));                                                     \
+        memset(iter, 0, sizeof(struct SNAME##_iter));                                              \
                                                                                                    \
         iter->target = target;                                                                     \
         iter->start = true;                                                                        \
@@ -932,17 +936,17 @@ static const size_t cmc_hashtable_primes[] = {53, 97, 191, 383, 769, 1531,
         }                                                                                          \
     }                                                                                              \
                                                                                                    \
-    bool PFX##_iter_start(SNAME##_iter *iter)                                                      \
+    bool PFX##_iter_start(struct SNAME##_iter *iter)                                               \
     {                                                                                              \
         return PFX##_empty(iter->target) || iter->start;                                           \
     }                                                                                              \
                                                                                                    \
-    bool PFX##_iter_end(SNAME##_iter *iter)                                                        \
+    bool PFX##_iter_end(struct SNAME##_iter *iter)                                                 \
     {                                                                                              \
         return PFX##_empty(iter->target) || iter->end;                                             \
     }                                                                                              \
                                                                                                    \
-    void PFX##_iter_to_start(SNAME##_iter *iter)                                                   \
+    void PFX##_iter_to_start(struct SNAME##_iter *iter)                                            \
     {                                                                                              \
         if (!PFX##_empty(iter->target))                                                            \
         {                                                                                          \
@@ -953,7 +957,7 @@ static const size_t cmc_hashtable_primes[] = {53, 97, 191, 383, 769, 1531,
         }                                                                                          \
     }                                                                                              \
                                                                                                    \
-    void PFX##_iter_to_end(SNAME##_iter *iter)                                                     \
+    void PFX##_iter_to_end(struct SNAME##_iter *iter)                                              \
     {                                                                                              \
         if (!PFX##_empty(iter->target))                                                            \
         {                                                                                          \
@@ -964,7 +968,7 @@ static const size_t cmc_hashtable_primes[] = {53, 97, 191, 383, 769, 1531,
         }                                                                                          \
     }                                                                                              \
                                                                                                    \
-    bool PFX##_iter_next(SNAME##_iter *iter)                                                       \
+    bool PFX##_iter_next(struct SNAME##_iter *iter)                                                \
     {                                                                                              \
         if (iter->end)                                                                             \
             return false;                                                                          \
@@ -977,7 +981,7 @@ static const size_t cmc_hashtable_primes[] = {53, 97, 191, 383, 769, 1531,
                                                                                                    \
         iter->start = PFX##_empty(iter->target);                                                   \
                                                                                                    \
-        SNAME##_entry *scan = &(iter->target->buffer[iter->cursor]);                               \
+        struct SNAME##_entry *scan = &(iter->target->buffer[iter->cursor]);                        \
                                                                                                    \
         iter->index++;                                                                             \
                                                                                                    \
@@ -993,7 +997,7 @@ static const size_t cmc_hashtable_primes[] = {53, 97, 191, 383, 769, 1531,
         return true;                                                                               \
     }                                                                                              \
                                                                                                    \
-    bool PFX##_iter_prev(SNAME##_iter *iter)                                                       \
+    bool PFX##_iter_prev(struct SNAME##_iter *iter)                                                \
     {                                                                                              \
         if (iter->start)                                                                           \
             return false;                                                                          \
@@ -1006,7 +1010,7 @@ static const size_t cmc_hashtable_primes[] = {53, 97, 191, 383, 769, 1531,
                                                                                                    \
         iter->end = PFX##_empty(iter->target);                                                     \
                                                                                                    \
-        SNAME##_entry *scan = &(iter->target->buffer[iter->cursor]);                               \
+        struct SNAME##_entry *scan = &(iter->target->buffer[iter->cursor]);                        \
                                                                                                    \
         iter->index--;                                                                             \
                                                                                                    \
@@ -1023,7 +1027,7 @@ static const size_t cmc_hashtable_primes[] = {53, 97, 191, 383, 769, 1531,
     }                                                                                              \
                                                                                                    \
     /* Returns true only if the iterator moved */                                                  \
-    bool PFX##_iter_advance(SNAME##_iter *iter, size_t steps)                                      \
+    bool PFX##_iter_advance(struct SNAME##_iter *iter, size_t steps)                               \
     {                                                                                              \
         if (iter->end)                                                                             \
             return false;                                                                          \
@@ -1044,7 +1048,7 @@ static const size_t cmc_hashtable_primes[] = {53, 97, 191, 383, 769, 1531,
     }                                                                                              \
                                                                                                    \
     /* Returns true only if the iterator moved */                                                  \
-    bool PFX##_iter_rewind(SNAME##_iter *iter, size_t steps)                                       \
+    bool PFX##_iter_rewind(struct SNAME##_iter *iter, size_t steps)                                \
     {                                                                                              \
         if (iter->start)                                                                           \
             return false;                                                                          \
@@ -1065,7 +1069,7 @@ static const size_t cmc_hashtable_primes[] = {53, 97, 191, 383, 769, 1531,
     }                                                                                              \
                                                                                                    \
     /* Returns true only if the iterator was able to be positioned at the given index */           \
-    bool PFX##_iter_go_to(SNAME##_iter *iter, size_t index)                                        \
+    bool PFX##_iter_go_to(struct SNAME##_iter *iter, size_t index)                                 \
     {                                                                                              \
         if (index >= PFX##_count(iter->target))                                                    \
             return false;                                                                          \
@@ -1078,7 +1082,7 @@ static const size_t cmc_hashtable_primes[] = {53, 97, 191, 383, 769, 1531,
         return true;                                                                               \
     }                                                                                              \
                                                                                                    \
-    V PFX##_iter_value(SNAME##_iter *iter)                                                         \
+    V PFX##_iter_value(struct SNAME##_iter *iter)                                                  \
     {                                                                                              \
         if (PFX##_empty(iter->target))                                                             \
             return (V){0};                                                                         \
@@ -1086,7 +1090,7 @@ static const size_t cmc_hashtable_primes[] = {53, 97, 191, 383, 769, 1531,
         return iter->target->buffer[iter->cursor].value;                                           \
     }                                                                                              \
                                                                                                    \
-    size_t PFX##_iter_multiplicity(SNAME##_iter *iter)                                             \
+    size_t PFX##_iter_multiplicity(struct SNAME##_iter *iter)                                      \
     {                                                                                              \
         if (PFX##_empty(iter->target))                                                             \
             return 0;                                                                              \
@@ -1094,19 +1098,20 @@ static const size_t cmc_hashtable_primes[] = {53, 97, 191, 383, 769, 1531,
         return iter->target->buffer[iter->cursor].multiplicity;                                    \
     }                                                                                              \
                                                                                                    \
-    size_t PFX##_iter_index(SNAME##_iter *iter)                                                    \
+    size_t PFX##_iter_index(struct SNAME##_iter *iter)                                             \
     {                                                                                              \
         return iter->index;                                                                        \
     }                                                                                              \
                                                                                                    \
-    static SNAME##_entry *PFX##_impl_insert_and_return(SNAME *_set_, V element, bool *new_node)    \
+    static struct SNAME##_entry *PFX##_impl_insert_and_return(struct SNAME *_set_, V element,      \
+                                                              bool *new_node)                      \
     {                                                                                              \
         /* If the entry already exists simply return it as we might do something with it */        \
         /* This function only guarantees that there is a valid entry for a given element */        \
                                                                                                    \
         *new_node = false;                                                                         \
                                                                                                    \
-        SNAME##_entry *entry = PFX##_impl_get_entry(_set_, element);                               \
+        struct SNAME##_entry *entry = PFX##_impl_get_entry(_set_, element);                        \
                                                                                                    \
         if (entry != NULL)                                                                         \
             return entry;                                                                          \
@@ -1125,7 +1130,7 @@ static const size_t cmc_hashtable_primes[] = {53, 97, 191, 383, 769, 1531,
         /* Current multiplicity. Might change due to robin hood hashing */                         \
         size_t curr_mul = 1;                                                                       \
                                                                                                    \
-        SNAME##_entry *target = &(_set_->buffer[pos]);                                             \
+        struct SNAME##_entry *target = &(_set_->buffer[pos]);                                      \
                                                                                                    \
         if (target->state == CMC_ES_EMPTY || target->state == CMC_ES_DELETED)                      \
         {                                                                                          \
@@ -1173,12 +1178,12 @@ static const size_t cmc_hashtable_primes[] = {53, 97, 191, 383, 769, 1531,
         return target;                                                                             \
     }                                                                                              \
                                                                                                    \
-    static SNAME##_entry *PFX##_impl_get_entry(SNAME *_set_, V element)                            \
+    static struct SNAME##_entry *PFX##_impl_get_entry(struct SNAME *_set_, V element)              \
     {                                                                                              \
         size_t hash = _set_->hash(element);                                                        \
         size_t pos = hash % _set_->capacity;                                                       \
                                                                                                    \
-        SNAME##_entry *target = &(_set_->buffer[pos]);                                             \
+        struct SNAME##_entry *target = &(_set_->buffer[pos]);                                      \
                                                                                                    \
         while (target->state == CMC_ES_FILLED || target->state == CMC_ES_DELETED)                  \
         {                                                                                          \
@@ -1206,18 +1211,18 @@ static const size_t cmc_hashtable_primes[] = {53, 97, 191, 383, 769, 1531,
         return cmc_hashtable_primes[i];                                                            \
     }                                                                                              \
                                                                                                    \
-    static SNAME##_iter PFX##_impl_it_start(SNAME *_set_)                                          \
+    static struct SNAME##_iter PFX##_impl_it_start(struct SNAME *_set_)                            \
     {                                                                                              \
-        SNAME##_iter iter;                                                                         \
+        struct SNAME##_iter iter;                                                                  \
                                                                                                    \
         PFX##_iter_init(&iter, _set_);                                                             \
                                                                                                    \
         return iter;                                                                               \
     }                                                                                              \
                                                                                                    \
-    static SNAME##_iter PFX##_impl_it_end(SNAME *_set_)                                            \
+    static struct SNAME##_iter PFX##_impl_it_end(struct SNAME *_set_)                              \
     {                                                                                              \
-        SNAME##_iter iter;                                                                         \
+        struct SNAME##_iter iter;                                                                  \
                                                                                                    \
         PFX##_iter_init(&iter, _set_);                                                             \
         PFX##_iter_to_end(&iter);                                                                  \

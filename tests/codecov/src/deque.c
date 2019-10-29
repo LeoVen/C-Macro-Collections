@@ -37,7 +37,7 @@ size_t d_capacity(deque *_deque_);
 _Bool d_resize(deque *_deque_, size_t capacity);
 deque *d_copy_of(deque *_deque_, size_t (*copy_func)(size_t));
 _Bool d_equals(deque *_deque1_, deque *_deque2_, int (*comparator)(size_t, size_t));
-cmc_string d_to_string(deque *_deque_);
+struct cmc_string d_to_string(deque *_deque_);
 deque_iter *d_iter_new(deque *target);
 void d_iter_free(deque_iter *iter);
 void d_iter_init(deque_iter *iter, deque *target);
@@ -232,9 +232,9 @@ _Bool d_equals(deque *_deque1_, deque *_deque2_, int (*comparator)(size_t, size_
     }
     return 1;
 }
-cmc_string d_to_string(deque *_deque_)
+struct cmc_string d_to_string(deque *_deque_)
 {
-    cmc_string str;
+    struct cmc_string str;
     deque *d_ = _deque_;
     const char *name = "deque";
     snprintf(str.s, cmc_string_len, cmc_string_fmt_deque, name, d_, d_->buffer, d_->capacity, d_->count, d_->front, d_->back);

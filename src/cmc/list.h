@@ -67,7 +67,7 @@ static const char *cmc_string_fmt_list = "%s at %p { buffer:%p, capacity:%" PRIu
 #define CMC_GENERATE_LIST_HEADER(PFX, SNAME, V)                                               \
                                                                                               \
     /* List Structure */                                                                      \
-    typedef struct SNAME##_s                                                                  \
+    struct SNAME                                                                              \
     {                                                                                         \
         /* Dynamic array of elements */                                                       \
         V *buffer;                                                                            \
@@ -79,18 +79,17 @@ static const char *cmc_string_fmt_list = "%s at %p { buffer:%p, capacity:%" PRIu
         size_t count;                                                                         \
                                                                                               \
         /* Function that returns an iterator to the start of the list */                      \
-        struct SNAME##_iter_s (*it_start)(struct SNAME##_s *);                                \
+        struct SNAME##_iter (*it_start)(struct SNAME *);                                      \
                                                                                               \
         /* Function that returns an iterator to the end of the list */                        \
-        struct SNAME##_iter_s (*it_end)(struct SNAME##_s *);                                  \
-                                                                                              \
-    } SNAME, *SNAME##_ptr;                                                                    \
+        struct SNAME##_iter (*it_end)(struct SNAME *);                                        \
+    };                                                                                        \
                                                                                               \
     /* List Iterator */                                                                       \
-    typedef struct SNAME##_iter_s                                                             \
+    struct SNAME##_iter                                                                       \
     {                                                                                         \
         /* Target list */                                                                     \
-        struct SNAME##_s *target;                                                             \
+        struct SNAME *target;                                                                 \
                                                                                               \
         /* Cursor's position (index) */                                                       \
         size_t cursor;                                                                        \
@@ -100,82 +99,82 @@ static const char *cmc_string_fmt_list = "%s at %p { buffer:%p, capacity:%" PRIu
                                                                                               \
         /* If the iterator has reached the end of the iteration */                            \
         bool end;                                                                             \
-                                                                                              \
-    } SNAME##_iter, *SNAME##_iter_ptr;                                                        \
+    };                                                                                        \
                                                                                               \
     /* Collection Functions */                                                                \
     /* Collection Allocation and Deallocation */                                              \
-    SNAME *PFX##_new(size_t capacity);                                                        \
-    SNAME *PFX##_new_from(V *elements, size_t size);                                          \
-    void PFX##_clear(SNAME *_list_, void (*deallocator)(V));                                  \
-    void PFX##_free(SNAME *_list_, void (*deallocator)(V));                                   \
+    struct SNAME *PFX##_new(size_t capacity);                                                 \
+    struct SNAME *PFX##_new_from(V *elements, size_t size);                                   \
+    void PFX##_clear(struct SNAME *_list_, void (*deallocator)(V));                           \
+    void PFX##_free(struct SNAME *_list_, void (*deallocator)(V));                            \
     /* Collection Input and Output */                                                         \
-    bool PFX##_push_front(SNAME *_list_, V element);                                          \
-    bool PFX##_push_at(SNAME *_list_, V element, size_t index);                               \
-    bool PFX##_push_back(SNAME *_list_, V element);                                           \
-    bool PFX##_pop_front(SNAME *_list_);                                                      \
-    bool PFX##_pop_at(SNAME *_list_, size_t index);                                           \
-    bool PFX##_pop_back(SNAME *_list_);                                                       \
+    bool PFX##_push_front(struct SNAME *_list_, V element);                                   \
+    bool PFX##_push_at(struct SNAME *_list_, V element, size_t index);                        \
+    bool PFX##_push_back(struct SNAME *_list_, V element);                                    \
+    bool PFX##_pop_front(struct SNAME *_list_);                                               \
+    bool PFX##_pop_at(struct SNAME *_list_, size_t index);                                    \
+    bool PFX##_pop_back(struct SNAME *_list_);                                                \
     /* Collection Sequence Input and Output */                                                \
-    bool PFX##_seq_push_front(SNAME *_list_, V *elements, size_t size);                       \
-    bool PFX##_seq_push_at(SNAME *_list_, V *elements, size_t size, size_t index);            \
-    bool PFX##_seq_push_back(SNAME *_list_, V *elements, size_t size);                        \
-    bool PFX##_seq_pop_at(SNAME *_list_, size_t from, size_t to);                             \
-    SNAME *PFX##_seq_sublist(SNAME *_list_, size_t from, size_t to);                          \
+    bool PFX##_seq_push_front(struct SNAME *_list_, V *elements, size_t size);                \
+    bool PFX##_seq_push_at(struct SNAME *_list_, V *elements, size_t size, size_t index);     \
+    bool PFX##_seq_push_back(struct SNAME *_list_, V *elements, size_t size);                 \
+    bool PFX##_seq_pop_at(struct SNAME *_list_, size_t from, size_t to);                      \
+    struct SNAME *PFX##_seq_sublist(struct SNAME *_list_, size_t from, size_t to);            \
     /* Element Access */                                                                      \
-    V PFX##_front(SNAME *_list_);                                                             \
-    V PFX##_get(SNAME *_list_, size_t index);                                                 \
-    V *PFX##_get_ref(SNAME *_list_, size_t index);                                            \
-    V PFX##_back(SNAME *_list_);                                                              \
-    size_t PFX##_indexof(SNAME *_list_, V element, int (*comparator)(V, V), bool from_start); \
+    V PFX##_front(struct SNAME *_list_);                                                      \
+    V PFX##_get(struct SNAME *_list_, size_t index);                                          \
+    V *PFX##_get_ref(struct SNAME *_list_, size_t index);                                     \
+    V PFX##_back(struct SNAME *_list_);                                                       \
+    size_t PFX##_indexof(struct SNAME *_list_, V element, int (*comparator)(V, V),            \
+                         bool from_start);                                                    \
     /* Collection State */                                                                    \
-    bool PFX##_contains(SNAME *_list_, V element, int (*comparator)(V, V));                   \
-    bool PFX##_empty(SNAME *_list_);                                                          \
-    bool PFX##_full(SNAME *_list_);                                                           \
-    size_t PFX##_count(SNAME *_list_);                                                        \
-    bool PFX##_fits(SNAME *_list_, size_t size);                                              \
-    size_t PFX##_capacity(SNAME *_list_);                                                     \
+    bool PFX##_contains(struct SNAME *_list_, V element, int (*comparator)(V, V));            \
+    bool PFX##_empty(struct SNAME *_list_);                                                   \
+    bool PFX##_full(struct SNAME *_list_);                                                    \
+    size_t PFX##_count(struct SNAME *_list_);                                                 \
+    bool PFX##_fits(struct SNAME *_list_, size_t size);                                       \
+    size_t PFX##_capacity(struct SNAME *_list_);                                              \
     /* Collection Utility */                                                                  \
-    bool PFX##_resize(SNAME *_list_, size_t capacity);                                        \
-    SNAME *PFX##_copy_of(SNAME *_list_, V (*copy_func)(V));                                   \
-    bool PFX##_equals(SNAME *_list1_, SNAME *_list2_, int (*comparator)(V, V));               \
-    cmc_string PFX##_to_string(SNAME *_list_);                                                \
+    bool PFX##_resize(struct SNAME *_list_, size_t capacity);                                 \
+    struct SNAME *PFX##_copy_of(struct SNAME *_list_, V (*copy_func)(V));                     \
+    bool PFX##_equals(struct SNAME *_list1_, struct SNAME *_list2_, int (*comparator)(V, V)); \
+    struct cmc_string PFX##_to_string(struct SNAME *_list_);                                  \
                                                                                               \
     /* Iterator Functions */                                                                  \
     /* Iterator Allocation and Deallocation */                                                \
-    SNAME##_iter *PFX##_iter_new(SNAME *target);                                              \
-    void PFX##_iter_free(SNAME##_iter *iter);                                                 \
+    struct SNAME##_iter *PFX##_iter_new(struct SNAME *target);                                \
+    void PFX##_iter_free(struct SNAME##_iter *iter);                                          \
     /* Iterator Initialization */                                                             \
-    void PFX##_iter_init(SNAME##_iter *iter, SNAME *target);                                  \
+    void PFX##_iter_init(struct SNAME##_iter *iter, struct SNAME *target);                    \
     /* Iterator State */                                                                      \
-    bool PFX##_iter_start(SNAME##_iter *iter);                                                \
-    bool PFX##_iter_end(SNAME##_iter *iter);                                                  \
+    bool PFX##_iter_start(struct SNAME##_iter *iter);                                         \
+    bool PFX##_iter_end(struct SNAME##_iter *iter);                                           \
     /* Iterator Movement */                                                                   \
-    void PFX##_iter_to_start(SNAME##_iter *iter);                                             \
-    void PFX##_iter_to_end(SNAME##_iter *iter);                                               \
-    bool PFX##_iter_next(SNAME##_iter *iter);                                                 \
-    bool PFX##_iter_prev(SNAME##_iter *iter);                                                 \
-    bool PFX##_iter_advance(SNAME##_iter *iter, size_t steps);                                \
-    bool PFX##_iter_rewind(SNAME##_iter *iter, size_t steps);                                 \
-    bool PFX##_iter_go_to(SNAME##_iter *iter, size_t index);                                  \
+    void PFX##_iter_to_start(struct SNAME##_iter *iter);                                      \
+    void PFX##_iter_to_end(struct SNAME##_iter *iter);                                        \
+    bool PFX##_iter_next(struct SNAME##_iter *iter);                                          \
+    bool PFX##_iter_prev(struct SNAME##_iter *iter);                                          \
+    bool PFX##_iter_advance(struct SNAME##_iter *iter, size_t steps);                         \
+    bool PFX##_iter_rewind(struct SNAME##_iter *iter, size_t steps);                          \
+    bool PFX##_iter_go_to(struct SNAME##_iter *iter, size_t index);                           \
     /* Iterator Access */                                                                     \
-    V PFX##_iter_value(SNAME##_iter *iter);                                                   \
-    V *PFX##_iter_rvalue(SNAME##_iter *iter);                                                 \
-    size_t PFX##_iter_index(SNAME##_iter *iter);                                              \
+    V PFX##_iter_value(struct SNAME##_iter *iter);                                            \
+    V *PFX##_iter_rvalue(struct SNAME##_iter *iter);                                          \
+    size_t PFX##_iter_index(struct SNAME##_iter *iter);                                       \
                                                                                               \
 /* SOURCE ********************************************************************/
 #define CMC_GENERATE_LIST_SOURCE(PFX, SNAME, V)                                              \
                                                                                              \
     /* Implementation Detail Functions */                                                    \
-    static SNAME##_iter PFX##_impl_it_start(SNAME *_list_);                                  \
-    static SNAME##_iter PFX##_impl_it_end(SNAME *_list_);                                    \
+    static struct SNAME##_iter PFX##_impl_it_start(struct SNAME *_list_);                    \
+    static struct SNAME##_iter PFX##_impl_it_end(struct SNAME *_list_);                      \
                                                                                              \
-    SNAME *PFX##_new(size_t capacity)                                                        \
+    struct SNAME *PFX##_new(size_t capacity)                                                 \
     {                                                                                        \
         if (capacity < 1)                                                                    \
             return NULL;                                                                     \
                                                                                              \
-        SNAME *_list_ = malloc(sizeof(SNAME));                                               \
+        struct SNAME *_list_ = malloc(sizeof(struct SNAME));                                 \
                                                                                              \
         if (!_list_)                                                                         \
             return NULL;                                                                     \
@@ -197,12 +196,12 @@ static const char *cmc_string_fmt_list = "%s at %p { buffer:%p, capacity:%" PRIu
         return _list_;                                                                       \
     }                                                                                        \
                                                                                              \
-    SNAME *PFX##_new_from(V *elements, size_t size)                                          \
+    struct SNAME *PFX##_new_from(V *elements, size_t size)                                   \
     {                                                                                        \
         if (size == 0)                                                                       \
             return NULL;                                                                     \
                                                                                              \
-        SNAME *_list_ = PFX##_new(size + size / 2);                                          \
+        struct SNAME *_list_ = PFX##_new(size + size / 2);                                   \
                                                                                              \
         if (!_list_)                                                                         \
             return NULL;                                                                     \
@@ -214,7 +213,7 @@ static const char *cmc_string_fmt_list = "%s at %p { buffer:%p, capacity:%" PRIu
         return _list_;                                                                       \
     }                                                                                        \
                                                                                              \
-    void PFX##_clear(SNAME *_list_, void (*deallocator)(V))                                  \
+    void PFX##_clear(struct SNAME *_list_, void (*deallocator)(V))                           \
     {                                                                                        \
         if (deallocator)                                                                     \
         {                                                                                    \
@@ -227,7 +226,7 @@ static const char *cmc_string_fmt_list = "%s at %p { buffer:%p, capacity:%" PRIu
         _list_->count = 0;                                                                   \
     }                                                                                        \
                                                                                              \
-    void PFX##_free(SNAME *_list_, void (*deallocator)(V))                                   \
+    void PFX##_free(struct SNAME *_list_, void (*deallocator)(V))                            \
     {                                                                                        \
         if (deallocator)                                                                     \
         {                                                                                    \
@@ -239,7 +238,7 @@ static const char *cmc_string_fmt_list = "%s at %p { buffer:%p, capacity:%" PRIu
         free(_list_);                                                                        \
     }                                                                                        \
                                                                                              \
-    bool PFX##_push_front(SNAME *_list_, V element)                                          \
+    bool PFX##_push_front(struct SNAME *_list_, V element)                                   \
     {                                                                                        \
         if (PFX##_full(_list_))                                                              \
         {                                                                                    \
@@ -259,7 +258,7 @@ static const char *cmc_string_fmt_list = "%s at %p { buffer:%p, capacity:%" PRIu
         return true;                                                                         \
     }                                                                                        \
                                                                                              \
-    bool PFX##_push_at(SNAME *_list_, V element, size_t index)                               \
+    bool PFX##_push_at(struct SNAME *_list_, V element, size_t index)                        \
     {                                                                                        \
         if (index > _list_->count)                                                           \
             return false;                                                                    \
@@ -279,7 +278,7 @@ static const char *cmc_string_fmt_list = "%s at %p { buffer:%p, capacity:%" PRIu
         return true;                                                                         \
     }                                                                                        \
                                                                                              \
-    bool PFX##_push_back(SNAME *_list_, V element)                                           \
+    bool PFX##_push_back(struct SNAME *_list_, V element)                                    \
     {                                                                                        \
         if (PFX##_full(_list_))                                                              \
         {                                                                                    \
@@ -292,7 +291,7 @@ static const char *cmc_string_fmt_list = "%s at %p { buffer:%p, capacity:%" PRIu
         return true;                                                                         \
     }                                                                                        \
                                                                                              \
-    bool PFX##_pop_front(SNAME *_list_)                                                      \
+    bool PFX##_pop_front(struct SNAME *_list_)                                               \
     {                                                                                        \
         if (PFX##_empty(_list_))                                                             \
             return false;                                                                    \
@@ -304,7 +303,7 @@ static const char *cmc_string_fmt_list = "%s at %p { buffer:%p, capacity:%" PRIu
         return true;                                                                         \
     }                                                                                        \
                                                                                              \
-    bool PFX##_pop_at(SNAME *_list_, size_t index)                                           \
+    bool PFX##_pop_at(struct SNAME *_list_, size_t index)                                    \
     {                                                                                        \
         if (index >= _list_->count)                                                          \
             return false;                                                                    \
@@ -317,7 +316,7 @@ static const char *cmc_string_fmt_list = "%s at %p { buffer:%p, capacity:%" PRIu
         return true;                                                                         \
     }                                                                                        \
                                                                                              \
-    bool PFX##_pop_back(SNAME *_list_)                                                       \
+    bool PFX##_pop_back(struct SNAME *_list_)                                                \
     {                                                                                        \
         if (PFX##_empty(_list_))                                                             \
             return false;                                                                    \
@@ -327,7 +326,7 @@ static const char *cmc_string_fmt_list = "%s at %p { buffer:%p, capacity:%" PRIu
         return true;                                                                         \
     }                                                                                        \
                                                                                              \
-    bool PFX##_seq_push_front(SNAME *_list_, V *elements, size_t size)                       \
+    bool PFX##_seq_push_front(struct SNAME *_list_, V *elements, size_t size)                \
     {                                                                                        \
         if (size == 0)                                                                       \
             return false;                                                                    \
@@ -347,7 +346,7 @@ static const char *cmc_string_fmt_list = "%s at %p { buffer:%p, capacity:%" PRIu
         return true;                                                                         \
     }                                                                                        \
                                                                                              \
-    bool PFX##_seq_push_at(SNAME *_list_, V *elements, size_t size, size_t index)            \
+    bool PFX##_seq_push_at(struct SNAME *_list_, V *elements, size_t size, size_t index)     \
     {                                                                                        \
         if (size == 0 || index > _list_->count)                                              \
             return false;                                                                    \
@@ -375,7 +374,7 @@ static const char *cmc_string_fmt_list = "%s at %p { buffer:%p, capacity:%" PRIu
         return true;                                                                         \
     }                                                                                        \
                                                                                              \
-    bool PFX##_seq_push_back(SNAME *_list_, V *elements, size_t size)                        \
+    bool PFX##_seq_push_back(struct SNAME *_list_, V *elements, size_t size)                 \
     {                                                                                        \
         if (size == 0)                                                                       \
             return false;                                                                    \
@@ -393,7 +392,7 @@ static const char *cmc_string_fmt_list = "%s at %p { buffer:%p, capacity:%" PRIu
         return true;                                                                         \
     }                                                                                        \
                                                                                              \
-    bool PFX##_seq_pop_at(SNAME *_list_, size_t from, size_t to)                             \
+    bool PFX##_seq_pop_at(struct SNAME *_list_, size_t from, size_t to)                      \
     {                                                                                        \
         if (from > to || to >= _list_->count)                                                \
             return false;                                                                    \
@@ -410,14 +409,14 @@ static const char *cmc_string_fmt_list = "%s at %p { buffer:%p, capacity:%" PRIu
         return true;                                                                         \
     }                                                                                        \
                                                                                              \
-    SNAME *PFX##_seq_sublist(SNAME *_list_, size_t from, size_t to)                          \
+    struct SNAME *PFX##_seq_sublist(struct SNAME *_list_, size_t from, size_t to)            \
     {                                                                                        \
         if (from > to || to >= _list_->count)                                                \
             return false;                                                                    \
                                                                                              \
         size_t length = to - from + 1;                                                       \
                                                                                              \
-        SNAME *result = PFX##_new(length);                                                   \
+        struct SNAME *result = PFX##_new(length);                                            \
                                                                                              \
         if (!result)                                                                         \
             return NULL;                                                                     \
@@ -435,7 +434,7 @@ static const char *cmc_string_fmt_list = "%s at %p { buffer:%p, capacity:%" PRIu
         return result;                                                                       \
     }                                                                                        \
                                                                                              \
-    V PFX##_front(SNAME *_list_)                                                             \
+    V PFX##_front(struct SNAME *_list_)                                                      \
     {                                                                                        \
         if (PFX##_empty(_list_))                                                             \
             return (V){0};                                                                   \
@@ -443,7 +442,7 @@ static const char *cmc_string_fmt_list = "%s at %p { buffer:%p, capacity:%" PRIu
         return _list_->buffer[0];                                                            \
     }                                                                                        \
                                                                                              \
-    V PFX##_get(SNAME *_list_, size_t index)                                                 \
+    V PFX##_get(struct SNAME *_list_, size_t index)                                          \
     {                                                                                        \
         if (index >= _list_->count || PFX##_empty(_list_))                                   \
             return (V){0};                                                                   \
@@ -451,7 +450,7 @@ static const char *cmc_string_fmt_list = "%s at %p { buffer:%p, capacity:%" PRIu
         return _list_->buffer[index];                                                        \
     }                                                                                        \
                                                                                              \
-    V *PFX##_get_ref(SNAME *_list_, size_t index)                                            \
+    V *PFX##_get_ref(struct SNAME *_list_, size_t index)                                     \
     {                                                                                        \
         if (index >= _list_->count)                                                          \
             return NULL;                                                                     \
@@ -462,7 +461,7 @@ static const char *cmc_string_fmt_list = "%s at %p { buffer:%p, capacity:%" PRIu
         return &(_list_->buffer[index]);                                                     \
     }                                                                                        \
                                                                                              \
-    V PFX##_back(SNAME *_list_)                                                              \
+    V PFX##_back(struct SNAME *_list_)                                                       \
     {                                                                                        \
         if (PFX##_empty(_list_))                                                             \
             return (V){0};                                                                   \
@@ -470,7 +469,8 @@ static const char *cmc_string_fmt_list = "%s at %p { buffer:%p, capacity:%" PRIu
         return _list_->buffer[_list_->count - 1];                                            \
     }                                                                                        \
                                                                                              \
-    size_t PFX##_indexof(SNAME *_list_, V element, int (*comparator)(V, V), bool from_start) \
+    size_t PFX##_indexof(struct SNAME *_list_, V element, int (*comparator)(V, V),           \
+                         bool from_start)                                                    \
     {                                                                                        \
         if (from_start)                                                                      \
         {                                                                                    \
@@ -492,7 +492,7 @@ static const char *cmc_string_fmt_list = "%s at %p { buffer:%p, capacity:%" PRIu
         return _list_->count;                                                                \
     }                                                                                        \
                                                                                              \
-    bool PFX##_contains(SNAME *_list_, V element, int (*comparator)(V, V))                   \
+    bool PFX##_contains(struct SNAME *_list_, V element, int (*comparator)(V, V))            \
     {                                                                                        \
         for (size_t i = 0; i < _list_->count; i++)                                           \
         {                                                                                    \
@@ -503,32 +503,32 @@ static const char *cmc_string_fmt_list = "%s at %p { buffer:%p, capacity:%" PRIu
         return false;                                                                        \
     }                                                                                        \
                                                                                              \
-    bool PFX##_empty(SNAME *_list_)                                                          \
+    bool PFX##_empty(struct SNAME *_list_)                                                   \
     {                                                                                        \
         return _list_->count == 0;                                                           \
     }                                                                                        \
                                                                                              \
-    bool PFX##_full(SNAME *_list_)                                                           \
+    bool PFX##_full(struct SNAME *_list_)                                                    \
     {                                                                                        \
         return _list_->count >= _list_->capacity;                                            \
     }                                                                                        \
                                                                                              \
-    size_t PFX##_count(SNAME *_list_)                                                        \
+    size_t PFX##_count(struct SNAME *_list_)                                                 \
     {                                                                                        \
         return _list_->count;                                                                \
     }                                                                                        \
                                                                                              \
-    bool PFX##_fits(SNAME *_list_, size_t size)                                              \
+    bool PFX##_fits(struct SNAME *_list_, size_t size)                                       \
     {                                                                                        \
         return _list_->count + size <= _list_->capacity;                                     \
     }                                                                                        \
                                                                                              \
-    size_t PFX##_capacity(SNAME *_list_)                                                     \
+    size_t PFX##_capacity(struct SNAME *_list_)                                              \
     {                                                                                        \
         return _list_->capacity;                                                             \
     }                                                                                        \
                                                                                              \
-    bool PFX##_resize(SNAME *_list_, size_t capacity)                                        \
+    bool PFX##_resize(struct SNAME *_list_, size_t capacity)                                 \
     {                                                                                        \
         if (PFX##_capacity(_list_) == capacity)                                              \
             return true;                                                                     \
@@ -547,9 +547,9 @@ static const char *cmc_string_fmt_list = "%s at %p { buffer:%p, capacity:%" PRIu
         return true;                                                                         \
     }                                                                                        \
                                                                                              \
-    SNAME *PFX##_copy_of(SNAME *_list_, V (*copy_func)(V))                                   \
+    struct SNAME *PFX##_copy_of(struct SNAME *_list_, V (*copy_func)(V))                     \
     {                                                                                        \
-        SNAME *result = PFX##_new(_list_->capacity);                                         \
+        struct SNAME *result = PFX##_new(_list_->capacity);                                  \
                                                                                              \
         if (!result)                                                                         \
             return NULL;                                                                     \
@@ -567,7 +567,7 @@ static const char *cmc_string_fmt_list = "%s at %p { buffer:%p, capacity:%" PRIu
         return result;                                                                       \
     }                                                                                        \
                                                                                              \
-    bool PFX##_equals(SNAME *_list1_, SNAME *_list2_, int (*comparator)(V, V))               \
+    bool PFX##_equals(struct SNAME *_list1_, struct SNAME *_list2_, int (*comparator)(V, V)) \
     {                                                                                        \
         if (PFX##_count(_list1_) != PFX##_count(_list2_))                                    \
             return false;                                                                    \
@@ -581,10 +581,10 @@ static const char *cmc_string_fmt_list = "%s at %p { buffer:%p, capacity:%" PRIu
         return false;                                                                        \
     }                                                                                        \
                                                                                              \
-    cmc_string PFX##_to_string(SNAME *_list_)                                                \
+    struct cmc_string PFX##_to_string(struct SNAME *_list_)                                  \
     {                                                                                        \
-        cmc_string str;                                                                      \
-        SNAME *l_ = _list_;                                                                  \
+        struct cmc_string str;                                                               \
+        struct SNAME *l_ = _list_;                                                           \
         const char *name = #SNAME;                                                           \
                                                                                              \
         snprintf(str.s, cmc_string_len, cmc_string_fmt_list,                                 \
@@ -593,9 +593,9 @@ static const char *cmc_string_fmt_list = "%s at %p { buffer:%p, capacity:%" PRIu
         return str;                                                                          \
     }                                                                                        \
                                                                                              \
-    SNAME##_iter *PFX##_iter_new(SNAME *target)                                              \
+    struct SNAME##_iter *PFX##_iter_new(struct SNAME *target)                                \
     {                                                                                        \
-        SNAME##_iter *iter = malloc(sizeof(SNAME##_iter));                                   \
+        struct SNAME##_iter *iter = malloc(sizeof(struct SNAME##_iter));                     \
                                                                                              \
         if (!iter)                                                                           \
             return NULL;                                                                     \
@@ -605,12 +605,12 @@ static const char *cmc_string_fmt_list = "%s at %p { buffer:%p, capacity:%" PRIu
         return iter;                                                                         \
     }                                                                                        \
                                                                                              \
-    void PFX##_iter_free(SNAME##_iter *iter)                                                 \
+    void PFX##_iter_free(struct SNAME##_iter *iter)                                          \
     {                                                                                        \
         free(iter);                                                                          \
     }                                                                                        \
                                                                                              \
-    void PFX##_iter_init(SNAME##_iter *iter, SNAME *target)                                  \
+    void PFX##_iter_init(struct SNAME##_iter *iter, struct SNAME *target)                    \
     {                                                                                        \
         iter->target = target;                                                               \
         iter->cursor = 0;                                                                    \
@@ -618,17 +618,17 @@ static const char *cmc_string_fmt_list = "%s at %p { buffer:%p, capacity:%" PRIu
         iter->end = PFX##_empty(target);                                                     \
     }                                                                                        \
                                                                                              \
-    bool PFX##_iter_start(SNAME##_iter *iter)                                                \
+    bool PFX##_iter_start(struct SNAME##_iter *iter)                                         \
     {                                                                                        \
         return PFX##_empty(iter->target) || iter->start;                                     \
     }                                                                                        \
                                                                                              \
-    bool PFX##_iter_end(SNAME##_iter *iter)                                                  \
+    bool PFX##_iter_end(struct SNAME##_iter *iter)                                           \
     {                                                                                        \
         return PFX##_empty(iter->target) || iter->end;                                       \
     }                                                                                        \
                                                                                              \
-    void PFX##_iter_to_start(SNAME##_iter *iter)                                             \
+    void PFX##_iter_to_start(struct SNAME##_iter *iter)                                      \
     {                                                                                        \
         if (!PFX##_empty(iter->target))                                                      \
         {                                                                                    \
@@ -638,7 +638,7 @@ static const char *cmc_string_fmt_list = "%s at %p { buffer:%p, capacity:%" PRIu
         }                                                                                    \
     }                                                                                        \
                                                                                              \
-    void PFX##_iter_to_end(SNAME##_iter *iter)                                               \
+    void PFX##_iter_to_end(struct SNAME##_iter *iter)                                        \
     {                                                                                        \
         if (!PFX##_empty(iter->target))                                                      \
         {                                                                                    \
@@ -648,7 +648,7 @@ static const char *cmc_string_fmt_list = "%s at %p { buffer:%p, capacity:%" PRIu
         }                                                                                    \
     }                                                                                        \
                                                                                              \
-    bool PFX##_iter_next(SNAME##_iter *iter)                                                 \
+    bool PFX##_iter_next(struct SNAME##_iter *iter)                                          \
     {                                                                                        \
         if (iter->end)                                                                       \
             return false;                                                                    \
@@ -666,7 +666,7 @@ static const char *cmc_string_fmt_list = "%s at %p { buffer:%p, capacity:%" PRIu
         return true;                                                                         \
     }                                                                                        \
                                                                                              \
-    bool PFX##_iter_prev(SNAME##_iter *iter)                                                 \
+    bool PFX##_iter_prev(struct SNAME##_iter *iter)                                          \
     {                                                                                        \
         if (iter->start)                                                                     \
             return false;                                                                    \
@@ -685,7 +685,7 @@ static const char *cmc_string_fmt_list = "%s at %p { buffer:%p, capacity:%" PRIu
     }                                                                                        \
                                                                                              \
     /* Returns true only if the iterator moved */                                            \
-    bool PFX##_iter_advance(SNAME##_iter *iter, size_t steps)                                \
+    bool PFX##_iter_advance(struct SNAME##_iter *iter, size_t steps)                         \
     {                                                                                        \
         if (iter->end)                                                                       \
             return false;                                                                    \
@@ -707,7 +707,7 @@ static const char *cmc_string_fmt_list = "%s at %p { buffer:%p, capacity:%" PRIu
     }                                                                                        \
                                                                                              \
     /* Returns true only if the iterator moved */                                            \
-    bool PFX##_iter_rewind(SNAME##_iter *iter, size_t steps)                                 \
+    bool PFX##_iter_rewind(struct SNAME##_iter *iter, size_t steps)                          \
     {                                                                                        \
         if (iter->start)                                                                     \
             return false;                                                                    \
@@ -729,7 +729,7 @@ static const char *cmc_string_fmt_list = "%s at %p { buffer:%p, capacity:%" PRIu
     }                                                                                        \
                                                                                              \
     /* Returns true only if the iterator was able to be positioned at the given index */     \
-    bool PFX##_iter_go_to(SNAME##_iter *iter, size_t index)                                  \
+    bool PFX##_iter_go_to(struct SNAME##_iter *iter, size_t index)                           \
     {                                                                                        \
         if (index >= PFX##_count(iter->target))                                              \
             return false;                                                                    \
@@ -742,7 +742,7 @@ static const char *cmc_string_fmt_list = "%s at %p { buffer:%p, capacity:%" PRIu
         return true;                                                                         \
     }                                                                                        \
                                                                                              \
-    V PFX##_iter_value(SNAME##_iter *iter)                                                   \
+    V PFX##_iter_value(struct SNAME##_iter *iter)                                            \
     {                                                                                        \
         if (PFX##_empty(iter->target))                                                       \
             return (V){0};                                                                   \
@@ -750,7 +750,7 @@ static const char *cmc_string_fmt_list = "%s at %p { buffer:%p, capacity:%" PRIu
         return iter->target->buffer[iter->cursor];                                           \
     }                                                                                        \
                                                                                              \
-    V *PFX##_iter_rvalue(SNAME##_iter *iter)                                                 \
+    V *PFX##_iter_rvalue(struct SNAME##_iter *iter)                                          \
     {                                                                                        \
         if (PFX##_empty(iter->target))                                                       \
             return NULL;                                                                     \
@@ -758,14 +758,14 @@ static const char *cmc_string_fmt_list = "%s at %p { buffer:%p, capacity:%" PRIu
         return &(iter->target->buffer[iter->cursor]);                                        \
     }                                                                                        \
                                                                                              \
-    size_t PFX##_iter_index(SNAME##_iter *iter)                                              \
+    size_t PFX##_iter_index(struct SNAME##_iter *iter)                                       \
     {                                                                                        \
         return iter->cursor;                                                                 \
     }                                                                                        \
                                                                                              \
-    static SNAME##_iter PFX##_impl_it_start(SNAME *_list_)                                   \
+    static struct SNAME##_iter PFX##_impl_it_start(struct SNAME *_list_)                     \
     {                                                                                        \
-        SNAME##_iter iter;                                                                   \
+        struct SNAME##_iter iter;                                                            \
                                                                                              \
         PFX##_iter_init(&iter, _list_);                                                      \
         PFX##_iter_to_start(&iter);                                                          \
@@ -773,9 +773,9 @@ static const char *cmc_string_fmt_list = "%s at %p { buffer:%p, capacity:%" PRIu
         return iter;                                                                         \
     }                                                                                        \
                                                                                              \
-    static SNAME##_iter PFX##_impl_it_end(SNAME *_list_)                                     \
+    static struct SNAME##_iter PFX##_impl_it_end(struct SNAME *_list_)                       \
     {                                                                                        \
-        SNAME##_iter iter;                                                                   \
+        struct SNAME##_iter iter;                                                            \
                                                                                              \
         PFX##_iter_init(&iter, _list_);                                                      \
         PFX##_iter_to_end(&iter);                                                            \

@@ -52,114 +52,112 @@ static const char *cmc_string_fmt_deque = "%s at %p { buffer:%p, capacity:%" PRI
     CMC_GENERATE_DEQUE_SOURCE(PFX, SNAME, V)
 
 /* HEADER ********************************************************************/
-#define CMC_GENERATE_DEQUE_HEADER(PFX, SNAME, V)                                  \
-                                                                                  \
-    /* Deque Structure */                                                         \
-    typedef struct SNAME##_s                                                      \
-    {                                                                             \
-        /* Dynamic circular array of elements */                                  \
-        V *buffer;                                                                \
-                                                                                  \
-        /* Current circular array capacity */                                     \
-        size_t capacity;                                                          \
-                                                                                  \
-        /* Current amount of elements */                                          \
-        size_t count;                                                             \
-                                                                                  \
-        /* Index representing the front of the deque */                           \
-        size_t front;                                                             \
-                                                                                  \
-        /* Index representing the back of the deque */                            \
-        size_t back;                                                              \
-                                                                                  \
-        /* Function that returns an iterator to the start of the deque */         \
-        struct SNAME##_iter_s (*it_start)(struct SNAME##_s *);                    \
-                                                                                  \
-        /* Function that returns an iterator to the end of the deque */           \
-        struct SNAME##_iter_s (*it_end)(struct SNAME##_s *);                      \
-                                                                                  \
-    } SNAME, *SNAME##_ptr;                                                        \
-                                                                                  \
-    /* Deque Iterator */                                                          \
-    typedef struct SNAME##_iter_s                                                 \
-    {                                                                             \
-        /* Target deque */                                                        \
-        struct SNAME##_s *target;                                                 \
-                                                                                  \
-        /* Cursor's position (index) */                                           \
-        size_t cursor;                                                            \
-                                                                                  \
-        /* Keeps track of relative index to the iteration of elements */          \
-        size_t index;                                                             \
-                                                                                  \
-        /* If the iterator has reached the start of the iteration */              \
-        bool start;                                                               \
-                                                                                  \
-        /* If the iterator has reached the end of the iteration */                \
-        bool end;                                                                 \
-                                                                                  \
-    } SNAME##_iter, *SNAME##_iter_ptr;                                            \
-                                                                                  \
-    /* Collection Functions */                                                    \
-    /* Collection Allocation and Deallocation */                                  \
-    SNAME *PFX##_new(size_t capacity);                                            \
-    void PFX##_clear(SNAME *_deque_, void (*deallocator)(V));                     \
-    void PFX##_free(SNAME *_deque_, void (*deallocator)(V));                      \
-    /* Collection Input and Output */                                             \
-    bool PFX##_push_front(SNAME *_deque_, V element);                             \
-    bool PFX##_push_back(SNAME *_deque_, V element);                              \
-    bool PFX##_pop_front(SNAME *_deque_);                                         \
-    bool PFX##_pop_back(SNAME *_deque_);                                          \
-    /* Element Access */                                                          \
-    V PFX##_front(SNAME *_deque_);                                                \
-    V PFX##_back(SNAME *_deque_);                                                 \
-    /* Collection State */                                                        \
-    bool PFX##_contains(SNAME *_deque_, V element, int (*comparator)(V, V));      \
-    bool PFX##_empty(SNAME *_deque_);                                             \
-    bool PFX##_full(SNAME *_deque_);                                              \
-    size_t PFX##_count(SNAME *_deque_);                                           \
-    size_t PFX##_capacity(SNAME *_deque_);                                        \
-    /* Collection Utility */                                                      \
-    bool PFX##_resize(SNAME *_deque_, size_t capacity);                           \
-    SNAME *PFX##_copy_of(SNAME *_deque_, V (*copy_func)(V));                      \
-    bool PFX##_equals(SNAME *_deque1_, SNAME *_deque2_, int (*comparator)(V, V)); \
-    cmc_string PFX##_to_string(SNAME *_deque_);                                   \
-                                                                                  \
-    /* Iterator Functions */                                                      \
-    /* Iterator Allocation and Deallocation */                                    \
-    SNAME##_iter *PFX##_iter_new(SNAME *target);                                  \
-    void PFX##_iter_free(SNAME##_iter *iter);                                     \
-    /* Iterator Initialization */                                                 \
-    void PFX##_iter_init(SNAME##_iter *iter, SNAME *target);                      \
-    /* Iterator State */                                                          \
-    bool PFX##_iter_start(SNAME##_iter *iter);                                    \
-    bool PFX##_iter_end(SNAME##_iter *iter);                                      \
-    /* Iterator Movement */                                                       \
-    void PFX##_iter_to_start(SNAME##_iter *iter);                                 \
-    void PFX##_iter_to_end(SNAME##_iter *iter);                                   \
-    bool PFX##_iter_next(SNAME##_iter *iter);                                     \
-    bool PFX##_iter_prev(SNAME##_iter *iter);                                     \
-    bool PFX##_iter_advance(SNAME##_iter *iter, size_t steps);                    \
-    bool PFX##_iter_rewind(SNAME##_iter *iter, size_t steps);                     \
-    bool PFX##_iter_go_to(SNAME##_iter *iter, size_t index);                      \
-    /* Iterator Access */                                                         \
-    V PFX##_iter_value(SNAME##_iter *iter);                                       \
-    V *PFX##_iter_rvalue(SNAME##_iter *iter);                                     \
-    size_t PFX##_iter_index(SNAME##_iter *iter);                                  \
-                                                                                  \
+#define CMC_GENERATE_DEQUE_HEADER(PFX, SNAME, V)                                                \
+                                                                                                \
+    /* Deque Structure */                                                                       \
+    struct SNAME                                                                                \
+    {                                                                                           \
+        /* Dynamic circular array of elements */                                                \
+        V *buffer;                                                                              \
+                                                                                                \
+        /* Current circular array capacity */                                                   \
+        size_t capacity;                                                                        \
+                                                                                                \
+        /* Current amount of elements */                                                        \
+        size_t count;                                                                           \
+                                                                                                \
+        /* Index representing the front of the deque */                                         \
+        size_t front;                                                                           \
+                                                                                                \
+        /* Index representing the back of the deque */                                          \
+        size_t back;                                                                            \
+                                                                                                \
+        /* Function that returns an iterator to the start of the deque */                       \
+        struct SNAME##_iter (*it_start)(struct SNAME *);                                        \
+                                                                                                \
+        /* Function that returns an iterator to the end of the deque */                         \
+        struct SNAME##_iter (*it_end)(struct SNAME *);                                          \
+    };                                                                                          \
+                                                                                                \
+    /* Deque Iterator */                                                                        \
+    struct SNAME##_iter                                                                         \
+    {                                                                                           \
+        /* Target deque */                                                                      \
+        struct SNAME *target;                                                                   \
+                                                                                                \
+        /* Cursor's position (index) */                                                         \
+        size_t cursor;                                                                          \
+                                                                                                \
+        /* Keeps track of relative index to the iteration of elements */                        \
+        size_t index;                                                                           \
+                                                                                                \
+        /* If the iterator has reached the start of the iteration */                            \
+        bool start;                                                                             \
+                                                                                                \
+        /* If the iterator has reached the end of the iteration */                              \
+        bool end;                                                                               \
+    };                                                                                          \
+                                                                                                \
+    /* Collection Functions */                                                                  \
+    /* Collection Allocation and Deallocation */                                                \
+    struct SNAME *PFX##_new(size_t capacity);                                                   \
+    void PFX##_clear(struct SNAME *_deque_, void (*deallocator)(V));                            \
+    void PFX##_free(struct SNAME *_deque_, void (*deallocator)(V));                             \
+    /* Collection Input and Output */                                                           \
+    bool PFX##_push_front(struct SNAME *_deque_, V element);                                    \
+    bool PFX##_push_back(struct SNAME *_deque_, V element);                                     \
+    bool PFX##_pop_front(struct SNAME *_deque_);                                                \
+    bool PFX##_pop_back(struct SNAME *_deque_);                                                 \
+    /* Element Access */                                                                        \
+    V PFX##_front(struct SNAME *_deque_);                                                       \
+    V PFX##_back(struct SNAME *_deque_);                                                        \
+    /* Collection State */                                                                      \
+    bool PFX##_contains(struct SNAME *_deque_, V element, int (*comparator)(V, V));             \
+    bool PFX##_empty(struct SNAME *_deque_);                                                    \
+    bool PFX##_full(struct SNAME *_deque_);                                                     \
+    size_t PFX##_count(struct SNAME *_deque_);                                                  \
+    size_t PFX##_capacity(struct SNAME *_deque_);                                               \
+    /* Collection Utility */                                                                    \
+    bool PFX##_resize(struct SNAME *_deque_, size_t capacity);                                  \
+    struct SNAME *PFX##_copy_of(struct SNAME *_deque_, V (*copy_func)(V));                      \
+    bool PFX##_equals(struct SNAME *_deque1_, struct SNAME *_deque2_, int (*comparator)(V, V)); \
+    struct cmc_string PFX##_to_string(struct SNAME *_deque_);                                   \
+                                                                                                \
+    /* Iterator Functions */                                                                    \
+    /* Iterator Allocation and Deallocation */                                                  \
+    struct SNAME##_iter *PFX##_iter_new(struct SNAME *target);                                  \
+    void PFX##_iter_free(struct SNAME##_iter *iter);                                            \
+    /* Iterator Initialization */                                                               \
+    void PFX##_iter_init(struct SNAME##_iter *iter, struct SNAME *target);                      \
+    /* Iterator State */                                                                        \
+    bool PFX##_iter_start(struct SNAME##_iter *iter);                                           \
+    bool PFX##_iter_end(struct SNAME##_iter *iter);                                             \
+    /* Iterator Movement */                                                                     \
+    void PFX##_iter_to_start(struct SNAME##_iter *iter);                                        \
+    void PFX##_iter_to_end(struct SNAME##_iter *iter);                                          \
+    bool PFX##_iter_next(struct SNAME##_iter *iter);                                            \
+    bool PFX##_iter_prev(struct SNAME##_iter *iter);                                            \
+    bool PFX##_iter_advance(struct SNAME##_iter *iter, size_t steps);                           \
+    bool PFX##_iter_rewind(struct SNAME##_iter *iter, size_t steps);                            \
+    bool PFX##_iter_go_to(struct SNAME##_iter *iter, size_t index);                             \
+    /* Iterator Access */                                                                       \
+    V PFX##_iter_value(struct SNAME##_iter *iter);                                              \
+    V *PFX##_iter_rvalue(struct SNAME##_iter *iter);                                            \
+    size_t PFX##_iter_index(struct SNAME##_iter *iter);                                         \
+                                                                                                \
 /* SOURCE ********************************************************************/
 #define CMC_GENERATE_DEQUE_SOURCE(PFX, SNAME, V)                                                  \
                                                                                                   \
     /* Implementation Detail Functions */                                                         \
-    static SNAME##_iter PFX##_impl_it_start(SNAME *_deque_);                                      \
-    static SNAME##_iter PFX##_impl_it_end(SNAME *_deque_);                                        \
+    static struct SNAME##_iter PFX##_impl_it_start(struct SNAME *_deque_);                        \
+    static struct SNAME##_iter PFX##_impl_it_end(struct SNAME *_deque_);                          \
                                                                                                   \
-    SNAME *PFX##_new(size_t capacity)                                                             \
+    struct SNAME *PFX##_new(size_t capacity)                                                      \
     {                                                                                             \
         if (capacity < 1)                                                                         \
             return NULL;                                                                          \
                                                                                                   \
-        SNAME *_deque_ = malloc(sizeof(SNAME));                                                   \
+        struct SNAME *_deque_ = malloc(sizeof(struct SNAME));                                     \
                                                                                                   \
         if (!_deque_)                                                                             \
             return NULL;                                                                          \
@@ -183,7 +181,7 @@ static const char *cmc_string_fmt_deque = "%s at %p { buffer:%p, capacity:%" PRI
         return _deque_;                                                                           \
     }                                                                                             \
                                                                                                   \
-    void PFX##_clear(SNAME *_deque_, void (*deallocator)(V))                                      \
+    void PFX##_clear(struct SNAME *_deque_, void (*deallocator)(V))                               \
     {                                                                                             \
         if (deallocator)                                                                          \
         {                                                                                         \
@@ -202,7 +200,7 @@ static const char *cmc_string_fmt_deque = "%s at %p { buffer:%p, capacity:%" PRI
         _deque_->back = 0;                                                                        \
     }                                                                                             \
                                                                                                   \
-    void PFX##_free(SNAME *_deque_, void (*deallocator)(V))                                       \
+    void PFX##_free(struct SNAME *_deque_, void (*deallocator)(V))                                \
     {                                                                                             \
         if (deallocator)                                                                          \
         {                                                                                         \
@@ -218,7 +216,7 @@ static const char *cmc_string_fmt_deque = "%s at %p { buffer:%p, capacity:%" PRI
         free(_deque_);                                                                            \
     }                                                                                             \
                                                                                                   \
-    bool PFX##_push_front(SNAME *_deque_, V element)                                              \
+    bool PFX##_push_front(struct SNAME *_deque_, V element)                                       \
     {                                                                                             \
         if (PFX##_full(_deque_))                                                                  \
         {                                                                                         \
@@ -235,7 +233,7 @@ static const char *cmc_string_fmt_deque = "%s at %p { buffer:%p, capacity:%" PRI
         return true;                                                                              \
     }                                                                                             \
                                                                                                   \
-    bool PFX##_push_back(SNAME *_deque_, V element)                                               \
+    bool PFX##_push_back(struct SNAME *_deque_, V element)                                        \
     {                                                                                             \
         if (PFX##_full(_deque_))                                                                  \
         {                                                                                         \
@@ -252,7 +250,7 @@ static const char *cmc_string_fmt_deque = "%s at %p { buffer:%p, capacity:%" PRI
         return true;                                                                              \
     }                                                                                             \
                                                                                                   \
-    bool PFX##_pop_front(SNAME *_deque_)                                                          \
+    bool PFX##_pop_front(struct SNAME *_deque_)                                                   \
     {                                                                                             \
         if (PFX##_empty(_deque_))                                                                 \
             return false;                                                                         \
@@ -266,7 +264,7 @@ static const char *cmc_string_fmt_deque = "%s at %p { buffer:%p, capacity:%" PRI
         return true;                                                                              \
     }                                                                                             \
                                                                                                   \
-    bool PFX##_pop_back(SNAME *_deque_)                                                           \
+    bool PFX##_pop_back(struct SNAME *_deque_)                                                    \
     {                                                                                             \
         if (PFX##_empty(_deque_))                                                                 \
             return false;                                                                         \
@@ -280,7 +278,7 @@ static const char *cmc_string_fmt_deque = "%s at %p { buffer:%p, capacity:%" PRI
         return true;                                                                              \
     }                                                                                             \
                                                                                                   \
-    V PFX##_front(SNAME *_deque_)                                                                 \
+    V PFX##_front(struct SNAME *_deque_)                                                          \
     {                                                                                             \
         if (PFX##_empty(_deque_))                                                                 \
             return (V){0};                                                                        \
@@ -288,7 +286,7 @@ static const char *cmc_string_fmt_deque = "%s at %p { buffer:%p, capacity:%" PRI
         return _deque_->buffer[_deque_->front];                                                   \
     }                                                                                             \
                                                                                                   \
-    V PFX##_back(SNAME *_deque_)                                                                  \
+    V PFX##_back(struct SNAME *_deque_)                                                           \
     {                                                                                             \
         if (PFX##_empty(_deque_))                                                                 \
             return (V){0};                                                                        \
@@ -296,7 +294,7 @@ static const char *cmc_string_fmt_deque = "%s at %p { buffer:%p, capacity:%" PRI
         return _deque_->buffer[(_deque_->back == 0) ? _deque_->capacity - 1 : _deque_->back - 1]; \
     }                                                                                             \
                                                                                                   \
-    bool PFX##_contains(SNAME *_deque_, V element, int (*comparator)(V, V))                       \
+    bool PFX##_contains(struct SNAME *_deque_, V element, int (*comparator)(V, V))                \
     {                                                                                             \
         for (size_t i = _deque_->front, j = 0; j < _deque_->count; j++)                           \
         {                                                                                         \
@@ -309,27 +307,27 @@ static const char *cmc_string_fmt_deque = "%s at %p { buffer:%p, capacity:%" PRI
         return false;                                                                             \
     }                                                                                             \
                                                                                                   \
-    bool PFX##_empty(SNAME *_deque_)                                                              \
+    bool PFX##_empty(struct SNAME *_deque_)                                                       \
     {                                                                                             \
         return _deque_->count == 0;                                                               \
     }                                                                                             \
                                                                                                   \
-    bool PFX##_full(SNAME *_deque_)                                                               \
+    bool PFX##_full(struct SNAME *_deque_)                                                        \
     {                                                                                             \
         return _deque_->count >= _deque_->capacity;                                               \
     }                                                                                             \
                                                                                                   \
-    size_t PFX##_count(SNAME *_deque_)                                                            \
+    size_t PFX##_count(struct SNAME *_deque_)                                                     \
     {                                                                                             \
         return _deque_->count;                                                                    \
     }                                                                                             \
                                                                                                   \
-    size_t PFX##_capacity(SNAME *_deque_)                                                         \
+    size_t PFX##_capacity(struct SNAME *_deque_)                                                  \
     {                                                                                             \
         return _deque_->capacity;                                                                 \
     }                                                                                             \
                                                                                                   \
-    bool PFX##_resize(SNAME *_deque_, size_t capacity)                                            \
+    bool PFX##_resize(struct SNAME *_deque_, size_t capacity)                                     \
     {                                                                                             \
         if (PFX##_capacity(_deque_) == capacity)                                                  \
             return true;                                                                          \
@@ -359,9 +357,9 @@ static const char *cmc_string_fmt_deque = "%s at %p { buffer:%p, capacity:%" PRI
         return true;                                                                              \
     }                                                                                             \
                                                                                                   \
-    SNAME *PFX##_copy_of(SNAME *_deque_, V (*copy_func)(V))                                       \
+    struct SNAME *PFX##_copy_of(struct SNAME *_deque_, V (*copy_func)(V))                         \
     {                                                                                             \
-        SNAME *result = PFX##_new(_deque_->capacity);                                             \
+        struct SNAME *result = PFX##_new(_deque_->capacity);                                      \
                                                                                                   \
         if (!result)                                                                              \
             return NULL;                                                                          \
@@ -390,7 +388,7 @@ static const char *cmc_string_fmt_deque = "%s at %p { buffer:%p, capacity:%" PRI
         return result;                                                                            \
     }                                                                                             \
                                                                                                   \
-    bool PFX##_equals(SNAME *_deque1_, SNAME *_deque2_, int (*comparator)(V, V))                  \
+    bool PFX##_equals(struct SNAME *_deque1_, struct SNAME *_deque2_, int (*comparator)(V, V))    \
     {                                                                                             \
         if (PFX##_count(_deque1_) != PFX##_count(_deque2_))                                       \
             return false;                                                                         \
@@ -408,10 +406,10 @@ static const char *cmc_string_fmt_deque = "%s at %p { buffer:%p, capacity:%" PRI
         return true;                                                                              \
     }                                                                                             \
                                                                                                   \
-    cmc_string PFX##_to_string(SNAME *_deque_)                                                    \
+    struct cmc_string PFX##_to_string(struct SNAME *_deque_)                                      \
     {                                                                                             \
-        cmc_string str;                                                                           \
-        SNAME *d_ = _deque_;                                                                      \
+        struct cmc_string str;                                                                    \
+        struct SNAME *d_ = _deque_;                                                               \
         const char *name = #SNAME;                                                                \
                                                                                                   \
         snprintf(str.s, cmc_string_len, cmc_string_fmt_deque,                                     \
@@ -420,9 +418,9 @@ static const char *cmc_string_fmt_deque = "%s at %p { buffer:%p, capacity:%" PRI
         return str;                                                                               \
     }                                                                                             \
                                                                                                   \
-    SNAME##_iter *PFX##_iter_new(SNAME *target)                                                   \
+    struct SNAME##_iter *PFX##_iter_new(struct SNAME *target)                                     \
     {                                                                                             \
-        SNAME##_iter *iter = malloc(sizeof(SNAME##_iter));                                        \
+        struct SNAME##_iter *iter = malloc(sizeof(struct SNAME##_iter));                          \
                                                                                                   \
         if (!iter)                                                                                \
             return NULL;                                                                          \
@@ -432,12 +430,12 @@ static const char *cmc_string_fmt_deque = "%s at %p { buffer:%p, capacity:%" PRI
         return iter;                                                                              \
     }                                                                                             \
                                                                                                   \
-    void PFX##_iter_free(SNAME##_iter *iter)                                                      \
+    void PFX##_iter_free(struct SNAME##_iter *iter)                                               \
     {                                                                                             \
         free(iter);                                                                               \
     }                                                                                             \
                                                                                                   \
-    void PFX##_iter_init(SNAME##_iter *iter, SNAME *target)                                       \
+    void PFX##_iter_init(struct SNAME##_iter *iter, struct SNAME *target)                         \
     {                                                                                             \
         iter->target = target;                                                                    \
         iter->cursor = target->front;                                                             \
@@ -446,17 +444,17 @@ static const char *cmc_string_fmt_deque = "%s at %p { buffer:%p, capacity:%" PRI
         iter->end = PFX##_empty(target);                                                          \
     }                                                                                             \
                                                                                                   \
-    bool PFX##_iter_start(SNAME##_iter *iter)                                                     \
+    bool PFX##_iter_start(struct SNAME##_iter *iter)                                              \
     {                                                                                             \
         return PFX##_empty(iter->target) || iter->start;                                          \
     }                                                                                             \
                                                                                                   \
-    bool PFX##_iter_end(SNAME##_iter *iter)                                                       \
+    bool PFX##_iter_end(struct SNAME##_iter *iter)                                                \
     {                                                                                             \
         return PFX##_empty(iter->target) || iter->end;                                            \
     }                                                                                             \
                                                                                                   \
-    void PFX##_iter_to_start(SNAME##_iter *iter)                                                  \
+    void PFX##_iter_to_start(struct SNAME##_iter *iter)                                           \
     {                                                                                             \
         iter->cursor = iter->target->front;                                                       \
         iter->index = 0;                                                                          \
@@ -464,7 +462,7 @@ static const char *cmc_string_fmt_deque = "%s at %p { buffer:%p, capacity:%" PRI
         iter->end = PFX##_empty(iter->target);                                                    \
     }                                                                                             \
                                                                                                   \
-    void PFX##_iter_to_end(SNAME##_iter *iter)                                                    \
+    void PFX##_iter_to_end(struct SNAME##_iter *iter)                                             \
     {                                                                                             \
         if (PFX##_empty(iter->target))                                                            \
         {                                                                                         \
@@ -485,7 +483,7 @@ static const char *cmc_string_fmt_deque = "%s at %p { buffer:%p, capacity:%" PRI
         iter->end = true;                                                                         \
     }                                                                                             \
                                                                                                   \
-    bool PFX##_iter_next(SNAME##_iter *iter)                                                      \
+    bool PFX##_iter_next(struct SNAME##_iter *iter)                                               \
     {                                                                                             \
         if (iter->end)                                                                            \
             return false;                                                                         \
@@ -504,7 +502,7 @@ static const char *cmc_string_fmt_deque = "%s at %p { buffer:%p, capacity:%" PRI
         return true;                                                                              \
     }                                                                                             \
                                                                                                   \
-    bool PFX##_iter_prev(SNAME##_iter *iter)                                                      \
+    bool PFX##_iter_prev(struct SNAME##_iter *iter)                                               \
     {                                                                                             \
         if (iter->start)                                                                          \
             return false;                                                                         \
@@ -524,7 +522,7 @@ static const char *cmc_string_fmt_deque = "%s at %p { buffer:%p, capacity:%" PRI
     }                                                                                             \
                                                                                                   \
     /* Returns true only if the iterator moved */                                                 \
-    bool PFX##_iter_advance(SNAME##_iter *iter, size_t steps)                                     \
+    bool PFX##_iter_advance(struct SNAME##_iter *iter, size_t steps)                              \
     {                                                                                             \
         if (iter->end)                                                                            \
             return false;                                                                         \
@@ -547,7 +545,7 @@ static const char *cmc_string_fmt_deque = "%s at %p { buffer:%p, capacity:%" PRI
     }                                                                                             \
                                                                                                   \
     /* Returns true only if the iterator moved */                                                 \
-    bool PFX##_iter_rewind(SNAME##_iter *iter, size_t steps)                                      \
+    bool PFX##_iter_rewind(struct SNAME##_iter *iter, size_t steps)                               \
     {                                                                                             \
         if (iter->start)                                                                          \
             return false;                                                                         \
@@ -575,7 +573,7 @@ static const char *cmc_string_fmt_deque = "%s at %p { buffer:%p, capacity:%" PRI
     }                                                                                             \
                                                                                                   \
     /* Returns true only if the iterator was able to be positioned at the given index */          \
-    bool PFX##_iter_go_to(SNAME##_iter *iter, size_t index)                                       \
+    bool PFX##_iter_go_to(struct SNAME##_iter *iter, size_t index)                                \
     {                                                                                             \
         if (index >= PFX##_count(iter->target))                                                   \
             return false;                                                                         \
@@ -588,7 +586,7 @@ static const char *cmc_string_fmt_deque = "%s at %p { buffer:%p, capacity:%" PRI
         return true;                                                                              \
     }                                                                                             \
                                                                                                   \
-    V PFX##_iter_value(SNAME##_iter *iter)                                                        \
+    V PFX##_iter_value(struct SNAME##_iter *iter)                                                 \
     {                                                                                             \
         if (PFX##_empty(iter->target))                                                            \
             return (V){0};                                                                        \
@@ -596,7 +594,7 @@ static const char *cmc_string_fmt_deque = "%s at %p { buffer:%p, capacity:%" PRI
         return iter->target->buffer[iter->cursor];                                                \
     }                                                                                             \
                                                                                                   \
-    V *PFX##_iter_rvalue(SNAME##_iter *iter)                                                      \
+    V *PFX##_iter_rvalue(struct SNAME##_iter *iter)                                               \
     {                                                                                             \
         if (PFX##_empty(iter->target))                                                            \
             return NULL;                                                                          \
@@ -604,23 +602,23 @@ static const char *cmc_string_fmt_deque = "%s at %p { buffer:%p, capacity:%" PRI
         return &(iter->target->buffer[iter->cursor]);                                             \
     }                                                                                             \
                                                                                                   \
-    size_t PFX##_iter_index(SNAME##_iter *iter)                                                   \
+    size_t PFX##_iter_index(struct SNAME##_iter *iter)                                            \
     {                                                                                             \
         return iter->index;                                                                       \
     }                                                                                             \
                                                                                                   \
-    static SNAME##_iter PFX##_impl_it_start(SNAME *_deque_)                                       \
+    static struct SNAME##_iter PFX##_impl_it_start(struct SNAME *_deque_)                         \
     {                                                                                             \
-        SNAME##_iter iter;                                                                        \
+        struct SNAME##_iter iter;                                                                 \
                                                                                                   \
         PFX##_iter_init(&iter, _deque_);                                                          \
                                                                                                   \
         return iter;                                                                              \
     }                                                                                             \
                                                                                                   \
-    static SNAME##_iter PFX##_impl_it_end(SNAME *_deque_)                                         \
+    static struct SNAME##_iter PFX##_impl_it_end(struct SNAME *_deque_)                           \
     {                                                                                             \
-        SNAME##_iter iter;                                                                        \
+        struct SNAME##_iter iter;                                                                 \
                                                                                                   \
         PFX##_iter_init(&iter, _deque_);                                                          \
         PFX##_iter_to_end(&iter);                                                                 \

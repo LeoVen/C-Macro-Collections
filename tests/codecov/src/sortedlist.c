@@ -37,7 +37,7 @@ _Bool sl_resize(sortedlist *_list_, size_t capacity);
 void sl_sort(sortedlist *_list_);
 sortedlist *sl_copy_of(sortedlist *_list_, size_t (*copy_func)(size_t));
 _Bool sl_equals(sortedlist *_list1_, sortedlist *_list2_);
-cmc_string sl_to_string(sortedlist *_list_);
+struct cmc_string sl_to_string(sortedlist *_list_);
 sortedlist_iter *sl_iter_new(sortedlist *target);
 void sl_iter_free(sortedlist_iter *iter);
 void sl_iter_init(sortedlist_iter *iter, sortedlist *target);
@@ -208,9 +208,9 @@ _Bool sl_equals(sortedlist *_list1_, sortedlist *_list2_)
     }
     return 0;
 }
-cmc_string sl_to_string(sortedlist *_list_)
+struct cmc_string sl_to_string(sortedlist *_list_)
 {
-    cmc_string str;
+    struct cmc_string str;
     sortedlist *l_ = _list_;
     const char *name = "sortedlist";
     snprintf(str.s, cmc_string_len, cmc_string_fmt_sortedlist, name, l_, l_->buffer, l_->capacity, l_->count, l_->is_sorted ? "true" : "false", l_->cmp);

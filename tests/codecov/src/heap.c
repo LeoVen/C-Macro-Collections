@@ -7,7 +7,7 @@ typedef struct heap_s
     size_t *buffer;
     size_t capacity;
     size_t count;
-    enum cmc_heap_order_e HO;
+    enum cmc_heap_order HO;
     int (*cmp)(size_t, size_t);
     struct heap_iter_s (*it_start)(struct heap_s *);
     struct heap_iter_s (*it_end)(struct heap_s *);
@@ -19,7 +19,7 @@ typedef struct heap_iter_s
     _Bool start;
     _Bool end;
 } heap_iter, *heap_iter_ptr;
-heap *h_new(size_t capacity, cmc_heap_order HO, int (*compare)(size_t, size_t));
+heap *h_new(size_t capacity, enum cmc_heap_order HO, int (*compare)(size_t, size_t));
 void h_clear(heap *_heap_, void (*deallocator)(size_t));
 void h_free(heap *_heap_, void (*deallocator)(size_t));
 _Bool h_insert(heap *_heap_, size_t element);
@@ -33,7 +33,7 @@ size_t h_capacity(heap *_heap_);
 _Bool h_resize(heap *_heap_, size_t capacity);
 heap *h_copy_of(heap *_heap_, size_t (*copy_func)(size_t));
 _Bool h_equals(heap *_heap1_, heap *_heap2_);
-cmc_string h_to_string(heap *_heap_);
+struct cmc_string h_to_string(heap *_heap_);
 heap_iter *h_iter_new(heap *target);
 void h_iter_free(heap_iter *iter);
 void h_iter_init(heap_iter *iter, heap *target);
@@ -52,7 +52,7 @@ static _Bool h_impl_float_up(heap *_heap_, size_t index);
 static _Bool h_impl_float_down(heap *_heap_, size_t index);
 static heap_iter h_impl_it_start(heap *_heap_);
 static heap_iter h_impl_it_end(heap *_heap_);
-heap *h_new(size_t capacity, cmc_heap_order HO, int (*compare)(size_t, size_t))
+heap *h_new(size_t capacity, enum cmc_heap_order HO, int (*compare)(size_t, size_t))
 {
     if (capacity < 1)
         return ((void *)0);
@@ -187,9 +187,9 @@ _Bool h_equals(heap *_heap1_, heap *_heap2_)
     }
     return 1;
 }
-cmc_string h_to_string(heap *_heap_)
+struct cmc_string h_to_string(heap *_heap_)
 {
-    cmc_string str;
+    struct cmc_string str;
     heap *h_ = _heap_;
     const char *name = "heap";
     const char *t = h_->HO == 1 ? "MaxHeap" : "MinHeap";

@@ -9,7 +9,7 @@ CMC_GENERATE_DEQUE(d, deque, size_t)
 
 CMC_CREATE_UNIT(deque_test, true, {
     CMC_CREATE_TEST(new, {
-        deque *d = d_new(1000000);
+        struct deque *d = d_new(1000000);
 
         cmc_assert_not_equals(ptr, NULL, d);
         cmc_assert_not_equals(ptr, NULL, d->buffer);
@@ -20,19 +20,19 @@ CMC_CREATE_UNIT(deque_test, true, {
     });
 
     CMC_CREATE_TEST(new[capacity = 0], {
-        deque *d = d_new(0);
+        struct deque *d = d_new(0);
 
         cmc_assert_equals(ptr, NULL, d);
     });
 
     CMC_CREATE_TEST(new[capacity = UINT64_MAX], {
-        deque *d = d_new(UINT64_MAX);
+        struct deque *d = d_new(UINT64_MAX);
 
         cmc_assert_equals(ptr, NULL, d);
     });
 
     CMC_CREATE_TEST(clear[count capacity], {
-        deque *d = d_new(100);
+        struct deque *d = d_new(100);
 
         cmc_assert_not_equals(ptr, NULL, d);
 
@@ -50,7 +50,7 @@ CMC_CREATE_UNIT(deque_test, true, {
     });
 
     CMC_CREATE_TEST(buffer_growth[capacity = 1], {
-        deque *d = d_new(1);
+        struct deque *d = d_new(1);
 
         cmc_assert_not_equals(ptr, NULL, d);
 
@@ -64,7 +64,7 @@ CMC_CREATE_UNIT(deque_test, true, {
     });
 
     CMC_CREATE_TEST(buffer_growth[item preservation], {
-        deque *d = d_new(100);
+        struct deque *d = d_new(100);
 
         cmc_assert_not_equals(ptr, NULL, d);
 
@@ -87,7 +87,7 @@ CMC_CREATE_UNIT(deque_test, true, {
     });
 
     CMC_CREATE_TEST(push_front[count capacity], {
-        deque *d = d_new(100);
+        struct deque *d = d_new(100);
 
         cmc_assert_not_equals(ptr, NULL, d);
 
@@ -101,7 +101,7 @@ CMC_CREATE_UNIT(deque_test, true, {
     });
 
     CMC_CREATE_TEST(push_front[item preservation], {
-        deque *d = d_new(100);
+        struct deque *d = d_new(100);
 
         cmc_assert_not_equals(ptr, NULL, d);
 
@@ -121,7 +121,7 @@ CMC_CREATE_UNIT(deque_test, true, {
     });
 
     CMC_CREATE_TEST(push_back[count capacity], {
-        deque *d = d_new(100);
+        struct deque *d = d_new(100);
 
         cmc_assert_not_equals(ptr, NULL, d);
 
@@ -135,7 +135,7 @@ CMC_CREATE_UNIT(deque_test, true, {
     });
 
     CMC_CREATE_TEST(push_back[item preservation], {
-        deque *d = d_new(100);
+        struct deque *d = d_new(100);
 
         cmc_assert_not_equals(ptr, NULL, d);
 
@@ -155,7 +155,7 @@ CMC_CREATE_UNIT(deque_test, true, {
     });
 
     CMC_CREATE_TEST(pop_front[count capacity], {
-        deque *d = d_new(100);
+        struct deque *d = d_new(100);
 
         cmc_assert_not_equals(ptr, NULL, d);
 
@@ -173,7 +173,7 @@ CMC_CREATE_UNIT(deque_test, true, {
     });
 
     CMC_CREATE_TEST(pop_front[item preservation], {
-        deque *d = d_new(100);
+        struct deque *d = d_new(100);
 
         cmc_assert_not_equals(ptr, NULL, d);
 
@@ -196,7 +196,7 @@ CMC_CREATE_UNIT(deque_test, true, {
     });
 
     CMC_CREATE_TEST(pop_back[count capacity], {
-        deque *d = d_new(100);
+        struct deque *d = d_new(100);
 
         cmc_assert_not_equals(ptr, NULL, d);
 
@@ -214,7 +214,7 @@ CMC_CREATE_UNIT(deque_test, true, {
     });
 
     CMC_CREATE_TEST(pop_back[item preservation], {
-        deque *d = d_new(100);
+        struct deque *d = d_new(100);
 
         cmc_assert_not_equals(ptr, NULL, d);
 
@@ -237,7 +237,7 @@ CMC_CREATE_UNIT(deque_test, true, {
     });
 
     CMC_CREATE_TEST(Mixed IO, {
-        deque *d = d_new(100);
+        struct deque *d = d_new(100);
 
         cmc_assert_not_equals(ptr, NULL, d);
 
@@ -301,7 +301,7 @@ CMC_CREATE_UNIT(deque_test, true, {
     });
 
     CMC_CREATE_TEST(front[count = 0], {
-        deque *d = d_new(100);
+        struct deque *d = d_new(100);
 
         cmc_assert_not_equals(ptr, NULL, d);
 
@@ -313,7 +313,7 @@ CMC_CREATE_UNIT(deque_test, true, {
     });
 
     CMC_CREATE_TEST(front[sum], {
-        deque *d = d_new(100);
+        struct deque *d = d_new(100);
 
         cmc_assert_not_equals(ptr, NULL, d);
 
@@ -342,7 +342,7 @@ CMC_CREATE_UNIT(deque_test, true, {
     });
 
     CMC_CREATE_TEST(back[count = 0], {
-        deque *d = d_new(100);
+        struct deque *d = d_new(100);
 
         cmc_assert_not_equals(ptr, NULL, d);
 
@@ -354,7 +354,7 @@ CMC_CREATE_UNIT(deque_test, true, {
     });
 
     CMC_CREATE_TEST(back[sum], {
-        deque *d = d_new(100);
+        struct deque *d = d_new(100);
 
         cmc_assert_not_equals(ptr, NULL, d);
 
@@ -383,7 +383,7 @@ CMC_CREATE_UNIT(deque_test, true, {
     });
 
     CMC_CREATE_TEST(contains, {
-        deque *d = d_new(100);
+        struct deque *d = d_new(100);
 
         cmc_assert_not_equals(ptr, NULL, d);
 
@@ -405,7 +405,7 @@ CMC_CREATE_UNIT(deque_test, true, {
     });
 
     CMC_CREATE_TEST(contains[count = 0], {
-        deque *d = d_new(100);
+        struct deque *d = d_new(100);
 
         cmc_assert_not_equals(ptr, NULL, d);
 
@@ -415,7 +415,7 @@ CMC_CREATE_UNIT(deque_test, true, {
     });
 
     CMC_CREATE_TEST(contains[count = 1], {
-        deque *d = d_new(100);
+        struct deque *d = d_new(100);
 
         cmc_assert_not_equals(ptr, NULL, d);
 
@@ -436,7 +436,7 @@ CMC_CREATE_UNIT(deque_test, true, {
     });
 
     CMC_CREATE_TEST(empty, {
-        deque *d = d_new(100);
+        struct deque *d = d_new(100);
 
         cmc_assert_not_equals(ptr, NULL, d);
 
@@ -450,7 +450,7 @@ CMC_CREATE_UNIT(deque_test, true, {
     });
 
     CMC_CREATE_TEST(full, {
-        deque *d = d_new(100);
+        struct deque *d = d_new(100);
 
         cmc_assert_not_equals(ptr, NULL, d);
 
@@ -465,7 +465,7 @@ CMC_CREATE_UNIT(deque_test, true, {
     });
 
     CMC_CREATE_TEST(count, {
-        deque *d = d_new(100);
+        struct deque *d = d_new(100);
 
         cmc_assert_not_equals(ptr, NULL, d);
 
@@ -480,7 +480,7 @@ CMC_CREATE_UNIT(deque_test, true, {
     });
 
     CMC_CREATE_TEST(capacity, {
-        deque *d = d_new(100);
+        struct deque *d = d_new(100);
 
         cmc_assert_not_equals(ptr, NULL, d);
 
@@ -490,7 +490,7 @@ CMC_CREATE_UNIT(deque_test, true, {
     });
 
     CMC_CREATE_TEST(resize, {
-        deque *d = d_new(100);
+        struct deque *d = d_new(100);
 
         cmc_assert_not_equals(ptr, NULL, d);
 
@@ -510,7 +510,7 @@ CMC_CREATE_UNIT(deque_test, true, {
     });
 
     CMC_CREATE_TEST(resize[item preservation], {
-        deque *d = d_new(100);
+        struct deque *d = d_new(100);
 
         cmc_assert_not_equals(ptr, NULL, d);
 
@@ -537,7 +537,7 @@ CMC_CREATE_UNIT(deque_test, true, {
     });
 
     CMC_CREATE_TEST(copy_of, {
-        deque *d1 = d_new(100);
+        struct deque *d1 = d_new(100);
 
         cmc_assert_not_equals(ptr, NULL, d1);
 
@@ -549,7 +549,7 @@ CMC_CREATE_UNIT(deque_test, true, {
                 cmc_assert(d_push_front(d1, i));
         }
 
-        deque *d2 = d_copy_of(d1, NULL);
+        struct deque *d2 = d_copy_of(d1, NULL);
 
         cmc_assert_not_equals(ptr, NULL, d2);
         cmc_assert_equals(size_t, d_count(d1), d_count(d2));
@@ -567,8 +567,8 @@ CMC_CREATE_UNIT(deque_test, true, {
     });
 
     CMC_CREATE_TEST(equals, {
-        deque *d1 = d_new(100);
-        deque *d2 = d_new(100);
+        struct deque *d1 = d_new(100);
+        struct deque *d2 = d_new(100);
 
         cmc_assert_not_equals(ptr, NULL, d1);
         cmc_assert_not_equals(ptr, NULL, d2);
@@ -594,7 +594,7 @@ CMC_CREATE_UNIT(deque_test, true, {
     });
 
     CMC_CREATE_TEST(equals[from copy], {
-        deque *d1 = d_new(100);
+        struct deque *d1 = d_new(100);
 
         cmc_assert_not_equals(ptr, NULL, d1);
 
@@ -606,7 +606,7 @@ CMC_CREATE_UNIT(deque_test, true, {
                 cmc_assert(d_push_front(d1, i));
         }
 
-        deque *d2 = d_copy_of(d1, NULL);
+        struct deque *d2 = d_copy_of(d1, NULL);
 
         cmc_assert_not_equals(ptr, NULL, d2);
 
@@ -617,11 +617,11 @@ CMC_CREATE_UNIT(deque_test, true, {
     });
 
     CMC_CREATE_TEST(equals[count = 0], {
-        deque *d1 = d_new(100);
+        struct deque *d1 = d_new(100);
 
         cmc_assert_not_equals(ptr, NULL, d1);
 
-        deque *d2 = d_copy_of(d1, NULL);
+        struct deque *d2 = d_copy_of(d1, NULL);
 
         cmc_assert_not_equals(ptr, NULL, d2);
 

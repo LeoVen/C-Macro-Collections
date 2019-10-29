@@ -9,7 +9,7 @@ CMC_GENERATE_INTERVALHEAP(ih, intervalheap, size_t)
 
 CMC_CREATE_UNIT(intervalheap_test, true, {
     CMC_CREATE_TEST(new, {
-        intervalheap *ih = ih_new(1000000, cmp);
+        struct intervalheap *ih = ih_new(1000000, cmp);
 
         cmc_assert_not_equals(ptr, NULL, ih);
         cmc_assert_not_equals(ptr, NULL, ih->buffer);
@@ -20,7 +20,7 @@ CMC_CREATE_UNIT(intervalheap_test, true, {
     });
 
     CMC_CREATE_TEST(new[capacity = 0], {
-        intervalheap *ih = ih_new(0, cmp);
+        struct intervalheap *ih = ih_new(0, cmp);
 
         cmc_assert_equals(ptr, NULL, ih);
 
@@ -29,7 +29,7 @@ CMC_CREATE_UNIT(intervalheap_test, true, {
     });
 
     CMC_CREATE_TEST(new[capacity], {
-        intervalheap *ih = ih_new(1, cmp);
+        struct intervalheap *ih = ih_new(1, cmp);
 
         cmc_assert_not_equals(ptr, NULL, ih);
         cmc_assert_equals(size_t, 1, ih_capacity(ih));
@@ -59,7 +59,7 @@ CMC_CREATE_UNIT(intervalheap_test, true, {
     });
 
     CMC_CREATE_TEST(new[capacity = UINT64_MAX], {
-        intervalheap *ih = ih_new(UINT64_MAX, cmp);
+        struct intervalheap *ih = ih_new(UINT64_MAX, cmp);
 
         cmc_assert_equals(ptr, NULL, ih);
 
@@ -68,7 +68,7 @@ CMC_CREATE_UNIT(intervalheap_test, true, {
     });
 
     CMC_CREATE_TEST(clear[count capacity], {
-        intervalheap *ih = ih_new(100, cmp);
+        struct intervalheap *ih = ih_new(100, cmp);
 
         cmc_assert_not_equals(ptr, NULL, ih);
 
@@ -86,7 +86,7 @@ CMC_CREATE_UNIT(intervalheap_test, true, {
     });
 
     CMC_CREATE_TEST(buffer_growth[capacity = 1], {
-        intervalheap *ih = ih_new(1, cmp);
+        struct intervalheap *ih = ih_new(1, cmp);
 
         cmc_assert_not_equals(ptr, NULL, ih);
 
@@ -100,7 +100,7 @@ CMC_CREATE_UNIT(intervalheap_test, true, {
     });
 
     CMC_CREATE_TEST(insert[count], {
-        intervalheap *ih = ih_new(100, cmp);
+        struct intervalheap *ih = ih_new(100, cmp);
 
         cmc_assert_not_equals(ptr, NULL, ih);
 
@@ -113,7 +113,7 @@ CMC_CREATE_UNIT(intervalheap_test, true, {
     });
 
     CMC_CREATE_TEST(insert[max min], {
-        intervalheap *ih = ih_new(1, cmp);
+        struct intervalheap *ih = ih_new(1, cmp);
 
         cmc_assert_not_equals(ptr, NULL, ih);
 

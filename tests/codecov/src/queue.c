@@ -34,7 +34,7 @@ size_t q_capacity(queue *_queue_);
 _Bool q_resize(queue *_queue_, size_t capacity);
 queue *q_copy_of(queue *_queue_, size_t (*copy_func)(size_t));
 _Bool q_equals(queue *_queue1_, queue *_queue2_, int (*comparator)(size_t, size_t));
-cmc_string q_to_string(queue *_queue_);
+struct cmc_string q_to_string(queue *_queue_);
 queue_iter *q_iter_new(queue *target);
 void q_iter_free(queue_iter *iter);
 void q_iter_init(queue_iter *iter, queue *target);
@@ -202,9 +202,9 @@ _Bool q_equals(queue *_queue1_, queue *_queue2_, int (*comparator)(size_t, size_
     }
     return 1;
 }
-cmc_string q_to_string(queue *_queue_)
+struct cmc_string q_to_string(queue *_queue_)
 {
-    cmc_string str;
+    struct cmc_string str;
     queue *q_ = _queue_;
     const char *name = "queue";
     snprintf(str.s, cmc_string_len, cmc_string_fmt_queue, name, q_, q_->buffer, q_->capacity, q_->count, q_->front, q_->back);

@@ -9,7 +9,7 @@ CMC_GENERATE_HASHSET(hs, hashset, size_t)
 
 CMC_CREATE_UNIT(hashset_test, true, {
     CMC_CREATE_TEST(new, {
-        hashset *set = hs_new(943722, 0.6, cmp, hash);
+        struct hashset *set = hs_new(943722, 0.6, cmp, hash);
 
         cmc_assert_not_equals(ptr, NULL, set);
         cmc_assert_not_equals(ptr, NULL, set->buffer);
@@ -20,19 +20,19 @@ CMC_CREATE_UNIT(hashset_test, true, {
     });
 
     CMC_CREATE_TEST(new[capacity = 0], {
-        hashset *set = hs_new(0, 0.6, cmp, hash);
+        struct hashset *set = hs_new(0, 0.6, cmp, hash);
 
         cmc_assert_equals(ptr, NULL, set);
     });
 
     CMC_CREATE_TEST(new[capacity = UINT64_MAX], {
-        hashset *set = hs_new(UINT64_MAX, 0.99, cmp, hash);
+        struct hashset *set = hs_new(UINT64_MAX, 0.99, cmp, hash);
 
         cmc_assert_equals(ptr, NULL, set);
     });
 
     CMC_CREATE_TEST(clear[count capacity], {
-        hashset *set = hs_new(100, 0.6, cmp, hash);
+        struct hashset *set = hs_new(100, 0.6, cmp, hash);
 
         cmc_assert_not_equals(ptr, NULL, set);
 
@@ -49,7 +49,7 @@ CMC_CREATE_UNIT(hashset_test, true, {
     });
 
     CMC_CREATE_TEST(insert, {
-        hashset *set = hs_new(100, 0.6, cmp, hash);
+        struct hashset *set = hs_new(100, 0.6, cmp, hash);
 
         cmc_assert_not_equals(ptr, NULL, set);
 
@@ -60,7 +60,7 @@ CMC_CREATE_UNIT(hashset_test, true, {
     });
 
     CMC_CREATE_TEST(insert[smallest capacity], {
-        hashset *set = hs_new(1, 0.99, cmp, hash);
+        struct hashset *set = hs_new(1, 0.99, cmp, hash);
 
         cmc_assert_not_equals(ptr, NULL, set);
 
@@ -72,7 +72,7 @@ CMC_CREATE_UNIT(hashset_test, true, {
 
     CMC_CREATE_TEST(insert[element position], {
         // Using the numhash the key is the hash itself
-        hashset *set = hs_new(1, 0.99, cmp, numhash);
+        struct hashset *set = hs_new(1, 0.99, cmp, numhash);
 
         cmc_assert_not_equals(ptr, NULL, set);
 
@@ -90,7 +90,7 @@ CMC_CREATE_UNIT(hashset_test, true, {
     });
 
     CMC_CREATE_TEST(insert[distance], {
-        hashset *set = hs_new(500, 0.6, cmp, hash0);
+        struct hashset *set = hs_new(500, 0.6, cmp, hash0);
 
         cmc_assert_not_equals(ptr, NULL, set);
 
@@ -105,7 +105,7 @@ CMC_CREATE_UNIT(hashset_test, true, {
     });
 
     CMC_CREATE_TEST(insert[distance wrap], {
-        hashset *set = hs_new(1, 0.99, cmp, hashcapminus1);
+        struct hashset *set = hs_new(1, 0.99, cmp, hashcapminus1);
 
         cmc_assert_not_equals(ptr, NULL, set);
 
@@ -125,7 +125,7 @@ CMC_CREATE_UNIT(hashset_test, true, {
     });
 
     CMC_CREATE_TEST(insert[buffer growth and item preservation], {
-        hashset *set = hs_new(1, 0.99, cmp, hash);
+        struct hashset *set = hs_new(1, 0.99, cmp, hash);
 
         cmc_assert_not_equals(ptr, NULL, set);
 
@@ -149,7 +149,7 @@ CMC_CREATE_UNIT(hashset_test, true, {
     });
 
     CMC_CREATE_TEST(remove, {
-        hashset *set = hs_new(100, 0.6, cmp, hash);
+        struct hashset *set = hs_new(100, 0.6, cmp, hash);
 
         cmc_assert_not_equals(ptr, NULL, set);
 
@@ -163,7 +163,7 @@ CMC_CREATE_UNIT(hashset_test, true, {
     });
 
     CMC_CREATE_TEST(remove[count = 0], {
-        hashset *set = hs_new(100, 0.6, cmp, hash);
+        struct hashset *set = hs_new(100, 0.6, cmp, hash);
 
         cmc_assert_not_equals(ptr, NULL, set);
 
@@ -174,7 +174,7 @@ CMC_CREATE_UNIT(hashset_test, true, {
     });
 
     CMC_CREATE_TEST(remove[key not found], {
-        hashset *set = hs_new(100, 0.6, cmp, hash);
+        struct hashset *set = hs_new(100, 0.6, cmp, hash);
 
         cmc_assert_not_equals(ptr, NULL, set);
 
@@ -188,7 +188,7 @@ CMC_CREATE_UNIT(hashset_test, true, {
     });
 
     CMC_CREATE_TEST(max, {
-        hashset *set = hs_new(100, 0.6, cmp, hash);
+        struct hashset *set = hs_new(100, 0.6, cmp, hash);
 
         cmc_assert_not_equals(ptr, NULL, set);
 
@@ -204,7 +204,7 @@ CMC_CREATE_UNIT(hashset_test, true, {
     });
 
     CMC_CREATE_TEST(max[count = 0], {
-        hashset *set = hs_new(100, 0.6, cmp, hash);
+        struct hashset *set = hs_new(100, 0.6, cmp, hash);
 
         cmc_assert_not_equals(ptr, NULL, set);
 
@@ -214,7 +214,7 @@ CMC_CREATE_UNIT(hashset_test, true, {
     });
 
     CMC_CREATE_TEST(min, {
-        hashset *set = hs_new(100, 0.6, cmp, hash);
+        struct hashset *set = hs_new(100, 0.6, cmp, hash);
 
         cmc_assert_not_equals(ptr, NULL, set);
 
@@ -230,7 +230,7 @@ CMC_CREATE_UNIT(hashset_test, true, {
     });
 
     CMC_CREATE_TEST(min[count = 0], {
-        hashset *set = hs_new(100, 0.6, cmp, hash);
+        struct hashset *set = hs_new(100, 0.6, cmp, hash);
 
         cmc_assert_not_equals(ptr, NULL, set);
 
@@ -240,7 +240,7 @@ CMC_CREATE_UNIT(hashset_test, true, {
     });
 
     CMC_CREATE_TEST(contains, {
-        hashset *set = hs_new(100, 0.6, cmp, hash);
+        struct hashset *set = hs_new(100, 0.6, cmp, hash);
 
         cmc_assert_not_equals(ptr, NULL, set);
 
@@ -252,7 +252,7 @@ CMC_CREATE_UNIT(hashset_test, true, {
     });
 
     CMC_CREATE_TEST(contains[count = 0], {
-        hashset *set = hs_new(100, 0.6, cmp, hash);
+        struct hashset *set = hs_new(100, 0.6, cmp, hash);
 
         cmc_assert_not_equals(ptr, NULL, set);
 
@@ -262,7 +262,7 @@ CMC_CREATE_UNIT(hashset_test, true, {
     });
 
     CMC_CREATE_TEST(contains[sum], {
-        hashset *set = hs_new(100, 0.6, cmp, hash);
+        struct hashset *set = hs_new(100, 0.6, cmp, hash);
 
         cmc_assert_not_equals(ptr, NULL, set);
 
@@ -280,7 +280,7 @@ CMC_CREATE_UNIT(hashset_test, true, {
     });
 
     CMC_CREATE_TEST(empty, {
-        hashset *set = hs_new(100, 0.6, cmp, hash);
+        struct hashset *set = hs_new(100, 0.6, cmp, hash);
 
         cmc_assert_not_equals(ptr, NULL, set);
 
@@ -294,7 +294,7 @@ CMC_CREATE_UNIT(hashset_test, true, {
     });
 
     CMC_CREATE_TEST(full, {
-        hashset *set = hs_new(cmc_hashtable_primes[0], 0.99999, cmp, hash);
+        struct hashset *set = hs_new(cmc_hashtable_primes[0], 0.99999, cmp, hash);
 
         cmc_assert_not_equals(ptr, NULL, set);
 
@@ -315,7 +315,7 @@ CMC_CREATE_UNIT(hashset_test, true, {
     });
 
     CMC_CREATE_TEST(count, {
-        hashset *set = hs_new(100, 0.6, cmp, hash);
+        struct hashset *set = hs_new(100, 0.6, cmp, hash);
 
         cmc_assert_not_equals(ptr, NULL, set);
 
@@ -329,7 +329,7 @@ CMC_CREATE_UNIT(hashset_test, true, {
     });
 
     CMC_CREATE_TEST(capacity, {
-        hashset *set = hs_new(2500, 0.6, cmp, hash);
+        struct hashset *set = hs_new(2500, 0.6, cmp, hash);
 
         cmc_assert_not_equals(ptr, NULL, set);
 
@@ -339,7 +339,7 @@ CMC_CREATE_UNIT(hashset_test, true, {
     });
 
     CMC_CREATE_TEST(capacity[small], {
-        hashset *set = hs_new(1, 0.99, cmp, hash);
+        struct hashset *set = hs_new(1, 0.99, cmp, hash);
 
         cmc_assert_not_equals(ptr, NULL, set);
 
@@ -349,7 +349,7 @@ CMC_CREATE_UNIT(hashset_test, true, {
     });
 
     CMC_CREATE_TEST(load, {
-        hashset *set = hs_new(1, 0.99, cmp, hash);
+        struct hashset *set = hs_new(1, 0.99, cmp, hash);
 
         cmc_assert_not_equals(ptr, NULL, set);
 

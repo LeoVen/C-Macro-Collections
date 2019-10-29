@@ -52,7 +52,7 @@ size_t bm_capacity(bidimap *_map_);
 double bm_load(bidimap *_map_);
 bidimap *bm_copy_of(bidimap *_map_, size_t (*key_copy_func)(size_t), size_t (*value_copy_func)(size_t));
 _Bool bm_equals(bidimap *_map1_, bidimap *_map2_);
-cmc_string bm_to_string(bidimap *_map_);
+struct cmc_string bm_to_string(bidimap *_map_);
 bidimap_iter *bm_iter_new(bidimap *target);
 void bm_iter_free(bidimap_iter *iter);
 void bm_iter_init(bidimap_iter *iter, bidimap *target);
@@ -201,9 +201,9 @@ size_t bm_capacity(bidimap *_map_) { return _map_->capacity; }
 double bm_load(bidimap *_map_) { return _map_->load; }
 bidimap *bm_copy_of(bidimap *_map_, size_t (*key_copy_func)(size_t), size_t (*value_copy_func)(size_t)) { return ((void *)0); }
 _Bool bm_equals(bidimap *_map1_, bidimap *_map2_) { return 0; }
-cmc_string bm_to_string(bidimap *_map_)
+struct cmc_string bm_to_string(bidimap *_map_)
 {
-    cmc_string str;
+    struct cmc_string str;
     bidimap *m_ = _map_;
     const char *name = "bidimap";
     snprintf(str.s, cmc_string_len, cmc_string_fmt_bidimap, name, m_, m_->key_buffer, m_->val_buffer, m_->capacity, m_->count, m_->load, m_->key_cmp, m_->val_cmp, m_->key_hash, m_->val_hash);

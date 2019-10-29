@@ -9,7 +9,7 @@ CMC_GENERATE_BIDIMAP(bm, bidimap, size_t, size_t)
 
 CMC_CREATE_UNIT(bidimap_test, true, {
     CMC_CREATE_TEST(new, {
-        bidimap *map = bm_new(100, 0.6, cmp, hash, cmp, hash);
+        struct bidimap *map = bm_new(100, 0.6, cmp, hash, cmp, hash);
 
         cmc_assert_not_equals(ptr, NULL, map);
 
@@ -17,7 +17,7 @@ CMC_CREATE_UNIT(bidimap_test, true, {
     });
 
     CMC_CREATE_TEST(clear[count], {
-        bidimap *map = bm_new(100, 0.6, cmp, hash, cmp, hash);
+        struct bidimap *map = bm_new(100, 0.6, cmp, hash, cmp, hash);
 
         cmc_assert_not_equals(ptr, NULL, map);
 
@@ -34,7 +34,7 @@ CMC_CREATE_UNIT(bidimap_test, true, {
     });
 
     CMC_CREATE_TEST(buffer_growth[capacity = 1], {
-        bidimap *map = bm_new(1, 0.7, cmp, hash, cmp, hash);
+        struct bidimap *map = bm_new(1, 0.7, cmp, hash, cmp, hash);
 
         for (size_t i = 1; i <= 10000; i++)
             cmc_assert(bm_insert(map, i, i));
@@ -55,12 +55,12 @@ CMC_CREATE_UNIT(bidimap_test, true, {
     });
 
     CMC_CREATE_TEST(copy_of, {
-        bidimap *map1 = bm_new(100, 0.7, cmp, hash, cmp, hash);
+        struct bidimap *map1 = bm_new(100, 0.7, cmp, hash, cmp, hash);
 
         for (size_t i = 0; i < 100; i++)
             cmc_assert(bm_insert(map1, i, i));
 
-        bidimap *map2 = bm_copy_of(map1, NULL, NULL);
+        struct bidimap *map2 = bm_copy_of(map1, NULL, NULL);
 
         cmc_assert_not_equals(ptr, NULL, map2);
         cmc_assert_equals(size_t, bm_count(map1), bm_count(map2));
@@ -76,8 +76,8 @@ CMC_CREATE_UNIT(bidimap_test, true, {
     });
 
     CMC_CREATE_TEST(equals, {
-        bidimap *map1 = bm_new(100, 0.7, cmp, hash, cmp, hash);
-        bidimap *map2 = bm_new(1000, 0.9, cmp, hash, cmp, hash);
+        struct bidimap *map1 = bm_new(100, 0.7, cmp, hash, cmp, hash);
+        struct bidimap *map2 = bm_new(1000, 0.9, cmp, hash, cmp, hash);
 
         for (size_t i = 0; i < 100; i++)
         {
@@ -100,12 +100,12 @@ CMC_CREATE_UNIT(bidimap_test, true, {
     });
 
     CMC_CREATE_TEST(equals[from copy], {
-        bidimap *map1 = bm_new(100, 0.7, cmp, hash, cmp, hash);
+        struct bidimap *map1 = bm_new(100, 0.7, cmp, hash, cmp, hash);
 
         for (size_t i = 0; i < 100; i++)
             cmc_assert(bm_insert(map1, i, i));
 
-        bidimap *map2 = bm_copy_of(map1, NULL, NULL);
+        struct bidimap *map2 = bm_copy_of(map1, NULL, NULL);
 
         cmc_assert_not_equals(ptr, NULL, map2);
 

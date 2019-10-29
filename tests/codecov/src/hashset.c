@@ -17,7 +17,7 @@ typedef struct hashset_entry_s
 {
     size_t value;
     size_t dist;
-    enum cmc_entry_state_e state;
+    enum cmc_entry_state state;
 } hashset_entry, *hashset_entry_ptr;
 typedef struct hashset_iter_s
 {
@@ -45,7 +45,7 @@ double hs_load(hashset *_set_);
 _Bool hs_resize(hashset *_set_, size_t capacity);
 hashset *hs_copy_of(hashset *_set_, size_t (*copy_func)(size_t));
 _Bool hs_equals(hashset *_set1_, hashset *_set2_);
-cmc_string hs_to_string(hashset *_set_);
+struct cmc_string hs_to_string(hashset *_set_);
 hashset *hs_union(hashset *_set1_, hashset *_set2_);
 hashset *hs_intersection(hashset *_set1_, hashset *_set2_);
 hashset *hs_difference(hashset *_set1_, hashset *_set2_);
@@ -304,9 +304,9 @@ _Bool hs_equals(hashset *_set1_, hashset *_set2_)
     }
     return 1;
 }
-cmc_string hs_to_string(hashset *_set_)
+struct cmc_string hs_to_string(hashset *_set_)
 {
-    cmc_string str;
+    struct cmc_string str;
     hashset *s_ = _set_;
     const char *name = "hashset";
     snprintf(str.s, cmc_string_len, cmc_string_fmt_hashset, name, s_, s_->buffer, s_->capacity, s_->count, s_->load, s_->cmp, s_->hash);

@@ -40,7 +40,7 @@ _Bool ts_empty(treeset *_set_);
 size_t ts_count(treeset *_set_);
 treeset *ts_copy_of(treeset *_set_, size_t (*copy_func)(size_t));
 _Bool ts_equals(treeset *_set1_, treeset *_set2_);
-cmc_string ts_to_string(treeset *_set_);
+struct cmc_string ts_to_string(treeset *_set_);
 treeset *ts_union(treeset *_set1_, treeset *_set2_);
 treeset *ts_intersection(treeset *_set1_, treeset *_set2_);
 treeset *ts_difference(treeset *_set1_, treeset *_set2_);
@@ -357,9 +357,9 @@ _Bool ts_equals(treeset *_set1_, treeset *_set2_)
     }
     return 1;
 }
-cmc_string ts_to_string(treeset *_set_)
+struct cmc_string ts_to_string(treeset *_set_)
 {
-    cmc_string str;
+    struct cmc_string str;
     treeset *s_ = _set_;
     const char *name = "treeset";
     snprintf(str.s, cmc_string_len, cmc_string_fmt_treeset, name, s_, s_->root, s_->count, s_->cmp);

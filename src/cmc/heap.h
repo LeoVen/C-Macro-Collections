@@ -40,11 +40,11 @@
 /* to_string format */
 static const char *cmc_string_fmt_heap = "%s at %p { buffer:%p, capacity:%" PRIuMAX ", count:%" PRIuMAX ", type:%s, cmp:%p }";
 
-typedef enum cmc_heap_order_e
+enum cmc_heap_order
 {
     cmc_max_heap = 1,
     cmc_min_heap = -1
-} cmc_heap_order;
+};
 
 #define CMC_GENERATE_HEAP(PFX, SNAME, V)    \
     CMC_GENERATE_HEAP_HEADER(PFX, SNAME, V) \
@@ -57,104 +57,102 @@ typedef enum cmc_heap_order_e
     CMC_GENERATE_HEAP_SOURCE(PFX, SNAME, V)
 
 /* HEADER ********************************************************************/
-#define CMC_GENERATE_HEAP_HEADER(PFX, SNAME, V)                                 \
-                                                                                \
-    /* Heap Structure */                                                        \
-    typedef struct SNAME##_s                                                    \
-    {                                                                           \
-        /* Dynamic array of elements */                                         \
-        V *buffer;                                                              \
-                                                                                \
-        /* Current array capacity */                                            \
-        size_t capacity;                                                        \
-                                                                                \
-        /* Current amount of elements in the heap */                            \
-        size_t count;                                                           \
-                                                                                \
-        /* Heap order (MaxHeap or MinHeap) */                                   \
-        enum cmc_heap_order_e HO;                                               \
-                                                                                \
-        /* Element comparison function */                                       \
-        int (*cmp)(V, V);                                                       \
-                                                                                \
-        /* Function that returns an iterator to the start of the heap */        \
-        struct SNAME##_iter_s (*it_start)(struct SNAME##_s *);                  \
-                                                                                \
-        /* Function that returns an iterator to the end of the heap */          \
-        struct SNAME##_iter_s (*it_end)(struct SNAME##_s *);                    \
-                                                                                \
-    } SNAME, *SNAME##_ptr;                                                      \
-                                                                                \
-    /* Heap Iterator */                                                         \
-    typedef struct SNAME##_iter_s                                               \
-    {                                                                           \
-        /* Target heap */                                                       \
-        struct SNAME##_s *target;                                               \
-                                                                                \
-        /* Cursor's position (index) */                                         \
-        size_t cursor;                                                          \
-                                                                                \
-        /* If the iterator has reached the start of the iteration */            \
-        bool start;                                                             \
-                                                                                \
-        /* If the iterator has reached the end of the iteration */              \
-        bool end;                                                               \
-                                                                                \
-    } SNAME##_iter, *SNAME##_iter_ptr;                                          \
-                                                                                \
-    /* Collection Functions */                                                  \
-    /* Collection Allocation and Deallocation */                                \
-    SNAME *PFX##_new(size_t capacity, cmc_heap_order HO, int (*compare)(V, V)); \
-    void PFX##_clear(SNAME *_heap_, void (*deallocator)(V));                    \
-    void PFX##_free(SNAME *_heap_, void (*deallocator)(V));                     \
-    /* Collection Input and Output */                                           \
-    bool PFX##_insert(SNAME *_heap_, V element);                                \
-    bool PFX##_remove(SNAME *_heap_, V *result);                                \
-    /* Element Access */                                                        \
-    V PFX##_peek(SNAME *_heap_);                                                \
-    /* Collection State */                                                      \
-    bool PFX##_contains(SNAME *_heap_, V element);                              \
-    bool PFX##_empty(SNAME *_heap_);                                            \
-    bool PFX##_full(SNAME *_heap_);                                             \
-    size_t PFX##_count(SNAME *_heap_);                                          \
-    size_t PFX##_capacity(SNAME *_heap_);                                       \
-    /* Collection Utility */                                                    \
-    bool PFX##_resize(SNAME *_heap_, size_t capacity);                          \
-    SNAME *PFX##_copy_of(SNAME *_heap_, V (*copy_func)(V));                     \
-    bool PFX##_equals(SNAME *_heap1_, SNAME *_heap2_);                          \
-    cmc_string PFX##_to_string(SNAME *_heap_);                                  \
-                                                                                \
-    /* Iterator Functions */                                                    \
-    /* Iterator Allocation and Deallocation */                                  \
-    SNAME##_iter *PFX##_iter_new(SNAME *target);                                \
-    void PFX##_iter_free(SNAME##_iter *iter);                                   \
-    /* Iterator Initialization */                                               \
-    void PFX##_iter_init(SNAME##_iter *iter, SNAME *target);                    \
-    /* Iterator State */                                                        \
-    bool PFX##_iter_start(SNAME##_iter *iter);                                  \
-    bool PFX##_iter_end(SNAME##_iter *iter);                                    \
-    /* Iterator Movement */                                                     \
-    void PFX##_iter_to_start(SNAME##_iter *iter);                               \
-    void PFX##_iter_to_end(SNAME##_iter *iter);                                 \
-    bool PFX##_iter_next(SNAME##_iter *iter);                                   \
-    bool PFX##_iter_prev(SNAME##_iter *iter);                                   \
-    bool PFX##_iter_advance(SNAME##_iter *iter, size_t steps);                  \
-    bool PFX##_iter_rewind(SNAME##_iter *iter, size_t steps);                   \
-    bool PFX##_iter_go_to(SNAME##_iter *iter, size_t index);                    \
-    /* Iterator Access */                                                       \
-    V PFX##_iter_value(SNAME##_iter *iter);                                     \
-    size_t PFX##_iter_index(SNAME##_iter *iter);                                \
-                                                                                \
+#define CMC_GENERATE_HEAP_HEADER(PFX, SNAME, V)                                             \
+                                                                                            \
+    /* Heap Structure */                                                                    \
+    struct SNAME                                                                            \
+    {                                                                                       \
+        /* Dynamic array of elements */                                                     \
+        V *buffer;                                                                          \
+                                                                                            \
+        /* Current array capacity */                                                        \
+        size_t capacity;                                                                    \
+                                                                                            \
+        /* Current amount of elements in the heap */                                        \
+        size_t count;                                                                       \
+                                                                                            \
+        /* Heap order (MaxHeap or MinHeap) */                                               \
+        enum cmc_heap_order HO;                                                             \
+                                                                                            \
+        /* Element comparison function */                                                   \
+        int (*cmp)(V, V);                                                                   \
+                                                                                            \
+        /* Function that returns an iterator to the start of the heap */                    \
+        struct SNAME##_iter (*it_start)(struct SNAME *);                                    \
+                                                                                            \
+        /* Function that returns an iterator to the end of the heap */                      \
+        struct SNAME##_iter (*it_end)(struct SNAME *);                                      \
+    };                                                                                      \
+                                                                                            \
+    /* Heap Iterator */                                                                     \
+    struct SNAME##_iter                                                                     \
+    {                                                                                       \
+        /* Target heap */                                                                   \
+        struct SNAME *target;                                                               \
+                                                                                            \
+        /* Cursor's position (index) */                                                     \
+        size_t cursor;                                                                      \
+                                                                                            \
+        /* If the iterator has reached the start of the iteration */                        \
+        bool start;                                                                         \
+                                                                                            \
+        /* If the iterator has reached the end of the iteration */                          \
+        bool end;                                                                           \
+    };                                                                                      \
+                                                                                            \
+    /* Collection Functions */                                                              \
+    /* Collection Allocation and Deallocation */                                            \
+    struct SNAME *PFX##_new(size_t capacity, enum cmc_heap_order HO, int (*compare)(V, V)); \
+    void PFX##_clear(struct SNAME *_heap_, void (*deallocator)(V));                         \
+    void PFX##_free(struct SNAME *_heap_, void (*deallocator)(V));                          \
+    /* Collection Input and Output */                                                       \
+    bool PFX##_insert(struct SNAME *_heap_, V element);                                     \
+    bool PFX##_remove(struct SNAME *_heap_, V *result);                                     \
+    /* Element Access */                                                                    \
+    V PFX##_peek(struct SNAME *_heap_);                                                     \
+    /* Collection State */                                                                  \
+    bool PFX##_contains(struct SNAME *_heap_, V element);                                   \
+    bool PFX##_empty(struct SNAME *_heap_);                                                 \
+    bool PFX##_full(struct SNAME *_heap_);                                                  \
+    size_t PFX##_count(struct SNAME *_heap_);                                               \
+    size_t PFX##_capacity(struct SNAME *_heap_);                                            \
+    /* Collection Utility */                                                                \
+    bool PFX##_resize(struct SNAME *_heap_, size_t capacity);                               \
+    struct SNAME *PFX##_copy_of(struct SNAME *_heap_, V (*copy_func)(V));                   \
+    bool PFX##_equals(struct SNAME *_heap1_, struct SNAME *_heap2_);                        \
+    struct cmc_string PFX##_to_string(struct SNAME *_heap_);                                \
+                                                                                            \
+    /* Iterator Functions */                                                                \
+    /* Iterator Allocation and Deallocation */                                              \
+    struct SNAME##_iter *PFX##_iter_new(struct SNAME *target);                              \
+    void PFX##_iter_free(struct SNAME##_iter *iter);                                        \
+    /* Iterator Initialization */                                                           \
+    void PFX##_iter_init(struct SNAME##_iter *iter, struct SNAME *target);                  \
+    /* Iterator State */                                                                    \
+    bool PFX##_iter_start(struct SNAME##_iter *iter);                                       \
+    bool PFX##_iter_end(struct SNAME##_iter *iter);                                         \
+    /* Iterator Movement */                                                                 \
+    void PFX##_iter_to_start(struct SNAME##_iter *iter);                                    \
+    void PFX##_iter_to_end(struct SNAME##_iter *iter);                                      \
+    bool PFX##_iter_next(struct SNAME##_iter *iter);                                        \
+    bool PFX##_iter_prev(struct SNAME##_iter *iter);                                        \
+    bool PFX##_iter_advance(struct SNAME##_iter *iter, size_t steps);                       \
+    bool PFX##_iter_rewind(struct SNAME##_iter *iter, size_t steps);                        \
+    bool PFX##_iter_go_to(struct SNAME##_iter *iter, size_t index);                         \
+    /* Iterator Access */                                                                   \
+    V PFX##_iter_value(struct SNAME##_iter *iter);                                          \
+    size_t PFX##_iter_index(struct SNAME##_iter *iter);                                     \
+                                                                                            \
 /* SOURCE ********************************************************************/
 #define CMC_GENERATE_HEAP_SOURCE(PFX, SNAME, V)                                                   \
                                                                                                   \
     /* Implementation Detail Functions */                                                         \
-    static bool PFX##_impl_float_up(SNAME *_heap_, size_t index);                                 \
-    static bool PFX##_impl_float_down(SNAME *_heap_, size_t index);                               \
-    static SNAME##_iter PFX##_impl_it_start(SNAME *_heap_);                                       \
-    static SNAME##_iter PFX##_impl_it_end(SNAME *_heap_);                                         \
+    static bool PFX##_impl_float_up(struct SNAME *_heap_, size_t index);                          \
+    static bool PFX##_impl_float_down(struct SNAME *_heap_, size_t index);                        \
+    static struct SNAME##_iter PFX##_impl_it_start(struct SNAME *_heap_);                         \
+    static struct SNAME##_iter PFX##_impl_it_end(struct SNAME *_heap_);                           \
                                                                                                   \
-    SNAME *PFX##_new(size_t capacity, cmc_heap_order HO, int (*compare)(V, V))                    \
+    struct SNAME *PFX##_new(size_t capacity, enum cmc_heap_order HO, int (*compare)(V, V))        \
     {                                                                                             \
         if (capacity < 1)                                                                         \
             return NULL;                                                                          \
@@ -162,7 +160,7 @@ typedef enum cmc_heap_order_e
         if (HO != cmc_min_heap && HO != cmc_max_heap)                                             \
             return NULL;                                                                          \
                                                                                                   \
-        SNAME *_heap_ = malloc(sizeof(SNAME));                                                    \
+        struct SNAME *_heap_ = malloc(sizeof(struct SNAME));                                      \
                                                                                                   \
         if (!_heap_)                                                                              \
             return NULL;                                                                          \
@@ -186,7 +184,7 @@ typedef enum cmc_heap_order_e
         return _heap_;                                                                            \
     }                                                                                             \
                                                                                                   \
-    void PFX##_clear(SNAME *_heap_, void (*deallocator)(V))                                       \
+    void PFX##_clear(struct SNAME *_heap_, void (*deallocator)(V))                                \
     {                                                                                             \
         if (deallocator)                                                                          \
         {                                                                                         \
@@ -201,7 +199,7 @@ typedef enum cmc_heap_order_e
         _heap_->count = 0;                                                                        \
     }                                                                                             \
                                                                                                   \
-    void PFX##_free(SNAME *_heap_, void (*deallocator)(V))                                        \
+    void PFX##_free(struct SNAME *_heap_, void (*deallocator)(V))                                 \
     {                                                                                             \
         if (deallocator)                                                                          \
         {                                                                                         \
@@ -215,7 +213,7 @@ typedef enum cmc_heap_order_e
         free(_heap_);                                                                             \
     }                                                                                             \
                                                                                                   \
-    bool PFX##_insert(SNAME *_heap_, V element)                                                   \
+    bool PFX##_insert(struct SNAME *_heap_, V element)                                            \
     {                                                                                             \
         if (PFX##_full(_heap_))                                                                   \
         {                                                                                         \
@@ -237,7 +235,7 @@ typedef enum cmc_heap_order_e
         return true;                                                                              \
     }                                                                                             \
                                                                                                   \
-    bool PFX##_remove(SNAME *_heap_, V *result)                                                   \
+    bool PFX##_remove(struct SNAME *_heap_, V *result)                                            \
     {                                                                                             \
         if (PFX##_empty(_heap_))                                                                  \
             return false;                                                                         \
@@ -254,7 +252,7 @@ typedef enum cmc_heap_order_e
         return true;                                                                              \
     }                                                                                             \
                                                                                                   \
-    V PFX##_peek(SNAME *_heap_)                                                                   \
+    V PFX##_peek(struct SNAME *_heap_)                                                            \
     {                                                                                             \
         if (PFX##_empty(_heap_))                                                                  \
             return (V){0};                                                                        \
@@ -262,7 +260,7 @@ typedef enum cmc_heap_order_e
         return _heap_->buffer[0];                                                                 \
     }                                                                                             \
                                                                                                   \
-    bool PFX##_contains(SNAME *_heap_, V element)                                                 \
+    bool PFX##_contains(struct SNAME *_heap_, V element)                                          \
     {                                                                                             \
         for (size_t i = 0; i < _heap_->count; i++)                                                \
         {                                                                                         \
@@ -273,27 +271,27 @@ typedef enum cmc_heap_order_e
         return false;                                                                             \
     }                                                                                             \
                                                                                                   \
-    bool PFX##_empty(SNAME *_heap_)                                                               \
+    bool PFX##_empty(struct SNAME *_heap_)                                                        \
     {                                                                                             \
         return _heap_->count == 0;                                                                \
     }                                                                                             \
                                                                                                   \
-    bool PFX##_full(SNAME *_heap_)                                                                \
+    bool PFX##_full(struct SNAME *_heap_)                                                         \
     {                                                                                             \
         return _heap_->count >= _heap_->capacity;                                                 \
     }                                                                                             \
                                                                                                   \
-    size_t PFX##_count(SNAME *_heap_)                                                             \
+    size_t PFX##_count(struct SNAME *_heap_)                                                      \
     {                                                                                             \
         return _heap_->count;                                                                     \
     }                                                                                             \
                                                                                                   \
-    size_t PFX##_capacity(SNAME *_heap_)                                                          \
+    size_t PFX##_capacity(struct SNAME *_heap_)                                                   \
     {                                                                                             \
         return _heap_->capacity;                                                                  \
     }                                                                                             \
                                                                                                   \
-    bool PFX##_resize(SNAME *_heap_, size_t capacity)                                             \
+    bool PFX##_resize(struct SNAME *_heap_, size_t capacity)                                      \
     {                                                                                             \
         if (PFX##_capacity(_heap_) == capacity)                                                   \
             return true;                                                                          \
@@ -312,9 +310,9 @@ typedef enum cmc_heap_order_e
         return true;                                                                              \
     }                                                                                             \
                                                                                                   \
-    SNAME *PFX##_copy_of(SNAME *_heap_, V (*copy_func)(V))                                        \
+    struct SNAME *PFX##_copy_of(struct SNAME *_heap_, V (*copy_func)(V))                          \
     {                                                                                             \
-        SNAME *result = PFX##_new(_heap_->capacity, _heap_->HO, _heap_->cmp);                     \
+        struct SNAME *result = PFX##_new(_heap_->capacity, _heap_->HO, _heap_->cmp);              \
                                                                                                   \
         if (!result)                                                                              \
             return NULL;                                                                          \
@@ -332,7 +330,7 @@ typedef enum cmc_heap_order_e
         return result;                                                                            \
     }                                                                                             \
                                                                                                   \
-    bool PFX##_equals(SNAME *_heap1_, SNAME *_heap2_)                                             \
+    bool PFX##_equals(struct SNAME *_heap1_, struct SNAME *_heap2_)                               \
     {                                                                                             \
         if (PFX##_count(_heap1_) != PFX##_count(_heap2_))                                         \
             return false;                                                                         \
@@ -346,10 +344,10 @@ typedef enum cmc_heap_order_e
         return true;                                                                              \
     }                                                                                             \
                                                                                                   \
-    cmc_string PFX##_to_string(SNAME *_heap_)                                                     \
+    struct cmc_string PFX##_to_string(struct SNAME *_heap_)                                       \
     {                                                                                             \
-        cmc_string str;                                                                           \
-        SNAME *h_ = _heap_;                                                                       \
+        struct cmc_string str;                                                                    \
+        struct SNAME *h_ = _heap_;                                                                \
         const char *name = #SNAME;                                                                \
         const char *t = h_->HO == 1 ? "MaxHeap" : "MinHeap";                                      \
                                                                                                   \
@@ -359,9 +357,9 @@ typedef enum cmc_heap_order_e
         return str;                                                                               \
     }                                                                                             \
                                                                                                   \
-    SNAME##_iter *PFX##_iter_new(SNAME *target)                                                   \
+    struct SNAME##_iter *PFX##_iter_new(struct SNAME *target)                                     \
     {                                                                                             \
-        SNAME##_iter *iter = malloc(sizeof(SNAME##_iter));                                        \
+        struct SNAME##_iter *iter = malloc(sizeof(struct SNAME##_iter));                          \
                                                                                                   \
         if (!iter)                                                                                \
             return NULL;                                                                          \
@@ -371,12 +369,12 @@ typedef enum cmc_heap_order_e
         return iter;                                                                              \
     }                                                                                             \
                                                                                                   \
-    void PFX##_iter_free(SNAME##_iter *iter)                                                      \
+    void PFX##_iter_free(struct SNAME##_iter *iter)                                               \
     {                                                                                             \
         free(iter);                                                                               \
     }                                                                                             \
                                                                                                   \
-    void PFX##_iter_init(SNAME##_iter *iter, SNAME *target)                                       \
+    void PFX##_iter_init(struct SNAME##_iter *iter, struct SNAME *target)                         \
     {                                                                                             \
         iter->target = target;                                                                    \
         iter->cursor = 0;                                                                         \
@@ -384,17 +382,17 @@ typedef enum cmc_heap_order_e
         iter->end = PFX##_empty(target);                                                          \
     }                                                                                             \
                                                                                                   \
-    bool PFX##_iter_start(SNAME##_iter *iter)                                                     \
+    bool PFX##_iter_start(struct SNAME##_iter *iter)                                              \
     {                                                                                             \
         return PFX##_empty(iter->target) || iter->start;                                          \
     }                                                                                             \
                                                                                                   \
-    bool PFX##_iter_end(SNAME##_iter *iter)                                                       \
+    bool PFX##_iter_end(struct SNAME##_iter *iter)                                                \
     {                                                                                             \
         return PFX##_empty(iter->target) || iter->end;                                            \
     }                                                                                             \
                                                                                                   \
-    void PFX##_iter_to_start(SNAME##_iter *iter)                                                  \
+    void PFX##_iter_to_start(struct SNAME##_iter *iter)                                           \
     {                                                                                             \
         if (!PFX##_empty(iter->target))                                                           \
         {                                                                                         \
@@ -404,7 +402,7 @@ typedef enum cmc_heap_order_e
         }                                                                                         \
     }                                                                                             \
                                                                                                   \
-    void PFX##_iter_to_end(SNAME##_iter *iter)                                                    \
+    void PFX##_iter_to_end(struct SNAME##_iter *iter)                                             \
     {                                                                                             \
         if (!PFX##_empty(iter->target))                                                           \
         {                                                                                         \
@@ -414,7 +412,7 @@ typedef enum cmc_heap_order_e
         }                                                                                         \
     }                                                                                             \
                                                                                                   \
-    bool PFX##_iter_next(SNAME##_iter *iter)                                                      \
+    bool PFX##_iter_next(struct SNAME##_iter *iter)                                               \
     {                                                                                             \
         if (iter->end)                                                                            \
             return false;                                                                         \
@@ -432,7 +430,7 @@ typedef enum cmc_heap_order_e
         return true;                                                                              \
     }                                                                                             \
                                                                                                   \
-    bool PFX##_iter_prev(SNAME##_iter *iter)                                                      \
+    bool PFX##_iter_prev(struct SNAME##_iter *iter)                                               \
     {                                                                                             \
         if (iter->start)                                                                          \
             return false;                                                                         \
@@ -451,7 +449,7 @@ typedef enum cmc_heap_order_e
     }                                                                                             \
                                                                                                   \
     /* Returns true only if the iterator moved */                                                 \
-    bool PFX##_iter_advance(SNAME##_iter *iter, size_t steps)                                     \
+    bool PFX##_iter_advance(struct SNAME##_iter *iter, size_t steps)                              \
     {                                                                                             \
         if (iter->start)                                                                          \
             return false;                                                                         \
@@ -476,7 +474,7 @@ typedef enum cmc_heap_order_e
     }                                                                                             \
                                                                                                   \
     /* Returns true only if the iterator moved */                                                 \
-    bool PFX##_iter_rewind(SNAME##_iter *iter, size_t steps)                                      \
+    bool PFX##_iter_rewind(struct SNAME##_iter *iter, size_t steps)                               \
     {                                                                                             \
         if (iter->start)                                                                          \
             return false;                                                                         \
@@ -498,7 +496,7 @@ typedef enum cmc_heap_order_e
     }                                                                                             \
                                                                                                   \
     /* Returns true only if the iterator was able to be positioned at the given index */          \
-    bool PFX##_iter_go_to(SNAME##_iter *iter, size_t index)                                       \
+    bool PFX##_iter_go_to(struct SNAME##_iter *iter, size_t index)                                \
     {                                                                                             \
         if (index >= PFX##_count(iter->target))                                                   \
             return false;                                                                         \
@@ -511,7 +509,7 @@ typedef enum cmc_heap_order_e
         return true;                                                                              \
     }                                                                                             \
                                                                                                   \
-    V PFX##_iter_value(SNAME##_iter *iter)                                                        \
+    V PFX##_iter_value(struct SNAME##_iter *iter)                                                 \
     {                                                                                             \
         if (PFX##_empty(iter->target))                                                            \
             return (V){0};                                                                        \
@@ -519,12 +517,12 @@ typedef enum cmc_heap_order_e
         return iter->target->buffer[iter->cursor];                                                \
     }                                                                                             \
                                                                                                   \
-    size_t PFX##_iter_index(SNAME##_iter *iter)                                                   \
+    size_t PFX##_iter_index(struct SNAME##_iter *iter)                                            \
     {                                                                                             \
         return iter->cursor;                                                                      \
     }                                                                                             \
                                                                                                   \
-    static bool PFX##_impl_float_up(SNAME *_heap_, size_t index)                                  \
+    static bool PFX##_impl_float_up(struct SNAME *_heap_, size_t index)                           \
     {                                                                                             \
         /* Current index */                                                                       \
         size_t C = index;                                                                         \
@@ -550,7 +548,7 @@ typedef enum cmc_heap_order_e
         return true;                                                                              \
     }                                                                                             \
                                                                                                   \
-    static bool PFX##_impl_float_down(SNAME *_heap_, size_t index)                                \
+    static bool PFX##_impl_float_down(struct SNAME *_heap_, size_t index)                         \
     {                                                                                             \
         int mod = _heap_->HO;                                                                     \
                                                                                                   \
@@ -587,9 +585,9 @@ typedef enum cmc_heap_order_e
         return true;                                                                              \
     }                                                                                             \
                                                                                                   \
-    static SNAME##_iter PFX##_impl_it_start(SNAME *_heap_)                                        \
+    static struct SNAME##_iter PFX##_impl_it_start(struct SNAME *_heap_)                          \
     {                                                                                             \
-        SNAME##_iter iter;                                                                        \
+        struct SNAME##_iter iter;                                                                 \
                                                                                                   \
         PFX##_iter_init(&iter, _heap_);                                                           \
         PFX##_iter_to_start(&iter);                                                               \
@@ -597,9 +595,9 @@ typedef enum cmc_heap_order_e
         return iter;                                                                              \
     }                                                                                             \
                                                                                                   \
-    static SNAME##_iter PFX##_impl_it_end(SNAME *_heap_)                                          \
+    static struct SNAME##_iter PFX##_impl_it_end(struct SNAME *_heap_)                            \
     {                                                                                             \
-        SNAME##_iter iter;                                                                        \
+        struct SNAME##_iter iter;                                                                 \
                                                                                                   \
         PFX##_iter_init(&iter, _heap_);                                                           \
         PFX##_iter_to_end(&iter);                                                                 \

@@ -40,153 +40,150 @@ static const char *cmc_string_fmt_treeset = "%s at %p { root:%p, count:%" PRIuMA
     CMC_GENERATE_TREESET_SOURCE(PFX, SNAME, V)
 
 /* HEADER ********************************************************************/
-#define CMC_GENERATE_TREESET_HEADER(PFX, SNAME, V)                          \
-                                                                            \
-    /* Treeset Structure */                                                 \
-    typedef struct SNAME##_s                                                \
-    {                                                                       \
-        /* Root node */                                                     \
-        struct SNAME##_node_s *root;                                        \
-                                                                            \
-        /* Current amount of elements */                                    \
-        size_t count;                                                       \
-                                                                            \
-        /* Element comparison function */                                   \
-        int (*cmp)(V, V);                                                   \
-                                                                            \
-        /* Function that returns an iterator to the start of the treeset */ \
-        struct SNAME##_iter_s (*it_start)(struct SNAME##_s *);              \
-                                                                            \
-        /* Function that returns an iterator to the end of the treeset */   \
-        struct SNAME##_iter_s (*it_end)(struct SNAME##_s *);                \
-                                                                            \
-    } SNAME, *SNAME##_ptr;                                                  \
-                                                                            \
-    /* Treeset Node */                                                      \
-    typedef struct SNAME##_node_s                                           \
-    {                                                                       \
-        /* Node element */                                                  \
-        V value;                                                            \
-                                                                            \
-        /* Node height used by the AVL tree to keep it strictly balanced */ \
-        unsigned char height;                                               \
-                                                                            \
-        /* Right child node or subtree */                                   \
-        struct SNAME##_node_s *right;                                       \
-                                                                            \
-        /* Left child node or subtree */                                    \
-        struct SNAME##_node_s *left;                                        \
-                                                                            \
-        /* Parent node */                                                   \
-        struct SNAME##_node_s *parent;                                      \
-                                                                            \
-    } SNAME##_node, *SNAME##_node_ptr;                                      \
-                                                                            \
-    /* Treeset Iterator */                                                  \
-    typedef struct SNAME##_iter_s                                           \
-    {                                                                       \
-        /* Target treeset */                                                \
-        struct SNAME##_s *target;                                           \
-                                                                            \
-        /* Cursor's current node */                                         \
-        struct SNAME##_node_s *cursor;                                      \
-                                                                            \
-        /* The first node in the iteration */                               \
-        struct SNAME##_node_s *first;                                       \
-                                                                            \
-        /* The last node in the iteration */                                \
-        struct SNAME##_node_s *last;                                        \
-                                                                            \
-        /* Keeps track of relative index to the iteration of elements */    \
-        size_t index;                                                       \
-                                                                            \
-        /* If the iterator has reached the start of the iteration */        \
-        bool start;                                                         \
-                                                                            \
-        /* If the iterator has reached the end of the iteration */          \
-        bool end;                                                           \
-                                                                            \
-    } SNAME##_iter, *SNAME##_iter_ptr;                                      \
-                                                                            \
-    /* Collection Functions */                                              \
-    /* Collection Allocation and Deallocation */                            \
-    SNAME *PFX##_new(int (*compare)(V, V));                                 \
-    void PFX##_clear(SNAME *_set_, void (*deallocator)(V));                 \
-    void PFX##_free(SNAME *_set_, void (*deallocator)(V));                  \
-    /* Collection Input and Output */                                       \
-    bool PFX##_insert(SNAME *_set_, V element);                             \
-    bool PFX##_remove(SNAME *_set_, V element);                             \
-    /* Element Access */                                                    \
-    bool PFX##_max(SNAME *_set_, V *value);                                 \
-    bool PFX##_min(SNAME *_set_, V *value);                                 \
-    /* Collection State */                                                  \
-    bool PFX##_contains(SNAME *_set_, V element);                           \
-    bool PFX##_empty(SNAME *_set_);                                         \
-    size_t PFX##_count(SNAME *_set_);                                       \
-    /* Collection Utility */                                                \
-    SNAME *PFX##_copy_of(SNAME *_set_, V (*copy_func)(V));                  \
-    bool PFX##_equals(SNAME *_set1_, SNAME *_set2_);                        \
-    cmc_string PFX##_to_string(SNAME *_set_);                               \
-                                                                            \
-    /* Set Operations */                                                    \
-    SNAME *PFX##_union(SNAME *_set1_, SNAME *_set2_);                       \
-    SNAME *PFX##_intersection(SNAME *_set1_, SNAME *_set2_);                \
-    SNAME *PFX##_difference(SNAME *_set1_, SNAME *_set2_);                  \
-    SNAME *PFX##_symmetric_difference(SNAME *_set1_, SNAME *_set2_);        \
-    bool PFX##_is_subset(SNAME *_set1_, SNAME *_set2_);                     \
-    bool PFX##_is_superset(SNAME *_set1_, SNAME *_set2_);                   \
-    bool PFX##_is_proper_subset(SNAME *_set1_, SNAME *_set2_);              \
-    bool PFX##_is_proper_superset(SNAME *_set1_, SNAME *_set2_);            \
-    bool PFX##_is_disjointset(SNAME *_set1_, SNAME *_set2_);                \
-                                                                            \
-    /* Iterator Functions */                                                \
-    /* Iterator Allocation and Deallocation */                              \
-    SNAME##_iter *PFX##_iter_new(SNAME *target);                            \
-    void PFX##_iter_free(SNAME##_iter *iter);                               \
-    /* Iterator Initialization */                                           \
-    void PFX##_iter_init(SNAME##_iter *iter, SNAME *target);                \
-    /* Iterator State */                                                    \
-    bool PFX##_iter_start(SNAME##_iter *iter);                              \
-    bool PFX##_iter_end(SNAME##_iter *iter);                                \
-    /* Iterator Movement */                                                 \
-    void PFX##_iter_to_start(SNAME##_iter *iter);                           \
-    void PFX##_iter_to_end(SNAME##_iter *iter);                             \
-    bool PFX##_iter_next(SNAME##_iter *iter);                               \
-    bool PFX##_iter_prev(SNAME##_iter *iter);                               \
-    bool PFX##_iter_advance(SNAME##_iter *iter, size_t steps);              \
-    bool PFX##_iter_rewind(SNAME##_iter *iter, size_t steps);               \
-    bool PFX##_iter_go_to(SNAME##_iter *iter, size_t index);                \
-    /* Iterator Access */                                                   \
-    V PFX##_iter_value(SNAME##_iter *iter);                                 \
-    size_t PFX##_iter_index(SNAME##_iter *iter);                            \
-                                                                            \
-    /* Default Value */                                                     \
-    static inline V PFX##_impl_default_value(void)                          \
-    {                                                                       \
-        V _empty_value_;                                                    \
-                                                                            \
-        memset(&_empty_value_, 0, sizeof(V));                               \
-                                                                            \
-        return _empty_value_;                                               \
-    }                                                                       \
-                                                                            \
+#define CMC_GENERATE_TREESET_HEADER(PFX, SNAME, V)                                        \
+                                                                                          \
+    /* Treeset Structure */                                                               \
+    struct SNAME                                                                          \
+    {                                                                                     \
+        /* Root node */                                                                   \
+        struct SNAME##_node *root;                                                        \
+                                                                                          \
+        /* Current amount of elements */                                                  \
+        size_t count;                                                                     \
+                                                                                          \
+        /* Element comparison function */                                                 \
+        int (*cmp)(V, V);                                                                 \
+                                                                                          \
+        /* Function that returns an iterator to the start of the treeset */               \
+        struct SNAME##_iter (*it_start)(struct SNAME *);                                  \
+                                                                                          \
+        /* Function that returns an iterator to the end of the treeset */                 \
+        struct SNAME##_iter (*it_end)(struct SNAME *);                                    \
+    };                                                                                    \
+                                                                                          \
+    /* Treeset Node */                                                                    \
+    struct SNAME##_node                                                                   \
+    {                                                                                     \
+        /* Node element */                                                                \
+        V value;                                                                          \
+                                                                                          \
+        /* Node height used by the AVL tree to keep it strictly balanced */               \
+        unsigned char height;                                                             \
+                                                                                          \
+        /* Right child node or subtree */                                                 \
+        struct SNAME##_node *right;                                                       \
+                                                                                          \
+        /* Left child node or subtree */                                                  \
+        struct SNAME##_node *left;                                                        \
+                                                                                          \
+        /* Parent node */                                                                 \
+        struct SNAME##_node *parent;                                                      \
+    };                                                                                    \
+                                                                                          \
+    /* Treeset Iterator */                                                                \
+    struct SNAME##_iter                                                                   \
+    {                                                                                     \
+        /* Target treeset */                                                              \
+        struct SNAME *target;                                                             \
+                                                                                          \
+        /* Cursor's current node */                                                       \
+        struct SNAME##_node *cursor;                                                      \
+                                                                                          \
+        /* The first node in the iteration */                                             \
+        struct SNAME##_node *first;                                                       \
+                                                                                          \
+        /* The last node in the iteration */                                              \
+        struct SNAME##_node *last;                                                        \
+                                                                                          \
+        /* Keeps track of relative index to the iteration of elements */                  \
+        size_t index;                                                                     \
+                                                                                          \
+        /* If the iterator has reached the start of the iteration */                      \
+        bool start;                                                                       \
+                                                                                          \
+        /* If the iterator has reached the end of the iteration */                        \
+        bool end;                                                                         \
+    };                                                                                    \
+                                                                                          \
+    /* Collection Functions */                                                            \
+    /* Collection Allocation and Deallocation */                                          \
+    struct SNAME *PFX##_new(int (*compare)(V, V));                                        \
+    void PFX##_clear(struct SNAME *_set_, void (*deallocator)(V));                        \
+    void PFX##_free(struct SNAME *_set_, void (*deallocator)(V));                         \
+    /* Collection Input and Output */                                                     \
+    bool PFX##_insert(struct SNAME *_set_, V element);                                    \
+    bool PFX##_remove(struct SNAME *_set_, V element);                                    \
+    /* Element Access */                                                                  \
+    bool PFX##_max(struct SNAME *_set_, V *value);                                        \
+    bool PFX##_min(struct SNAME *_set_, V *value);                                        \
+    /* Collection State */                                                                \
+    bool PFX##_contains(struct SNAME *_set_, V element);                                  \
+    bool PFX##_empty(struct SNAME *_set_);                                                \
+    size_t PFX##_count(struct SNAME *_set_);                                              \
+    /* Collection Utility */                                                              \
+    struct SNAME *PFX##_copy_of(struct SNAME *_set_, V (*copy_func)(V));                  \
+    bool PFX##_equals(struct SNAME *_set1_, struct SNAME *_set2_);                        \
+    struct cmc_string PFX##_to_string(struct SNAME *_set_);                               \
+                                                                                          \
+    /* Set Operations */                                                                  \
+    struct SNAME *PFX##_union(struct SNAME *_set1_, struct SNAME *_set2_);                \
+    struct SNAME *PFX##_intersection(struct SNAME *_set1_, struct SNAME *_set2_);         \
+    struct SNAME *PFX##_difference(struct SNAME *_set1_, struct SNAME *_set2_);           \
+    struct SNAME *PFX##_symmetric_difference(struct SNAME *_set1_, struct SNAME *_set2_); \
+    bool PFX##_is_subset(struct SNAME *_set1_, struct SNAME *_set2_);                     \
+    bool PFX##_is_superset(struct SNAME *_set1_, struct SNAME *_set2_);                   \
+    bool PFX##_is_proper_subset(struct SNAME *_set1_, struct SNAME *_set2_);              \
+    bool PFX##_is_proper_superset(struct SNAME *_set1_, struct SNAME *_set2_);            \
+    bool PFX##_is_disjointset(struct SNAME *_set1_, struct SNAME *_set2_);                \
+                                                                                          \
+    /* Iterator Functions */                                                              \
+    /* Iterator Allocation and Deallocation */                                            \
+    struct SNAME##_iter *PFX##_iter_new(struct SNAME *target);                            \
+    void PFX##_iter_free(struct SNAME##_iter *iter);                                      \
+    /* Iterator Initialization */                                                         \
+    void PFX##_iter_init(struct SNAME##_iter *iter, struct SNAME *target);                \
+    /* Iterator State */                                                                  \
+    bool PFX##_iter_start(struct SNAME##_iter *iter);                                     \
+    bool PFX##_iter_end(struct SNAME##_iter *iter);                                       \
+    /* Iterator Movement */                                                               \
+    void PFX##_iter_to_start(struct SNAME##_iter *iter);                                  \
+    void PFX##_iter_to_end(struct SNAME##_iter *iter);                                    \
+    bool PFX##_iter_next(struct SNAME##_iter *iter);                                      \
+    bool PFX##_iter_prev(struct SNAME##_iter *iter);                                      \
+    bool PFX##_iter_advance(struct SNAME##_iter *iter, size_t steps);                     \
+    bool PFX##_iter_rewind(struct SNAME##_iter *iter, size_t steps);                      \
+    bool PFX##_iter_go_to(struct SNAME##_iter *iter, size_t index);                       \
+    /* Iterator Access */                                                                 \
+    V PFX##_iter_value(struct SNAME##_iter *iter);                                        \
+    size_t PFX##_iter_index(struct SNAME##_iter *iter);                                   \
+                                                                                          \
+    /* Default Value */                                                                   \
+    static inline V PFX##_impl_default_value(void)                                        \
+    {                                                                                     \
+        V _empty_value_;                                                                  \
+                                                                                          \
+        memset(&_empty_value_, 0, sizeof(V));                                             \
+                                                                                          \
+        return _empty_value_;                                                             \
+    }                                                                                     \
+                                                                                          \
 /* SOURCE ********************************************************************/
 #define CMC_GENERATE_TREESET_SOURCE(PFX, SNAME, V)                                           \
                                                                                              \
     /* Implementation Detail Functions */                                                    \
-    static SNAME##_node *PFX##_impl_new_node(V element);                                     \
-    static SNAME##_node *PFX##_impl_get_node(SNAME *_set_, V element);                       \
-    static unsigned char PFX##_impl_h(SNAME##_node *node);                                   \
-    static unsigned char PFX##_impl_hupdate(SNAME##_node *node);                             \
-    static void PFX##_impl_rotate_right(SNAME##_node **Z);                                   \
-    static void PFX##_impl_rotate_left(SNAME##_node **Z);                                    \
-    static void PFX##_impl_rebalance(SNAME *_set_, SNAME##_node *node);                      \
-    static SNAME##_iter PFX##_impl_it_start(SNAME *_set_);                                   \
-    static SNAME##_iter PFX##_impl_it_end(SNAME *_set_);                                     \
+    static struct SNAME##_node *PFX##_impl_new_node(V element);                              \
+    static struct SNAME##_node *PFX##_impl_get_node(struct SNAME *_set_, V element);         \
+    static unsigned char PFX##_impl_h(struct SNAME##_node *node);                            \
+    static unsigned char PFX##_impl_hupdate(struct SNAME##_node *node);                      \
+    static void PFX##_impl_rotate_right(struct SNAME##_node **Z);                            \
+    static void PFX##_impl_rotate_left(struct SNAME##_node **Z);                             \
+    static void PFX##_impl_rebalance(struct SNAME *_set_, struct SNAME##_node *node);        \
+    static struct SNAME##_iter PFX##_impl_it_start(struct SNAME *_set_);                     \
+    static struct SNAME##_iter PFX##_impl_it_end(struct SNAME *_set_);                       \
                                                                                              \
-    SNAME *PFX##_new(int (*compare)(V, V))                                                   \
+    struct SNAME *PFX##_new(int (*compare)(V, V))                                            \
     {                                                                                        \
-        SNAME *_set_ = malloc(sizeof(SNAME));                                                \
+        struct SNAME *_set_ = malloc(sizeof(struct SNAME));                                  \
                                                                                              \
         if (!_set_)                                                                          \
             return NULL;                                                                     \
@@ -201,16 +198,16 @@ static const char *cmc_string_fmt_treeset = "%s at %p { root:%p, count:%" PRIuMA
         return _set_;                                                                        \
     }                                                                                        \
                                                                                              \
-    void PFX##_clear(SNAME *_set_, void (*deallocator)(V))                                   \
+    void PFX##_clear(struct SNAME *_set_, void (*deallocator)(V))                            \
     {                                                                                        \
-        SNAME##_node *scan = _set_->root;                                                    \
-        SNAME##_node *up = NULL;                                                             \
+        struct SNAME##_node *scan = _set_->root;                                             \
+        struct SNAME##_node *up = NULL;                                                      \
                                                                                              \
         while (scan != NULL)                                                                 \
         {                                                                                    \
             if (scan->left != NULL)                                                          \
             {                                                                                \
-                SNAME##_node *left = scan->left;                                             \
+                struct SNAME##_node *left = scan->left;                                      \
                                                                                              \
                 scan->left = up;                                                             \
                 up = scan;                                                                   \
@@ -218,7 +215,7 @@ static const char *cmc_string_fmt_treeset = "%s at %p { root:%p, count:%" PRIuMA
             }                                                                                \
             else if (scan->right != NULL)                                                    \
             {                                                                                \
-                SNAME##_node *right = scan->right;                                           \
+                struct SNAME##_node *right = scan->right;                                    \
                                                                                              \
                 scan->left = up;                                                             \
                 scan->right = NULL;                                                          \
@@ -262,14 +259,14 @@ static const char *cmc_string_fmt_treeset = "%s at %p { root:%p, count:%" PRIuMA
         _set_->root = NULL;                                                                  \
     }                                                                                        \
                                                                                              \
-    void PFX##_free(SNAME *_set_, void (*deallocator)(V))                                    \
+    void PFX##_free(struct SNAME *_set_, void (*deallocator)(V))                             \
     {                                                                                        \
         PFX##_clear(_set_, deallocator);                                                     \
                                                                                              \
         free(_set_);                                                                         \
     }                                                                                        \
                                                                                              \
-    bool PFX##_insert(SNAME *_set_, V element)                                               \
+    bool PFX##_insert(struct SNAME *_set_, V element)                                        \
     {                                                                                        \
         if (PFX##_empty(_set_))                                                              \
         {                                                                                    \
@@ -280,8 +277,8 @@ static const char *cmc_string_fmt_treeset = "%s at %p { root:%p, count:%" PRIuMA
         }                                                                                    \
         else                                                                                 \
         {                                                                                    \
-            SNAME##_node *scan = _set_->root;                                                \
-            SNAME##_node *parent = scan;                                                     \
+            struct SNAME##_node *scan = _set_->root;                                         \
+            struct SNAME##_node *parent = scan;                                              \
                                                                                              \
             while (scan != NULL)                                                             \
             {                                                                                \
@@ -295,7 +292,7 @@ static const char *cmc_string_fmt_treeset = "%s at %p { root:%p, count:%" PRIuMA
                     return false;                                                            \
             }                                                                                \
                                                                                              \
-            SNAME##_node *node;                                                              \
+            struct SNAME##_node *node;                                                       \
                                                                                              \
             if (_set_->cmp(parent->value, element) > 0)                                      \
             {                                                                                \
@@ -326,14 +323,14 @@ static const char *cmc_string_fmt_treeset = "%s at %p { root:%p, count:%" PRIuMA
         return true;                                                                         \
     }                                                                                        \
                                                                                              \
-    bool PFX##_remove(SNAME *_set_, V element)                                               \
+    bool PFX##_remove(struct SNAME *_set_, V element)                                        \
     {                                                                                        \
-        SNAME##_node *node = PFX##_impl_get_node(_set_, element);                            \
+        struct SNAME##_node *node = PFX##_impl_get_node(_set_, element);                     \
                                                                                              \
         if (!node)                                                                           \
             return false;                                                                    \
                                                                                              \
-        SNAME##_node *temp = NULL, *unbalanced = NULL;                                       \
+        struct SNAME##_node *temp = NULL, *unbalanced = NULL;                                \
                                                                                              \
         bool is_root = node->parent == NULL;                                                 \
                                                                                              \
@@ -447,12 +444,12 @@ static const char *cmc_string_fmt_treeset = "%s at %p { root:%p, count:%" PRIuMA
         return true;                                                                         \
     }                                                                                        \
                                                                                              \
-    bool PFX##_max(SNAME *_set_, V *value)                                                   \
+    bool PFX##_max(struct SNAME *_set_, V *value)                                            \
     {                                                                                        \
         if (PFX##_empty(_set_))                                                              \
             return false;                                                                    \
                                                                                              \
-        SNAME##_node *scan = _set_->root;                                                    \
+        struct SNAME##_node *scan = _set_->root;                                             \
                                                                                              \
         while (scan->right != NULL)                                                          \
             scan = scan->right;                                                              \
@@ -462,12 +459,12 @@ static const char *cmc_string_fmt_treeset = "%s at %p { root:%p, count:%" PRIuMA
         return true;                                                                         \
     }                                                                                        \
                                                                                              \
-    bool PFX##_min(SNAME *_set_, V *value)                                                   \
+    bool PFX##_min(struct SNAME *_set_, V *value)                                            \
     {                                                                                        \
         if (PFX##_empty(_set_))                                                              \
             return false;                                                                    \
                                                                                              \
-        SNAME##_node *scan = _set_->root;                                                    \
+        struct SNAME##_node *scan = _set_->root;                                             \
                                                                                              \
         while (scan->left != NULL)                                                           \
             scan = scan->left;                                                               \
@@ -477,9 +474,9 @@ static const char *cmc_string_fmt_treeset = "%s at %p { root:%p, count:%" PRIuMA
         return true;                                                                         \
     }                                                                                        \
                                                                                              \
-    bool PFX##_contains(SNAME *_set_, V element)                                             \
+    bool PFX##_contains(struct SNAME *_set_, V element)                                      \
     {                                                                                        \
-        SNAME##_node *scan = _set_->root;                                                    \
+        struct SNAME##_node *scan = _set_->root;                                             \
                                                                                              \
         while (scan != NULL)                                                                 \
         {                                                                                    \
@@ -494,24 +491,24 @@ static const char *cmc_string_fmt_treeset = "%s at %p { root:%p, count:%" PRIuMA
         return false;                                                                        \
     }                                                                                        \
                                                                                              \
-    bool PFX##_empty(SNAME *_set_)                                                           \
+    bool PFX##_empty(struct SNAME *_set_)                                                    \
     {                                                                                        \
         return _set_->count == 0;                                                            \
     }                                                                                        \
                                                                                              \
-    size_t PFX##_count(SNAME *_set_)                                                         \
+    size_t PFX##_count(struct SNAME *_set_)                                                  \
     {                                                                                        \
         return _set_->count;                                                                 \
     }                                                                                        \
                                                                                              \
-    SNAME *PFX##_copy_of(SNAME *_set_, V (*copy_func)(V))                                    \
+    struct SNAME *PFX##_copy_of(struct SNAME *_set_, V (*copy_func)(V))                      \
     {                                                                                        \
-        SNAME *result = PFX##_new(_set_->cmp);                                               \
+        struct SNAME *result = PFX##_new(_set_->cmp);                                        \
                                                                                              \
         if (!result)                                                                         \
             return NULL;                                                                     \
                                                                                              \
-        SNAME##_iter iter;                                                                   \
+        struct SNAME##_iter iter;                                                            \
         PFX##_iter_init(&iter, _set_);                                                       \
                                                                                              \
         if (!PFX##_empty(_set_))                                                             \
@@ -528,12 +525,12 @@ static const char *cmc_string_fmt_treeset = "%s at %p { root:%p, count:%" PRIuMA
         return result;                                                                       \
     }                                                                                        \
                                                                                              \
-    bool PFX##_equals(SNAME *_set1_, SNAME *_set2_)                                          \
+    bool PFX##_equals(struct SNAME *_set1_, struct SNAME *_set2_)                            \
     {                                                                                        \
         if (PFX##_count(_set1_) != PFX##_count(_set2_))                                      \
             return false;                                                                    \
                                                                                              \
-        SNAME##_iter iter;                                                                   \
+        struct SNAME##_iter iter;                                                            \
         PFX##_iter_init(&iter, _set1_);                                                      \
                                                                                              \
         for (PFX##_iter_to_start(&iter); !PFX##_iter_end(&iter); PFX##_iter_next(&iter))     \
@@ -545,10 +542,10 @@ static const char *cmc_string_fmt_treeset = "%s at %p { root:%p, count:%" PRIuMA
         return true;                                                                         \
     }                                                                                        \
                                                                                              \
-    cmc_string PFX##_to_string(SNAME *_set_)                                                 \
+    struct cmc_string PFX##_to_string(struct SNAME *_set_)                                   \
     {                                                                                        \
-        cmc_string str;                                                                      \
-        SNAME *s_ = _set_;                                                                   \
+        struct cmc_string str;                                                               \
+        struct SNAME *s_ = _set_;                                                            \
         const char *name = #SNAME;                                                           \
                                                                                              \
         snprintf(str.s, cmc_string_len, cmc_string_fmt_treeset,                              \
@@ -557,14 +554,14 @@ static const char *cmc_string_fmt_treeset = "%s at %p { root:%p, count:%" PRIuMA
         return str;                                                                          \
     }                                                                                        \
                                                                                              \
-    SNAME *PFX##_union(SNAME *_set1_, SNAME *_set2_)                                         \
+    struct SNAME *PFX##_union(struct SNAME *_set1_, struct SNAME *_set2_)                    \
     {                                                                                        \
-        SNAME *_set_r_ = PFX##_new(_set1_->cmp);                                             \
+        struct SNAME *_set_r_ = PFX##_new(_set1_->cmp);                                      \
                                                                                              \
         if (!_set_r_)                                                                        \
             return NULL;                                                                     \
                                                                                              \
-        SNAME##_iter iter1, iter2;                                                           \
+        struct SNAME##_iter iter1, iter2;                                                    \
         PFX##_iter_init(&iter1, _set1_);                                                     \
         PFX##_iter_init(&iter2, _set2_);                                                     \
                                                                                              \
@@ -581,17 +578,17 @@ static const char *cmc_string_fmt_treeset = "%s at %p { root:%p, count:%" PRIuMA
         return _set_r_;                                                                      \
     }                                                                                        \
                                                                                              \
-    SNAME *PFX##_intersection(SNAME *_set1_, SNAME *_set2_)                                  \
+    struct SNAME *PFX##_intersection(struct SNAME *_set1_, struct SNAME *_set2_)             \
     {                                                                                        \
-        SNAME *_set_r_ = PFX##_new(_set1_->cmp);                                             \
+        struct SNAME *_set_r_ = PFX##_new(_set1_->cmp);                                      \
                                                                                              \
         if (!_set_r_)                                                                        \
             return NULL;                                                                     \
                                                                                              \
-        SNAME *_set_A_ = _set1_->count < _set2_->count ? _set1_ : _set2_;                    \
-        SNAME *_set_B_ = _set_A_ == _set1_ ? _set2_ : _set1_;                                \
+        struct SNAME *_set_A_ = _set1_->count < _set2_->count ? _set1_ : _set2_;             \
+        struct SNAME *_set_B_ = _set_A_ == _set1_ ? _set2_ : _set1_;                         \
                                                                                              \
-        SNAME##_iter iter;                                                                   \
+        struct SNAME##_iter iter;                                                            \
         PFX##_iter_init(&iter, _set_A_);                                                     \
                                                                                              \
         for (PFX##_iter_to_start(&iter); !PFX##_iter_end(&iter); PFX##_iter_next(&iter))     \
@@ -605,14 +602,14 @@ static const char *cmc_string_fmt_treeset = "%s at %p { root:%p, count:%" PRIuMA
         return _set_r_;                                                                      \
     }                                                                                        \
                                                                                              \
-    SNAME *PFX##_difference(SNAME *_set1_, SNAME *_set2_)                                    \
+    struct SNAME *PFX##_difference(struct SNAME *_set1_, struct SNAME *_set2_)               \
     {                                                                                        \
-        SNAME *_set_r_ = PFX##_new(_set1_->cmp);                                             \
+        struct SNAME *_set_r_ = PFX##_new(_set1_->cmp);                                      \
                                                                                              \
         if (!_set_r_)                                                                        \
             return NULL;                                                                     \
                                                                                              \
-        SNAME##_iter iter;                                                                   \
+        struct SNAME##_iter iter;                                                            \
         PFX##_iter_init(&iter, _set1_);                                                      \
                                                                                              \
         for (PFX##_iter_to_start(&iter); !PFX##_iter_end(&iter); PFX##_iter_next(&iter))     \
@@ -626,14 +623,14 @@ static const char *cmc_string_fmt_treeset = "%s at %p { root:%p, count:%" PRIuMA
         return _set_r_;                                                                      \
     }                                                                                        \
                                                                                              \
-    SNAME *PFX##_symmetric_difference(SNAME *_set1_, SNAME *_set2_)                          \
+    struct SNAME *PFX##_symmetric_difference(struct SNAME *_set1_, struct SNAME *_set2_)     \
     {                                                                                        \
-        SNAME *_set_r_ = PFX##_new(_set1_->cmp);                                             \
+        struct SNAME *_set_r_ = PFX##_new(_set1_->cmp);                                      \
                                                                                              \
         if (!_set_r_)                                                                        \
             return NULL;                                                                     \
                                                                                              \
-        SNAME##_iter iter1, iter2;                                                           \
+        struct SNAME##_iter iter1, iter2;                                                    \
         PFX##_iter_init(&iter1, _set1_);                                                     \
         PFX##_iter_init(&iter2, _set2_);                                                     \
                                                                                              \
@@ -659,7 +656,7 @@ static const char *cmc_string_fmt_treeset = "%s at %p { root:%p, count:%" PRIuMA
     /* Is _set1_ a subset of _set2_ ? */                                                     \
     /* A set X is a subset of a set Y when: X <= Y */                                        \
     /* If X is a subset of Y, then Y is a superset of X */                                   \
-    bool PFX##_is_subset(SNAME *_set1_, SNAME *_set2_)                                       \
+    bool PFX##_is_subset(struct SNAME *_set1_, struct SNAME *_set2_)                         \
     {                                                                                        \
         /* If the cardinality of _set1_ is greater than that of _set2_, then it is safe */   \
         /* to say that _set1_ can't be a subset of _set2_ */                                 \
@@ -670,7 +667,7 @@ static const char *cmc_string_fmt_treeset = "%s at %p { root:%p, count:%" PRIuMA
         if (PFX##_empty(_set1_))                                                             \
             return true;                                                                     \
                                                                                              \
-        SNAME##_iter iter;                                                                   \
+        struct SNAME##_iter iter;                                                            \
                                                                                              \
         PFX##_iter_init(&iter, _set1_);                                                      \
                                                                                              \
@@ -688,7 +685,7 @@ static const char *cmc_string_fmt_treeset = "%s at %p { root:%p, count:%" PRIuMA
     /* Is _set1_ a superset of _set2_ ? */                                                   \
     /* A set X is a superset of a set Y when: X >= Y */                                      \
     /* If X is a superset of Y, then Y is a subset of X */                                   \
-    bool PFX##_is_superset(SNAME *_set1_, SNAME *_set2_)                                     \
+    bool PFX##_is_superset(struct SNAME *_set1_, struct SNAME *_set2_)                       \
     {                                                                                        \
         return PFX##_is_subset(_set2_, _set1_);                                              \
     }                                                                                        \
@@ -696,7 +693,7 @@ static const char *cmc_string_fmt_treeset = "%s at %p { root:%p, count:%" PRIuMA
     /* Is _set1_ a proper subset of _set2_ ? */                                              \
     /* A set X is a proper subset of a set Y when: X < Y */                                  \
     /* If X is a proper subset of Y, then Y is a proper superset of X */                     \
-    bool PFX##_is_proper_subset(SNAME *_set1_, SNAME *_set2_)                                \
+    bool PFX##_is_proper_subset(struct SNAME *_set1_, struct SNAME *_set2_)                  \
     {                                                                                        \
         /* If the cardinality of _set1_ is greater than or equal to that of _set2_, then */  \
         /* it is safe to say that _set1_ can't be a proper subset of _set2_ */               \
@@ -713,7 +710,7 @@ static const char *cmc_string_fmt_treeset = "%s at %p { root:%p, count:%" PRIuMA
                 return false;                                                                \
         }                                                                                    \
                                                                                              \
-        SNAME##_iter iter;                                                                   \
+        struct SNAME##_iter iter;                                                            \
                                                                                              \
         PFX##_iter_init(&iter, _set1_);                                                      \
                                                                                              \
@@ -731,7 +728,7 @@ static const char *cmc_string_fmt_treeset = "%s at %p { root:%p, count:%" PRIuMA
     /* Is _set1_ a proper superset of _set2_ ? */                                            \
     /* A set X is a proper superset of a set Y when: X > Y */                                \
     /* If X is a proper superset of Y, then Y is a proper subset of X */                     \
-    bool PFX##_is_proper_superset(SNAME *_set1_, SNAME *_set2_)                              \
+    bool PFX##_is_proper_superset(struct SNAME *_set1_, struct SNAME *_set2_)                \
     {                                                                                        \
         return PFX##_is_proper_subset(_set2_, _set1_);                                       \
     }                                                                                        \
@@ -739,14 +736,14 @@ static const char *cmc_string_fmt_treeset = "%s at %p { root:%p, count:%" PRIuMA
     /* Is _set1_ a disjointset of _set2_ ? */                                                \
     /* A set X is a disjointset of a set Y if their intersection is empty, that is, if */    \
     /* there are no elements in common between the two */                                    \
-    bool PFX##_is_disjointset(SNAME *_set1_, SNAME *_set2_)                                  \
+    bool PFX##_is_disjointset(struct SNAME *_set1_, struct SNAME *_set2_)                    \
     {                                                                                        \
         /* The intersection of an empty set with any other set will result in an empty */    \
         /* set */                                                                            \
         if (PFX##_empty(_set1_))                                                             \
             return true;                                                                     \
                                                                                              \
-        SNAME##_iter iter;                                                                   \
+        struct SNAME##_iter iter;                                                            \
                                                                                              \
         PFX##_iter_init(&iter, _set1_);                                                      \
                                                                                              \
@@ -761,9 +758,9 @@ static const char *cmc_string_fmt_treeset = "%s at %p { root:%p, count:%" PRIuMA
         return true;                                                                         \
     }                                                                                        \
                                                                                              \
-    SNAME##_iter *PFX##_iter_new(SNAME *target)                                              \
+    struct SNAME##_iter *PFX##_iter_new(struct SNAME *target)                                \
     {                                                                                        \
-        SNAME##_iter *iter = malloc(sizeof(SNAME##_iter));                                   \
+        struct SNAME##_iter *iter = malloc(sizeof(struct SNAME##_iter));                     \
                                                                                              \
         if (!iter)                                                                           \
             return NULL;                                                                     \
@@ -773,14 +770,14 @@ static const char *cmc_string_fmt_treeset = "%s at %p { root:%p, count:%" PRIuMA
         return iter;                                                                         \
     }                                                                                        \
                                                                                              \
-    void PFX##_iter_free(SNAME##_iter *iter)                                                 \
+    void PFX##_iter_free(struct SNAME##_iter *iter)                                          \
     {                                                                                        \
         free(iter);                                                                          \
     }                                                                                        \
                                                                                              \
-    void PFX##_iter_init(SNAME##_iter *iter, SNAME *target)                                  \
+    void PFX##_iter_init(struct SNAME##_iter *iter, struct SNAME *target)                    \
     {                                                                                        \
-        memset(iter, 0, sizeof(SNAME##_iter));                                               \
+        memset(iter, 0, sizeof(struct SNAME##_iter));                                        \
                                                                                              \
         iter->target = target;                                                               \
         iter->start = true;                                                                  \
@@ -801,17 +798,17 @@ static const char *cmc_string_fmt_treeset = "%s at %p { root:%p, count:%" PRIuMA
         }                                                                                    \
     }                                                                                        \
                                                                                              \
-    bool PFX##_iter_start(SNAME##_iter *iter)                                                \
+    bool PFX##_iter_start(struct SNAME##_iter *iter)                                         \
     {                                                                                        \
         return PFX##_empty(iter->target) || iter->start;                                     \
     }                                                                                        \
                                                                                              \
-    bool PFX##_iter_end(SNAME##_iter *iter)                                                  \
+    bool PFX##_iter_end(struct SNAME##_iter *iter)                                           \
     {                                                                                        \
         return PFX##_empty(iter->target) || iter->end;                                       \
     }                                                                                        \
                                                                                              \
-    void PFX##_iter_to_start(SNAME##_iter *iter)                                             \
+    void PFX##_iter_to_start(struct SNAME##_iter *iter)                                      \
     {                                                                                        \
         if (!PFX##_empty(iter->target))                                                      \
         {                                                                                    \
@@ -822,7 +819,7 @@ static const char *cmc_string_fmt_treeset = "%s at %p { root:%p, count:%" PRIuMA
         }                                                                                    \
     }                                                                                        \
                                                                                              \
-    void PFX##_iter_to_end(SNAME##_iter *iter)                                               \
+    void PFX##_iter_to_end(struct SNAME##_iter *iter)                                        \
     {                                                                                        \
         if (!PFX##_empty(iter->target))                                                      \
         {                                                                                    \
@@ -833,7 +830,7 @@ static const char *cmc_string_fmt_treeset = "%s at %p { root:%p, count:%" PRIuMA
         }                                                                                    \
     }                                                                                        \
                                                                                              \
-    bool PFX##_iter_next(SNAME##_iter *iter)                                                 \
+    bool PFX##_iter_next(struct SNAME##_iter *iter)                                          \
     {                                                                                        \
         if (iter->end)                                                                       \
             return false;                                                                    \
@@ -873,7 +870,7 @@ static const char *cmc_string_fmt_treeset = "%s at %p { root:%p, count:%" PRIuMA
         }                                                                                    \
     }                                                                                        \
                                                                                              \
-    bool PFX##_iter_prev(SNAME##_iter *iter)                                                 \
+    bool PFX##_iter_prev(struct SNAME##_iter *iter)                                          \
     {                                                                                        \
         if (iter->start)                                                                     \
             return false;                                                                    \
@@ -915,7 +912,7 @@ static const char *cmc_string_fmt_treeset = "%s at %p { root:%p, count:%" PRIuMA
     }                                                                                        \
                                                                                              \
     /* Returns true only if the iterator moved */                                            \
-    bool PFX##_iter_advance(SNAME##_iter *iter, size_t steps)                                \
+    bool PFX##_iter_advance(struct SNAME##_iter *iter, size_t steps)                         \
     {                                                                                        \
         if (iter->end)                                                                       \
             return false;                                                                    \
@@ -938,7 +935,7 @@ static const char *cmc_string_fmt_treeset = "%s at %p { root:%p, count:%" PRIuMA
     }                                                                                        \
                                                                                              \
     /* Returns true only if the iterator moved */                                            \
-    bool PFX##_iter_rewind(SNAME##_iter *iter, size_t steps)                                 \
+    bool PFX##_iter_rewind(struct SNAME##_iter *iter, size_t steps)                          \
     {                                                                                        \
         if (iter->start)                                                                     \
             return false;                                                                    \
@@ -961,7 +958,7 @@ static const char *cmc_string_fmt_treeset = "%s at %p { root:%p, count:%" PRIuMA
     }                                                                                        \
                                                                                              \
     /* Returns true only if the iterator was able to be positioned at the given index */     \
-    bool PFX##_iter_go_to(SNAME##_iter *iter, size_t index)                                  \
+    bool PFX##_iter_go_to(struct SNAME##_iter *iter, size_t index)                           \
     {                                                                                        \
         if (index >= PFX##_count(iter->target))                                              \
             return false;                                                                    \
@@ -974,7 +971,7 @@ static const char *cmc_string_fmt_treeset = "%s at %p { root:%p, count:%" PRIuMA
         return true;                                                                         \
     }                                                                                        \
                                                                                              \
-    V PFX##_iter_value(SNAME##_iter *iter)                                                   \
+    V PFX##_iter_value(struct SNAME##_iter *iter)                                            \
     {                                                                                        \
         if (PFX##_empty(iter->target))                                                       \
             return (V){0};                                                                   \
@@ -982,14 +979,14 @@ static const char *cmc_string_fmt_treeset = "%s at %p { root:%p, count:%" PRIuMA
         return iter->cursor->value;                                                          \
     }                                                                                        \
                                                                                              \
-    size_t PFX##_iter_index(SNAME##_iter *iter)                                              \
+    size_t PFX##_iter_index(struct SNAME##_iter *iter)                                       \
     {                                                                                        \
         return iter->index;                                                                  \
     }                                                                                        \
                                                                                              \
-    static SNAME##_node *PFX##_impl_new_node(V element)                                      \
+    static struct SNAME##_node *PFX##_impl_new_node(V element)                               \
     {                                                                                        \
-        SNAME##_node *node = malloc(sizeof(SNAME##_node));                                   \
+        struct SNAME##_node *node = malloc(sizeof(struct SNAME##_node));                     \
                                                                                              \
         if (!node)                                                                           \
             return NULL;                                                                     \
@@ -1003,12 +1000,12 @@ static const char *cmc_string_fmt_treeset = "%s at %p { root:%p, count:%" PRIuMA
         return node;                                                                         \
     }                                                                                        \
                                                                                              \
-    static SNAME##_node *PFX##_impl_get_node(SNAME *_set_, V element)                        \
+    static struct SNAME##_node *PFX##_impl_get_node(struct SNAME *_set_, V element)          \
     {                                                                                        \
         if (PFX##_empty(_set_))                                                              \
             return NULL;                                                                     \
                                                                                              \
-        SNAME##_node *scan = _set_->root;                                                    \
+        struct SNAME##_node *scan = _set_->root;                                             \
                                                                                              \
         while (scan != NULL)                                                                 \
         {                                                                                    \
@@ -1023,7 +1020,7 @@ static const char *cmc_string_fmt_treeset = "%s at %p { root:%p, count:%" PRIuMA
         return NULL;                                                                         \
     }                                                                                        \
                                                                                              \
-    static unsigned char PFX##_impl_h(SNAME##_node *node)                                    \
+    static unsigned char PFX##_impl_h(struct SNAME##_node *node)                             \
     {                                                                                        \
         if (node == NULL)                                                                    \
             return 0;                                                                        \
@@ -1031,7 +1028,7 @@ static const char *cmc_string_fmt_treeset = "%s at %p { root:%p, count:%" PRIuMA
         return node->height;                                                                 \
     }                                                                                        \
                                                                                              \
-    static unsigned char PFX##_impl_hupdate(SNAME##_node *node)                              \
+    static unsigned char PFX##_impl_hupdate(struct SNAME##_node *node)                       \
     {                                                                                        \
         if (node == NULL)                                                                    \
             return 0;                                                                        \
@@ -1042,10 +1039,10 @@ static const char *cmc_string_fmt_treeset = "%s at %p { root:%p, count:%" PRIuMA
         return 1 + (h_l > h_r ? h_l : h_r);                                                  \
     }                                                                                        \
                                                                                              \
-    static void PFX##_impl_rotate_right(SNAME##_node **Z)                                    \
+    static void PFX##_impl_rotate_right(struct SNAME##_node **Z)                             \
     {                                                                                        \
-        SNAME##_node *root = *Z;                                                             \
-        SNAME##_node *new_root = root->left;                                                 \
+        struct SNAME##_node *root = *Z;                                                      \
+        struct SNAME##_node *new_root = root->left;                                          \
                                                                                              \
         if (root->parent != NULL)                                                            \
         {                                                                                    \
@@ -1071,10 +1068,10 @@ static const char *cmc_string_fmt_treeset = "%s at %p { root:%p, count:%" PRIuMA
         *Z = new_root;                                                                       \
     }                                                                                        \
                                                                                              \
-    static void PFX##_impl_rotate_left(SNAME##_node **Z)                                     \
+    static void PFX##_impl_rotate_left(struct SNAME##_node **Z)                              \
     {                                                                                        \
-        SNAME##_node *root = *Z;                                                             \
-        SNAME##_node *new_root = root->right;                                                \
+        struct SNAME##_node *root = *Z;                                                      \
+        struct SNAME##_node *new_root = root->right;                                         \
                                                                                              \
         if (root->parent != NULL)                                                            \
         {                                                                                    \
@@ -1100,9 +1097,9 @@ static const char *cmc_string_fmt_treeset = "%s at %p { root:%p, count:%" PRIuMA
         *Z = new_root;                                                                       \
     }                                                                                        \
                                                                                              \
-    static void PFX##_impl_rebalance(SNAME *_set_, SNAME##_node *node)                       \
+    static void PFX##_impl_rebalance(struct SNAME *_set_, struct SNAME##_node *node)         \
     {                                                                                        \
-        SNAME##_node *scan = node, *child = NULL;                                            \
+        struct SNAME##_node *scan = node, *child = NULL;                                     \
                                                                                              \
         int balance;                                                                         \
         bool is_root = false;                                                                \
@@ -1144,18 +1141,18 @@ static const char *cmc_string_fmt_treeset = "%s at %p { root:%p, count:%" PRIuMA
         }                                                                                    \
     }                                                                                        \
                                                                                              \
-    static SNAME##_iter PFX##_impl_it_start(SNAME *_set_)                                    \
+    static struct SNAME##_iter PFX##_impl_it_start(struct SNAME *_set_)                      \
     {                                                                                        \
-        SNAME##_iter iter;                                                                   \
+        struct SNAME##_iter iter;                                                            \
                                                                                              \
         PFX##_iter_init(&iter, _set_);                                                       \
                                                                                              \
         return iter;                                                                         \
     }                                                                                        \
                                                                                              \
-    static SNAME##_iter PFX##_impl_it_end(SNAME *_set_)                                      \
+    static struct SNAME##_iter PFX##_impl_it_end(struct SNAME *_set_)                        \
     {                                                                                        \
-        SNAME##_iter iter;                                                                   \
+        struct SNAME##_iter iter;                                                            \
                                                                                              \
         PFX##_iter_init(&iter, _set_);                                                       \
         PFX##_iter_to_end(&iter);                                                            \

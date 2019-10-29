@@ -19,7 +19,7 @@ typedef struct multiset_entry_s
     size_t value;
     size_t multiplicity;
     size_t dist;
-    enum cmc_entry_state_e state;
+    enum cmc_entry_state state;
 } multiset_entry, *multiset_entry_ptr;
 typedef struct multiset_iter_s
 {
@@ -52,7 +52,7 @@ double ms_load(multiset *_set_);
 _Bool ms_resize(multiset *_set_, size_t capacity);
 multiset *ms_copy_of(multiset *_set_, size_t (*copy_func)(size_t));
 _Bool ms_equals(multiset *_set1_, multiset *_set2_, _Bool ignore_multiplicity);
-cmc_string ms_to_string(multiset *_set_);
+struct cmc_string ms_to_string(multiset *_set_);
 multiset *ms_union(multiset *_set1_, multiset *_set2_);
 multiset *ms_intersection(multiset *_set1_, multiset *_set2_);
 multiset *ms_difference(multiset *_set1_, multiset *_set2_);
@@ -344,9 +344,9 @@ _Bool ms_equals(multiset *_set1_, multiset *_set2_, _Bool ignore_multiplicity)
     }
     return 1;
 }
-cmc_string ms_to_string(multiset *_set_)
+struct cmc_string ms_to_string(multiset *_set_)
 {
-    cmc_string str;
+    struct cmc_string str;
     multiset *s_ = _set_;
     const char *name = "multiset";
     snprintf(str.s, cmc_string_len, cmc_string_fmt_multiset, name, s_, s_->buffer, s_->capacity, s_->count, s_->cardinality, s_->load, s_->cmp, s_->hash);

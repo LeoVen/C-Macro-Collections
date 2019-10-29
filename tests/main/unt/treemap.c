@@ -9,7 +9,7 @@ CMC_GENERATE_TREEMAP(tm, treemap, size_t, size_t)
 
 CMC_CREATE_UNIT(treemap_test, true, {
     CMC_CREATE_TEST(new, {
-        treemap *map = tm_new(cmp);
+        struct treemap *map = tm_new(cmp);
 
         cmc_assert_not_equals(ptr, NULL, map);
 
@@ -17,7 +17,7 @@ CMC_CREATE_UNIT(treemap_test, true, {
     });
 
     CMC_CREATE_TEST(clear[count], {
-        treemap *map = tm_new(cmp);
+        struct treemap *map = tm_new(cmp);
 
         cmc_assert_not_equals(ptr, NULL, map);
 

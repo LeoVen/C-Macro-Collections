@@ -39,13 +39,13 @@ CMC_COLLECTION_GENERATE(MULTISET, ms, mset, /* K */, int)
         int sum1 = 0;                                                                            \
         double sum2 = 0.0;                                                                       \
                                                                                                  \
-        sname *coll = initfunc;                                                                  \
+        struct sname *coll = initfunc;                                                           \
         for (int i = 0; i < 10; i++)                                                             \
         {                                                                                        \
             insertbody;                                                                          \
         }                                                                                        \
                                                                                                  \
-        sname##_iter iter;                                                                       \
+        struct sname##_iter iter;                                                                \
         PFX##_iter_init(&iter, coll);                                                            \
                                                                                                  \
         for (int j = 0; j < 4; j++)                                                              \

@@ -41,7 +41,7 @@ size_t ih_capacity(intervalheap *_heap_);
 _Bool ih_resize(intervalheap *_heap_, size_t capacity);
 intervalheap *ih_copy_of(intervalheap *_set_, size_t (*copy_func)(size_t));
 _Bool ih_equals(intervalheap *_heap1_, intervalheap *_heap2_);
-cmc_string ih_to_string(intervalheap *_heap_);
+struct cmc_string ih_to_string(intervalheap *_heap_);
 intervalheap_iter *ih_iter_new(intervalheap *target);
 void ih_iter_free(intervalheap_iter *iter);
 void ih_iter_init(intervalheap_iter *iter, intervalheap *target);
@@ -323,9 +323,9 @@ _Bool ih_equals(intervalheap *_heap1_, intervalheap *_heap2_)
     }
     return 0;
 }
-cmc_string ih_to_string(intervalheap *_heap_)
+struct cmc_string ih_to_string(intervalheap *_heap_)
 {
-    cmc_string str;
+    struct cmc_string str;
     intervalheap *h_ = _heap_;
     const char *name = "intervalheap";
     snprintf(str.s, cmc_string_len, cmc_string_fmt_intervalheap, name, h_, h_->buffer, h_->capacity, h_->size, h_->count, h_->cmp);

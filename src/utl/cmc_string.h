@@ -18,9 +18,9 @@
 
 static const size_t cmc_string_len = 200;
 
-typedef struct cmc_string_s
+struct cmc_string
 {
     char s[200];
-} cmc_string;
+};
 
 #endif /* CMC_STRING_H */
