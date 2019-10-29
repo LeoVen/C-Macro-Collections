@@ -79,11 +79,11 @@ CMC_COLLECTION_GENERATE(MULTISET, ms, mset, /* K */, int)
     {                                                                                                            \
         printf("+------------------------------------------------------------ %10s\n", #NAME);                   \
         printf("+------------------------------------------------------------ \n");                              \
-        cmc_timer timer, total;                                                                                  \
+        struct cmc_timer timer, total;                                                                           \
         int r, k, v;                                                                                             \
         size_t j;                                                                                                \
                                                                                                                  \
-        sname *coll = initfunc;                                                                                  \
+        struct sname *coll = initfunc;                                                                           \
                                                                                                                  \
         cmc_timer_start(total);                                                                                  \
         cmc_timer_start(timer);                                                                                  \
@@ -118,7 +118,7 @@ CMC_COLLECTION_GENERATE(MULTISET, ms, mset, /* K */, int)
                                                                                                                  \
         double search_time = timer.result;                                                                       \
                                                                                                                  \
-        sname##_iter iter;                                                                                       \
+        struct sname##_iter iter;                                                                                \
                                                                                                                  \
         cmc_timer_start(timer);                                                                                  \
                                                                                                                  \
@@ -221,7 +221,7 @@ int main(void)
 
     // Linear containers have to search for NMIN elements and non-linear (hash
     // and tree) have to search for all elements.
-    cmc_timer timer;
+    struct cmc_timer timer;
     cmc_timer_start(timer);
 
     DEQUE_io_benchmark(array, sarray, NMIN);

@@ -5,9 +5,9 @@ CMC_GENERATE_STACK(stk, stack, int)
 
 struct
 {
-    stack *from;
-    stack *aux;
-    stack *to;
+    struct stack *from;
+    struct stack *aux;
+    struct stack *to;
 } print_aux = {NULL};
 
 void print_stacks()
@@ -27,14 +27,14 @@ void print_stacks()
     printf("+---+---+---+\n\n");
 }
 
-void move(stack *from, stack *to)
+void move(struct stack *from, struct stack *to)
 {
     stk_push(to, stk_top(from));
 
     stk_pop(from);
 }
 
-void hanoi(int n, stack *from, stack *aux, stack *to)
+void hanoi(int n, struct stack *from, struct stack *aux, struct stack *to)
 {
     if (n == 0)
         return;
@@ -50,9 +50,9 @@ void hanoi(int n, stack *from, stack *aux, stack *to)
 
 int main(int argc, char const *argv[])
 {
-    stack *from = stk_new(10);
-    stack *to = stk_new(10);
-    stack *aux = stk_new(10);
+    struct stack *from = stk_new(10);
+    struct stack *to = stk_new(10);
+    struct stack *aux = stk_new(10);
 
     for (int i = 4; i >= 1; i--)
         stk_push(from, i);

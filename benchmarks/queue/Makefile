@@ -6,5 +6,3 @@ main:
 	a.exe
 	gcc queue.c -I $(INCLUDE) $(CFLAGS) -o a.exe -DSAC_QUEUE
 	a.exe
-	gcc queue.c -I $(INCLUDE) $(CFLAGS) -o a.exe -DEXT_QUEUE
-	a.exe

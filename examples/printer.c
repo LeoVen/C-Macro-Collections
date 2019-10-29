@@ -8,20 +8,20 @@
 #define DOC_MARGIN 4
 
 CMC_GENERATE_LIST(row, row, char)
-CMC_GENERATE_LIST(doc, document, row *)
+CMC_GENERATE_LIST(doc, document, struct row *)
 
-void row_deallocator(row *r)
+void row_deallocator(struct row *r)
 {
     row_free(r, NULL);
 }
 
-document *document_load(const char *file_name);
+struct document *document_load(const char *file_name);
 void document_empty_line(FILE *fptr);
 void document_page_outline(FILE *fptr, int outline);
 void document_page_margin(FILE *fptr, int margin);
-void document_print(document *doc, FILE *fptr);
+void document_print(struct document *doc, FILE *fptr);
 
-document *document_load(const char *file_name)
+struct document *document_load(const char *file_name)
 {
     FILE *file = fopen(file_name, "r");
 
@@ -31,9 +31,9 @@ document *document_load(const char *file_name)
         return NULL;
     }
 
-    row *initial_row = row_new(ROW_INI_CAP);
+    struct row *initial_row = row_new(ROW_INI_CAP);
 
-    document *doc = doc_new(100);
+    struct document *doc = doc_new(100);
     doc_push_back(doc, initial_row);
 
     int ch;
@@ -42,11 +42,11 @@ document *document_load(const char *file_name)
     {
         char c = (char)ch;
 
-        row *current_row = doc_back(doc);
+        struct row *current_row = doc_back(doc);
 
         if (c == '\n')
         {
-            row *new_row = row_new(ROW_INI_CAP);
+            struct row *new_row = row_new(ROW_INI_CAP);
             doc_push_back(doc, new_row);
         }
         else if (c == '\t')
@@ -61,7 +61,7 @@ document *document_load(const char *file_name)
 
             if (left > 0)
             {
-                row *new_row = row_new(ROW_INI_CAP);
+                struct row *new_row = row_new(ROW_INI_CAP);
                 doc_push_back(doc, new_row);
 
                 while (left > 0)
@@ -73,7 +73,7 @@ document *document_load(const char *file_name)
         }
         else if (DOC_LETTERS_IN_ROW == row_count(current_row))
         {
-            row *new_row = row_new(ROW_INI_CAP);
+            struct row *new_row = row_new(ROW_INI_CAP);
             row_push_back(new_row, c);
             doc_push_back(doc, new_row);
         }
@@ -141,7 +141,7 @@ void document_page_margin(FILE *fptr, int margin /* 0 - first margin, 1 - second
         fputs("|\n", fptr);
 }
 
-void document_print(document *doc, FILE *fptr)
+void document_print(struct document *doc, FILE *fptr)
 {
     fputc('\n', fptr);
 
@@ -153,7 +153,7 @@ void document_print(document *doc, FILE *fptr)
         if (current_page_row == 0)
             document_page_outline(fptr, 0);
 
-        row *current_row = doc_get(doc, i);
+        struct row *current_row = doc_get(doc, i);
 
         if (!current_row)
             cmc_log_fatal("Unexpected NULL pointer for %s", "current_row");
@@ -198,7 +198,7 @@ int main(int argc, char const *argv[])
         return 1;
     }
 
-    document *doc = document_load(argv[1]);
+    struct document *doc = document_load(argv[1]);
 
     document_print(doc, stdout);
 
