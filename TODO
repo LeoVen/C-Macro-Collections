@@ -11,8 +11,8 @@ TODO
     [X] Add MultiSet
     [X] Add MultiMap
     [X] Add IntervalHeap
-    [/] Add SortedList
-    [/] Add BiDiMap
+    [X] Add SortedList
+    [X] Add BidiMap
 [/] Add functions
     [X] update       {hashmap, treemap, multimap}
     [X] set          {hashmap, treemap, multimap}
@@ -31,26 +31,37 @@ TODO
     [ ] serialize    {all}
     [ ] deserialize  {all}
 [ ] Callback utility
+[ ] Custom allocators
 [ ] Zip Iterators
 [ ] Statically Allocated Collections
+    [ ] BidiMap
     [ ] Deque
     [ ] HashMap
     [ ] HashSet
     [ ] Heap
+    [ ] IntervalHeap
     [ ] LinkedList
     [ ] List
+    [ ] MultiMap
+    [ ] MultiSet
     [~] Queue
+    [ ] SortedList
     [~] Stack
     [ ] TreeMap
     [ ] TreeSet
 [ ] Dev Collections
+    [ ] BidiMap
     [~] Deque
     [ ] HashMap
     [ ] HashSet
     [ ] Heap
+    [ ] IntervalHeap
     [ ] LinkedList
     [ ] List
+    [ ] MultiMap
+    [ ] MultiSet
     [ ] Queue
+    [ ] SortedList
     [ ] Stack
     [ ] TreeMap
     [ ] TreeSet
@@ -62,6 +73,5 @@ TODO
     [X] timer.h
 
 [ ] Optimizations
-    [ ] Hashtable insertion can avoid a call to impl_get_entry to check if a key already exists
     [ ] Use binary search to find optimum hashtable prime size inside impl_calculate_size
-
+    [ ] Optimize certain hashtable loops that use iterators but can simply use a normal loop

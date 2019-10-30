@@ -1,34 +1,40 @@
 # RELEASE.MAJOR.MINOR
 
+1.7.3
+    Breaking changes:
+        - ext collections merged to cmc
+        - No more typedefs in code generated
+    Fast forwarded codecov
+
 1.7.2
-    - Added resize function to array based collections
-    - Added the following functions to hashtable based collections:
+    Added resize function to array based collections
+    Added the following functions to hashtable based collections:
         - load
         - full
-    - Added more assert macros utility
-    - Added plenty more tests
-    - Substituted impl_default_value / key by compound literals
-    - Removed unnecessary conditional input and output functions
-    - Minor fixes throughout the library
+    Added more assert macros utility
+    Added plenty more tests
+    Substituted impl_default_value / key by compound literals
+    Removed unnecessary conditional input and output functions
+    Minor fixes throughout the library
 
 1.7.1
-    - Added new assert macro cmc_assert_sorted
-    - Fixed some include guards for hashtables
-    - Moved the cmc string format to each file
-    - Renamed some list functions (sequence input/output)
-    - Renamed list and linkedlist functions push and pop to push_at and pop_at
+    Added new assert macro cmc_assert_sorted
+    Fixed some include guards for hashtables
+    Moved the cmc string format to each file
+    Renamed some list functions (sequence input/output)
+    Renamed list and linkedlist functions push and pop to push_at and pop_at
 
 1.7.0
-    - Removed FMOD (function modifier)
-    - Added CMC prefix to all macros defined within the library
+    Removed FMOD (function modifier)
+    Added CMC prefix to all macros defined within the library
 
 1.6.3
-    - Added iterator functions to all collections:
+    Added iterator functions to all collections:
         - iter_advance
         - iter_rewind
         - iter_go_to
-    - Added cmc prefix to the logging utility
-    - Integrated the assert utility with the test utility. Now any assertion that fails inside the unit test will trigger failure and is no longer needed to manually pass or fail tests.
+    Added cmc prefix to the logging utility
+    Integrated the assert utility with the test utility. Now any assertion that fails inside the unit test will trigger failure and is no longer needed to manually pass or fail tests.
 
 1.6.2
     Added new functions to all collections:
