@@ -7,12 +7,15 @@
  * Leonardo Vencovsky (https://github.com/LeoVen)
  *
  */
-#include <ext/multiset.h>
+#include <cmc/multiset.h>
 #include <utl/assert.h>
 #include <inttypes.h>
 #include <stdio.h>
 
-MULTISET_GENERATE(ms, multiset, , char)
+CMC_GENERATE_MULTISET(ms, multiset, char);
+typedef struct multiset multiset;
+typedef struct multiset_iter multiset_iter;
+
 
 struct pair
 {
@@ -105,15 +108,15 @@ int main(int argc, char const *argv[])
     printf("\nA SYM DIFF B:\n");
     print_set(SD);
 
-    ms_free(A);
-    ms_free(B);
-    ms_free(U);
-    ms_free(I);
-    ms_free(DA);
-    ms_free(DB);
-    ms_free(AB);
-    ms_free(BA);
-    ms_free(SD);
+    ms_free(A, NULL);
+    ms_free(B, NULL);
+    ms_free(U, NULL);
+    ms_free(I, NULL);
+    ms_free(DA, NULL);
+    ms_free(DB, NULL);
+    ms_free(AB, NULL);
+    ms_free(BA, NULL);
+    ms_free(SD, NULL);
 
     return 0;
 }

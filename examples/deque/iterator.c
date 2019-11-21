@@ -13,7 +13,9 @@
 #include <inttypes.h>
 
 // Creates a deque of integers
-DEQUE_GENERATE(d, deque, /* FMOD */, int)
+CMC_GENERATE_DEQUE(d, deque, size_t);
+typedef struct deque deque;
+typedef struct deque_iter deque_iter;
 
 int main(int argc, char const *argv[])
 {
@@ -23,11 +25,12 @@ int main(int argc, char const *argv[])
     // Add elements to the deque
     for (int i = 0; i < 20; i++)
     {
-        // Add odd numbers to the front
-        d_push_front_if(my_deque, i, !(i % 2 == 0));
-
-        // And even numbers to the back
-        d_push_back_if(my_deque, i, i % 2 == 0);
+        // Add odd numbers to the front, even numbers to the back.
+        if (i % 2 == 0) {
+            d_push_front(my_deque, i);
+        } else {
+            d_push_back(my_deque, i);
+        }
     }
 
     // Iterate from the start (front index) to the end (rear index) of the deque
@@ -170,7 +173,7 @@ int main(int argc, char const *argv[])
     for (d_iter_to_start(&it); !d_iter_end(&it); d_iter_next(&it))
     {
         // Get a reference to the current value
-        int *r = d_iter_rvalue(&it);
+        size_t *r = d_iter_rvalue(&it);
 
         if (r != NULL && *r % 3 == 0)
             *r = 7;
@@ -193,7 +196,7 @@ int main(int argc, char const *argv[])
     // Dispose the iterator called by d_iter_new()
     d_iter_free(iter);
     // Dispose the deque created
-    d_free(my_deque);
+    d_free(my_deque, NULL);
 
     return 0;
 }

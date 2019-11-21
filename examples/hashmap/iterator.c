@@ -32,7 +32,10 @@ int intcmp(int a, int b)
 }
 
 // Creates a hashmap of integers
-HASHMAP_GENERATE(hm, hashmap, /* FMOD */, int, double)
+CMC_GENERATE_HASHMAP(hm, hashmap, int, double);
+typedef struct hashmap hashmap;
+typedef struct hashmap_iter hashmap_iter;
+
 
 int main(int argc, char const *argv[])
 {
@@ -224,7 +227,7 @@ int main(int argc, char const *argv[])
     // Dispose the iterator called by hm_iter_new()
     hm_iter_free(iter);
     // Dispose the hashmap created
-    hm_free(my_map);
+    hm_free(my_map, NULL);
 
     return 0;
 }

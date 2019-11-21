@@ -1,5 +1,5 @@
-#include "multimap.h"
-#include "foreach.h"
+#include "cmc/multimap.h"
+#include "utl/foreach.h"
 #include <stdio.h>
 #include <stdint.h>
 #include <inttypes.h>
@@ -21,7 +21,10 @@ size_t inthash(int t)
     return a;
 }
 
-MULTIMAP_GENERATE(mm, multi_map, , int, int)
+CMC_GENERATE_MULTIMAP(mm, multi_map, int, int);
+typedef struct multi_map multi_map;
+typedef struct multi_map_iter multi_map_iter;
+
 
 int main(int argc, char const *argv[])
 {
@@ -50,14 +53,19 @@ int main(int argc, char const *argv[])
 
     printf("Sum (unique): %" PRId64 "\n", sum);
 
-    FOR_EACH_MAP(mm, multi_map, int, int, map, {
-        printf("[%3" PRIu64 "] = { %3d : %3d }\n", index, key, value);
-    })
+    CMC_FOR_EACH(mm, multi_map, map, {
+        printf(
+            "[%3" PRIu64 "] = { %3d : %3d }\n",
+            iter.index,
+            iter.curr_entry->key,
+            iter.curr_entry->value
+        );
+    });
 
     printf("Removing all items\n");
 
     for (int i = min; i < max; i++)
-        if (!mm_remove_all(map, i))
+        if (!mm_remove_all(map, i, NULL))
             printf("ERROR with %d:%d\n", i, i);
 
     sum = 0;
@@ -67,11 +75,15 @@ int main(int argc, char const *argv[])
 
     printf("Sum: %" PRId64 "\n", sum);
 
-    FOR_EACH_MAP(mm, multi_map, int, int, map, {
-        printf("[%2" PRIu64 "] = { %2d : %5d }\n", index, key, value);
-    })
+    CMC_FOR_EACH(mm, multi_map, map, {
+        printf("[%2" PRIu64 "] = { %2d : %5d }\n",
+            iter.index,
+            iter.curr_entry->key,
+            iter.curr_entry->value
+        );
+    });
 
-    mm_free(map);
+    mm_free(map, NULL);
 
     return 0;
 }

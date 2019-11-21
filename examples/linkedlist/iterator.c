@@ -13,7 +13,7 @@
 #include <inttypes.h>
 
 // Creates a linkedlist of integers
-LINKEDLIST_GENERATE(ll, linkedlist, /* FMOD */, int)
+CMC_GENERATE_LINKEDLIST((ll, linkedlist, int)
 
 int main(int argc, char const *argv[])
 {

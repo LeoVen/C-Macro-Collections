@@ -15,7 +15,10 @@ static int intcmp(int a, int b)
     return a - b;
 }
 
-HEAP_GENERATE(h, heap, static, int)
+CMC_GENERATE_HEAP(h, heap, int)
+typedef struct heap heap;
+typedef struct heap_iter heap_iter;
+
 
 int main(int argc, char const *argv[])
 {
@@ -49,7 +52,7 @@ int main(int argc, char const *argv[])
     }
 
     free(buff);
-    h_free(h);
+    h_free(h, NULL);
 
     return 0;
 }

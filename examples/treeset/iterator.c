@@ -32,7 +32,10 @@ int intcmp(int a, int b)
 }
 
 // Creates a treeset of integers
-TREESET_GENERATE(ts, treeset, /* FMOD */, int)
+CMC_GENERATE_TREESET(ts, treeset, int);
+typedef struct treeset treeset;
+typedef struct treeset_iter treeset_iter;
+
 
 int main(int argc, char const *argv[])
 {
@@ -188,7 +191,7 @@ int main(int argc, char const *argv[])
     // Dispose the iterator called by ts_iter_new()
     ts_iter_free(iter);
     // Dispose the treeset created
-    ts_free(my_treeset);
+    ts_free(my_treeset, NULL);
 
     return 0;
 }

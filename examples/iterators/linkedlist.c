@@ -10,7 +10,10 @@
 #include "cmc/linkedlist.h"
 #include <stdio.h>
 
-LINKEDLIST_GENERATE(ll, linkedlist, static, int)
+CMC_GENERATE_LINKEDLIST(ll, linkedlist, int);
+typedef struct linkedlist linkedlist;
+typedef struct linkedlist_iter linkedlist_iter;
+
 
 int main(int argc, char const *argv[])
 {
@@ -52,7 +55,7 @@ int main(int argc, char const *argv[])
         printf("LL[%2d] = %2d\n", ll_iter_index(&iter), ll_iter_value(&iter));
     }
 
-    ll_free(ll);
+    ll_free(ll, NULL);
 
     return 0;
 }

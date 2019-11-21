@@ -15,7 +15,10 @@ int intcmp(int a, int b)
     return (a > b) - (a < b);
 }
 
-TREEMAP_GENERATE(tm, tmap, static, int, double)
+CMC_GENERATE_TREEMAP(tm, tmap, int, double)
+typedef struct tmap tmap;
+typedef struct tmap_iter tmap_iter;
+
 
 int main(int argc, char const *argv[])
 {
@@ -58,7 +61,7 @@ int main(int argc, char const *argv[])
         printf("TM[%2d] = { %2d : %2.2lf }\n", tm_iter_index(&iter), tm_iter_key(&iter), tm_iter_value(&iter));
     }
 
-    tm_free(hm);
+    tm_free(hm, NULL);
 
     return 0;
 }

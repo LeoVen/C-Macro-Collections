@@ -18,7 +18,10 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-HASHSET_GENERATE(set, set, /* static */, int)
+CMC_GENERATE_HASHSET(set, set, int)
+typedef struct set set;
+typedef struct set_iter set_iter;
+
 
 void print_set(set *s)
 {
@@ -104,12 +107,12 @@ int main(int argc, char const *argv[])
     printf("=\n");
     print_set(set6);
 
-    set_free(set1);
-    set_free(set2);
-    set_free(set3);
-    set_free(set4);
-    set_free(set5);
-    set_free(set6);
+    set_free(set1, NULL);
+    set_free(set2, NULL);
+    set_free(set3, NULL);
+    set_free(set4, NULL);
+    set_free(set5, NULL);
+    set_free(set6, NULL);
 
     return 0;
 }

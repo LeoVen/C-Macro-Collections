@@ -15,7 +15,10 @@ int intcmp(int a, int b)
     return (a > b) - (a < b);
 }
 
-TREESET_GENERATE(ts, tset, static, int)
+CMC_GENERATE_TREESET(ts, tset, int);
+typedef struct tset tset;
+typedef struct tset_iter tset_iter;
+
 
 int main(int argc, char const *argv[])
 {
@@ -57,7 +60,7 @@ int main(int argc, char const *argv[])
         printf("TS[%2d] = %2d\n", ts_iter_index(&iter), ts_iter_value(&iter));
     }
 
-    ts_free(ts);
+    ts_free(ts, NULL);
 
     return 0;
 }

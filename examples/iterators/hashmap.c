@@ -10,7 +10,10 @@
 #include "cmc/hashmap.h"
 #include <stdio.h>
 
-HASHMAP_GENERATE(hm, hmap, static, int, double)
+CMC_GENERATE_HASHMAP(hm, hmap, int, double)
+typedef struct hmap hmap;
+typedef struct hmap_iter hmap_iter;
+
 
 size_t inthash(int t)
 {
@@ -70,7 +73,7 @@ int main(int argc, char const *argv[])
         printf("HM[%2d] = { %2d : %2.2lf }\n", hm_iter_index(&iter), hm_iter_key(&iter), hm_iter_value(&iter));
     }
 
-    hm_free(hm);
+    hm_free(hm, NULL);
 
     return 0;
 }

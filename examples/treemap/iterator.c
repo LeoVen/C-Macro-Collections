@@ -19,7 +19,10 @@ int intcmp(int a, int b)
 }
 
 // Creates a treemap of integers
-TREEMAP_GENERATE(tm, treemap, /* FMOD */, int, double)
+CMC_GENERATE_TREEMAP(tm, treemap, int, double);
+typedef struct treemap treemap;
+typedef struct treemap_iter treemap_iter;
+
 
 int main(int argc, char const *argv[])
 {
@@ -211,7 +214,7 @@ int main(int argc, char const *argv[])
     // Dispose the iterator called by tm_iter_new()
     tm_iter_free(iter);
     // Dispose the treemap created
-    tm_free(my_map);
+    tm_free(my_map, NULL);
 
     return 0;
 }

@@ -10,7 +10,10 @@
 #include "cmc/list.h"
 #include <stdio.h>
 
-LIST_GENERATE(l, list, /* FMOD */, int)
+CMC_GENERATE_LIST(l, list, int);
+typedef struct list list;
+typedef struct list_iter list_iter;
+
 
 int main(int argc, char const *argv[])
 {
@@ -36,7 +39,7 @@ int main(int argc, char const *argv[])
     }
 
     // Erase all values from the list
-    l_clear(my_list);
+    l_clear(my_list, NULL);
 
     // Now that list is empty, add only even numbers
     for (int i = 0; i < 200; i++)
@@ -44,7 +47,7 @@ int main(int argc, char const *argv[])
         // Add even numbers to a given index. In this case they are being added
         // to the end of the list (count index == push_back). With a condition
         // of being even (i % 2 == 0)
-        bool added = l_push_if(my_list, i, l_count(my_list), i % 2 == 0);
+        if (i % 2 == 0) l_push_back(my_list, i);
 
         // If added is true, the element was added to the list
     }
@@ -69,7 +72,7 @@ int main(int argc, char const *argv[])
     }
 
     // Release resources
-    l_free(my_list);
+    l_free(my_list, NULL);
 
     return 0;
 }

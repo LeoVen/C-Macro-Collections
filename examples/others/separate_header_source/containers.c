@@ -1,6 +1,6 @@
 #include "containers.h"
 
-COLLECTION_GENERATE_SOURCE(LIST, il, int_list, , , int)
-COLLECTION_GENERATE_SOURCE(STACK, cs, char_stack, , , char)
-COLLECTION_GENERATE_SOURCE(QUEUE, queue, index_queue, , , size_t)
-COLLECTION_GENERATE_SOURCE(DEQUE, dq, deque, , , int)
+CMC_GENERATE_LIST_SOURCE(il, int_list, int)
+CMC_GENERATE_STACK_SOURCE(cs, char_stack, char)
+CMC_GENERATE_QUEUE_SOURCE(queue, index_queue, size_t)
+CMC_GENERATE_DEQUE_SOURCE(dq, deque, int)

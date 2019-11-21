@@ -12,7 +12,7 @@
 #include <assert.h>
 #include <inttypes.h>
 
-LINKEDLIST_GENERATE(l, list, /* static */, int)
+CMC_GENERATE_LINKEDLIST((l, list, int)
 
 int main(void)
 {
