@@ -46,7 +46,7 @@
 
 #include "utl/assert.h"       /* Added in 27/06/2019 */
 #include "utl/foreach.h"      /* Added in 25/02/2019 */
-#include "utl/log.h"          /* Added in 21/06/2109 */
+#include "utl/log.h"          /* Added in 21/06/2019 */
 #include "utl/test.h"         /* Added in 26/06/2019 */
 #include "utl/timer.h"        /* Added in 12/04/2019 */
 
