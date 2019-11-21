@@ -341,7 +341,7 @@ struct cmc_callbacks_bidimap
         _map_->it_start = PFX##_impl_it_start;                                                   \
         _map_->it_end = PFX##_impl_it_end;                                                       \
                                                                                                  \
-        _map_->alloc = &cmc_alloc_node_default;                                                  \
+        _map_->alloc = alloc;                                                                    \
         _map_->callbacks = NULL;                                                                 \
                                                                                                  \
         return _map_;                                                                            \
@@ -404,7 +404,7 @@ struct cmc_callbacks_bidimap
         {                                                                                        \
             struct SNAME##_entry *entry = _map_->key_buffer[i];                                  \
                                                                                                  \
-            if (entry != NULL && entry != CMC_ENTRY_DELETED)                                     \
+            if (entry && entry != CMC_ENTRY_DELETED)                                             \
             {                                                                                    \
                 if (deallocator)                                                                 \
                     deallocator(entry->key, entry->value);                                       \
@@ -597,19 +597,30 @@ struct cmc_callbacks_bidimap
         if (PFX##_empty(_map_))                                                                  \
             return false;                                                                        \
                                                                                                  \
-        struct SNAME##_entry **entry = PFX##_impl_get_entry_by_key(_map_, key);                  \
+        struct SNAME##_entry **key_entry, **val_entry;                                           \
                                                                                                  \
-        if (!entry)                                                                              \
+        key_entry = PFX##_impl_get_entry_by_key(_map_, key);                                     \
+                                                                                                 \
+        if (!key_entry)                                                                          \
+            return false;                                                                        \
+                                                                                                 \
+        val_entry = PFX##_impl_get_entry_by_val(_map_, (*key_entry)->value);                     \
+                                                                                                 \
+        if (!val_entry)                                                                          \
+            return false;                                                                        \
+                                                                                                 \
+        if (*val_entry != *key_entry)                                                            \
             return false;                                                                        \
                                                                                                  \
         if (out_key)                                                                             \
-            *out_key = (*entry)->key;                                                            \
+            *out_key = (*key_entry)->key;                                                        \
         if (out_val)                                                                             \
-            *out_val = (*entry)->value;                                                          \
+            *out_val = (*key_entry)->value;                                                      \
                                                                                                  \
-        _map_->alloc->free(*entry);                                                              \
+        _map_->alloc->free(*key_entry);                                                          \
                                                                                                  \
-        *entry = CMC_ENTRY_DELETED;                                                              \
+        *key_entry = CMC_ENTRY_DELETED;                                                          \
+        *val_entry = CMC_ENTRY_DELETED;                                                          \
                                                                                                  \
         _map_->count--;                                                                          \
                                                                                                  \
@@ -621,19 +632,30 @@ struct cmc_callbacks_bidimap
         if (PFX##_empty(_map_))                                                                  \
             return false;                                                                        \
                                                                                                  \
-        struct SNAME##_entry **entry = PFX##_impl_get_entry_by_val(_map_, val);                  \
+        struct SNAME##_entry **key_entry, **val_entry;                                           \
                                                                                                  \
-        if (!entry)                                                                              \
+        val_entry = PFX##_impl_get_entry_by_val(_map_, val);                                     \
+                                                                                                 \
+        if (!val_entry)                                                                          \
+            return false;                                                                        \
+                                                                                                 \
+        key_entry = PFX##_impl_get_entry_by_key(_map_, (*val_entry)->key);                       \
+                                                                                                 \
+        if (!key_entry)                                                                          \
+            return false;                                                                        \
+                                                                                                 \
+        if (*val_entry != *key_entry)                                                            \
             return false;                                                                        \
                                                                                                  \
         if (out_key)                                                                             \
-            *out_key = (*entry)->key;                                                            \
+            *out_key = (*val_entry)->key;                                                        \
         if (out_val)                                                                             \
-            *out_val = (*entry)->value;                                                          \
+            *out_val = (*val_entry)->value;                                                      \
                                                                                                  \
-        _map_->alloc->free(*entry);                                                              \
+        _map_->alloc->free(*val_entry);                                                          \
                                                                                                  \
-        *entry = CMC_ENTRY_DELETED;                                                              \
+        *key_entry = CMC_ENTRY_DELETED;                                                          \
+        *val_entry = CMC_ENTRY_DELETED;                                                          \
                                                                                                  \
         _map_->count--;                                                                          \
                                                                                                  \
