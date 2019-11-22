@@ -4,12 +4,12 @@
 #include <stdbool.h>
 
 // Create containers to use only in this file
-COLLECTION_GENERATE(LIST, l, list, static, , int)
-COLLECTION_GENERATE(LINKEDLIST, ll, llist, static, , int)
-COLLECTION_GENERATE(STACK, s, stack, static, , int)
-COLLECTION_GENERATE(QUEUE, q, queue, static, , int)
-COLLECTION_GENERATE(DEQUE, d, deque, static, , int)
-COLLECTION_GENERATE(TREESET, ts, tset, static, , int)
+CMC_GENERATE_LIST(l, list, int)
+CMC_GENERATE_LINKEDLIST(ll, llist, int)
+CMC_GENERATE_STACK(s, stack, int)
+CMC_GENERATE_QUEUE(q, queue, int)
+CMC_GENERATE_DEQUE(d, deque, int)
+CMC_GENERATE_TREESET(ts, tset, int)
 
 int intcmp(int a, int b)
 {
@@ -19,12 +19,12 @@ int intcmp(int a, int b)
 int main(int argc, char const *argv[])
 {
     // Initialize all of them with an internal capacity of 100
-    list *l = l_new(100);
-    llist *ll = ll_new();
-    stack *s = s_new(100);
-    queue *q = q_new(100);
-    deque *d = d_new(100);
-    tset *ts = ts_new(intcmp);
+    struct list *l = l_new(100);
+    struct llist *ll = ll_new();
+    struct stack *s = s_new(100);
+    struct queue *q = q_new(100);
+    struct deque *d = d_new(100);
+    struct tset *ts = ts_new(intcmp);
 
     // Add 20 elements to each of them
     for (int i = 0; i < 20; i++)
@@ -54,11 +54,11 @@ int main(int argc, char const *argv[])
     ts_insert(ts, 24);
     ts_insert(ts, 25);
 
-    // All FOR_EACH macros contains three available variables:
+    // All CMC_FOR_EACH macros contains three available variables:
     // - value : the elements that changes with each iteration
     // - index : iteration index (first iteration is 0 and last is count - 1)
     // - iter : iterator struct
-    FOR_EACH(l, list, l, {
+    CMC_FOR_EACH(l, list, l, {
         int value = l_iter_value(&iter);
         size_t index = l_iter_index(&iter);
         if (index == 0)
@@ -69,7 +69,7 @@ int main(int argc, char const *argv[])
             printf("%d, ", value);
     });
 
-    FOR_EACH(s, stack, s, {
+    CMC_FOR_EACH(s, stack, s, {
         int value = s_iter_value(&iter);
         size_t index = s_iter_index(&iter);
         if (index == 0)
@@ -80,7 +80,7 @@ int main(int argc, char const *argv[])
             printf("%d, ", value);
     });
 
-    FOR_EACH(q, queue, q, {
+    CMC_FOR_EACH(q, queue, q, {
         int value = q_iter_value(&iter);
         size_t index = q_iter_index(&iter);
         if (index == 0)
@@ -91,7 +91,7 @@ int main(int argc, char const *argv[])
             printf("%d, ", value);
     });
 
-    FOR_EACH(d, deque, d, {
+    CMC_FOR_EACH(d, deque, d, {
         int value = d_iter_value(&iter);
         size_t index = d_iter_index(&iter);
         if (index == 0)
@@ -102,7 +102,7 @@ int main(int argc, char const *argv[])
             printf("%d, ", value);
     });
 
-    FOR_EACH(ll, llist, ll, {
+    CMC_FOR_EACH(ll, llist, ll, {
         int value = ll_iter_value(&iter);
         size_t index = ll_iter_index(&iter);
         if (index == 0)
@@ -113,7 +113,7 @@ int main(int argc, char const *argv[])
             printf("%d, ", value);
     });
 
-    FOR_EACH(ts, tset, ts, {
+    CMC_FOR_EACH(ts, tset, ts, {
         int value = ts_iter_value(&iter);
         size_t index = ts_iter_index(&iter);
         if (index == 0)
@@ -124,12 +124,12 @@ int main(int argc, char const *argv[])
             printf("%d, ", value);
     });
 
-    l_free(l);
-    ll_free(ll);
-    s_free(s);
-    q_free(q);
-    d_free(d);
-    ts_free(ts);
+    l_free(l, NULL);
+    ll_free(ll, NULL);
+    s_free(s, NULL);
+    q_free(q, NULL);
+    d_free(d, NULL);
+    ts_free(ts, NULL);
 
     return 0;
 }

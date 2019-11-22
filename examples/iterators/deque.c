@@ -10,7 +10,9 @@
 #include "cmc/deque.h"
 #include <stdio.h>
 
-DEQUE_GENERATE(d, deque, static, int)
+CMC_GENERATE_DEQUE(d, deque, int);
+typedef struct deque deque;
+typedef struct deque_iter deque_iter;
 
 int main(int argc, char const *argv[])
 {
@@ -54,7 +56,7 @@ int main(int argc, char const *argv[])
         printf("D[%2d] = %2d\n", d_iter_index(&iter), d_iter_value(&iter));
     }
 
-    d_free(d);
+    d_free(d, NULL);
 
     return 0;
 }

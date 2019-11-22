@@ -32,7 +32,9 @@ int intcmp(int a, int b)
 }
 
 // Creates a hashset of integers
-HASHSET_GENERATE(hs, hashset, /* FMOD */, int)
+CMC_GENERATE_HASHSET(hs, hashset, int)
+typedef struct hashset hashset;
+typedef struct hashset_iter hashset_iter;
 
 int main(int argc, char const *argv[])
 {
@@ -188,7 +190,7 @@ int main(int argc, char const *argv[])
     // Dispose the iterator called by hs_iter_new()
     hs_iter_free(iter);
     // Dispose the hashset created
-    hs_free(my_hashset);
+    hs_free(my_hashset, NULL);
 
     return 0;
 }

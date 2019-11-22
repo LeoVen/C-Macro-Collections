@@ -32,7 +32,9 @@ int intcmp(int a, int b)
 }
 
 // Generate all the code for the hashmap
-HASHMAP_GENERATE(hm, hashmap, /* FMOD */, int, double)
+CMC_GENERATE_HASHMAP(hm, hashmap, int, double)
+typedef struct hashmap hashmap;
+typedef struct hashmap_iter hashmap_iter;
 
 int main(void)
 {
@@ -53,13 +55,13 @@ int main(void)
     }
 
     // Iterate over the HashMap using FOR_EACH macro
-    FOR_EACH(hm, hashmap, map, {
+    CMC_FOR_EACH(hm, hashmap, map, {
         // Inside, the variable 'iter' will be available and from it you can access
         // the key, value or index.
         printf("MAP[%4d] = %.3lf\n", hm_iter_key(&iter), hm_iter_value(&iter));
     });
 
-    hm_free(map);
+    hm_free(map, NULL);
 
     return 0;
 }

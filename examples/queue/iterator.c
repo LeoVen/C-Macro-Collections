@@ -13,7 +13,10 @@
 #include <inttypes.h>
 
 // Creates a queue of integers
-QUEUE_GENERATE(q, queue, /* FMOD */, int)
+CMC_GENERATE_QUEUE(q, queue, int);
+typedef struct queue queue;
+typedef struct queue_iter queue_iter;
+
 
 int main(int argc, char const *argv[])
 {
@@ -189,7 +192,7 @@ int main(int argc, char const *argv[])
     // Dispose the iterator called by q_iter_new()
     q_iter_free(iter);
     // Dispose the queue created
-    q_free(my_queue);
+    q_free(my_queue, NULL);
 
     return 0;
 }

@@ -11,7 +11,10 @@
 #include <stdio.h>
 #include <string.h>
 
-LIST_GENERATE(str, string, /* FMOD */, char)
+CMC_GENERATE_LIST(str, string, char);
+typedef struct string string;
+typedef struct string_iter string_iter;
+
 
 // Comparison function
 int chrcmp(char a, char b)
@@ -43,13 +46,13 @@ int main(int argc, char const *argv[])
     str_push_front(my_str, ' ');
 
     // Add a sequence of characters to the front of the list
-    str_prepend(my_str, example1, strlen(example1));
+    str_seq_push_front(my_str, example1, strlen(example1));
 
     // Add a charater to the back of the list
     str_push_back(my_str, ' ');
 
     // Add a sequence of characters to the back of the list
-    str_append(my_str, example3, strlen(example3));
+    str_seq_push_back(my_str, example3, strlen(example3));
 
     // Iterate through each letter and print it
     string_iter iter;
@@ -84,7 +87,7 @@ int main(int argc, char const *argv[])
 
     // Now that we know where the first word is, remove it, including the
     // extra space. [from, to] are inclusive.
-    str_remove(my_str, 0, index);
+    str_seq_pop_at(my_str, 0, index);
 
     // Print it once again
     for (str_iter_to_start(&iter); !str_iter_end(&iter); str_iter_next(&iter))
@@ -101,7 +104,7 @@ int main(int argc, char const *argv[])
     index = str_indexof(my_str, ' ', chrcmp, false);
 
     // Extract last word including white space
-    string *str_out = str_extract(my_str, index, str_count(my_str) - 1);
+    string *str_out = str_seq_sublist(my_str, index, str_count(my_str) - 1);
 
     if (!str_out)
         printf("Could not extract string\n");
@@ -126,8 +129,8 @@ int main(int argc, char const *argv[])
     }
 
     // Free strings
-    str_free(my_str);
-    str_free(str_out);
+    str_free(my_str, NULL);
+    str_free(str_out, NULL);
 
     printf("\n----------------------------------------\n\n");
 
@@ -135,29 +138,29 @@ int main(int argc, char const *argv[])
     // Using prepend, insert, append, remove and extract functions
     string *str = str_new(100);
 
-    str_prepend(str, "Hello World!", 12);
+    str_seq_push_front(str, "Hello World!", 12);
 
     print_str(str);
 
-    str_insert(str, "Awesome ", 8, 6);
+    str_seq_push_at(str, "Awesome ", 8, 6);
 
     print_str(str);
 
-    str_append(str, " Indigo.", 8);
+    str_seq_push_back(str, " Indigo.", 8);
 
     print_str(str);
 
-    str_remove(str, 14, 20);
+    str_seq_pop_at(str, 14, 20);
 
     print_str(str);
 
-    string *str_res = str_extract(str, 5, 12);
+    string *str_res = str_seq_sublist(str, 5, 12);
 
     print_str(str);
     print_str(str_res);
 
-    str_free(str);
-    str_free(str_res);
+    str_free(str, NULL);
+    str_free(str_res, NULL);
 
     return 0;
 }

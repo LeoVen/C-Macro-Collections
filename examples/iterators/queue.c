@@ -10,7 +10,10 @@
 #include "cmc/queue.h"
 #include <stdio.h>
 
-QUEUE_GENERATE(q, queue, static, int)
+CMC_GENERATE_QUEUE(q, queue, int)
+typedef struct queue queue;
+typedef struct queue_iter queue_iter;
+
 
 int main(int argc, char const *argv[])
 {
@@ -52,7 +55,7 @@ int main(int argc, char const *argv[])
         printf("Q[%2d] = %2d\n", q_iter_index(&iter), q_iter_value(&iter));
     }
 
-    q_free(q);
+    q_free(q, NULL);
 
     return 0;
 }

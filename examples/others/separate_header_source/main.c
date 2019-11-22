@@ -39,11 +39,11 @@ int main(void)
 {
     srand((unsigned)time(NULL));
 
-    int_list *list = il_new(10);
+    struct int_list *list = il_new(10);
 
     for (int i = 0; i < 100; i++)
     {
-        il_push(list, i, list->count == 0 ? list->count : i % list->count);
+        il_push_at(list, i, list->count == 0 ? list->count : i % list->count);
     }
 
     printf("\n[ ");
@@ -53,7 +53,7 @@ int main(void)
 
     printf("%d ]\n", il_get(list, list->count - 1));
 
-    il_free(list);
+    il_free(list, NULL);
 
     list = il_new(10);
 
@@ -92,13 +92,13 @@ int main(void)
         }
     }
 
-    il_free(list);
+    il_free(list, NULL);
 
     list = il_new(1000);
 
     for (int i = 0; i < 1000; i++)
     {
-        il_push_if(list, i, list->count, i % 2 == 0);
+        if (i % 2 == 0) il_push_at(list, i, list->count);
     }
 
     // Print all even numbers
@@ -113,9 +113,9 @@ int main(void)
         printf("%d ]\n", il_get(list, list->count - 1));
     }
 
-    il_free(list);
+    il_free(list, NULL);
 
-    char_stack *stack = cs_new(100);
+    struct char_stack *stack = cs_new(100);
 
     for (int i = 0; i < 2000; i++)
     {
@@ -136,9 +136,9 @@ int main(void)
     printf("\nStack size: %" PRIu64 "", cs_count(stack));
     printf("\nStack capacity : %" PRIu64 "\n", cs_capacity(stack));
 
-    cs_free(stack);
+    cs_free(stack, NULL);
 
-    index_queue *idxs = queue_new(100);
+    struct index_queue *idxs = queue_new(100);
 
     size_t sum0 = 0, sum1 = 0, curr;
 
@@ -174,25 +174,25 @@ int main(void)
     if (sum0 == sum1)
         printf("\nElements were preserved -> %" PRIu64 " : %" PRIu64 "\n", sum0, sum1);
 
-    queue_free(idxs);
+    queue_free(idxs, NULL);
 
     printf("\nUsing ForEach\n\n");
 
-    int_list *integers = il_new(1000);
+    struct int_list *integers = il_new(1000);
 
     for (size_t i = 0; i < il_capacity(integers); i++)
         il_push_back(integers, i);
 
     int sum = 0;
-    FOR_EACH(il, int_list, integers, {
+    CMC_FOR_EACH(il, int_list, integers, {
         sum += il_iter_value(&iter);
     });
 
     printf("\n\nSUM: %d\n", sum);
 
-    il_free(integers);
+    il_free(integers, NULL);
 
-    deque *d = dq_new(1000);
+    struct deque *d = dq_new(1000);
 
     int sum2 = 0, numbers = 0, r = 0;
 
@@ -245,7 +245,7 @@ int main(void)
 
     printf("Theoretical Sum: 50005000\nTotal Sum: %d\n", sum2);
 
-    dq_free(d);
+    dq_free(d, NULL);
 
     d = dq_new(32);
 
@@ -254,7 +254,7 @@ int main(void)
 
     int sum3 = 0;
 
-    FOR_EACH(dq, deque, d, {
+    CMC_FOR_EACH(dq, deque, d, {
         sum3 += dq_iter_value(&iter);
     });
 

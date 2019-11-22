@@ -10,7 +10,10 @@
 #include "cmc/hashset.h"
 #include <stdio.h>
 
-HASHSET_GENERATE(hs, hset, static, int)
+CMC_GENERATE_HASHSET(hs, hset, int);
+typedef struct hset hset;
+typedef struct hset_iter hset_iter;
+
 
 size_t inthash(int t)
 {
@@ -69,7 +72,7 @@ int main(int argc, char const *argv[])
         printf("HS[%2d] = %2d\n", hs_iter_index(&iter), hs_iter_value(&iter));
     }
 
-    hs_free(hs);
+    hs_free(hs, NULL);
 
     return 0;
 }

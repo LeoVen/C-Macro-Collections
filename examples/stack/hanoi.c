@@ -11,7 +11,10 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-STACK_GENERATE(s, stack, /* static */, int)
+CMC_GENERATE_STACK(s, stack, int);
+typedef struct stack stack;
+typedef struct stack_iter stack_iter;
+
 
 void print_hanoi(stack *t1, stack *t2, stack *t3);
 const char *draw(int value);
@@ -31,9 +34,9 @@ int main(int argc, char const *argv[])
 
     move_stack(tower1, tower3, tower2, s_count(tower1));
 
-    s_free(tower1);
-    s_free(tower2);
-    s_free(tower3);
+    s_free(tower1, NULL);
+    s_free(tower2, NULL);
+    s_free(tower3, NULL);
 
     return 0;
 }

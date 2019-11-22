@@ -17,7 +17,11 @@
 // Mapping an integer by size_t which will represent the key's multiplicity
 // (key could be anything and multiplicity could be an integer, preferably
 // unsigned)
-TREEMAP_GENERATE(tm, tmap, , int, size_t)
+CMC_GENERATE_TREEMAP(tm, tmap, int, size_t);
+typedef struct tmap tmap;
+typedef struct tmap_iter tmap_iter;
+typedef struct tmap_node tmap_node;
+
 
 // Compare function used by the treemap
 int intcmp(int a, int b)
@@ -80,7 +84,7 @@ int main(int argc, char const *argv[])
         printf("Map[%2d] = %" PRIuMAX "\n", tm_iter_key(&it), tm_iter_value(&it));
     }
 
-    tm_free(map);
+    tm_free(map, NULL);
 
     return 0;
 }

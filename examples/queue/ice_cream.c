@@ -12,7 +12,10 @@
 #include <stdlib.h>
 #include <time.h>
 
-QUEUE_GENERATE(q, queue, /* static */, const char *)
+CMC_GENERATE_QUEUE(q, queue, const char *);
+typedef struct queue queue;
+typedef struct queue_iter queue_iter;
+
 
 int main(int argc, char const *argv[])
 {
@@ -70,7 +73,7 @@ int main(int argc, char const *argv[])
         printf("\n%lu ice creams remaining to be sold on the next day.\n");
     }
 
-    q_free(lineup);
+    q_free(lineup, NULL);
 
     return 0;
 }

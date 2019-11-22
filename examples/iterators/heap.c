@@ -15,12 +15,16 @@ int intcmp(int a, int b)
     return (a > b) - (a < b);
 }
 
-HEAP_GENERATE(h, heap, static, int)
+
+CMC_GENERATE_HEAP(h, heap, int)
+typedef struct heap heap;
+typedef struct heap_iter heap_iter;
+
 
 int main(int argc, char const *argv[])
 {
     // Initialize heap and add some elements
-    heap *h = h_new(10, MaxHeap, intcmp);
+    heap *h = h_new(10, cmc_max_heap, intcmp);
     for (int i = 0; i < 10; i++)
         h_insert(h, i);
 
@@ -57,7 +61,7 @@ int main(int argc, char const *argv[])
         printf("H[%2d] = %2d\n", h_iter_index(&iter), h_iter_value(&iter));
     }
 
-    h_free(h);
+    h_free(h, NULL);
 
     return 0;
 }

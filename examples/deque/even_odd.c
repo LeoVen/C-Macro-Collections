@@ -12,7 +12,9 @@
 #include <stdlib.h>
 #include <assert.h>
 
-DEQUE_GENERATE(d, deque, /* static */, size_t)
+CMC_GENERATE_DEQUE(d, deque, size_t);
+typedef struct deque deque;
+typedef struct deque_iter deque_iter;
 
 int main(int argc, char const *argv[])
 {

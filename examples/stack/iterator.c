@@ -13,7 +13,10 @@
 #include <inttypes.h>
 
 // Creates a stack of integers
-STACK_GENERATE(s, stack, /* FMOD */, int)
+CMC_GENERATE_STACK(s, stack, int);
+typedef struct stack stack;
+typedef struct stack_iter stack_iter;
+
 
 int main(int argc, char const *argv[])
 {
@@ -189,7 +192,7 @@ int main(int argc, char const *argv[])
     // Dispose the iterator called by s_iter_new()
     s_iter_free(iter);
     // Dispose the stack created
-    s_free(my_stack);
+    s_free(my_stack, NULL);
 
     return 0;
 }

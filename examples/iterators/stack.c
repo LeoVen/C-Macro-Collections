@@ -10,7 +10,10 @@
 #include "cmc/stack.h"
 #include <stdio.h>
 
-STACK_GENERATE(s, stack, static, int)
+CMC_GENERATE_STACK(s, stack, int)
+typedef struct stack stack;
+typedef struct stack_iter stack_iter;
+
 
 int main(int argc, char const *argv[])
 {
@@ -52,7 +55,7 @@ int main(int argc, char const *argv[])
         printf("S[%2d] = %2d\n", s_iter_index(&iter), s_iter_value(&iter));
     }
 
-    s_free(s);
+    s_free(s, NULL);
 
     return 0;
 }

@@ -19,7 +19,10 @@ int intcmp(int a, int b)
 }
 
 // Creates a heap of integers
-HEAP_GENERATE(h, heap, /* FMOD */, int)
+CMC_GENERATE_HEAP(h, heap, int);
+typedef struct heap heap;
+typedef struct heap_iter heap_iter;
+
 
 int main(int argc, char const *argv[])
 {
@@ -175,7 +178,7 @@ int main(int argc, char const *argv[])
     // Dispose the iterator called by h_iter_new()
     h_iter_free(iter);
     // Dispose the heap created
-    h_free(my_heap);
+    h_free(my_heap, NULL);
 
     return 0;
 }

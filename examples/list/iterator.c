@@ -13,7 +13,10 @@
 #include <inttypes.h>
 
 // Creates a list of integers
-LIST_GENERATE(l, list, /* FMOD */, int)
+CMC_GENERATE_LIST(l, list, int);
+typedef struct list list;
+typedef struct list_iter list_iter;
+
 
 int main(int argc, char const *argv[])
 {
@@ -189,7 +192,7 @@ int main(int argc, char const *argv[])
     // Dispose the iterator called by l_iter_new()
     l_iter_free(iter);
     // Dispose the list created
-    l_free(my_list);
+    l_free(my_list, NULL);
 
     return 0;
 }

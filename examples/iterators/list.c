@@ -10,7 +10,10 @@
 #include "cmc/list.h"
 #include <stdio.h>
 
-LIST_GENERATE(l, list, static, int)
+CMC_GENERATE_LIST(l, list, int);
+typedef struct list list;
+typedef struct list_iter list_iter;
+
 
 int main(int argc, char const *argv[])
 {
@@ -52,7 +55,7 @@ int main(int argc, char const *argv[])
         printf("L[%2d] = %2d\n", l_iter_index(&iter), l_iter_value(&iter));
     }
 
-    l_free(l);
+    l_free(l, NULL);
 
     return 0;
 }

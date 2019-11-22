@@ -12,7 +12,11 @@
 #include <stdlib.h>
 #include <time.h>
 
-TREESET_GENERATE(set, set, , int)
+CMC_GENERATE_TREESET(set, set, int);
+typedef struct set set;
+typedef struct set_iter set_iter;
+typedef struct set_node set_node;
+
 
 void print_tree(set_node *root, int height)
 {
@@ -45,7 +49,7 @@ int main(int argc, char const *argv[])
 
     print_tree(set1->root, 0);
 
-    set_free(set1);
+    set_free(set1, NULL);
 
     return 0;
 }

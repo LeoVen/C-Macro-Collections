@@ -45,7 +45,7 @@ typedef struct wc_pair_s
 SAC_STACK_GENERATE(tl, TList, , pthread_t, n_threads)
 
 /* A list used as a dynamic string */
-LIST_GENERATE(str, String, , char)
+CMC_GENERATE_LIST((str, String, , char)
 
 /* A mapping between word and word count */
 HASHMAP_GENERATE(hm, HashMap, , char *, size_t)
@@ -69,7 +69,7 @@ int chrcmp(char *a, char *b)
 }
 
 /* Heap used to sort the { word : word_count } pairs */
-HEAP_GENERATE(hp, Heap, , wc_pair)
+CMC_GENERATE_HEAP((hp, Heap, wc_pair)
 
 /* Used by Heap to sort wc_pair */
 int cmp_wcpair(wc_pair p1, wc_pair p2)
