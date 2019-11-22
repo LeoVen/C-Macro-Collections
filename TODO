@@ -4,15 +4,18 @@ TODO
 [X] - Finished
 [~] - Needs to be reviewed
 
-[/] Documentation
+#!! High Priority ----------------------------------------------------------------------------------
+
 [/] Tests
-[X] Remove PUBLIC and PRIVATE
-[X] Extra Collections
-    [X] Add MultiSet
-    [X] Add MultiMap
-    [X] Add IntervalHeap
-    [X] Add SortedList
-    [X] Add BidiMap
+[/] Custom allocators
+[ ] Separate each collection unit test into their own executable
+[/] Each file needs to be independent without including external files
+
+#!! Medium Priority --------------------------------------------------------------------------------
+
+[ ] Add memory usage in the benchmark
+[/] Callback utility
+[/] Documentation
 [/] Add functions
     [X] update       {hashmap, treemap, multimap}
     [X] set          {hashmap, treemap, multimap}
@@ -25,13 +28,14 @@ TODO
     [X] equals       {all}
     [X] copy_of      {all}
     [X] resize       {array based collections}
+
+#!! Low Priority -----------------------------------------------------------------------------------
+
 [ ] Serialization
     [ ] save         {all}
     [ ] load         {all}
     [ ] serialize    {all}
     [ ] deserialize  {all}
-[ ] Callback utility
-[ ] Custom allocators
 [ ] Zip Iterators
 [ ] Statically Allocated Collections
     [ ] BidiMap
@@ -65,13 +69,25 @@ TODO
     [ ] Stack
     [ ] TreeMap
     [ ] TreeSet
+
+#!! Optimizations ----------------------------------------------------------------------------------
+
+[ ] Use binary search to find optimum hashtable prime size inside impl_calculate_size
+[ ] Optimize certain hashtable loops that use iterators but can simply use a normal loop
+[ ] Use a B-Tree instead of and AVL Tree for TreeMap and TreeSet
+
+#!! Done -------------------------------------------------------------------------------------------
+
+[X] Remove PUBLIC and PRIVATE
+[X] Extra Collections
+    [X] Add MultiSet
+    [X] Add MultiMap
+    [X] Add IntervalHeap
+    [X] Add SortedList
+    [X] Add BidiMap
 [X] Utility
     [X] assert.h
     [X] foreach.h
     [X] log.h
     [X] test.h
     [X] timer.h
-
-[ ] Optimizations
-    [ ] Use binary search to find optimum hashtable prime size inside impl_calculate_size
-    [ ] Optimize certain hashtable loops that use iterators but can simply use a normal loop
