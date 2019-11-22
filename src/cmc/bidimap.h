@@ -45,10 +45,10 @@
  */
 struct cmc_string
 {
-    char s[300];
+    char s[400];
 };
 
-static const size_t cmc_string_len = 300;
+static const size_t cmc_string_len = 400;
 
 /**
  * struct cmc_alloc_node
@@ -105,7 +105,9 @@ static const char *cmc_string_fmt_bidimap = "struct %s<%s, %s> "
                                             "key_cmp:%p, "
                                             "val_cmp:%p, "
                                             "key_hash:%p, "
-                                            "val_hash:%p }";
+                                            "val_hash:%p, "
+                                            "alloc:%p, "
+                                            "callbacks:%p }";
 
 /**
  * Custom BidiMap callbacks.
@@ -132,7 +134,9 @@ struct cmc_callbacks_bidimap
 #define CMC_WRAPGEN_BIDIMAP_SOURCE(PFX, SNAME, K, V) \
     CMC_GENERATE_BIDIMAP_SOURCE(PFX, SNAME, K, V)
 
-/* HEADER ********************************************************************/
+/* -------------------------------------------------------------------------------------------------
+ * Header
+ ------------------------------------------------------------------------------------------------ */
 #define CMC_GENERATE_BIDIMAP_HEADER(PFX, SNAME, K, V)                             \
                                                                                   \
     /* BidiMap Structure */                                                       \
@@ -282,9 +286,11 @@ struct cmc_callbacks_bidimap
     /* Iterator Access */                                                         \
     K PFX##_iter_key(struct SNAME##_iter *iter);                                  \
     V PFX##_iter_value(struct SNAME##_iter *iter);                                \
-    size_t PFX##_iter_index(struct SNAME##_iter *iter);                           \
-                                                                                  \
-/* SOURCE ********************************************************************/
+    size_t PFX##_iter_index(struct SNAME##_iter *iter);
+
+/* -------------------------------------------------------------------------------------------------
+ * Source
+ ------------------------------------------------------------------------------------------------ */
 #define CMC_GENERATE_BIDIMAP_SOURCE(PFX, SNAME, K, V)                                            \
                                                                                                  \
     /* Implementation Detail Functions */                                                        \
@@ -869,14 +875,12 @@ struct cmc_callbacks_bidimap
         int n = snprintf(str.s, cmc_string_len, cmc_string_fmt_bidimap,                          \
                          name, #K, #V, m_, m_->key_buffer, m_->val_buffer, m_->capacity,         \
                          m_->count, m_->load, m_->key_cmp, m_->val_cmp, m_->key_hash,            \
-                         m_->val_hash);                                                          \
+                         m_->val_hash, m_->alloc, m_->callbacks);                                \
                                                                                                  \
-        if (n < 0)                                                                               \
-        {                                                                                        \
+        if (n < 0 || n == cmc_string_len)                                                        \
             return (struct cmc_string){0};                                                       \
-        }                                                                                        \
                                                                                                  \
-        str.s[n - 1] = '\0';                                                                     \
+        str.s[n] = '\0';                                                                         \
                                                                                                  \
         return str;                                                                              \
     }                                                                                            \
