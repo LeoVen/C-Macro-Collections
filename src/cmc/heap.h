@@ -35,15 +35,81 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
-#include "../utl/cmc_string.h"
 
-/* to_string format */
-static const char *cmc_string_fmt_heap = "%s at %p { buffer:%p, capacity:%" PRIuMAX ", count:%" PRIuMAX ", type:%s, cmp:%p }";
+/* -------------------------------------------------------------------------------------------------
+ * Core functionalities of the C Macro Collections Library
+ ------------------------------------------------------------------------------------------------ */
+#ifndef CMC_CORE_H
+#define CMC_CORE_H
+
+/**
+ * struct cmc_string
+ *
+ * Used by all collections when calling the to_string function.
+ */
+struct cmc_string
+{
+    char s[400];
+};
+
+static const size_t cmc_string_len = 400;
+
+/**
+ * struct cmc_alloc_node
+ *
+ * Custom allocation node. Allows collections to use custom allocation functions.
+ */
+struct cmc_alloc_node
+{
+    void *(*malloc)(size_t);
+    void *(*calloc)(size_t, size_t);
+    void *(*realloc)(void *, size_t);
+    void (*free)(void *);
+} cmc_alloc_node_default = {malloc, calloc, realloc, free};
+
+#endif /* CMC_CORE_H */
+
+/* -------------------------------------------------------------------------------------------------
+ * Heap Implementation
+ ------------------------------------------------------------------------------------------------ */
+#ifndef CMC_IMPL_HEAP_ORDER
+#define CMC_IMPL_HEAP_ORDER
 
 enum cmc_heap_order
 {
     cmc_max_heap = 1,
     cmc_min_heap = -1
+};
+
+#endif /* CMC_IMPL_HEAP_ORDER */
+
+/* -------------------------------------------------------------------------------------------------
+ * Heap specific
+ ------------------------------------------------------------------------------------------------ */
+/* to_string format */
+static const char *cmc_string_fmt_heap = "struct %s<%s> "
+                                         "at %p { "
+                                         "buffer:%p, "
+                                         "capacity:%" PRIuMAX ", "
+                                         "count:%" PRIuMAX ", "
+                                         "type:%s, "
+                                         "cmp:%p "
+                                         "alloc:%p, "
+                                         "callbacks: %p}";
+
+/**
+ * Custom Heap callbacks.
+ *
+ * There are two types of callbacks, 'before' and 'after':
+ *      <before|after>_<function_name>
+ */
+struct cmc_callbacks_heap
+{
+    void (*before_clear)(void *);
+    void (*after_clear)(void *);
+    void (*before_free)(void *);
+    void (*after_free)(void *);
+    // TODO implement all callbacks
 };
 
 #define CMC_GENERATE_HEAP(PFX, SNAME, V)    \
@@ -56,94 +122,110 @@ enum cmc_heap_order
 #define CMC_WRAPGEN_HEAP_SOURCE(PFX, SNAME, K, V) \
     CMC_GENERATE_HEAP_SOURCE(PFX, SNAME, V)
 
-/* HEADER ********************************************************************/
-#define CMC_GENERATE_HEAP_HEADER(PFX, SNAME, V)                                             \
-                                                                                            \
-    /* Heap Structure */                                                                    \
-    struct SNAME                                                                            \
-    {                                                                                       \
-        /* Dynamic array of elements */                                                     \
-        V *buffer;                                                                          \
-                                                                                            \
-        /* Current array capacity */                                                        \
-        size_t capacity;                                                                    \
-                                                                                            \
-        /* Current amount of elements in the heap */                                        \
-        size_t count;                                                                       \
-                                                                                            \
-        /* Heap order (MaxHeap or MinHeap) */                                               \
-        enum cmc_heap_order HO;                                                             \
-                                                                                            \
-        /* Element comparison function */                                                   \
-        int (*cmp)(V, V);                                                                   \
-                                                                                            \
-        /* Function that returns an iterator to the start of the heap */                    \
-        struct SNAME##_iter (*it_start)(struct SNAME *);                                    \
-                                                                                            \
-        /* Function that returns an iterator to the end of the heap */                      \
-        struct SNAME##_iter (*it_end)(struct SNAME *);                                      \
-    };                                                                                      \
-                                                                                            \
-    /* Heap Iterator */                                                                     \
-    struct SNAME##_iter                                                                     \
-    {                                                                                       \
-        /* Target heap */                                                                   \
-        struct SNAME *target;                                                               \
-                                                                                            \
-        /* Cursor's position (index) */                                                     \
-        size_t cursor;                                                                      \
-                                                                                            \
-        /* If the iterator has reached the start of the iteration */                        \
-        bool start;                                                                         \
-                                                                                            \
-        /* If the iterator has reached the end of the iteration */                          \
-        bool end;                                                                           \
-    };                                                                                      \
-                                                                                            \
-    /* Collection Functions */                                                              \
-    /* Collection Allocation and Deallocation */                                            \
-    struct SNAME *PFX##_new(size_t capacity, enum cmc_heap_order HO, int (*compare)(V, V)); \
-    void PFX##_clear(struct SNAME *_heap_, void (*deallocator)(V));                         \
-    void PFX##_free(struct SNAME *_heap_, void (*deallocator)(V));                          \
-    /* Collection Input and Output */                                                       \
-    bool PFX##_insert(struct SNAME *_heap_, V element);                                     \
-    bool PFX##_remove(struct SNAME *_heap_, V *result);                                     \
-    /* Element Access */                                                                    \
-    V PFX##_peek(struct SNAME *_heap_);                                                     \
-    /* Collection State */                                                                  \
-    bool PFX##_contains(struct SNAME *_heap_, V element);                                   \
-    bool PFX##_empty(struct SNAME *_heap_);                                                 \
-    bool PFX##_full(struct SNAME *_heap_);                                                  \
-    size_t PFX##_count(struct SNAME *_heap_);                                               \
-    size_t PFX##_capacity(struct SNAME *_heap_);                                            \
-    /* Collection Utility */                                                                \
-    bool PFX##_resize(struct SNAME *_heap_, size_t capacity);                               \
-    struct SNAME *PFX##_copy_of(struct SNAME *_heap_, V (*copy_func)(V));                   \
-    bool PFX##_equals(struct SNAME *_heap1_, struct SNAME *_heap2_);                        \
-    struct cmc_string PFX##_to_string(struct SNAME *_heap_);                                \
-                                                                                            \
-    /* Iterator Functions */                                                                \
-    /* Iterator Allocation and Deallocation */                                              \
-    struct SNAME##_iter *PFX##_iter_new(struct SNAME *target);                              \
-    void PFX##_iter_free(struct SNAME##_iter *iter);                                        \
-    /* Iterator Initialization */                                                           \
-    void PFX##_iter_init(struct SNAME##_iter *iter, struct SNAME *target);                  \
-    /* Iterator State */                                                                    \
-    bool PFX##_iter_start(struct SNAME##_iter *iter);                                       \
-    bool PFX##_iter_end(struct SNAME##_iter *iter);                                         \
-    /* Iterator Movement */                                                                 \
-    void PFX##_iter_to_start(struct SNAME##_iter *iter);                                    \
-    void PFX##_iter_to_end(struct SNAME##_iter *iter);                                      \
-    bool PFX##_iter_next(struct SNAME##_iter *iter);                                        \
-    bool PFX##_iter_prev(struct SNAME##_iter *iter);                                        \
-    bool PFX##_iter_advance(struct SNAME##_iter *iter, size_t steps);                       \
-    bool PFX##_iter_rewind(struct SNAME##_iter *iter, size_t steps);                        \
-    bool PFX##_iter_go_to(struct SNAME##_iter *iter, size_t index);                         \
-    /* Iterator Access */                                                                   \
-    V PFX##_iter_value(struct SNAME##_iter *iter);                                          \
-    size_t PFX##_iter_index(struct SNAME##_iter *iter);                                     \
-                                                                                            \
-/* SOURCE ********************************************************************/
+/* -------------------------------------------------------------------------------------------------
+ * Header
+ ------------------------------------------------------------------------------------------------ */
+#define CMC_GENERATE_HEAP_HEADER(PFX, SNAME, V)                                                   \
+                                                                                                  \
+    /* Heap Structure */                                                                          \
+    struct SNAME                                                                                  \
+    {                                                                                             \
+        /* Dynamic array of elements */                                                           \
+        V *buffer;                                                                                \
+                                                                                                  \
+        /* Current array capacity */                                                              \
+        size_t capacity;                                                                          \
+                                                                                                  \
+        /* Current amount of elements in the heap */                                              \
+        size_t count;                                                                             \
+                                                                                                  \
+        /* Heap order (MaxHeap or MinHeap) */                                                     \
+        enum cmc_heap_order HO;                                                                   \
+                                                                                                  \
+        /* Element comparison function */                                                         \
+        int (*cmp)(V, V);                                                                         \
+                                                                                                  \
+        /* Function that returns an iterator to the start of the heap */                          \
+        struct SNAME##_iter (*it_start)(struct SNAME *);                                          \
+                                                                                                  \
+        /* Function that returns an iterator to the end of the heap */                            \
+        struct SNAME##_iter (*it_end)(struct SNAME *);                                            \
+                                                                                                  \
+        /* Custom allocation functions */                                                         \
+        struct cmc_alloc_node *alloc;                                                             \
+                                                                                                  \
+        /* Custom callback functions */                                                           \
+        struct cmc_callbacks_heap *callbacks;                                                     \
+    };                                                                                            \
+                                                                                                  \
+    /* Heap Iterator */                                                                           \
+    struct SNAME##_iter                                                                           \
+    {                                                                                             \
+        /* Target heap */                                                                         \
+        struct SNAME *target;                                                                     \
+                                                                                                  \
+        /* Cursor's position (index) */                                                           \
+        size_t cursor;                                                                            \
+                                                                                                  \
+        /* If the iterator has reached the start of the iteration */                              \
+        bool start;                                                                               \
+                                                                                                  \
+        /* If the iterator has reached the end of the iteration */                                \
+        bool end;                                                                                 \
+    };                                                                                            \
+                                                                                                  \
+    /* Collection Functions */                                                                    \
+    /* Collection Allocation and Deallocation */                                                  \
+    struct SNAME *PFX##_new(size_t capacity, enum cmc_heap_order HO, int (*compare)(V, V));       \
+    struct SNAME *PFX##_new_custom(size_t capacity, enum cmc_heap_order HO, int (*compare)(V, V), \
+                                   struct cmc_alloc_node *alloc,                                  \
+                                   struct cmc_callbacks_heap *callbacks);                         \
+    void PFX##_clear(struct SNAME *_heap_, void (*deallocator)(V));                               \
+    void PFX##_free(struct SNAME *_heap_, void (*deallocator)(V));                                \
+    /* Customization of Allocation and Callbacks */                                               \
+    void PFX##_customize(struct SNAME *_heap_, struct cmc_alloc_node *alloc,                      \
+                         struct cmc_callbacks_heap *callbacks);                                   \
+    /* Collection Input and Output */                                                             \
+    bool PFX##_insert(struct SNAME *_heap_, V element);                                           \
+    bool PFX##_remove(struct SNAME *_heap_, V *result);                                           \
+    /* Element Access */                                                                          \
+    V PFX##_peek(struct SNAME *_heap_);                                                           \
+    /* Collection State */                                                                        \
+    bool PFX##_contains(struct SNAME *_heap_, V element);                                         \
+    bool PFX##_empty(struct SNAME *_heap_);                                                       \
+    bool PFX##_full(struct SNAME *_heap_);                                                        \
+    size_t PFX##_count(struct SNAME *_heap_);                                                     \
+    size_t PFX##_capacity(struct SNAME *_heap_);                                                  \
+    /* Collection Utility */                                                                      \
+    bool PFX##_resize(struct SNAME *_heap_, size_t capacity);                                     \
+    struct SNAME *PFX##_copy_of(struct SNAME *_heap_, V (*copy_func)(V));                         \
+    bool PFX##_equals(struct SNAME *_heap1_, struct SNAME *_heap2_);                              \
+    struct cmc_string PFX##_to_string(struct SNAME *_heap_);                                      \
+                                                                                                  \
+    /* Iterator Functions */                                                                      \
+    /* Iterator Allocation and Deallocation */                                                    \
+    struct SNAME##_iter *PFX##_iter_new(struct SNAME *target);                                    \
+    void PFX##_iter_free(struct SNAME##_iter *iter);                                              \
+    /* Iterator Initialization */                                                                 \
+    void PFX##_iter_init(struct SNAME##_iter *iter, struct SNAME *target);                        \
+    /* Iterator State */                                                                          \
+    bool PFX##_iter_start(struct SNAME##_iter *iter);                                             \
+    bool PFX##_iter_end(struct SNAME##_iter *iter);                                               \
+    /* Iterator Movement */                                                                       \
+    void PFX##_iter_to_start(struct SNAME##_iter *iter);                                          \
+    void PFX##_iter_to_end(struct SNAME##_iter *iter);                                            \
+    bool PFX##_iter_next(struct SNAME##_iter *iter);                                              \
+    bool PFX##_iter_prev(struct SNAME##_iter *iter);                                              \
+    bool PFX##_iter_advance(struct SNAME##_iter *iter, size_t steps);                             \
+    bool PFX##_iter_rewind(struct SNAME##_iter *iter, size_t steps);                              \
+    bool PFX##_iter_go_to(struct SNAME##_iter *iter, size_t index);                               \
+    /* Iterator Access */                                                                         \
+    V PFX##_iter_value(struct SNAME##_iter *iter);                                                \
+    size_t PFX##_iter_index(struct SNAME##_iter *iter);
+
+/* -------------------------------------------------------------------------------------------------
+ * Source
+ ------------------------------------------------------------------------------------------------ */
 #define CMC_GENERATE_HEAP_SOURCE(PFX, SNAME, V)                                                   \
                                                                                                   \
     /* Implementation Detail Functions */                                                         \
@@ -154,22 +236,24 @@ enum cmc_heap_order
                                                                                                   \
     struct SNAME *PFX##_new(size_t capacity, enum cmc_heap_order HO, int (*compare)(V, V))        \
     {                                                                                             \
+        struct cmc_alloc_node *alloc = &cmc_alloc_node_default;                                   \
+                                                                                                  \
         if (capacity < 1)                                                                         \
             return NULL;                                                                          \
                                                                                                   \
         if (HO != cmc_min_heap && HO != cmc_max_heap)                                             \
             return NULL;                                                                          \
                                                                                                   \
-        struct SNAME *_heap_ = malloc(sizeof(struct SNAME));                                      \
+        struct SNAME *_heap_ = alloc->malloc(sizeof(struct SNAME));                               \
                                                                                                   \
         if (!_heap_)                                                                              \
             return NULL;                                                                          \
                                                                                                   \
-        _heap_->buffer = calloc(capacity, sizeof(V));                                             \
+        _heap_->buffer = alloc->calloc(capacity, sizeof(V));                                      \
                                                                                                   \
         if (!_heap_->buffer)                                                                      \
         {                                                                                         \
-            free(_heap_);                                                                         \
+            alloc->free(_heap_);                                                                  \
             return NULL;                                                                          \
         }                                                                                         \
                                                                                                   \
@@ -180,6 +264,49 @@ enum cmc_heap_order
                                                                                                   \
         _heap_->it_start = PFX##_impl_it_start;                                                   \
         _heap_->it_end = PFX##_impl_it_end;                                                       \
+                                                                                                  \
+        _heap_->alloc = alloc;                                                                    \
+        _heap_->callbacks = NULL;                                                                 \
+                                                                                                  \
+        return _heap_;                                                                            \
+    }                                                                                             \
+                                                                                                  \
+    struct SNAME *PFX##_new_custom(size_t capacity, enum cmc_heap_order HO, int (*compare)(V, V), \
+                                   struct cmc_alloc_node *alloc,                                  \
+                                   struct cmc_callbacks_heap *callbacks)                          \
+    {                                                                                             \
+        if (capacity < 1)                                                                         \
+            return NULL;                                                                          \
+                                                                                                  \
+        if (HO != cmc_min_heap && HO != cmc_max_heap)                                             \
+            return NULL;                                                                          \
+                                                                                                  \
+        if (!alloc)                                                                               \
+            alloc = &cmc_alloc_node_default;                                                      \
+                                                                                                  \
+        struct SNAME *_heap_ = alloc->malloc(sizeof(struct SNAME));                               \
+                                                                                                  \
+        if (!_heap_)                                                                              \
+            return NULL;                                                                          \
+                                                                                                  \
+        _heap_->buffer = alloc->calloc(capacity, sizeof(V));                                      \
+                                                                                                  \
+        if (!_heap_->buffer)                                                                      \
+        {                                                                                         \
+            alloc->free(_heap_);                                                                  \
+            return NULL;                                                                          \
+        }                                                                                         \
+                                                                                                  \
+        _heap_->capacity = capacity;                                                              \
+        _heap_->count = 0;                                                                        \
+        _heap_->HO = HO;                                                                          \
+        _heap_->cmp = compare;                                                                    \
+                                                                                                  \
+        _heap_->it_start = PFX##_impl_it_start;                                                   \
+        _heap_->it_end = PFX##_impl_it_end;                                                       \
+                                                                                                  \
+        _heap_->alloc = alloc;                                                                    \
+        _heap_->callbacks = callbacks;                                                            \
                                                                                                   \
         return _heap_;                                                                            \
     }                                                                                             \
@@ -211,6 +338,16 @@ enum cmc_heap_order
                                                                                                   \
         free(_heap_->buffer);                                                                     \
         free(_heap_);                                                                             \
+    }                                                                                             \
+                                                                                                  \
+    void PFX##_customize(struct SNAME *_heap_, struct cmc_alloc_node *alloc,                      \
+                         struct cmc_callbacks_heap *callbacks)                                    \
+    {                                                                                             \
+        if (alloc)                                                                                \
+            _heap_->alloc = alloc;                                                                \
+                                                                                                  \
+        if (callbacks)                                                                            \
+            _heap_->callbacks = callbacks;                                                        \
     }                                                                                             \
                                                                                                   \
     bool PFX##_insert(struct SNAME *_heap_, V element)                                            \
