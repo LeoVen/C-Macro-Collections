@@ -26,11 +26,10 @@ int main(int argc, char const *argv[])
     for (int i = 0; i < 20; i++)
     {
         // Add odd numbers to the front, even numbers to the back.
-        if (i % 2 == 0) {
+        if (i % 2 == 0)
             d_push_front(my_deque, i);
-        } else {
+        else
             d_push_back(my_deque, i);
-        }
     }
 
     // Iterate from the start (front index) to the end (rear index) of the deque
