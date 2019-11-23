@@ -7,27 +7,21 @@ TODO
 #!! High Priority ----------------------------------------------------------------------------------
 
 [/] Tests
-[/] Custom allocators
-[ ] Separate each collection unit test into their own executable
-[/] Each file needs to be independent without including external files
+[/] Documentation
+[ ] Add to iterators struct
+    [ ] get_value
+    [ ] get_index
+    [ ] get_rvalue       {only those that allow it}
+    [ ] get_key          {associative collections}
+    [ ] get_multiplicity {multiset}
+    [ ] get_node         {linkedlist}
 
 #!! Medium Priority --------------------------------------------------------------------------------
 
-[ ] Add memory usage in the benchmark
 [/] Callback utility
-[/] Documentation
-[/] Add functions
-    [X] update       {hashmap, treemap, multimap}
-    [X] set          {hashmap, treemap, multimap}
-    [X] to_string    {all}
-    [X] iter_advance {all} (iterators)
-    [X] iter_rewind  {all} (iterators)
-    [X] iter_go_to   {all} (iterators)
-    [ ] from_array   {all}
-    [ ] to_array     {all}
-    [X] equals       {all}
-    [X] copy_of      {all}
-    [X] resize       {array based collections}
+[ ] Add memory usage in the benchmark
+[ ] Add to_array and from_array functions
+[ ] Separate each collection unit test into their own executable
 
 #!! Low Priority -----------------------------------------------------------------------------------
 
@@ -37,22 +31,6 @@ TODO
     [ ] serialize    {all}
     [ ] deserialize  {all}
 [ ] Zip Iterators
-[ ] Statically Allocated Collections
-    [ ] BidiMap
-    [ ] Deque
-    [ ] HashMap
-    [ ] HashSet
-    [ ] Heap
-    [ ] IntervalHeap
-    [ ] LinkedList
-    [ ] List
-    [ ] MultiMap
-    [ ] MultiSet
-    [~] Queue
-    [ ] SortedList
-    [~] Stack
-    [ ] TreeMap
-    [ ] TreeSet
 [ ] Dev Collections
     [ ] BidiMap
     [~] Deque
@@ -69,6 +47,22 @@ TODO
     [ ] Stack
     [ ] TreeMap
     [ ] TreeSet
+[ ] Statically Allocated Collections
+    [ ] BidiMap
+    [ ] Deque
+    [ ] HashMap
+    [ ] HashSet
+    [ ] Heap
+    [ ] IntervalHeap
+    [ ] LinkedList
+    [ ] List
+    [ ] MultiMap
+    [ ] MultiSet
+    [~] Queue
+    [ ] SortedList
+    [~] Stack
+    [ ] TreeMap
+    [ ] TreeSet
 
 #!! Optimizations ----------------------------------------------------------------------------------
 
@@ -79,15 +73,27 @@ TODO
 #!! Done -------------------------------------------------------------------------------------------
 
 [X] Remove PUBLIC and PRIVATE
-[X] Extra Collections
-    [X] Add MultiSet
-    [X] Add MultiMap
-    [X] Add IntervalHeap
-    [X] Add SortedList
-    [X] Add BidiMap
 [X] Utility
     [X] assert.h
     [X] foreach.h
     [X] log.h
     [X] test.h
     [X] timer.h
+[X] Extra Collections
+    [X] Add MultiSet
+    [X] Add MultiMap
+    [X] Add IntervalHeap
+    [X] Add SortedList
+    [X] Add BidiMap
+[X] Add functions
+    [X] update       {hashmap, treemap, multimap}
+    [X] set          {hashmap, treemap, multimap}
+    [X] to_string    {all}
+    [X] iter_advance {all} (iterators)
+    [X] iter_rewind  {all} (iterators)
+    [X] iter_go_to   {all} (iterators)
+    [X] equals       {all}
+    [X] copy_of      {all}
+    [X] resize       {array based collections}
+[X] Custom allocators
+[X] Each file needs to be independent without including external files
