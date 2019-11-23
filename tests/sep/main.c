@@ -1,4 +1,4 @@
-#include "sep.h"
+#include "collections.h"
 #include <stdio.h>
 
 int intcmp(int a, int b)
@@ -20,38 +20,41 @@ size_t inthash(int t)
 
 int main(void)
 {
-    struct list *l = l_new(1000);
-    struct stack *s = s_new(1000);
-    struct queue *q = q_new(1000);
-    struct deque *d = d_new(1000);
-    struct linked *ll = ll_new();
-    struct heap *h = h_new(1000, cmc_max_heap, intcmp);
-    struct tset *ts = ts_new(intcmp);
-    struct tmap *tm = tm_new(intcmp);
-    struct hset *hs = hs_new(1000, 0.6, intcmp, inthash);
-    struct hmap *hm = hm_new(1000, 0.6, intcmp, inthash);
-    struct iheap *ih = ih_new(1000, intcmp);
-    struct mmap *mm = mm_new(1000, 0.8, intcmp, inthash);
-    struct mset *ms = ms_new(1000, 0.6, intcmp, inthash);
+    struct bmap *bm = bm_new_custom(100, 0.7, NULL, NULL, NULL, NULL, NULL, NULL);
+    struct deque *d = d_new_custom(100, NULL, NULL);
+    struct hmap *hm = hm_new_custom(100, 0.6, NULL, NULL, NULL, NULL);
+    struct hset *hs = hs_new_custom(100, 0.6, NULL, NULL, NULL, NULL);
+    struct heap *h = h_new_custom(100, cmc_max_heap, NULL, NULL, NULL);
+    struct iheap *ih = ih_new_custom(100, NULL, NULL, NULL);
+    struct linked *ll = ll_new_custom(NULL, NULL);
+    struct list *l = l_new_custom(100, NULL, NULL);
+    struct mmap *mm = mm_new_custom(100, 0.8, NULL, NULL, NULL, NULL);
+    struct mset *ms = ms_new_custom(100, 0.6, NULL, NULL, NULL, NULL);
+    struct queue *q = q_new_custom(100, NULL, NULL);
+    struct slist *sl = sl_new_custom(100, NULL, NULL, NULL);
+    struct stack *s = s_new_custom(100, NULL, NULL);
+    struct tmap *tm = tm_new_custom(NULL, NULL, NULL);
+    struct tset *ts = ts_new_custom(NULL, NULL, NULL);
 
     printf("+--------------------------------------------------+\n");
     printf("|       Separate Header and Source is Working      |\n");
     printf("+--------------------------------------------------+\n");
 
-    l_free(l, NULL);
-    ll_free(ll, NULL);
-    s_free(s, NULL);
-    q_free(q, NULL);
+    bm_free(bm, NULL);
     d_free(d, NULL);
-    h_free(h, NULL);
-    ts_free(ts, NULL);
-    tm_free(tm, NULL);
-    hs_free(hs, NULL);
     hm_free(hm, NULL);
-
+    hs_free(hs, NULL);
+    h_free(h, NULL);
     ih_free(ih, NULL);
+    ll_free(ll, NULL);
+    l_free(l, NULL);
     mm_free(mm, NULL);
     ms_free(ms, NULL);
+    q_free(q, NULL);
+    sl_free(sl, NULL);
+    s_free(s, NULL);
+    tm_free(tm, NULL);
+    ts_free(ts, NULL);
 
     return 0;
 }

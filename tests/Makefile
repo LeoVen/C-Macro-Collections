@@ -11,9 +11,9 @@ main: FORCE
 	./contains.exe
 	$(CC) types.c -o types.exe $(CFLAGS)
 	./types.exe
-	$(CC) -c ./sep/sep.c -o ./sep/sep.o $(CFLAGS)
+	$(CC) -c ./sep/collections.c -o ./sep/collections.o $(CFLAGS)
 	$(CC) -c ./sep/main.c -o ./sep/main.o $(CFLAGS)
-	$(CC) ./sep/sep.o ./sep/main.o -o ./sep/sep.exe
+	$(CC) ./sep/collections.o ./sep/main.o -o ./sep/sep.exe
 	./sep/sep.exe
 
 dev: main

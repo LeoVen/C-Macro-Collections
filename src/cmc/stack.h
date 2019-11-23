@@ -63,7 +63,9 @@ struct cmc_alloc_node
     void *(*calloc)(size_t, size_t);
     void *(*realloc)(void *, size_t);
     void (*free)(void *);
-} cmc_alloc_node_default = {malloc, calloc, realloc, free};
+};
+
+static struct cmc_alloc_node cmc_alloc_node_default = {malloc, calloc, realloc, free};
 
 #endif /* CMC_CORE_H */
 
