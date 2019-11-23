@@ -33,10 +33,66 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
-#include "../utl/cmc_string.h"
 
+/* -------------------------------------------------------------------------------------------------
+ * Core functionalities of the C Macro Collections Library
+ ------------------------------------------------------------------------------------------------ */
+#ifndef CMC_CORE_H
+#define CMC_CORE_H
+
+/**
+ * struct cmc_string
+ *
+ * Used by all collections when calling the to_string function.
+ */
+struct cmc_string
+{
+    char s[400];
+};
+
+static const size_t cmc_string_len = 400;
+
+/**
+ * struct cmc_alloc_node
+ *
+ * Custom allocation node. Allows collections to use custom allocation functions.
+ */
+struct cmc_alloc_node
+{
+    void *(*malloc)(size_t);
+    void *(*calloc)(size_t, size_t);
+    void *(*realloc)(void *, size_t);
+    void (*free)(void *);
+} cmc_alloc_node_default = {malloc, calloc, realloc, free};
+
+#endif /* CMC_CORE_H */
+
+/* -------------------------------------------------------------------------------------------------
+ * LinkedList specific
+ ------------------------------------------------------------------------------------------------ */
 /* to_string format */
-static const char *cmc_string_fmt_linkedlist = "%s at %p { count:%" PRIuMAX ", head:%p, tail:%p }";
+static const char *cmc_string_fmt_linkedlist = "struct %s<%s> "
+                                               "at %p { "
+                                               "count:%" PRIuMAX ", "
+                                               "head:%p, "
+                                               "tail:%p, "
+                                               "alloc:%p, "
+                                               "callbacks:%p }";
+
+/**
+ * Custom LinkedList callbacks.
+ *
+ * There are two types of callbacks, 'before' and 'after':
+ *      <before|after>_<function_name>
+ */
+struct cmc_callbacks_linkedlist
+{
+    void (*before_clear)(void *);
+    void (*after_clear)(void *);
+    void (*before_free)(void *);
+    void (*after_free)(void *);
+    // TODO implement all callbacks
+};
 
 #define CMC_GENERATE_LINKEDLIST(PFX, SNAME, V)    \
     CMC_GENERATE_LINKEDLIST_HEADER(PFX, SNAME, V) \
@@ -48,7 +104,9 @@ static const char *cmc_string_fmt_linkedlist = "%s at %p { count:%" PRIuMAX ", h
 #define CMC_WRAPGEN_LINKEDLIST_SOURCE(PFX, SNAME, K, V) \
     CMC_GENERATE_LINKEDLIST_SOURCE(PFX, SNAME, V)
 
-/* HEADER ********************************************************************/
+/* -------------------------------------------------------------------------------------------------
+ * Header
+ ------------------------------------------------------------------------------------------------ */
 #define CMC_GENERATE_LINKEDLIST_HEADER(PFX, SNAME, V)                                         \
                                                                                               \
     /* Linked List Structure */                                                               \
@@ -68,6 +126,12 @@ static const char *cmc_string_fmt_linkedlist = "%s at %p { count:%" PRIuMAX ", h
                                                                                               \
         /* Function that returns an iterator to the end of the list */                        \
         struct SNAME##_iter (*it_end)(struct SNAME *);                                        \
+                                                                                              \
+        /* Custom allocation functions */                                                     \
+        struct cmc_alloc_node *alloc;                                                         \
+                                                                                              \
+        /* Custom callback functions */                                                       \
+        struct cmc_callbacks_linkedlist *callbacks;                                           \
     };                                                                                        \
                                                                                               \
     /* Doubly-linked list node */                                                             \
@@ -105,8 +169,13 @@ static const char *cmc_string_fmt_linkedlist = "%s at %p { count:%" PRIuMAX ", h
     /* Collection Functions */                                                                \
     /* Collection Allocation and Deallocation */                                              \
     struct SNAME *PFX##_new(void);                                                            \
+    struct SNAME *PFX##_new_custom(struct cmc_alloc_node *alloc,                              \
+                                   struct cmc_callbacks_linkedlist *callbacks);               \
     void PFX##_clear(struct SNAME *_list_, void (*deallocator)(V));                           \
     void PFX##_free(struct SNAME *_list_, void (*deallocator)(V));                            \
+    /* Customization of Allocation and Callbacks */                                           \
+    void PFX##_customize(struct SNAME *_list_, struct cmc_alloc_node *alloc,                  \
+                         struct cmc_callbacks_linkedlist *callbacks);                         \
     /* Collection Input and Output */                                                         \
     bool PFX##_push_front(struct SNAME *_list_, V element);                                   \
     bool PFX##_push_at(struct SNAME *_list_, V element, size_t index);                        \
@@ -130,8 +199,8 @@ static const char *cmc_string_fmt_linkedlist = "%s at %p { count:%" PRIuMAX ", h
                                                                                               \
     /* Node Related Functions */                                                              \
     /* Node Allocation and Deallocation */                                                    \
-    struct SNAME##_node *PFX##_new_node(V element);                                           \
-    void PFX##_free_node(struct SNAME##_node *_node_);                                        \
+    struct SNAME##_node *PFX##_new_node(struct SNAME *_list_, V element);                     \
+    void PFX##_free_node(struct SNAME *_list_, struct SNAME##_node *_node_);                  \
     /* Node Access Relative to a Linked List */                                               \
     struct SNAME##_node *PFX##_head(struct SNAME *_list_);                                    \
     struct SNAME##_node *PFX##_get_node(struct SNAME *_list_, size_t index);                  \
@@ -167,9 +236,11 @@ static const char *cmc_string_fmt_linkedlist = "%s at %p { count:%" PRIuMAX ", h
     V PFX##_iter_value(struct SNAME##_iter *iter);                                            \
     V *PFX##_iter_rvalue(struct SNAME##_iter *iter);                                          \
     size_t PFX##_iter_index(struct SNAME##_iter *iter);                                       \
-    struct SNAME##_node *PFX##_iter_node(struct SNAME##_iter *iter);                          \
-                                                                                              \
-/* SOURCE ********************************************************************/
+    struct SNAME##_node *PFX##_iter_node(struct SNAME##_iter *iter);
+
+/* -------------------------------------------------------------------------------------------------
+ * Source
+ ------------------------------------------------------------------------------------------------ */
 #define CMC_GENERATE_LINKEDLIST_SOURCE(PFX, SNAME, V)                                        \
                                                                                              \
     /* Implementation Detail Functions */                                                    \
@@ -178,7 +249,9 @@ static const char *cmc_string_fmt_linkedlist = "%s at %p { count:%" PRIuMAX ", h
                                                                                              \
     struct SNAME *PFX##_new(void)                                                            \
     {                                                                                        \
-        struct SNAME *_list_ = malloc(sizeof(struct SNAME));                                 \
+        struct cmc_alloc_node *alloc = &cmc_alloc_node_default;                              \
+                                                                                             \
+        struct SNAME *_list_ = alloc->malloc(sizeof(struct SNAME));                          \
                                                                                              \
         if (!_list_)                                                                         \
             return NULL;                                                                     \
@@ -189,6 +262,33 @@ static const char *cmc_string_fmt_linkedlist = "%s at %p { count:%" PRIuMAX ", h
                                                                                              \
         _list_->it_start = PFX##_impl_it_start;                                              \
         _list_->it_end = PFX##_impl_it_end;                                                  \
+                                                                                             \
+        _list_->alloc = alloc;                                                               \
+        _list_->callbacks = NULL;                                                            \
+                                                                                             \
+        return _list_;                                                                       \
+    }                                                                                        \
+                                                                                             \
+    struct SNAME *PFX##_new_custom(struct cmc_alloc_node *alloc,                             \
+                                   struct cmc_callbacks_linkedlist *callbacks)               \
+    {                                                                                        \
+        if (!alloc)                                                                          \
+            alloc = &cmc_alloc_node_default;                                                 \
+                                                                                             \
+        struct SNAME *_list_ = alloc->malloc(sizeof(struct SNAME));                          \
+                                                                                             \
+        if (!_list_)                                                                         \
+            return NULL;                                                                     \
+                                                                                             \
+        _list_->count = 0;                                                                   \
+        _list_->head = NULL;                                                                 \
+        _list_->tail = NULL;                                                                 \
+                                                                                             \
+        _list_->it_start = PFX##_impl_it_start;                                              \
+        _list_->it_end = PFX##_impl_it_end;                                                  \
+                                                                                             \
+        _list_->alloc = alloc;                                                               \
+        _list_->callbacks = callbacks;                                                       \
                                                                                              \
         return _list_;                                                                       \
     }                                                                                        \
@@ -206,7 +306,7 @@ static const char *cmc_string_fmt_linkedlist = "%s at %p { count:%" PRIuMAX ", h
                 deallocator(scan->data);                                                     \
             }                                                                                \
                                                                                              \
-            free(scan);                                                                      \
+            _list_->alloc->free(scan);                                                       \
                                                                                              \
             scan = _list_->head;                                                             \
         }                                                                                    \
@@ -220,12 +320,22 @@ static const char *cmc_string_fmt_linkedlist = "%s at %p { count:%" PRIuMAX ", h
     {                                                                                        \
         PFX##_clear(_list_, deallocator);                                                    \
                                                                                              \
-        free(_list_);                                                                        \
+        _list_->alloc->free(_list_);                                                         \
+    }                                                                                        \
+                                                                                             \
+    void PFX##_customize(struct SNAME *_list_, struct cmc_alloc_node *alloc,                 \
+                         struct cmc_callbacks_linkedlist *callbacks)                         \
+    {                                                                                        \
+        if (alloc)                                                                           \
+            _list_->alloc = alloc;                                                           \
+                                                                                             \
+        if (callbacks)                                                                       \
+            _list_->callbacks = callbacks;                                                   \
     }                                                                                        \
                                                                                              \
     bool PFX##_push_front(struct SNAME *_list_, V element)                                   \
     {                                                                                        \
-        struct SNAME##_node *_node_ = PFX##_new_node(element);                               \
+        struct SNAME##_node *_node_ = PFX##_new_node(_list_, element);                       \
                                                                                              \
         if (!_node_)                                                                         \
             return false;                                                                    \
@@ -261,7 +371,7 @@ static const char *cmc_string_fmt_linkedlist = "%s at %p { count:%" PRIuMAX ", h
             return PFX##_push_back(_list_, element);                                         \
         }                                                                                    \
                                                                                              \
-        struct SNAME##_node *_node_ = PFX##_new_node(element);                               \
+        struct SNAME##_node *_node_ = PFX##_new_node(_list_, element);                       \
                                                                                              \
         if (!_node_)                                                                         \
             return false;                                                                    \
@@ -280,7 +390,7 @@ static const char *cmc_string_fmt_linkedlist = "%s at %p { count:%" PRIuMAX ", h
                                                                                              \
     bool PFX##_push_back(struct SNAME *_list_, V element)                                    \
     {                                                                                        \
-        struct SNAME##_node *_node_ = PFX##_new_node(element);                               \
+        struct SNAME##_node *_node_ = PFX##_new_node(_list_, element);                       \
                                                                                              \
         if (!_node_)                                                                         \
             return false;                                                                    \
@@ -310,7 +420,7 @@ static const char *cmc_string_fmt_linkedlist = "%s at %p { count:%" PRIuMAX ", h
         struct SNAME##_node *_node_ = _list_->head;                                          \
         _list_->head = _list_->head->next;                                                   \
                                                                                              \
-        free(_node_);                                                                        \
+        _list_->alloc->free(_node_);                                                         \
                                                                                              \
         if (_list_->head == NULL)                                                            \
             _list_->tail = NULL;                                                             \
@@ -347,7 +457,7 @@ static const char *cmc_string_fmt_linkedlist = "%s at %p { count:%" PRIuMAX ", h
         _node_->next->prev = _node_->prev;                                                   \
         _node_->prev->next = _node_->next;                                                   \
                                                                                              \
-        free(_node_);                                                                        \
+        _list_->alloc->free(_node_);                                                         \
                                                                                              \
         _list_->count--;                                                                     \
                                                                                              \
@@ -362,7 +472,7 @@ static const char *cmc_string_fmt_linkedlist = "%s at %p { count:%" PRIuMAX ", h
         struct SNAME##_node *_node_ = _list_->tail;                                          \
         _list_->tail = _list_->tail->prev;                                                   \
                                                                                              \
-        free(_node_);                                                                        \
+        _list_->alloc->free(_node_);                                                         \
                                                                                              \
         if (_list_->tail == NULL)                                                            \
             _list_->head = NULL;                                                             \
@@ -446,7 +556,7 @@ static const char *cmc_string_fmt_linkedlist = "%s at %p { count:%" PRIuMAX ", h
                                                                                              \
     struct SNAME *PFX##_copy_of(struct SNAME *_list_, V (*copy_func)(V))                     \
     {                                                                                        \
-        struct SNAME *result = PFX##_new();                                                  \
+        struct SNAME *result = PFX##_new_custom(_list_->alloc, _list_->callbacks);           \
                                                                                              \
         if (!result)                                                                         \
             return NULL;                                                                     \
@@ -460,9 +570,9 @@ static const char *cmc_string_fmt_linkedlist = "%s at %p { count:%" PRIuMAX ", h
             struct SNAME##_node *new_node;                                                   \
                                                                                              \
             if (copy_func)                                                                   \
-                new_node = PFX##_new_node(copy_func(scan->data));                            \
+                new_node = PFX##_new_node(_list_, copy_func(scan->data));                    \
             else                                                                             \
-                new_node = PFX##_new_node(scan->data);                                       \
+                new_node = PFX##_new_node(_list_, scan->data);                               \
                                                                                              \
             if (!result->head)                                                               \
             {                                                                                \
@@ -508,17 +618,22 @@ static const char *cmc_string_fmt_linkedlist = "%s at %p { count:%" PRIuMAX ", h
     {                                                                                        \
         struct cmc_string str;                                                               \
         struct SNAME *l_ = _list_;                                                           \
-        const char *name = #SNAME;                                                           \
                                                                                              \
-        snprintf(str.s, cmc_string_len, cmc_string_fmt_linkedlist,                           \
-                 name, l_, l_->count, l_->head, l_->tail);                                   \
+        int n = snprintf(str.s, cmc_string_len, cmc_string_fmt_linkedlist,                   \
+                         #SNAME, #V, l_, l_->count, l_->head, l_->tail,                      \
+                         l_->alloc, l_->callbacks);                                          \
+                                                                                             \
+        if (n < 0 || n == (int)cmc_string_len)                                               \
+            return (struct cmc_string){0};                                                   \
+                                                                                             \
+        str.s[n] = '\0';                                                                     \
                                                                                              \
         return str;                                                                          \
     }                                                                                        \
                                                                                              \
-    struct SNAME##_node *PFX##_new_node(V element)                                           \
+    struct SNAME##_node *PFX##_new_node(struct SNAME *_list_, V element)                     \
     {                                                                                        \
-        struct SNAME##_node *_node_ = malloc(sizeof(struct SNAME##_node));                   \
+        struct SNAME##_node *_node_ = _list_->alloc->malloc(sizeof(struct SNAME##_node));    \
                                                                                              \
         if (!_node_)                                                                         \
             return NULL;                                                                     \
@@ -530,9 +645,9 @@ static const char *cmc_string_fmt_linkedlist = "%s at %p { count:%" PRIuMAX ", h
         return _node_;                                                                       \
     }                                                                                        \
                                                                                              \
-    void PFX##_free_node(struct SNAME##_node *_node_)                                        \
+    void PFX##_free_node(struct SNAME *_list_, struct SNAME##_node *_node_)                  \
     {                                                                                        \
-        free(_node_);                                                                        \
+        _list_->alloc->free(_node_);                                                         \
     }                                                                                        \
                                                                                              \
     struct SNAME##_node *PFX##_head(struct SNAME *_list_)                                    \
@@ -577,7 +692,7 @@ static const char *cmc_string_fmt_linkedlist = "%s at %p { count:%" PRIuMAX ", h
                                                                                              \
     bool PFX##_insert_after(struct SNAME *_owner_, struct SNAME##_node *_node_, V element)   \
     {                                                                                        \
-        struct SNAME##_node *new_node = PFX##_new_node(element);                             \
+        struct SNAME##_node *new_node = PFX##_new_node(_owner_, element);                    \
                                                                                              \
         if (!new_node)                                                                       \
             return false;                                                                    \
@@ -599,7 +714,7 @@ static const char *cmc_string_fmt_linkedlist = "%s at %p { count:%" PRIuMAX ", h
                                                                                              \
     bool PFX##_insert_before(struct SNAME *_owner_, struct SNAME##_node *_node_, V element)  \
     {                                                                                        \
-        struct SNAME##_node *new_node = PFX##_new_node(element);                             \
+        struct SNAME##_node *new_node = PFX##_new_node(_owner_, element);                    \
                                                                                              \
         if (!new_node)                                                                       \
             return false;                                                                    \
@@ -634,7 +749,7 @@ static const char *cmc_string_fmt_linkedlist = "%s at %p { count:%" PRIuMAX ", h
         else                                                                                 \
             _owner_->tail = _node_;                                                          \
                                                                                              \
-        free(tmp);                                                                           \
+        _owner_->alloc->free(tmp);                                                           \
                                                                                              \
         _owner_->count--;                                                                    \
                                                                                              \
@@ -653,7 +768,7 @@ static const char *cmc_string_fmt_linkedlist = "%s at %p { count:%" PRIuMAX ", h
         else                                                                                 \
             _owner_->tail = _node_->prev;                                                    \
                                                                                              \
-        free(_node_);                                                                        \
+        _owner_->alloc->free(_node_);                                                        \
                                                                                              \
         _owner_->count--;                                                                    \
                                                                                              \
@@ -675,7 +790,7 @@ static const char *cmc_string_fmt_linkedlist = "%s at %p { count:%" PRIuMAX ", h
         else                                                                                 \
             _owner_->head = _node_;                                                          \
                                                                                              \
-        free(tmp);                                                                           \
+        _owner_->alloc->free(tmp);                                                           \
                                                                                              \
         _owner_->count--;                                                                    \
                                                                                              \
@@ -694,7 +809,7 @@ static const char *cmc_string_fmt_linkedlist = "%s at %p { count:%" PRIuMAX ", h
                                                                                              \
     struct SNAME##_iter *PFX##_iter_new(struct SNAME *target)                                \
     {                                                                                        \
-        struct SNAME##_iter *iter = malloc(sizeof(struct SNAME##_iter));                     \
+        struct SNAME##_iter *iter = target->alloc->malloc(sizeof(struct SNAME##_iter));      \
                                                                                              \
         if (!iter)                                                                           \
             return NULL;                                                                     \
@@ -706,7 +821,7 @@ static const char *cmc_string_fmt_linkedlist = "%s at %p { count:%" PRIuMAX ", h
                                                                                              \
     void PFX##_iter_free(struct SNAME##_iter *iter)                                          \
     {                                                                                        \
-        free(iter);                                                                          \
+        iter->target->alloc->free(iter);                                                     \
     }                                                                                        \
                                                                                              \
     void PFX##_iter_init(struct SNAME##_iter *iter, struct SNAME *target)                    \

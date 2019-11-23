@@ -48,10 +48,68 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
-#include "../utl/cmc_string.h"
 
+/* -------------------------------------------------------------------------------------------------
+ * Core functionalities of the C Macro Collections Library
+ ------------------------------------------------------------------------------------------------ */
+#ifndef CMC_CORE_H
+#define CMC_CORE_H
+
+/**
+ * struct cmc_string
+ *
+ * Used by all collections when calling the to_string function.
+ */
+struct cmc_string
+{
+    char s[400];
+};
+
+static const size_t cmc_string_len = 400;
+
+/**
+ * struct cmc_alloc_node
+ *
+ * Custom allocation node. Allows collections to use custom allocation functions.
+ */
+struct cmc_alloc_node
+{
+    void *(*malloc)(size_t);
+    void *(*calloc)(size_t, size_t);
+    void *(*realloc)(void *, size_t);
+    void (*free)(void *);
+} cmc_alloc_node_default = {malloc, calloc, realloc, free};
+
+#endif /* CMC_CORE_H */
+
+/* -------------------------------------------------------------------------------------------------
+ * Queue specific
+ ------------------------------------------------------------------------------------------------ */
 /* to_string format */
-static const char *cmc_string_fmt_queue = "%s at %p { buffer:%p, capacity:%" PRIuMAX ", count:%" PRIuMAX ", front:%" PRIuMAX ", back:%" PRIuMAX " }";
+static const char *cmc_string_fmt_queue = "struct %s<%s> "
+                                          "at %p { "
+                                          "buffer:%p, "
+                                          "capacity:%" PRIuMAX ", "
+                                          "count:%" PRIuMAX ", "
+                                          "front:%" PRIuMAX ", "
+                                          "back:%" PRIuMAX ", "
+                                          "alloc:%p, "
+                                          "callbacks:%p }";
+
+/**
+ * Custom Queue callbacks.
+ *
+ * There are two types of callbacks, 'before' and 'after':
+ *      <before|after>_<function_name>
+ */
+struct cmc_callbacks_queue
+{
+    void (*before_clear)(void *);
+    void (*after_clear)(void *);
+    void (*before_free)(void *);
+    void (*after_free)(void *);
+    // TODO implement all callbacks
+};
 
 #define CMC_GENERATE_QUEUE(PFX, SNAME, V)    \
     CMC_GENERATE_QUEUE_HEADER(PFX, SNAME, V) \
@@ -63,7 +121,9 @@ static const char *cmc_string_fmt_queue = "%s at %p { buffer:%p, capacity:%" PRI
 #define CMC_WRAPGEN_QUEUE_SOURCE(PFX, SNAME, K, V) \
     CMC_GENERATE_QUEUE_SOURCE(PFX, SNAME, V)
 
-/* HEADER ********************************************************************/
+/* -------------------------------------------------------------------------------------------------
+ * Header
+ ------------------------------------------------------------------------------------------------ */
 #define CMC_GENERATE_QUEUE_HEADER(PFX, SNAME, V)                                                \
                                                                                                 \
     /* Queue Structure */                                                                       \
@@ -89,6 +149,12 @@ static const char *cmc_string_fmt_queue = "%s at %p { buffer:%p, capacity:%" PRI
                                                                                                 \
         /* Function that returns an iterator to the end of the queue */                         \
         struct SNAME##_iter (*it_end)(struct SNAME *);                                          \
+                                                                                                \
+        /* Custom allocation functions */                                                       \
+        struct cmc_alloc_node *alloc;                                                           \
+                                                                                                \
+        /* Custom callback functions */                                                         \
+        struct cmc_callbacks_queue *callbacks;                                                  \
     };                                                                                          \
                                                                                                 \
     /* Queue Iterator */                                                                        \
@@ -113,8 +179,13 @@ static const char *cmc_string_fmt_queue = "%s at %p { buffer:%p, capacity:%" PRI
     /* Collection Functions */                                                                  \
     /* Collection Allocation and Deallocation */                                                \
     struct SNAME *PFX##_new(size_t capacity);                                                   \
+    struct SNAME *PFX##_new_custom(size_t capacity, struct cmc_alloc_node *alloc,               \
+                                   struct cmc_callbacks_queue *callbacks);                      \
     void PFX##_clear(struct SNAME *_queue_, void (*deallocator)(V));                            \
     void PFX##_free(struct SNAME *_queue_, void (*deallocator)(V));                             \
+    /* Customization of Allocation and Callbacks */                                             \
+    void PFX##_customize(struct SNAME *_queue_, struct cmc_alloc_node *alloc,                   \
+                         struct cmc_callbacks_queue *callbacks);                                \
     /* Collection Input and Output */                                                           \
     bool PFX##_enqueue(struct SNAME *_queue_, V element);                                       \
     bool PFX##_dequeue(struct SNAME *_queue_);                                                  \
@@ -152,9 +223,11 @@ static const char *cmc_string_fmt_queue = "%s at %p { buffer:%p, capacity:%" PRI
     /* Iterator Access */                                                                       \
     V PFX##_iter_value(struct SNAME##_iter *iter);                                              \
     V *PFX##_iter_rvalue(struct SNAME##_iter *iter);                                            \
-    size_t PFX##_iter_index(struct SNAME##_iter *iter);                                         \
-                                                                                                \
-/* SOURCE ********************************************************************/
+    size_t PFX##_iter_index(struct SNAME##_iter *iter);
+
+/* -------------------------------------------------------------------------------------------------
+ * Source
+ ------------------------------------------------------------------------------------------------ */
 #define CMC_GENERATE_QUEUE_SOURCE(PFX, SNAME, V)                                               \
                                                                                                \
     /* Implementation Detail Functions */                                                      \
@@ -163,19 +236,21 @@ static const char *cmc_string_fmt_queue = "%s at %p { buffer:%p, capacity:%" PRI
                                                                                                \
     struct SNAME *PFX##_new(size_t capacity)                                                   \
     {                                                                                          \
+        struct cmc_alloc_node *alloc = &cmc_alloc_node_default;                                \
+                                                                                               \
         if (capacity < 1)                                                                      \
             return NULL;                                                                       \
                                                                                                \
-        struct SNAME *_queue_ = malloc(sizeof(struct SNAME));                                  \
+        struct SNAME *_queue_ = alloc->malloc(sizeof(struct SNAME));                           \
                                                                                                \
         if (!_queue_)                                                                          \
             return NULL;                                                                       \
                                                                                                \
-        _queue_->buffer = calloc(capacity, sizeof(V));                                         \
+        _queue_->buffer = alloc->calloc(capacity, sizeof(V));                                  \
                                                                                                \
         if (!_queue_->buffer)                                                                  \
         {                                                                                      \
-            free(_queue_);                                                                     \
+            alloc->free(_queue_);                                                              \
             return NULL;                                                                       \
         }                                                                                      \
                                                                                                \
@@ -186,6 +261,45 @@ static const char *cmc_string_fmt_queue = "%s at %p { buffer:%p, capacity:%" PRI
                                                                                                \
         _queue_->it_start = PFX##_impl_it_start;                                               \
         _queue_->it_end = PFX##_impl_it_end;                                                   \
+                                                                                               \
+        _queue_->alloc = alloc;                                                                \
+        _queue_->callbacks = NULL;                                                             \
+                                                                                               \
+        return _queue_;                                                                        \
+    }                                                                                          \
+                                                                                               \
+    struct SNAME *PFX##_new_custom(size_t capacity, struct cmc_alloc_node *alloc,              \
+                                   struct cmc_callbacks_queue *callbacks)                      \
+    {                                                                                          \
+        if (capacity < 1)                                                                      \
+            return NULL;                                                                       \
+                                                                                               \
+        if (!alloc)                                                                            \
+            alloc = &cmc_alloc_node_default;                                                   \
+                                                                                               \
+        struct SNAME *_queue_ = alloc->malloc(sizeof(struct SNAME));                           \
+                                                                                               \
+        if (!_queue_)                                                                          \
+            return NULL;                                                                       \
+                                                                                               \
+        _queue_->buffer = alloc->calloc(capacity, sizeof(V));                                  \
+                                                                                               \
+        if (!_queue_->buffer)                                                                  \
+        {                                                                                      \
+            alloc->free(_queue_);                                                              \
+            return NULL;                                                                       \
+        }                                                                                      \
+                                                                                               \
+        _queue_->capacity = capacity;                                                          \
+        _queue_->count = 0;                                                                    \
+        _queue_->front = 0;                                                                    \
+        _queue_->back = 0;                                                                     \
+                                                                                               \
+        _queue_->it_start = PFX##_impl_it_start;                                               \
+        _queue_->it_end = PFX##_impl_it_end;                                                   \
+                                                                                               \
+        _queue_->alloc = alloc;                                                                \
+        _queue_->callbacks = callbacks;                                                        \
                                                                                                \
         return _queue_;                                                                        \
     }                                                                                          \
@@ -221,8 +335,18 @@ static const char *cmc_string_fmt_queue = "%s at %p { buffer:%p, capacity:%" PRI
             }                                                                                  \
         }                                                                                      \
                                                                                                \
-        free(_queue_->buffer);                                                                 \
-        free(_queue_);                                                                         \
+        _queue_->alloc->free(_queue_->buffer);                                                 \
+        _queue_->alloc->free(_queue_);                                                         \
+    }                                                                                          \
+                                                                                               \
+    void PFX##_customize(struct SNAME *_queue_, struct cmc_alloc_node *alloc,                  \
+                         struct cmc_callbacks_queue *callbacks)                                \
+    {                                                                                          \
+        if (alloc)                                                                             \
+            _queue_->alloc = alloc;                                                            \
+                                                                                               \
+        if (callbacks)                                                                         \
+            _queue_->callbacks = callbacks;                                                    \
     }                                                                                          \
                                                                                                \
     bool PFX##_enqueue(struct SNAME *_queue_, V element)                                       \
@@ -303,7 +427,7 @@ static const char *cmc_string_fmt_queue = "%s at %p { buffer:%p, capacity:%" PRI
         if (capacity < PFX##_count(_queue_))                                                   \
             return false;                                                                      \
                                                                                                \
-        V *new_buffer = malloc(sizeof(V) * capacity);                                          \
+        V *new_buffer = _queue_->alloc->malloc(sizeof(V) * capacity);                          \
                                                                                                \
         if (!new_buffer)                                                                       \
             return false;                                                                      \
@@ -315,7 +439,7 @@ static const char *cmc_string_fmt_queue = "%s at %p { buffer:%p, capacity:%" PRI
             i = (i + 1) % PFX##_capacity(_queue_);                                             \
         }                                                                                      \
                                                                                                \
-        free(_queue_->buffer);                                                                 \
+        _queue_->alloc->free(_queue_->buffer);                                                 \
                                                                                                \
         _queue_->buffer = new_buffer;                                                          \
         _queue_->capacity = capacity;                                                          \
@@ -378,17 +502,22 @@ static const char *cmc_string_fmt_queue = "%s at %p { buffer:%p, capacity:%" PRI
     {                                                                                          \
         struct cmc_string str;                                                                 \
         struct SNAME *q_ = _queue_;                                                            \
-        const char *name = #SNAME;                                                             \
                                                                                                \
-        snprintf(str.s, cmc_string_len, cmc_string_fmt_queue,                                  \
-                 name, q_, q_->buffer, q_->capacity, q_->count, q_->front, q_->back);          \
+        int n = snprintf(str.s, cmc_string_len, cmc_string_fmt_queue,                          \
+                         #SNAME, #V, q_, q_->buffer, q_->capacity, q_->count,                  \
+                         q_->front, q_->back, q_->alloc, q_->callbacks);                       \
+                                                                                               \
+        if (n < 0 || n == (int)cmc_string_len)                                                 \
+            return (struct cmc_string){0};                                                     \
+                                                                                               \
+        str.s[n] = '\0';                                                                       \
                                                                                                \
         return str;                                                                            \
     }                                                                                          \
                                                                                                \
     struct SNAME##_iter *PFX##_iter_new(struct SNAME *target)                                  \
     {                                                                                          \
-        struct SNAME##_iter *iter = malloc(sizeof(struct SNAME##_iter));                       \
+        struct SNAME##_iter *iter = target->alloc->malloc(sizeof(struct SNAME##_iter));        \
                                                                                                \
         if (!iter)                                                                             \
             return NULL;                                                                       \
@@ -400,7 +529,7 @@ static const char *cmc_string_fmt_queue = "%s at %p { buffer:%p, capacity:%" PRI
                                                                                                \
     void PFX##_iter_free(struct SNAME##_iter *iter)                                            \
     {                                                                                          \
-        free(iter);                                                                            \
+        iter->target->alloc->free(iter);                                                       \
     }                                                                                          \
                                                                                                \
     void PFX##_iter_init(struct SNAME##_iter *iter, struct SNAME *target)                      \

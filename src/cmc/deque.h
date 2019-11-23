@@ -535,13 +535,12 @@ struct cmc_callbacks_deque
     {                                                                                             \
         struct cmc_string str;                                                                    \
         struct SNAME *d_ = _deque_;                                                               \
-        const char *name = #SNAME;                                                                \
                                                                                                   \
         int n = snprintf(str.s, cmc_string_len, cmc_string_fmt_deque,                             \
-                         name, #V, d_, d_->buffer, d_->capacity, d_->count,                       \
+                         #SNAME, #V, d_, d_->buffer, d_->capacity, d_->count,                     \
                          d_->front, d_->back, d_->alloc, d_->callbacks);                          \
                                                                                                   \
-        if (n < 0 || n == cmc_string_len)                                                         \
+        if (n < 0 || n == (int)cmc_string_len)                                                    \
             return (struct cmc_string){0};                                                        \
                                                                                                   \
         str.s[n] = '\0';                                                                          \

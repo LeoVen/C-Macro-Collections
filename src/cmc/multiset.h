@@ -26,11 +26,43 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
-#include "../utl/cmc_string.h"
 
-/* to_string format */
-static const char *cmc_string_fmt_multiset = "%s at %p { buffer:%p, capacity:%" PRIuMAX ", count:%" PRIuMAX ", cardinality:%" PRIuMAX ", load:%lf, cmp:%p, hash:%p }";
+/* -------------------------------------------------------------------------------------------------
+ * Core functionalities of the C Macro Collections Library
+ ------------------------------------------------------------------------------------------------ */
+#ifndef CMC_CORE_H
+#define CMC_CORE_H
 
+/**
+ * struct cmc_string
+ *
+ * Used by all collections when calling the to_string function.
+ */
+struct cmc_string
+{
+    char s[400];
+};
+
+static const size_t cmc_string_len = 400;
+
+/**
+ * struct cmc_alloc_node
+ *
+ * Custom allocation node. Allows collections to use custom allocation functions.
+ */
+struct cmc_alloc_node
+{
+    void *(*malloc)(size_t);
+    void *(*calloc)(size_t, size_t);
+    void *(*realloc)(void *, size_t);
+    void (*free)(void *);
+} cmc_alloc_node_default = {malloc, calloc, realloc, free};
+
+#endif /* CMC_CORE_H */
+
+/* -------------------------------------------------------------------------------------------------
+ * Hashtable Implementation
+ ------------------------------------------------------------------------------------------------ */
 #ifndef CMC_IMPL_HASHTABLE_STATE
 #define CMC_IMPL_HASHTABLE_STATE
 
@@ -43,42 +75,52 @@ enum cmc_entry_state
 
 #endif /* CMC_IMPL_HASHTABLE_STATE */
 
-#ifndef CMC_IMPL_HASHTABLE_SETUP
-#define CMC_IMPL_HASHTABLE_SETUP
+#ifndef CMC_IMPL_HASHTABLE_PRIMES
+#define CMC_IMPL_HASHTABLE_PRIMES
 
-static const size_t cmc_hashtable_primes[] = {53, 97, 191, 383, 769, 1531,
-                                              3067, 6143, 12289, 24571, 49157,
-                                              98299, 196613, 393209, 786431,
-                                              1572869, 3145721, 6291449,
-                                              12582917, 25165813, 50331653,
-                                              100663291, 201326611, 402653189,
-                                              805306357, 1610612741,
-                                              3221225473, 6442450939,
-                                              12884901893, 25769803799,
-                                              51539607551, 103079215111,
-                                              206158430209, 412316860441,
-                                              824633720831, 1649267441651,
-                                              3298534883309, 6597069766657,
-                                              13194139533299, 26388279066623,
-                                              52776558133303, 105553116266489,
-                                              211106232532969, 422212465066001,
-                                              844424930131963,
-                                              1688849860263953,
-                                              3377699720527861,
-                                              6755399441055731,
-                                              13510798882111483,
-                                              27021597764222939,
-                                              54043195528445957,
-                                              108086391056891903,
-                                              216172782113783773,
-                                              432345564227567621,
-                                              864691128455135207,
-                                              1729382256910270481,
-                                              3458764513820540933,
-                                              6917529027641081903,
-                                              13835058055282163729llu};
+static const size_t cmc_hashtable_primes[] =
+    {53, 97, 191, 383, 769, 1531, 3067, 6143, 12289, 24571, 49157, 98299, 196613, 393209, 786431,
+     1572869, 3145721, 6291449, 12582917, 25165813, 50331653, 100663291, 201326611, 402653189,
+     805306357, 1610612741, 3221225473, 6442450939, 12884901893, 25769803799, 51539607551,
+     103079215111, 206158430209, 412316860441, 824633720831, 1649267441651, 3298534883309,
+     6597069766657, 13194139533299, 26388279066623, 52776558133303, 105553116266489,
+     211106232532969, 422212465066001, 844424930131963, 1688849860263953, 3377699720527861,
+     6755399441055731, 13510798882111483, 27021597764222939, 54043195528445957, 108086391056891903,
+     216172782113783773, 432345564227567621, 864691128455135207, 1729382256910270481,
+     3458764513820540933, 6917529027641081903, 13835058055282163729llu};
 
-#endif /* CMC_IMPL_HASHTABLE_SETUP */
+#endif /* CMC_IMPL_HASHTABLE_PRIMES */
+
+/* -------------------------------------------------------------------------------------------------
+ * MultiSet specific
+ ------------------------------------------------------------------------------------------------ */
+/* to_string format */
+static const char *cmc_string_fmt_multiset = "struct %s<%s> "
+                                             "at %p { "
+                                             "buffer:%p, "
+                                             "capacity:%" PRIuMAX ", "
+                                             "count:%" PRIuMAX ", "
+                                             "cardinality:%" PRIuMAX ", "
+                                             "load:%lf, "
+                                             "cmp:%p, "
+                                             "hash:%p, "
+                                             "alloc:%p, "
+                                             "callbacks:%p }";
+
+/**
+ * Custom MultiSet callbacks.
+ *
+ * There are two types of callbacks, 'before' and 'after':
+ *      <before|after>_<function_name>
+ */
+struct cmc_callbacks_multiset
+{
+    void (*before_clear)(void *);
+    void (*after_clear)(void *);
+    void (*before_free)(void *);
+    void (*after_free)(void *);
+    // TODO implement all callbacks
+};
 
 #define CMC_GENERATE_MULTISET(PFX, SNAME, V)    \
     CMC_GENERATE_MULTISET_HEADER(PFX, SNAME, V) \
@@ -90,7 +132,9 @@ static const size_t cmc_hashtable_primes[] = {53, 97, 191, 383, 769, 1531,
 #define CMC_WRAPGEN_MULTISET_SOURCE(PFX, SNAME, K, V) \
     CMC_GENERATE_MULTISET_SOURCE(PFX, SNAME, V)
 
-/* HEADER ********************************************************************/
+/* -------------------------------------------------------------------------------------------------
+ * Header
+ ------------------------------------------------------------------------------------------------ */
 #define CMC_GENERATE_MULTISET_HEADER(PFX, SNAME, V)                                          \
                                                                                              \
     /* Hashset Structure */                                                                  \
@@ -122,6 +166,12 @@ static const size_t cmc_hashtable_primes[] = {53, 97, 191, 383, 769, 1531,
                                                                                              \
         /* Function that returns an iterator to the end of the hashset */                    \
         struct SNAME##_iter (*it_end)(struct SNAME *);                                       \
+                                                                                             \
+        /* Custom allocation functions */                                                    \
+        struct cmc_alloc_node *alloc;                                                        \
+                                                                                             \
+        /* Custom callback functions */                                                      \
+        struct cmc_callbacks_multiset *callbacks;                                            \
     };                                                                                       \
                                                                                              \
     struct SNAME##_entry                                                                     \
@@ -168,8 +218,14 @@ static const size_t cmc_hashtable_primes[] = {53, 97, 191, 383, 769, 1531,
     /* Collection Allocation and Deallocation */                                             \
     struct SNAME *PFX##_new(size_t capacity, double load, int (*compare)(V, V),              \
                             size_t (*hash)(V));                                              \
+    struct SNAME *PFX##_new_custom(size_t capacity, double load, int (*compare)(V, V),       \
+                                   size_t (*hash)(V), struct cmc_alloc_node *alloc,          \
+                                   struct cmc_callbacks_multiset *callbacks);                \
     void PFX##_clear(struct SNAME *_set_, void (*deallocator)(V));                           \
     void PFX##_free(struct SNAME *_set_, void (*deallocator)(V));                            \
+    /* Customization of Allocation and Callbacks */                                          \
+    void PFX##_customize(struct SNAME *_set_, struct cmc_alloc_node *alloc,                  \
+                         struct cmc_callbacks_multiset *callbacks);                          \
     /* Collection Input and Output */                                                        \
     bool PFX##_insert(struct SNAME *_set_, V element);                                       \
     bool PFX##_insert_many(struct SNAME *_set_, V element, size_t count);                    \
@@ -226,9 +282,11 @@ static const size_t cmc_hashtable_primes[] = {53, 97, 191, 383, 769, 1531,
     /* Iterator Access */                                                                    \
     V PFX##_iter_value(struct SNAME##_iter *iter);                                           \
     size_t PFX##_iter_multiplicity(struct SNAME##_iter *iter);                               \
-    size_t PFX##_iter_index(struct SNAME##_iter *iter);                                      \
-                                                                                             \
-/* SOURCE ********************************************************************/
+    size_t PFX##_iter_index(struct SNAME##_iter *iter);
+
+/* -------------------------------------------------------------------------------------------------
+ * Source
+ ------------------------------------------------------------------------------------------------ */
 #define CMC_GENERATE_MULTISET_SOURCE(PFX, SNAME, V)                                                \
                                                                                                    \
     /* Implementation Detail Functions */                                                          \
@@ -241,6 +299,8 @@ static const size_t cmc_hashtable_primes[] = {53, 97, 191, 383, 769, 1531,
                                                                                                    \
     struct SNAME *PFX##_new(size_t capacity, double load, int (*compare)(V, V), size_t (*hash)(V)) \
     {                                                                                              \
+        struct cmc_alloc_node *alloc = &cmc_alloc_node_default;                                    \
+                                                                                                   \
         if (capacity == 0 || load <= 0 || load >= 1)                                               \
             return NULL;                                                                           \
                                                                                                    \
@@ -250,16 +310,16 @@ static const size_t cmc_hashtable_primes[] = {53, 97, 191, 383, 769, 1531,
                                                                                                    \
         size_t real_capacity = PFX##_impl_calculate_size(capacity / load);                         \
                                                                                                    \
-        struct SNAME *_set_ = malloc(sizeof(struct SNAME));                                        \
+        struct SNAME *_set_ = alloc->malloc(sizeof(struct SNAME));                                 \
                                                                                                    \
         if (!_set_)                                                                                \
             return NULL;                                                                           \
                                                                                                    \
-        _set_->buffer = calloc(real_capacity, sizeof(struct SNAME##_entry));                       \
+        _set_->buffer = alloc->calloc(real_capacity, sizeof(struct SNAME##_entry));                \
                                                                                                    \
         if (!_set_->buffer)                                                                        \
         {                                                                                          \
-            free(_set_);                                                                           \
+            alloc->free(_set_);                                                                    \
             return NULL;                                                                           \
         }                                                                                          \
                                                                                                    \
@@ -272,6 +332,54 @@ static const size_t cmc_hashtable_primes[] = {53, 97, 191, 383, 769, 1531,
                                                                                                    \
         _set_->it_start = PFX##_impl_it_start;                                                     \
         _set_->it_end = PFX##_impl_it_end;                                                         \
+                                                                                                   \
+        _set_->alloc = alloc;                                                                      \
+        _set_->callbacks = NULL;                                                                   \
+                                                                                                   \
+        return _set_;                                                                              \
+    }                                                                                              \
+                                                                                                   \
+    struct SNAME *PFX##_new_custom(size_t capacity, double load, int (*compare)(V, V),             \
+                                   size_t (*hash)(V), struct cmc_alloc_node *alloc,                \
+                                   struct cmc_callbacks_multiset *callbacks)                       \
+    {                                                                                              \
+        if (capacity == 0 || load <= 0 || load >= 1)                                               \
+            return NULL;                                                                           \
+                                                                                                   \
+        /* Prevent integer overflow */                                                             \
+        if (capacity >= UINTMAX_MAX * load)                                                        \
+            return NULL;                                                                           \
+                                                                                                   \
+        size_t real_capacity = PFX##_impl_calculate_size(capacity / load);                         \
+                                                                                                   \
+        if (!alloc)                                                                                \
+            alloc = &cmc_alloc_node_default;                                                       \
+                                                                                                   \
+        struct SNAME *_set_ = alloc->malloc(sizeof(struct SNAME));                                 \
+                                                                                                   \
+        if (!_set_)                                                                                \
+            return NULL;                                                                           \
+                                                                                                   \
+        _set_->buffer = alloc->calloc(real_capacity, sizeof(struct SNAME##_entry));                \
+                                                                                                   \
+        if (!_set_->buffer)                                                                        \
+        {                                                                                          \
+            alloc->free(_set_);                                                                    \
+            return NULL;                                                                           \
+        }                                                                                          \
+                                                                                                   \
+        _set_->count = 0;                                                                          \
+        _set_->cardinality = 0;                                                                    \
+        _set_->capacity = real_capacity;                                                           \
+        _set_->load = load;                                                                        \
+        _set_->cmp = compare;                                                                      \
+        _set_->hash = hash;                                                                        \
+                                                                                                   \
+        _set_->it_start = PFX##_impl_it_start;                                                     \
+        _set_->it_end = PFX##_impl_it_end;                                                         \
+                                                                                                   \
+        _set_->alloc = alloc;                                                                      \
+        _set_->callbacks = callbacks;                                                              \
                                                                                                    \
         return _set_;                                                                              \
     }                                                                                              \
@@ -313,6 +421,16 @@ static const size_t cmc_hashtable_primes[] = {53, 97, 191, 383, 769, 1531,
                                                                                                    \
         free(_set_->buffer);                                                                       \
         free(_set_);                                                                               \
+    }                                                                                              \
+                                                                                                   \
+    void PFX##_customize(struct SNAME *_set_, struct cmc_alloc_node *alloc,                        \
+                         struct cmc_callbacks_multiset *callbacks)                                 \
+    {                                                                                              \
+        if (alloc)                                                                                 \
+            _set_->alloc = alloc;                                                                  \
+                                                                                                   \
+        if (callbacks)                                                                             \
+            _set_->callbacks = callbacks;                                                          \
     }                                                                                              \
                                                                                                    \
     bool PFX##_insert(struct SNAME *_set_, V element)                                              \
@@ -628,11 +746,16 @@ static const size_t cmc_hashtable_primes[] = {53, 97, 191, 383, 769, 1531,
     {                                                                                              \
         struct cmc_string str;                                                                     \
         struct SNAME *s_ = _set_;                                                                  \
-        const char *name = #SNAME;                                                                 \
                                                                                                    \
-        snprintf(str.s, cmc_string_len, cmc_string_fmt_multiset,                                   \
-                 name, s_, s_->buffer, s_->capacity, s_->count,                                    \
-                 s_->cardinality, s_->load, s_->cmp, s_->hash);                                    \
+        int n = snprintf(str.s, cmc_string_len, cmc_string_fmt_multiset,                           \
+                         #SNAME, #V, s_, s_->buffer, s_->capacity, s_->count,                      \
+                         s_->cardinality, s_->load, s_->cmp, s_->hash,                             \
+                         s_->alloc, s_->callbacks);                                                \
+                                                                                                   \
+        if (n < 0 || n == (int)cmc_string_len)                                                     \
+            return (struct cmc_string){0};                                                         \
+                                                                                                   \
+        str.s[n] = '\0';                                                                           \
                                                                                                    \
         return str;                                                                                \
     }                                                                                              \

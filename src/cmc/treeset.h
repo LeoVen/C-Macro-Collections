@@ -24,10 +24,66 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
-#include "../utl/cmc_string.h"
 
+/* -------------------------------------------------------------------------------------------------
+ * Core functionalities of the C Macro Collections Library
+ ------------------------------------------------------------------------------------------------ */
+#ifndef CMC_CORE_H
+#define CMC_CORE_H
+
+/**
+ * struct cmc_string
+ *
+ * Used by all collections when calling the to_string function.
+ */
+struct cmc_string
+{
+    char s[400];
+};
+
+static const size_t cmc_string_len = 400;
+
+/**
+ * struct cmc_alloc_node
+ *
+ * Custom allocation node. Allows collections to use custom allocation functions.
+ */
+struct cmc_alloc_node
+{
+    void *(*malloc)(size_t);
+    void *(*calloc)(size_t, size_t);
+    void *(*realloc)(void *, size_t);
+    void (*free)(void *);
+} cmc_alloc_node_default = {malloc, calloc, realloc, free};
+
+#endif /* CMC_CORE_H */
+
+/* -------------------------------------------------------------------------------------------------
+ * TreeSet specific
+ ------------------------------------------------------------------------------------------------ */
 /* to_string format */
-static const char *cmc_string_fmt_treeset = "%s at %p { root:%p, count:%" PRIuMAX ", cmp:%p }";
+static const char *cmc_string_fmt_treeset = "struct %s<%s> "
+                                            "at %p { "
+                                            "root:%p, "
+                                            "count:%" PRIuMAX ", "
+                                            "cmp:%p, "
+                                            "alloc:%p, "
+                                            "callbacks:%p }";
+
+/**
+ * Custom TreeSet callbacks.
+ *
+ * There are two types of callbacks, 'before' and 'after':
+ *      <before|after>_<function_name>
+ */
+struct cmc_callbacks_treeset
+{
+    void (*before_clear)(void *);
+    void (*after_clear)(void *);
+    void (*before_free)(void *);
+    void (*after_free)(void *);
+    // TODO implement all callbacks
+};
 
 #define CMC_GENERATE_TREESET(PFX, SNAME, V)    \
     CMC_GENERATE_TREESET_HEADER(PFX, SNAME, V) \
@@ -39,7 +95,9 @@ static const char *cmc_string_fmt_treeset = "%s at %p { root:%p, count:%" PRIuMA
 #define CMC_WRAPGEN_TREESET_SOURCE(PFX, SNAME, K, V) \
     CMC_GENERATE_TREESET_SOURCE(PFX, SNAME, V)
 
-/* HEADER ********************************************************************/
+/* -------------------------------------------------------------------------------------------------
+ * Header
+ ------------------------------------------------------------------------------------------------ */
 #define CMC_GENERATE_TREESET_HEADER(PFX, SNAME, V)                                        \
                                                                                           \
     /* Treeset Structure */                                                               \
@@ -59,6 +117,12 @@ static const char *cmc_string_fmt_treeset = "%s at %p { root:%p, count:%" PRIuMA
                                                                                           \
         /* Function that returns an iterator to the end of the treeset */                 \
         struct SNAME##_iter (*it_end)(struct SNAME *);                                    \
+                                                                                          \
+        /* Custom allocation functions */                                                 \
+        struct cmc_alloc_node *alloc;                                                     \
+                                                                                          \
+        /* Custom callback functions */                                                   \
+        struct cmc_callbacks_treeset *callbacks;                                          \
     };                                                                                    \
                                                                                           \
     /* Treeset Node */                                                                    \
@@ -108,8 +172,13 @@ static const char *cmc_string_fmt_treeset = "%s at %p { root:%p, count:%" PRIuMA
     /* Collection Functions */                                                            \
     /* Collection Allocation and Deallocation */                                          \
     struct SNAME *PFX##_new(int (*compare)(V, V));                                        \
+    struct SNAME *PFX##_new_custom(int (*compare)(V, V), struct cmc_alloc_node *alloc,    \
+                                   struct cmc_callbacks_treeset *callbacks);              \
     void PFX##_clear(struct SNAME *_set_, void (*deallocator)(V));                        \
     void PFX##_free(struct SNAME *_set_, void (*deallocator)(V));                         \
+    /* Customization of Allocation and Callbacks */                                       \
+    void PFX##_customize(struct SNAME *_set_, struct cmc_alloc_node *alloc,               \
+                         struct cmc_callbacks_treeset *callbacks);                        \
     /* Collection Input and Output */                                                     \
     bool PFX##_insert(struct SNAME *_set_, V element);                                    \
     bool PFX##_remove(struct SNAME *_set_, V element);                                    \
@@ -165,9 +234,11 @@ static const char *cmc_string_fmt_treeset = "%s at %p { root:%p, count:%" PRIuMA
         memset(&_empty_value_, 0, sizeof(V));                                             \
                                                                                           \
         return _empty_value_;                                                             \
-    }                                                                                     \
-                                                                                          \
-/* SOURCE ********************************************************************/
+    }
+
+/* -------------------------------------------------------------------------------------------------
+ * Source
+ ------------------------------------------------------------------------------------------------ */
 #define CMC_GENERATE_TREESET_SOURCE(PFX, SNAME, V)                                           \
                                                                                              \
     /* Implementation Detail Functions */                                                    \
@@ -183,7 +254,9 @@ static const char *cmc_string_fmt_treeset = "%s at %p { root:%p, count:%" PRIuMA
                                                                                              \
     struct SNAME *PFX##_new(int (*compare)(V, V))                                            \
     {                                                                                        \
-        struct SNAME *_set_ = malloc(sizeof(struct SNAME));                                  \
+        struct cmc_alloc_node *alloc = &cmc_alloc_node_default;                              \
+                                                                                             \
+        struct SNAME *_set_ = alloc->malloc(sizeof(struct SNAME));                           \
                                                                                              \
         if (!_set_)                                                                          \
             return NULL;                                                                     \
@@ -194,6 +267,33 @@ static const char *cmc_string_fmt_treeset = "%s at %p { root:%p, count:%" PRIuMA
                                                                                              \
         _set_->it_start = PFX##_impl_it_start;                                               \
         _set_->it_end = PFX##_impl_it_end;                                                   \
+                                                                                             \
+        _set_->alloc = alloc;                                                                \
+        _set_->callbacks = NULL;                                                             \
+                                                                                             \
+        return _set_;                                                                        \
+    }                                                                                        \
+                                                                                             \
+    struct SNAME *PFX##_new_custom(int (*compare)(V, V), struct cmc_alloc_node *alloc,       \
+                                   struct cmc_callbacks_treeset *callbacks)                  \
+    {                                                                                        \
+        if (!alloc)                                                                          \
+            alloc = &cmc_alloc_node_default;                                                 \
+                                                                                             \
+        struct SNAME *_set_ = alloc->malloc(sizeof(struct SNAME));                           \
+                                                                                             \
+        if (!_set_)                                                                          \
+            return NULL;                                                                     \
+                                                                                             \
+        _set_->count = 0;                                                                    \
+        _set_->root = NULL;                                                                  \
+        _set_->cmp = compare;                                                                \
+                                                                                             \
+        _set_->it_start = PFX##_impl_it_start;                                               \
+        _set_->it_end = PFX##_impl_it_end;                                                   \
+                                                                                             \
+        _set_->alloc = alloc;                                                                \
+        _set_->callbacks = callbacks;                                                        \
                                                                                              \
         return _set_;                                                                        \
     }                                                                                        \
@@ -546,10 +646,15 @@ static const char *cmc_string_fmt_treeset = "%s at %p { root:%p, count:%" PRIuMA
     {                                                                                        \
         struct cmc_string str;                                                               \
         struct SNAME *s_ = _set_;                                                            \
-        const char *name = #SNAME;                                                           \
                                                                                              \
-        snprintf(str.s, cmc_string_len, cmc_string_fmt_treeset,                              \
-                 name, s_, s_->root, s_->count, s_->cmp);                                    \
+        int n = snprintf(str.s, cmc_string_len, cmc_string_fmt_treeset,                      \
+                         #SNAME, #V, s_, s_->root, s_->count, s_->cmp,                       \
+                         s_->alloc, s_->callbacks);                                          \
+                                                                                             \
+        if (n < 0 || n == (int)cmc_string_len)                                               \
+            return (struct cmc_string){0};                                                   \
+                                                                                             \
+        str.s[n] = '\0';                                                                     \
                                                                                              \
         return str;                                                                          \
     }                                                                                        \

@@ -93,7 +93,7 @@ static const char *cmc_string_fmt_heap = "struct %s<%s> "
                                          "capacity:%" PRIuMAX ", "
                                          "count:%" PRIuMAX ", "
                                          "type:%s, "
-                                         "cmp:%p "
+                                         "cmp:%p, "
                                          "alloc:%p, "
                                          "callbacks: %p}";
 
@@ -336,8 +336,8 @@ struct cmc_callbacks_heap
             }                                                                                     \
         }                                                                                         \
                                                                                                   \
-        free(_heap_->buffer);                                                                     \
-        free(_heap_);                                                                             \
+        _heap_->alloc->free(_heap_->buffer);                                                      \
+        _heap_->alloc->free(_heap_);                                                              \
     }                                                                                             \
                                                                                                   \
     void PFX##_customize(struct SNAME *_heap_, struct cmc_alloc_node *alloc,                      \
@@ -436,7 +436,7 @@ struct cmc_callbacks_heap
         if (capacity < PFX##_count(_heap_))                                                       \
             return false;                                                                         \
                                                                                                   \
-        V *new_buffer = realloc(_heap_->buffer, sizeof(V) * capacity);                            \
+        V *new_buffer = _heap_->alloc->realloc(_heap_->buffer, sizeof(V) * capacity);             \
                                                                                                   \
         if (!new_buffer)                                                                          \
             return false;                                                                         \
@@ -449,7 +449,8 @@ struct cmc_callbacks_heap
                                                                                                   \
     struct SNAME *PFX##_copy_of(struct SNAME *_heap_, V (*copy_func)(V))                          \
     {                                                                                             \
-        struct SNAME *result = PFX##_new(_heap_->capacity, _heap_->HO, _heap_->cmp);              \
+        struct SNAME *result = PFX##_new_custom(_heap_->capacity, _heap_->HO, _heap_->cmp,        \
+                                                _heap_->alloc, _heap_->callbacks);                \
                                                                                                   \
         if (!result)                                                                              \
             return NULL;                                                                          \
@@ -485,18 +486,23 @@ struct cmc_callbacks_heap
     {                                                                                             \
         struct cmc_string str;                                                                    \
         struct SNAME *h_ = _heap_;                                                                \
-        const char *name = #SNAME;                                                                \
         const char *t = h_->HO == 1 ? "MaxHeap" : "MinHeap";                                      \
                                                                                                   \
-        snprintf(str.s, cmc_string_len, cmc_string_fmt_heap,                                      \
-                 name, h_, h_->buffer, h_->capacity, h_->count, t, h_->cmp);                      \
+        int n = snprintf(str.s, cmc_string_len, cmc_string_fmt_heap,                              \
+                         #SNAME, #V, h_, h_->buffer, h_->capacity, h_->count,                     \
+                         t, h_->cmp, h_->alloc, h_->callbacks);                                   \
+                                                                                                  \
+        if (n < 0 || n == (int)cmc_string_len)                                                    \
+            return (struct cmc_string){0};                                                        \
+                                                                                                  \
+        str.s[n] = '\0';                                                                          \
                                                                                                   \
         return str;                                                                               \
     }                                                                                             \
                                                                                                   \
     struct SNAME##_iter *PFX##_iter_new(struct SNAME *target)                                     \
     {                                                                                             \
-        struct SNAME##_iter *iter = malloc(sizeof(struct SNAME##_iter));                          \
+        struct SNAME##_iter *iter = target->alloc->malloc(sizeof(struct SNAME##_iter));           \
                                                                                                   \
         if (!iter)                                                                                \
             return NULL;                                                                          \
@@ -508,7 +514,7 @@ struct cmc_callbacks_heap
                                                                                                   \
     void PFX##_iter_free(struct SNAME##_iter *iter)                                               \
     {                                                                                             \
-        free(iter);                                                                               \
+        iter->target->alloc->free(iter);                                                          \
     }                                                                                             \
                                                                                                   \
     void PFX##_iter_init(struct SNAME##_iter *iter, struct SNAME *target)                         \

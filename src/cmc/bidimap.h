@@ -798,9 +798,11 @@ struct cmc_callbacks_bidimap
     struct SNAME *PFX##_copy_of(struct SNAME *_map_, K (*key_copy_func)(K),                      \
                                 V (*value_copy_func)(V))                                         \
     {                                                                                            \
-        struct SNAME *result = PFX##_new(PFX##_capacity(_map_), PFX##_load(_map_),               \
-                                         _map_->key_cmp, _map_->key_hash,                        \
-                                         _map_->val_cmp, _map_->val_hash);                       \
+        /* TODO this function can be optimized */                                                \
+        struct SNAME *result = PFX##_new_custom(PFX##_capacity(_map_), PFX##_load(_map_),        \
+                                                _map_->key_cmp, _map_->key_hash,                 \
+                                                _map_->val_cmp, _map_->val_hash,                 \
+                                                _map_->alloc, _map_->callbacks);                 \
                                                                                                  \
         for (size_t i = 0; i < _map_->capacity; i++)                                             \
         {                                                                                        \
@@ -870,14 +872,13 @@ struct cmc_callbacks_bidimap
     {                                                                                            \
         struct cmc_string str;                                                                   \
         struct SNAME *m_ = _map_;                                                                \
-        const char *name = #SNAME;                                                               \
                                                                                                  \
         int n = snprintf(str.s, cmc_string_len, cmc_string_fmt_bidimap,                          \
-                         name, #K, #V, m_, m_->key_buffer, m_->val_buffer, m_->capacity,         \
+                         #SNAME, #K, #V, m_, m_->key_buffer, m_->val_buffer, m_->capacity,       \
                          m_->count, m_->load, m_->key_cmp, m_->val_cmp, m_->key_hash,            \
                          m_->val_hash, m_->alloc, m_->callbacks);                                \
                                                                                                  \
-        if (n < 0 || n == cmc_string_len)                                                        \
+        if (n < 0 || n == (int)cmc_string_len)                                                   \
             return (struct cmc_string){0};                                                       \
                                                                                                  \
         str.s[n] = '\0';                                                                         \

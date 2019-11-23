@@ -12,8 +12,8 @@
  * HashMap
  *
  * A HashMap is an implementation of a Map with unique keys, where every key is
- * mapped to a value. The keys are not sorted. It is implemented as a hashtable
- * with robin hood hashing.
+ * mapped to a value. The keys are not sorted. It is implemented as a flat
+ * hashtable with linear probing and robin hood hashing.
  */
 
 #ifndef CMC_HASHMAP_H
@@ -100,7 +100,7 @@ static const char *cmc_string_fmt_hashmap = "struct %s<%s, %s> "
                                             "count:%" PRIuMAX ", "
                                             "load:%lf, "
                                             "cmp:%p, "
-                                            "hash:%p "
+                                            "hash:%p, "
                                             "alloc:%p, "
                                             "callbacks:%p }";
 
@@ -758,13 +758,12 @@ struct cmc_callbacks_hashmap
     {                                                                                              \
         struct cmc_string str;                                                                     \
         struct SNAME *m_ = _map_;                                                                  \
-        const char *name = #SNAME;                                                                 \
                                                                                                    \
         int n = snprintf(str.s, cmc_string_len, cmc_string_fmt_hashmap,                            \
-                         name, #K, #V, m_, m_->buffer, m_->capacity, m_->count,                    \
+                         #SNAME, #K, #V, m_, m_->buffer, m_->capacity, m_->count,                  \
                          m_->load, m_->cmp, m_->hash, m_->alloc, m_->callbacks);                   \
                                                                                                    \
-        if (n < 0 || n == cmc_string_len)                                                          \
+        if (n < 0 || n == (int)cmc_string_len)                                                     \
             return (struct cmc_string){0};                                                         \
                                                                                                    \
         str.s[n] = '\0';                                                                           \

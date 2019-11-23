@@ -33,10 +33,66 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
-#include "../utl/cmc_string.h"
 
+/* -------------------------------------------------------------------------------------------------
+ * Core functionalities of the C Macro Collections Library
+ ------------------------------------------------------------------------------------------------ */
+#ifndef CMC_CORE_H
+#define CMC_CORE_H
+
+/**
+ * struct cmc_string
+ *
+ * Used by all collections when calling the to_string function.
+ */
+struct cmc_string
+{
+    char s[400];
+};
+
+static const size_t cmc_string_len = 400;
+
+/**
+ * struct cmc_alloc_node
+ *
+ * Custom allocation node. Allows collections to use custom allocation functions.
+ */
+struct cmc_alloc_node
+{
+    void *(*malloc)(size_t);
+    void *(*calloc)(size_t, size_t);
+    void *(*realloc)(void *, size_t);
+    void (*free)(void *);
+} cmc_alloc_node_default = {malloc, calloc, realloc, free};
+
+#endif /* CMC_CORE_H */
+
+/* -------------------------------------------------------------------------------------------------
+ * Stack specific
+ ------------------------------------------------------------------------------------------------ */
 /* to_string format */
-static const char *cmc_string_fmt_stack = "%s at %p { buffer:%p, capacity:%" PRIuMAX ", count:%" PRIuMAX " }";
+static const char *cmc_string_fmt_stack = "struct %s<%s> "
+                                          "at %p { "
+                                          "buffer:%p, "
+                                          "capacity:%" PRIuMAX ", "
+                                          "count:%" PRIuMAX ", "
+                                          "alloc:%p, "
+                                          "callbacks:%p }";
+
+/**
+ * Custom Stack callbacks.
+ *
+ * There are two types of callbacks, 'before' and 'after':
+ *      <before|after>_<function_name>
+ */
+struct cmc_callbacks_stack
+{
+    void (*before_clear)(void *);
+    void (*after_clear)(void *);
+    void (*before_free)(void *);
+    void (*after_free)(void *);
+    // TODO implement all callbacks
+};
 
 #define CMC_GENERATE_STACK(PFX, SNAME, V)    \
     CMC_GENERATE_STACK_HEADER(PFX, SNAME, V) \
@@ -48,7 +104,9 @@ static const char *cmc_string_fmt_stack = "%s at %p { buffer:%p, capacity:%" PRI
 #define CMC_WRAPGEN_STACK_SOURCE(PFX, SNAME, K, V) \
     CMC_GENERATE_STACK_SOURCE(PFX, SNAME, V)
 
-/* HEADER ********************************************************************/
+/* -------------------------------------------------------------------------------------------------
+ * Header
+ ------------------------------------------------------------------------------------------------ */
 #define CMC_GENERATE_STACK_HEADER(PFX, SNAME, V)                                                \
                                                                                                 \
     /* Stack Structure */                                                                       \
@@ -68,6 +126,12 @@ static const char *cmc_string_fmt_stack = "%s at %p { buffer:%p, capacity:%" PRI
                                                                                                 \
         /* Function that returns an iterator to the end of the stack */                         \
         struct SNAME##_iter (*it_end)(struct SNAME *);                                          \
+                                                                                                \
+        /* Custom allocation functions */                                                       \
+        struct cmc_alloc_node *alloc;                                                           \
+                                                                                                \
+        /* Custom callback functions */                                                         \
+        struct cmc_callbacks_stack *callbacks;                                                  \
     };                                                                                          \
                                                                                                 \
     /* Stack Iterator */                                                                        \
@@ -89,8 +153,13 @@ static const char *cmc_string_fmt_stack = "%s at %p { buffer:%p, capacity:%" PRI
     /* Collection Functions */                                                                  \
     /* Collection Allocation and Deallocation */                                                \
     struct SNAME *PFX##_new(size_t capacity);                                                   \
+    struct SNAME *PFX##_new_custom(size_t capacity, struct cmc_alloc_node *alloc,               \
+                                   struct cmc_callbacks_stack *callbacks);                      \
     void PFX##_clear(struct SNAME *_stack_, void (*deallocator)(V));                            \
     void PFX##_free(struct SNAME *_stack_, void (*deallocator)(V));                             \
+    /* Customization of Allocation and Callbacks */                                             \
+    void PFX##_customize(struct SNAME *_stack_, struct cmc_alloc_node *alloc,                   \
+                         struct cmc_callbacks_stack *callbacks);                                \
     /* Collection Input and Output */                                                           \
     bool PFX##_push(struct SNAME *_stack_, V element);                                          \
     bool PFX##_pop(struct SNAME *_stack_);                                                      \
@@ -128,9 +197,11 @@ static const char *cmc_string_fmt_stack = "%s at %p { buffer:%p, capacity:%" PRI
     /* Iterator Access */                                                                       \
     V PFX##_iter_value(struct SNAME##_iter *iter);                                              \
     V *PFX##_iter_rvalue(struct SNAME##_iter *iter);                                            \
-    size_t PFX##_iter_index(struct SNAME##_iter *iter);                                         \
-                                                                                                \
-/* SOURCE ********************************************************************/
+    size_t PFX##_iter_index(struct SNAME##_iter *iter);
+
+/* -------------------------------------------------------------------------------------------------
+ * Source
+ ------------------------------------------------------------------------------------------------ */
 #define CMC_GENERATE_STACK_SOURCE(PFX, SNAME, V)                                               \
                                                                                                \
     /* Implementation Detail Functions */                                                      \
@@ -139,19 +210,21 @@ static const char *cmc_string_fmt_stack = "%s at %p { buffer:%p, capacity:%" PRI
                                                                                                \
     struct SNAME *PFX##_new(size_t capacity)                                                   \
     {                                                                                          \
+        struct cmc_alloc_node *alloc = &cmc_alloc_node_default;                                \
+                                                                                               \
         if (capacity < 1)                                                                      \
             return NULL;                                                                       \
                                                                                                \
-        struct SNAME *_stack_ = malloc(sizeof(struct SNAME));                                  \
+        struct SNAME *_stack_ = alloc->malloc(sizeof(struct SNAME));                           \
                                                                                                \
         if (!_stack_)                                                                          \
             return NULL;                                                                       \
                                                                                                \
-        _stack_->buffer = calloc(capacity, sizeof(V));                                         \
+        _stack_->buffer = alloc->calloc(capacity, sizeof(V));                                  \
                                                                                                \
         if (!_stack_->buffer)                                                                  \
         {                                                                                      \
-            free(_stack_);                                                                     \
+            alloc->free(_stack_);                                                              \
             return NULL;                                                                       \
         }                                                                                      \
                                                                                                \
@@ -160,6 +233,43 @@ static const char *cmc_string_fmt_stack = "%s at %p { buffer:%p, capacity:%" PRI
                                                                                                \
         _stack_->it_start = PFX##_impl_it_start;                                               \
         _stack_->it_end = PFX##_impl_it_end;                                                   \
+                                                                                               \
+        _stack_->alloc = alloc;                                                                \
+        _stack_->callbacks = NULL;                                                             \
+                                                                                               \
+        return _stack_;                                                                        \
+    }                                                                                          \
+                                                                                               \
+    struct SNAME *PFX##_new_custom(size_t capacity, struct cmc_alloc_node *alloc,              \
+                                   struct cmc_callbacks_stack *callbacks)                      \
+    {                                                                                          \
+        if (capacity < 1)                                                                      \
+            return NULL;                                                                       \
+                                                                                               \
+        if (!alloc)                                                                            \
+            alloc = &cmc_alloc_node_default;                                                   \
+                                                                                               \
+        struct SNAME *_stack_ = alloc->malloc(sizeof(struct SNAME));                           \
+                                                                                               \
+        if (!_stack_)                                                                          \
+            return NULL;                                                                       \
+                                                                                               \
+        _stack_->buffer = alloc->calloc(capacity, sizeof(V));                                  \
+                                                                                               \
+        if (!_stack_->buffer)                                                                  \
+        {                                                                                      \
+            alloc->free(_stack_);                                                              \
+            return NULL;                                                                       \
+        }                                                                                      \
+                                                                                               \
+        _stack_->capacity = capacity;                                                          \
+        _stack_->count = 0;                                                                    \
+                                                                                               \
+        _stack_->it_start = PFX##_impl_it_start;                                               \
+        _stack_->it_end = PFX##_impl_it_end;                                                   \
+                                                                                               \
+        _stack_->alloc = alloc;                                                                \
+        _stack_->callbacks = callbacks;                                                        \
                                                                                                \
         return _stack_;                                                                        \
     }                                                                                          \
@@ -179,14 +289,25 @@ static const char *cmc_string_fmt_stack = "%s at %p { buffer:%p, capacity:%" PRI
                                                                                                \
     void PFX##_free(struct SNAME *_stack_, void (*deallocator)(V))                             \
     {                                                                                          \
-        free(_stack_->buffer);                                                                 \
+        _stack_->alloc->free(_stack_->buffer);                                                 \
+                                                                                               \
         if (deallocator)                                                                       \
         {                                                                                      \
             for (size_t i = 0; i < _stack_->count; i++)                                        \
                 deallocator(_stack_->buffer[i]);                                               \
         }                                                                                      \
                                                                                                \
-        free(_stack_);                                                                         \
+        _stack_->alloc->free(_stack_);                                                         \
+    }                                                                                          \
+                                                                                               \
+    void PFX##_customize(struct SNAME *_stack_, struct cmc_alloc_node *alloc,                  \
+                         struct cmc_callbacks_stack *callbacks)                                \
+    {                                                                                          \
+        if (alloc)                                                                             \
+            _stack_->alloc = alloc;                                                            \
+                                                                                               \
+        if (callbacks)                                                                         \
+            _stack_->callbacks = callbacks;                                                    \
     }                                                                                          \
                                                                                                \
     bool PFX##_push(struct SNAME *_stack_, V element)                                          \
@@ -259,7 +380,7 @@ static const char *cmc_string_fmt_stack = "%s at %p { buffer:%p, capacity:%" PRI
         if (capacity < PFX##_count(_stack_))                                                   \
             return false;                                                                      \
                                                                                                \
-        V *new_buffer = realloc(_stack_->buffer, sizeof(V) * capacity);                        \
+        V *new_buffer = _stack_->alloc->realloc(_stack_->buffer, sizeof(V) * capacity);        \
                                                                                                \
         if (!new_buffer)                                                                       \
             return false;                                                                      \
@@ -308,17 +429,22 @@ static const char *cmc_string_fmt_stack = "%s at %p { buffer:%p, capacity:%" PRI
     {                                                                                          \
         struct cmc_string str;                                                                 \
         struct SNAME *s_ = _stack_;                                                            \
-        const char *name = #SNAME;                                                             \
                                                                                                \
-        snprintf(str.s, cmc_string_len, cmc_string_fmt_stack,                                  \
-                 name, s_, s_->buffer, s_->capacity, s_->count);                               \
+        int n = snprintf(str.s, cmc_string_len, cmc_string_fmt_stack,                          \
+                         #SNAME, #V, s_, s_->buffer, s_->capacity, s_->count,                  \
+                         s_->alloc, s_->callbacks);                                            \
+                                                                                               \
+        if (n < 0 || n == (int)cmc_string_len)                                                 \
+            return (struct cmc_string){0};                                                     \
+                                                                                               \
+        str.s[n] = '\0';                                                                       \
                                                                                                \
         return str;                                                                            \
     }                                                                                          \
                                                                                                \
     struct SNAME##_iter *PFX##_iter_new(struct SNAME *target)                                  \
     {                                                                                          \
-        struct SNAME##_iter *iter = malloc(sizeof(struct SNAME##_iter));                       \
+        struct SNAME##_iter *iter = target->alloc->malloc(sizeof(struct SNAME##_iter));        \
                                                                                                \
         if (!iter)                                                                             \
             return NULL;                                                                       \
@@ -330,7 +456,7 @@ static const char *cmc_string_fmt_stack = "%s at %p { buffer:%p, capacity:%" PRI
                                                                                                \
     void PFX##_iter_free(struct SNAME##_iter *iter)                                            \
     {                                                                                          \
-        free(iter);                                                                            \
+        iter->target->alloc->free(iter);                                                       \
     }                                                                                          \
                                                                                                \
     void PFX##_iter_init(struct SNAME##_iter *iter, struct SNAME *target)                      \

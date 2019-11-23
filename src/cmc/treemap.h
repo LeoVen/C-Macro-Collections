@@ -24,10 +24,66 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
-#include "../utl/cmc_string.h"
 
+/* -------------------------------------------------------------------------------------------------
+ * Core functionalities of the C Macro Collections Library
+ ------------------------------------------------------------------------------------------------ */
+#ifndef CMC_CORE_H
+#define CMC_CORE_H
+
+/**
+ * struct cmc_string
+ *
+ * Used by all collections when calling the to_string function.
+ */
+struct cmc_string
+{
+    char s[400];
+};
+
+static const size_t cmc_string_len = 400;
+
+/**
+ * struct cmc_alloc_node
+ *
+ * Custom allocation node. Allows collections to use custom allocation functions.
+ */
+struct cmc_alloc_node
+{
+    void *(*malloc)(size_t);
+    void *(*calloc)(size_t, size_t);
+    void *(*realloc)(void *, size_t);
+    void (*free)(void *);
+} cmc_alloc_node_default = {malloc, calloc, realloc, free};
+
+#endif /* CMC_CORE_H */
+
+/* -------------------------------------------------------------------------------------------------
+ * TreeMap specific
+ ------------------------------------------------------------------------------------------------ */
 /* to_string format */
-static const char *cmc_string_fmt_treemap = "%s at %p { root:%p, count:%" PRIuMAX ", cmp:%p }";
+static const char *cmc_string_fmt_treemap = "struct %s<%s, %s> "
+                                            "at %p { "
+                                            "root:%p, "
+                                            "count:%" PRIuMAX ", "
+                                            "cmp:%p, "
+                                            "alloc:%p, "
+                                            "callbacks:%p }";
+
+/**
+ * Custom TreeMap callbacks.
+ *
+ * There are two types of callbacks, 'before' and 'after':
+ *      <before|after>_<function_name>
+ */
+struct cmc_callbacks_treemap
+{
+    void (*before_clear)(void *);
+    void (*after_clear)(void *);
+    void (*before_free)(void *);
+    void (*after_free)(void *);
+    // TODO implement all callbacks
+};
 
 #define CMC_GENERATE_TREEMAP(PFX, SNAME, K, V)    \
     CMC_GENERATE_TREEMAP_HEADER(PFX, SNAME, K, V) \
@@ -39,7 +95,9 @@ static const char *cmc_string_fmt_treemap = "%s at %p { root:%p, count:%" PRIuMA
 #define CMC_WRAPGEN_TREEMAP_SOURCE(PFX, SNAME, K, V) \
     CMC_GENERATE_TREEMAP_SOURCE(PFX, SNAME, K, V)
 
-/* HEADER ********************************************************************/
+/* -------------------------------------------------------------------------------------------------
+ * Header
+ ------------------------------------------------------------------------------------------------ */
 #define CMC_GENERATE_TREEMAP_HEADER(PFX, SNAME, K, V)                                             \
                                                                                                   \
     /* Treemap Structure */                                                                       \
@@ -59,6 +117,12 @@ static const char *cmc_string_fmt_treemap = "%s at %p { root:%p, count:%" PRIuMA
                                                                                                   \
         /* Function that returns an iterator to the end of the treemap */                         \
         struct SNAME##_iter (*it_end)(struct SNAME *);                                            \
+                                                                                                  \
+        /* Custom allocation functions */                                                         \
+        struct cmc_alloc_node *alloc;                                                             \
+                                                                                                  \
+        /* Custom callback functions */                                                           \
+        struct cmc_callbacks_treemap *callbacks;                                                  \
     };                                                                                            \
                                                                                                   \
     /* Treemap Node */                                                                            \
@@ -111,8 +175,13 @@ static const char *cmc_string_fmt_treemap = "%s at %p { root:%p, count:%" PRIuMA
     /* Collection Functions */                                                                    \
     /* Collection Allocation and Deallocation */                                                  \
     struct SNAME *PFX##_new(int (*compare)(K, K));                                                \
+    struct SNAME *PFX##_new_custom(int (*compare)(K, K), struct cmc_alloc_node *alloc,            \
+                                   struct cmc_callbacks_treemap *callbacks);                      \
     void PFX##_clear(struct SNAME *_map_, void (*deallocator)(K, V));                             \
     void PFX##_free(struct SNAME *_map_, void (*deallocator)(K, V));                              \
+    /* Customization of Allocation and Callbacks */                                               \
+    void PFX##_customize(struct SNAME *_map_, struct cmc_alloc_node *alloc,                       \
+                         struct cmc_callbacks_treemap *callbacks);                                \
     /* Collection Input and Output */                                                             \
     bool PFX##_insert(struct SNAME *_map_, K key, V value);                                       \
     bool PFX##_update(struct SNAME *_map_, K key, V new_value, V *old_value);                     \
@@ -153,9 +222,11 @@ static const char *cmc_string_fmt_treemap = "%s at %p { root:%p, count:%" PRIuMA
     K PFX##_iter_key(struct SNAME##_iter *iter);                                                  \
     V PFX##_iter_value(struct SNAME##_iter *iter);                                                \
     V *PFX##_iter_rvalue(struct SNAME##_iter *iter);                                              \
-    size_t PFX##_iter_index(struct SNAME##_iter *iter);                                           \
-                                                                                                  \
-/* SOURCE ********************************************************************/
+    size_t PFX##_iter_index(struct SNAME##_iter *iter);
+
+/* -------------------------------------------------------------------------------------------------
+ * Source
+ ------------------------------------------------------------------------------------------------ */
 #define CMC_GENERATE_TREEMAP_SOURCE(PFX, SNAME, K, V)                                            \
                                                                                                  \
     /* Implementation Detail Functions */                                                        \
@@ -171,7 +242,9 @@ static const char *cmc_string_fmt_treemap = "%s at %p { root:%p, count:%" PRIuMA
                                                                                                  \
     struct SNAME *PFX##_new(int (*compare)(K, K))                                                \
     {                                                                                            \
-        struct SNAME *_map_ = malloc(sizeof(struct SNAME));                                      \
+        struct cmc_alloc_node *alloc = &cmc_alloc_node_default;                                  \
+                                                                                                 \
+        struct SNAME *_map_ = alloc->malloc(sizeof(struct SNAME));                               \
                                                                                                  \
         if (!_map_)                                                                              \
             return NULL;                                                                         \
@@ -182,6 +255,33 @@ static const char *cmc_string_fmt_treemap = "%s at %p { root:%p, count:%" PRIuMA
                                                                                                  \
         _map_->it_start = PFX##_impl_it_start;                                                   \
         _map_->it_end = PFX##_impl_it_end;                                                       \
+                                                                                                 \
+        _map_->alloc = alloc;                                                                    \
+        _map_->callbacks = NULL;                                                                 \
+                                                                                                 \
+        return _map_;                                                                            \
+    }                                                                                            \
+                                                                                                 \
+    struct SNAME *PFX##_new_custom(int (*compare)(K, K), struct cmc_alloc_node *alloc,           \
+                                   struct cmc_callbacks_treemap *callbacks)                      \
+    {                                                                                            \
+        if (!alloc)                                                                              \
+            alloc = &cmc_alloc_node_default;                                                     \
+                                                                                                 \
+        struct SNAME *_map_ = alloc->malloc(sizeof(struct SNAME));                               \
+                                                                                                 \
+        if (!_map_)                                                                              \
+            return NULL;                                                                         \
+                                                                                                 \
+        _map_->count = 0;                                                                        \
+        _map_->root = NULL;                                                                      \
+        _map_->cmp = compare;                                                                    \
+                                                                                                 \
+        _map_->it_start = PFX##_impl_it_start;                                                   \
+        _map_->it_end = PFX##_impl_it_end;                                                       \
+                                                                                                 \
+        _map_->alloc = alloc;                                                                    \
+        _map_->callbacks = callbacks;                                                            \
                                                                                                  \
         return _map_;                                                                            \
     }                                                                                            \
@@ -590,10 +690,15 @@ static const char *cmc_string_fmt_treemap = "%s at %p { root:%p, count:%" PRIuMA
     {                                                                                            \
         struct cmc_string str;                                                                   \
         struct SNAME *m_ = _map_;                                                                \
-        const char *name = #SNAME;                                                               \
                                                                                                  \
-        snprintf(str.s, cmc_string_len, cmc_string_fmt_treemap,                                  \
-                 name, m_, m_->root, m_->count, m_->cmp);                                        \
+        int n = snprintf(str.s, cmc_string_len, cmc_string_fmt_treemap,                          \
+                         #SNAME, #K, #V, m_, m_->root, m_->count, m_->cmp,                       \
+                         m_->alloc, m_->callbacks);                                              \
+                                                                                                 \
+        if (n < 0 || n == (int)cmc_string_len)                                                   \
+            return (struct cmc_string){0};                                                       \
+                                                                                                 \
+        str.s[n] = '\0';                                                                         \
                                                                                                  \
         return str;                                                                              \
     }                                                                                            \

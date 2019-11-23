@@ -12,7 +12,8 @@
  * HashSet
  *
  * A HashSet is an implementation of a Set with unique keys. The keys are not
- * sorted. It is implemented as a hashtable with robin hood hashing.
+ * sorted. It is implemented as a flat hashtable with linear probing and robin
+ * hood hashing.
  */
 
 #ifndef CMC_HASHSET_H
@@ -99,7 +100,7 @@ static const char *cmc_string_fmt_hashset = "struct %s<%s> "
                                             "count:%" PRIuMAX ", "
                                             "load:%lf, "
                                             "cmp:%p, "
-                                            "hash:%p "
+                                            "hash:%p, "
                                             "alloc:%p, "
                                             "callbacks: %p }";
 
@@ -398,8 +399,8 @@ struct cmc_callbacks_hashset
             }                                                                                      \
         }                                                                                          \
                                                                                                    \
-        free(_set_->buffer);                                                                       \
-        free(_set_);                                                                               \
+        _set_->alloc->free(_set_->buffer);                                                         \
+        _set_->alloc->free(_set_);                                                                 \
     }                                                                                              \
                                                                                                    \
     void PFX##_customize(struct SNAME *_set_, struct cmc_alloc_node *alloc,                        \
@@ -611,7 +612,8 @@ struct cmc_callbacks_hashset
                                                                                                    \
     struct SNAME *PFX##_copy_of(struct SNAME *_set_, V (*copy_func)(V))                            \
     {                                                                                              \
-        struct SNAME *result = PFX##_new(_set_->capacity, _set_->load, _set_->cmp, _set_->hash);   \
+        struct SNAME *result = PFX##_new_custom(_set_->capacity, _set_->load, _set_->cmp,          \
+                                                _set_->hash, _set_->alloc, _set_->callbacks);      \
                                                                                                    \
         if (!result)                                                                               \
             return NULL;                                                                           \
@@ -670,13 +672,12 @@ struct cmc_callbacks_hashset
     {                                                                                              \
         struct cmc_string str;                                                                     \
         struct SNAME *s_ = _set_;                                                                  \
-        const char *name = #SNAME;                                                                 \
                                                                                                    \
         int n = snprintf(str.s, cmc_string_len, cmc_string_fmt_hashset,                            \
-                         name, #V, s_, s_->buffer, s_->capacity, s_->count,                        \
+                         #SNAME, #V, s_, s_->buffer, s_->capacity, s_->count,                      \
                          s_->load, s_->cmp, s_->hash, s_->alloc, s_->callbacks);                   \
                                                                                                    \
-        if (n < 0 || n == cmc_string_len)                                                          \
+        if (n < 0 || n == (int)cmc_string_len)                                                     \
             return (struct cmc_string){0};                                                         \
                                                                                                    \
         str.s[n] = '\0';                                                                           \
@@ -894,7 +895,7 @@ struct cmc_callbacks_hashset
                                                                                                    \
     struct SNAME##_iter *PFX##_iter_new(struct SNAME *target)                                      \
     {                                                                                              \
-        struct SNAME##_iter *iter = malloc(sizeof(struct SNAME##_iter));                           \
+        struct SNAME##_iter *iter = target->alloc->malloc(sizeof(struct SNAME##_iter));            \
                                                                                                    \
         if (!iter)                                                                                 \
             return NULL;                                                                           \
@@ -906,7 +907,7 @@ struct cmc_callbacks_hashset
                                                                                                    \
     void PFX##_iter_free(struct SNAME##_iter *iter)                                                \
     {                                                                                              \
-        free(iter);                                                                                \
+        iter->target->alloc->free(iter);                                                           \
     }                                                                                              \
                                                                                                    \
     void PFX##_iter_init(struct SNAME##_iter *iter, struct SNAME *target)                          \
