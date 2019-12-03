@@ -56,7 +56,7 @@
 #include <string.h>
 
 #ifdef CMC_TEST_COLOR
-static const char *cmc_test_color[] = {"\x1b[32m", "\x1b[31m", "\x1b[35m"};
+static const char *cmc_test_color[] = { "\x1b[32m", "\x1b[31m", "\x1b[35m" };
 #endif
 
 struct cmc_test_info
@@ -69,15 +69,14 @@ struct cmc_test_info
 };
 
 /* Logging function */
-static void cmc_test_log(const char *unit_name, const char *current_test, bool aborted, bool passed)
+static void cmc_test_log(const char *unit_name, const char *current_test,
+                         bool aborted, bool passed)
 {
     if (aborted)
     {
 #ifdef CMC_TEST_COLOR
-        printf("UNIT_TEST %s %sABORTED\x1b[0m AT %s\n",
-               unit_name,
-               cmc_test_color[2],
-               current_test);
+        printf("UNIT_TEST %s %sABORTED\x1b[0m AT %s\n", unit_name,
+               cmc_test_color[2], current_test);
 #else
         printf("UNIT_TEST %s ABORTED at %s\n", unit_name, current_test);
 #endif
@@ -85,52 +84,55 @@ static void cmc_test_log(const char *unit_name, const char *current_test, bool a
     else
     {
 #ifdef CMC_TEST_COLOR
-        printf("Test from %s %s%7s\x1b[0m %s\n",
-               unit_name,
+        printf("Test from %s %s%7s\x1b[0m %s\n", unit_name,
                passed ? cmc_test_color[0] : cmc_test_color[1],
-               passed ? "PASSED" : "FAILED",
-               current_test);
+               passed ? "PASSED" : "FAILED", current_test);
 #else
-        printf("Test from %s %7s %s\n", unit_name, passed ? "PASSED" : "FAILED", current_test);
+        printf("Test from %s %7s %s\n", unit_name, passed ? "PASSED" : "FAILED",
+               current_test);
 #endif
     }
 }
 
-#define CMC_CREATE_UNIT(UNAME, VERBOSE, BODY)                                               \
-    uintmax_t UNAME(void)                                                                   \
-    {                                                                                       \
-        const char *unit_name = #UNAME;                                                     \
-        const char *current_test = NULL;                                                    \
-                                                                                            \
-        struct cmc_test_info tinfo = {0};                                                   \
-        struct cmc_timer timer = {0};                                                       \
-                                                                                            \
-        tinfo.verbose = VERBOSE;                                                            \
-                                                                                            \
-        /* Tests */                                                                         \
-        cmc_timer_start(timer);                                                             \
-                                                                                            \
-        BODY;                                                                               \
-                                                                                            \
-        cmc_timer_stop(timer);                                                              \
-        cmc_timer_calc(timer);                                                              \
-                                                                                            \
-    unittest_abort:                                                                         \
-        if (tinfo.aborted)                                                                  \
-        {                                                                                   \
-            cmc_test_log(unit_name, current_test, true, false);                             \
-        }                                                                                   \
-                                                                                            \
-        printf("+--------------------------------------------------+\n");                   \
-        printf("| Unit Test Report : %-30s|\n", unit_name);                                 \
-        printf("|   TOTAL  : %10" PRIuMAX "                            |\n", tinfo.total);  \
-        printf("|   PASSED : %10" PRIuMAX "                            |\n", tinfo.passed); \
-        printf("|   FAILED : %10" PRIuMAX "                            |\n", tinfo.failed); \
-        printf("|                                                  |\n");                   \
-        printf("| Total Unit Test Runtime : %9.0f milliseconds |\n", timer.result);         \
-        printf("+--------------------------------------------------+\n");                   \
-                                                                                            \
-        return tinfo.failed;                                                                \
+#define CMC_CREATE_UNIT(UNAME, VERBOSE, BODY)                                \
+    uintmax_t UNAME(void)                                                    \
+    {                                                                        \
+        const char *unit_name = #UNAME;                                      \
+        const char *current_test = NULL;                                     \
+                                                                             \
+        struct cmc_test_info tinfo = { 0 };                                  \
+        struct cmc_timer timer = { 0 };                                      \
+                                                                             \
+        tinfo.verbose = VERBOSE;                                             \
+                                                                             \
+        /* Tests */                                                          \
+        cmc_timer_start(timer);                                              \
+                                                                             \
+        BODY;                                                                \
+                                                                             \
+        cmc_timer_stop(timer);                                               \
+        cmc_timer_calc(timer);                                               \
+                                                                             \
+    unittest_abort:                                                          \
+        if (tinfo.aborted)                                                   \
+        {                                                                    \
+            cmc_test_log(unit_name, current_test, true, false);              \
+        }                                                                    \
+                                                                             \
+        printf("+--------------------------------------------------+\n");    \
+        printf("| Unit Test Report : %-30s|\n", unit_name);                  \
+        printf("|   TOTAL  : %10" PRIuMAX "                            |\n", \
+               tinfo.total);                                                 \
+        printf("|   PASSED : %10" PRIuMAX "                            |\n", \
+               tinfo.passed);                                                \
+        printf("|   FAILED : %10" PRIuMAX "                            |\n", \
+               tinfo.failed);                                                \
+        printf("|                                                  |\n");    \
+        printf("| Total Unit Test Runtime : %9.0f milliseconds |\n",         \
+               timer.result);                                                \
+        printf("+--------------------------------------------------+\n");    \
+                                                                             \
+        return tinfo.failed;                                                 \
     }
 
 #define CMC_CREATE_TEST(TNAME, BODY)                                 \

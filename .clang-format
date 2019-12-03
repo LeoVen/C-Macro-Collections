@@ -1,0 +1,19 @@
+# clang-format 9.0.0
+Language: Cpp
+BasedOnStyle: LLVM
+AlignEscapedNewlines: Left
+AllowShortFunctionsOnASingleLine: None
+AllowShortIfStatementsOnASingleLine: Never
+AllowShortLoopsOnASingleLine: false
+BreakBeforeBraces: Allman
+BreakStringLiterals: false
+ColumnLimit: 80
+Cpp11BracedListStyle: false
+ForEachMacros: ["CMC_FOREACH", "CMC_FOREACH_REV"]
+IndentCaseLabels: true
+IndentWidth: 4
+KeepEmptyLinesAtTheStartOfBlocks: true
+MaxEmptyLinesToKeep: 1
+SpacesInContainerLiterals: false
+TabWidth: 4
+UseTab: Never
