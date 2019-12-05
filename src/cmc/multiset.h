@@ -1091,7 +1091,7 @@ struct cmc_callbacks_multiset
                                                                                \
     struct SNAME##_iter *PFX##_iter_new(struct SNAME *target)                  \
     {                                                                          \
-        struct SNAME##_iter *iter = malloc(sizeof(struct SNAME##_iter));       \
+        struct SNAME##_iter *iter = target->alloc->malloc(sizeof(struct SNAME##_iter));       \
                                                                                \
         if (!iter)                                                             \
             return NULL;                                                       \

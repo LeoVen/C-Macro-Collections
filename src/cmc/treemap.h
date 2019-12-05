@@ -236,7 +236,7 @@ struct cmc_callbacks_treemap
 #define CMC_GENERATE_TREEMAP_SOURCE(PFX, SNAME, K, V)                         \
                                                                               \
     /* Implementation Detail Functions */                                     \
-    static struct SNAME##_node *PFX##_impl_new_node(K key, V value);          \
+    static struct SNAME##_node *PFX##_impl_new_node(struct SNAME *_map_, K key, V value);          \
     static struct SNAME##_node *PFX##_impl_get_node(struct SNAME *_map_,      \
                                                     K key);                   \
     static unsigned char PFX##_impl_h(struct SNAME##_node *node);             \
@@ -326,7 +326,7 @@ struct cmc_callbacks_treemap
                     if (deallocator)                                          \
                         deallocator(scan->key, scan->value);                  \
                                                                               \
-                    free(scan);                                               \
+                    _map_->alloc->free(scan);                                               \
                     scan = NULL;                                              \
                 }                                                             \
                                                                               \
@@ -335,7 +335,7 @@ struct cmc_callbacks_treemap
                     if (deallocator)                                          \
                         deallocator(scan->key, scan->value);                  \
                                                                               \
-                    free(scan);                                               \
+                    _map_->alloc->free(scan);                                               \
                                                                               \
                     if (up->right != NULL)                                    \
                     {                                                         \
@@ -360,14 +360,14 @@ struct cmc_callbacks_treemap
     {                                                                         \
         PFX##_clear(_map_, deallocator);                                      \
                                                                               \
-        free(_map_);                                                          \
+        _map_->alloc->free(_map_);                                                          \
     }                                                                         \
                                                                               \
     bool PFX##_insert(struct SNAME *_map_, K key, V value)                    \
     {                                                                         \
         if (PFX##_empty(_map_))                                               \
         {                                                                     \
-            _map_->root = PFX##_impl_new_node(key, value);                    \
+            _map_->root = PFX##_impl_new_node(_map_, key, value);                    \
                                                                               \
             if (!_map_->root)                                                 \
                 return false;                                                 \
@@ -393,7 +393,7 @@ struct cmc_callbacks_treemap
                                                                               \
             if (_map_->cmp(parent->key, key) > 0)                             \
             {                                                                 \
-                parent->left = PFX##_impl_new_node(key, value);               \
+                parent->left = PFX##_impl_new_node(_map_, key, value);               \
                                                                               \
                 if (!parent->left)                                            \
                     return false;                                             \
@@ -403,7 +403,7 @@ struct cmc_callbacks_treemap
             }                                                                 \
             else                                                              \
             {                                                                 \
-                parent->right = PFX##_impl_new_node(key, value);              \
+                parent->right = PFX##_impl_new_node(_map_, key, value);              \
                                                                               \
                 if (!parent->right)                                           \
                     return false;                                             \
@@ -463,7 +463,7 @@ struct cmc_callbacks_treemap
                     node->parent->left = NULL;                                \
             }                                                                 \
                                                                               \
-            free(node);                                                       \
+            _map_->alloc->free(node);                                                       \
         }                                                                     \
         else if (node->left == NULL)                                          \
         {                                                                     \
@@ -484,7 +484,7 @@ struct cmc_callbacks_treemap
                     node->parent->left = node->right;                         \
             }                                                                 \
                                                                               \
-            free(node);                                                       \
+            _map_->alloc->free(node);                                                       \
         }                                                                     \
         else if (node->right == NULL)                                         \
         {                                                                     \
@@ -505,7 +505,7 @@ struct cmc_callbacks_treemap
                     node->parent->left = node->left;                          \
             }                                                                 \
                                                                               \
-            free(node);                                                       \
+            _map_->alloc->free(node);                                                       \
         }                                                                     \
         else                                                                  \
         {                                                                     \
@@ -544,7 +544,7 @@ struct cmc_callbacks_treemap
                     temp->parent->left = temp->left;                          \
             }                                                                 \
                                                                               \
-            free(temp);                                                       \
+            _map_->alloc->free(temp);                                                       \
                                                                               \
             node->key = temp_key;                                             \
             node->value = temp_val;                                           \
@@ -719,7 +719,7 @@ struct cmc_callbacks_treemap
                                                                               \
     struct SNAME##_iter *PFX##_iter_new(struct SNAME *target)                 \
     {                                                                         \
-        struct SNAME##_iter *iter = malloc(sizeof(struct SNAME##_iter));      \
+        struct SNAME##_iter *iter = target->alloc->malloc(sizeof(struct SNAME##_iter));      \
                                                                               \
         if (!iter)                                                            \
             return NULL;                                                      \
@@ -731,7 +731,7 @@ struct cmc_callbacks_treemap
                                                                               \
     void PFX##_iter_free(struct SNAME##_iter *iter)                           \
     {                                                                         \
-        free(iter);                                                           \
+        iter->target->alloc->free(iter);                                                           \
     }                                                                         \
                                                                               \
     void PFX##_iter_init(struct SNAME##_iter *iter, struct SNAME *target)     \
@@ -959,9 +959,9 @@ struct cmc_callbacks_treemap
         return iter->index;                                                   \
     }                                                                         \
                                                                               \
-    static struct SNAME##_node *PFX##_impl_new_node(K key, V value)           \
+    static struct SNAME##_node *PFX##_impl_new_node(struct SNAME *_map_, K key, V value)           \
     {                                                                         \
-        struct SNAME##_node *node = malloc(sizeof(struct SNAME##_node));      \
+        struct SNAME##_node *node = _map_->alloc->malloc(sizeof(struct SNAME##_node));      \
                                                                               \
         if (!node)                                                            \
             return NULL;                                                      \

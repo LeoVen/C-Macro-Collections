@@ -297,14 +297,13 @@ struct cmc_callbacks_stack
                                                                               \
     void PFX##_free(struct SNAME *_stack_, void (*deallocator)(V))            \
     {                                                                         \
-        _stack_->alloc->free(_stack_->buffer);                                \
-                                                                              \
         if (deallocator)                                                      \
         {                                                                     \
             for (size_t i = 0; i < _stack_->count; i++)                       \
                 deallocator(_stack_->buffer[i]);                              \
         }                                                                     \
-                                                                              \
+        \
+        _stack_->alloc->free(_stack_->buffer);                                \
         _stack_->alloc->free(_stack_);                                        \
     }                                                                         \
                                                                               \
