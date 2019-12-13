@@ -881,7 +881,8 @@ struct cmc_callbacks_multimap
             return false;                                                      \
                                                                                \
         struct SNAME *_new_map_ =                                              \
-            PFX##_new(capacity, PFX##_load(_map_), _map_->cmp, _map_->hash);   \
+            PFX##_new_custom(capacity, PFX##_load(_map_), _map_->cmp,          \
+                             _map_->hash, _map_->alloc, _map_->callbacks);     \
                                                                                \
         if (!_new_map_)                                                        \
             return false;                                                      \
@@ -920,7 +921,8 @@ struct cmc_callbacks_multimap
                                 V (*value_copy_func)(V))                       \
     {                                                                          \
         struct SNAME *result =                                                 \
-            PFX##_new(_map_->capacity, _map_->load, _map_->cmp, _map_->hash);  \
+            PFX##_new_custom(_map_->capacity, _map_->load, _map_->cmp,         \
+                             _map_->hash, _map_->alloc, _map_->callbacks);     \
                                                                                \
         if (!result)                                                           \
             return NULL;                                                       \

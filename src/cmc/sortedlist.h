@@ -470,7 +470,8 @@ struct cmc_callbacks_sortedlist
                                                                                \
     struct SNAME *PFX##_copy_of(struct SNAME *_list_, V (*copy_func)(V))       \
     {                                                                          \
-        struct SNAME *result = PFX##_new(_list_->capacity, _list_->cmp);       \
+        struct SNAME *result = PFX##_new_custom(                               \
+            _list_->capacity, _list_->cmp, _list_->alloc, _list_->callbacks);  \
                                                                                \
         if (!result)                                                           \
             return NULL;                                                       \

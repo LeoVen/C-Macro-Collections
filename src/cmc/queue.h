@@ -463,7 +463,8 @@ struct cmc_callbacks_queue
                                                                               \
     struct SNAME *PFX##_copy_of(struct SNAME *_queue_, V (*copy_func)(V))     \
     {                                                                         \
-        struct SNAME *result = PFX##_new(_queue_->capacity);                  \
+        struct SNAME *result = PFX##_new_custom(                              \
+            _queue_->capacity, _queue_->alloc, _queue_->callbacks);           \
                                                                               \
         if (!result)                                                          \
             return NULL;                                                      \

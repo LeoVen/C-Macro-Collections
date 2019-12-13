@@ -302,7 +302,7 @@ struct cmc_callbacks_stack
             for (size_t i = 0; i < _stack_->count; i++)                       \
                 deallocator(_stack_->buffer[i]);                              \
         }                                                                     \
-        \
+                                                                              \
         _stack_->alloc->free(_stack_->buffer);                                \
         _stack_->alloc->free(_stack_);                                        \
     }                                                                         \
@@ -402,7 +402,8 @@ struct cmc_callbacks_stack
                                                                               \
     struct SNAME *PFX##_copy_of(struct SNAME *_stack_, V (*copy_func)(V))     \
     {                                                                         \
-        struct SNAME *result = PFX##_new(_stack_->capacity);                  \
+        struct SNAME *result = PFX##_new_custom(                              \
+            _stack_->capacity, _stack_->alloc, _stack_->callbacks);           \
                                                                               \
         if (!result)                                                          \
             return NULL;                                                      \

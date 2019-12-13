@@ -8,7 +8,12 @@ TODO
 
 [/] Tests
 [/] Documentation
-[ ] Fix cases where new_custom() should be used instead of just new()
+
+#!! Medium Priority --------------------------------------------------------------------------------
+
+[/] Callback utility
+[ ] Add interface that contains data type functions
+    (compare, copy, display, free, hash, priority)
 [ ] Add to iterators struct
     [ ] get_value
     [ ] get_index
@@ -16,10 +21,6 @@ TODO
     [ ] get_key          {associative collections}
     [ ] get_multiplicity {multiset}
     [ ] get_node         {linkedlist}
-
-#!! Medium Priority --------------------------------------------------------------------------------
-
-[/] Callback utility
 [ ] Add memory usage in the benchmark
 [ ] Add to_array and from_array functions
 [ ] Separate each collection unit test into their own executable
@@ -99,3 +100,4 @@ TODO
     [X] resize       {array based collections}
 [X] Custom allocators
 [X] Each file needs to be independent without including external files
+[X] Fix cases where new_custom() should be used instead of just new()
