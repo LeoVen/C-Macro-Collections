@@ -1,6 +1,6 @@
 CC = gcc
 CFLAGS = -std=c11 -Wall -Wextra
-CFLAGS += -Wno-unused-function -Wno-unused-parameter -Wno-unused-variable -Wno-unused-label
+CFLAGS += -Wno-unused -Wno-missing-braces
 
 main: FORCE
 	$(CC) foreach.c -o foreach.exe $(CFLAGS)
@@ -11,10 +11,7 @@ main: FORCE
 	./contains.exe
 	$(CC) types.c -o types.exe $(CFLAGS)
 	./types.exe
-	$(CC) -c ./sep/collections.c -o ./sep/collections.o $(CFLAGS)
-	$(CC) -c ./sep/main.c -o ./sep/main.o $(CFLAGS)
-	$(CC) ./sep/collections.o ./sep/main.o -o ./sep/sep.exe
-	./sep/sep.exe
+	make -C ./sep
 
 dev: main
 	rm *.exe ./sep/*.o ./sep/*.exe

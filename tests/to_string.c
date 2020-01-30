@@ -20,7 +20,7 @@ CMC_COLLECTION_GENERATE(     TREEMAP, tm,   tmap,     int, int)
 
 int main(void)
 {
-    struct bmap *bm = bm_new_custom(100, 0.7, NULL, NULL, NULL, NULL, NULL, NULL);
+    struct bmap *bm = bm_new_custom(100, 0.7, NULL, NULL, NULL, NULL);
     struct deque *d = d_new_custom(100, NULL, NULL);
     struct hmap *hm = hm_new_custom(100, 0.6, NULL, NULL, NULL, NULL);
     struct hset *hs = hs_new_custom(100, 0.6, NULL, NULL, NULL, NULL);

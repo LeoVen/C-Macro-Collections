@@ -1,6 +1,6 @@
 CC = gcc
 CFLAGS = -std=c11 -Wall -Wextra
-CFLAGS += -Wno-unused
+CFLAGS += -Wno-unused -Wno-missing-braces
 CFLAGS += -DCMC_TEST_COLOR
 INCLUDE = ../../src/
 

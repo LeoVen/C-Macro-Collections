@@ -8,12 +8,13 @@ TODO
 
 [/] Tests
 [/] Documentation
+[/] Add Function Tables that contains data type functions
+    (compare, copy, display, free, hash, priority)
+[/] Add error codes that can be accessed from the collection's struct
 
 #!! Medium Priority --------------------------------------------------------------------------------
 
 [/] Callback utility
-[ ] Add interface that contains data type functions
-    (compare, copy, display, free, hash, priority)
 [ ] Add to iterators struct
     [ ] get_value
     [ ] get_index

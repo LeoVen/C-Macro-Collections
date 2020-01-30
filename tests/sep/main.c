@@ -20,7 +20,9 @@ size_t inthash(int t)
 
 int main(void)
 {
-    struct bmap *bm = bm_new_custom(100, 0.7, NULL, NULL, NULL, NULL, NULL, NULL);
+    struct bmap *bm =
+        bm_new_custom(100, 0.7, &(struct bmap_ftab_key){ 0 },
+                      &(struct bmap_ftab_val){ 0 }, NULL, NULL);
     struct deque *d = d_new_custom(100, NULL, NULL);
     struct hmap *hm = hm_new_custom(100, 0.6, NULL, NULL, NULL, NULL);
     struct hset *hs = hs_new_custom(100, 0.6, NULL, NULL, NULL, NULL);
@@ -40,7 +42,7 @@ int main(void)
     printf("|       Separate Header and Source is Working      |\n");
     printf("+--------------------------------------------------+\n");
 
-    bm_free(bm, NULL);
+    bm_free(bm);
     d_free(d, NULL);
     hm_free(hm, NULL);
     hs_free(hs, NULL);

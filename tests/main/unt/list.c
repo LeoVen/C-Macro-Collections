@@ -31,36 +31,6 @@ CMC_CREATE_UNIT(list_test, true, {
         cmc_assert_equals(ptr, NULL, l);
     });
 
-    CMC_CREATE_TEST(new_from[count and item preservation], {
-        size_t v[5];
-
-        for (size_t i = 0; i < 5; i++)
-        {
-            v[i] = i;
-        }
-
-        struct list *l = l_new_from(v, 5);
-
-        cmc_assert_not_equals(ptr, NULL, l);
-
-        for (size_t i = 0; i < 5; i++)
-            cmc_assert_equals(size_t, i, l_get(l, i));
-
-        l_free(l, NULL);
-    });
-
-    CMC_CREATE_TEST(new_from[size = 1], {
-        size_t a = 10;
-
-        size_t *values = &a;
-
-        struct list *l = l_new_from(values, 1);
-
-        cmc_assert_not_equals(ptr, NULL, l);
-
-        l_free(l, NULL);
-    });
-
     CMC_CREATE_TEST(clear[count capacity], {
         struct list *l = l_new(100);
 

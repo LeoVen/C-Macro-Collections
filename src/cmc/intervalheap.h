@@ -51,16 +51,31 @@ static const size_t cmc_string_len = 400;
  * Custom allocation node. Allows collections to use custom allocation
  * functions.
  */
-struct cmc_alloc_node
+static struct cmc_alloc_node
 {
     void *(*malloc)(size_t);
     void *(*calloc)(size_t, size_t);
     void *(*realloc)(void *, size_t);
     void (*free)(void *);
-};
+} cmc_alloc_node_default = { malloc, calloc, realloc, free };
 
-static struct cmc_alloc_node cmc_alloc_node_default = { malloc, calloc, realloc,
-                                                        free };
+/**
+ * enum cmc_flags
+ *
+ * Defines common error codes used by all collections. These are flags that
+ * indicate if something went wrong in the last operation by the collection.
+ */
+static struct
+{
+    int OK;    // Everything went as expected
+    int ALLOC; // Allocation failed
+    int EMPTY; // The collection is empty and the operation could not proceed
+    int NOT_FOUND;    // Key or value not found
+    int INVALID;      // Something is invalid
+    int OUT_OF_RANGE; // Index out of array range
+    int DUPLICATE;    // Duplicate key or value
+    int ERROR;        // Generic error, usually caused by unexpected behaviour
+} cmc_flags = { 0, 1, 2, 3, 4, 5, 6, 7 };
 
 #endif /* CMC_CORE_H */
 

@@ -56,16 +56,31 @@ static const size_t cmc_string_len = 400;
  * Custom allocation node. Allows collections to use custom allocation
  * functions.
  */
-struct cmc_alloc_node
+static struct cmc_alloc_node
 {
     void *(*malloc)(size_t);
     void *(*calloc)(size_t, size_t);
     void *(*realloc)(void *, size_t);
     void (*free)(void *);
-};
+} cmc_alloc_node_default = { malloc, calloc, realloc, free };
 
-static struct cmc_alloc_node cmc_alloc_node_default = { malloc, calloc, realloc,
-                                                        free };
+/**
+ * enum cmc_flags
+ *
+ * Defines common error codes used by all collections. These are flags that
+ * indicate if something went wrong in the last operation by the collection.
+ */
+static struct
+{
+    int OK;    // Everything went as expected
+    int ALLOC; // Allocation failed
+    int EMPTY; // The collection is empty and the operation could not proceed
+    int NOT_FOUND;    // Key or value not found
+    int INVALID;      // Something is invalid
+    int OUT_OF_RANGE; // Index out of array range
+    int DUPLICATE;    // Duplicate key or value
+    int ERROR;        // Generic error, usually caused by unexpected behaviour
+} cmc_flags = { 0, 1, 2, 3, 4, 5, 6, 7 };
 
 #endif /* CMC_CORE_H */
 
@@ -136,10 +151,9 @@ static const char *cmc_string_fmt_bidimap = "struct %s<%s, %s> "
                                             "capacity:%" PRIuMAX ", "
                                             "count:%" PRIuMAX ", "
                                             "load:%lf, "
-                                            "key_cmp:%p, "
-                                            "val_cmp:%p, "
-                                            "key_hash:%p, "
-                                            "val_hash:%p, "
+                                            "flag:%d, "
+                                            "f_key:%p, "
+                                            "f_val:%p, "
                                             "alloc:%p, "
                                             "callbacks:%p }";
 
@@ -191,29 +205,27 @@ struct cmc_callbacks_bidimap
         /* Load factor in range (0.0, 1.0) */                               \
         double load;                                                        \
                                                                             \
-        /* Key comparison function */                                       \
-        int (*key_cmp)(K, K);                                               \
+        /* Flags indicating errors or success */                            \
+        int flag;                                                           \
                                                                             \
-        /* Value comparison function */                                     \
-        int (*val_cmp)(V, V);                                               \
+        /* Key function table */                                            \
+        struct SNAME##_ftab_key *f_key;                                     \
                                                                             \
-        /* Key hash function */                                             \
-        size_t (*key_hash)(K);                                              \
-                                                                            \
-        /* Value hash function */                                           \
-        size_t (*val_hash)(V);                                              \
-                                                                            \
-        /* Function that returns an iterator to the start of the bidimap */ \
-        struct SNAME##_iter (*it_start)(struct SNAME *);                    \
-                                                                            \
-        /* Function that returns an iterator to the end of the bidimap */   \
-        struct SNAME##_iter (*it_end)(struct SNAME *);                      \
+        /* Value function table */                                          \
+        struct SNAME##_ftab_val *f_val;                                     \
                                                                             \
         /* Custom allocation functions */                                   \
         struct cmc_alloc_node *alloc;                                       \
                                                                             \
         /* Custom callback functions */                                     \
         struct cmc_callbacks_bidimap *callbacks;                            \
+                                                                            \
+        /* Methods */                                                       \
+        /* Function that returns an iterator to the start of the bidimap */ \
+        struct SNAME##_iter (*it_start)(struct SNAME *);                    \
+                                                                            \
+        /* Function that returns an iterator to the end of the bidimap */   \
+        struct SNAME##_iter (*it_end)(struct SNAME *);                      \
     };                                                                      \
                                                                             \
     /* BidiMap Entry */                                                     \
@@ -232,6 +244,50 @@ struct cmc_callbacks_bidimap
         /* The distance of this node to its original position, used by */   \
         /* robin-hood hashing relative to the value_buffer */               \
         size_t val_dist;                                                    \
+    };                                                                      \
+                                                                            \
+    /* Key struct function table */                                         \
+    struct SNAME##_ftab_key                                                 \
+    {                                                                       \
+        /* Comparator function */                                           \
+        int (*cmp)(K, K);                                                   \
+                                                                            \
+        /* Copy function */                                                 \
+        K (*cpy)(K);                                                        \
+                                                                            \
+        /* To string function */                                            \
+        bool (*str)(FILE *, K);                                             \
+                                                                            \
+        /* Free from memory function */                                     \
+        void (*free)(K);                                                    \
+                                                                            \
+        /* Hash function */                                                 \
+        size_t (*hash)(K);                                                  \
+                                                                            \
+        /* Priority function */                                             \
+        int (*pri)(K, K);                                                   \
+    };                                                                      \
+                                                                            \
+    /* Value struct function table */                                       \
+    struct SNAME##_ftab_val                                                 \
+    {                                                                       \
+        /* Comparator function */                                           \
+        int (*cmp)(V, V);                                                   \
+                                                                            \
+        /* Copy function */                                                 \
+        K (*cpy)(V);                                                        \
+                                                                            \
+        /* To string function */                                            \
+        bool (*str)(FILE *, V);                                             \
+                                                                            \
+        /* Free from memory function */                                     \
+        void (*free)(V);                                                    \
+                                                                            \
+        /* Hash function */                                                 \
+        size_t (*hash)(V);                                                  \
+                                                                            \
+        /* Priority function */                                             \
+        int (*pri)(V, V);                                                   \
     };                                                                      \
                                                                             \
     /* BidiMap Iterator */                                                  \
@@ -262,15 +318,14 @@ struct cmc_callbacks_bidimap
     /* Collection Functions */                                              \
     /* Collection Allocation and Deallocation */                            \
     struct SNAME *PFX##_new(size_t capacity, double load,                   \
-                            int (*key_cmp)(K, K), size_t (*key_hash)(K),    \
-                            int (*val_cmp)(V, V), size_t (*val_hash)(V));   \
+                            struct SNAME##_ftab_key *f_key,                 \
+                            struct SNAME##_ftab_val *f_val);                \
     struct SNAME *PFX##_new_custom(                                         \
-        size_t capacity, double load, int (*key_cmp)(K, K),                 \
-        size_t (*key_hash)(K), int (*val_cmp)(V, V), size_t (*val_hash)(V), \
-        struct cmc_alloc_node *alloc,                                       \
+        size_t capacity, double load, struct SNAME##_ftab_key *f_key,       \
+        struct SNAME##_ftab_val *f_val, struct cmc_alloc_node *alloc,       \
         struct cmc_callbacks_bidimap *callbacks);                           \
-    void PFX##_clear(struct SNAME *_map_, void (*deallocator)(K, V));       \
-    void PFX##_free(struct SNAME *_map_, void (*deallocator)(K, V));        \
+    void PFX##_clear(struct SNAME *_map_);                                  \
+    void PFX##_free(struct SNAME *_map_);                                   \
     /* Customization of Allocation and Callbacks */                         \
     void PFX##_customize(struct SNAME *_map_, struct cmc_alloc_node *alloc, \
                          struct cmc_callbacks_bidimap *callbacks);          \
@@ -297,10 +352,10 @@ struct cmc_callbacks_bidimap
     double PFX##_load(struct SNAME *_map_);                                 \
     /* Collection Utility */                                                \
     bool PFX##_resize(struct SNAME *_map_, size_t capacity);                \
-    struct SNAME *PFX##_copy_of(struct SNAME *_map_, K (*key_copy_func)(K), \
-                                V (*value_copy_func)(V));                   \
+    struct SNAME *PFX##_copy_of(struct SNAME *_map_);                       \
     bool PFX##_equals(struct SNAME *_map1_, struct SNAME *_map2_);          \
     struct cmc_string PFX##_to_string(struct SNAME *_map_);                 \
+    bool PFX##_print(struct SNAME *_map_, FILE *fptr);                      \
                                                                             \
     /* Iterator Functions */                                                \
     /* Iterator Allocation and Deallocation */                              \
@@ -345,8 +400,8 @@ struct cmc_callbacks_bidimap
     static struct SNAME##_iter PFX##_impl_it_end(struct SNAME *_map_);         \
                                                                                \
     struct SNAME *PFX##_new(size_t capacity, double load,                      \
-                            int (*key_cmp)(K, K), size_t (*key_hash)(K),       \
-                            int (*val_cmp)(V, V), size_t (*val_hash)(V))       \
+                            struct SNAME##_ftab_key *f_key,                    \
+                            struct SNAME##_ftab_val *f_val)                    \
     {                                                                          \
         struct cmc_alloc_node *alloc = &cmc_alloc_node_default;                \
                                                                                \
@@ -380,24 +435,21 @@ struct cmc_callbacks_bidimap
         _map_->count = 0;                                                      \
         _map_->capacity = real_capacity;                                       \
         _map_->load = load;                                                    \
-        _map_->key_cmp = key_cmp;                                              \
-        _map_->val_cmp = val_cmp;                                              \
-        _map_->key_hash = key_hash;                                            \
-        _map_->val_hash = val_hash;                                            \
-                                                                               \
-        _map_->it_start = PFX##_impl_it_start;                                 \
-        _map_->it_end = PFX##_impl_it_end;                                     \
-                                                                               \
+        _map_->flag = cmc_flags.OK;                                            \
+        _map_->f_key = f_key;                                                  \
+        _map_->f_val = f_val;                                                  \
         _map_->alloc = alloc;                                                  \
         _map_->callbacks = NULL;                                               \
+        _map_->it_start = PFX##_impl_it_start;                                 \
+        _map_->it_end = PFX##_impl_it_end;                                     \
                                                                                \
         return _map_;                                                          \
     }                                                                          \
                                                                                \
     struct SNAME *PFX##_new_custom(                                            \
-        size_t capacity, double load, int (*key_cmp)(K, K),                    \
-        size_t (*key_hash)(K), int (*val_cmp)(V, V), size_t (*val_hash)(V),    \
-        struct cmc_alloc_node *alloc, struct cmc_callbacks_bidimap *callbacks) \
+        size_t capacity, double load, struct SNAME##_ftab_key *f_key,          \
+        struct SNAME##_ftab_val *f_val, struct cmc_alloc_node *alloc,          \
+        struct cmc_callbacks_bidimap *callbacks)                               \
     {                                                                          \
         if (capacity == 0 || load <= 0 || load >= 1)                           \
             return NULL;                                                       \
@@ -432,21 +484,18 @@ struct cmc_callbacks_bidimap
         _map_->count = 0;                                                      \
         _map_->capacity = real_capacity;                                       \
         _map_->load = load;                                                    \
-        _map_->key_cmp = key_cmp;                                              \
-        _map_->val_cmp = val_cmp;                                              \
-        _map_->key_hash = key_hash;                                            \
-        _map_->val_hash = val_hash;                                            \
-                                                                               \
-        _map_->it_start = PFX##_impl_it_start;                                 \
-        _map_->it_end = PFX##_impl_it_end;                                     \
-                                                                               \
+        _map_->f_key = f_key;                                                  \
+        _map_->f_val = f_val;                                                  \
+        _map_->flag = cmc_flags.OK;                                            \
         _map_->alloc = alloc;                                                  \
         _map_->callbacks = callbacks;                                          \
+        _map_->it_start = PFX##_impl_it_start;                                 \
+        _map_->it_end = PFX##_impl_it_end;                                     \
                                                                                \
         return _map_;                                                          \
     }                                                                          \
                                                                                \
-    void PFX##_clear(struct SNAME *_map_, void (*deallocator)(K, V))           \
+    void PFX##_clear(struct SNAME *_map_)                                      \
     {                                                                          \
         for (size_t i = 0; i < _map_->capacity; i++)                           \
         {                                                                      \
@@ -454,8 +503,10 @@ struct cmc_callbacks_bidimap
                                                                                \
             if (entry && entry != CMC_ENTRY_DELETED)                           \
             {                                                                  \
-                if (deallocator)                                               \
-                    deallocator(entry->key, entry->value);                     \
+                if (_map_->f_key->free)                                        \
+                    _map_->f_key->free(entry->key);                            \
+                if (_map_->f_val->free)                                        \
+                    _map_->f_val->free(entry->value);                          \
                                                                                \
                 _map_->alloc->free(entry);                                     \
             }                                                                  \
@@ -465,11 +516,12 @@ struct cmc_callbacks_bidimap
         }                                                                      \
                                                                                \
         _map_->count = 0;                                                      \
+        _map_->flag = cmc_flags.OK;                                            \
     }                                                                          \
                                                                                \
-    void PFX##_free(struct SNAME *_map_, void (*deallocator)(K, V))            \
+    void PFX##_free(struct SNAME *_map_)                                       \
     {                                                                          \
-        PFX##_clear(_map_, deallocator);                                       \
+        PFX##_clear(_map_);                                                    \
                                                                                \
         _map_->alloc->free(_map_->key_buffer);                                 \
         _map_->alloc->free(_map_->val_buffer);                                 \
@@ -484,6 +536,8 @@ struct cmc_callbacks_bidimap
                                                                                \
         if (callbacks)                                                         \
             _map_->callbacks = callbacks;                                      \
+                                                                               \
+        _map_->flag = cmc_flags.OK;                                            \
     }                                                                          \
                                                                                \
     bool PFX##_insert(struct SNAME *_map_, K key, V value)                     \
@@ -496,7 +550,11 @@ struct cmc_callbacks_bidimap
                                                                                \
         if (PFX##_impl_get_entry_by_key(_map_, key) != NULL ||                 \
             PFX##_impl_get_entry_by_val(_map_, value) != NULL)                 \
+        {                                                                      \
+            _map_->flag = cmc_flags.DUPLICATE;                                 \
+                                                                               \
             return false;                                                      \
+        }                                                                      \
                                                                                \
         struct SNAME##_entry *entry = PFX##_impl_new_entry(_map_, key, value); \
                                                                                \
@@ -514,10 +572,13 @@ struct cmc_callbacks_bidimap
                                                                                \
             _map_->alloc->free(entry);                                         \
                                                                                \
+            _map_->flag = cmc_flags.ERROR;                                     \
+                                                                               \
             return false;                                                      \
         }                                                                      \
                                                                                \
         _map_->count++;                                                        \
+        _map_->flag = cmc_flags.OK;                                            \
                                                                                \
         return true;                                                           \
     }                                                                          \
@@ -525,16 +586,25 @@ struct cmc_callbacks_bidimap
     bool PFX##_update_key(struct SNAME *_map_, K key, K new_key)               \
     {                                                                          \
         if (PFX##_empty(_map_))                                                \
+        {                                                                      \
+            _map_->flag = cmc_flags.EMPTY;                                     \
             return false;                                                      \
+        }                                                                      \
                                                                                \
         struct SNAME##_entry **entry =                                         \
             PFX##_impl_get_entry_by_key(_map_, key);                           \
                                                                                \
         if (!entry)                                                            \
+        {                                                                      \
+            _map_->flag = cmc_flags.NOT_FOUND;                                 \
             return false;                                                      \
+        }                                                                      \
                                                                                \
-        if (PFX##_contains_key(_map_, new_key))                                \
+        if (PFX##_impl_get_entry_by_key(_map_, new_key) != NULL)               \
+        {                                                                      \
+            _map_->flag = cmc_flags.DUPLICATE;                                 \
             return false;                                                      \
+        }                                                                      \
                                                                                \
         struct SNAME##_entry *to_add = *entry;                                 \
         K tmp_key = to_add->key;                                               \
@@ -547,8 +617,11 @@ struct cmc_callbacks_bidimap
             to_add->key = tmp_key;                                             \
             *entry = to_add;                                                   \
                                                                                \
+            _map_->flag = cmc_flags.ERROR;                                     \
             return false;                                                      \
         }                                                                      \
+                                                                               \
+        _map_->flag = cmc_flags.OK;                                            \
                                                                                \
         return true;                                                           \
     }                                                                          \
@@ -556,16 +629,25 @@ struct cmc_callbacks_bidimap
     bool PFX##_update_key_by_val(struct SNAME *_map_, V val, K new_key)        \
     {                                                                          \
         if (PFX##_empty(_map_))                                                \
+        {                                                                      \
+            _map_->flag = cmc_flags.EMPTY;                                     \
             return false;                                                      \
+        }                                                                      \
                                                                                \
         struct SNAME##_entry **entry =                                         \
             PFX##_impl_get_entry_by_val(_map_, val);                           \
                                                                                \
         if (!entry)                                                            \
+        {                                                                      \
+            _map_->flag = cmc_flags.NOT_FOUND;                                 \
             return false;                                                      \
+        }                                                                      \
                                                                                \
-        if (PFX##_contains_key(_map_, new_key))                                \
+        if (PFX##_impl_get_entry_by_key(_map_, new_key) != NULL)               \
+        {                                                                      \
+            _map_->flag = cmc_flags.DUPLICATE;                                 \
             return false;                                                      \
+        }                                                                      \
                                                                                \
         struct SNAME##_entry *to_add = *entry;                                 \
         K tmp_key = to_add->key;                                               \
@@ -578,8 +660,11 @@ struct cmc_callbacks_bidimap
             to_add->key = tmp_key;                                             \
             *entry = to_add;                                                   \
                                                                                \
+            _map_->flag = cmc_flags.ERROR;                                     \
             return false;                                                      \
         }                                                                      \
+                                                                               \
+        _map_->flag = cmc_flags.OK;                                            \
                                                                                \
         return true;                                                           \
     }                                                                          \
@@ -587,16 +672,25 @@ struct cmc_callbacks_bidimap
     bool PFX##_update_val(struct SNAME *_map_, V val, V new_val)               \
     {                                                                          \
         if (PFX##_empty(_map_))                                                \
+        {                                                                      \
+            _map_->flag = cmc_flags.EMPTY;                                     \
             return false;                                                      \
+        }                                                                      \
                                                                                \
         struct SNAME##_entry **entry =                                         \
             PFX##_impl_get_entry_by_val(_map_, val);                           \
                                                                                \
         if (!entry)                                                            \
+        {                                                                      \
+            _map_->flag = cmc_flags.NOT_FOUND;                                 \
             return false;                                                      \
+        }                                                                      \
                                                                                \
-        if (PFX##_contains_val(_map_, new_val))                                \
+        if (PFX##_impl_get_entry_by_val(_map_, new_val) != NULL)               \
+        {                                                                      \
+            _map_->flag = cmc_flags.DUPLICATE;                                 \
             return false;                                                      \
+        }                                                                      \
                                                                                \
         struct SNAME##_entry *to_add = *entry;                                 \
         V tmp_val = to_add->value;                                             \
@@ -609,8 +703,11 @@ struct cmc_callbacks_bidimap
             to_add->value = tmp_val;                                           \
             *entry = to_add;                                                   \
                                                                                \
+            _map_->flag = cmc_flags.ERROR;                                     \
             return false;                                                      \
         }                                                                      \
+                                                                               \
+        _map_->flag = cmc_flags.OK;                                            \
                                                                                \
         return true;                                                           \
     }                                                                          \
@@ -618,16 +715,25 @@ struct cmc_callbacks_bidimap
     bool PFX##_update_val_by_key(struct SNAME *_map_, K key, V new_val)        \
     {                                                                          \
         if (PFX##_empty(_map_))                                                \
+        {                                                                      \
+            _map_->flag = cmc_flags.EMPTY;                                     \
             return false;                                                      \
+        }                                                                      \
                                                                                \
         struct SNAME##_entry **entry =                                         \
             PFX##_impl_get_entry_by_key(_map_, key);                           \
                                                                                \
         if (!entry)                                                            \
+        {                                                                      \
+            _map_->flag = cmc_flags.NOT_FOUND;                                 \
             return false;                                                      \
+        }                                                                      \
                                                                                \
-        if (PFX##_contains_val(_map_, new_val))                                \
+        if (PFX##_impl_get_entry_by_val(_map_, new_val) != NULL)               \
+        {                                                                      \
+            _map_->flag = cmc_flags.DUPLICATE;                                 \
             return false;                                                      \
+        }                                                                      \
                                                                                \
         struct SNAME##_entry *to_add = *entry;                                 \
         V tmp_val = to_add->value;                                             \
@@ -640,8 +746,11 @@ struct cmc_callbacks_bidimap
             to_add->value = tmp_val;                                           \
             *entry = to_add;                                                   \
                                                                                \
+            _map_->flag = cmc_flags.ERROR;                                     \
             return false;                                                      \
         }                                                                      \
+                                                                               \
+        _map_->flag = cmc_flags.OK;                                            \
                                                                                \
         return true;                                                           \
     }                                                                          \
@@ -650,22 +759,34 @@ struct cmc_callbacks_bidimap
                              V *out_val)                                       \
     {                                                                          \
         if (PFX##_empty(_map_))                                                \
+        {                                                                      \
+            _map_->flag = cmc_flags.EMPTY;                                     \
             return false;                                                      \
+        }                                                                      \
                                                                                \
         struct SNAME##_entry **key_entry, **val_entry;                         \
                                                                                \
         key_entry = PFX##_impl_get_entry_by_key(_map_, key);                   \
                                                                                \
         if (!key_entry)                                                        \
+        {                                                                      \
+            _map_->flag = cmc_flags.NOT_FOUND;                                 \
             return false;                                                      \
+        }                                                                      \
                                                                                \
         val_entry = PFX##_impl_get_entry_by_val(_map_, (*key_entry)->value);   \
                                                                                \
         if (!val_entry)                                                        \
+        {                                                                      \
+            _map_->flag = cmc_flags.ERROR;                                     \
             return false;                                                      \
+        }                                                                      \
                                                                                \
         if (*val_entry != *key_entry)                                          \
+        {                                                                      \
+            _map_->flag = cmc_flags.ERROR;                                     \
             return false;                                                      \
+        }                                                                      \
                                                                                \
         if (out_key)                                                           \
             *out_key = (*key_entry)->key;                                      \
@@ -678,6 +799,7 @@ struct cmc_callbacks_bidimap
         *val_entry = CMC_ENTRY_DELETED;                                        \
                                                                                \
         _map_->count--;                                                        \
+        _map_->flag = cmc_flags.OK;                                            \
                                                                                \
         return true;                                                           \
     }                                                                          \
@@ -686,22 +808,34 @@ struct cmc_callbacks_bidimap
                              V *out_val)                                       \
     {                                                                          \
         if (PFX##_empty(_map_))                                                \
+        {                                                                      \
+            _map_->flag = cmc_flags.EMPTY;                                     \
             return false;                                                      \
+        }                                                                      \
                                                                                \
         struct SNAME##_entry **key_entry, **val_entry;                         \
                                                                                \
         val_entry = PFX##_impl_get_entry_by_val(_map_, val);                   \
                                                                                \
         if (!val_entry)                                                        \
+        {                                                                      \
+            _map_->flag = cmc_flags.NOT_FOUND;                                 \
             return false;                                                      \
+        }                                                                      \
                                                                                \
         key_entry = PFX##_impl_get_entry_by_key(_map_, (*val_entry)->key);     \
                                                                                \
         if (!key_entry)                                                        \
+        {                                                                      \
+            _map_->flag = cmc_flags.ERROR;                                     \
             return false;                                                      \
+        }                                                                      \
                                                                                \
         if (*val_entry != *key_entry)                                          \
+        {                                                                      \
+            _map_->flag = cmc_flags.ERROR;                                     \
             return false;                                                      \
+        }                                                                      \
                                                                                \
         if (out_key)                                                           \
             *out_key = (*val_entry)->key;                                      \
@@ -714,6 +848,7 @@ struct cmc_callbacks_bidimap
         *val_entry = CMC_ENTRY_DELETED;                                        \
                                                                                \
         _map_->count--;                                                        \
+        _map_->flag = cmc_flags.OK;                                            \
                                                                                \
         return true;                                                           \
     }                                                                          \
@@ -724,7 +859,10 @@ struct cmc_callbacks_bidimap
             PFX##_impl_get_entry_by_val(_map_, val);                           \
                                                                                \
         if (!entry)                                                            \
+        {                                                                      \
+            _map_->flag = cmc_flags.NOT_FOUND;                                 \
             return (V){ 0 };                                                   \
+        }                                                                      \
                                                                                \
         return (*entry)->key;                                                  \
     }                                                                          \
@@ -735,7 +873,10 @@ struct cmc_callbacks_bidimap
             PFX##_impl_get_entry_by_key(_map_, key);                           \
                                                                                \
         if (!entry)                                                            \
+        {                                                                      \
+            _map_->flag = cmc_flags.NOT_FOUND;                                 \
             return (V){ 0 };                                                   \
+        }                                                                      \
                                                                                \
         return (*entry)->value;                                                \
     }                                                                          \
@@ -786,21 +927,33 @@ struct cmc_callbacks_bidimap
                                                                                \
         /* Prevent integer overflow */                                         \
         if (capacity >= UINTMAX_MAX * PFX##_load(_map_))                       \
+        {                                                                      \
+            _map_->flag = cmc_flags.ERROR;                                     \
+                                                                               \
             return false;                                                      \
+        }                                                                      \
                                                                                \
         /* Calculate required capacity based on the prime numbers */           \
         size_t new_cap = PFX##_impl_calculate_size(capacity);                  \
                                                                                \
         /* Not possible to shrink with current available prime numbers */      \
         if (new_cap < PFX##_count(_map_) / PFX##_load(_map_))                  \
-            return false;                                                      \
+        {                                                                      \
+            _map_->flag = cmc_flags.ERROR;                                     \
                                                                                \
-        struct SNAME *_new_map_ = PFX##_new_custom(                            \
-            capacity, PFX##_load(_map_), _map_->key_cmp, _map_->key_hash,      \
-            _map_->val_cmp, _map_->val_hash, _map_->alloc, _map_->callbacks);  \
+            return false;                                                      \
+        }                                                                      \
+                                                                               \
+        struct SNAME *_new_map_ =                                              \
+            PFX##_new_custom(capacity, PFX##_load(_map_), _map_->f_key,        \
+                             _map_->f_val, _map_->alloc, _map_->callbacks);    \
                                                                                \
         if (!_new_map_)                                                        \
+        {                                                                      \
+            _map_->flag = cmc_flags.ALLOC;                                     \
+                                                                               \
             return false;                                                      \
+        }                                                                      \
                                                                                \
         for (size_t i = 0; i < _map_->capacity; i++)                           \
         {                                                                      \
@@ -819,6 +972,8 @@ struct cmc_callbacks_bidimap
                     _map_->alloc->free(_new_map_->val_buffer);                 \
                     _map_->alloc->free(_new_map_);                             \
                                                                                \
+                    _map_->flag = cmc_flags.ERROR;                             \
+                                                                               \
                     return false;                                              \
                 }                                                              \
                                                                                \
@@ -831,6 +986,8 @@ struct cmc_callbacks_bidimap
             _map_->alloc->free(_new_map_->key_buffer);                         \
             _map_->alloc->free(_new_map_->val_buffer);                         \
             _map_->alloc->free(_new_map_);                                     \
+                                                                               \
+            _map_->flag = cmc_flags.ERROR;                                     \
                                                                                \
             return false;                                                      \
         }                                                                      \
@@ -849,14 +1006,12 @@ struct cmc_callbacks_bidimap
         return true;                                                           \
     }                                                                          \
                                                                                \
-    struct SNAME *PFX##_copy_of(struct SNAME *_map_, K (*key_copy_func)(K),    \
-                                V (*value_copy_func)(V))                       \
+    struct SNAME *PFX##_copy_of(struct SNAME *_map_)                           \
     {                                                                          \
         /* TODO this function can be optimized */                              \
-        struct SNAME *result =                                                 \
-            PFX##_new_custom(PFX##_capacity(_map_), PFX##_load(_map_),         \
-                             _map_->key_cmp, _map_->key_hash, _map_->val_cmp,  \
-                             _map_->val_hash, _map_->alloc, _map_->callbacks); \
+        struct SNAME *result = PFX##_new_custom(                               \
+            PFX##_capacity(_map_), PFX##_load(_map_), _map_->f_key,            \
+            _map_->f_val, _map_->alloc, _map_->callbacks);                     \
                                                                                \
         for (size_t i = 0; i < _map_->capacity; i++)                           \
         {                                                                      \
@@ -867,16 +1022,17 @@ struct cmc_callbacks_bidimap
                 K tmp_key;                                                     \
                 V tmp_val;                                                     \
                                                                                \
-                if (key_copy_func)                                             \
-                    tmp_key = key_copy_func(scan->key);                        \
+                if (_map_->f_key->cpy)                                         \
+                    tmp_key = _map_->f_key->cpy(scan->key);                    \
                 else                                                           \
                     tmp_key = scan->key;                                       \
                                                                                \
-                if (value_copy_func)                                           \
-                    tmp_val = value_copy_func(scan->value);                    \
+                if (_map_->f_val->cpy)                                         \
+                    tmp_val = _map_->f_val->cpy(scan->value);                  \
                 else                                                           \
                     tmp_val = scan->value;                                     \
                                                                                \
+                /* TODO should this be checked for failures? */                \
                 PFX##_insert(result, tmp_key, tmp_val);                        \
             }                                                                  \
         }                                                                      \
@@ -915,7 +1071,7 @@ struct cmc_callbacks_bidimap
                 if (!entry_B)                                                  \
                     return false;                                              \
                                                                                \
-                if (_mapA_->val_cmp((*entry_B)->value, scan->value) != 0)      \
+                if (_mapA_->f_val->cmp((*entry_B)->value, scan->value) != 0)   \
                     return false;                                              \
             }                                                                  \
         }                                                                      \
@@ -928,18 +1084,29 @@ struct cmc_callbacks_bidimap
         struct cmc_string str;                                                 \
         struct SNAME *m_ = _map_;                                              \
                                                                                \
-        int n =                                                                \
-            snprintf(str.s, cmc_string_len, cmc_string_fmt_bidimap, #SNAME,    \
-                     #K, #V, m_, m_->key_buffer, m_->val_buffer, m_->capacity, \
-                     m_->count, m_->load, m_->key_cmp, m_->val_cmp,            \
-                     m_->key_hash, m_->val_hash, m_->alloc, m_->callbacks);    \
+        int n = snprintf(str.s, cmc_string_len, cmc_string_fmt_bidimap,        \
+                         #SNAME, #K, #V, m_, m_->key_buffer, m_->val_buffer,   \
+                         m_->capacity, m_->count, m_->load, m_->f_key,         \
+                         m_->f_val, m_->alloc, m_->callbacks);                 \
                                                                                \
-        if (n < 0 || n == (int)cmc_string_len)                                 \
-            return (struct cmc_string){ 0 };                                   \
+        return n >= 0 ? str : (struct cmc_string){ 0 };                        \
+    }                                                                          \
                                                                                \
-        str.s[n] = '\0';                                                       \
+    bool PFX##_print(struct SNAME *_map_, FILE *fptr)                          \
+    {                                                                          \
+        for (size_t i = 0; i < _map_->capacity; i++)                           \
+        {                                                                      \
+            struct SNAME##_entry *target = _map_->key_buffer[i];               \
                                                                                \
-        return str;                                                            \
+            if (target && target != CMC_ENTRY_DELETED)                         \
+            {                                                                  \
+                if (!_map_->f_key->str(fptr, target->key) ||                   \
+                    !_map_->f_val->str(fptr, target->value))                   \
+                    return false;                                              \
+            }                                                                  \
+        }                                                                      \
+                                                                               \
+        return true;                                                           \
     }                                                                          \
                                                                                \
     struct SNAME##_iter *PFX##_iter_new(struct SNAME *target)                  \
@@ -1184,7 +1351,7 @@ struct cmc_callbacks_bidimap
     static struct SNAME##_entry **PFX##_impl_get_entry_by_key(                 \
         struct SNAME *_map_, K key)                                            \
     {                                                                          \
-        size_t hash = _map_->key_hash(key);                                    \
+        size_t hash = _map_->f_key->hash(key);                                 \
         size_t pos = hash % _map_->capacity;                                   \
                                                                                \
         struct SNAME##_entry *target = _map_->key_buffer[pos];                 \
@@ -1192,7 +1359,7 @@ struct cmc_callbacks_bidimap
         while (target != NULL)                                                 \
         {                                                                      \
             if (target != CMC_ENTRY_DELETED &&                                 \
-                _map_->key_cmp(target->key, key) == 0)                         \
+                _map_->f_key->cmp(target->key, key) == 0)                      \
                 return &(_map_->key_buffer[pos % _map_->capacity]);            \
                                                                                \
             pos++;                                                             \
@@ -1205,7 +1372,7 @@ struct cmc_callbacks_bidimap
     static struct SNAME##_entry **PFX##_impl_get_entry_by_val(                 \
         struct SNAME *_map_, V val)                                            \
     {                                                                          \
-        size_t hash = _map_->val_hash(val);                                    \
+        size_t hash = _map_->f_val->hash(val);                                 \
         size_t pos = hash % _map_->capacity;                                   \
                                                                                \
         struct SNAME##_entry *target = _map_->val_buffer[pos];                 \
@@ -1213,7 +1380,7 @@ struct cmc_callbacks_bidimap
         while (target != NULL)                                                 \
         {                                                                      \
             if (target != CMC_ENTRY_DELETED &&                                 \
-                _map_->val_cmp(target->value, val) == 0)                       \
+                _map_->f_val->cmp(target->value, val) == 0)                    \
                 return &(_map_->val_buffer[pos % _map_->capacity]);            \
                                                                                \
             pos++;                                                             \
@@ -1228,7 +1395,7 @@ struct cmc_callbacks_bidimap
     {                                                                          \
         struct SNAME##_entry **to_return = NULL;                               \
                                                                                \
-        size_t hash = _map_->key_hash(entry->key);                             \
+        size_t hash = _map_->f_key->hash(entry->key);                          \
         size_t original_pos = hash % _map_->capacity;                          \
         size_t pos = original_pos;                                             \
                                                                                \
@@ -1282,7 +1449,7 @@ struct cmc_callbacks_bidimap
     {                                                                          \
         struct SNAME##_entry **to_return = NULL;                               \
                                                                                \
-        size_t hash = _map_->val_hash(entry->value);                           \
+        size_t hash = _map_->f_val->hash(entry->value);                        \
         size_t original_pos = hash % _map_->capacity;                          \
         size_t pos = original_pos;                                             \
                                                                                \

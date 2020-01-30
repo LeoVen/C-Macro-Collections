@@ -3,11 +3,28 @@
 #define CMC_UNIT_TEST_UTL__
 
 #include <stdlib.h>
+#include <inttypes.h>
 #include <cmc/hashmap.h>
 
 int cmp(size_t a, size_t b)
 {
     return (a > b) - (a < b);
+}
+
+size_t copy(size_t a)
+{
+    return a;
+}
+
+bool to_string(FILE *fptr, size_t a)
+{
+    return fprintf(fptr, "%" PRIuMAX " ", a) > 0;
+}
+
+void custom_free(size_t a)
+{
+    // blank
+    // Free any resources if necessary
 }
 
 size_t hash(size_t a)
@@ -19,6 +36,12 @@ size_t hash(size_t a)
     a += ~(a << 11);
     a ^= (a >> 16);
     return a;
+}
+
+int priority(size_t a, size_t b)
+{
+    // Could contain different logic
+    return cmp(a, b);
 }
 
 size_t numhash(size_t a)

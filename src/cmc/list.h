@@ -73,16 +73,31 @@ static const size_t cmc_string_len = 400;
  * Custom allocation node. Allows collections to use custom allocation
  * functions.
  */
-struct cmc_alloc_node
+static struct cmc_alloc_node
 {
     void *(*malloc)(size_t);
     void *(*calloc)(size_t, size_t);
     void *(*realloc)(void *, size_t);
     void (*free)(void *);
-};
+} cmc_alloc_node_default = { malloc, calloc, realloc, free };
 
-static struct cmc_alloc_node cmc_alloc_node_default = { malloc, calloc, realloc,
-                                                        free };
+/**
+ * enum cmc_flags
+ *
+ * Defines common error codes used by all collections. These are flags that
+ * indicate if something went wrong in the last operation by the collection.
+ */
+static struct
+{
+    int OK;    // Everything went as expected
+    int ALLOC; // Allocation failed
+    int EMPTY; // The collection is empty and the operation could not proceed
+    int NOT_FOUND;    // Key or value not found
+    int INVALID;      // Something is invalid
+    int OUT_OF_RANGE; // Index out of array range
+    int DUPLICATE;    // Duplicate key or value
+    int ERROR;        // Generic error, usually caused by unexpected behaviour
+} cmc_flags = { 0, 1, 2, 3, 4, 5, 6, 7 };
 
 #endif /* CMC_CORE_H */
 
@@ -175,7 +190,6 @@ struct cmc_callbacks_list
     struct SNAME *PFX##_new_custom(size_t capacity,                            \
                                    struct cmc_alloc_node *alloc,               \
                                    struct cmc_callbacks_list *callbacks);      \
-    struct SNAME *PFX##_new_from(V *elements, size_t size);                    \
     void PFX##_clear(struct SNAME *_list_, void (*deallocator)(V));            \
     void PFX##_free(struct SNAME *_list_, void (*deallocator)(V));             \
     /* Customization of Allocation and Callbacks */                            \
@@ -316,23 +330,6 @@ struct cmc_callbacks_list
         return _list_;                                                         \
     }                                                                          \
                                                                                \
-    struct SNAME *PFX##_new_from(V *elements, size_t size)                     \
-    {                                                                          \
-        if (size == 0)                                                         \
-            return NULL;                                                       \
-                                                                               \
-        struct SNAME *_list_ = PFX##_new(size + size / 2);                     \
-                                                                               \
-        if (!_list_)                                                           \
-            return NULL;                                                       \
-                                                                               \
-        memcpy(_list_->buffer, elements, size * sizeof(V));                    \
-                                                                               \
-        _list_->count = size;                                                  \
-                                                                               \
-        return _list_;                                                         \
-    }                                                                          \
-                                                                               \
     void PFX##_clear(struct SNAME *_list_, void (*deallocator)(V))             \
     {                                                                          \
         if (deallocator)                                                       \
@@ -428,7 +425,7 @@ struct cmc_callbacks_list
             return false;                                                      \
                                                                                \
         memmove(_list_->buffer, _list_->buffer + 1,                            \
-                _list_->count * sizeof(V));                                    \
+                (_list_->count - 1) * sizeof(V));                              \
                                                                                \
         _list_->buffer[--_list_->count] = (V){ 0 };                            \
                                                                                \
@@ -441,7 +438,7 @@ struct cmc_callbacks_list
             return false;                                                      \
                                                                                \
         memmove(_list_->buffer + index, _list_->buffer + index + 1,            \
-                (_list_->count - index) * sizeof(V));                          \
+                (_list_->count - index - 1) * sizeof(V));                      \
                                                                                \
         _list_->buffer[--_list_->count] = (V){ 0 };                            \
                                                                                \
