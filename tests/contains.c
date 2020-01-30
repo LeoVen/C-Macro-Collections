@@ -1,7 +1,7 @@
 #include "../src/macro_collections.h"
-#include <stdio.h>
 #include <assert.h>
 #include <stdbool.h>
+#include <stdio.h>
 
 int intcmp(int a, int b)
 {
@@ -51,9 +51,12 @@ int main(void)
     struct mmap *mm = mm_new(1000, 0.8, intcmp, inthash);
     struct mset *ms = ms_new(1000, 0.6, intcmp, inthash);
 
-    bool a[13] = {false, false, false, false, false, false, false, false, false, false, false, false, false},
-         b[13] = {false, false, false, false, false, false, false, false, false, false, false, false, false},
-         c[13] = {true, true, true, true, true, true, true, true, true, true, true, true, true};
+    bool a[13] = { false, false, false, false, false, false, false,
+                   false, false, false, false, false, false },
+         b[13] = { false, false, false, false, false, false, false,
+                   false, false, false, false, false, false },
+         c[13] = { true, true, true, true, true, true, true,
+                   true, true, true, true, true, true };
 
     b[0] = d_contains(d, 1, intcmp);
     b[1] = hm_contains(hm, 1);

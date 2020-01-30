@@ -186,7 +186,7 @@ CMC_CREATE_UNIT(stack_test, true, {
 
         cmc_assert(s_pop(s));
 
-        cmc_assert_equals(size_t, (size_t){0}, s_top(s));
+        cmc_assert_equals(size_t, (size_t){ 0 }, s_top(s));
 
         s_free(s, NULL);
     });
@@ -342,14 +342,16 @@ CMC_CREATE_UNIT(stack_test, true, {
 
         size_t total = 0;
 
-        for (struct stack_iter it = s->it_start(s); !s_iter_end(&it); s_iter_next(&it))
+        for (struct stack_iter it = s->it_start(s); !s_iter_end(&it);
+             s_iter_next(&it))
         {
             total += s_iter_value(&it);
         }
 
         cmc_assert_equals(size_t, 20100, total);
 
-        for (struct stack_iter it = s->it_end(s); !s_iter_start(&it); s_iter_prev(&it))
+        for (struct stack_iter it = s->it_end(s); !s_iter_start(&it);
+             s_iter_prev(&it))
         {
             total += s_iter_value(&it);
         }
@@ -397,12 +399,14 @@ CMC_CREATE_UNIT(stack_test, true, {
 
         size_t total = 0;
 
-        for (struct stack_iter it = s->it_start(s); !s_iter_end(&it); s_iter_next(&it))
+        for (struct stack_iter it = s->it_start(s); !s_iter_end(&it);
+             s_iter_next(&it))
         {
             total += s_iter_value(&it);
         }
 
-        for (struct stack_iter it = s->it_end(s); !s_iter_start(&it); s_iter_prev(&it))
+        for (struct stack_iter it = s->it_end(s); !s_iter_start(&it);
+             s_iter_prev(&it))
         {
             total += s_iter_value(&it);
         }
@@ -424,14 +428,16 @@ CMC_CREATE_UNIT(stack_test, true, {
 
         size_t total = 0;
 
-        for (struct stack_iter it = s->it_start(s); !s_iter_end(&it); s_iter_next(&it))
+        for (struct stack_iter it = s->it_start(s); !s_iter_end(&it);
+             s_iter_next(&it))
         {
             total += s_iter_value(&it);
         }
 
         cmc_assert_equals(size_t, 1000, total);
 
-        for (struct stack_iter it = s->it_end(s); !s_iter_start(&it); s_iter_prev(&it))
+        for (struct stack_iter it = s->it_end(s); !s_iter_start(&it);
+             s_iter_prev(&it))
         {
             total += *s_iter_rvalue(&it);
         }
@@ -526,7 +532,7 @@ CMC_CREATE_UNIT(stack_test, true, {
 
         s_iter_init(&iter, s);
 
-        cmc_assert_equals(size_t, (size_t){0}, s_iter_value(&iter));
+        cmc_assert_equals(size_t, (size_t){ 0 }, s_iter_value(&iter));
 
         s_free(s, NULL);
     });
@@ -567,14 +573,16 @@ CMC_CREATE_UNIT(stack_test, true, {
             cmc_assert_equals(size_t, s_count(s) - 1, s_iter_index(&it));
         }
 
-        for (struct stack_iter it = s->it_start(s); !s_iter_end(&it); s_iter_next(&it))
+        for (struct stack_iter it = s->it_start(s); !s_iter_end(&it);
+             s_iter_next(&it))
         {
             total += s_iter_index(&it);
         }
 
         cmc_assert_equals(size_t, 45, total);
 
-        for (struct stack_iter it = s->it_end(s); !s_iter_start(&it); s_iter_prev(&it))
+        for (struct stack_iter it = s->it_end(s); !s_iter_start(&it);
+             s_iter_prev(&it))
         {
             total += s_iter_index(&it);
         }

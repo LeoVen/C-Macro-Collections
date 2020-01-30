@@ -1,7 +1,7 @@
 #include "../src/macro_collections.h"
+#include <assert.h>
 #include <stdio.h>
 #include <string.h>
-#include <assert.h>
 
 int intcmp(int a, int b)
 {
@@ -81,62 +81,42 @@ int main(void)
         assert(ms_insert(ms, i));
     }
 
-    int sums[16] = {0};
+    int sums[16] = { 0 };
 
-    CMC_FOR_EACH(d, deque, d, {
-        sums[0] += d_iter_value(&iter);
-    });
+    CMC_FOR_EACH(d, deque, d, { sums[0] += d_iter_value(&iter); });
 
     CMC_FOR_EACH(hm, hmap, hm, {
         sums[1] += hm_iter_key(&iter);
         sums[2] += hm_iter_value(&iter);
     });
 
-    CMC_FOR_EACH(hs, hset, hs, {
-        sums[3] += hs_iter_value(&iter);
-    });
+    CMC_FOR_EACH(hs, hset, hs, { sums[3] += hs_iter_value(&iter); });
 
-    CMC_FOR_EACH(h, heap, h, {
-        sums[4] += h_iter_value(&iter);
-    });
+    CMC_FOR_EACH(h, heap, h, { sums[4] += h_iter_value(&iter); });
 
-    CMC_FOR_EACH(ll, linked, ll, {
-        sums[5] += ll_iter_value(&iter);
-    });
+    CMC_FOR_EACH(ll, linked, ll, { sums[5] += ll_iter_value(&iter); });
 
-    CMC_FOR_EACH(l, list, l, {
-        sums[6] += l_iter_value(&iter);
-    });
+    CMC_FOR_EACH(l, list, l, { sums[6] += l_iter_value(&iter); });
 
-    CMC_FOR_EACH(q, queue, q, {
-        sums[7] += q_iter_value(&iter);
-    });
+    CMC_FOR_EACH(q, queue, q, { sums[7] += q_iter_value(&iter); });
 
-    CMC_FOR_EACH(s, stack, s, {
-        sums[8] += s_iter_value(&iter);
-    });
+    CMC_FOR_EACH(s, stack, s, { sums[8] += s_iter_value(&iter); });
 
     CMC_FOR_EACH(tm, tmap, tm, {
         sums[9] += tm_iter_key(&iter);
         sums[10] += tm_iter_value(&iter);
     });
 
-    CMC_FOR_EACH(ts, tset, ts, {
-        sums[11] += ts_iter_value(&iter);
-    });
+    CMC_FOR_EACH(ts, tset, ts, { sums[11] += ts_iter_value(&iter); });
 
-    CMC_FOR_EACH(ih, iheap, ih, {
-        sums[12] += ih_iter_value(&iter);
-    });
+    CMC_FOR_EACH(ih, iheap, ih, { sums[12] += ih_iter_value(&iter); });
 
     CMC_FOR_EACH(mm, mmap, mm, {
         sums[13] += mm_iter_key(&iter);
         sums[14] += mm_iter_value(&iter);
     });
 
-    CMC_FOR_EACH(ms, mset, ms, {
-        sums[15] += ms_iter_value(&iter);
-    });
+    CMC_FOR_EACH(ms, mset, ms, { sums[15] += ms_iter_value(&iter); });
 
     printf("\n-------------------- CMC_FOR_EACH --------------------\n");
     if (sums[0] == 50005000)
@@ -196,60 +176,40 @@ int main(void)
 
     memset(sums, 0, sizeof sums);
 
-    CMC_FOR_EACH_REV(d, deque, d, {
-        sums[0] += d_iter_value(&iter);
-    });
+    CMC_FOR_EACH_REV(d, deque, d, { sums[0] += d_iter_value(&iter); });
 
     CMC_FOR_EACH_REV(hm, hmap, hm, {
         sums[1] += hm_iter_key(&iter);
         sums[2] += hm_iter_value(&iter);
     });
 
-    CMC_FOR_EACH_REV(hs, hset, hs, {
-        sums[3] += hs_iter_value(&iter);
-    });
+    CMC_FOR_EACH_REV(hs, hset, hs, { sums[3] += hs_iter_value(&iter); });
 
-    CMC_FOR_EACH_REV(h, heap, h, {
-        sums[4] += h_iter_value(&iter);
-    });
+    CMC_FOR_EACH_REV(h, heap, h, { sums[4] += h_iter_value(&iter); });
 
-    CMC_FOR_EACH_REV(ll, linked, ll, {
-        sums[5] += ll_iter_value(&iter);
-    });
+    CMC_FOR_EACH_REV(ll, linked, ll, { sums[5] += ll_iter_value(&iter); });
 
-    CMC_FOR_EACH_REV(l, list, l, {
-        sums[6] += l_iter_value(&iter);
-    });
+    CMC_FOR_EACH_REV(l, list, l, { sums[6] += l_iter_value(&iter); });
 
-    CMC_FOR_EACH_REV(q, queue, q, {
-        sums[7] += q_iter_value(&iter);
-    });
+    CMC_FOR_EACH_REV(q, queue, q, { sums[7] += q_iter_value(&iter); });
 
-    CMC_FOR_EACH_REV(s, stack, s, {
-        sums[8] += s_iter_value(&iter);
-    });
+    CMC_FOR_EACH_REV(s, stack, s, { sums[8] += s_iter_value(&iter); });
 
     CMC_FOR_EACH_REV(tm, tmap, tm, {
         sums[9] += tm_iter_key(&iter);
         sums[10] += tm_iter_value(&iter);
     });
 
-    CMC_FOR_EACH_REV(ts, tset, ts, {
-        sums[11] += ts_iter_value(&iter);
-    });
+    CMC_FOR_EACH_REV(ts, tset, ts, { sums[11] += ts_iter_value(&iter); });
 
-    CMC_FOR_EACH_REV(ih, iheap, ih, {
-        sums[12] += ih_iter_value(&iter);
-    });
+    CMC_FOR_EACH_REV(ih, iheap, ih, { sums[12] += ih_iter_value(&iter); });
 
     CMC_FOR_EACH_REV(mm, mmap, mm, {
         sums[13] += mm_iter_key(&iter);
         sums[14] += mm_iter_value(&iter);
     });
 
-    CMC_FOR_EACH_REV(ms, mset, ms, {
-        sums[15] += ms_iter_value(&iter);
-    });
+    CMC_FOR_EACH_REV(ms, mset, ms, { sums[15] += ms_iter_value(&iter); });
 
     printf("-------------------- CMC_FOR_EACH_REV --------------------\n");
     if (sums[0] == 50005000)

@@ -2,9 +2,10 @@
 #ifndef CMC_UNIT_TEST_UTL__
 #define CMC_UNIT_TEST_UTL__
 
-#include <stdlib.h>
-#include <inttypes.h>
 #include <cmc/hashmap.h>
+#include <inttypes.h>
+#include <stdbool.h>
+#include <stdlib.h>
 
 int cmp(size_t a, size_t b)
 {
@@ -16,7 +17,7 @@ size_t copy(size_t a)
     return a;
 }
 
-bool to_string(FILE *fptr, size_t a)
+bool str(FILE *fptr, size_t a)
 {
     return fprintf(fptr, "%" PRIuMAX " ", a) > 0;
 }
@@ -38,7 +39,7 @@ size_t hash(size_t a)
     return a;
 }
 
-int priority(size_t a, size_t b)
+int pri(size_t a, size_t b)
 {
     // Could contain different logic
     return cmp(a, b);

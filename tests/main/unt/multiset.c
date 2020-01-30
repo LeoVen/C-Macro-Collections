@@ -14,7 +14,8 @@ CMC_CREATE_UNIT(multiset_test, true, {
         cmc_assert_not_equals(ptr, NULL, set);
         cmc_assert_not_equals(ptr, NULL, set->buffer);
         cmc_assert_equals(size_t, 0, ms_count(set));
-        cmc_assert_greater_equals(size_t, ((size_t)(943722 / 0.6)), ms_capacity(set));
+        cmc_assert_greater_equals(size_t, ((size_t)(943722 / 0.6)),
+                                  ms_capacity(set));
 
         ms_free(set, NULL);
     });

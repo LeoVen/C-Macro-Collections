@@ -74,7 +74,8 @@ CMC_CREATE_UNIT(queue_test, true, {
         }
 
         size_t sum = 0;
-        for (size_t i = q->front, j = 0; j < q->count; i = (i + 1) % q->capacity, j++)
+        for (size_t i = q->front, j = 0; j < q->count;
+             i = (i + 1) % q->capacity, j++)
             sum += q->buffer[i];
 
         cmc_assert_equals(size_t, 1200, q_count(q));
@@ -107,7 +108,8 @@ CMC_CREATE_UNIT(queue_test, true, {
 
         size_t sum = 0;
 
-        for (size_t i = q->front, j = 0; j < q->count; i = (i + 1) % q->capacity, j++)
+        for (size_t i = q->front, j = 0; j < q->count;
+             i = (i + 1) % q->capacity, j++)
         {
             sum += q->buffer[i];
         }
@@ -148,7 +150,8 @@ CMC_CREATE_UNIT(queue_test, true, {
 
         size_t sum = 0;
 
-        for (size_t i = q->front, j = 0; j < q->count; i = (i + 1) % q->capacity, j++)
+        for (size_t i = q->front, j = 0; j < q->count;
+             i = (i + 1) % q->capacity, j++)
         {
             sum += q->buffer[i];
         }
@@ -165,7 +168,7 @@ CMC_CREATE_UNIT(queue_test, true, {
 
         size_t r = q_peek(q);
 
-        cmc_assert_equals(size_t, (size_t){0}, r);
+        cmc_assert_equals(size_t, (size_t){ 0 }, r);
 
         q_free(q, NULL);
     });
@@ -319,7 +322,8 @@ CMC_CREATE_UNIT(queue_test, true, {
 
         size_t sum = 0;
 
-        for (size_t i = q->front, j = 0; j < q->count; i = (i + 1) % q->capacity, j++)
+        for (size_t i = q->front, j = 0; j < q->count;
+             i = (i + 1) % q->capacity, j++)
         {
             sum += q->buffer[i];
         }

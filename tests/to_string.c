@@ -2,26 +2,28 @@
 
 #include "../src/macro_collections.h"
 
-CMC_COLLECTION_GENERATE(     BIDIMAP, bm,   bmap,     int, int)
-CMC_COLLECTION_GENERATE(       DEQUE,  d,  deque, /* K */, int)
-CMC_COLLECTION_GENERATE(     HASHMAP, hm,   hmap,     int, int)
-CMC_COLLECTION_GENERATE(     HASHSET, hs,   hset, /* K */, int)
-CMC_COLLECTION_GENERATE(        HEAP,  h,   heap, /* K */, int)
-CMC_COLLECTION_GENERATE(INTERVALHEAP, ih,  iheap, /* K */, int)
-CMC_COLLECTION_GENERATE(  LINKEDLIST, ll, linked, /* K */, int)
-CMC_COLLECTION_GENERATE(        LIST,  l,   list, /* K */, int)
-CMC_COLLECTION_GENERATE(    MULTIMAP, mm,   mmap,     int, int)
-CMC_COLLECTION_GENERATE(    MULTISET, ms,   mset, /* K */, int)
-CMC_COLLECTION_GENERATE(       QUEUE,  q,  queue, /* K */, int)
-CMC_COLLECTION_GENERATE(  SORTEDLIST, sl,  slist, /* K */, int)
-CMC_COLLECTION_GENERATE(       STACK,  s,  stack, /* K */, int)
-CMC_COLLECTION_GENERATE(     TREESET, ts,   tset, /* K */, int)
-CMC_COLLECTION_GENERATE(     TREEMAP, tm,   tmap,     int, int)
+CMC_COLLECTION_GENERATE(BIDIMAP, bm, bmap, int, int)
+CMC_COLLECTION_GENERATE(DEQUE, d, deque, /* K */, int)
+CMC_COLLECTION_GENERATE(HASHMAP, hm, hmap, int, int)
+CMC_COLLECTION_GENERATE(HASHSET, hs, hset, /* K */, int)
+CMC_COLLECTION_GENERATE(HEAP, h, heap, /* K */, int)
+CMC_COLLECTION_GENERATE(INTERVALHEAP, ih, iheap, /* K */, int)
+CMC_COLLECTION_GENERATE(LINKEDLIST, ll, linked, /* K */, int)
+CMC_COLLECTION_GENERATE(LIST, l, list, /* K */, int)
+CMC_COLLECTION_GENERATE(MULTIMAP, mm, mmap, int, int)
+CMC_COLLECTION_GENERATE(MULTISET, ms, mset, /* K */, int)
+CMC_COLLECTION_GENERATE(QUEUE, q, queue, /* K */, int)
+CMC_COLLECTION_GENERATE(SORTEDLIST, sl, slist, /* K */, int)
+CMC_COLLECTION_GENERATE(STACK, s, stack, /* K */, int)
+CMC_COLLECTION_GENERATE(TREESET, ts, tset, /* K */, int)
+CMC_COLLECTION_GENERATE(TREEMAP, tm, tmap, int, int)
 
 int main(void)
 {
-    struct bmap *bm = bm_new_custom(100, 0.7, NULL, NULL, NULL, NULL);
-    struct deque *d = d_new_custom(100, NULL, NULL);
+    struct bmap *bm = bm_new_custom(100, 0.7, &(struct bmap_ftab_key){ 0 },
+                                    &(struct bmap_ftab_val){ 0 }, NULL, NULL);
+    struct deque *d =
+        d_new_custom(100, &(struct deque_ftab_val){ 0 }, NULL, NULL);
     struct hmap *hm = hm_new_custom(100, 0.6, NULL, NULL, NULL, NULL);
     struct hset *hs = hs_new_custom(100, 0.6, NULL, NULL, NULL, NULL);
     struct heap *h = h_new_custom(100, cmc_max_heap, NULL, NULL, NULL);
@@ -52,8 +54,8 @@ int main(void)
     printf("%s\n", tm_to_string(tm).s);
     printf("%s\n", ts_to_string(ts).s);
 
-    bm_free(bm, NULL);
-    d_free(d, NULL);
+    bm_free(bm);
+    d_free(d);
     hm_free(hm, NULL);
     hs_free(hs, NULL);
     h_free(h, NULL);

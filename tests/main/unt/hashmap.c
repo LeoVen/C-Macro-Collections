@@ -97,7 +97,8 @@ CMC_CREATE_UNIT(hashmap_test, true, {
         for (size_t i = 0; i < 200; i++)
             cmc_assert(hm_insert(map, i, i));
 
-        // Everything is hashed to 0 so key 0 should have dist 0, key 1 dist 1, etc
+        // Everything is hashed to 0 so key 0 should have dist 0, key 1 dist 1,
+        // etc
         for (size_t i = 0; i < 200; i++)
             cmc_assert_equals(size_t, i, map->buffer[i].dist);
 
@@ -112,7 +113,8 @@ CMC_CREATE_UNIT(hashmap_test, true, {
         size_t capacity = hm_capacity(map);
 
         // Just to be sure, not part of the test
-        cmc_assert_equals(size_t, cmc_hashtable_primes[0] - 1, hashcapminus1(0));
+        cmc_assert_equals(size_t, cmc_hashtable_primes[0] - 1,
+                          hashcapminus1(0));
         cmc_assert_equals(size_t, capacity - 1, hashcapminus1(0));
 
         cmc_assert(hm_insert(map, 0, 0));
@@ -304,7 +306,7 @@ CMC_CREATE_UNIT(hashmap_test, true, {
 
         cmc_assert_not_equals(ptr, NULL, map);
 
-        cmc_assert_equals(size_t, (size_t){0}, hm_get(map, 4321));
+        cmc_assert_equals(size_t, (size_t){ 0 }, hm_get(map, 4321));
 
         hm_free(map, NULL);
     });
@@ -389,7 +391,8 @@ CMC_CREATE_UNIT(hashmap_test, true, {
     });
 
     CMC_CREATE_TEST(full, {
-        struct hashmap *map = hm_new(cmc_hashtable_primes[0], 0.99999, cmp, hash);
+        struct hashmap *map =
+            hm_new(cmc_hashtable_primes[0], 0.99999, cmp, hash);
 
         cmc_assert_not_equals(ptr, NULL, map);
 
@@ -428,7 +431,8 @@ CMC_CREATE_UNIT(hashmap_test, true, {
 
         cmc_assert_not_equals(ptr, NULL, map);
 
-        cmc_assert_greater_equals(size_t, (size_t)(2500 / 0.6), hm_capacity(map));
+        cmc_assert_greater_equals(size_t, (size_t)(2500 / 0.6),
+                                  hm_capacity(map));
 
         hm_free(map, NULL);
     });

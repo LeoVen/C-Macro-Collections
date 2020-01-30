@@ -83,7 +83,8 @@ CMC_CREATE_UNIT(hashset_test, true, {
         cmc_assert(hs_insert(set, capacity - 1));
         cmc_assert(hs_insert(set, capacity));
 
-        cmc_assert_equals(size_t, capacity - 1, set->buffer[capacity - 1].value);
+        cmc_assert_equals(size_t, capacity - 1,
+                          set->buffer[capacity - 1].value);
         cmc_assert_equals(size_t, capacity, set->buffer[0].value);
 
         hs_free(set, NULL);
@@ -97,7 +98,8 @@ CMC_CREATE_UNIT(hashset_test, true, {
         for (size_t i = 0; i < 200; i++)
             cmc_assert(hs_insert(set, i));
 
-        // Everything is hashed to 0 so key 0 should have dist 0, key 1 dist 1, etc
+        // Everything is hashed to 0 so key 0 should have dist 0, key 1 dist 1,
+        // etc
         for (size_t i = 0; i < 200; i++)
             cmc_assert_equals(size_t, i, set->buffer[i].dist);
 
@@ -112,7 +114,8 @@ CMC_CREATE_UNIT(hashset_test, true, {
         size_t capacity = hs_capacity(set);
 
         // Just to be sure, not part of the test
-        cmc_assert_equals(size_t, cmc_hashtable_primes[0] - 1, hashcapminus1(0));
+        cmc_assert_equals(size_t, cmc_hashtable_primes[0] - 1,
+                          hashcapminus1(0));
         cmc_assert_equals(size_t, capacity - 1, hashcapminus1(0));
 
         cmc_assert(hs_insert(set, 0));
@@ -294,7 +297,8 @@ CMC_CREATE_UNIT(hashset_test, true, {
     });
 
     CMC_CREATE_TEST(full, {
-        struct hashset *set = hs_new(cmc_hashtable_primes[0], 0.99999, cmp, hash);
+        struct hashset *set =
+            hs_new(cmc_hashtable_primes[0], 0.99999, cmp, hash);
 
         cmc_assert_not_equals(ptr, NULL, set);
 
@@ -333,7 +337,8 @@ CMC_CREATE_UNIT(hashset_test, true, {
 
         cmc_assert_not_equals(ptr, NULL, set);
 
-        cmc_assert_greater_equals(size_t, (size_t)(2500 / 0.6), hs_capacity(set));
+        cmc_assert_greater_equals(size_t, (size_t)(2500 / 0.6),
+                                  hs_capacity(set));
 
         hs_free(set, NULL);
     });

@@ -76,7 +76,7 @@ static struct
     int ALLOC; // Allocation failed
     int EMPTY; // The collection is empty and the operation could not proceed
     int NOT_FOUND;    // Key or value not found
-    int INVALID;      // Something is invalid
+    int INVALID;      // Invalid argument
     int OUT_OF_RANGE; // Index out of array range
     int DUPLICATE;    // Duplicate key or value
     int ERROR;        // Generic error, usually caused by unexpected behaviour
@@ -275,7 +275,7 @@ struct cmc_callbacks_bidimap
         int (*cmp)(V, V);                                                   \
                                                                             \
         /* Copy function */                                                 \
-        K (*cpy)(V);                                                        \
+        V (*cpy)(V);                                                        \
                                                                             \
         /* To string function */                                            \
         bool (*str)(FILE *, V);                                             \
@@ -410,6 +410,9 @@ struct cmc_callbacks_bidimap
                                                                                \
         /* Prevent integer overflow */                                         \
         if (capacity >= UINTMAX_MAX * load)                                    \
+            return NULL;                                                       \
+                                                                               \
+        if (!f_val)                                                            \
             return NULL;                                                       \
                                                                                \
         size_t real_capacity = PFX##_impl_calculate_size(capacity / load);     \

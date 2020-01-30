@@ -93,7 +93,7 @@ static struct
     int ALLOC; // Allocation failed
     int EMPTY; // The collection is empty and the operation could not proceed
     int NOT_FOUND;    // Key or value not found
-    int INVALID;      // Something is invalid
+    int INVALID;      // Invalid argument
     int OUT_OF_RANGE; // Index out of array range
     int DUPLICATE;    // Duplicate key or value
     int ERROR;        // Generic error, usually caused by unexpected behaviour
