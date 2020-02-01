@@ -22,6 +22,7 @@
 
 * Project Structure
 * Available Collections
+* Features
 * Overall To-Do
 * Design Decisions
 * What to use
@@ -69,6 +70,236 @@
 | Stack        <br> _stack.h_        | FILO                                | Dynamic Array                   | A stack with push and pop at the end of a dynamic array |
 | TreeMap      <br> _treemap.h_      | Sorted Map                          | AVL Tree                        | A unique set of keys associated with a value `K -> V` using an AVL tree with `log(n)` look up and sorted iteration |
 | TreeSet      <br> _treeset.h_      | Sorted Set                          | AVL Tree                        | A unique set of keys using an AVL tree with `log(n)` look up and sorted iteration |
+
+## Features
+
+### Two-way iterators
+
+All collections come with a two-way iterator. You can go back and forwards in constant time and access elements in constant time.
+
+### Custom Allocation
+
+All collections have a `cmc_alloc_node` which provides pointers to the four dynamic memory allocation functions in C: `malloc`, `calloc`, `realloc` and `free`. These pointers can be customized for each individual collection created or a default can be used, as specified in `cmc_alloc_node_default`.
+
+### Functions Table
+
+Functions table is a `struct` of function pointers containing 'methods' for a custom data type. Some methods are optional and others are needed in order to a collection to operate. They are:
+
+#### CMP
+
+A comparator function is used in sorted collections or when an equality is being checked like when trying to find a certain element in a list. It is responsible for taking two arguments of the same data type and comparing them. The return value is an `int` with the following definitions:
+
+* Return `1` if the first argument is greater than the second;
+* Return `0` if the first argument equals the second;
+* Return `-1` if the first argument is less than the second.
+
+#### CPY
+
+A copy function is used when a collection is being copied. It can be used to make a deep copy of of your custom data type. It must take a single parameter and return a new copy of that same data type. If this function is absent (`NULL`) the data type will be copied by assignment (for pointers this is a shallow copy).
+
+#### STR
+
+A string function is responsible for taking a `FILE` pointer and a custom data type and outputting the string representation of that data returning a `bool` indication success or failure. It is useful for debugging.
+
+#### FREE
+
+The free function is called when a collection is cleared (all elements removed) or freed (all elements removed and freed from memory) and it is responsible for completely freeing all resources that are usually acquired by your data type.
+
+#### HASH
+
+This function receives a custom data type as parameter and returns a `size_t` hash of that data. Used in hashtables.
+
+#### PRI
+
+A priority function works much like the comparator function except that it compares the priority between two elements. It is used in collections whose structure is based on the priority of elements and not in their general comparison.
+
+* Return `1` if the first argument has a greater priority than the second;
+* Return `0` if the first argument has the same priority as second;
+* Return `-1` if the first argument has a lower priority than the second.
+
+The following table shows which functions are required, optional or never used for each Collection:
+
+<div style="display: flex; align-items:flex-start; justify-content:space-between">
+    <table style="width: auto;">
+        <thead>
+            <th>
+                <td>CMP</td>
+                <td>CPY</td>
+                <td>STR</td>
+                <td>FREE</td>
+                <td>HASH</td>
+                <td>PRI</td>
+            </th>
+        </thead>
+        <tbody>
+            <tr>
+                <td>BidiMap</td>
+                <td bgcolor="#b82b28"></td>
+                <td bgcolor="#9f3b94"></td>
+                <td bgcolor="#497edd"></td>
+                <td bgcolor="#00d3eb"></td>
+                <td bgcolor="#b82b28"></td>
+                <td bgcolor="#2ef625"></td>
+            </tr>
+            <tr>
+                <td>Deque</td>
+                <td bgcolor="#9f3b94"></td>
+                <td bgcolor="#9f3b94"></td>
+                <td bgcolor="#497edd"></td>
+                <td bgcolor="#00d3eb"></td>
+                <td bgcolor="#2ef625"></td>
+                <td bgcolor="#2ef625"></td>
+            </tr>
+            <tr>
+                <td>HashMap</td>
+                <td bgcolor="#b82b28"></td>
+                <td bgcolor="#9f3b94"></td>
+                <td bgcolor="#497edd"></td>
+                <td bgcolor="#00d3eb"></td>
+                <td bgcolor="#b82b28"></td>
+                <td bgcolor="#2ef625"></td>
+            </tr>
+            <tr>
+                <td>HashSet</td>
+                <td bgcolor="#b82b28"></td>
+                <td bgcolor="#9f3b94"></td>
+                <td bgcolor="#497edd"></td>
+                <td bgcolor="#00d3eb"></td>
+                <td bgcolor="#b82b28"></td>
+                <td bgcolor="#2ef625"></td>
+            </tr>
+            <tr>
+                <td>Heap</td>
+                <td bgcolor="#9f3b94"></td>
+                <td bgcolor="#9f3b94"></td>
+                <td bgcolor="#497edd"></td>
+                <td bgcolor="#00d3eb"></td>
+                <td bgcolor="#2ef625"></td>
+                <td bgcolor="#b82b28"></td>
+            </tr>
+            <tr>
+                <td>IntervalHeap</td>
+                <td bgcolor="#9f3b94"></td>
+                <td bgcolor="#9f3b94"></td>
+                <td bgcolor="#497edd"></td>
+                <td bgcolor="#00d3eb"></td>
+                <td bgcolor="#2ef625"></td>
+                <td bgcolor="#b82b28"></td>
+            </tr>
+            <tr>
+                <td>LinkedList</td>
+                <td bgcolor="#9f3b94"></td>
+                <td bgcolor="#9f3b94"></td>
+                <td bgcolor="#497edd"></td>
+                <td bgcolor="#00d3eb"></td>
+                <td bgcolor="#2ef625"></td>
+                <td bgcolor="#2ef625"></td>
+            </tr>
+            <tr>
+                <td>List</td>
+                <td bgcolor="#9f3b94"></td>
+                <td bgcolor="#9f3b94"></td>
+                <td bgcolor="#497edd"></td>
+                <td bgcolor="#00d3eb"></td>
+                <td bgcolor="#2ef625"></td>
+                <td bgcolor="#2ef625"></td>
+            </tr>
+            <tr>
+                <td>MultiMap</td>
+                <td bgcolor="#b82b28"></td>
+                <td bgcolor="#9f3b94"></td>
+                <td bgcolor="#497edd"></td>
+                <td bgcolor="#00d3eb"></td>
+                <td bgcolor="#b82b28"></td>
+                <td bgcolor="#2ef625"></td>
+            </tr>
+            <tr>
+                <td>MultiSet</td>
+                <td bgcolor="#b82b28"></td>
+                <td bgcolor="#9f3b94"></td>
+                <td bgcolor="#497edd"></td>
+                <td bgcolor="#00d3eb"></td>
+                <td bgcolor="#b82b28"></td>
+                <td bgcolor="#2ef625"></td>
+            </tr>
+            <tr>
+                <td>Queue</td>
+                <td bgcolor="#9f3b94"></td>
+                <td bgcolor="#9f3b94"></td>
+                <td bgcolor="#497edd"></td>
+                <td bgcolor="#00d3eb"></td>
+                <td bgcolor="#2ef625"></td>
+                <td bgcolor="#2ef625"></td>
+            </tr>
+            <tr>
+                <td>SortedList</td>
+                <td bgcolor="#b82b28"></td>
+                <td bgcolor="#9f3b94"></td>
+                <td bgcolor="#497edd"></td>
+                <td bgcolor="#00d3eb"></td>
+                <td bgcolor="#2ef625"></td>
+                <td bgcolor="#2ef625"></td>
+            </tr>
+            <tr>
+                <td>Stack</td>
+                <td bgcolor="#9f3b94"></td>
+                <td bgcolor="#9f3b94"></td>
+                <td bgcolor="#497edd"></td>
+                <td bgcolor="#00d3eb"></td>
+                <td bgcolor="#2ef625"></td>
+                <td bgcolor="#2ef625"></td>
+            </tr>
+            <tr>
+                <td>TreeMap</td>
+                <td bgcolor="#b82b28"></td>
+                <td bgcolor="#9f3b94"></td>
+                <td bgcolor="#497edd"></td>
+                <td bgcolor="#00d3eb"></td>
+                <td bgcolor="#2ef625"></td>
+                <td bgcolor="#2ef625"></td>
+            </tr>
+            <tr>
+                <td>TreeSet</td>
+                <td bgcolor="#b82b28"></td>
+                <td bgcolor="#9f3b94"></td>
+                <td bgcolor="#497edd"></td>
+                <td bgcolor="#00d3eb"></td>
+                <td bgcolor="#2ef625"></td>
+                <td bgcolor="#2ef625"></td>
+            </tr>
+        </tbody>
+    </table>
+    <table style="width: auto;">
+        <thead>
+            <tr>
+                <td>Color</td>
+                <td>Label</td>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td bgcolor="#b82b28"></td>
+                <td>Required for basic functionality.</td>
+            </tr>
+            <tr>
+                <td bgcolor="#9f3b94"></td>
+                <td>Required for specific functions.</td>
+            </tr>
+            <tr>
+                <td bgcolor="#497edd"></td>
+                <td>Required. Non-core, specific functions.</td>
+            </tr>
+            <tr>
+                <td bgcolor="#00d3eb"></td>
+                <td>Optional.</td>
+            </tr>
+            <tr>
+                <td bgcolor="#2ef625"></td>
+                <td>Not Used.</td>
+            </tr>
+        </tbody>
+    </table>
+</div>
 
 ## Overall To-Do
 
