@@ -119,187 +119,31 @@ A priority function works much like the comparator function except that it compa
 
 The following table shows which functions are required, optional or never used for each Collection:
 
-<div style="display: flex; align-items:flex-start; justify-content:space-between">
-    <table style="width: auto;">
-        <thead>
-            <th>
-                <td>CMP</td>
-                <td>CPY</td>
-                <td>STR</td>
-                <td>FREE</td>
-                <td>HASH</td>
-                <td>PRI</td>
-            </th>
-        </thead>
-        <tbody>
-            <tr>
-                <td>BidiMap</td>
-                <td bgcolor="#b82b28"></td>
-                <td bgcolor="#9f3b94"></td>
-                <td bgcolor="#497edd"></td>
-                <td bgcolor="#00d3eb"></td>
-                <td bgcolor="#b82b28"></td>
-                <td bgcolor="#2ef625"></td>
-            </tr>
-            <tr>
-                <td>Deque</td>
-                <td bgcolor="#9f3b94"></td>
-                <td bgcolor="#9f3b94"></td>
-                <td bgcolor="#497edd"></td>
-                <td bgcolor="#00d3eb"></td>
-                <td bgcolor="#2ef625"></td>
-                <td bgcolor="#2ef625"></td>
-            </tr>
-            <tr>
-                <td>HashMap</td>
-                <td bgcolor="#b82b28"></td>
-                <td bgcolor="#9f3b94"></td>
-                <td bgcolor="#497edd"></td>
-                <td bgcolor="#00d3eb"></td>
-                <td bgcolor="#b82b28"></td>
-                <td bgcolor="#2ef625"></td>
-            </tr>
-            <tr>
-                <td>HashSet</td>
-                <td bgcolor="#b82b28"></td>
-                <td bgcolor="#9f3b94"></td>
-                <td bgcolor="#497edd"></td>
-                <td bgcolor="#00d3eb"></td>
-                <td bgcolor="#b82b28"></td>
-                <td bgcolor="#2ef625"></td>
-            </tr>
-            <tr>
-                <td>Heap</td>
-                <td bgcolor="#9f3b94"></td>
-                <td bgcolor="#9f3b94"></td>
-                <td bgcolor="#497edd"></td>
-                <td bgcolor="#00d3eb"></td>
-                <td bgcolor="#2ef625"></td>
-                <td bgcolor="#b82b28"></td>
-            </tr>
-            <tr>
-                <td>IntervalHeap</td>
-                <td bgcolor="#9f3b94"></td>
-                <td bgcolor="#9f3b94"></td>
-                <td bgcolor="#497edd"></td>
-                <td bgcolor="#00d3eb"></td>
-                <td bgcolor="#2ef625"></td>
-                <td bgcolor="#b82b28"></td>
-            </tr>
-            <tr>
-                <td>LinkedList</td>
-                <td bgcolor="#9f3b94"></td>
-                <td bgcolor="#9f3b94"></td>
-                <td bgcolor="#497edd"></td>
-                <td bgcolor="#00d3eb"></td>
-                <td bgcolor="#2ef625"></td>
-                <td bgcolor="#2ef625"></td>
-            </tr>
-            <tr>
-                <td>List</td>
-                <td bgcolor="#9f3b94"></td>
-                <td bgcolor="#9f3b94"></td>
-                <td bgcolor="#497edd"></td>
-                <td bgcolor="#00d3eb"></td>
-                <td bgcolor="#2ef625"></td>
-                <td bgcolor="#2ef625"></td>
-            </tr>
-            <tr>
-                <td>MultiMap</td>
-                <td bgcolor="#b82b28"></td>
-                <td bgcolor="#9f3b94"></td>
-                <td bgcolor="#497edd"></td>
-                <td bgcolor="#00d3eb"></td>
-                <td bgcolor="#b82b28"></td>
-                <td bgcolor="#2ef625"></td>
-            </tr>
-            <tr>
-                <td>MultiSet</td>
-                <td bgcolor="#b82b28"></td>
-                <td bgcolor="#9f3b94"></td>
-                <td bgcolor="#497edd"></td>
-                <td bgcolor="#00d3eb"></td>
-                <td bgcolor="#b82b28"></td>
-                <td bgcolor="#2ef625"></td>
-            </tr>
-            <tr>
-                <td>Queue</td>
-                <td bgcolor="#9f3b94"></td>
-                <td bgcolor="#9f3b94"></td>
-                <td bgcolor="#497edd"></td>
-                <td bgcolor="#00d3eb"></td>
-                <td bgcolor="#2ef625"></td>
-                <td bgcolor="#2ef625"></td>
-            </tr>
-            <tr>
-                <td>SortedList</td>
-                <td bgcolor="#b82b28"></td>
-                <td bgcolor="#9f3b94"></td>
-                <td bgcolor="#497edd"></td>
-                <td bgcolor="#00d3eb"></td>
-                <td bgcolor="#2ef625"></td>
-                <td bgcolor="#2ef625"></td>
-            </tr>
-            <tr>
-                <td>Stack</td>
-                <td bgcolor="#9f3b94"></td>
-                <td bgcolor="#9f3b94"></td>
-                <td bgcolor="#497edd"></td>
-                <td bgcolor="#00d3eb"></td>
-                <td bgcolor="#2ef625"></td>
-                <td bgcolor="#2ef625"></td>
-            </tr>
-            <tr>
-                <td>TreeMap</td>
-                <td bgcolor="#b82b28"></td>
-                <td bgcolor="#9f3b94"></td>
-                <td bgcolor="#497edd"></td>
-                <td bgcolor="#00d3eb"></td>
-                <td bgcolor="#2ef625"></td>
-                <td bgcolor="#2ef625"></td>
-            </tr>
-            <tr>
-                <td>TreeSet</td>
-                <td bgcolor="#b82b28"></td>
-                <td bgcolor="#9f3b94"></td>
-                <td bgcolor="#497edd"></td>
-                <td bgcolor="#00d3eb"></td>
-                <td bgcolor="#2ef625"></td>
-                <td bgcolor="#2ef625"></td>
-            </tr>
-        </tbody>
-    </table>
-    <table style="width: auto;">
-        <thead>
-            <tr>
-                <td>Color</td>
-                <td>Label</td>
-            </tr>
-        </thead>
-        <tbody>
-            <tr>
-                <td bgcolor="#b82b28"></td>
-                <td>Required for basic functionality.</td>
-            </tr>
-            <tr>
-                <td bgcolor="#9f3b94"></td>
-                <td>Required for specific functions.</td>
-            </tr>
-            <tr>
-                <td bgcolor="#497edd"></td>
-                <td>Required. Non-core, specific functions.</td>
-            </tr>
-            <tr>
-                <td bgcolor="#00d3eb"></td>
-                <td>Optional.</td>
-            </tr>
-            <tr>
-                <td bgcolor="#2ef625"></td>
-                <td>Not Used.</td>
-            </tr>
-        </tbody>
-    </table>
-</div>
+| Collection | CMP | CPY | STR | FREE | HASH | PRI |
+| ---------- | :-: | :-: | :-: | :--: | :--: | :-: |
+| BidiMap      | ![#b82b28](https://placehold.it/20/b82b28/000000?text=+) | ![#9f3b94](https://placehold.it/20/9f3b94/000000?text=+) | ![#497edd](https://placehold.it/20/497edd/000000?text=+) | ![#00d3eb](https://placehold.it/20/00d3eb/000000?text=+) | ![#b82b28](https://placehold.it/20/b82b28/000000?text=+) | ![#2ef625](https://placehold.it/20/2ef625/000000?text=+) |
+| Deque        | ![#9f3b94](https://placehold.it/20/9f3b94/000000?text=+) | ![#9f3b94](https://placehold.it/20/9f3b94/000000?text=+) | ![#497edd](https://placehold.it/20/497edd/000000?text=+) | ![#00d3eb](https://placehold.it/20/00d3eb/000000?text=+) | ![#2ef625](https://placehold.it/20/2ef625/000000?text=+) | ![#2ef625](https://placehold.it/20/2ef625/000000?text=+) |
+| HashMap      | ![#b82b28](https://placehold.it/20/b82b28/000000?text=+) | ![#9f3b94](https://placehold.it/20/9f3b94/000000?text=+) | ![#497edd](https://placehold.it/20/497edd/000000?text=+) | ![#00d3eb](https://placehold.it/20/00d3eb/000000?text=+) | ![#b82b28](https://placehold.it/20/b82b28/000000?text=+) | ![#2ef625](https://placehold.it/20/2ef625/000000?text=+) |
+| HashSet      | ![#b82b28](https://placehold.it/20/b82b28/000000?text=+) | ![#9f3b94](https://placehold.it/20/9f3b94/000000?text=+) | ![#497edd](https://placehold.it/20/497edd/000000?text=+) | ![#00d3eb](https://placehold.it/20/00d3eb/000000?text=+) | ![#b82b28](https://placehold.it/20/b82b28/000000?text=+) | ![#2ef625](https://placehold.it/20/2ef625/000000?text=+) |
+| Heap         | ![#9f3b94](https://placehold.it/20/9f3b94/000000?text=+) | ![#9f3b94](https://placehold.it/20/9f3b94/000000?text=+) | ![#497edd](https://placehold.it/20/497edd/000000?text=+) | ![#00d3eb](https://placehold.it/20/00d3eb/000000?text=+) | ![#2ef625](https://placehold.it/20/2ef625/000000?text=+) | ![#b82b28](https://placehold.it/20/b82b28/000000?text=+) |
+| IntervalHeap | ![#9f3b94](https://placehold.it/20/9f3b94/000000?text=+) | ![#9f3b94](https://placehold.it/20/9f3b94/000000?text=+) | ![#497edd](https://placehold.it/20/497edd/000000?text=+) | ![#00d3eb](https://placehold.it/20/00d3eb/000000?text=+) | ![#2ef625](https://placehold.it/20/2ef625/000000?text=+) | ![#b82b28](https://placehold.it/20/b82b28/000000?text=+) |
+| List         | ![#9f3b94](https://placehold.it/20/9f3b94/000000?text=+) | ![#9f3b94](https://placehold.it/20/9f3b94/000000?text=+) | ![#497edd](https://placehold.it/20/497edd/000000?text=+) | ![#00d3eb](https://placehold.it/20/00d3eb/000000?text=+) | ![#2ef625](https://placehold.it/20/2ef625/000000?text=+) | ![#2ef625](https://placehold.it/20/2ef625/000000?text=+) |
+| LinkedList   | ![#9f3b94](https://placehold.it/20/9f3b94/000000?text=+) | ![#9f3b94](https://placehold.it/20/9f3b94/000000?text=+) | ![#497edd](https://placehold.it/20/497edd/000000?text=+) | ![#00d3eb](https://placehold.it/20/00d3eb/000000?text=+) | ![#2ef625](https://placehold.it/20/2ef625/000000?text=+) | ![#2ef625](https://placehold.it/20/2ef625/000000?text=+) |
+| MultiMap     | ![#b82b28](https://placehold.it/20/b82b28/000000?text=+) | ![#9f3b94](https://placehold.it/20/9f3b94/000000?text=+) | ![#497edd](https://placehold.it/20/497edd/000000?text=+) | ![#00d3eb](https://placehold.it/20/00d3eb/000000?text=+) | ![#b82b28](https://placehold.it/20/b82b28/000000?text=+) | ![#2ef625](https://placehold.it/20/2ef625/000000?text=+) |
+| MultiSet     | ![#b82b28](https://placehold.it/20/b82b28/000000?text=+) | ![#9f3b94](https://placehold.it/20/9f3b94/000000?text=+) | ![#497edd](https://placehold.it/20/497edd/000000?text=+) | ![#00d3eb](https://placehold.it/20/00d3eb/000000?text=+) | ![#b82b28](https://placehold.it/20/b82b28/000000?text=+) | ![#2ef625](https://placehold.it/20/2ef625/000000?text=+) |
+| Queue        | ![#9f3b94](https://placehold.it/20/9f3b94/000000?text=+) | ![#9f3b94](https://placehold.it/20/9f3b94/000000?text=+) | ![#497edd](https://placehold.it/20/497edd/000000?text=+) | ![#00d3eb](https://placehold.it/20/00d3eb/000000?text=+) | ![#2ef625](https://placehold.it/20/2ef625/000000?text=+) | ![#2ef625](https://placehold.it/20/2ef625/000000?text=+) |
+| SortedList   | ![#b82b28](https://placehold.it/20/b82b28/000000?text=+) | ![#9f3b94](https://placehold.it/20/9f3b94/000000?text=+) | ![#497edd](https://placehold.it/20/497edd/000000?text=+) | ![#00d3eb](https://placehold.it/20/00d3eb/000000?text=+) | ![#2ef625](https://placehold.it/20/2ef625/000000?text=+) | ![#2ef625](https://placehold.it/20/2ef625/000000?text=+) |
+| Stack        | ![#9f3b94](https://placehold.it/20/9f3b94/000000?text=+) | ![#9f3b94](https://placehold.it/20/9f3b94/000000?text=+) | ![#497edd](https://placehold.it/20/497edd/000000?text=+) | ![#00d3eb](https://placehold.it/20/00d3eb/000000?text=+) | ![#2ef625](https://placehold.it/20/2ef625/000000?text=+) | ![#2ef625](https://placehold.it/20/2ef625/000000?text=+) |
+| TreeMap      | ![#b82b28](https://placehold.it/20/b82b28/000000?text=+) | ![#9f3b94](https://placehold.it/20/9f3b94/000000?text=+) | ![#497edd](https://placehold.it/20/497edd/000000?text=+) | ![#00d3eb](https://placehold.it/20/00d3eb/000000?text=+) | ![#2ef625](https://placehold.it/20/2ef625/000000?text=+) | ![#2ef625](https://placehold.it/20/2ef625/000000?text=+) |
+| TreeSet      | ![#b82b28](https://placehold.it/20/b82b28/000000?text=+) | ![#9f3b94](https://placehold.it/20/9f3b94/000000?text=+) | ![#497edd](https://placehold.it/20/497edd/000000?text=+) | ![#00d3eb](https://placehold.it/20/00d3eb/000000?text=+) | ![#2ef625](https://placehold.it/20/2ef625/000000?text=+) | ![#2ef625](https://placehold.it/20/2ef625/000000?text=+) |
+
+| Color | Label |
+| :---: | ----- |
+| ![#b82b28](https://placehold.it/20/b82b28/000000?text=+) | Required for basic functionality. |
+| ![#9f3b94](https://placehold.it/20/9f3b94/000000?text=+) | Required for specific functions. |
+| ![#497edd](https://placehold.it/20/497edd/000000?text=+) | Required for non-core specific functions. |
+| ![#00d3eb](https://placehold.it/20/00d3eb/000000?text=+) | Optional. |
+| ![#2ef625](https://placehold.it/20/2ef625/000000?text=+) | Not Used. |
 
 ## Overall To-Do
 
