@@ -7,20 +7,28 @@
 
 CMC_GENERATE_LINKEDLIST(ll, linkedlist, size_t)
 
+struct linkedlist_ftab_val *ll_ftab_val =
+    &(struct linkedlist_ftab_val){ .cmp = cmp,
+                                   .cpy = copy,
+                                   .str = str,
+                                   .free = custom_free,
+                                   .hash = hash,
+                                   .pri = pri };
+
 CMC_CREATE_UNIT(linkedlist_test, true, {
     CMC_CREATE_TEST(new, {
-        struct linkedlist *ll = ll_new();
+        struct linkedlist *ll = ll_new(ll_ftab_val);
 
         cmc_assert_not_equals(ptr, NULL, ll);
         cmc_assert_equals(size_t, 0, ll_count(ll));
         cmc_assert_equals(ptr, NULL, ll->head);
         cmc_assert_equals(ptr, NULL, ll->tail);
 
-        ll_free(ll, NULL);
+        ll_free(ll);
     });
 
     CMC_CREATE_TEST(clear[count capacity], {
-        struct linkedlist *ll = ll_new();
+        struct linkedlist *ll = ll_new(ll_ftab_val);
 
         cmc_assert_not_equals(ptr, NULL, ll);
 
@@ -29,27 +37,27 @@ CMC_CREATE_UNIT(linkedlist_test, true, {
 
         cmc_assert_equals(size_t, 50, ll_count(ll));
 
-        ll_clear(ll, NULL);
+        ll_clear(ll);
 
         cmc_assert_equals(size_t, 0, ll_count(ll));
 
-        ll_free(ll, NULL);
+        ll_free(ll);
     });
 
     CMC_CREATE_TEST(clear[count = 0], {
-        struct linkedlist *ll = ll_new();
+        struct linkedlist *ll = ll_new(ll_ftab_val);
 
         cmc_assert_not_equals(ptr, NULL, ll);
 
-        ll_clear(ll, NULL);
+        ll_clear(ll);
 
         cmc_assert_equals(size_t, 0, ll_count(ll));
 
-        ll_free(ll, NULL);
+        ll_free(ll);
     });
 
     CMC_CREATE_TEST(push_front[count], {
-        struct linkedlist *ll = ll_new();
+        struct linkedlist *ll = ll_new(ll_ftab_val);
 
         cmc_assert_not_equals(ptr, NULL, ll);
 
@@ -59,11 +67,11 @@ CMC_CREATE_UNIT(linkedlist_test, true, {
         cmc_assert_not_equals(ptr, NULL, ll->tail);
         cmc_assert_equals(size_t, 1, ll_count(ll));
 
-        ll_free(ll, NULL);
+        ll_free(ll);
     });
 
     CMC_CREATE_TEST(push_front[item preservation], {
-        struct linkedlist *ll = ll_new();
+        struct linkedlist *ll = ll_new(ll_ftab_val);
 
         cmc_assert_not_equals(ptr, NULL, ll);
 
@@ -73,6 +81,6 @@ CMC_CREATE_UNIT(linkedlist_test, true, {
         for (size_t i = 0; i < ll_count(ll); i++)
             cmc_assert_equals(size_t, ll_get(ll, i), ll_count(ll) - i - 1);
 
-        ll_free(ll, NULL);
+        ll_free(ll);
     });
 });

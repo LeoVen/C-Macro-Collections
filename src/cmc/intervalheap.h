@@ -89,6 +89,7 @@ static const char *cmc_string_fmt_intervalheap = "struct %s<%s> "
                                                  "capacity:%" PRIuMAX ", "
                                                  "size:%" PRIuMAX ", "
                                                  "count:%" PRIuMAX ", "
+                                                 "flag:%d, "
                                                  "f_val:%p, "
                                                  "alloc:%p, "
                                                  "callbacks:%p }";
@@ -739,7 +740,8 @@ struct cmc_callbacks_intervalheap
                                                                                \
         int n = snprintf(str.s, cmc_string_len, cmc_string_fmt_intervalheap,   \
                          #SNAME, #V, h_, h_->buffer, h_->capacity, h_->size,   \
-                         h_->count, h_->f_val, h_->alloc, h_->callbacks);      \
+                         h_->count, h_->flag, h_->f_val, h_->alloc,            \
+                         h_->callbacks);                                       \
                                                                                \
         return n >= 0 ? str : (struct cmc_string){ 0 };                        \
     }                                                                          \

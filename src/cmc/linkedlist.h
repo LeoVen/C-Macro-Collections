@@ -95,6 +95,8 @@ static const char *cmc_string_fmt_linkedlist = "struct %s<%s> "
                                                "count:%" PRIuMAX ", "
                                                "head:%p, "
                                                "tail:%p, "
+                                               "flag:%d, "
+                                               "f_val:%p, "
                                                "alloc:%p, "
                                                "callbacks:%p }";
 
@@ -140,17 +142,23 @@ struct cmc_callbacks_linkedlist
         /* Current amount of elements in the list */                         \
         size_t count;                                                        \
                                                                              \
-        /* Function that returns an iterator to the start of the list */     \
-        struct SNAME##_iter (*it_start)(struct SNAME *);                     \
+        /* Flags indicating errors or success */                             \
+        int flag;                                                            \
                                                                              \
-        /* Function that returns an iterator to the end of the list */       \
-        struct SNAME##_iter (*it_end)(struct SNAME *);                       \
+        /* Value function table */                                           \
+        struct SNAME##_ftab_val *f_val;                                      \
                                                                              \
         /* Custom allocation functions */                                    \
         struct cmc_alloc_node *alloc;                                        \
                                                                              \
         /* Custom callback functions */                                      \
         struct cmc_callbacks_linkedlist *callbacks;                          \
+                                                                             \
+        /* Function that returns an iterator to the start of the list */     \
+        struct SNAME##_iter (*it_start)(struct SNAME *);                     \
+                                                                             \
+        /* Function that returns an iterator to the end of the list */       \
+        struct SNAME##_iter (*it_end)(struct SNAME *);                       \
     };                                                                       \
                                                                              \
     /* Doubly-linked list node */                                            \
@@ -164,6 +172,28 @@ struct cmc_callbacks_linkedlist
                                                                              \
         /* Pointer to the previous node on the linked list */                \
         struct SNAME##_node *prev;                                           \
+    };                                                                       \
+                                                                             \
+    /* Value struct function table */                                        \
+    struct SNAME##_ftab_val                                                  \
+    {                                                                        \
+        /* Comparator function */                                            \
+        int (*cmp)(V, V);                                                    \
+                                                                             \
+        /* Copy function */                                                  \
+        V (*cpy)(V);                                                         \
+                                                                             \
+        /* To string function */                                             \
+        bool (*str)(FILE *, V);                                              \
+                                                                             \
+        /* Free from memory function */                                      \
+        void (*free)(V);                                                     \
+                                                                             \
+        /* Hash function */                                                  \
+        size_t (*hash)(V);                                                   \
+                                                                             \
+        /* Priority function */                                              \
+        int (*pri)(V, V);                                                    \
     };                                                                       \
                                                                              \
     /* Linked List Iterator */                                               \
@@ -187,12 +217,12 @@ struct cmc_callbacks_linkedlist
                                                                              \
     /* Collection Functions */                                               \
     /* Collection Allocation and Deallocation */                             \
-    struct SNAME *PFX##_new(void);                                           \
+    struct SNAME *PFX##_new(struct SNAME##_ftab_val *f_val);                 \
     struct SNAME *PFX##_new_custom(                                          \
-        struct cmc_alloc_node *alloc,                                        \
+        struct SNAME##_ftab_val *f_val, struct cmc_alloc_node *alloc,        \
         struct cmc_callbacks_linkedlist *callbacks);                         \
-    void PFX##_clear(struct SNAME *_list_, void (*deallocator)(V));          \
-    void PFX##_free(struct SNAME *_list_, void (*deallocator)(V));           \
+    void PFX##_clear(struct SNAME *_list_);                                  \
+    void PFX##_free(struct SNAME *_list_);                                   \
     /* Customization of Allocation and Callbacks */                          \
     void PFX##_customize(struct SNAME *_list_, struct cmc_alloc_node *alloc, \
                          struct cmc_callbacks_linkedlist *callbacks);        \
@@ -209,14 +239,12 @@ struct cmc_callbacks_linkedlist
     V *PFX##_get_ref(struct SNAME *_list_, size_t index);                    \
     V PFX##_back(struct SNAME *_list_);                                      \
     /* Collection State */                                                   \
-    bool PFX##_contains(struct SNAME *_list_, V element,                     \
-                        int (*comparator)(V, V));                            \
+    bool PFX##_contains(struct SNAME *_list_, V element);                    \
     bool PFX##_empty(struct SNAME *_list_);                                  \
     size_t PFX##_count(struct SNAME *_list_);                                \
     /* Collection Utility */                                                 \
-    struct SNAME *PFX##_copy_of(struct SNAME *_list_, V (*copy_func)(V));    \
-    bool PFX##_equals(struct SNAME *_list1_, struct SNAME *_list2_,          \
-                      int (*comparator)(V, V));                              \
+    struct SNAME *PFX##_copy_of(struct SNAME *_list_);                       \
+    bool PFX##_equals(struct SNAME *_list1_, struct SNAME *_list2_);         \
     struct cmc_string PFX##_to_string(struct SNAME *_list_);                 \
                                                                              \
     /* Node Related Functions */                                             \
@@ -274,8 +302,11 @@ struct cmc_callbacks_linkedlist
     static struct SNAME##_iter PFX##_impl_it_start(struct SNAME *_list_);      \
     static struct SNAME##_iter PFX##_impl_it_end(struct SNAME *_list_);        \
                                                                                \
-    struct SNAME *PFX##_new(void)                                              \
+    struct SNAME *PFX##_new(struct SNAME##_ftab_val *f_val)                    \
     {                                                                          \
+        if (!f_val)                                                            \
+            return NULL;                                                       \
+                                                                               \
         struct cmc_alloc_node *alloc = &cmc_alloc_node_default;                \
                                                                                \
         struct SNAME *_list_ = alloc->malloc(sizeof(struct SNAME));            \
@@ -286,19 +317,23 @@ struct cmc_callbacks_linkedlist
         _list_->count = 0;                                                     \
         _list_->head = NULL;                                                   \
         _list_->tail = NULL;                                                   \
-                                                                               \
-        _list_->it_start = PFX##_impl_it_start;                                \
-        _list_->it_end = PFX##_impl_it_end;                                    \
-                                                                               \
+        _list_->flag = cmc_flags.OK;                                           \
+        _list_->f_val = f_val;                                                 \
         _list_->alloc = alloc;                                                 \
         _list_->callbacks = NULL;                                              \
+        _list_->it_start = PFX##_impl_it_start;                                \
+        _list_->it_end = PFX##_impl_it_end;                                    \
                                                                                \
         return _list_;                                                         \
     }                                                                          \
                                                                                \
-    struct SNAME *PFX##_new_custom(struct cmc_alloc_node *alloc,               \
+    struct SNAME *PFX##_new_custom(struct SNAME##_ftab_val *f_val,             \
+                                   struct cmc_alloc_node *alloc,               \
                                    struct cmc_callbacks_linkedlist *callbacks) \
     {                                                                          \
+        if (!f_val)                                                            \
+            return NULL;                                                       \
+                                                                               \
         if (!alloc)                                                            \
             alloc = &cmc_alloc_node_default;                                   \
                                                                                \
@@ -310,17 +345,17 @@ struct cmc_callbacks_linkedlist
         _list_->count = 0;                                                     \
         _list_->head = NULL;                                                   \
         _list_->tail = NULL;                                                   \
-                                                                               \
-        _list_->it_start = PFX##_impl_it_start;                                \
-        _list_->it_end = PFX##_impl_it_end;                                    \
-                                                                               \
+        _list_->flag = cmc_flags.OK;                                           \
+        _list_->f_val = f_val;                                                 \
         _list_->alloc = alloc;                                                 \
         _list_->callbacks = callbacks;                                         \
+        _list_->it_start = PFX##_impl_it_start;                                \
+        _list_->it_end = PFX##_impl_it_end;                                    \
                                                                                \
         return _list_;                                                         \
     }                                                                          \
                                                                                \
-    void PFX##_clear(struct SNAME *_list_, void (*deallocator)(V))             \
+    void PFX##_clear(struct SNAME *_list_)                                     \
     {                                                                          \
         struct SNAME##_node *scan = _list_->head;                              \
                                                                                \
@@ -328,9 +363,9 @@ struct cmc_callbacks_linkedlist
         {                                                                      \
             _list_->head = _list_->head->next;                                 \
                                                                                \
-            if (deallocator)                                                   \
+            if (_list_->f_val->free)                                           \
             {                                                                  \
-                deallocator(scan->data);                                       \
+                _list_->f_val->free(scan->data);                               \
             }                                                                  \
                                                                                \
             _list_->alloc->free(scan);                                         \
@@ -343,9 +378,9 @@ struct cmc_callbacks_linkedlist
         _list_->tail = NULL;                                                   \
     }                                                                          \
                                                                                \
-    void PFX##_free(struct SNAME *_list_, void (*deallocator)(V))              \
+    void PFX##_free(struct SNAME *_list_)                                      \
     {                                                                          \
-        PFX##_clear(_list_, deallocator);                                      \
+        PFX##_clear(_list_);                                                   \
                                                                                \
         _list_->alloc->free(_list_);                                           \
     }                                                                          \
@@ -556,14 +591,13 @@ struct cmc_callbacks_linkedlist
         return _list_->tail->data;                                             \
     }                                                                          \
                                                                                \
-    bool PFX##_contains(struct SNAME *_list_, V element,                       \
-                        int (*comparator)(V, V))                               \
+    bool PFX##_contains(struct SNAME *_list_, V element)                       \
     {                                                                          \
         struct SNAME##_node *scan = _list_->head;                              \
                                                                                \
         while (scan != NULL)                                                   \
         {                                                                      \
-            if (comparator(scan->data, element) == 0)                          \
+            if (_list_->f_val->cmp(scan->data, element) == 0)                  \
                 return true;                                                   \
                                                                                \
             scan = scan->next;                                                 \
@@ -582,10 +616,10 @@ struct cmc_callbacks_linkedlist
         return _list_->count;                                                  \
     }                                                                          \
                                                                                \
-    struct SNAME *PFX##_copy_of(struct SNAME *_list_, V (*copy_func)(V))       \
+    struct SNAME *PFX##_copy_of(struct SNAME *_list_)                          \
     {                                                                          \
         struct SNAME *result =                                                 \
-            PFX##_new_custom(_list_->alloc, _list_->callbacks);                \
+            PFX##_new_custom(_list_->f_val, _list_->alloc, _list_->callbacks); \
                                                                                \
         if (!result)                                                           \
             return NULL;                                                       \
@@ -598,8 +632,9 @@ struct cmc_callbacks_linkedlist
             /* possible to recover from it. That is why it isn't checked */    \
             struct SNAME##_node *new_node;                                     \
                                                                                \
-            if (copy_func)                                                     \
-                new_node = PFX##_new_node(_list_, copy_func(scan->data));      \
+            if (_list_->f_val->cpy)                                            \
+                new_node =                                                     \
+                    PFX##_new_node(_list_, _list_->f_val->cpy(scan->data));    \
             else                                                               \
                 new_node = PFX##_new_node(_list_, scan->data);                 \
                                                                                \
@@ -623,8 +658,7 @@ struct cmc_callbacks_linkedlist
         return result;                                                         \
     }                                                                          \
                                                                                \
-    bool PFX##_equals(struct SNAME *_list1_, struct SNAME *_list2_,            \
-                      int (*comparator)(V, V))                                 \
+    bool PFX##_equals(struct SNAME *_list1_, struct SNAME *_list2_)            \
     {                                                                          \
         if (PFX##_count(_list1_) != PFX##_count(_list2_))                      \
             return false;                                                      \
@@ -634,7 +668,7 @@ struct cmc_callbacks_linkedlist
                                                                                \
         while (scan1 != NULL && scan2 != NULL)                                 \
         {                                                                      \
-            if (comparator(scan1->data, scan2->data) != 0)                     \
+            if (_list1_->f_val->cmp(scan1->data, scan2->data) != 0)            \
                 return false;                                                  \
                                                                                \
             scan1 = scan1->next;                                               \
@@ -651,14 +685,9 @@ struct cmc_callbacks_linkedlist
                                                                                \
         int n = snprintf(str.s, cmc_string_len, cmc_string_fmt_linkedlist,     \
                          #SNAME, #V, l_, l_->count, l_->head, l_->tail,        \
-                         l_->alloc, l_->callbacks);                            \
+                         l_->flag, l_->f_val, l_->alloc, l_->callbacks);       \
                                                                                \
-        if (n < 0 || n == (int)cmc_string_len)                                 \
-            return (struct cmc_string){ 0 };                                   \
-                                                                               \
-        str.s[n] = '\0';                                                       \
-                                                                               \
-        return str;                                                            \
+        return n >= 0 ? str : (struct cmc_string){ 0 };                        \
     }                                                                          \
                                                                                \
     struct SNAME##_node *PFX##_new_node(struct SNAME *_list_, V element)       \

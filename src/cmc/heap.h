@@ -112,6 +112,7 @@ static const char *cmc_string_fmt_heap = "struct %s<%s> "
                                          "capacity:%" PRIuMAX ", "
                                          "count:%" PRIuMAX ", "
                                          "type:%s, "
+                                         "flag:%d, "
                                          "f_val:%p, "
                                          "alloc:%p, "
                                          "callbacks: %p}";
@@ -547,7 +548,7 @@ struct cmc_callbacks_heap
                                                                                \
         int n = snprintf(str.s, cmc_string_len, cmc_string_fmt_heap, #SNAME,   \
                          #V, h_, h_->buffer, h_->capacity, h_->count, t,       \
-                         h_->f_val, h_->alloc, h_->callbacks);                 \
+                         h_->flag, h_->f_val, h_->alloc, h_->callbacks);       \
                                                                                \
         return n >= 0 ? str : (struct cmc_string){ 0 };                        \
     }                                                                          \
