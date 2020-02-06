@@ -504,6 +504,8 @@ struct cmc_callbacks_queue
         }                                                                     \
                                                                               \
         result->count = _queue_->count;                                       \
+        result->front = 0;                                                    \
+        result->back = _queue_->count;                                        \
                                                                               \
         return result;                                                        \
     }                                                                         \

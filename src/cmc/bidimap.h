@@ -412,7 +412,7 @@ struct cmc_callbacks_bidimap
         if (capacity >= UINTMAX_MAX * load)                                    \
             return NULL;                                                       \
                                                                                \
-        if (!f_val)                                                            \
+        if (!f_key || !f_val)                                                  \
             return NULL;                                                       \
                                                                                \
         size_t real_capacity = PFX##_impl_calculate_size(capacity / load);     \
@@ -459,6 +459,9 @@ struct cmc_callbacks_bidimap
                                                                                \
         /* Prevent integer overflow */                                         \
         if (capacity >= UINTMAX_MAX * load)                                    \
+            return NULL;                                                       \
+                                                                               \
+        if (!f_key || !f_val)                                                  \
             return NULL;                                                       \
                                                                                \
         size_t real_capacity = PFX##_impl_calculate_size(capacity / load);     \
