@@ -112,7 +112,7 @@ static const char *cmc_string_fmt_heap = "struct %s<%s> "
                                          "capacity:%" PRIuMAX ", "
                                          "count:%" PRIuMAX ", "
                                          "type:%s, "
-                                         "cmp:%p, "
+                                         "f_val:%p, "
                                          "alloc:%p, "
                                          "callbacks: %p}";
 
@@ -161,20 +161,45 @@ struct cmc_callbacks_heap
         /* Heap order (MaxHeap or MinHeap) */                                \
         enum cmc_heap_order HO;                                              \
                                                                              \
-        /* Element comparison function */                                    \
-        int (*cmp)(V, V);                                                    \
+        /* Flags indicating errors or success */                             \
+        int flag;                                                            \
                                                                              \
-        /* Function that returns an iterator to the start of the heap */     \
-        struct SNAME##_iter (*it_start)(struct SNAME *);                     \
-                                                                             \
-        /* Function that returns an iterator to the end of the heap */       \
-        struct SNAME##_iter (*it_end)(struct SNAME *);                       \
+        /* Value function table */                                           \
+        struct SNAME##_ftab_val *f_val;                                      \
                                                                              \
         /* Custom allocation functions */                                    \
         struct cmc_alloc_node *alloc;                                        \
                                                                              \
         /* Custom callback functions */                                      \
         struct cmc_callbacks_heap *callbacks;                                \
+                                                                             \
+        /* Function that returns an iterator to the start of the heap */     \
+        struct SNAME##_iter (*it_start)(struct SNAME *);                     \
+                                                                             \
+        /* Function that returns an iterator to the end of the heap */       \
+        struct SNAME##_iter (*it_end)(struct SNAME *);                       \
+    };                                                                       \
+                                                                             \
+    /* Value struct function table */                                        \
+    struct SNAME##_ftab_val                                                  \
+    {                                                                        \
+        /* Comparator function */                                            \
+        int (*cmp)(V, V);                                                    \
+                                                                             \
+        /* Copy function */                                                  \
+        V (*cpy)(V);                                                         \
+                                                                             \
+        /* To string function */                                             \
+        bool (*str)(FILE *, V);                                              \
+                                                                             \
+        /* Free from memory function */                                      \
+        void (*free)(V);                                                     \
+                                                                             \
+        /* Hash function */                                                  \
+        size_t (*hash)(V);                                                   \
+                                                                             \
+        /* Priority function */                                              \
+        int (*pri)(V, V);                                                    \
     };                                                                       \
                                                                              \
     /* Heap Iterator */                                                      \
@@ -196,12 +221,13 @@ struct cmc_callbacks_heap
     /* Collection Functions */                                               \
     /* Collection Allocation and Deallocation */                             \
     struct SNAME *PFX##_new(size_t capacity, enum cmc_heap_order HO,         \
-                            int (*compare)(V, V));                           \
-    struct SNAME *PFX##_new_custom(                                          \
-        size_t capacity, enum cmc_heap_order HO, int (*compare)(V, V),       \
-        struct cmc_alloc_node *alloc, struct cmc_callbacks_heap *callbacks); \
-    void PFX##_clear(struct SNAME *_heap_, void (*deallocator)(V));          \
-    void PFX##_free(struct SNAME *_heap_, void (*deallocator)(V));           \
+                            struct SNAME##_ftab_val *f_val);                 \
+    struct SNAME *PFX##_new_custom(size_t capacity, enum cmc_heap_order HO,  \
+                                   struct SNAME##_ftab_val *f_val,           \
+                                   struct cmc_alloc_node *alloc,             \
+                                   struct cmc_callbacks_heap *callbacks);    \
+    void PFX##_clear(struct SNAME *_heap_);                                  \
+    void PFX##_free(struct SNAME *_heap_);                                   \
     /* Customization of Allocation and Callbacks */                          \
     void PFX##_customize(struct SNAME *_heap_, struct cmc_alloc_node *alloc, \
                          struct cmc_callbacks_heap *callbacks);              \
@@ -218,7 +244,7 @@ struct cmc_callbacks_heap
     size_t PFX##_capacity(struct SNAME *_heap_);                             \
     /* Collection Utility */                                                 \
     bool PFX##_resize(struct SNAME *_heap_, size_t capacity);                \
-    struct SNAME *PFX##_copy_of(struct SNAME *_heap_, V (*copy_func)(V));    \
+    struct SNAME *PFX##_copy_of(struct SNAME *_heap_);                       \
     bool PFX##_equals(struct SNAME *_heap1_, struct SNAME *_heap2_);         \
     struct cmc_string PFX##_to_string(struct SNAME *_heap_);                 \
                                                                              \
@@ -255,7 +281,7 @@ struct cmc_callbacks_heap
     static struct SNAME##_iter PFX##_impl_it_end(struct SNAME *_heap_);        \
                                                                                \
     struct SNAME *PFX##_new(size_t capacity, enum cmc_heap_order HO,           \
-                            int (*compare)(V, V))                              \
+                            struct SNAME##_ftab_val *f_val)                    \
     {                                                                          \
         struct cmc_alloc_node *alloc = &cmc_alloc_node_default;                \
                                                                                \
@@ -263,6 +289,9 @@ struct cmc_callbacks_heap
             return NULL;                                                       \
                                                                                \
         if (HO != cmc_min_heap && HO != cmc_max_heap)                          \
+            return NULL;                                                       \
+                                                                               \
+        if (!f_val)                                                            \
             return NULL;                                                       \
                                                                                \
         struct SNAME *_heap_ = alloc->malloc(sizeof(struct SNAME));            \
@@ -281,25 +310,28 @@ struct cmc_callbacks_heap
         _heap_->capacity = capacity;                                           \
         _heap_->count = 0;                                                     \
         _heap_->HO = HO;                                                       \
-        _heap_->cmp = compare;                                                 \
-                                                                               \
-        _heap_->it_start = PFX##_impl_it_start;                                \
-        _heap_->it_end = PFX##_impl_it_end;                                    \
-                                                                               \
+        _heap_->flag = cmc_flags.OK;                                           \
+        _heap_->f_val = f_val;                                                 \
         _heap_->alloc = alloc;                                                 \
         _heap_->callbacks = NULL;                                              \
+        _heap_->it_start = PFX##_impl_it_start;                                \
+        _heap_->it_end = PFX##_impl_it_end;                                    \
                                                                                \
         return _heap_;                                                         \
     }                                                                          \
                                                                                \
-    struct SNAME *PFX##_new_custom(                                            \
-        size_t capacity, enum cmc_heap_order HO, int (*compare)(V, V),         \
-        struct cmc_alloc_node *alloc, struct cmc_callbacks_heap *callbacks)    \
+    struct SNAME *PFX##_new_custom(size_t capacity, enum cmc_heap_order HO,    \
+                                   struct SNAME##_ftab_val *f_val,             \
+                                   struct cmc_alloc_node *alloc,               \
+                                   struct cmc_callbacks_heap *callbacks)       \
     {                                                                          \
         if (capacity < 1)                                                      \
             return NULL;                                                       \
                                                                                \
         if (HO != cmc_min_heap && HO != cmc_max_heap)                          \
+            return NULL;                                                       \
+                                                                               \
+        if (!f_val)                                                            \
             return NULL;                                                       \
                                                                                \
         if (!alloc)                                                            \
@@ -321,24 +353,23 @@ struct cmc_callbacks_heap
         _heap_->capacity = capacity;                                           \
         _heap_->count = 0;                                                     \
         _heap_->HO = HO;                                                       \
-        _heap_->cmp = compare;                                                 \
-                                                                               \
-        _heap_->it_start = PFX##_impl_it_start;                                \
-        _heap_->it_end = PFX##_impl_it_end;                                    \
-                                                                               \
+        _heap_->flag = cmc_flags.OK;                                           \
+        _heap_->f_val = f_val;                                                 \
         _heap_->alloc = alloc;                                                 \
         _heap_->callbacks = callbacks;                                         \
+        _heap_->it_start = PFX##_impl_it_start;                                \
+        _heap_->it_end = PFX##_impl_it_end;                                    \
                                                                                \
         return _heap_;                                                         \
     }                                                                          \
                                                                                \
-    void PFX##_clear(struct SNAME *_heap_, void (*deallocator)(V))             \
+    void PFX##_clear(struct SNAME *_heap_)                                     \
     {                                                                          \
-        if (deallocator)                                                       \
+        if (_heap_->f_val->free)                                               \
         {                                                                      \
             for (size_t i = 0; i < _heap_->count; i++)                         \
             {                                                                  \
-                deallocator(_heap_->buffer[i]);                                \
+                _heap_->f_val->free(_heap_->buffer[i]);                        \
             }                                                                  \
         }                                                                      \
                                                                                \
@@ -347,13 +378,13 @@ struct cmc_callbacks_heap
         _heap_->count = 0;                                                     \
     }                                                                          \
                                                                                \
-    void PFX##_free(struct SNAME *_heap_, void (*deallocator)(V))              \
+    void PFX##_free(struct SNAME *_heap_)                                      \
     {                                                                          \
-        if (deallocator)                                                       \
+        if (_heap_->f_val->free)                                               \
         {                                                                      \
             for (size_t i = 0; i < _heap_->count; i++)                         \
             {                                                                  \
-                deallocator(_heap_->buffer[i]);                                \
+                _heap_->f_val->free(_heap_->buffer[i]);                        \
             }                                                                  \
         }                                                                      \
                                                                                \
@@ -422,7 +453,7 @@ struct cmc_callbacks_heap
     {                                                                          \
         for (size_t i = 0; i < _heap_->count; i++)                             \
         {                                                                      \
-            if (_heap_->cmp(_heap_->buffer[i], element) == 0)                  \
+            if (_heap_->f_val->cmp(_heap_->buffer[i], element) == 0)           \
                 return true;                                                   \
         }                                                                      \
                                                                                \
@@ -463,25 +494,27 @@ struct cmc_callbacks_heap
         if (!new_buffer)                                                       \
             return false;                                                      \
                                                                                \
+        /* TODO zero out new slots */                                          \
+                                                                               \
         _heap_->buffer = new_buffer;                                           \
         _heap_->capacity = capacity;                                           \
                                                                                \
         return true;                                                           \
     }                                                                          \
                                                                                \
-    struct SNAME *PFX##_copy_of(struct SNAME *_heap_, V (*copy_func)(V))       \
+    struct SNAME *PFX##_copy_of(struct SNAME *_heap_)                          \
     {                                                                          \
         struct SNAME *result =                                                 \
-            PFX##_new_custom(_heap_->capacity, _heap_->HO, _heap_->cmp,        \
+            PFX##_new_custom(_heap_->capacity, _heap_->HO, _heap_->f_val,      \
                              _heap_->alloc, _heap_->callbacks);                \
                                                                                \
         if (!result)                                                           \
             return NULL;                                                       \
                                                                                \
-        if (copy_func)                                                         \
+        if (_heap_->f_val->cpy)                                                \
         {                                                                      \
             for (size_t i = 0; i < _heap_->count; i++)                         \
-                result->buffer[i] = copy_func(_heap_->buffer[i]);              \
+                result->buffer[i] = _heap_->f_val->cpy(_heap_->buffer[i]);     \
         }                                                                      \
         else                                                                   \
             memcpy(result->buffer, _heap_->buffer, sizeof(V) * _heap_->count); \
@@ -498,7 +531,8 @@ struct cmc_callbacks_heap
                                                                                \
         for (size_t i = 0; i < PFX##_count(_heap1_); i++)                      \
         {                                                                      \
-            if (_heap1_->cmp(_heap1_->buffer[i], _heap2_->buffer[i]) != 0)     \
+            if (_heap1_->f_val->cmp(_heap1_->buffer[i], _heap2_->buffer[i]) != \
+                0)                                                             \
                 return false;                                                  \
         }                                                                      \
                                                                                \
@@ -513,14 +547,9 @@ struct cmc_callbacks_heap
                                                                                \
         int n = snprintf(str.s, cmc_string_len, cmc_string_fmt_heap, #SNAME,   \
                          #V, h_, h_->buffer, h_->capacity, h_->count, t,       \
-                         h_->cmp, h_->alloc, h_->callbacks);                   \
+                         h_->f_val, h_->alloc, h_->callbacks);                 \
                                                                                \
-        if (n < 0 || n == (int)cmc_string_len)                                 \
-            return (struct cmc_string){ 0 };                                   \
-                                                                               \
-        str.s[n] = '\0';                                                       \
-                                                                               \
-        return str;                                                            \
+        return n >= 0 ? str : (struct cmc_string){ 0 };                        \
     }                                                                          \
                                                                                \
     struct SNAME##_iter *PFX##_iter_new(struct SNAME *target)                  \
@@ -699,7 +728,7 @@ struct cmc_callbacks_heap
                                                                                \
         int mod = _heap_->HO;                                                  \
                                                                                \
-        while (C > 0 && _heap_->cmp(child, parent) * mod > 0)                  \
+        while (C > 0 && _heap_->f_val->cmp(child, parent) * mod > 0)           \
         {                                                                      \
             /* Swap between C (current element) and its parent */              \
             V tmp = _heap_->buffer[C];                                         \
@@ -728,13 +757,17 @@ struct cmc_callbacks_heap
                                                                                \
             /* Determine if we swap with the left or right element */          \
             if (L < _heap_->count &&                                           \
-                _heap_->cmp(_heap_->buffer[L], _heap_->buffer[C]) * mod > 0)   \
+                _heap_->f_val->cmp(_heap_->buffer[L], _heap_->buffer[C]) *     \
+                        mod >                                                  \
+                    0)                                                         \
             {                                                                  \
                 C = L;                                                         \
             }                                                                  \
                                                                                \
             if (R < _heap_->count &&                                           \
-                _heap_->cmp(_heap_->buffer[R], _heap_->buffer[C]) * mod > 0)   \
+                _heap_->f_val->cmp(_heap_->buffer[R], _heap_->buffer[C]) *     \
+                        mod >                                                  \
+                    0)                                                         \
             {                                                                  \
                 C = R;                                                         \
             }                                                                  \

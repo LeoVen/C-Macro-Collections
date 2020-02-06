@@ -7,68 +7,76 @@
 
 CMC_GENERATE_INTERVALHEAP(ih, intervalheap, size_t)
 
+struct intervalheap_ftab_val *ih_ftab_val =
+    &(struct intervalheap_ftab_val){ .cmp = cmp,
+                                     .cpy = copy,
+                                     .str = str,
+                                     .free = custom_free,
+                                     .hash = hash,
+                                     .pri = pri };
+
 CMC_CREATE_UNIT(intervalheap_test, true, {
     CMC_CREATE_TEST(new, {
-        struct intervalheap *ih = ih_new(1000000, cmp);
+        struct intervalheap *ih = ih_new(1000000, ih_ftab_val);
 
         cmc_assert_not_equals(ptr, NULL, ih);
         cmc_assert_not_equals(ptr, NULL, ih->buffer);
         cmc_assert_equals(size_t, 500000, ih_capacity(ih));
         cmc_assert_equals(size_t, 0, ih_count(ih));
 
-        ih_free(ih, NULL);
+        ih_free(ih);
     });
 
     CMC_CREATE_TEST(new[capacity = 0], {
-        struct intervalheap *ih = ih_new(0, cmp);
+        struct intervalheap *ih = ih_new(0, ih_ftab_val);
 
         cmc_assert_equals(ptr, NULL, ih);
 
         if (ih)
-            ih_free(ih, NULL);
+            ih_free(ih);
     });
 
     CMC_CREATE_TEST(new[capacity], {
-        struct intervalheap *ih = ih_new(1, cmp);
+        struct intervalheap *ih = ih_new(1, ih_ftab_val);
 
         cmc_assert_not_equals(ptr, NULL, ih);
         cmc_assert_equals(size_t, 1, ih_capacity(ih));
 
-        ih_free(ih, NULL);
+        ih_free(ih);
 
-        ih = ih_new(2, cmp);
+        ih = ih_new(2, ih_ftab_val);
 
         cmc_assert_not_equals(ptr, NULL, ih);
         cmc_assert_equals(size_t, 1, ih_capacity(ih));
 
-        ih_free(ih, NULL);
+        ih_free(ih);
 
-        ih = ih_new(3, cmp);
-
-        cmc_assert_not_equals(ptr, NULL, ih);
-        cmc_assert_equals(size_t, 2, ih_capacity(ih));
-
-        ih_free(ih, NULL);
-
-        ih = ih_new(4, cmp);
+        ih = ih_new(3, ih_ftab_val);
 
         cmc_assert_not_equals(ptr, NULL, ih);
         cmc_assert_equals(size_t, 2, ih_capacity(ih));
 
-        ih_free(ih, NULL);
+        ih_free(ih);
+
+        ih = ih_new(4, ih_ftab_val);
+
+        cmc_assert_not_equals(ptr, NULL, ih);
+        cmc_assert_equals(size_t, 2, ih_capacity(ih));
+
+        ih_free(ih);
     });
 
     CMC_CREATE_TEST(new[capacity = UINT64_MAX], {
-        struct intervalheap *ih = ih_new(UINT64_MAX, cmp);
+        struct intervalheap *ih = ih_new(UINT64_MAX, ih_ftab_val);
 
         cmc_assert_equals(ptr, NULL, ih);
 
         if (ih)
-            ih_free(ih, NULL);
+            ih_free(ih);
     });
 
     CMC_CREATE_TEST(clear[count capacity], {
-        struct intervalheap *ih = ih_new(100, cmp);
+        struct intervalheap *ih = ih_new(100, ih_ftab_val);
 
         cmc_assert_not_equals(ptr, NULL, ih);
 
@@ -77,16 +85,16 @@ CMC_CREATE_UNIT(intervalheap_test, true, {
 
         cmc_assert_equals(size_t, 50, ih_count(ih));
 
-        ih_clear(ih, NULL);
+        ih_clear(ih);
 
         cmc_assert_equals(size_t, 0, ih_count(ih));
         cmc_assert_equals(size_t, 50, ih_capacity(ih));
 
-        ih_free(ih, NULL);
+        ih_free(ih);
     });
 
     CMC_CREATE_TEST(buffer_growth[capacity = 1], {
-        struct intervalheap *ih = ih_new(1, cmp);
+        struct intervalheap *ih = ih_new(1, ih_ftab_val);
 
         cmc_assert_not_equals(ptr, NULL, ih);
 
@@ -96,11 +104,11 @@ CMC_CREATE_UNIT(intervalheap_test, true, {
         cmc_assert_equals(size_t, 50, ih_count(ih));
         cmc_assert_greater(size_t, 50, ih_capacity(ih) * 2);
 
-        ih_free(ih, NULL);
+        ih_free(ih);
     });
 
     CMC_CREATE_TEST(insert[count], {
-        struct intervalheap *ih = ih_new(100, cmp);
+        struct intervalheap *ih = ih_new(100, ih_ftab_val);
 
         cmc_assert_not_equals(ptr, NULL, ih);
 
@@ -109,11 +117,11 @@ CMC_CREATE_UNIT(intervalheap_test, true, {
 
         cmc_assert_equals(size_t, 2, ih_count(ih));
 
-        ih_free(ih, NULL);
+        ih_free(ih);
     });
 
     CMC_CREATE_TEST(insert[max min], {
-        struct intervalheap *ih = ih_new(1, cmp);
+        struct intervalheap *ih = ih_new(1, ih_ftab_val);
 
         cmc_assert_not_equals(ptr, NULL, ih);
 
@@ -129,6 +137,6 @@ CMC_CREATE_UNIT(intervalheap_test, true, {
         cmc_assert_equals(size_t, 0, min);
         cmc_assert_equals(size_t, 1, max);
 
-        ih_free(ih, NULL);
+        ih_free(ih);
     });
 });

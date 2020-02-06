@@ -89,7 +89,7 @@ static const char *cmc_string_fmt_intervalheap = "struct %s<%s> "
                                                  "capacity:%" PRIuMAX ", "
                                                  "size:%" PRIuMAX ", "
                                                  "count:%" PRIuMAX ", "
-                                                 "cmp:%p, "
+                                                 "f_val:%p, "
                                                  "alloc:%p, "
                                                  "callbacks:%p }";
 
@@ -121,115 +121,141 @@ struct cmc_callbacks_intervalheap
 /* -------------------------------------------------------------------------
  * Header
  * ------------------------------------------------------------------------- */
-#define CMC_GENERATE_INTERVALHEAP_HEADER(PFX, SNAME, V)                      \
-                                                                             \
-    /* Heap Structure */                                                     \
-    struct SNAME                                                             \
-    {                                                                        \
-        /* Dynamic array of nodes */                                         \
-        struct SNAME##_node *buffer;                                         \
-                                                                             \
-        /* Current array capacity (how many nodes can be stored) */          \
-        size_t capacity;                                                     \
-                                                                             \
-        /* Current amount of nodes in the dynamic array */                   \
-        size_t size;                                                         \
-                                                                             \
-        /* Current amount of elements in the heap */                         \
-        size_t count;                                                        \
-                                                                             \
-        /* Element comparison function */                                    \
-        int (*cmp)(V, V);                                                    \
-                                                                             \
-        /* Function that returns an iterator to the start of the heap */     \
-        struct SNAME##_iter (*it_start)(struct SNAME *);                     \
-                                                                             \
-        /* Function that returns an iterator to the end of the heap */       \
-        struct SNAME##_iter (*it_end)(struct SNAME *);                       \
-                                                                             \
-        /* Custom allocation functions */                                    \
-        struct cmc_alloc_node *alloc;                                        \
-                                                                             \
-        /* Custom callback functions */                                      \
-        struct cmc_callbacks_intervalheap *callbacks;                        \
-    };                                                                       \
-                                                                             \
-    /* Heap Node */                                                          \
-    struct SNAME##_node                                                      \
-    {                                                                        \
-        /* 0 - Value belonging to the MinHeap */                             \
-        /* 1 - Value belonging to the MaxHeap */                             \
-        V data[2];                                                           \
-    };                                                                       \
-                                                                             \
-    /* Heap Iterator */                                                      \
-    struct SNAME##_iter                                                      \
-    {                                                                        \
-        /* Target heap */                                                    \
-        struct SNAME *target;                                                \
-                                                                             \
-        /* Cursor's position (index) */                                      \
-        size_t cursor;                                                       \
-                                                                             \
-        /* If the iterator has reached the start of the iteration */         \
-        bool start;                                                          \
-                                                                             \
-        /* If the iterator has reached the end of the iteration */           \
-        bool end;                                                            \
-    };                                                                       \
-                                                                             \
-    /* Collection Functions */                                               \
-    /* Collection Allocation and Deallocation */                             \
-    struct SNAME *PFX##_new(size_t capacity, int (*compare)(V, V));          \
-    struct SNAME *PFX##_new_custom(                                          \
-        size_t capacity, int (*compare)(V, V), struct cmc_alloc_node *alloc, \
-        struct cmc_callbacks_intervalheap *callbacks);                       \
-    void PFX##_clear(struct SNAME *_heap_, void (*deallocator)(V));          \
-    void PFX##_free(struct SNAME *_heap_, void (*deallocator)(V));           \
-    /* Customization of Allocation and Callbacks */                          \
-    void PFX##_customize(struct SNAME *_heap_, struct cmc_alloc_node *alloc, \
-                         struct cmc_callbacks_intervalheap *callbacks);      \
-    /* Collection Input and Output */                                        \
-    bool PFX##_insert(struct SNAME *_heap_, V element);                      \
-    bool PFX##_remove_max(struct SNAME *_heap_, V *result);                  \
-    bool PFX##_remove_min(struct SNAME *_heap_, V *result);                  \
-    /* Collection Update */                                                  \
-    bool PFX##_update_max(struct SNAME *_heap_, V element);                  \
-    bool PFX##_update_min(struct SNAME *_heap_, V element);                  \
-    /* Element Access */                                                     \
-    bool PFX##_max(struct SNAME *_heap_, V *value);                          \
-    bool PFX##_min(struct SNAME *_heap_, V *value);                          \
-    /* Collection State */                                                   \
-    bool PFX##_contains(struct SNAME *_heap_, V element);                    \
-    bool PFX##_empty(struct SNAME *_heap_);                                  \
-    bool PFX##_full(struct SNAME *_heap_);                                   \
-    size_t PFX##_count(struct SNAME *_heap_);                                \
-    size_t PFX##_capacity(struct SNAME *_heap_);                             \
-    /* Collection Utility */                                                 \
-    bool PFX##_resize(struct SNAME *_heap_, size_t capacity);                \
-    struct SNAME *PFX##_copy_of(struct SNAME *_set_, V (*copy_func)(V));     \
-    bool PFX##_equals(struct SNAME *_heap1_, struct SNAME *_heap2_);         \
-    struct cmc_string PFX##_to_string(struct SNAME *_heap_);                 \
-                                                                             \
-    /* Iterator Functions */                                                 \
-    /* Iterator Allocation and Deallocation */                               \
-    struct SNAME##_iter *PFX##_iter_new(struct SNAME *target);               \
-    void PFX##_iter_free(struct SNAME##_iter *iter);                         \
-    /* Iterator Initialization */                                            \
-    void PFX##_iter_init(struct SNAME##_iter *iter, struct SNAME *target);   \
-    /* Iterator State */                                                     \
-    bool PFX##_iter_start(struct SNAME##_iter *iter);                        \
-    bool PFX##_iter_end(struct SNAME##_iter *iter);                          \
-    /* Iterator Movement */                                                  \
-    void PFX##_iter_to_start(struct SNAME##_iter *iter);                     \
-    void PFX##_iter_to_end(struct SNAME##_iter *iter);                       \
-    bool PFX##_iter_next(struct SNAME##_iter *iter);                         \
-    bool PFX##_iter_prev(struct SNAME##_iter *iter);                         \
-    bool PFX##_iter_advance(struct SNAME##_iter *iter, size_t steps);        \
-    bool PFX##_iter_rewind(struct SNAME##_iter *iter, size_t steps);         \
-    bool PFX##_iter_go_to(struct SNAME##_iter *iter, size_t index);          \
-    /* Iterator Access */                                                    \
-    V PFX##_iter_value(struct SNAME##_iter *iter);                           \
+#define CMC_GENERATE_INTERVALHEAP_HEADER(PFX, SNAME, V)                       \
+                                                                              \
+    /* Heap Structure */                                                      \
+    struct SNAME                                                              \
+    {                                                                         \
+        /* Dynamic array of nodes */                                          \
+        struct SNAME##_node *buffer;                                          \
+                                                                              \
+        /* Current array capacity (how many nodes can be stored) */           \
+        size_t capacity;                                                      \
+                                                                              \
+        /* Current amount of nodes in the dynamic array */                    \
+        size_t size;                                                          \
+                                                                              \
+        /* Current amount of elements in the heap */                          \
+        size_t count;                                                         \
+                                                                              \
+        /* Flags indicating errors or success */                              \
+        int flag;                                                             \
+                                                                              \
+        /* Value function table */                                            \
+        struct SNAME##_ftab_val *f_val;                                       \
+                                                                              \
+        /* Function that returns an iterator to the start of the heap */      \
+        struct SNAME##_iter (*it_start)(struct SNAME *);                      \
+                                                                              \
+        /* Function that returns an iterator to the end of the heap */        \
+        struct SNAME##_iter (*it_end)(struct SNAME *);                        \
+                                                                              \
+        /* Custom allocation functions */                                     \
+        struct cmc_alloc_node *alloc;                                         \
+                                                                              \
+        /* Custom callback functions */                                       \
+        struct cmc_callbacks_intervalheap *callbacks;                         \
+    };                                                                        \
+                                                                              \
+    /* Heap Node */                                                           \
+    struct SNAME##_node                                                       \
+    {                                                                         \
+        /* 0 - Value belonging to the MinHeap */                              \
+        /* 1 - Value belonging to the MaxHeap */                              \
+        V data[2];                                                            \
+    };                                                                        \
+                                                                              \
+    /* Value struct function table */                                         \
+    struct SNAME##_ftab_val                                                   \
+    {                                                                         \
+        /* Comparator function */                                             \
+        int (*cmp)(V, V);                                                     \
+                                                                              \
+        /* Copy function */                                                   \
+        V (*cpy)(V);                                                          \
+                                                                              \
+        /* To string function */                                              \
+        bool (*str)(FILE *, V);                                               \
+                                                                              \
+        /* Free from memory function */                                       \
+        void (*free)(V);                                                      \
+                                                                              \
+        /* Hash function */                                                   \
+        size_t (*hash)(V);                                                    \
+                                                                              \
+        /* Priority function */                                               \
+        int (*pri)(V, V);                                                     \
+    };                                                                        \
+                                                                              \
+    /* Heap Iterator */                                                       \
+    struct SNAME##_iter                                                       \
+    {                                                                         \
+        /* Target heap */                                                     \
+        struct SNAME *target;                                                 \
+                                                                              \
+        /* Cursor's position (index) */                                       \
+        size_t cursor;                                                        \
+                                                                              \
+        /* If the iterator has reached the start of the iteration */          \
+        bool start;                                                           \
+                                                                              \
+        /* If the iterator has reached the end of the iteration */            \
+        bool end;                                                             \
+    };                                                                        \
+                                                                              \
+    /* Collection Functions */                                                \
+    /* Collection Allocation and Deallocation */                              \
+    struct SNAME *PFX##_new(size_t capacity, struct SNAME##_ftab_val *f_val); \
+    struct SNAME *PFX##_new_custom(                                           \
+        size_t capacity, struct SNAME##_ftab_val *f_val,                      \
+        struct cmc_alloc_node *alloc,                                         \
+        struct cmc_callbacks_intervalheap *callbacks);                        \
+    void PFX##_clear(struct SNAME *_heap_);                                   \
+    void PFX##_free(struct SNAME *_heap_);                                    \
+    /* Customization of Allocation and Callbacks */                           \
+    void PFX##_customize(struct SNAME *_heap_, struct cmc_alloc_node *alloc,  \
+                         struct cmc_callbacks_intervalheap *callbacks);       \
+    /* Collection Input and Output */                                         \
+    bool PFX##_insert(struct SNAME *_heap_, V element);                       \
+    bool PFX##_remove_max(struct SNAME *_heap_, V *result);                   \
+    bool PFX##_remove_min(struct SNAME *_heap_, V *result);                   \
+    /* Collection Update */                                                   \
+    bool PFX##_update_max(struct SNAME *_heap_, V element);                   \
+    bool PFX##_update_min(struct SNAME *_heap_, V element);                   \
+    /* Element Access */                                                      \
+    bool PFX##_max(struct SNAME *_heap_, V *value);                           \
+    bool PFX##_min(struct SNAME *_heap_, V *value);                           \
+    /* Collection State */                                                    \
+    bool PFX##_contains(struct SNAME *_heap_, V element);                     \
+    bool PFX##_empty(struct SNAME *_heap_);                                   \
+    bool PFX##_full(struct SNAME *_heap_);                                    \
+    size_t PFX##_count(struct SNAME *_heap_);                                 \
+    size_t PFX##_capacity(struct SNAME *_heap_);                              \
+    /* Collection Utility */                                                  \
+    bool PFX##_resize(struct SNAME *_heap_, size_t capacity);                 \
+    struct SNAME *PFX##_copy_of(struct SNAME *_set_);                         \
+    bool PFX##_equals(struct SNAME *_heap1_, struct SNAME *_heap2_);          \
+    struct cmc_string PFX##_to_string(struct SNAME *_heap_);                  \
+                                                                              \
+    /* Iterator Functions */                                                  \
+    /* Iterator Allocation and Deallocation */                                \
+    struct SNAME##_iter *PFX##_iter_new(struct SNAME *target);                \
+    void PFX##_iter_free(struct SNAME##_iter *iter);                          \
+    /* Iterator Initialization */                                             \
+    void PFX##_iter_init(struct SNAME##_iter *iter, struct SNAME *target);    \
+    /* Iterator State */                                                      \
+    bool PFX##_iter_start(struct SNAME##_iter *iter);                         \
+    bool PFX##_iter_end(struct SNAME##_iter *iter);                           \
+    /* Iterator Movement */                                                   \
+    void PFX##_iter_to_start(struct SNAME##_iter *iter);                      \
+    void PFX##_iter_to_end(struct SNAME##_iter *iter);                        \
+    bool PFX##_iter_next(struct SNAME##_iter *iter);                          \
+    bool PFX##_iter_prev(struct SNAME##_iter *iter);                          \
+    bool PFX##_iter_advance(struct SNAME##_iter *iter, size_t steps);         \
+    bool PFX##_iter_rewind(struct SNAME##_iter *iter, size_t steps);          \
+    bool PFX##_iter_go_to(struct SNAME##_iter *iter, size_t index);           \
+    /* Iterator Access */                                                     \
+    V PFX##_iter_value(struct SNAME##_iter *iter);                            \
     size_t PFX##_iter_index(struct SNAME##_iter *iter);
 
 /* -------------------------------------------------------------------------
@@ -245,11 +271,14 @@ struct cmc_callbacks_intervalheap
     static struct SNAME##_iter PFX##_impl_it_start(struct SNAME *_heap_);      \
     static struct SNAME##_iter PFX##_impl_it_end(struct SNAME *_heap_);        \
                                                                                \
-    struct SNAME *PFX##_new(size_t capacity, int (*compare)(V, V))             \
+    struct SNAME *PFX##_new(size_t capacity, struct SNAME##_ftab_val *f_val)   \
     {                                                                          \
         struct cmc_alloc_node *alloc = &cmc_alloc_node_default;                \
                                                                                \
         if (capacity == 0 || capacity == UINT64_MAX)                           \
+            return NULL;                                                       \
+                                                                               \
+        if (!f_val)                                                            \
             return NULL;                                                       \
                                                                                \
         struct SNAME *_heap_ = alloc->malloc(sizeof(struct SNAME));            \
@@ -273,22 +302,25 @@ struct cmc_callbacks_intervalheap
         _heap_->capacity = capacity;                                           \
         _heap_->size = 0;                                                      \
         _heap_->count = 0;                                                     \
-        _heap_->cmp = compare;                                                 \
-                                                                               \
-        _heap_->it_start = PFX##_impl_it_start;                                \
-        _heap_->it_end = PFX##_impl_it_end;                                    \
-                                                                               \
+        _heap_->flag = cmc_flags.OK;                                           \
+        _heap_->f_val = f_val;                                                 \
         _heap_->alloc = alloc;                                                 \
         _heap_->callbacks = NULL;                                              \
+        _heap_->it_start = PFX##_impl_it_start;                                \
+        _heap_->it_end = PFX##_impl_it_end;                                    \
                                                                                \
         return _heap_;                                                         \
     }                                                                          \
                                                                                \
     struct SNAME *PFX##_new_custom(                                            \
-        size_t capacity, int (*compare)(V, V), struct cmc_alloc_node *alloc,   \
+        size_t capacity, struct SNAME##_ftab_val *f_val,                       \
+        struct cmc_alloc_node *alloc,                                          \
         struct cmc_callbacks_intervalheap *callbacks)                          \
     {                                                                          \
         if (capacity == 0 || capacity == UINT64_MAX)                           \
+            return NULL;                                                       \
+                                                                               \
+        if (!f_val)                                                            \
             return NULL;                                                       \
                                                                                \
         if (!alloc)                                                            \
@@ -315,24 +347,23 @@ struct cmc_callbacks_intervalheap
         _heap_->capacity = capacity;                                           \
         _heap_->size = 0;                                                      \
         _heap_->count = 0;                                                     \
-        _heap_->cmp = compare;                                                 \
-                                                                               \
-        _heap_->it_start = PFX##_impl_it_start;                                \
-        _heap_->it_end = PFX##_impl_it_end;                                    \
-                                                                               \
+        _heap_->flag = cmc_flags.OK;                                           \
+        _heap_->f_val = f_val;                                                 \
         _heap_->alloc = alloc;                                                 \
         _heap_->callbacks = callbacks;                                         \
+        _heap_->it_start = PFX##_impl_it_start;                                \
+        _heap_->it_end = PFX##_impl_it_end;                                    \
                                                                                \
         return _heap_;                                                         \
     }                                                                          \
                                                                                \
-    void PFX##_clear(struct SNAME *_heap_, void (*deallocator)(V))             \
+    void PFX##_clear(struct SNAME *_heap_)                                     \
     {                                                                          \
-        if (deallocator)                                                       \
+        if (_heap_->f_val->free)                                               \
         {                                                                      \
             for (size_t i = 0; i < _heap_->count; i++)                         \
             {                                                                  \
-                deallocator(_heap_->buffer[i / 2].data[i % 2]);                \
+                _heap_->f_val->free(_heap_->buffer[i / 2].data[i % 2]);        \
             }                                                                  \
         }                                                                      \
                                                                                \
@@ -342,13 +373,13 @@ struct cmc_callbacks_intervalheap
         _heap_->count = 0;                                                     \
     }                                                                          \
                                                                                \
-    void PFX##_free(struct SNAME *_heap_, void (*deallocator)(V))              \
+    void PFX##_free(struct SNAME *_heap_)                                      \
     {                                                                          \
-        if (deallocator)                                                       \
+        if (_heap_->f_val->free)                                               \
         {                                                                      \
             for (size_t i = 0; i < _heap_->count; i++)                         \
             {                                                                  \
-                deallocator(_heap_->buffer[i / 2].data[i % 2]);                \
+                _heap_->f_val->free(_heap_->buffer[i / 2].data[i % 2]);        \
             }                                                                  \
         }                                                                      \
                                                                                \
@@ -385,20 +416,19 @@ struct cmc_callbacks_intervalheap
         }                                                                      \
         else                                                                   \
         {                                                                      \
-            struct SNAME##_node *curr_node =                                   \
-                &(_heap_->buffer[_heap_->size - 1]);                           \
+            struct SNAME##_node *node = &(_heap_->buffer[_heap_->size - 1]);   \
                                                                                \
             /* Decide if the new element goes into the MinHeap or MaxHeap */   \
-            if (_heap_->cmp(curr_node->data[0], element) > 0)                  \
+            if (_heap_->f_val->cmp(node->data[0], element) > 0)                \
             {                                                                  \
                 /* Swap current value and add new element to the MinHeap */    \
-                curr_node->data[1] = curr_node->data[0];                       \
-                curr_node->data[0] = element;                                  \
+                node->data[1] = node->data[0];                                 \
+                node->data[0] = element;                                       \
             }                                                                  \
             else                                                               \
             {                                                                  \
                 /* No need to swap and add the new element to the MaxHeap */   \
-                curr_node->data[1] = element;                                  \
+                node->data[1] = element;                                       \
             }                                                                  \
         }                                                                      \
                                                                                \
@@ -411,9 +441,9 @@ struct cmc_callbacks_intervalheap
         struct SNAME##_node *parent =                                          \
             &(_heap_->buffer[(_heap_->size - 1) / 2]);                         \
                                                                                \
-        if (_heap_->cmp(parent->data[0], element) > 0)                         \
+        if (_heap_->f_val->cmp(parent->data[0], element) > 0)                  \
             PFX##_impl_float_up_min(_heap_);                                   \
-        else if (_heap_->cmp(parent->data[1], element) < 0)                    \
+        else if (_heap_->f_val->cmp(parent->data[1], element) < 0)             \
             PFX##_impl_float_up_max(_heap_);                                   \
         /* else no float up required */                                        \
                                                                                \
@@ -519,7 +549,7 @@ struct cmc_callbacks_intervalheap
         {                                                                      \
             _heap_->buffer[0].data[0] = element;                               \
         }                                                                      \
-        else if (_heap_->cmp(element, _heap_->buffer[0].data[0]) < 0)          \
+        else if (_heap_->f_val->cmp(element, _heap_->buffer[0].data[0]) < 0)   \
         {                                                                      \
             /* Corner case: we are updating the Max value but it is less */    \
             /* than the Min value */                                           \
@@ -548,7 +578,7 @@ struct cmc_callbacks_intervalheap
         {                                                                      \
             _heap_->buffer[0].data[0] = element;                               \
         }                                                                      \
-        else if (_heap_->cmp(element, _heap_->buffer[0].data[1]) > 0)          \
+        else if (_heap_->f_val->cmp(element, _heap_->buffer[0].data[1]) > 0)   \
         {                                                                      \
             /* Corner case: we are updating the Min value but it is greater */ \
             /* than the Max value. */                                          \
@@ -597,7 +627,8 @@ struct cmc_callbacks_intervalheap
     {                                                                          \
         for (size_t i = 0; i < _heap_->count; i++)                             \
         {                                                                      \
-            if (_heap_->cmp(_heap_->buffer[i / 2].data[i % 2], element) == 0)  \
+            if (_heap_->f_val->cmp(_heap_->buffer[i / 2].data[i % 2],          \
+                                   element) == 0)                              \
                 return true;                                                   \
         }                                                                      \
                                                                                \
@@ -650,7 +681,7 @@ struct cmc_callbacks_intervalheap
         return true;                                                           \
     }                                                                          \
                                                                                \
-    struct SNAME *PFX##_copy_of(struct SNAME *_heap_, V (*copy_func)(V))       \
+    struct SNAME *PFX##_copy_of(struct SNAME *_heap_)                          \
     {                                                                          \
         struct SNAME *result = _heap_->alloc->malloc(sizeof(struct SNAME));    \
                                                                                \
@@ -668,11 +699,11 @@ struct cmc_callbacks_intervalheap
             return NULL;                                                       \
         }                                                                      \
                                                                                \
-        if (copy_func)                                                         \
+        if (_heap_->f_val->cpy)                                                \
         {                                                                      \
             for (size_t i = 0; i < _heap_->count; i++)                         \
                 result->buffer[i / 2].data[i % 2] =                            \
-                    copy_func(_heap_->buffer[i / 2].data[i % 2]);              \
+                    _heap_->f_val->cpy(_heap_->buffer[i / 2].data[i % 2]);     \
         }                                                                      \
         else                                                                   \
             memcpy(result->buffer, _heap_->buffer,                             \
@@ -694,7 +725,7 @@ struct cmc_callbacks_intervalheap
             V element1 = _heap1_->buffer[i / 2].data[i % 2];                   \
             V element2 = _heap2_->buffer[i / 2].data[i % 2];                   \
                                                                                \
-            if (_heap1_->cmp(element1, element2) == 0)                         \
+            if (_heap1_->f_val->cmp(element1, element2) == 0)                  \
                 return true;                                                   \
         }                                                                      \
                                                                                \
@@ -708,14 +739,9 @@ struct cmc_callbacks_intervalheap
                                                                                \
         int n = snprintf(str.s, cmc_string_len, cmc_string_fmt_intervalheap,   \
                          #SNAME, #V, h_, h_->buffer, h_->capacity, h_->size,   \
-                         h_->count, h_->cmp, h_->alloc, h_->callbacks);        \
+                         h_->count, h_->f_val, h_->alloc, h_->callbacks);      \
                                                                                \
-        if (n < 0 || n == (int)cmc_string_len)                                 \
-            return (struct cmc_string){ 0 };                                   \
-                                                                               \
-        str.s[n] = '\0';                                                       \
-                                                                               \
-        return str;                                                            \
+        return n >= 0 ? str : (struct cmc_string){ 0 };                        \
     }                                                                          \
                                                                                \
     struct SNAME##_iter *PFX##_iter_new(struct SNAME *target)                  \
@@ -900,7 +926,8 @@ struct cmc_callbacks_intervalheap
             {                                                                  \
                 /* In this case, the current node has no MaxHeap value so */   \
                 /* we instead compare with the MinHeap value */                \
-                if (_heap_->cmp(curr_node->data[0], parent->data[1]) < 0)      \
+                if (_heap_->f_val->cmp(curr_node->data[0], parent->data[1]) <  \
+                    0)                                                         \
                     break;                                                     \
                                                                                \
                 /* Since the comparison above passed now we need to swap   */  \
@@ -914,7 +941,8 @@ struct cmc_callbacks_intervalheap
             else                                                               \
             {                                                                  \
                 /* Usual case, just compare both MaxHeap values */             \
-                if (_heap_->cmp(curr_node->data[1], parent->data[1]) < 0)      \
+                if (_heap_->f_val->cmp(curr_node->data[1], parent->data[1]) <  \
+                    0)                                                         \
                     break;                                                     \
                                                                                \
                 /* Swap with parent and repeat */                              \
@@ -943,7 +971,7 @@ struct cmc_callbacks_intervalheap
                                                                                \
             struct SNAME##_node *parent = &(_heap_->buffer[P_index]);          \
                                                                                \
-            if (_heap_->cmp(curr_node->data[0], parent->data[0]) >= 0)         \
+            if (_heap_->f_val->cmp(curr_node->data[0], parent->data[0]) >= 0)  \
                 break;                                                         \
                                                                                \
             /* Swap with parent and repeat */                                  \
@@ -986,11 +1014,13 @@ struct cmc_callbacks_intervalheap
                 /* then do the comparison with the MinHeap value */            \
                 if (R_index == _heap_->size - 1 &&                             \
                     PFX##_count(_heap_) % 2 != 0)                              \
-                    child = _heap_->cmp(L->data[1], R->data[0]) > 0 ? L_index  \
-                                                                    : R_index; \
+                    child = _heap_->f_val->cmp(L->data[1], R->data[0]) > 0     \
+                                ? L_index                                      \
+                                : R_index;                                     \
                 else                                                           \
-                    child = _heap_->cmp(L->data[1], R->data[1]) > 0 ? L_index  \
-                                                                    : R_index; \
+                    child = _heap_->f_val->cmp(L->data[1], R->data[1]) > 0     \
+                                ? L_index                                      \
+                                : R_index;                                     \
             }                                                                  \
             /* Pick the only one available */                                  \
             else                                                               \
@@ -1005,7 +1035,8 @@ struct cmc_callbacks_intervalheap
                 /* Odd case, compare with MinHeap value */                     \
                 /* If current value is not less than the child node's */       \
                 /* value it is done */                                         \
-                if (_heap_->cmp(curr_node->data[1], child_node->data[0]) >= 0) \
+                if (_heap_->f_val->cmp(curr_node->data[1],                     \
+                                       child_node->data[0]) >= 0)              \
                     break;                                                     \
                                                                                \
                 /* Otherwise swap and continue */                              \
@@ -1017,7 +1048,8 @@ struct cmc_callbacks_intervalheap
             {                                                                  \
                 /* If current value is not less than the child node's   */     \
                 /* value it is done */                                         \
-                if (_heap_->cmp(curr_node->data[1], child_node->data[1]) >= 0) \
+                if (_heap_->f_val->cmp(curr_node->data[1],                     \
+                                       child_node->data[1]) >= 0)              \
                     break;                                                     \
                                                                                \
                 /* Otherwise swap and continue */                              \
@@ -1027,7 +1059,8 @@ struct cmc_callbacks_intervalheap
                                                                                \
                 /* Check if the MinHeap and MaxHeap values need to be */       \
                 /* swapped                  */                                 \
-                if (_heap_->cmp(child_node->data[0], child_node->data[1]) > 0) \
+                if (_heap_->f_val->cmp(child_node->data[0],                    \
+                                       child_node->data[1]) > 0)               \
                 {                                                              \
                     /* Swap because the MinHeap value is greater than the */   \
                     /* MaxHeap value */                                        \
@@ -1067,8 +1100,9 @@ struct cmc_callbacks_intervalheap
                 struct SNAME##_node *L = &(_heap_->buffer[L_index]);           \
                 struct SNAME##_node *R = &(_heap_->buffer[R_index]);           \
                                                                                \
-                child = _heap_->cmp(L->data[0], R->data[0]) < 0 ? L_index      \
-                                                                : R_index;     \
+                child = _heap_->f_val->cmp(L->data[0], R->data[0]) < 0         \
+                            ? L_index                                          \
+                            : R_index;                                         \
             }                                                                  \
             /* Pick the only one available */                                  \
             else                                                               \
@@ -1078,7 +1112,8 @@ struct cmc_callbacks_intervalheap
                                                                                \
             /* If current value is smaller than the child node's value, it */  \
             /* is done */                                                      \
-            if (_heap_->cmp(curr_node->data[0], child_node->data[0]) < 0)      \
+            if (_heap_->f_val->cmp(curr_node->data[0], child_node->data[0]) <  \
+                0)                                                             \
                 break;                                                         \
                                                                                \
             /* Otherwise swap and continue */                                  \
@@ -1090,7 +1125,8 @@ struct cmc_callbacks_intervalheap
             /* MaxHeap values need to be swapped */                            \
             if (child != _heap_->size - 1 || PFX##_count(_heap_) % 2 == 0)     \
             {                                                                  \
-                if (_heap_->cmp(child_node->data[0], child_node->data[1]) > 0) \
+                if (_heap_->f_val->cmp(child_node->data[0],                    \
+                                       child_node->data[1]) > 0)               \
                 {                                                              \
                     /* Swap because the MinHeap value is greater than the */   \
                     /* MaxHeap value */                                        \
