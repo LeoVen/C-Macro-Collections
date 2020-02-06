@@ -14,7 +14,7 @@ sac: FORCE
 	clang-format --style=file -i ./src/sac/*.h
 
 utl: FORCE
-	clang-format --style=file -i ./utl/sac/*.h
+	clang-format --style=file -i ./src/utl/*.h
 
 tests: FORCE
 	clang-format --style=file -i ./tests/main/unt/*.c ./tests/*.c

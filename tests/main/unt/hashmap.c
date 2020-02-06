@@ -42,7 +42,8 @@ CMC_CREATE_UNIT(hashmap_test, true, {
     });
 
     CMC_CREATE_TEST(new[capacity = UINT64_MAX], {
-        struct hashmap *map = hm_new(UINT64_MAX, 0.99, hm_ftab_key, hm_ftab_val);
+        struct hashmap *map =
+            hm_new(UINT64_MAX, 0.99, hm_ftab_key, hm_ftab_val);
 
         cmc_assert_equals(ptr, NULL, map);
     });

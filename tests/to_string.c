@@ -24,8 +24,10 @@ int main(void)
                                     &(struct bmap_ftab_val){ 0 }, NULL, NULL);
     struct deque *d =
         d_new_custom(100, &(struct deque_ftab_val){ 0 }, NULL, NULL);
-    struct hmap *hm = hm_new_custom(100, 0.6, NULL, NULL, NULL, NULL);
-    struct hset *hs = hs_new_custom(100, 0.6, NULL, NULL, NULL, NULL);
+    struct hmap *hm = hm_new_custom(100, 0.6, &(struct hmap_ftab_key){ 0 },
+                                    &(struct hmap_ftab_val){ 0 }, NULL, NULL);
+    struct hset *hs =
+        hs_new_custom(100, 0.6, &(struct hset_ftab_val){ 0 }, NULL, NULL);
     struct heap *h = h_new_custom(100, cmc_max_heap, NULL, NULL, NULL);
     struct iheap *ih = ih_new_custom(100, NULL, NULL, NULL);
     struct linked *ll = ll_new_custom(NULL, NULL);
@@ -56,8 +58,8 @@ int main(void)
 
     bm_free(bm);
     d_free(d);
-    hm_free(hm, NULL);
-    hs_free(hs, NULL);
+    hm_free(hm);
+    hs_free(hs);
     h_free(h, NULL);
     ih_free(ih, NULL);
     ll_free(ll, NULL);
