@@ -151,8 +151,8 @@ static const char *cmc_string_fmt_multiset = "struct %s<%s> "
                                              "count:%" PRIuMAX ", "
                                              "cardinality:%" PRIuMAX ", "
                                              "load:%lf, "
-                                             "cmp:%p, "
-                                             "hash:%p, "
+                                             "flag:%d, "
+                                             "f_val:%p, "
                                              "alloc:%p, "
                                              "callbacks:%p }";
 
@@ -204,23 +204,23 @@ struct cmc_callbacks_multiset
         /* Load factor in range (0.0, 1.0) */                                  \
         double load;                                                           \
                                                                                \
-        /* Element comparison function */                                      \
-        int (*cmp)(V, V);                                                      \
+        /* Flags indicating errors or success */                               \
+        int flag;                                                              \
                                                                                \
-        /* Element hash function */                                            \
-        size_t (*hash)(V);                                                     \
-                                                                               \
-        /* Function that returns an iterator to the start of the hashset */    \
-        struct SNAME##_iter (*it_start)(struct SNAME *);                       \
-                                                                               \
-        /* Function that returns an iterator to the end of the hashset */      \
-        struct SNAME##_iter (*it_end)(struct SNAME *);                         \
+        /* Key function table */                                               \
+        struct SNAME##_ftab_val *f_val;                                        \
                                                                                \
         /* Custom allocation functions */                                      \
         struct cmc_alloc_node *alloc;                                          \
                                                                                \
         /* Custom callback functions */                                        \
         struct cmc_callbacks_multiset *callbacks;                              \
+                                                                               \
+        /* Function that returns an iterator to the start of the hashset */    \
+        struct SNAME##_iter (*it_start)(struct SNAME *);                       \
+                                                                               \
+        /* Function that returns an iterator to the end of the hashset */      \
+        struct SNAME##_iter (*it_end)(struct SNAME *);                         \
     };                                                                         \
                                                                                \
     struct SNAME##_entry                                                       \
@@ -237,6 +237,28 @@ struct cmc_callbacks_multiset
                                                                                \
         /* The sate of this node (DELETED, EMPTY, FILLED) */                   \
         enum cmc_entry_state state;                                            \
+    };                                                                         \
+                                                                               \
+    /* Value struct function table */                                          \
+    struct SNAME##_ftab_val                                                    \
+    {                                                                          \
+        /* Comparator function */                                              \
+        int (*cmp)(V, V);                                                      \
+                                                                               \
+        /* Copy function */                                                    \
+        V (*cpy)(V);                                                           \
+                                                                               \
+        /* To string function */                                               \
+        bool (*str)(FILE *, V);                                                \
+                                                                               \
+        /* Free from memory function */                                        \
+        void (*free)(V);                                                       \
+                                                                               \
+        /* Hash function */                                                    \
+        size_t (*hash)(V);                                                     \
+                                                                               \
+        /* Priority function */                                                \
+        int (*pri)(V, V);                                                      \
     };                                                                         \
                                                                                \
     /* Hashset Iterator */                                                     \
@@ -267,13 +289,13 @@ struct cmc_callbacks_multiset
     /* Collection Functions */                                                 \
     /* Collection Allocation and Deallocation */                               \
     struct SNAME *PFX##_new(size_t capacity, double load,                      \
-                            int (*compare)(V, V), size_t (*hash)(V));          \
+                            struct SNAME##_ftab_val *f_val);                   \
     struct SNAME *PFX##_new_custom(size_t capacity, double load,               \
-                                   int (*compare)(V, V), size_t (*hash)(V),    \
+                                   struct SNAME##_ftab_val *f_val,             \
                                    struct cmc_alloc_node *alloc,               \
                                    struct cmc_callbacks_multiset *callbacks);  \
-    void PFX##_clear(struct SNAME *_set_, void (*deallocator)(V));             \
-    void PFX##_free(struct SNAME *_set_, void (*deallocator)(V));              \
+    void PFX##_clear(struct SNAME *_set_);                                     \
+    void PFX##_free(struct SNAME *_set_);                                      \
     /* Customization of Allocation and Callbacks */                            \
     void PFX##_customize(struct SNAME *_set_, struct cmc_alloc_node *alloc,    \
                          struct cmc_callbacks_multiset *callbacks);            \
@@ -297,9 +319,8 @@ struct cmc_callbacks_multiset
     double PFX##_load(struct SNAME *_set_);                                    \
     /* Collection Utility */                                                   \
     bool PFX##_resize(struct SNAME *_set_, size_t capacity);                   \
-    struct SNAME *PFX##_copy_of(struct SNAME *_set_, V (*copy_func)(V));       \
-    bool PFX##_equals(struct SNAME *_set1_, struct SNAME *_set2_,              \
-                      bool ignore_multiplicity);                               \
+    struct SNAME *PFX##_copy_of(struct SNAME *_set_);                          \
+    bool PFX##_equals(struct SNAME *_set1_, struct SNAME *_set2_);             \
     struct cmc_string PFX##_to_string(struct SNAME *_set_);                    \
                                                                                \
     /* Set Operations */                                                       \
@@ -354,7 +375,7 @@ struct cmc_callbacks_multiset
     static struct SNAME##_iter PFX##_impl_it_end(struct SNAME *_set_);         \
                                                                                \
     struct SNAME *PFX##_new(size_t capacity, double load,                      \
-                            int (*compare)(V, V), size_t (*hash)(V))           \
+                            struct SNAME##_ftab_val *f_val)                    \
     {                                                                          \
         struct cmc_alloc_node *alloc = &cmc_alloc_node_default;                \
                                                                                \
@@ -363,6 +384,9 @@ struct cmc_callbacks_multiset
                                                                                \
         /* Prevent integer overflow */                                         \
         if (capacity >= UINTMAX_MAX * load)                                    \
+            return NULL;                                                       \
+                                                                               \
+        if (!f_val)                                                            \
             return NULL;                                                       \
                                                                                \
         size_t real_capacity = PFX##_impl_calculate_size(capacity / load);     \
@@ -385,20 +409,18 @@ struct cmc_callbacks_multiset
         _set_->cardinality = 0;                                                \
         _set_->capacity = real_capacity;                                       \
         _set_->load = load;                                                    \
-        _set_->cmp = compare;                                                  \
-        _set_->hash = hash;                                                    \
-                                                                               \
-        _set_->it_start = PFX##_impl_it_start;                                 \
-        _set_->it_end = PFX##_impl_it_end;                                     \
-                                                                               \
+        _set_->flag = cmc_flags.OK;                                            \
+        _set_->f_val = f_val;                                                  \
         _set_->alloc = alloc;                                                  \
         _set_->callbacks = NULL;                                               \
+        _set_->it_start = PFX##_impl_it_start;                                 \
+        _set_->it_end = PFX##_impl_it_end;                                     \
                                                                                \
         return _set_;                                                          \
     }                                                                          \
                                                                                \
     struct SNAME *PFX##_new_custom(size_t capacity, double load,               \
-                                   int (*compare)(V, V), size_t (*hash)(V),    \
+                                   struct SNAME##_ftab_val *f_val,             \
                                    struct cmc_alloc_node *alloc,               \
                                    struct cmc_callbacks_multiset *callbacks)   \
     {                                                                          \
@@ -407,6 +429,9 @@ struct cmc_callbacks_multiset
                                                                                \
         /* Prevent integer overflow */                                         \
         if (capacity >= UINTMAX_MAX * load)                                    \
+            return NULL;                                                       \
+                                                                               \
+        if (!f_val)                                                            \
             return NULL;                                                       \
                                                                                \
         size_t real_capacity = PFX##_impl_calculate_size(capacity / load);     \
@@ -432,21 +457,19 @@ struct cmc_callbacks_multiset
         _set_->cardinality = 0;                                                \
         _set_->capacity = real_capacity;                                       \
         _set_->load = load;                                                    \
-        _set_->cmp = compare;                                                  \
-        _set_->hash = hash;                                                    \
-                                                                               \
-        _set_->it_start = PFX##_impl_it_start;                                 \
-        _set_->it_end = PFX##_impl_it_end;                                     \
-                                                                               \
+        _set_->flag = cmc_flags.OK;                                            \
+        _set_->f_val = f_val;                                                  \
         _set_->alloc = alloc;                                                  \
         _set_->callbacks = callbacks;                                          \
+        _set_->it_start = PFX##_impl_it_start;                                 \
+        _set_->it_end = PFX##_impl_it_end;                                     \
                                                                                \
         return _set_;                                                          \
     }                                                                          \
                                                                                \
-    void PFX##_clear(struct SNAME *_set_, void (*deallocator)(V))              \
+    void PFX##_clear(struct SNAME *_set_)                                      \
     {                                                                          \
-        if (deallocator)                                                       \
+        if (_set_->f_val->free)                                                \
         {                                                                      \
             for (size_t i = 0; i < _set_->capacity; i++)                       \
             {                                                                  \
@@ -454,7 +477,7 @@ struct cmc_callbacks_multiset
                                                                                \
                 if (entry->state == CMC_ES_FILLED)                             \
                 {                                                              \
-                    deallocator(entry->value);                                 \
+                    _set_->f_val->free(entry->value);                          \
                 }                                                              \
             }                                                                  \
         }                                                                      \
@@ -465,9 +488,9 @@ struct cmc_callbacks_multiset
         _set_->count = 0;                                                      \
     }                                                                          \
                                                                                \
-    void PFX##_free(struct SNAME *_set_, void (*deallocator)(V))               \
+    void PFX##_free(struct SNAME *_set_)                                       \
     {                                                                          \
-        if (deallocator)                                                       \
+        if (_set_->f_val->free)                                                \
         {                                                                      \
             for (size_t i = 0; i < _set_->capacity; i++)                       \
             {                                                                  \
@@ -475,13 +498,13 @@ struct cmc_callbacks_multiset
                                                                                \
                 if (entry->state == CMC_ES_FILLED)                             \
                 {                                                              \
-                    deallocator(entry->value);                                 \
+                    _set_->f_val->free(entry->value);                          \
                 }                                                              \
             }                                                                  \
         }                                                                      \
                                                                                \
-        free(_set_->buffer);                                                   \
-        free(_set_);                                                           \
+        _set_->alloc->free(_set_->buffer);                                     \
+        _set_->alloc->free(_set_);                                             \
     }                                                                          \
                                                                                \
     void PFX##_customize(struct SNAME *_set_, struct cmc_alloc_node *alloc,    \
@@ -618,7 +641,7 @@ struct cmc_callbacks_multiset
                                                                                \
             if (index == 0)                                                    \
                 *value = result;                                               \
-            else if (_set_->cmp(result, *value) > 0)                           \
+            else if (_set_->f_val->cmp(result, *value) > 0)                    \
                 *value = result;                                               \
         }                                                                      \
                                                                                \
@@ -640,7 +663,7 @@ struct cmc_callbacks_multiset
                                                                                \
             if (index == 0)                                                    \
                 *value = result;                                               \
-            else if (_set_->cmp(result, *value) < 0)                           \
+            else if (_set_->f_val->cmp(result, *value) < 0)                    \
                 *value = result;                                               \
         }                                                                      \
                                                                                \
@@ -669,8 +692,7 @@ struct cmc_callbacks_multiset
                                                                                \
     bool PFX##_full(struct SNAME *_set_)                                       \
     {                                                                          \
-        return (double)PFX##_capacity(_set_) * PFX##_load(_set_) <=            \
-               (double)PFX##_count(_set_);                                     \
+        return (double)_set_->capacity * _set_->load <= (double)_set_->count;  \
     }                                                                          \
                                                                                \
     size_t PFX##_count(struct SNAME *_set_)                                    \
@@ -695,26 +717,26 @@ struct cmc_callbacks_multiset
                                                                                \
     bool PFX##_resize(struct SNAME *_set_, size_t capacity)                    \
     {                                                                          \
-        if (PFX##_capacity(_set_) == capacity)                                 \
+        if (_set_->capacity == capacity)                                       \
             return true;                                                       \
                                                                                \
-        if (PFX##_capacity(_set_) > capacity / PFX##_load(_set_))              \
+        if (_set_->capacity > capacity / _set_->load)                          \
             return true;                                                       \
                                                                                \
         /* Prevent integer overflow */                                         \
-        if (capacity >= UINTMAX_MAX * PFX##_load(_set_))                       \
+        if (capacity >= UINTMAX_MAX * _set_->load)                             \
             return false;                                                      \
                                                                                \
         /* Calculate required capacity based on the prime numbers */           \
         size_t theoretical_size = PFX##_impl_calculate_size(capacity);         \
                                                                                \
         /* Not possible to shrink with current available prime numbers */      \
-        if (theoretical_size < PFX##_count(_set_) / PFX##_load(_set_))         \
+        if (theoretical_size < _set_->count / _set_->load)                     \
             return false;                                                      \
                                                                                \
         struct SNAME *_new_set_ =                                              \
-            PFX##_new_custom(capacity, PFX##_load(_set_), _set_->cmp,          \
-                             _set_->hash, _set_->alloc, _set_->callbacks);     \
+            PFX##_new_custom(capacity, _set_->load, _set_->f_val,              \
+                             _set_->alloc, _set_->callbacks);                  \
                                                                                \
         if (!_new_set_)                                                        \
             return false;                                                      \
@@ -728,9 +750,9 @@ struct cmc_callbacks_multiset
                               PFX##_iter_multiplicity(&iter));                 \
         }                                                                      \
                                                                                \
-        if (PFX##_count(_set_) != PFX##_count(_new_set_))                      \
+        if (_set_->count != _new_set_->count)                                  \
         {                                                                      \
-            PFX##_free(_new_set_, NULL);                                       \
+            PFX##_free(_new_set_);                                             \
             return false;                                                      \
         }                                                                      \
                                                                                \
@@ -742,21 +764,21 @@ struct cmc_callbacks_multiset
         _set_->capacity = _new_set_->capacity;                                 \
         _new_set_->capacity = tmp_c;                                           \
                                                                                \
-        PFX##_free(_new_set_, NULL);                                           \
+        PFX##_free(_new_set_);                                                 \
                                                                                \
         return true;                                                           \
     }                                                                          \
                                                                                \
-    struct SNAME *PFX##_copy_of(struct SNAME *_set_, V (*copy_func)(V))        \
+    struct SNAME *PFX##_copy_of(struct SNAME *_set_)                           \
     {                                                                          \
         struct SNAME *result =                                                 \
-            PFX##_new_custom(_set_->capacity, _set_->load, _set_->cmp,         \
-                             _set_->hash, _set_->alloc, _set_->callbacks);     \
+            PFX##_new_custom(_set_->capacity, _set_->load, _set_->f_val,       \
+                             _set_->alloc, _set_->callbacks);                  \
                                                                                \
         if (!result)                                                           \
             return NULL;                                                       \
                                                                                \
-        if (copy_func)                                                         \
+        if (_set_->f_val->cpy)                                                 \
         {                                                                      \
             for (size_t i = 0; i < _set_->capacity; i++)                       \
             {                                                                  \
@@ -774,7 +796,7 @@ struct cmc_callbacks_multiset
                         target->dist = scan->dist;                             \
                         target->multiplicity = scan->multiplicity;             \
                                                                                \
-                        target->value = copy_func(scan->value);                \
+                        target->value = _set_->f_val->cpy(scan->value);        \
                     }                                                          \
                 }                                                              \
             }                                                                  \
@@ -789,17 +811,15 @@ struct cmc_callbacks_multiset
         return result;                                                         \
     }                                                                          \
                                                                                \
-    bool PFX##_equals(struct SNAME *_set1_, struct SNAME *_set2_,              \
-                      bool ignore_multiplicity)                                \
+    bool PFX##_equals(struct SNAME *_set1_, struct SNAME *_set2_)              \
     {                                                                          \
-        if (PFX##_count(_set1_) != PFX##_count(_set2_))                        \
+        if (_set1_->count != _set2_->count)                                    \
             return false;                                                      \
                                                                                \
-        if (!ignore_multiplicity &&                                            \
-            PFX##_cardinality(_set1_) != PFX##_cardinality(_set2_))            \
+        if (_set1_->cardinality != _set2_->cardinality)                        \
             return false;                                                      \
                                                                                \
-        if (PFX##_count(_set1_) == 0)                                          \
+        if (_set1_->count == 0)                                                \
             return true;                                                       \
                                                                                \
         struct SNAME##_iter iter;                                              \
@@ -814,8 +834,7 @@ struct cmc_callbacks_multiset
             if (entry == NULL)                                                 \
                 return false;                                                  \
                                                                                \
-            if (!ignore_multiplicity &&                                        \
-                entry->multiplicity != PFX##_iter_multiplicity(&iter))         \
+            if (entry->multiplicity != PFX##_iter_multiplicity(&iter))         \
                 return false;                                                  \
         }                                                                      \
                                                                                \
@@ -829,22 +848,17 @@ struct cmc_callbacks_multiset
                                                                                \
         int n = snprintf(str.s, cmc_string_len, cmc_string_fmt_multiset,       \
                          #SNAME, #V, s_, s_->buffer, s_->capacity, s_->count,  \
-                         s_->cardinality, s_->load, s_->cmp, s_->hash,         \
+                         s_->cardinality, s_->load, s_->flag, s_->f_val,       \
                          s_->alloc, s_->callbacks);                            \
                                                                                \
-        if (n < 0 || n == (int)cmc_string_len)                                 \
-            return (struct cmc_string){ 0 };                                   \
-                                                                               \
-        str.s[n] = '\0';                                                       \
-                                                                               \
-        return str;                                                            \
+        return n >= 0 ? str : (struct cmc_string){ 0 };                        \
     }                                                                          \
                                                                                \
     struct SNAME *PFX##_union(struct SNAME *_set1_, struct SNAME *_set2_)      \
     {                                                                          \
         struct SNAME *_set_r_ =                                                \
-            PFX##_new_custom(_set1_->capacity, _set1_->load, _set1_->cmp,      \
-                             _set1_->hash, _set1_->alloc, _set1_->callbacks);  \
+            PFX##_new_custom(_set1_->capacity, _set1_->load, _set1_->f_val,    \
+                             _set1_->alloc, _set1_->callbacks);                \
                                                                                \
         if (!_set_r_)                                                          \
             return NULL;                                                       \
@@ -884,8 +898,8 @@ struct cmc_callbacks_multiset
                                      struct SNAME *_set2_)                     \
     {                                                                          \
         struct SNAME *_set_r_ =                                                \
-            PFX##_new_custom(_set1_->capacity, _set1_->load, _set1_->cmp,      \
-                             _set1_->hash, _set1_->alloc, _set1_->callbacks);  \
+            PFX##_new_custom(_set1_->capacity, _set1_->load, _set1_->f_val,    \
+                             _set1_->alloc, _set1_->callbacks);                \
                                                                                \
         if (!_set_r_)                                                          \
             return NULL;                                                       \
@@ -915,8 +929,8 @@ struct cmc_callbacks_multiset
     struct SNAME *PFX##_difference(struct SNAME *_set1_, struct SNAME *_set2_) \
     {                                                                          \
         struct SNAME *_set_r_ =                                                \
-            PFX##_new_custom(_set1_->capacity, _set1_->load, _set1_->cmp,      \
-                             _set1_->hash, _set1_->alloc, _set1_->callbacks);  \
+            PFX##_new_custom(_set1_->capacity, _set1_->load, _set1_->f_val,    \
+                             _set1_->alloc, _set1_->callbacks);                \
                                                                                \
         if (!_set_r_)                                                          \
             return NULL;                                                       \
@@ -942,8 +956,8 @@ struct cmc_callbacks_multiset
     struct SNAME *PFX##_summation(struct SNAME *_set1_, struct SNAME *_set2_)  \
     {                                                                          \
         struct SNAME *_set_r_ =                                                \
-            PFX##_new_custom(_set1_->capacity, _set1_->load, _set1_->cmp,      \
-                             _set1_->hash, _set1_->alloc, _set1_->callbacks);  \
+            PFX##_new_custom(_set1_->capacity, _set1_->load, _set1_->f_val,    \
+                             _set1_->alloc, _set1_->callbacks);                \
                                                                                \
         if (!_set_r_)                                                          \
             return NULL;                                                       \
@@ -975,8 +989,8 @@ struct cmc_callbacks_multiset
         struct SNAME##_iter iter1, iter2;                                      \
                                                                                \
         struct SNAME *_set_r_ =                                                \
-            PFX##_new_custom(_set1_->capacity, _set1_->load, _set1_->cmp,      \
-                             _set1_->hash, _set1_->alloc, _set1_->callbacks);  \
+            PFX##_new_custom(_set1_->capacity, _set1_->load, _set1_->f_val,    \
+                             _set1_->alloc, _set1_->callbacks);                \
                                                                                \
         if (!_set_r_)                                                          \
             return NULL;                                                       \
@@ -1023,7 +1037,7 @@ struct cmc_callbacks_multiset
                                                                                \
     bool PFX##_is_subset(struct SNAME *_set1_, struct SNAME *_set2_)           \
     {                                                                          \
-        if (PFX##_count(_set1_) > PFX##_count(_set2_))                         \
+        if (_set1_->count > _set2_->count)                                     \
             return false;                                                      \
                                                                                \
         if (PFX##_empty(_set1_))                                               \
@@ -1055,7 +1069,7 @@ struct cmc_callbacks_multiset
                                                                                \
     bool PFX##_is_proper_subset(struct SNAME *_set1_, struct SNAME *_set2_)    \
     {                                                                          \
-        if (PFX##_count(_set1_) >= PFX##_count(_set2_))                        \
+        if (_set1_->count >= _set2_->count)                                    \
             return false;                                                      \
                                                                                \
         if (PFX##_empty(_set1_))                                               \
@@ -1126,7 +1140,7 @@ struct cmc_callbacks_multiset
                                                                                \
     void PFX##_iter_free(struct SNAME##_iter *iter)                            \
     {                                                                          \
-        free(iter);                                                            \
+        iter->target->alloc->free(iter);                                       \
     }                                                                          \
                                                                                \
     void PFX##_iter_init(struct SNAME##_iter *iter, struct SNAME *target)      \
@@ -1198,7 +1212,7 @@ struct cmc_callbacks_multiset
         if (iter->end)                                                         \
             return false;                                                      \
                                                                                \
-        if (iter->index + 1 == PFX##_count(iter->target))                      \
+        if (iter->index + 1 == iter->target->count)                            \
         {                                                                      \
             iter->end = true;                                                  \
             return false;                                                      \
@@ -1257,13 +1271,13 @@ struct cmc_callbacks_multiset
         if (iter->end)                                                         \
             return false;                                                      \
                                                                                \
-        if (iter->index + 1 == PFX##_count(iter->target))                      \
+        if (iter->index + 1 == iter->target->count)                            \
         {                                                                      \
             iter->end = true;                                                  \
             return false;                                                      \
         }                                                                      \
                                                                                \
-        if (steps == 0 || iter->index + steps >= PFX##_count(iter->target))    \
+        if (steps == 0 || iter->index + steps >= iter->target->count)          \
             return false;                                                      \
                                                                                \
         for (size_t i = 0; i < steps; i++)                                     \
@@ -1297,7 +1311,7 @@ struct cmc_callbacks_multiset
     /* given index */                                                          \
     bool PFX##_iter_go_to(struct SNAME##_iter *iter, size_t index)             \
     {                                                                          \
-        if (index >= PFX##_count(iter->target))                                \
+        if (index >= iter->target->count)                                      \
             return false;                                                      \
                                                                                \
         if (iter->index > index)                                               \
@@ -1347,11 +1361,11 @@ struct cmc_callbacks_multiset
                                                                                \
         if (PFX##_full(_set_))                                                 \
         {                                                                      \
-            if (!PFX##_resize(_set_, PFX##_capacity(_set_) + 1))               \
+            if (!PFX##_resize(_set_, _set_->capacity + 1))                     \
                 return NULL;                                                   \
         }                                                                      \
                                                                                \
-        size_t hash = _set_->hash(element);                                    \
+        size_t hash = _set_->f_val->hash(element);                             \
         size_t original_pos = hash % _set_->capacity;                          \
         size_t pos = original_pos;                                             \
         /* Current multiplicity. Might change due to robin hood hashing */     \
@@ -1409,7 +1423,7 @@ struct cmc_callbacks_multiset
     static struct SNAME##_entry *PFX##_impl_get_entry(struct SNAME *_set_,     \
                                                       V element)               \
     {                                                                          \
-        size_t hash = _set_->hash(element);                                    \
+        size_t hash = _set_->f_val->hash(element);                             \
         size_t pos = hash % _set_->capacity;                                   \
                                                                                \
         struct SNAME##_entry *target = &(_set_->buffer[pos]);                  \
@@ -1417,7 +1431,7 @@ struct cmc_callbacks_multiset
         while (target->state == CMC_ES_FILLED ||                               \
                target->state == CMC_ES_DELETED)                                \
         {                                                                      \
-            if (_set_->cmp(target->value, element) == 0)                       \
+            if (_set_->f_val->cmp(target->value, element) == 0)                \
                 return target;                                                 \
                                                                                \
             pos++;                                                             \

@@ -7,32 +7,48 @@
 
 CMC_GENERATE_MULTIMAP(mm, multimap, size_t, size_t)
 
+struct multimap_ftab_key *mm_ftab_key =
+    &(struct multimap_ftab_key){ .cmp = cmp,
+                                 .cpy = copy,
+                                 .str = str,
+                                 .free = custom_free,
+                                 .hash = hash,
+                                 .pri = pri };
+
+struct multimap_ftab_val *mm_ftab_val =
+    &(struct multimap_ftab_val){ .cmp = cmp,
+                                 .cpy = copy,
+                                 .str = str,
+                                 .free = custom_free,
+                                 .hash = hash,
+                                 .pri = pri };
+
 CMC_CREATE_UNIT(multimap_test, true, {
     CMC_CREATE_TEST(new, {
-        struct multimap *map = mm_new(943722, 0.8, cmp, hash);
+        struct multimap *map = mm_new(943722, 0.8, mm_ftab_key, mm_ftab_val);
 
         cmc_assert_not_equals(ptr, NULL, map);
         cmc_assert_not_equals(ptr, NULL, map->buffer);
         cmc_assert_equals(size_t, 0, mm_count(map));
         cmc_assert_greater_equals(size_t, (943722 / 0.8), mm_capacity(map));
 
-        mm_free(map, NULL);
+        mm_free(map);
     });
 
     CMC_CREATE_TEST(new[capacity = 0], {
-        struct multimap *map = mm_new(0, 0.8, cmp, hash);
+        struct multimap *map = mm_new(0, 0.8, mm_ftab_key, mm_ftab_val);
 
         cmc_assert_equals(ptr, NULL, map);
     });
 
     CMC_CREATE_TEST(new[capacity = UINT64_MAX], {
-        struct multimap *map = mm_new(UINT64_MAX, 0.99, cmp, hash);
+        struct multimap *map = mm_new(UINT64_MAX, 0.99, mm_ftab_key, mm_ftab_val);
 
         cmc_assert_equals(ptr, NULL, map);
     });
 
     CMC_CREATE_TEST(clear[count capacity], {
-        struct multimap *map = mm_new(100, 0.8, cmp, hash);
+        struct multimap *map = mm_new(100, 0.8, mm_ftab_key, mm_ftab_val);
 
         cmc_assert_not_equals(ptr, NULL, map);
 
@@ -41,15 +57,15 @@ CMC_CREATE_UNIT(multimap_test, true, {
 
         cmc_assert_equals(size_t, 50, mm_count(map));
 
-        mm_clear(map, NULL);
+        mm_clear(map);
 
         cmc_assert_equals(size_t, 0, mm_count(map));
 
-        mm_free(map, NULL);
+        mm_free(map);
     });
 
     CMC_CREATE_TEST(insert[count], {
-        struct multimap *map = mm_new(100, 0.8, cmp, hash);
+        struct multimap *map = mm_new(100, 0.8, mm_ftab_key, mm_ftab_val);
 
         cmc_assert_not_equals(ptr, NULL, map);
 
@@ -58,11 +74,11 @@ CMC_CREATE_UNIT(multimap_test, true, {
 
         cmc_assert_equals(size_t, 100, mm_count(map));
 
-        mm_free(map, NULL);
+        mm_free(map);
     });
 
     CMC_CREATE_TEST(remove[count], {
-        struct multimap *map = mm_new(100, 0.8, cmp, hash);
+        struct multimap *map = mm_new(100, 0.8, mm_ftab_key, mm_ftab_val);
 
         cmc_assert_not_equals(ptr, NULL, map);
 
@@ -76,11 +92,11 @@ CMC_CREATE_UNIT(multimap_test, true, {
 
         cmc_assert_equals(size_t, 140, mm_count(map));
 
-        mm_free(map, NULL);
+        mm_free(map);
     });
 
     CMC_CREATE_TEST(remove[count = 0], {
-        struct multimap *map = mm_new(100, 0.8, cmp, hash);
+        struct multimap *map = mm_new(100, 0.8, mm_ftab_key, mm_ftab_val);
 
         cmc_assert_not_equals(ptr, NULL, map);
 
@@ -88,11 +104,11 @@ CMC_CREATE_UNIT(multimap_test, true, {
 
         cmc_assert(!mm_remove(map, 10, &r));
 
-        mm_free(map, NULL);
+        mm_free(map);
     });
 
     CMC_CREATE_TEST(remove[count = 1], {
-        struct multimap *map = mm_new(100, 0.8, cmp, hash);
+        struct multimap *map = mm_new(100, 0.8, mm_ftab_key, mm_ftab_val);
 
         cmc_assert_not_equals(ptr, NULL, map);
 
@@ -101,27 +117,27 @@ CMC_CREATE_UNIT(multimap_test, true, {
         cmc_assert(mm_insert(map, 10, 11));
         cmc_assert(mm_remove(map, 10, &r));
 
-        mm_free(map, NULL);
+        mm_free(map);
     });
 
     CMC_CREATE_TEST(get[key ordering], {
-        struct multimap *map = mm_new(100, 0.8, cmp, hash);
+        struct multimap *map = mm_new(100, 0.8, mm_ftab_key, mm_ftab_val);
 
         cmc_assert_not_equals(ptr, NULL, map);
 
-        /* Assert that the value 100 is accessed before the value 101 for the
-         * same key */
+        /* Assert that the value 100 is accessed before the value 101 for */
+        /* the same key */
         cmc_assert(mm_insert(map, 10, 100));
         cmc_assert(mm_insert(map, 20, 102));
         cmc_assert(mm_insert(map, 10, 101));
 
         cmc_assert_equals(size_t, 100, mm_get(map, 10));
 
-        mm_free(map, NULL);
+        mm_free(map);
     });
 
     CMC_CREATE_TEST(key_count, {
-        struct multimap *map = mm_new(50, 0.8, cmp, hash);
+        struct multimap *map = mm_new(50, 0.8, mm_ftab_key, mm_ftab_val);
 
         cmc_assert_not_equals(ptr, NULL, map);
 
@@ -133,6 +149,6 @@ CMC_CREATE_UNIT(multimap_test, true, {
         for (size_t i = 0; i < 20; i++)
             cmc_assert_equals(size_t, 50, mm_key_count(map, i));
 
-        mm_free(map, NULL);
+        mm_free(map);
     });
 });

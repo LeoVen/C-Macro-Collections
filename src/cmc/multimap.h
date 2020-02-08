@@ -160,8 +160,9 @@ static const char *cmc_string_fmt_multimap = "struct %s<%s, %s> "
                                              "capacity:%" PRIuMAX ", "
                                              "count:%" PRIuMAX ", "
                                              "load:%lf, "
-                                             "cmp:%p, "
-                                             "hash:%p, "
+                                             "flag:%d, "
+                                             "f_key:%p, "
+                                             "f_val:%p, "
                                              "alloc:%p, "
                                              "callbacks:%p }";
 
@@ -210,23 +211,26 @@ struct cmc_callbacks_multimap
         /* Load factor in range (0.0, infinity) */                            \
         double load;                                                          \
                                                                               \
-        /* Key comparison functions */                                        \
-        int (*cmp)(K, K);                                                     \
+        /* Flags indicating errors or success */                              \
+        int flag;                                                             \
                                                                               \
-        /* Key hash function */                                               \
-        size_t (*hash)(K);                                                    \
+        /* Key function table */                                              \
+        struct SNAME##_ftab_key *f_key;                                       \
                                                                               \
-        /* Function that returns an iterator to the start of the multimap */  \
-        struct SNAME##_iter (*it_start)(struct SNAME *);                      \
-                                                                              \
-        /* Function that returns an iterator to the end of the multimap */    \
-        struct SNAME##_iter (*it_end)(struct SNAME *);                        \
+        /* Value function table */                                            \
+        struct SNAME##_ftab_val *f_val;                                       \
                                                                               \
         /* Custom allocation functions */                                     \
         struct cmc_alloc_node *alloc;                                         \
                                                                               \
         /* Custom callback functions */                                       \
         struct cmc_callbacks_multimap *callbacks;                             \
+                                                                              \
+        /* Function that returns an iterator to the start of the multimap */  \
+        struct SNAME##_iter (*it_start)(struct SNAME *);                      \
+                                                                              \
+        /* Function that returns an iterator to the end of the multimap */    \
+        struct SNAME##_iter (*it_end)(struct SNAME *);                        \
     };                                                                        \
                                                                               \
     /* Multimap Entry */                                                      \
@@ -243,6 +247,50 @@ struct cmc_callbacks_multimap
                                                                               \
         /* Previous entry on the linked list */                               \
         struct SNAME##_entry *prev;                                           \
+    };                                                                        \
+                                                                              \
+    /* Key struct function table */                                           \
+    struct SNAME##_ftab_key                                                   \
+    {                                                                         \
+        /* Comparator function */                                             \
+        int (*cmp)(K, K);                                                     \
+                                                                              \
+        /* Copy function */                                                   \
+        K (*cpy)(K);                                                          \
+                                                                              \
+        /* To string function */                                              \
+        bool (*str)(FILE *, K);                                               \
+                                                                              \
+        /* Free from memory function */                                       \
+        void (*free)(K);                                                      \
+                                                                              \
+        /* Hash function */                                                   \
+        size_t (*hash)(K);                                                    \
+                                                                              \
+        /* Priority function */                                               \
+        int (*pri)(K, K);                                                     \
+    };                                                                        \
+                                                                              \
+    /* Value struct function table */                                         \
+    struct SNAME##_ftab_val                                                   \
+    {                                                                         \
+        /* Comparator function */                                             \
+        int (*cmp)(V, V);                                                     \
+                                                                              \
+        /* Copy function */                                                   \
+        V (*cpy)(V);                                                          \
+                                                                              \
+        /* To string function */                                              \
+        bool (*str)(FILE *, V);                                               \
+                                                                              \
+        /* Free from memory function */                                       \
+        void (*free)(V);                                                      \
+                                                                              \
+        /* Hash function */                                                   \
+        size_t (*hash)(V);                                                    \
+                                                                              \
+        /* Priority function */                                               \
+        int (*pri)(V, V);                                                     \
     };                                                                        \
                                                                               \
     struct SNAME##_iter                                                       \
@@ -275,13 +323,14 @@ struct cmc_callbacks_multimap
     /* Collection Functions */                                                \
     /* Collection Allocation and Deallocation */                              \
     struct SNAME *PFX##_new(size_t capacity, double load,                     \
-                            int (*compare)(K, K), size_t (*hash)(K));         \
-    struct SNAME *PFX##_new_custom(size_t capacity, double load,              \
-                                   int (*compare)(K, K), size_t (*hash)(K),   \
-                                   struct cmc_alloc_node *alloc,              \
-                                   struct cmc_callbacks_multimap *callbacks); \
-    void PFX##_clear(struct SNAME *_map_, void (*deallocator)(K, V));         \
-    void PFX##_free(struct SNAME *_map_, void (*deallocator)(K, V));          \
+                            struct SNAME##_ftab_key *f_key,                   \
+                            struct SNAME##_ftab_val *f_val);                  \
+    struct SNAME *PFX##_new_custom(                                           \
+        size_t capacity, double load, struct SNAME##_ftab_key *f_key,         \
+        struct SNAME##_ftab_val *f_val, struct cmc_alloc_node *alloc,         \
+        struct cmc_callbacks_multimap *callbacks);                            \
+    void PFX##_clear(struct SNAME *_map_);                                    \
+    void PFX##_free(struct SNAME *_map_);                                     \
     /* Customization of Allocation and Callbacks */                           \
     void PFX##_customize(struct SNAME *_map_, struct cmc_alloc_node *alloc,   \
                          struct cmc_callbacks_multimap *callbacks);           \
@@ -307,8 +356,7 @@ struct cmc_callbacks_multimap
     double PFX##_load(struct SNAME *_map_);                                   \
     /* Collection Utility */                                                  \
     bool PFX##_resize(struct SNAME *_map_, size_t capacity);                  \
-    struct SNAME *PFX##_copy_of(struct SNAME *_map_, K (*key_copy_func)(K),   \
-                                V (*value_copy_func)(V));                     \
+    struct SNAME *PFX##_copy_of(struct SNAME *_map_);                         \
     bool PFX##_equals(struct SNAME *_map1_, struct SNAME *_map2_,             \
                       bool ignore_key_count);                                 \
     struct cmc_string PFX##_to_string(struct SNAME *_map_);                   \
@@ -350,7 +398,8 @@ struct cmc_callbacks_multimap
     static struct SNAME##_iter PFX##_impl_it_end(struct SNAME *_map_);         \
                                                                                \
     struct SNAME *PFX##_new(size_t capacity, double load,                      \
-                            int (*compare)(K, K), size_t (*hash)(K))           \
+                            struct SNAME##_ftab_key *f_key,                    \
+                            struct SNAME##_ftab_val *f_val)                    \
     {                                                                          \
         struct cmc_alloc_node *alloc = &cmc_alloc_node_default;                \
                                                                                \
@@ -359,6 +408,9 @@ struct cmc_callbacks_multimap
                                                                                \
         /* Prevent integer overflow */                                         \
         if (capacity >= UINTMAX_MAX * load)                                    \
+            return NULL;                                                       \
+                                                                               \
+        if (!f_key || !f_val)                                                  \
             return NULL;                                                       \
                                                                                \
         size_t real_capacity = PFX##_impl_calculate_size(capacity / load);     \
@@ -380,28 +432,30 @@ struct cmc_callbacks_multimap
         _map_->count = 0;                                                      \
         _map_->capacity = real_capacity;                                       \
         _map_->load = load;                                                    \
-        _map_->cmp = compare;                                                  \
-        _map_->hash = hash;                                                    \
-                                                                               \
-        _map_->it_start = PFX##_impl_it_start;                                 \
-        _map_->it_end = PFX##_impl_it_end;                                     \
-                                                                               \
+        _map_->flag = cmc_flags.OK;                                            \
+        _map_->f_key = f_key;                                                  \
+        _map_->f_val = f_val;                                                  \
         _map_->alloc = alloc;                                                  \
         _map_->callbacks = NULL;                                               \
+        _map_->it_end = PFX##_impl_it_end;                                     \
+        _map_->it_start = PFX##_impl_it_start;                                 \
                                                                                \
         return _map_;                                                          \
     }                                                                          \
                                                                                \
-    struct SNAME *PFX##_new_custom(size_t capacity, double load,               \
-                                   int (*compare)(K, K), size_t (*hash)(K),    \
-                                   struct cmc_alloc_node *alloc,               \
-                                   struct cmc_callbacks_multimap *callbacks)   \
+    struct SNAME *PFX##_new_custom(                                            \
+        size_t capacity, double load, struct SNAME##_ftab_key *f_key,          \
+        struct SNAME##_ftab_val *f_val, struct cmc_alloc_node *alloc,          \
+        struct cmc_callbacks_multimap *callbacks)                              \
     {                                                                          \
         if (capacity == 0 || load <= 0)                                        \
             return NULL;                                                       \
                                                                                \
         /* Prevent integer overflow */                                         \
         if (capacity >= UINTMAX_MAX * load)                                    \
+            return NULL;                                                       \
+                                                                               \
+        if (!f_key || !f_val)                                                  \
             return NULL;                                                       \
                                                                                \
         if (!alloc)                                                            \
@@ -426,35 +480,35 @@ struct cmc_callbacks_multimap
         _map_->count = 0;                                                      \
         _map_->capacity = real_capacity;                                       \
         _map_->load = load;                                                    \
-        _map_->cmp = compare;                                                  \
-        _map_->hash = hash;                                                    \
-                                                                               \
-        _map_->it_start = PFX##_impl_it_start;                                 \
-        _map_->it_end = PFX##_impl_it_end;                                     \
-                                                                               \
+        _map_->flag = cmc_flags.OK;                                            \
+        _map_->f_key = f_key;                                                  \
+        _map_->f_val = f_val;                                                  \
         _map_->alloc = alloc;                                                  \
         _map_->callbacks = callbacks;                                          \
+        _map_->it_start = PFX##_impl_it_start;                                 \
+        _map_->it_end = PFX##_impl_it_end;                                     \
                                                                                \
         return _map_;                                                          \
     }                                                                          \
                                                                                \
-    void PFX##_clear(struct SNAME *_map_, void (*deallocator)(K, V))           \
+    void PFX##_clear(struct SNAME *_map_)                                      \
     {                                                                          \
         size_t index = 0;                                                      \
-        struct SNAME##_entry *scan;                                            \
                                                                                \
         while (index < _map_->capacity)                                        \
         {                                                                      \
-            scan = _map_->buffer[index][0];                                    \
+            struct SNAME##_entry *scan = _map_->buffer[index][0];              \
                                                                                \
             if (scan != NULL)                                                  \
             {                                                                  \
                 if (scan->next == NULL && scan->prev == NULL)                  \
                 {                                                              \
-                    if (deallocator)                                           \
-                        deallocator(scan->key, scan->value);                   \
+                    if (_map_->f_key->free)                                    \
+                        _map_->f_key->free(scan->key);                         \
+                    if (_map_->f_val->free)                                    \
+                        _map_->f_val->free(scan->value);                       \
                                                                                \
-                    free(scan);                                                \
+                    _map_->alloc->free(scan);                                  \
                 }                                                              \
                 else                                                           \
                 {                                                              \
@@ -464,10 +518,12 @@ struct cmc_callbacks_multimap
                                                                                \
                         scan = scan->next;                                     \
                                                                                \
-                        if (deallocator)                                       \
-                            deallocator(tmp->key, tmp->value);                 \
+                        if (_map_->f_key->free)                                \
+                            _map_->f_key->free(tmp->key);                      \
+                        if (_map_->f_val->free)                                \
+                            _map_->f_val->free(tmp->value);                    \
                                                                                \
-                        free(tmp);                                             \
+                        _map_->alloc->free(tmp);                               \
                     }                                                          \
                 }                                                              \
             }                                                                  \
@@ -481,19 +537,25 @@ struct cmc_callbacks_multimap
         _map_->count = 0;                                                      \
     }                                                                          \
                                                                                \
-    void PFX##_free(struct SNAME *_map_, void (*deallocator)(K, V))            \
+    void PFX##_free(struct SNAME *_map_)                                       \
     {                                                                          \
         size_t index = 0;                                                      \
-        struct SNAME##_entry *scan;                                            \
                                                                                \
         while (index < _map_->capacity)                                        \
         {                                                                      \
-            scan = _map_->buffer[index][0];                                    \
+            struct SNAME##_entry *scan = _map_->buffer[index][0];              \
                                                                                \
             if (scan != NULL)                                                  \
             {                                                                  \
                 if (scan->next == NULL && scan->prev == NULL)                  \
-                    free(scan);                                                \
+                {                                                              \
+                    if (_map_->f_key->free)                                    \
+                        _map_->f_key->free(scan->key);                         \
+                    if (_map_->f_val->free)                                    \
+                        _map_->f_val->free(scan->value);                       \
+                                                                               \
+                    _map_->alloc->free(scan);                                  \
+                }                                                              \
                 else                                                           \
                 {                                                              \
                     while (scan != NULL)                                       \
@@ -502,10 +564,12 @@ struct cmc_callbacks_multimap
                                                                                \
                         scan = scan->next;                                     \
                                                                                \
-                        if (deallocator)                                       \
-                            deallocator(tmp->key, tmp->value);                 \
+                        if (_map_->f_key->free)                                \
+                            _map_->f_key->free(tmp->key);                      \
+                        if (_map_->f_val->free)                                \
+                            _map_->f_val->free(tmp->value);                    \
                                                                                \
-                        free(tmp);                                             \
+                        _map_->alloc->free(tmp);                               \
                     }                                                          \
                 }                                                              \
             }                                                                  \
@@ -513,8 +577,8 @@ struct cmc_callbacks_multimap
             index++;                                                           \
         }                                                                      \
                                                                                \
-        free(_map_->buffer);                                                   \
-        free(_map_);                                                           \
+        _map_->alloc->free(_map_->buffer);                                     \
+        _map_->alloc->free(_map_);                                             \
     }                                                                          \
                                                                                \
     void PFX##_customize(struct SNAME *_map_, struct cmc_alloc_node *alloc,    \
@@ -535,7 +599,7 @@ struct cmc_callbacks_multimap
                 return false;                                                  \
         }                                                                      \
                                                                                \
-        size_t hash = _map_->hash(key);                                        \
+        size_t hash = _map_->f_key->hash(key);                                 \
         size_t pos = hash % _map_->capacity;                                   \
                                                                                \
         struct SNAME##_entry *entry = PFX##_impl_new_entry(_map_, key, value); \
@@ -590,14 +654,14 @@ struct cmc_callbacks_multimap
                 return false;                                                  \
         }                                                                      \
                                                                                \
-        size_t hash = _map_->hash(key);                                        \
+        size_t hash = _map_->f_key->hash(key);                                 \
                                                                                \
         struct SNAME##_entry *entry =                                          \
             _map_->buffer[hash % _map_->capacity][0];                          \
                                                                                \
         while (entry != NULL)                                                  \
         {                                                                      \
-            if (_map_->cmp(entry->key, key) == 0)                              \
+            if (_map_->f_key->cmp(entry->key, key) == 0)                       \
             {                                                                  \
                 if (old_values)                                                \
                     (*old_values)[index++] = entry->value;                     \
@@ -613,7 +677,7 @@ struct cmc_callbacks_multimap
                                                                                \
     bool PFX##_remove(struct SNAME *_map_, K key, V *out_value)                \
     {                                                                          \
-        size_t hash = _map_->hash(key);                                        \
+        size_t hash = _map_->f_key->hash(key);                                 \
                                                                                \
         struct SNAME##_entry **head =                                          \
             &(_map_->buffer[hash % _map_->capacity][0]);                       \
@@ -627,7 +691,7 @@ struct cmc_callbacks_multimap
                                                                                \
         if (entry->next == NULL && entry->prev == NULL)                        \
         {                                                                      \
-            if (_map_->cmp(entry->key, key) == 0)                              \
+            if (_map_->f_key->cmp(entry->key, key) == 0)                       \
             {                                                                  \
                 *head = NULL;                                                  \
                 *tail = NULL;                                                  \
@@ -644,7 +708,7 @@ struct cmc_callbacks_multimap
                                                                                \
             while (entry != NULL)                                              \
             {                                                                  \
-                if (_map_->cmp(entry->key, key) == 0)                          \
+                if (_map_->f_key->cmp(entry->key, key) == 0)                   \
                 {                                                              \
                     if (*head == entry)                                        \
                         *head = entry->next;                                   \
@@ -671,7 +735,7 @@ struct cmc_callbacks_multimap
                 return false;                                                  \
         }                                                                      \
                                                                                \
-        free(entry);                                                           \
+        _map_->alloc->free(entry);                                             \
                                                                                \
         _map_->count--;                                                        \
                                                                                \
@@ -680,7 +744,7 @@ struct cmc_callbacks_multimap
                                                                                \
     size_t PFX##_remove_all(struct SNAME *_map_, K key, V **out_values)        \
     {                                                                          \
-        size_t hash = _map_->hash(key);                                        \
+        size_t hash = _map_->f_key->hash(key);                                 \
                                                                                \
         struct SNAME##_entry **head =                                          \
             &(_map_->buffer[hash % _map_->capacity][0]);                       \
@@ -707,13 +771,13 @@ struct cmc_callbacks_multimap
             if (out_values)                                                    \
                 (*out_values)[index++] = entry->value;                         \
                                                                                \
-            free(entry);                                                       \
+            _map_->alloc->free(entry);                                         \
         }                                                                      \
         else                                                                   \
         {                                                                      \
             while (entry != NULL)                                              \
             {                                                                  \
-                if (_map_->cmp(entry->key, key) == 0)                          \
+                if (_map_->f_key->cmp(entry->key, key) == 0)                   \
                 {                                                              \
                     if (*head == entry)                                        \
                         *head = entry->next;                                   \
@@ -730,7 +794,7 @@ struct cmc_callbacks_multimap
                     if (out_values)                                            \
                         (*out_values)[index++] = entry->value;                 \
                                                                                \
-                    free(entry);                                               \
+                    _map_->alloc->free(entry);                                 \
                                                                                \
                     entry = temp;                                              \
                 }                                                              \
@@ -763,7 +827,7 @@ struct cmc_callbacks_multimap
                 *key = result_key;                                             \
                 *value = result_value;                                         \
             }                                                                  \
-            else if (_map_->cmp(result_key, *key) > 0)                         \
+            else if (_map_->f_key->cmp(result_key, *key) > 0)                  \
             {                                                                  \
                 *key = result_key;                                             \
                 *value = result_value;                                         \
@@ -792,7 +856,7 @@ struct cmc_callbacks_multimap
                 *key = result_key;                                             \
                 *value = result_value;                                         \
             }                                                                  \
-            else if (_map_->cmp(result_key, *key) < 0)                         \
+            else if (_map_->f_key->cmp(result_key, *key) < 0)                  \
             {                                                                  \
                 *key = result_key;                                             \
                 *value = result_value;                                         \
@@ -834,8 +898,7 @@ struct cmc_callbacks_multimap
                                                                                \
     bool PFX##_full(struct SNAME *_map_)                                       \
     {                                                                          \
-        return (double)PFX##_capacity(_map_) * PFX##_load(_map_) <=            \
-               (double)PFX##_count(_map_);                                     \
+        return (double)_map_->capacity * _map_->load <= (double)_map_->count;  \
     }                                                                          \
                                                                                \
     size_t PFX##_count(struct SNAME *_map_)                                    \
@@ -845,7 +908,7 @@ struct cmc_callbacks_multimap
                                                                                \
     size_t PFX##_key_count(struct SNAME *_map_, K key)                         \
     {                                                                          \
-        size_t hash = _map_->hash(key);                                        \
+        size_t hash = _map_->f_key->hash(key);                                 \
                                                                                \
         struct SNAME##_entry *entry =                                          \
             _map_->buffer[hash % _map_->capacity][0];                          \
@@ -857,7 +920,7 @@ struct cmc_callbacks_multimap
                                                                                \
         while (entry != NULL)                                                  \
         {                                                                      \
-            if (_map_->cmp(entry->key, key) == 0)                              \
+            if (_map_->f_key->cmp(entry->key, key) == 0)                       \
                 total_count++;                                                 \
                                                                                \
             entry = entry->next;                                               \
@@ -881,23 +944,23 @@ struct cmc_callbacks_multimap
         if (PFX##_capacity(_map_) == capacity)                                 \
             return true;                                                       \
                                                                                \
-        if (PFX##_capacity(_map_) > capacity / PFX##_load(_map_))              \
+        if (PFX##_capacity(_map_) > capacity / _map_->load)                    \
             return true;                                                       \
                                                                                \
         /* Prevent integer overflow */                                         \
-        if (capacity >= UINTMAX_MAX * PFX##_load(_map_))                       \
+        if (capacity >= UINTMAX_MAX * _map_->load)                             \
             return false;                                                      \
                                                                                \
         /* Calculate required capacity based on the prime numbers */           \
         size_t theoretical_size = PFX##_impl_calculate_size(capacity);         \
                                                                                \
         /* Not possible to shrink with current available prime numbers */      \
-        if (theoretical_size < PFX##_count(_map_) / PFX##_load(_map_))         \
+        if (theoretical_size < PFX##_count(_map_) / _map_->load)               \
             return false;                                                      \
                                                                                \
         struct SNAME *_new_map_ =                                              \
-            PFX##_new_custom(capacity, PFX##_load(_map_), _map_->cmp,          \
-                             _map_->hash, _map_->alloc, _map_->callbacks);     \
+            PFX##_new_custom(capacity, _map_->load, _map_->f_key,              \
+                             _map_->f_val, _map_->alloc, _map_->callbacks);    \
                                                                                \
         if (!_new_map_)                                                        \
             return false;                                                      \
@@ -915,7 +978,7 @@ struct cmc_callbacks_multimap
                                                                                \
         if (PFX##_count(_map_) != PFX##_count(_new_map_))                      \
         {                                                                      \
-            PFX##_free(_new_map_, NULL);                                       \
+            PFX##_free(_new_map_);                                             \
             return false;                                                      \
         }                                                                      \
                                                                                \
@@ -927,17 +990,16 @@ struct cmc_callbacks_multimap
         _map_->capacity = _new_map_->capacity;                                 \
         _new_map_->capacity = tmp_c;                                           \
                                                                                \
-        PFX##_free(_new_map_, NULL);                                           \
+        PFX##_free(_new_map_);                                                 \
                                                                                \
         return true;                                                           \
     }                                                                          \
                                                                                \
-    struct SNAME *PFX##_copy_of(struct SNAME *_map_, K (*key_copy_func)(K),    \
-                                V (*value_copy_func)(V))                       \
+    struct SNAME *PFX##_copy_of(struct SNAME *_map_)                           \
     {                                                                          \
         struct SNAME *result =                                                 \
-            PFX##_new_custom(_map_->capacity, _map_->load, _map_->cmp,         \
-                             _map_->hash, _map_->alloc, _map_->callbacks);     \
+            PFX##_new_custom(_map_->capacity, _map_->load, _map_->f_key,       \
+                             _map_->f_val, _map_->alloc, _map_->callbacks);    \
                                                                                \
         if (!result)                                                           \
             return NULL;                                                       \
@@ -953,10 +1015,10 @@ struct cmc_callbacks_multimap
                 K key = PFX##_iter_key(&iter);                                 \
                 V value = PFX##_iter_value(&iter);                             \
                                                                                \
-                if (key_copy_func)                                             \
-                    key = key_copy_func(key);                                  \
-                if (value_copy_func)                                           \
-                    value = value_copy_func(value);                            \
+                if (_map_->f_key->cpy)                                         \
+                    key = _map_->f_key->cpy(key);                              \
+                if (_map_->f_val->cpy)                                         \
+                    value = _map_->f_val->cpy(value);                          \
                                                                                \
                 PFX##_insert(result, key, value);                              \
             }                                                                  \
@@ -1010,17 +1072,12 @@ struct cmc_callbacks_multimap
         struct cmc_string str;                                                 \
         struct SNAME *m_ = _map_;                                              \
                                                                                \
-        int n =                                                                \
-            snprintf(str.s, cmc_string_len, cmc_string_fmt_multimap, #SNAME,   \
-                     #K, #V, m_, m_->buffer, m_->capacity, m_->count,          \
-                     m_->load, m_->cmp, m_->hash, m_->alloc, m_->callbacks);   \
+        int n = snprintf(str.s, cmc_string_len, cmc_string_fmt_multimap,       \
+                         #SNAME, #K, #V, m_, m_->buffer, m_->capacity,         \
+                         m_->count, m_->load, m_->flag, m_->f_key, m_->f_val,  \
+                         m_->alloc, m_->callbacks);                            \
                                                                                \
-        if (n < 0 || n == (int)cmc_string_len)                                 \
-            return (struct cmc_string){ 0 };                                   \
-                                                                               \
-        str.s[n] = '\0';                                                       \
-                                                                               \
-        return str;                                                            \
+        return n >= 0 ? str : (struct cmc_string){ 0 };                        \
     }                                                                          \
                                                                                \
     struct SNAME##_iter *PFX##_iter_new(struct SNAME *target)                  \
@@ -1038,7 +1095,7 @@ struct cmc_callbacks_multimap
                                                                                \
     void PFX##_iter_free(struct SNAME##_iter *iter)                            \
     {                                                                          \
-        free(iter);                                                            \
+        iter->target->alloc->free(iter);                                       \
     }                                                                          \
                                                                                \
     void PFX##_iter_init(struct SNAME##_iter *iter, struct SNAME *target)      \
@@ -1279,14 +1336,14 @@ struct cmc_callbacks_multimap
                                                                                \
     struct SNAME##_entry *PFX##_impl_get_entry(struct SNAME *_map_, K key)     \
     {                                                                          \
-        size_t hash = _map_->hash(key);                                        \
+        size_t hash = _map_->f_key->hash(key);                                 \
                                                                                \
         struct SNAME##_entry *entry =                                          \
             _map_->buffer[hash % _map_->capacity][0];                          \
                                                                                \
         while (entry != NULL)                                                  \
         {                                                                      \
-            if (_map_->cmp(entry->key, key) == 0)                              \
+            if (_map_->f_key->cmp(entry->key, key) == 0)                       \
                 return entry;                                                  \
                                                                                \
             entry = entry->next;                                               \
