@@ -112,6 +112,7 @@ static const char *cmc_string_fmt_queue = "struct %s<%s> "
                                           "count:%" PRIuMAX ", "
                                           "front:%" PRIuMAX ", "
                                           "back:%" PRIuMAX ", "
+                                          "f_val:%p, "
                                           "alloc:%p, "
                                           "callbacks:%p }";
 
@@ -163,17 +164,45 @@ struct cmc_callbacks_queue
         /* Index representing the back of the queue */                        \
         size_t back;                                                          \
                                                                               \
-        /* Function that returns an iterator to the start of the queue */     \
-        struct SNAME##_iter (*it_start)(struct SNAME *);                      \
+        /* Flags indicating errors or success */                              \
+        int flag;                                                             \
                                                                               \
-        /* Function that returns an iterator to the end of the queue */       \
-        struct SNAME##_iter (*it_end)(struct SNAME *);                        \
+        /* Value function table */                                            \
+        struct SNAME##_ftab_val *f_val;                                       \
                                                                               \
         /* Custom allocation functions */                                     \
         struct cmc_alloc_node *alloc;                                         \
                                                                               \
         /* Custom callback functions */                                       \
         struct cmc_callbacks_queue *callbacks;                                \
+                                                                              \
+        /* Function that returns an iterator to the start of the queue */     \
+        struct SNAME##_iter (*it_start)(struct SNAME *);                      \
+                                                                              \
+        /* Function that returns an iterator to the end of the queue */       \
+        struct SNAME##_iter (*it_end)(struct SNAME *);                        \
+    };                                                                        \
+                                                                              \
+    /* Value struct function table */                                         \
+    struct SNAME##_ftab_val                                                   \
+    {                                                                         \
+        /* Comparator function */                                             \
+        int (*cmp)(V, V);                                                     \
+                                                                              \
+        /* Copy function */                                                   \
+        V (*cpy)(V);                                                          \
+                                                                              \
+        /* To string function */                                              \
+        bool (*str)(FILE *, V);                                               \
+                                                                              \
+        /* Free from memory function */                                       \
+        void (*free)(V);                                                      \
+                                                                              \
+        /* Hash function */                                                   \
+        size_t (*hash)(V);                                                    \
+                                                                              \
+        /* Priority function */                                               \
+        int (*pri)(V, V);                                                     \
     };                                                                        \
                                                                               \
     /* Queue Iterator */                                                      \
@@ -197,12 +226,12 @@ struct cmc_callbacks_queue
                                                                               \
     /* Collection Functions */                                                \
     /* Collection Allocation and Deallocation */                              \
-    struct SNAME *PFX##_new(size_t capacity);                                 \
-    struct SNAME *PFX##_new_custom(size_t capacity,                           \
-                                   struct cmc_alloc_node *alloc,              \
-                                   struct cmc_callbacks_queue *callbacks);    \
-    void PFX##_clear(struct SNAME *_queue_, void (*deallocator)(V));          \
-    void PFX##_free(struct SNAME *_queue_, void (*deallocator)(V));           \
+    struct SNAME *PFX##_new(size_t capacity, struct SNAME##_ftab_val *f_val); \
+    struct SNAME *PFX##_new_custom(                                           \
+        size_t capacity, struct SNAME##_ftab_val *f_val,                      \
+        struct cmc_alloc_node *alloc, struct cmc_callbacks_queue *callbacks); \
+    void PFX##_clear(struct SNAME *_queue_);                                  \
+    void PFX##_free(struct SNAME *_queue_);                                   \
     /* Customization of Allocation and Callbacks */                           \
     void PFX##_customize(struct SNAME *_queue_, struct cmc_alloc_node *alloc, \
                          struct cmc_callbacks_queue *callbacks);              \
@@ -212,17 +241,15 @@ struct cmc_callbacks_queue
     /* Element Access */                                                      \
     V PFX##_peek(struct SNAME *_queue_);                                      \
     /* Collection State */                                                    \
-    bool PFX##_contains(struct SNAME *_queue_, V element,                     \
-                        int (*comparator)(V, V));                             \
+    bool PFX##_contains(struct SNAME *_queue_, V element);                    \
     bool PFX##_empty(struct SNAME *_queue_);                                  \
     bool PFX##_full(struct SNAME *_queue_);                                   \
     size_t PFX##_count(struct SNAME *_queue_);                                \
     size_t PFX##_capacity(struct SNAME *_queue_);                             \
     /* Collection Utility */                                                  \
     bool PFX##_resize(struct SNAME *_queue_, size_t capacity);                \
-    struct SNAME *PFX##_copy_of(struct SNAME *_queue_, V (*copy_func)(V));    \
-    bool PFX##_equals(struct SNAME *_queue1_, struct SNAME *_queue2_,         \
-                      int (*comparator)(V, V));                               \
+    struct SNAME *PFX##_copy_of(struct SNAME *_queue_);                       \
+    bool PFX##_equals(struct SNAME *_queue1_, struct SNAME *_queue2_);        \
     struct cmc_string PFX##_to_string(struct SNAME *_queue_);                 \
                                                                               \
     /* Iterator Functions */                                                  \
@@ -256,11 +283,14 @@ struct cmc_callbacks_queue
     static struct SNAME##_iter PFX##_impl_it_start(struct SNAME *_queue_);    \
     static struct SNAME##_iter PFX##_impl_it_end(struct SNAME *_queue_);      \
                                                                               \
-    struct SNAME *PFX##_new(size_t capacity)                                  \
+    struct SNAME *PFX##_new(size_t capacity, struct SNAME##_ftab_val *f_val)  \
     {                                                                         \
         struct cmc_alloc_node *alloc = &cmc_alloc_node_default;               \
                                                                               \
         if (capacity < 1)                                                     \
+            return NULL;                                                      \
+                                                                              \
+        if (!f_val)                                                           \
             return NULL;                                                      \
                                                                               \
         struct SNAME *_queue_ = alloc->malloc(sizeof(struct SNAME));          \
@@ -280,21 +310,24 @@ struct cmc_callbacks_queue
         _queue_->count = 0;                                                   \
         _queue_->front = 0;                                                   \
         _queue_->back = 0;                                                    \
-                                                                              \
-        _queue_->it_start = PFX##_impl_it_start;                              \
-        _queue_->it_end = PFX##_impl_it_end;                                  \
-                                                                              \
+        _queue_->flag = cmc_flags.OK;                                         \
+        _queue_->f_val = f_val;                                               \
         _queue_->alloc = alloc;                                               \
         _queue_->callbacks = NULL;                                            \
+        _queue_->it_start = PFX##_impl_it_start;                              \
+        _queue_->it_end = PFX##_impl_it_end;                                  \
                                                                               \
         return _queue_;                                                       \
     }                                                                         \
                                                                               \
-    struct SNAME *PFX##_new_custom(size_t capacity,                           \
-                                   struct cmc_alloc_node *alloc,              \
-                                   struct cmc_callbacks_queue *callbacks)     \
+    struct SNAME *PFX##_new_custom(                                           \
+        size_t capacity, struct SNAME##_ftab_val *f_val,                      \
+        struct cmc_alloc_node *alloc, struct cmc_callbacks_queue *callbacks)  \
     {                                                                         \
         if (capacity < 1)                                                     \
+            return NULL;                                                      \
+                                                                              \
+        if (!f_val)                                                           \
             return NULL;                                                      \
                                                                               \
         if (!alloc)                                                           \
@@ -317,23 +350,23 @@ struct cmc_callbacks_queue
         _queue_->count = 0;                                                   \
         _queue_->front = 0;                                                   \
         _queue_->back = 0;                                                    \
-                                                                              \
-        _queue_->it_start = PFX##_impl_it_start;                              \
-        _queue_->it_end = PFX##_impl_it_end;                                  \
-                                                                              \
+        _queue_->flag = cmc_flags.OK;                                         \
+        _queue_->f_val = f_val;                                               \
         _queue_->alloc = alloc;                                               \
         _queue_->callbacks = callbacks;                                       \
+        _queue_->it_start = PFX##_impl_it_start;                              \
+        _queue_->it_end = PFX##_impl_it_end;                                  \
                                                                               \
         return _queue_;                                                       \
     }                                                                         \
                                                                               \
-    void PFX##_clear(struct SNAME *_queue_, void (*deallocator)(V))           \
+    void PFX##_clear(struct SNAME *_queue_)                                   \
     {                                                                         \
-        if (deallocator)                                                      \
+        if (_queue_->f_val->free)                                             \
         {                                                                     \
             for (size_t i = _queue_->front, j = 0; j < _queue_->count; j++)   \
             {                                                                 \
-                deallocator(_queue_->buffer[i]);                              \
+                _queue_->f_val->free(_queue_->buffer[i]);                     \
                                                                               \
                 i = (i + 1) % _queue_->capacity;                              \
             }                                                                 \
@@ -346,13 +379,13 @@ struct cmc_callbacks_queue
         _queue_->back = 0;                                                    \
     }                                                                         \
                                                                               \
-    void PFX##_free(struct SNAME *_queue_, void (*deallocator)(V))            \
+    void PFX##_free(struct SNAME *_queue_)                                    \
     {                                                                         \
-        if (deallocator)                                                      \
+        if (_queue_->f_val->free)                                             \
         {                                                                     \
             for (size_t i = _queue_->front, j = 0; j < _queue_->count; j++)   \
             {                                                                 \
-                deallocator(_queue_->buffer[i]);                              \
+                _queue_->f_val->free(_queue_->buffer[i]);                     \
                                                                               \
                 i = (i + 1) % _queue_->capacity;                              \
             }                                                                 \
@@ -412,12 +445,11 @@ struct cmc_callbacks_queue
         return _queue_->buffer[_queue_->front];                               \
     }                                                                         \
                                                                               \
-    bool PFX##_contains(struct SNAME *_queue_, V element,                     \
-                        int (*comparator)(V, V))                              \
+    bool PFX##_contains(struct SNAME *_queue_, V element)                     \
     {                                                                         \
         for (size_t i = _queue_->front, j = 0; j < _queue_->count; j++)       \
         {                                                                     \
-            if (comparator(_queue_->buffer[i], element) == 0)                 \
+            if (_queue_->f_val->cmp(_queue_->buffer[i], element) == 0)        \
                 return true;                                                  \
                                                                               \
             i = (i + 1) % _queue_->capacity;                                  \
@@ -463,7 +495,7 @@ struct cmc_callbacks_queue
         {                                                                     \
             new_buffer[j] = _queue_->buffer[i];                               \
                                                                               \
-            i = (i + 1) % PFX##_capacity(_queue_);                            \
+            i = (i + 1) % _queue_->capacity;                                  \
         }                                                                     \
                                                                               \
         _queue_->alloc->free(_queue_->buffer);                                \
@@ -476,19 +508,20 @@ struct cmc_callbacks_queue
         return true;                                                          \
     }                                                                         \
                                                                               \
-    struct SNAME *PFX##_copy_of(struct SNAME *_queue_, V (*copy_func)(V))     \
+    struct SNAME *PFX##_copy_of(struct SNAME *_queue_)                        \
     {                                                                         \
-        struct SNAME *result = PFX##_new_custom(                              \
-            _queue_->capacity, _queue_->alloc, _queue_->callbacks);           \
+        struct SNAME *result =                                                \
+            PFX##_new_custom(_queue_->capacity, _queue_->f_val,               \
+                             _queue_->alloc, _queue_->callbacks);             \
                                                                               \
         if (!result)                                                          \
             return NULL;                                                      \
                                                                               \
-        if (copy_func)                                                        \
+        if (_queue_->f_val->cpy)                                              \
         {                                                                     \
             for (size_t i = _queue_->front, j = 0; j < _queue_->count; j++)   \
             {                                                                 \
-                result->buffer[j] = copy_func(_queue_->buffer[i]);            \
+                result->buffer[j] = _queue_->f_val->cpy(_queue_->buffer[i]);  \
                                                                               \
                 i = (i + 1) % _queue_->capacity;                              \
             }                                                                 \
@@ -510,8 +543,7 @@ struct cmc_callbacks_queue
         return result;                                                        \
     }                                                                         \
                                                                               \
-    bool PFX##_equals(struct SNAME *_queue1_, struct SNAME *_queue2_,         \
-                      int (*comparator)(V, V))                                \
+    bool PFX##_equals(struct SNAME *_queue1_, struct SNAME *_queue2_)         \
     {                                                                         \
         if (PFX##_count(_queue1_) != PFX##_count(_queue2_))                   \
             return false;                                                     \
@@ -520,7 +552,8 @@ struct cmc_callbacks_queue
         for (i = _queue1_->front, j = _queue2_->front, k = 0;                 \
              k < PFX##_count(_queue1_); k++)                                  \
         {                                                                     \
-            if (comparator(_queue1_->buffer[i], _queue2_->buffer[j]) != 0)    \
+            if (_queue1_->f_val->cmp(_queue1_->buffer[i],                     \
+                                     _queue2_->buffer[j]) != 0)               \
                 return false;                                                 \
                                                                               \
             i = (i + 1) % _queue1_->capacity;                                 \
@@ -535,16 +568,12 @@ struct cmc_callbacks_queue
         struct cmc_string str;                                                \
         struct SNAME *q_ = _queue_;                                           \
                                                                               \
-        int n = snprintf(str.s, cmc_string_len, cmc_string_fmt_queue, #SNAME, \
-                         #V, q_, q_->buffer, q_->capacity, q_->count,         \
-                         q_->front, q_->back, q_->alloc, q_->callbacks);      \
+        int n =                                                               \
+            snprintf(str.s, cmc_string_len, cmc_string_fmt_queue, #SNAME, #V, \
+                     q_, q_->buffer, q_->capacity, q_->count, q_->front,      \
+                     q_->back, q_->f_val, q_->alloc, q_->callbacks);          \
                                                                               \
-        if (n < 0 || n == (int)cmc_string_len)                                \
-            return (struct cmc_string){ 0 };                                  \
-                                                                              \
-        str.s[n] = '\0';                                                      \
-                                                                              \
-        return str;                                                           \
+        return n >= 0 ? str : (struct cmc_string){ 0 };                       \
     }                                                                         \
                                                                               \
     struct SNAME##_iter *PFX##_iter_new(struct SNAME *target)                 \

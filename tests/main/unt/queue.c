@@ -7,9 +7,17 @@
 
 CMC_GENERATE_QUEUE(q, queue, size_t)
 
+struct queue_ftab_val *q_ftab_val =
+    &(struct queue_ftab_val){ .cmp = cmp,
+                                 .cpy = copy,
+                                 .str = str,
+                                 .free = custom_free,
+                                 .hash = hash,
+                                 .pri = pri };
+
 CMC_CREATE_UNIT(queue_test, true, {
     CMC_CREATE_TEST(new, {
-        struct queue *q = q_new(1000000);
+        struct queue *q = q_new(1000000, q_ftab_val);
 
         cmc_assert_not_equals(ptr, NULL, q);
         cmc_assert_not_equals(ptr, NULL, q->buffer);
@@ -17,23 +25,23 @@ CMC_CREATE_UNIT(queue_test, true, {
         cmc_assert_equals(size_t, 0, q_count(q));
         cmc_assert_not_equals(ptr, NULL, q->buffer);
 
-        q_free(q, NULL);
+        q_free(q);
     });
 
     CMC_CREATE_TEST(new[capacity = 0], {
-        struct queue *q = q_new(0);
+        struct queue *q = q_new(0, q_ftab_val);
 
         cmc_assert_equals(ptr, NULL, q);
     });
 
     CMC_CREATE_TEST(new[capacity = UINT64_MAX], {
-        struct queue *q = q_new(UINT64_MAX);
+        struct queue *q = q_new(UINT64_MAX, q_ftab_val);
 
         cmc_assert_equals(ptr, NULL, q);
     });
 
     CMC_CREATE_TEST(clear[count capacity], {
-        struct queue *q = q_new(100);
+        struct queue *q = q_new(100, q_ftab_val);
 
         cmc_assert_not_equals(ptr, NULL, q);
 
@@ -42,16 +50,16 @@ CMC_CREATE_UNIT(queue_test, true, {
 
         cmc_assert_equals(size_t, 50, q_count(q));
 
-        q_clear(q, NULL);
+        q_clear(q);
 
         cmc_assert_equals(size_t, 0, q_count(q));
         cmc_assert_equals(size_t, 100, q_capacity(q));
 
-        q_free(q, NULL);
+        q_free(q);
     });
 
     CMC_CREATE_TEST(buffer_growth[capacity = 1], {
-        struct queue *q = q_new(1);
+        struct queue *q = q_new(1, q_ftab_val);
 
         cmc_assert_not_equals(ptr, NULL, q);
 
@@ -60,11 +68,11 @@ CMC_CREATE_UNIT(queue_test, true, {
 
         cmc_assert_equals(size_t, 50, q_count(q));
 
-        q_free(q, NULL);
+        q_free(q);
     });
 
     CMC_CREATE_TEST(buffer_growth[item preservation], {
-        struct queue *q = q_new(100);
+        struct queue *q = q_new(100, q_ftab_val);
 
         cmc_assert_not_equals(ptr, NULL, q);
 
@@ -81,11 +89,11 @@ CMC_CREATE_UNIT(queue_test, true, {
         cmc_assert_equals(size_t, 1200, q_count(q));
         cmc_assert_equals(size_t, 720600, sum);
 
-        q_free(q, NULL);
+        q_free(q);
     });
 
     CMC_CREATE_TEST(enqueue[count capacity], {
-        struct queue *q = q_new(100);
+        struct queue *q = q_new(100, q_ftab_val);
 
         cmc_assert_not_equals(ptr, NULL, q);
 
@@ -95,11 +103,11 @@ CMC_CREATE_UNIT(queue_test, true, {
         cmc_assert_equals(size_t, 150, q_count(q));
         cmc_assert_greater(size_t, 100, q_capacity(q));
 
-        q_free(q, NULL);
+        q_free(q);
     });
 
     CMC_CREATE_TEST(enqueue[item preservation], {
-        struct queue *q = q_new(100);
+        struct queue *q = q_new(100, q_ftab_val);
 
         cmc_assert_not_equals(ptr, NULL, q);
 
@@ -116,11 +124,11 @@ CMC_CREATE_UNIT(queue_test, true, {
 
         cmc_assert_equals(size_t, 5050, sum);
 
-        q_free(q, NULL);
+        q_free(q);
     });
 
     CMC_CREATE_TEST(dequeue[count capacity], {
-        struct queue *q = q_new(100);
+        struct queue *q = q_new(100, q_ftab_val);
 
         cmc_assert_not_equals(ptr, NULL, q);
 
@@ -134,11 +142,11 @@ CMC_CREATE_UNIT(queue_test, true, {
 
         cmc_assert_equals(size_t, 0, q_count(q));
 
-        q_free(q, NULL);
+        q_free(q);
     });
 
     CMC_CREATE_TEST(dequeue[item preservation], {
-        struct queue *q = q_new(100);
+        struct queue *q = q_new(100, q_ftab_val);
 
         cmc_assert_not_equals(ptr, NULL, q);
 
@@ -158,11 +166,11 @@ CMC_CREATE_UNIT(queue_test, true, {
 
         cmc_assert_equals(size_t, 5050, sum);
 
-        q_free(q, NULL);
+        q_free(q);
     });
 
     CMC_CREATE_TEST(peek[count = 0], {
-        struct queue *q = q_new(100);
+        struct queue *q = q_new(100, q_ftab_val);
 
         cmc_assert_not_equals(ptr, NULL, q);
 
@@ -170,11 +178,11 @@ CMC_CREATE_UNIT(queue_test, true, {
 
         cmc_assert_equals(size_t, (size_t){ 0 }, r);
 
-        q_free(q, NULL);
+        q_free(q);
     });
 
     CMC_CREATE_TEST(peek[sum], {
-        struct queue *q = q_new(100);
+        struct queue *q = q_new(100, q_ftab_val);
 
         cmc_assert_not_equals(ptr, NULL, q);
 
@@ -194,11 +202,11 @@ CMC_CREATE_UNIT(queue_test, true, {
 
         cmc_assert_equals(size_t, 5050, sum);
 
-        q_free(q, NULL);
+        q_free(q);
     });
 
     CMC_CREATE_TEST(contains, {
-        struct queue *q = q_new(100);
+        struct queue *q = q_new(100, q_ftab_val);
 
         cmc_assert_not_equals(ptr, NULL, q);
 
@@ -206,43 +214,43 @@ CMC_CREATE_UNIT(queue_test, true, {
             cmc_assert(q_enqueue(q, i));
 
         for (size_t i = 1; i <= 20; i++)
-            cmc_assert(q_contains(q, i, cmp));
+            cmc_assert(q_contains(q, i));
 
-        q_clear(q, NULL);
+        q_clear(q);
 
         for (size_t i = 1; i <= 20; i++)
-            cmc_assert(!q_contains(q, i, cmp));
+            cmc_assert(!q_contains(q, i));
 
-        q_free(q, NULL);
+        q_free(q);
     });
 
     CMC_CREATE_TEST(contains[count = 0], {
-        struct queue *q = q_new(100);
+        struct queue *q = q_new(100, q_ftab_val);
 
         cmc_assert_not_equals(ptr, NULL, q);
 
-        cmc_assert(!q_contains(q, 10, cmp));
+        cmc_assert(!q_contains(q, 10));
 
-        q_free(q, NULL);
+        q_free(q);
     });
 
     CMC_CREATE_TEST(contains[count = 1], {
-        struct queue *q = q_new(100);
+        struct queue *q = q_new(100, q_ftab_val);
 
         cmc_assert_not_equals(ptr, NULL, q);
 
-        cmc_assert(!q_contains(q, 10, cmp));
+        cmc_assert(!q_contains(q, 10));
 
         cmc_assert(q_enqueue(q, 100));
 
-        cmc_assert(q_contains(q, 100, cmp));
-        cmc_assert(!q_contains(q, 101, cmp));
+        cmc_assert(q_contains(q, 100));
+        cmc_assert(!q_contains(q, 101));
 
-        q_free(q, NULL);
+        q_free(q);
     });
 
     CMC_CREATE_TEST(empty, {
-        struct queue *q = q_new(100);
+        struct queue *q = q_new(100, q_ftab_val);
 
         cmc_assert_not_equals(ptr, NULL, q);
 
@@ -252,11 +260,11 @@ CMC_CREATE_UNIT(queue_test, true, {
 
         cmc_assert(!q_empty(q));
 
-        q_free(q, NULL);
+        q_free(q);
     });
 
     CMC_CREATE_TEST(full, {
-        struct queue *q = q_new(100);
+        struct queue *q = q_new(100, q_ftab_val);
 
         cmc_assert_not_equals(ptr, NULL, q);
 
@@ -267,11 +275,11 @@ CMC_CREATE_UNIT(queue_test, true, {
 
         cmc_assert(q_full(q));
 
-        q_free(q, NULL);
+        q_free(q);
     });
 
     CMC_CREATE_TEST(count, {
-        struct queue *q = q_new(100);
+        struct queue *q = q_new(100, q_ftab_val);
 
         cmc_assert_not_equals(ptr, NULL, q);
 
@@ -282,21 +290,21 @@ CMC_CREATE_UNIT(queue_test, true, {
 
         cmc_assert_equals(size_t, 100, q_count(q));
 
-        q_free(q, NULL);
+        q_free(q);
     });
 
     CMC_CREATE_TEST(capacity, {
-        struct queue *q = q_new(100);
+        struct queue *q = q_new(100, q_ftab_val);
 
         cmc_assert_not_equals(ptr, NULL, q);
 
         cmc_assert_equals(size_t, 100, q_capacity(q));
 
-        q_free(q, NULL);
+        q_free(q);
     });
 
     CMC_CREATE_TEST(resize, {
-        struct queue *q = q_new(100);
+        struct queue *q = q_new(100, q_ftab_val);
 
         cmc_assert_not_equals(ptr, NULL, q);
 
@@ -307,11 +315,11 @@ CMC_CREATE_UNIT(queue_test, true, {
         cmc_assert(q_resize(q, q_count(q)));
         cmc_assert_equals(size_t, 150, q_capacity(q));
 
-        q_free(q, NULL);
+        q_free(q);
     });
 
     CMC_CREATE_TEST(resize[item preservation], {
-        struct queue *q = q_new(100);
+        struct queue *q = q_new(100, q_ftab_val);
 
         cmc_assert_not_equals(ptr, NULL, q);
 
@@ -330,18 +338,18 @@ CMC_CREATE_UNIT(queue_test, true, {
 
         cmc_assert_equals(size_t, 11325, sum);
 
-        q_free(q, NULL);
+        q_free(q);
     });
 
     CMC_CREATE_TEST(copy_of, {
-        struct queue *d1 = q_new(100);
+        struct queue *d1 = q_new(100, q_ftab_val);
 
         cmc_assert_not_equals(ptr, NULL, d1);
 
         for (size_t i = 1; i <= 150; i++)
             cmc_assert(q_enqueue(d1, i));
 
-        struct queue *d2 = q_copy_of(d1, NULL);
+        struct queue *d2 = q_copy_of(d1);
 
         cmc_assert_not_equals(ptr, NULL, d2);
         cmc_assert_equals(size_t, q_count(d1), q_count(d2));
@@ -354,13 +362,13 @@ CMC_CREATE_UNIT(queue_test, true, {
             i2 = (i2 + 1) % d2->capacity;
         }
 
-        q_free(d1, NULL);
-        q_free(d2, NULL);
+        q_free(d1);
+        q_free(d2);
     });
 
     CMC_CREATE_TEST(equals, {
-        struct queue *d1 = q_new(100);
-        struct queue *d2 = q_new(100);
+        struct queue *d1 = q_new(100, q_ftab_val);
+        struct queue *d2 = q_new(100, q_ftab_val);
 
         cmc_assert_not_equals(ptr, NULL, d1);
         cmc_assert_not_equals(ptr, NULL, d2);
@@ -371,14 +379,14 @@ CMC_CREATE_UNIT(queue_test, true, {
             cmc_assert(q_enqueue(d2, i));
         }
 
-        cmc_assert(q_equals(d1, d2, cmp));
+        cmc_assert(q_equals(d1, d2));
 
-        q_free(d1, NULL);
-        q_free(d2, NULL);
+        q_free(d1);
+        q_free(d2);
     });
 
     CMC_CREATE_TEST(equals[from copy], {
-        struct queue *d1 = q_new(100);
+        struct queue *d1 = q_new(100, q_ftab_val);
 
         cmc_assert_not_equals(ptr, NULL, d1);
 
@@ -387,28 +395,28 @@ CMC_CREATE_UNIT(queue_test, true, {
             cmc_assert(q_enqueue(d1, i));
         }
 
-        struct queue *d2 = q_copy_of(d1, NULL);
+        struct queue *d2 = q_copy_of(d1);
 
         cmc_assert_not_equals(ptr, NULL, d2);
 
-        cmc_assert(q_equals(d1, d2, cmp));
+        cmc_assert(q_equals(d1, d2));
 
-        q_free(d1, NULL);
-        q_free(d2, NULL);
+        q_free(d1);
+        q_free(d2);
     });
 
     CMC_CREATE_TEST(equals[count = 0], {
-        struct queue *d1 = q_new(100);
+        struct queue *d1 = q_new(100, q_ftab_val);
 
         cmc_assert_not_equals(ptr, NULL, d1);
 
-        struct queue *d2 = q_copy_of(d1, NULL);
+        struct queue *d2 = q_copy_of(d1);
 
         cmc_assert_not_equals(ptr, NULL, d2);
 
-        cmc_assert(q_equals(d1, d2, cmp));
+        cmc_assert(q_equals(d1, d2));
 
-        q_free(d1, NULL);
-        q_free(d2, NULL);
+        q_free(d1);
+        q_free(d2);
     });
 });
