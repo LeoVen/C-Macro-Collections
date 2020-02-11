@@ -492,7 +492,7 @@ struct cmc_callbacks_stack
                                                                               \
         int n = snprintf(str.s, cmc_string_len, cmc_string_fmt_stack, #SNAME, \
                          #V, s_, s_->buffer, s_->capacity, s_->count,         \
-                         s_->f_val, s_->alloc, s_->callbacks);                \
+                         s_->flag, s_->f_val, s_->alloc, s_->callbacks);      \
                                                                               \
         return n >= 0 ? str : (struct cmc_string){ 0 };                       \
     }                                                                         \

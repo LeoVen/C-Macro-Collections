@@ -490,6 +490,7 @@ struct cmc_callbacks_bidimap
         _map_->count = 0;                                                      \
         _map_->capacity = real_capacity;                                       \
         _map_->load = load;                                                    \
+        _map_->flag = cmc_flags.OK;                                            \
         _map_->f_key = f_key;                                                  \
         _map_->f_val = f_val;                                                  \
         _map_->flag = cmc_flags.OK;                                            \

@@ -28,17 +28,27 @@ int main(void)
                                     &(struct hmap_ftab_val){ 0 }, NULL, NULL);
     struct hset *hs =
         hs_new_custom(100, 0.6, &(struct hset_ftab_val){ 0 }, NULL, NULL);
-    struct heap *h = h_new_custom(100, cmc_max_heap, NULL, NULL, NULL);
-    struct iheap *ih = ih_new_custom(100, NULL, NULL, NULL);
-    struct linked *ll = ll_new_custom(NULL, NULL);
-    struct list *l = l_new_custom(100, NULL, NULL);
-    struct mmap *mm = mm_new_custom(100, 0.8, NULL, NULL, NULL, NULL);
-    struct mset *ms = ms_new_custom(100, 0.6, NULL, NULL, NULL, NULL);
-    struct queue *q = q_new_custom(100, NULL, NULL);
-    struct slist *sl = sl_new_custom(100, NULL, NULL, NULL);
-    struct stack *s = s_new_custom(100, NULL, NULL);
-    struct tmap *tm = tm_new_custom(NULL, NULL, NULL);
-    struct tset *ts = ts_new_custom(NULL, NULL, NULL);
+    struct heap *h = h_new_custom(100, cmc_max_heap,
+                                  &(struct heap_ftab_val){ 0 }, NULL, NULL);
+    struct iheap *ih =
+        ih_new_custom(100, &(struct iheap_ftab_val){ 0 }, NULL, NULL);
+    struct linked *ll =
+        ll_new_custom(&(struct linked_ftab_val){ 0 }, NULL, NULL);
+    struct list *l =
+        l_new_custom(100, &(struct list_ftab_val){ 0 }, NULL, NULL);
+    struct mmap *mm = mm_new_custom(100, 0.8, &(struct mmap_ftab_key){ 0 },
+                                    &(struct mmap_ftab_val){ 0 }, NULL, NULL);
+    struct mset *ms =
+        ms_new_custom(100, 0.6, &(struct mset_ftab_val){ 0 }, NULL, NULL);
+    struct queue *q =
+        q_new_custom(100, &(struct queue_ftab_val){ 0 }, NULL, NULL);
+    struct slist *sl =
+        sl_new_custom(100, &(struct slist_ftab_val){ 0 }, NULL, NULL);
+    struct stack *s =
+        s_new_custom(100, &(struct stack_ftab_val){ 0 }, NULL, NULL);
+    struct tmap *tm = tm_new_custom(&(struct tmap_ftab_key){ 0 },
+                                    &(struct tmap_ftab_val){ 0 }, NULL, NULL);
+    struct tset *ts = ts_new_custom(&(struct tset_ftab_val){ 0 }, NULL, NULL);
 
     printf("%s\n", bm_to_string(bm).s);
     printf("%s\n", d_to_string(d).s);
@@ -60,15 +70,15 @@ int main(void)
     d_free(d);
     hm_free(hm);
     hs_free(hs);
-    h_free(h, NULL);
-    ih_free(ih, NULL);
-    ll_free(ll, NULL);
-    l_free(l, NULL);
-    mm_free(mm, NULL);
-    ms_free(ms, NULL);
-    q_free(q, NULL);
-    sl_free(sl, NULL);
-    s_free(s, NULL);
-    tm_free(tm, NULL);
-    ts_free(ts, NULL);
+    h_free(h);
+    ih_free(ih);
+    ll_free(ll);
+    l_free(l);
+    mm_free(mm);
+    ms_free(ms);
+    q_free(q);
+    sl_free(sl);
+    s_free(s);
+    tm_free(tm);
+    ts_free(ts);
 }

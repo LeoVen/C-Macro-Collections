@@ -85,7 +85,8 @@ static const char *cmc_string_fmt_treeset = "struct %s<%s> "
                                             "at %p { "
                                             "root:%p, "
                                             "count:%" PRIuMAX ", "
-                                            "cmp:%p, "
+                                            "flag:%d, "
+                                            "f_val:%p, "
                                             "alloc:%p, "
                                             "callbacks:%p }";
 
@@ -128,20 +129,23 @@ struct cmc_callbacks_treeset
         /* Current amount of elements */                                       \
         size_t count;                                                          \
                                                                                \
-        /* Element comparison function */                                      \
-        int (*cmp)(V, V);                                                      \
+        /* Flags indicating errors or success */                               \
+        int flag;                                                              \
                                                                                \
-        /* Function that returns an iterator to the start of the treeset */    \
-        struct SNAME##_iter (*it_start)(struct SNAME *);                       \
-                                                                               \
-        /* Function that returns an iterator to the end of the treeset */      \
-        struct SNAME##_iter (*it_end)(struct SNAME *);                         \
+        /* Value function table */                                             \
+        struct SNAME##_ftab_val *f_val;                                        \
                                                                                \
         /* Custom allocation functions */                                      \
         struct cmc_alloc_node *alloc;                                          \
                                                                                \
         /* Custom callback functions */                                        \
         struct cmc_callbacks_treeset *callbacks;                               \
+                                                                               \
+        /* Function that returns an iterator to the start of the treeset */    \
+        struct SNAME##_iter (*it_start)(struct SNAME *);                       \
+                                                                               \
+        /* Function that returns an iterator to the end of the treeset */      \
+        struct SNAME##_iter (*it_end)(struct SNAME *);                         \
     };                                                                         \
                                                                                \
     /* Treeset Node */                                                         \
@@ -161,6 +165,28 @@ struct cmc_callbacks_treeset
                                                                                \
         /* Parent node */                                                      \
         struct SNAME##_node *parent;                                           \
+    };                                                                         \
+                                                                               \
+    /* Value struct function table */                                          \
+    struct SNAME##_ftab_val                                                    \
+    {                                                                          \
+        /* Comparator function */                                              \
+        int (*cmp)(V, V);                                                      \
+                                                                               \
+        /* Copy function */                                                    \
+        V (*cpy)(V);                                                           \
+                                                                               \
+        /* To string function */                                               \
+        bool (*str)(FILE *, V);                                                \
+                                                                               \
+        /* Free from memory function */                                        \
+        void (*free)(V);                                                       \
+                                                                               \
+        /* Hash function */                                                    \
+        size_t (*hash)(V);                                                     \
+                                                                               \
+        /* Priority function */                                                \
+        int (*pri)(V, V);                                                      \
     };                                                                         \
                                                                                \
     /* Treeset Iterator */                                                     \
@@ -190,12 +216,12 @@ struct cmc_callbacks_treeset
                                                                                \
     /* Collection Functions */                                                 \
     /* Collection Allocation and Deallocation */                               \
-    struct SNAME *PFX##_new(int (*compare)(V, V));                             \
-    struct SNAME *PFX##_new_custom(int (*compare)(V, V),                       \
+    struct SNAME *PFX##_new(struct SNAME##_ftab_val *f_val);                   \
+    struct SNAME *PFX##_new_custom(struct SNAME##_ftab_val *f_val,             \
                                    struct cmc_alloc_node *alloc,               \
                                    struct cmc_callbacks_treeset *callbacks);   \
-    void PFX##_clear(struct SNAME *_set_, void (*deallocator)(V));             \
-    void PFX##_free(struct SNAME *_set_, void (*deallocator)(V));              \
+    void PFX##_clear(struct SNAME *_set_);                                     \
+    void PFX##_free(struct SNAME *_set_);                                      \
     /* Customization of Allocation and Callbacks */                            \
     void PFX##_customize(struct SNAME *_set_, struct cmc_alloc_node *alloc,    \
                          struct cmc_callbacks_treeset *callbacks);             \
@@ -210,7 +236,7 @@ struct cmc_callbacks_treeset
     bool PFX##_empty(struct SNAME *_set_);                                     \
     size_t PFX##_count(struct SNAME *_set_);                                   \
     /* Collection Utility */                                                   \
-    struct SNAME *PFX##_copy_of(struct SNAME *_set_, V (*copy_func)(V));       \
+    struct SNAME *PFX##_copy_of(struct SNAME *_set_);                          \
     bool PFX##_equals(struct SNAME *_set1_, struct SNAME *_set2_);             \
     struct cmc_string PFX##_to_string(struct SNAME *_set_);                    \
                                                                                \
@@ -278,8 +304,11 @@ struct cmc_callbacks_treeset
     static struct SNAME##_iter PFX##_impl_it_start(struct SNAME *_set_);       \
     static struct SNAME##_iter PFX##_impl_it_end(struct SNAME *_set_);         \
                                                                                \
-    struct SNAME *PFX##_new(int (*compare)(V, V))                              \
+    struct SNAME *PFX##_new(struct SNAME##_ftab_val *f_val)                    \
     {                                                                          \
+        if (!f_val)                                                            \
+            return NULL;                                                       \
+                                                                               \
         struct cmc_alloc_node *alloc = &cmc_alloc_node_default;                \
                                                                                \
         struct SNAME *_set_ = alloc->malloc(sizeof(struct SNAME));             \
@@ -289,21 +318,23 @@ struct cmc_callbacks_treeset
                                                                                \
         _set_->count = 0;                                                      \
         _set_->root = NULL;                                                    \
-        _set_->cmp = compare;                                                  \
-                                                                               \
-        _set_->it_start = PFX##_impl_it_start;                                 \
-        _set_->it_end = PFX##_impl_it_end;                                     \
-                                                                               \
+        _set_->flag = cmc_flags.OK;                                            \
+        _set_->f_val = f_val;                                                  \
         _set_->alloc = alloc;                                                  \
         _set_->callbacks = NULL;                                               \
+        _set_->it_start = PFX##_impl_it_start;                                 \
+        _set_->it_end = PFX##_impl_it_end;                                     \
                                                                                \
         return _set_;                                                          \
     }                                                                          \
                                                                                \
-    struct SNAME *PFX##_new_custom(int (*compare)(V, V),                       \
+    struct SNAME *PFX##_new_custom(struct SNAME##_ftab_val *f_val,             \
                                    struct cmc_alloc_node *alloc,               \
                                    struct cmc_callbacks_treeset *callbacks)    \
     {                                                                          \
+        if (!f_val)                                                            \
+            return NULL;                                                       \
+                                                                               \
         if (!alloc)                                                            \
             alloc = &cmc_alloc_node_default;                                   \
                                                                                \
@@ -314,18 +345,17 @@ struct cmc_callbacks_treeset
                                                                                \
         _set_->count = 0;                                                      \
         _set_->root = NULL;                                                    \
-        _set_->cmp = compare;                                                  \
-                                                                               \
-        _set_->it_start = PFX##_impl_it_start;                                 \
-        _set_->it_end = PFX##_impl_it_end;                                     \
-                                                                               \
+        _set_->flag = cmc_flags.OK;                                            \
+        _set_->f_val = f_val;                                                  \
         _set_->alloc = alloc;                                                  \
         _set_->callbacks = callbacks;                                          \
+        _set_->it_start = PFX##_impl_it_start;                                 \
+        _set_->it_end = PFX##_impl_it_end;                                     \
                                                                                \
         return _set_;                                                          \
     }                                                                          \
                                                                                \
-    void PFX##_clear(struct SNAME *_set_, void (*deallocator)(V))              \
+    void PFX##_clear(struct SNAME *_set_)                                      \
     {                                                                          \
         struct SNAME##_node *scan = _set_->root;                               \
         struct SNAME##_node *up = NULL;                                        \
@@ -353,8 +383,8 @@ struct cmc_callbacks_treeset
             {                                                                  \
                 if (up == NULL)                                                \
                 {                                                              \
-                    if (deallocator)                                           \
-                        deallocator(scan->value);                              \
+                    if (_set_->f_val->free)                                    \
+                        _set_->f_val->free(scan->value);                       \
                                                                                \
                     _set_->alloc->free(scan);                                  \
                     scan = NULL;                                               \
@@ -362,8 +392,8 @@ struct cmc_callbacks_treeset
                                                                                \
                 while (up != NULL)                                             \
                 {                                                              \
-                    if (deallocator)                                           \
-                        deallocator(scan->value);                              \
+                    if (_set_->f_val->free)                                    \
+                        _set_->f_val->free(scan->value);                       \
                                                                                \
                     _set_->alloc->free(scan);                                  \
                                                                                \
@@ -386,9 +416,9 @@ struct cmc_callbacks_treeset
         _set_->root = NULL;                                                    \
     }                                                                          \
                                                                                \
-    void PFX##_free(struct SNAME *_set_, void (*deallocator)(V))               \
+    void PFX##_free(struct SNAME *_set_)                                       \
     {                                                                          \
-        PFX##_clear(_set_, deallocator);                                       \
+        PFX##_clear(_set_);                                                    \
                                                                                \
         _set_->alloc->free(_set_);                                             \
     }                                                                          \
@@ -411,9 +441,9 @@ struct cmc_callbacks_treeset
             {                                                                  \
                 parent = scan;                                                 \
                                                                                \
-                if (_set_->cmp(scan->value, element) > 0)                      \
+                if (_set_->f_val->cmp(scan->value, element) > 0)               \
                     scan = scan->left;                                         \
-                else if (_set_->cmp(scan->value, element) < 0)                 \
+                else if (_set_->f_val->cmp(scan->value, element) < 0)          \
                     scan = scan->right;                                        \
                 else                                                           \
                     return false;                                              \
@@ -421,7 +451,7 @@ struct cmc_callbacks_treeset
                                                                                \
             struct SNAME##_node *node;                                         \
                                                                                \
-            if (_set_->cmp(parent->value, element) > 0)                        \
+            if (_set_->f_val->cmp(parent->value, element) > 0)                 \
             {                                                                  \
                 parent->left = PFX##_impl_new_node(_set_, element);            \
                                                                                \
@@ -607,9 +637,9 @@ struct cmc_callbacks_treeset
                                                                                \
         while (scan != NULL)                                                   \
         {                                                                      \
-            if (_set_->cmp(scan->value, element) > 0)                          \
+            if (_set_->f_val->cmp(scan->value, element) > 0)                   \
                 scan = scan->left;                                             \
-            else if (_set_->cmp(scan->value, element) < 0)                     \
+            else if (_set_->f_val->cmp(scan->value, element) < 0)              \
                 scan = scan->right;                                            \
             else                                                               \
                 return true;                                                   \
@@ -628,10 +658,10 @@ struct cmc_callbacks_treeset
         return _set_->count;                                                   \
     }                                                                          \
                                                                                \
-    struct SNAME *PFX##_copy_of(struct SNAME *_set_, V (*copy_func)(V))        \
+    struct SNAME *PFX##_copy_of(struct SNAME *_set_)                           \
     {                                                                          \
         struct SNAME *result =                                                 \
-            PFX##_new_custom(_set_->cmp, _set_->alloc, _set_->callbacks);      \
+            PFX##_new_custom(_set_->f_val, _set_->alloc, _set_->callbacks);    \
                                                                                \
         if (!result)                                                           \
             return NULL;                                                       \
@@ -644,8 +674,9 @@ struct cmc_callbacks_treeset
             for (PFX##_iter_to_start(&iter); !PFX##_iter_end(&iter);           \
                  PFX##_iter_next(&iter))                                       \
             {                                                                  \
-                if (copy_func)                                                 \
-                    PFX##_insert(result, copy_func(PFX##_iter_value(&iter)));  \
+                if (_set_->f_val->cpy)                                         \
+                    PFX##_insert(result,                                       \
+                                 _set_->f_val->cpy(PFX##_iter_value(&iter)));  \
                 else                                                           \
                     PFX##_insert(result, PFX##_iter_value(&iter));             \
             }                                                                  \
@@ -656,7 +687,7 @@ struct cmc_callbacks_treeset
                                                                                \
     bool PFX##_equals(struct SNAME *_set1_, struct SNAME *_set2_)              \
     {                                                                          \
-        if (PFX##_count(_set1_) != PFX##_count(_set2_))                        \
+        if (_set1_->count != _set2_->count)                                    \
             return false;                                                      \
                                                                                \
         struct SNAME##_iter iter;                                              \
@@ -678,21 +709,16 @@ struct cmc_callbacks_treeset
         struct SNAME *s_ = _set_;                                              \
                                                                                \
         int n = snprintf(str.s, cmc_string_len, cmc_string_fmt_treeset,        \
-                         #SNAME, #V, s_, s_->root, s_->count, s_->cmp,         \
-                         s_->alloc, s_->callbacks);                            \
+                         #SNAME, #V, s_, s_->root, s_->count, s_->flag,        \
+                         s_->f_val, s_->alloc, s_->callbacks);                 \
                                                                                \
-        if (n < 0 || n == (int)cmc_string_len)                                 \
-            return (struct cmc_string){ 0 };                                   \
-                                                                               \
-        str.s[n] = '\0';                                                       \
-                                                                               \
-        return str;                                                            \
+        return n >= 0 ? str : (struct cmc_string){ 0 };                        \
     }                                                                          \
                                                                                \
     struct SNAME *PFX##_union(struct SNAME *_set1_, struct SNAME *_set2_)      \
     {                                                                          \
         struct SNAME *_set_r_ =                                                \
-            PFX##_new_custom(_set1_->cmp, _set1_->alloc, _set1_->callbacks);   \
+            PFX##_new_custom(_set1_->f_val, _set1_->alloc, _set1_->callbacks); \
                                                                                \
         if (!_set_r_)                                                          \
             return NULL;                                                       \
@@ -720,7 +746,7 @@ struct cmc_callbacks_treeset
                                      struct SNAME *_set2_)                     \
     {                                                                          \
         struct SNAME *_set_r_ =                                                \
-            PFX##_new_custom(_set1_->cmp, _set1_->alloc, _set1_->callbacks);   \
+            PFX##_new_custom(_set1_->f_val, _set1_->alloc, _set1_->callbacks); \
                                                                                \
         if (!_set_r_)                                                          \
             return NULL;                                                       \
@@ -747,7 +773,7 @@ struct cmc_callbacks_treeset
     struct SNAME *PFX##_difference(struct SNAME *_set1_, struct SNAME *_set2_) \
     {                                                                          \
         struct SNAME *_set_r_ =                                                \
-            PFX##_new_custom(_set1_->cmp, _set1_->alloc, _set1_->callbacks);   \
+            PFX##_new_custom(_set1_->f_val, _set1_->alloc, _set1_->callbacks); \
                                                                                \
         if (!_set_r_)                                                          \
             return NULL;                                                       \
@@ -771,7 +797,7 @@ struct cmc_callbacks_treeset
                                              struct SNAME *_set2_)             \
     {                                                                          \
         struct SNAME *_set_r_ =                                                \
-            PFX##_new_custom(_set1_->cmp, _set1_->alloc, _set1_->callbacks);   \
+            PFX##_new_custom(_set1_->f_val, _set1_->alloc, _set1_->callbacks); \
                                                                                \
         if (!_set_r_)                                                          \
             return NULL;                                                       \
@@ -1167,9 +1193,9 @@ struct cmc_callbacks_treeset
                                                                                \
         while (scan != NULL)                                                   \
         {                                                                      \
-            if (_set_->cmp(scan->value, element) > 0)                          \
+            if (_set_->f_val->cmp(scan->value, element) > 0)                   \
                 scan = scan->left;                                             \
-            else if (_set_->cmp(scan->value, element) < 0)                     \
+            else if (_set_->f_val->cmp(scan->value, element) < 0)              \
                 scan = scan->right;                                            \
             else                                                               \
                 return scan;                                                   \
