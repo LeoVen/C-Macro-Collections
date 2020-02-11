@@ -9,11 +9,11 @@ CMC_GENERATE_QUEUE(q, queue, size_t)
 
 struct queue_ftab_val *q_ftab_val =
     &(struct queue_ftab_val){ .cmp = cmp,
-                                 .cpy = copy,
-                                 .str = str,
-                                 .free = custom_free,
-                                 .hash = hash,
-                                 .pri = pri };
+                              .cpy = copy,
+                              .str = str,
+                              .free = custom_free,
+                              .hash = hash,
+                              .pri = pri };
 
 CMC_CREATE_UNIT(queue_test, true, {
     CMC_CREATE_TEST(new, {

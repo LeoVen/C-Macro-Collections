@@ -95,6 +95,8 @@ static const char *cmc_string_fmt_stack = "struct %s<%s> "
                                           "buffer:%p, "
                                           "capacity:%" PRIuMAX ", "
                                           "count:%" PRIuMAX ", "
+                                          "flag:%d, "
+                                          "f_val:%p, "
                                           "alloc:%p, "
                                           "callbacks:%p }";
 
@@ -140,17 +142,45 @@ struct cmc_callbacks_stack
         /* Current amount of elements */                                      \
         size_t count;                                                         \
                                                                               \
-        /* Function that returns an iterator to the start of the stack */     \
-        struct SNAME##_iter (*it_start)(struct SNAME *);                      \
+        /* Flags indicating errors or success */                              \
+        int flag;                                                             \
                                                                               \
-        /* Function that returns an iterator to the end of the stack */       \
-        struct SNAME##_iter (*it_end)(struct SNAME *);                        \
+        /* Value function table */                                            \
+        struct SNAME##_ftab_val *f_val;                                       \
                                                                               \
         /* Custom allocation functions */                                     \
         struct cmc_alloc_node *alloc;                                         \
                                                                               \
         /* Custom callback functions */                                       \
         struct cmc_callbacks_stack *callbacks;                                \
+                                                                              \
+        /* Function that returns an iterator to the start of the stack */     \
+        struct SNAME##_iter (*it_start)(struct SNAME *);                      \
+                                                                              \
+        /* Function that returns an iterator to the end of the stack */       \
+        struct SNAME##_iter (*it_end)(struct SNAME *);                        \
+    };                                                                        \
+                                                                              \
+    /* Value struct function table */                                         \
+    struct SNAME##_ftab_val                                                   \
+    {                                                                         \
+        /* Comparator function */                                             \
+        int (*cmp)(V, V);                                                     \
+                                                                              \
+        /* Copy function */                                                   \
+        V (*cpy)(V);                                                          \
+                                                                              \
+        /* To string function */                                              \
+        bool (*str)(FILE *, V);                                               \
+                                                                              \
+        /* Free from memory function */                                       \
+        void (*free)(V);                                                      \
+                                                                              \
+        /* Hash function */                                                   \
+        size_t (*hash)(V);                                                    \
+                                                                              \
+        /* Priority function */                                               \
+        int (*pri)(V, V);                                                     \
     };                                                                        \
                                                                               \
     /* Stack Iterator */                                                      \
@@ -171,12 +201,12 @@ struct cmc_callbacks_stack
                                                                               \
     /* Collection Functions */                                                \
     /* Collection Allocation and Deallocation */                              \
-    struct SNAME *PFX##_new(size_t capacity);                                 \
-    struct SNAME *PFX##_new_custom(size_t capacity,                           \
-                                   struct cmc_alloc_node *alloc,              \
-                                   struct cmc_callbacks_stack *callbacks);    \
-    void PFX##_clear(struct SNAME *_stack_, void (*deallocator)(V));          \
-    void PFX##_free(struct SNAME *_stack_, void (*deallocator)(V));           \
+    struct SNAME *PFX##_new(size_t capacity, struct SNAME##_ftab_val *f_val); \
+    struct SNAME *PFX##_new_custom(                                           \
+        size_t capacity, struct SNAME##_ftab_val *f_val,                      \
+        struct cmc_alloc_node *alloc, struct cmc_callbacks_stack *callbacks); \
+    void PFX##_clear(struct SNAME *_stack_);                                  \
+    void PFX##_free(struct SNAME *_stack_);                                   \
     /* Customization of Allocation and Callbacks */                           \
     void PFX##_customize(struct SNAME *_stack_, struct cmc_alloc_node *alloc, \
                          struct cmc_callbacks_stack *callbacks);              \
@@ -186,17 +216,15 @@ struct cmc_callbacks_stack
     /* Element Access */                                                      \
     V PFX##_top(struct SNAME *_stack_);                                       \
     /* Collection State */                                                    \
-    bool PFX##_contains(struct SNAME *_stack_, V element,                     \
-                        int (*comparator)(V, V));                             \
+    bool PFX##_contains(struct SNAME *_stack_, V element);                    \
     bool PFX##_empty(struct SNAME *_stack_);                                  \
     bool PFX##_full(struct SNAME *_stack_);                                   \
     size_t PFX##_count(struct SNAME *_stack_);                                \
     size_t PFX##_capacity(struct SNAME *_stack_);                             \
     /* Collection Utility */                                                  \
     bool PFX##_resize(struct SNAME *_stack_, size_t capacity);                \
-    struct SNAME *PFX##_copy_of(struct SNAME *_stack_, V (*copy_func)(V));    \
-    bool PFX##_equals(struct SNAME *_stack1_, struct SNAME *_stack2_,         \
-                      int (*comparator)(V, V));                               \
+    struct SNAME *PFX##_copy_of(struct SNAME *_stack_);                       \
+    bool PFX##_equals(struct SNAME *_stack1_, struct SNAME *_stack2_);        \
     struct cmc_string PFX##_to_string(struct SNAME *_stack_);                 \
                                                                               \
     /* Iterator Functions */                                                  \
@@ -230,11 +258,14 @@ struct cmc_callbacks_stack
     static struct SNAME##_iter PFX##_impl_it_start(struct SNAME *_stack_);    \
     static struct SNAME##_iter PFX##_impl_it_end(struct SNAME *_stack_);      \
                                                                               \
-    struct SNAME *PFX##_new(size_t capacity)                                  \
+    struct SNAME *PFX##_new(size_t capacity, struct SNAME##_ftab_val *f_val)  \
     {                                                                         \
         struct cmc_alloc_node *alloc = &cmc_alloc_node_default;               \
                                                                               \
         if (capacity < 1)                                                     \
+            return NULL;                                                      \
+                                                                              \
+        if (!f_val)                                                           \
             return NULL;                                                      \
                                                                               \
         struct SNAME *_stack_ = alloc->malloc(sizeof(struct SNAME));          \
@@ -252,21 +283,23 @@ struct cmc_callbacks_stack
                                                                               \
         _stack_->capacity = capacity;                                         \
         _stack_->count = 0;                                                   \
-                                                                              \
-        _stack_->it_start = PFX##_impl_it_start;                              \
-        _stack_->it_end = PFX##_impl_it_end;                                  \
-                                                                              \
+        _stack_->flag = cmc_flags.OK;                                         \
+        _stack_->f_val = f_val;                                               \
         _stack_->alloc = alloc;                                               \
         _stack_->callbacks = NULL;                                            \
+        _stack_->it_start = PFX##_impl_it_start;                              \
+        _stack_->it_end = PFX##_impl_it_end;                                  \
                                                                               \
         return _stack_;                                                       \
     }                                                                         \
                                                                               \
-    struct SNAME *PFX##_new_custom(size_t capacity,                           \
-                                   struct cmc_alloc_node *alloc,              \
-                                   struct cmc_callbacks_stack *callbacks)     \
+    struct SNAME *PFX##_new_custom(                                           \
+        size_t capacity, struct SNAME##_ftab_val *f_val,                      \
+        struct cmc_alloc_node *alloc, struct cmc_callbacks_stack *callbacks)  \
     {                                                                         \
         if (capacity < 1)                                                     \
+            return NULL;                                                      \
+        if (!f_val)                                                           \
             return NULL;                                                      \
                                                                               \
         if (!alloc)                                                           \
@@ -287,22 +320,22 @@ struct cmc_callbacks_stack
                                                                               \
         _stack_->capacity = capacity;                                         \
         _stack_->count = 0;                                                   \
-                                                                              \
-        _stack_->it_start = PFX##_impl_it_start;                              \
-        _stack_->it_end = PFX##_impl_it_end;                                  \
-                                                                              \
+        _stack_->flag = cmc_flags.OK;                                         \
+        _stack_->f_val = f_val;                                               \
         _stack_->alloc = alloc;                                               \
         _stack_->callbacks = callbacks;                                       \
+        _stack_->it_start = PFX##_impl_it_start;                              \
+        _stack_->it_end = PFX##_impl_it_end;                                  \
                                                                               \
         return _stack_;                                                       \
     }                                                                         \
                                                                               \
-    void PFX##_clear(struct SNAME *_stack_, void (*deallocator)(V))           \
+    void PFX##_clear(struct SNAME *_stack_)                                   \
     {                                                                         \
-        if (deallocator)                                                      \
+        if (_stack_->f_val->free)                                             \
         {                                                                     \
             for (size_t i = 0; i < _stack_->count; i++)                       \
-                deallocator(_stack_->buffer[i]);                              \
+                _stack_->f_val->free(_stack_->buffer[i]);                     \
         }                                                                     \
                                                                               \
         memset(_stack_->buffer, 0, sizeof(V) * _stack_->capacity);            \
@@ -310,12 +343,12 @@ struct cmc_callbacks_stack
         _stack_->count = 0;                                                   \
     }                                                                         \
                                                                               \
-    void PFX##_free(struct SNAME *_stack_, void (*deallocator)(V))            \
+    void PFX##_free(struct SNAME *_stack_)                                    \
     {                                                                         \
-        if (deallocator)                                                      \
+        if (_stack_->f_val->free)                                             \
         {                                                                     \
             for (size_t i = 0; i < _stack_->count; i++)                       \
-                deallocator(_stack_->buffer[i]);                              \
+                _stack_->f_val->free(_stack_->buffer[i]);                     \
         }                                                                     \
                                                                               \
         _stack_->alloc->free(_stack_->buffer);                                \
@@ -336,7 +369,7 @@ struct cmc_callbacks_stack
     {                                                                         \
         if (PFX##_full(_stack_))                                              \
         {                                                                     \
-            if (!PFX##_resize(_stack_, PFX##_capacity(_stack_) * 2))          \
+            if (!PFX##_resize(_stack_, _stack_->capacity * 2))                \
                 return false;                                                 \
         }                                                                     \
                                                                               \
@@ -363,12 +396,11 @@ struct cmc_callbacks_stack
         return _stack_->buffer[_stack_->count - 1];                           \
     }                                                                         \
                                                                               \
-    bool PFX##_contains(struct SNAME *_stack_, V element,                     \
-                        int (*comparator)(V, V))                              \
+    bool PFX##_contains(struct SNAME *_stack_, V element)                     \
     {                                                                         \
         for (size_t i = 0; i < _stack_->count; i++)                           \
         {                                                                     \
-            if (comparator(_stack_->buffer[i], element) == 0)                 \
+            if (_stack_->f_val->cmp(_stack_->buffer[i], element) == 0)        \
                 return true;                                                  \
         }                                                                     \
                                                                               \
@@ -397,10 +429,10 @@ struct cmc_callbacks_stack
                                                                               \
     bool PFX##_resize(struct SNAME *_stack_, size_t capacity)                 \
     {                                                                         \
-        if (PFX##_capacity(_stack_) == capacity)                              \
+        if (_stack_->capacity == capacity)                                    \
             return true;                                                      \
                                                                               \
-        if (capacity < PFX##_count(_stack_))                                  \
+        if (capacity < _stack_->count)                                        \
             return false;                                                     \
                                                                               \
         V *new_buffer =                                                       \
@@ -415,18 +447,19 @@ struct cmc_callbacks_stack
         return true;                                                          \
     }                                                                         \
                                                                               \
-    struct SNAME *PFX##_copy_of(struct SNAME *_stack_, V (*copy_func)(V))     \
+    struct SNAME *PFX##_copy_of(struct SNAME *_stack_)                        \
     {                                                                         \
-        struct SNAME *result = PFX##_new_custom(                              \
-            _stack_->capacity, _stack_->alloc, _stack_->callbacks);           \
+        struct SNAME *result =                                                \
+            PFX##_new_custom(_stack_->capacity, _stack_->f_val,               \
+                             _stack_->alloc, _stack_->callbacks);             \
                                                                               \
         if (!result)                                                          \
             return NULL;                                                      \
                                                                               \
-        if (copy_func)                                                        \
+        if (_stack_->f_val->cpy)                                              \
         {                                                                     \
             for (size_t i = 0; i < _stack_->count; i++)                       \
-                result->buffer[i] = copy_func(_stack_->buffer[i]);            \
+                result->buffer[i] = _stack_->f_val->cpy(_stack_->buffer[i]);  \
         }                                                                     \
         else                                                                  \
             memcpy(result->buffer, _stack_->buffer,                           \
@@ -437,15 +470,15 @@ struct cmc_callbacks_stack
         return result;                                                        \
     }                                                                         \
                                                                               \
-    bool PFX##_equals(struct SNAME *_stack1_, struct SNAME *_stack2_,         \
-                      int (*comparator)(V, V))                                \
+    bool PFX##_equals(struct SNAME *_stack1_, struct SNAME *_stack2_)         \
     {                                                                         \
-        if (PFX##_count(_stack1_) != PFX##_count(_stack2_))                   \
+        if (_stack1_->count != _stack2_->count)                               \
             return false;                                                     \
                                                                               \
-        for (size_t i = 0; i < PFX##_count(_stack1_); i++)                    \
+        for (size_t i = 0; i < _stack1_->count; i++)                          \
         {                                                                     \
-            if (comparator(_stack1_->buffer[i], _stack2_->buffer[i]) != 0)    \
+            if (_stack1_->f_val->cmp(_stack1_->buffer[i],                     \
+                                     _stack2_->buffer[i]) != 0)               \
                 return false;                                                 \
         }                                                                     \
                                                                               \
@@ -459,14 +492,9 @@ struct cmc_callbacks_stack
                                                                               \
         int n = snprintf(str.s, cmc_string_len, cmc_string_fmt_stack, #SNAME, \
                          #V, s_, s_->buffer, s_->capacity, s_->count,         \
-                         s_->alloc, s_->callbacks);                           \
+                         s_->f_val, s_->alloc, s_->callbacks);                \
                                                                               \
-        if (n < 0 || n == (int)cmc_string_len)                                \
-            return (struct cmc_string){ 0 };                                  \
-                                                                              \
-        str.s[n] = '\0';                                                      \
-                                                                              \
-        return str;                                                           \
+        return n >= 0 ? str : (struct cmc_string){ 0 };                       \
     }                                                                         \
                                                                               \
     struct SNAME##_iter *PFX##_iter_new(struct SNAME *target)                 \

@@ -42,7 +42,8 @@ CMC_CREATE_UNIT(multimap_test, true, {
     });
 
     CMC_CREATE_TEST(new[capacity = UINT64_MAX], {
-        struct multimap *map = mm_new(UINT64_MAX, 0.99, mm_ftab_key, mm_ftab_val);
+        struct multimap *map =
+            mm_new(UINT64_MAX, 0.99, mm_ftab_key, mm_ftab_val);
 
         cmc_assert_equals(ptr, NULL, map);
     });

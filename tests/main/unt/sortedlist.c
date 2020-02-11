@@ -7,9 +7,17 @@
 
 CMC_GENERATE_SORTEDLIST(sl, sortedlist, size_t)
 
+struct sortedlist_ftab_val *sl_ftab_val =
+    &(struct sortedlist_ftab_val){ .cmp = cmp,
+                                   .cpy = copy,
+                                   .str = str,
+                                   .free = custom_free,
+                                   .hash = hash,
+                                   .pri = pri };
+
 CMC_CREATE_UNIT(sortedlist_test, true, {
     CMC_CREATE_TEST(new, {
-        struct sortedlist *sl = sl_new(1000000, cmp);
+        struct sortedlist *sl = sl_new(1000000, sl_ftab_val);
 
         cmc_assert_not_equals(ptr, NULL, sl);
         cmc_assert_not_equals(ptr, NULL, sl->buffer);
@@ -17,23 +25,23 @@ CMC_CREATE_UNIT(sortedlist_test, true, {
         cmc_assert_equals(size_t, 0, sl_count(sl));
         cmc_assert_not_equals(ptr, NULL, sl->buffer);
 
-        sl_free(sl, NULL);
+        sl_free(sl);
     });
 
     CMC_CREATE_TEST(new[capacity = 0], {
-        struct sortedlist *sl = sl_new(0, cmp);
+        struct sortedlist *sl = sl_new(0, sl_ftab_val);
 
         cmc_assert_equals(ptr, NULL, sl);
     });
 
     CMC_CREATE_TEST(new[capacity = UINT64_MAX], {
-        struct sortedlist *sl = sl_new(UINT64_MAX, cmp);
+        struct sortedlist *sl = sl_new(UINT64_MAX, sl_ftab_val);
 
         cmc_assert_equals(ptr, NULL, sl);
     });
 
     CMC_CREATE_TEST(clear[count capacity], {
-        struct sortedlist *sl = sl_new(100, cmp);
+        struct sortedlist *sl = sl_new(100, sl_ftab_val);
 
         cmc_assert_not_equals(ptr, NULL, sl);
 
@@ -42,16 +50,16 @@ CMC_CREATE_UNIT(sortedlist_test, true, {
 
         cmc_assert_equals(size_t, 50, sl_count(sl));
 
-        sl_clear(sl, NULL);
+        sl_clear(sl);
 
         cmc_assert_equals(size_t, 0, sl_count(sl));
         cmc_assert_equals(size_t, 100, sl_capacity(sl));
 
-        sl_free(sl, NULL);
+        sl_free(sl);
     });
 
     CMC_CREATE_TEST(buffer_growth[capacity = 1], {
-        struct sortedlist *sl = sl_new(1, cmp);
+        struct sortedlist *sl = sl_new(1, sl_ftab_val);
 
         cmc_assert_not_equals(ptr, NULL, sl);
 
@@ -63,21 +71,21 @@ CMC_CREATE_UNIT(sortedlist_test, true, {
         cmc_assert_equals(size_t, 50, sl_count(sl));
         cmc_assert_array_sorted_any(size_t, sl->buffer, cmp, 0, sl->count - 1);
 
-        sl_free(sl, NULL);
+        sl_free(sl);
     });
 
     CMC_CREATE_TEST(insert, {
-        struct sortedlist *sl = sl_new(100, cmp);
+        struct sortedlist *sl = sl_new(100, sl_ftab_val);
 
         cmc_assert_not_equals(ptr, NULL, sl);
 
         cmc_assert(sl_insert(sl, 1));
 
-        sl_free(sl, NULL);
+        sl_free(sl);
     });
 
     CMC_CREATE_TEST(remove, {
-        struct sortedlist *sl = sl_new(100, cmp);
+        struct sortedlist *sl = sl_new(100, sl_ftab_val);
 
         cmc_assert_not_equals(ptr, NULL, sl);
 
@@ -85,21 +93,21 @@ CMC_CREATE_UNIT(sortedlist_test, true, {
 
         cmc_assert(sl_remove(sl, 0));
 
-        sl_free(sl, NULL);
+        sl_free(sl);
     });
 
     CMC_CREATE_TEST(remove[count = 0], {
-        struct sortedlist *sl = sl_new(100, cmp);
+        struct sortedlist *sl = sl_new(100, sl_ftab_val);
 
         cmc_assert_not_equals(ptr, NULL, sl);
 
         cmc_assert(!sl_remove(sl, 0));
 
-        sl_free(sl, NULL);
+        sl_free(sl);
     });
 
     CMC_CREATE_TEST(remove[out of range], {
-        struct sortedlist *sl = sl_new(100, cmp);
+        struct sortedlist *sl = sl_new(100, sl_ftab_val);
 
         cmc_assert_not_equals(ptr, NULL, sl);
 
@@ -107,11 +115,11 @@ CMC_CREATE_UNIT(sortedlist_test, true, {
 
         cmc_assert(!sl_remove(sl, 2));
 
-        sl_free(sl, NULL);
+        sl_free(sl);
     });
 
     CMC_CREATE_TEST(indexof, {
-        struct sortedlist *sl = sl_new(1, cmp);
+        struct sortedlist *sl = sl_new(1, sl_ftab_val);
 
         cmc_assert_not_equals(ptr, NULL, sl);
 
@@ -135,6 +143,6 @@ CMC_CREATE_UNIT(sortedlist_test, true, {
         cmc_assert_equals(size_t, sl_count(sl), sl_indexof(sl, 0, true));
         cmc_assert_equals(size_t, sl_count(sl), sl_indexof(sl, 0, false));
 
-        sl_free(sl, NULL);
+        sl_free(sl);
     });
 });

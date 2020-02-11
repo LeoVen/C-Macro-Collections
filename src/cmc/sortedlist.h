@@ -90,7 +90,8 @@ static const char *cmc_string_fmt_sortedlist = "struct %s<%s> "
                                                "capacity:%" PRIuMAX ", "
                                                "count:%" PRIuMAX ", "
                                                "is_sorted:%s, "
-                                               "cmp:%p, "
+                                               "flag:%d, "
+                                               "f_val:%p, "
                                                "alloc:%p, "
                                                "callbacks:%p }";
 
@@ -122,106 +123,132 @@ struct cmc_callbacks_sortedlist
 /* -------------------------------------------------------------------------
  * Header
  * ------------------------------------------------------------------------- */
-#define CMC_GENERATE_SORTEDLIST_HEADER(PFX, SNAME, V)                        \
-                                                                             \
-    /* List Structure */                                                     \
-    struct SNAME                                                             \
-    {                                                                        \
-        /* Dynamic array of elements */                                      \
-        V *buffer;                                                           \
-                                                                             \
-        /* Current array capacity */                                         \
-        size_t capacity;                                                     \
-                                                                             \
-        /* Current amount of elements */                                     \
-        size_t count;                                                        \
-                                                                             \
-        /* Flag if the list is sorted or not, used by lazy evaluation */     \
-        bool is_sorted;                                                      \
-                                                                             \
-        /* Element comparison function */                                    \
-        int (*cmp)(V, V);                                                    \
-                                                                             \
-        /* Function that returns an iterator to the start of the list */     \
-        struct SNAME##_iter (*it_start)(struct SNAME *);                     \
-                                                                             \
-        /* Function that returns an iterator to the end of the list */       \
-        struct SNAME##_iter (*it_end)(struct SNAME *);                       \
-                                                                             \
-        /* Custom allocation functions */                                    \
-        struct cmc_alloc_node *alloc;                                        \
-                                                                             \
-        /* Custom callback functions */                                      \
-        struct cmc_callbacks_sortedlist *callbacks;                          \
-    };                                                                       \
-                                                                             \
-    /* List Iterator */                                                      \
-    struct SNAME##_iter                                                      \
-    {                                                                        \
-        /* Target list */                                                    \
-        struct SNAME *target;                                                \
-                                                                             \
-        /* Cursor's position (index) */                                      \
-        size_t cursor;                                                       \
-                                                                             \
-        /* If the iterator has reached the start of the iteration */         \
-        bool start;                                                          \
-                                                                             \
-        /* If the iterator has reached the end of the iteration */           \
-        bool end;                                                            \
-    };                                                                       \
-                                                                             \
-    /* Collection Functions */                                               \
-    /* Collection Allocation and Deallocation */                             \
-    struct SNAME *PFX##_new(size_t capacity, int (*compare)(V, V));          \
-    struct SNAME *PFX##_new_custom(                                          \
-        size_t capacity, int (*compare)(V, V), struct cmc_alloc_node *alloc, \
-        struct cmc_callbacks_sortedlist *callbacks);                         \
-    void PFX##_clear(struct SNAME *_list_, void (*deallocator)(V));          \
-    void PFX##_free(struct SNAME *_list_, void (*deallocator)(V));           \
-    /* Customization of Allocation and Callbacks */                          \
-    void PFX##_customize(struct SNAME *_list_, struct cmc_alloc_node *alloc, \
-                         struct cmc_callbacks_sortedlist *callbacks);        \
-    /* Collection Input and Output */                                        \
-    bool PFX##_insert(struct SNAME *_list_, V element);                      \
-    bool PFX##_remove(struct SNAME *_list_, size_t index);                   \
-    /* Element Access */                                                     \
-    bool PFX##_max(struct SNAME *_list_, V *result);                         \
-    bool PFX##_min(struct SNAME *_list_, V *result);                         \
-    V PFX##_get(struct SNAME *_list_, size_t index);                         \
-    size_t PFX##_indexof(struct SNAME *_list_, V element, bool from_start);  \
-    /* Collection State */                                                   \
-    bool PFX##_contains(struct SNAME *_list_, V element);                    \
-    bool PFX##_empty(struct SNAME *_list_);                                  \
-    bool PFX##_full(struct SNAME *_list_);                                   \
-    size_t PFX##_count(struct SNAME *_list_);                                \
-    size_t PFX##_capacity(struct SNAME *_list_);                             \
-    /* Collection Utility */                                                 \
-    bool PFX##_resize(struct SNAME *_list_, size_t capacity);                \
-    void PFX##_sort(struct SNAME *_list_);                                   \
-    struct SNAME *PFX##_copy_of(struct SNAME *_list_, V (*copy_func)(V));    \
-    bool PFX##_equals(struct SNAME *_list1_, struct SNAME *_list2_);         \
-    struct cmc_string PFX##_to_string(struct SNAME *_list_);                 \
-                                                                             \
-    /* Iterator Functions */                                                 \
-    /* Iterator Allocation and Deallocation */                               \
-    struct SNAME##_iter *PFX##_iter_new(struct SNAME *target);               \
-    void PFX##_iter_free(struct SNAME##_iter *iter);                         \
-    /* Iterator Initialization */                                            \
-    void PFX##_iter_init(struct SNAME##_iter *iter, struct SNAME *target);   \
-    /* Iterator State */                                                     \
-    bool PFX##_iter_start(struct SNAME##_iter *iter);                        \
-    bool PFX##_iter_end(struct SNAME##_iter *iter);                          \
-    /* Iterator Movement */                                                  \
-    void PFX##_iter_to_start(struct SNAME##_iter *iter);                     \
-    void PFX##_iter_to_end(struct SNAME##_iter *iter);                       \
-    bool PFX##_iter_next(struct SNAME##_iter *iter);                         \
-    bool PFX##_iter_prev(struct SNAME##_iter *iter);                         \
-    bool PFX##_iter_advance(struct SNAME##_iter *iter, size_t steps);        \
-    bool PFX##_iter_rewind(struct SNAME##_iter *iter, size_t steps);         \
-    bool PFX##_iter_go_to(struct SNAME##_iter *iter, size_t index);          \
-    /* Iterator Access */                                                    \
-    V PFX##_iter_value(struct SNAME##_iter *iter);                           \
+#define CMC_GENERATE_SORTEDLIST_HEADER(PFX, SNAME, V)                         \
+                                                                              \
+    /* List Structure */                                                      \
+    struct SNAME                                                              \
+    {                                                                         \
+        /* Dynamic array of elements */                                       \
+        V *buffer;                                                            \
+                                                                              \
+        /* Current array capacity */                                          \
+        size_t capacity;                                                      \
+                                                                              \
+        /* Current amount of elements */                                      \
+        size_t count;                                                         \
+                                                                              \
+        /* Flag if the list is sorted or not, used by lazy evaluation */      \
+        bool is_sorted;                                                       \
+                                                                              \
+        /* Flags indicating errors or success */                              \
+        int flag;                                                             \
+                                                                              \
+        /* Value function table */                                            \
+        struct SNAME##_ftab_val *f_val;                                       \
+                                                                              \
+        /* Custom allocation functions */                                     \
+        struct cmc_alloc_node *alloc;                                         \
+                                                                              \
+        /* Custom callback functions */                                       \
+        struct cmc_callbacks_sortedlist *callbacks;                           \
+                                                                              \
+        /* Function that returns an iterator to the start of the list */      \
+        struct SNAME##_iter (*it_start)(struct SNAME *);                      \
+                                                                              \
+        /* Function that returns an iterator to the end of the list */        \
+        struct SNAME##_iter (*it_end)(struct SNAME *);                        \
+    };                                                                        \
+                                                                              \
+    /* Value struct function table */                                         \
+    struct SNAME##_ftab_val                                                   \
+    {                                                                         \
+        /* Comparator function */                                             \
+        int (*cmp)(V, V);                                                     \
+                                                                              \
+        /* Copy function */                                                   \
+        V (*cpy)(V);                                                          \
+                                                                              \
+        /* To string function */                                              \
+        bool (*str)(FILE *, V);                                               \
+                                                                              \
+        /* Free from memory function */                                       \
+        void (*free)(V);                                                      \
+                                                                              \
+        /* Hash function */                                                   \
+        size_t (*hash)(V);                                                    \
+                                                                              \
+        /* Priority function */                                               \
+        int (*pri)(V, V);                                                     \
+    };                                                                        \
+                                                                              \
+    /* List Iterator */                                                       \
+    struct SNAME##_iter                                                       \
+    {                                                                         \
+        /* Target list */                                                     \
+        struct SNAME *target;                                                 \
+                                                                              \
+        /* Cursor's position (index) */                                       \
+        size_t cursor;                                                        \
+                                                                              \
+        /* If the iterator has reached the start of the iteration */          \
+        bool start;                                                           \
+                                                                              \
+        /* If the iterator has reached the end of the iteration */            \
+        bool end;                                                             \
+    };                                                                        \
+                                                                              \
+    /* Collection Functions */                                                \
+    /* Collection Allocation and Deallocation */                              \
+    struct SNAME *PFX##_new(size_t capacity, struct SNAME##_ftab_val *f_val); \
+    struct SNAME *PFX##_new_custom(                                           \
+        size_t capacity, struct SNAME##_ftab_val *f_val,                      \
+        struct cmc_alloc_node *alloc,                                         \
+        struct cmc_callbacks_sortedlist *callbacks);                          \
+    void PFX##_clear(struct SNAME *_list_);                                   \
+    void PFX##_free(struct SNAME *_list_);                                    \
+    /* Customization of Allocation and Callbacks */                           \
+    void PFX##_customize(struct SNAME *_list_, struct cmc_alloc_node *alloc,  \
+                         struct cmc_callbacks_sortedlist *callbacks);         \
+    /* Collection Input and Output */                                         \
+    bool PFX##_insert(struct SNAME *_list_, V element);                       \
+    bool PFX##_remove(struct SNAME *_list_, size_t index);                    \
+    /* Element Access */                                                      \
+    bool PFX##_max(struct SNAME *_list_, V *result);                          \
+    bool PFX##_min(struct SNAME *_list_, V *result);                          \
+    V PFX##_get(struct SNAME *_list_, size_t index);                          \
+    size_t PFX##_indexof(struct SNAME *_list_, V element, bool from_start);   \
+    /* Collection State */                                                    \
+    bool PFX##_contains(struct SNAME *_list_, V element);                     \
+    bool PFX##_empty(struct SNAME *_list_);                                   \
+    bool PFX##_full(struct SNAME *_list_);                                    \
+    size_t PFX##_count(struct SNAME *_list_);                                 \
+    size_t PFX##_capacity(struct SNAME *_list_);                              \
+    /* Collection Utility */                                                  \
+    bool PFX##_resize(struct SNAME *_list_, size_t capacity);                 \
+    void PFX##_sort(struct SNAME *_list_);                                    \
+    struct SNAME *PFX##_copy_of(struct SNAME *_list_);                        \
+    bool PFX##_equals(struct SNAME *_list1_, struct SNAME *_list2_);          \
+    struct cmc_string PFX##_to_string(struct SNAME *_list_);                  \
+                                                                              \
+    /* Iterator Functions */                                                  \
+    /* Iterator Allocation and Deallocation */                                \
+    struct SNAME##_iter *PFX##_iter_new(struct SNAME *target);                \
+    void PFX##_iter_free(struct SNAME##_iter *iter);                          \
+    /* Iterator Initialization */                                             \
+    void PFX##_iter_init(struct SNAME##_iter *iter, struct SNAME *target);    \
+    /* Iterator State */                                                      \
+    bool PFX##_iter_start(struct SNAME##_iter *iter);                         \
+    bool PFX##_iter_end(struct SNAME##_iter *iter);                           \
+    /* Iterator Movement */                                                   \
+    void PFX##_iter_to_start(struct SNAME##_iter *iter);                      \
+    void PFX##_iter_to_end(struct SNAME##_iter *iter);                        \
+    bool PFX##_iter_next(struct SNAME##_iter *iter);                          \
+    bool PFX##_iter_prev(struct SNAME##_iter *iter);                          \
+    bool PFX##_iter_advance(struct SNAME##_iter *iter, size_t steps);         \
+    bool PFX##_iter_rewind(struct SNAME##_iter *iter, size_t steps);          \
+    bool PFX##_iter_go_to(struct SNAME##_iter *iter, size_t index);           \
+    /* Iterator Access */                                                     \
+    V PFX##_iter_value(struct SNAME##_iter *iter);                            \
     size_t PFX##_iter_index(struct SNAME##_iter *iter);
 
 /* -------------------------------------------------------------------------
@@ -241,11 +268,14 @@ struct cmc_callbacks_sortedlist
     static struct SNAME##_iter PFX##_impl_it_start(struct SNAME *_list_);      \
     static struct SNAME##_iter PFX##_impl_it_end(struct SNAME *_list_);        \
                                                                                \
-    struct SNAME *PFX##_new(size_t capacity, int (*compare)(V, V))             \
+    struct SNAME *PFX##_new(size_t capacity, struct SNAME##_ftab_val *f_val)   \
     {                                                                          \
         struct cmc_alloc_node *alloc = &cmc_alloc_node_default;                \
                                                                                \
         if (capacity < 1)                                                      \
+            return NULL;                                                       \
+                                                                               \
+        if (!f_val)                                                            \
             return NULL;                                                       \
                                                                                \
         struct SNAME *_list_ = alloc->malloc(sizeof(struct SNAME));            \
@@ -263,19 +293,19 @@ struct cmc_callbacks_sortedlist
                                                                                \
         _list_->capacity = capacity;                                           \
         _list_->count = 0;                                                     \
-        _list_->cmp = compare;                                                 \
         _list_->is_sorted = false;                                             \
-                                                                               \
-        _list_->it_start = PFX##_impl_it_start;                                \
-        _list_->it_end = PFX##_impl_it_end;                                    \
-                                                                               \
+        _list_->flag = cmc_flags.OK;                                           \
+        _list_->f_val = f_val;                                                 \
         _list_->alloc = alloc;                                                 \
         _list_->callbacks = NULL;                                              \
+        _list_->it_start = PFX##_impl_it_start;                                \
+        _list_->it_end = PFX##_impl_it_end;                                    \
                                                                                \
         return _list_;                                                         \
     }                                                                          \
                                                                                \
-    struct SNAME *PFX##_new_custom(size_t capacity, int (*compare)(V, V),      \
+    struct SNAME *PFX##_new_custom(size_t capacity,                            \
+                                   struct SNAME##_ftab_val *f_val,             \
                                    struct cmc_alloc_node *alloc,               \
                                    struct cmc_callbacks_sortedlist *callbacks) \
     {                                                                          \
@@ -300,24 +330,23 @@ struct cmc_callbacks_sortedlist
                                                                                \
         _list_->capacity = capacity;                                           \
         _list_->count = 0;                                                     \
-        _list_->cmp = compare;                                                 \
         _list_->is_sorted = false;                                             \
-                                                                               \
-        _list_->it_start = PFX##_impl_it_start;                                \
-        _list_->it_end = PFX##_impl_it_end;                                    \
-                                                                               \
+        _list_->flag = cmc_flags.OK;                                           \
+        _list_->f_val = f_val;                                                 \
         _list_->alloc = alloc;                                                 \
         _list_->callbacks = callbacks;                                         \
+        _list_->it_start = PFX##_impl_it_start;                                \
+        _list_->it_end = PFX##_impl_it_end;                                    \
                                                                                \
         return _list_;                                                         \
     }                                                                          \
                                                                                \
-    void PFX##_clear(struct SNAME *_list_, void (*deallocator)(V))             \
+    void PFX##_clear(struct SNAME *_list_)                                     \
     {                                                                          \
-        if (deallocator)                                                       \
+        if (_list_->f_val->free)                                               \
         {                                                                      \
             for (size_t i = 0; i < _list_->count; i++)                         \
-                deallocator(_list_->buffer[i]);                                \
+                _list_->f_val->free(_list_->buffer[i]);                        \
         }                                                                      \
                                                                                \
         memset(_list_->buffer, 0, sizeof(V) * _list_->capacity);               \
@@ -325,12 +354,12 @@ struct cmc_callbacks_sortedlist
         _list_->count = 0;                                                     \
     }                                                                          \
                                                                                \
-    void PFX##_free(struct SNAME *_list_, void (*deallocator)(V))              \
+    void PFX##_free(struct SNAME *_list_)                                      \
     {                                                                          \
-        if (deallocator)                                                       \
+        if (_list_->f_val->free)                                               \
         {                                                                      \
             for (size_t i = 0; i < _list_->count; i++)                         \
-                deallocator(_list_->buffer[i]);                                \
+                _list_->f_val->free(_list_->buffer[i]);                        \
         }                                                                      \
                                                                                \
         _list_->alloc->free(_list_->buffer);                                   \
@@ -351,7 +380,7 @@ struct cmc_callbacks_sortedlist
     {                                                                          \
         if (PFX##_full(_list_))                                                \
         {                                                                      \
-            if (!PFX##_resize(_list_, PFX##_capacity(_list_) * 2))             \
+            if (!PFX##_resize(_list_, _list_->capacity * 2))                   \
                 return false;                                                  \
         }                                                                      \
                                                                                \
@@ -429,7 +458,7 @@ struct cmc_callbacks_sortedlist
         PFX##_sort(_list_);                                                    \
                                                                                \
         return PFX##_impl_binary_search_first(_list_, element) <               \
-               PFX##_count(_list_);                                            \
+               _list_->count;                                                  \
     }                                                                          \
                                                                                \
     bool PFX##_empty(struct SNAME *_list_)                                     \
@@ -454,10 +483,10 @@ struct cmc_callbacks_sortedlist
                                                                                \
     bool PFX##_resize(struct SNAME *_list_, size_t capacity)                   \
     {                                                                          \
-        if (PFX##_capacity(_list_) == capacity)                                \
+        if (_list_->capacity == capacity)                                      \
             return true;                                                       \
                                                                                \
-        if (capacity < PFX##_count(_list_))                                    \
+        if (capacity < _list_->count)                                          \
             return false;                                                      \
                                                                                \
         V *new_buffer =                                                        \
@@ -465,6 +494,8 @@ struct cmc_callbacks_sortedlist
                                                                                \
         if (!new_buffer)                                                       \
             return false;                                                      \
+                                                                               \
+        /* TODO zero out remaining slots */                                    \
                                                                                \
         _list_->buffer = new_buffer;                                           \
         _list_->capacity = capacity;                                           \
@@ -476,25 +507,26 @@ struct cmc_callbacks_sortedlist
     {                                                                          \
         if (!_list_->is_sorted && _list_->count > 1)                           \
         {                                                                      \
-            PFX##_impl_sort_quicksort(_list_->buffer, _list_->cmp, 0,          \
+            PFX##_impl_sort_quicksort(_list_->buffer, _list_->f_val->cmp, 0,   \
                                       _list_->count - 1);                      \
                                                                                \
             _list_->is_sorted = true;                                          \
         }                                                                      \
     }                                                                          \
                                                                                \
-    struct SNAME *PFX##_copy_of(struct SNAME *_list_, V (*copy_func)(V))       \
+    struct SNAME *PFX##_copy_of(struct SNAME *_list_)                          \
     {                                                                          \
-        struct SNAME *result = PFX##_new_custom(                               \
-            _list_->capacity, _list_->cmp, _list_->alloc, _list_->callbacks);  \
+        struct SNAME *result =                                                 \
+            PFX##_new_custom(_list_->capacity, _list_->f_val, _list_->alloc,   \
+                             _list_->callbacks);                               \
                                                                                \
         if (!result)                                                           \
             return NULL;                                                       \
                                                                                \
-        if (copy_func)                                                         \
+        if (_list_->f_val->cpy)                                                \
         {                                                                      \
             for (size_t i = 0; i < _list_->count; i++)                         \
-                result->buffer[i] = copy_func(_list_->buffer[i]);              \
+                result->buffer[i] = _list_->f_val->cpy(_list_->buffer[i]);     \
         }                                                                      \
         else                                                                   \
             memcpy(result->buffer, _list_->buffer, sizeof(V) * _list_->count); \
@@ -514,7 +546,8 @@ struct cmc_callbacks_sortedlist
                                                                                \
         for (size_t i = 0; i < PFX##_count(_list1_); i++)                      \
         {                                                                      \
-            if (_list1_->cmp(_list1_->buffer[i], _list2_->buffer[i]) != 0)     \
+            if (_list1_->f_val->cmp(_list1_->buffer[i], _list2_->buffer[i]) != \
+                0)                                                             \
                 return false;                                                  \
         }                                                                      \
                                                                                \
@@ -528,15 +561,10 @@ struct cmc_callbacks_sortedlist
                                                                                \
         int n = snprintf(str.s, cmc_string_len, cmc_string_fmt_sortedlist,     \
                          #SNAME, #V, l_, l_->buffer, l_->capacity, l_->count,  \
-                         l_->is_sorted ? "true" : "false", l_->cmp, l_->alloc, \
-                         l_->callbacks);                                       \
+                         l_->is_sorted ? "true" : "false", l_->flag,           \
+                         l_->f_val, l_->alloc, l_->callbacks);                 \
                                                                                \
-        if (n < 0 || n == (int)cmc_string_len)                                 \
-            return (struct cmc_string){ 0 };                                   \
-                                                                               \
-        str.s[n] = '\0';                                                       \
-                                                                               \
-        return str;                                                            \
+        return n >= 0 ? str : (struct cmc_string){ 0 };                        \
     }                                                                          \
                                                                                \
     struct SNAME##_iter *PFX##_iter_new(struct SNAME *target)                  \
@@ -719,13 +747,13 @@ struct cmc_callbacks_sortedlist
         {                                                                      \
             size_t M = L + (R - L) / 2;                                        \
                                                                                \
-            if (_list_->cmp(_list_->buffer[M], value) < 0)                     \
+            if (_list_->f_val->cmp(_list_->buffer[M], value) < 0)              \
                 L = M + 1;                                                     \
             else                                                               \
                 R = M;                                                         \
         }                                                                      \
                                                                                \
-        if (_list_->cmp(_list_->buffer[L], value) == 0)                        \
+        if (_list_->f_val->cmp(_list_->buffer[L], value) == 0)                 \
             return L;                                                          \
                                                                                \
         /* Not found */                                                        \
@@ -744,13 +772,13 @@ struct cmc_callbacks_sortedlist
         {                                                                      \
             size_t M = L + (R - L) / 2;                                        \
                                                                                \
-            if (_list_->cmp(_list_->buffer[M], value) > 0)                     \
+            if (_list_->f_val->cmp(_list_->buffer[M], value) > 0)              \
                 R = M;                                                         \
             else                                                               \
                 L = M + 1;                                                     \
         }                                                                      \
                                                                                \
-        if (_list_->cmp(_list_->buffer[L - 1], value) == 0)                    \
+        if (_list_->f_val->cmp(_list_->buffer[L - 1], value) == 0)             \
             return L - 1;                                                      \
                                                                                \
         /* Not found */                                                        \
