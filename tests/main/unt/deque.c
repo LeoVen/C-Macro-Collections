@@ -651,4 +651,74 @@ CMC_CREATE_UNIT(deque_test, true, {
         d_free(d1);
         d_free(d2);
     });
+
+    CMC_CREATE_TEST(flags, {
+        struct deque *d = d_new(100, d_ftab_val);
+
+        cmc_assert_not_equals(ptr, NULL, d);
+        cmc_assert_equals(int32_t, cmc_flags.OK, d_flag(d));
+
+        // customize
+        d_customize(d, &cmc_alloc_node_default, &(struct cmc_callbacks_deque) {0});
+        cmc_assert_equals(int32_t, cmc_flags.OK, d_flag(d));
+
+        // push_front
+        cmc_assert(d_push_front(d, 1));
+        cmc_assert_equals(int32_t, cmc_flags.OK, d_flag(d));
+
+        // pop_front
+        cmc_assert(d_pop_front(d));
+        cmc_assert_equals(int32_t, cmc_flags.OK, d_flag(d));
+        cmc_assert(!d_pop_front(d));
+        cmc_assert_equals(int32_t, cmc_flags.EMPTY, d_flag(d));
+
+        // push_back
+        cmc_assert(d_push_back(d, 1));
+        cmc_assert_equals(int32_t, cmc_flags.OK, d_flag(d));
+
+        // pop_back
+        cmc_assert(d_pop_back(d));
+        cmc_assert_equals(int32_t, cmc_flags.OK, d_flag(d));
+        cmc_assert(!d_pop_back(d));
+        cmc_assert_equals(int32_t, cmc_flags.EMPTY, d_flag(d));
+
+        // front
+        cmc_assert(d_front(d) == 0);
+        cmc_assert_equals(int32_t, cmc_flags.EMPTY, d_flag(d));
+
+        cmc_assert(d_push_back(d, 1));
+        cmc_assert(d_front(d) == 1);
+        cmc_assert_equals(int32_t, cmc_flags.OK, d_flag(d));
+
+        // clear
+        d_clear(d);
+        cmc_assert_equals(int32_t, cmc_flags.OK, d_flag(d));
+
+        // back
+        cmc_assert(d_back(d) == 0);
+        cmc_assert_equals(int32_t, cmc_flags.EMPTY, d_flag(d));
+
+        cmc_assert(d_push_front(d, 1));
+        cmc_assert(d_back(d) == 1);
+        cmc_assert_equals(int32_t, cmc_flags.OK, d_flag(d));
+
+        // copy_of
+        struct deque *d2 = d_copy_of(d);
+
+        cmc_assert_equals(int32_t, cmc_flags.OK, d_flag(d2));
+
+        // equals
+        cmc_assert(d_pop_back(d));
+        cmc_assert(d_pop_back(d2));
+        d_front(d);
+        d_front(d2);
+        cmc_assert_equals(int32_t, cmc_flags.EMPTY, d_flag(d));
+        cmc_assert_equals(int32_t, cmc_flags.EMPTY, d_flag(d2));
+        cmc_assert(d_equals(d, d2));
+        cmc_assert_equals(int32_t, cmc_flags.OK, d_flag(d));
+        cmc_assert_equals(int32_t, cmc_flags.OK, d_flag(d2));
+
+        d_free(d);
+        d_free(d2);
+    });
 });

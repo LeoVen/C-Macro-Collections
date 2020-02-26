@@ -236,6 +236,7 @@ struct cmc_callbacks_deque
     bool PFX##_full(struct SNAME *_deque_);                                   \
     size_t PFX##_count(struct SNAME *_deque_);                                \
     size_t PFX##_capacity(struct SNAME *_deque_);                             \
+    int PFX##_flag(struct SNAME *_deque_);                                    \
     /* Collection Utility */                                                  \
     bool PFX##_resize(struct SNAME *_deque_, size_t capacity);                \
     struct SNAME *PFX##_copy_of(struct SNAME *_deque_);                       \
@@ -368,6 +369,8 @@ struct cmc_callbacks_deque
         _deque_->count = 0;                                                    \
         _deque_->front = 0;                                                    \
         _deque_->back = 0;                                                     \
+                                                                               \
+        _deque_->flag = cmc_flags.OK;                                          \
     }                                                                          \
                                                                                \
     void PFX##_free(struct SNAME *_deque_)                                     \
@@ -394,13 +397,15 @@ struct cmc_callbacks_deque
                                                                                \
         if (callbacks)                                                         \
             _deque_->callbacks = callbacks;                                    \
+                                                                               \
+        _deque_->flag = cmc_flags.OK;                                          \
     }                                                                          \
                                                                                \
     bool PFX##_push_front(struct SNAME *_deque_, V element)                    \
     {                                                                          \
         if (PFX##_full(_deque_))                                               \
         {                                                                      \
-            if (!PFX##_resize(_deque_, PFX##_capacity(_deque_) * 2))           \
+            if (!PFX##_resize(_deque_, _deque_->capacity * 2))                 \
                 return false;                                                  \
         }                                                                      \
                                                                                \
@@ -410,6 +415,7 @@ struct cmc_callbacks_deque
         _deque_->buffer[_deque_->front] = element;                             \
                                                                                \
         _deque_->count++;                                                      \
+        _deque_->flag = cmc_flags.OK;                                          \
                                                                                \
         return true;                                                           \
     }                                                                          \
@@ -418,7 +424,7 @@ struct cmc_callbacks_deque
     {                                                                          \
         if (PFX##_full(_deque_))                                               \
         {                                                                      \
-            if (!PFX##_resize(_deque_, PFX##_capacity(_deque_) * 2))           \
+            if (!PFX##_resize(_deque_, _deque_->capacity * 2))                 \
                 return false;                                                  \
         }                                                                      \
                                                                                \
@@ -428,6 +434,7 @@ struct cmc_callbacks_deque
             (_deque_->back == _deque_->capacity - 1) ? 0 : _deque_->back + 1;  \
                                                                                \
         _deque_->count++;                                                      \
+        _deque_->flag = cmc_flags.OK;                                          \
                                                                                \
         return true;                                                           \
     }                                                                          \
@@ -435,7 +442,10 @@ struct cmc_callbacks_deque
     bool PFX##_pop_front(struct SNAME *_deque_)                                \
     {                                                                          \
         if (PFX##_empty(_deque_))                                              \
+        {                                                                      \
+            _deque_->flag = cmc_flags.EMPTY;                                   \
             return false;                                                      \
+        }                                                                      \
                                                                                \
         _deque_->buffer[_deque_->front] = (V){ 0 };                            \
                                                                                \
@@ -444,6 +454,7 @@ struct cmc_callbacks_deque
                              : _deque_->front + 1;                             \
                                                                                \
         _deque_->count--;                                                      \
+        _deque_->flag = cmc_flags.OK;                                          \
                                                                                \
         return true;                                                           \
     }                                                                          \
@@ -451,7 +462,10 @@ struct cmc_callbacks_deque
     bool PFX##_pop_back(struct SNAME *_deque_)                                 \
     {                                                                          \
         if (PFX##_empty(_deque_))                                              \
+        {                                                                      \
+            _deque_->flag = cmc_flags.EMPTY;                                   \
             return false;                                                      \
+        }                                                                      \
                                                                                \
         _deque_->back =                                                        \
             (_deque_->back == 0) ? _deque_->capacity - 1 : _deque_->back - 1;  \
@@ -459,6 +473,7 @@ struct cmc_callbacks_deque
         _deque_->buffer[_deque_->back] = (V){ 0 };                             \
                                                                                \
         _deque_->count--;                                                      \
+        _deque_->flag = cmc_flags.OK;                                          \
                                                                                \
         return true;                                                           \
     }                                                                          \
@@ -466,7 +481,12 @@ struct cmc_callbacks_deque
     V PFX##_front(struct SNAME *_deque_)                                       \
     {                                                                          \
         if (PFX##_empty(_deque_))                                              \
+        {                                                                      \
+            _deque_->flag = cmc_flags.EMPTY;                                   \
             return (V){ 0 };                                                   \
+        }                                                                      \
+                                                                               \
+        _deque_->flag = cmc_flags.OK;                                          \
                                                                                \
         return _deque_->buffer[_deque_->front];                                \
     }                                                                          \
@@ -474,7 +494,12 @@ struct cmc_callbacks_deque
     V PFX##_back(struct SNAME *_deque_)                                        \
     {                                                                          \
         if (PFX##_empty(_deque_))                                              \
+        {                                                                      \
+            _deque_->flag = cmc_flags.EMPTY;                                   \
             return (V){ 0 };                                                   \
+        }                                                                      \
+                                                                               \
+        _deque_->flag = cmc_flags.OK;                                          \
                                                                                \
         return _deque_->buffer[(_deque_->back == 0) ? _deque_->capacity - 1    \
                                                     : _deque_->back - 1];      \
@@ -482,6 +507,8 @@ struct cmc_callbacks_deque
                                                                                \
     bool PFX##_contains(struct SNAME *_deque_, V element)                      \
     {                                                                          \
+        _deque_->flag = cmc_flags.OK;                                          \
+                                                                               \
         for (size_t i = _deque_->front, j = 0; j < _deque_->count; j++)        \
         {                                                                      \
             if (_deque_->f_val->cmp(_deque_->buffer[i], element) == 0)         \
@@ -513,24 +540,38 @@ struct cmc_callbacks_deque
         return _deque_->capacity;                                              \
     }                                                                          \
                                                                                \
+    int PFX##_flag(struct SNAME *_deque_)                                      \
+    {                                                                          \
+        return _deque_->flag;                                                  \
+    }                                                                          \
+                                                                               \
     bool PFX##_resize(struct SNAME *_deque_, size_t capacity)                  \
     {                                                                          \
-        if (PFX##_capacity(_deque_) == capacity)                               \
+        if (_deque_->capacity == capacity)                                     \
+        {                                                                      \
+            _deque_->flag = cmc_flags.OK;                                      \
             return true;                                                       \
+        }                                                                      \
                                                                                \
-        if (capacity < PFX##_count(_deque_))                                   \
+        if (capacity < _deque_->count)                                         \
+        {                                                                      \
+            _deque_->flag = cmc_flags.INVALID;                                 \
             return false;                                                      \
+        }                                                                      \
                                                                                \
         V *new_buffer = _deque_->alloc->malloc(sizeof(V) * capacity);          \
                                                                                \
         if (!new_buffer)                                                       \
+        {                                                                      \
+            _deque_->flag = cmc_flags.ALLOC;                                   \
             return false;                                                      \
+        }                                                                      \
                                                                                \
         for (size_t i = _deque_->front, j = 0; j < _deque_->count; j++)        \
         {                                                                      \
             new_buffer[j] = _deque_->buffer[i];                                \
                                                                                \
-            i = (i + 1) % PFX##_capacity(_deque_);                             \
+            i = (i + 1) % _deque_->capacity;                                   \
         }                                                                      \
                                                                                \
         _deque_->alloc->free(_deque_->buffer);                                 \
@@ -539,6 +580,8 @@ struct cmc_callbacks_deque
         _deque_->capacity = capacity;                                          \
         _deque_->front = 0;                                                    \
         _deque_->back = _deque_->count;                                        \
+                                                                               \
+        _deque_->flag = cmc_flags.OK;                                          \
                                                                                \
         return true;                                                           \
     }                                                                          \
@@ -550,7 +593,12 @@ struct cmc_callbacks_deque
                              _deque_->alloc, _deque_->callbacks);              \
                                                                                \
         if (!result)                                                           \
+        {                                                                      \
+            /* Can't guarantee that it is an allocation error */               \
+            /* Could be that _deque_ has some invalid field */                 \
+            _deque_->flag = cmc_flags.ERROR;                                   \
             return NULL;                                                       \
+        }                                                                      \
                                                                                \
         if (_deque_->f_val->cpy)                                               \
         {                                                                      \
@@ -575,17 +623,22 @@ struct cmc_callbacks_deque
         result->front = 0;                                                     \
         result->back = _deque_->count;                                         \
                                                                                \
+        _deque_->flag = cmc_flags.OK;                                          \
+                                                                               \
         return result;                                                         \
     }                                                                          \
                                                                                \
     bool PFX##_equals(struct SNAME *_deque1_, struct SNAME *_deque2_)          \
     {                                                                          \
-        if (PFX##_count(_deque1_) != PFX##_count(_deque2_))                    \
+        _deque1_->flag = cmc_flags.OK;                                         \
+        _deque2_->flag = cmc_flags.OK;                                         \
+                                                                               \
+        if (_deque1_->count != _deque2_->count)                                \
             return false;                                                      \
                                                                                \
         size_t i, j, k;                                                        \
         for (i = _deque1_->front, j = _deque2_->front, k = 0;                  \
-             k < PFX##_count(_deque1_); k++)                                   \
+             k < _deque1_->count; k++)                                         \
         {                                                                      \
             if (_deque1_->f_val->cmp(_deque1_->buffer[i],                      \
                                      _deque2_->buffer[j]) != 0)                \
@@ -681,7 +734,7 @@ struct cmc_callbacks_deque
             else                                                               \
                 iter->cursor = iter->target->back - 1;                         \
                                                                                \
-            iter->index = PFX##_count(iter->target) - 1;                       \
+            iter->index = iter->target->count - 1;                             \
                                                                                \
             iter->start = false;                                               \
             iter->end = true;                                                  \
@@ -693,7 +746,7 @@ struct cmc_callbacks_deque
         if (iter->end)                                                         \
             return false;                                                      \
                                                                                \
-        if (iter->index + 1 == PFX##_count(iter->target))                      \
+        if (iter->index + 1 == iter->target->count)                            \
         {                                                                      \
             iter->end = true;                                                  \
             return false;                                                      \
@@ -733,13 +786,13 @@ struct cmc_callbacks_deque
         if (iter->end)                                                         \
             return false;                                                      \
                                                                                \
-        if (iter->index + 1 == PFX##_count(iter->target))                      \
+        if (iter->index + 1 == iter->target->count)                            \
         {                                                                      \
             iter->end = true;                                                  \
             return false;                                                      \
         }                                                                      \
                                                                                \
-        if (steps == 0 || iter->index + steps >= PFX##_count(iter->target))    \
+        if (steps == 0 || iter->index + steps >= iter->target->count)          \
             return false;                                                      \
                                                                                \
         iter->start = PFX##_empty(iter->target);                               \
@@ -771,7 +824,7 @@ struct cmc_callbacks_deque
                                                                                \
         /* Prevent underflow */                                                \
         if (iter->cursor < steps)                                              \
-            iter->cursor += PFX##_capacity(iter->target);                      \
+            iter->cursor += iter->target->capacity;                            \
                                                                                \
         iter->cursor -= steps;                                                 \
                                                                                \
@@ -782,7 +835,7 @@ struct cmc_callbacks_deque
     /* given index */                                                          \
     bool PFX##_iter_go_to(struct SNAME##_iter *iter, size_t index)             \
     {                                                                          \
-        if (index >= PFX##_count(iter->target))                                \
+        if (index >= iter->target->count)                                      \
             return false;                                                      \
                                                                                \
         if (iter->index > index)                                               \
