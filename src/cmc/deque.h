@@ -594,8 +594,6 @@ struct cmc_callbacks_deque
                                                                                \
         if (!result)                                                           \
         {                                                                      \
-            /* Can't guarantee that it is an allocation error */               \
-            /* Could be that _deque_ has some invalid field */                 \
             _deque_->flag = cmc_flags.ERROR;                                   \
             return NULL;                                                       \
         }                                                                      \

@@ -997,9 +997,9 @@ struct cmc_callbacks_multimap
                                                                                \
     struct SNAME *PFX##_copy_of(struct SNAME *_map_)                           \
     {                                                                          \
-        struct SNAME *result =                                                 \
-            PFX##_new_custom(_map_->capacity, _map_->load, _map_->f_key,       \
-                             _map_->f_val, _map_->alloc, _map_->callbacks);    \
+        struct SNAME *result = PFX##_new_custom(                               \
+            _map_->capacity * _map_->load, _map_->load, _map_->f_key,          \
+            _map_->f_val, _map_->alloc, _map_->callbacks);                     \
                                                                                \
         if (!result)                                                           \
             return NULL;                                                       \

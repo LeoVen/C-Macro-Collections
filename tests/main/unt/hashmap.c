@@ -493,4 +493,113 @@ CMC_CREATE_UNIT(hashmap_test, true, {
 
         hm_free(map);
     });
+
+    CMC_CREATE_TEST(flags, {
+        struct hashmap *map = hm_new(100, 0.6, hm_ftab_key, hm_ftab_val);
+
+        cmc_assert_not_equals(ptr, NULL, map);
+        cmc_assert_equals(int32_t, cmc_flags.OK, hm_flag(map));
+
+        // insert
+        cmc_assert(hm_insert(map, 1, 1));
+        cmc_assert_equals(int32_t, cmc_flags.OK, hm_flag(map));
+        cmc_assert(!hm_insert(map, 1, 2));
+        cmc_assert_equals(int32_t, cmc_flags.DUPLICATE, hm_flag(map));
+
+        // clear
+        hm_clear(map);
+        cmc_assert_equals(int32_t, cmc_flags.OK, hm_flag(map));
+
+        // update
+        cmc_assert(!hm_update(map, 1, 2, NULL));
+        cmc_assert_equals(int32_t, cmc_flags.EMPTY, hm_flag(map));
+
+        cmc_assert(hm_insert(map, 1, 1));
+        cmc_assert_equals(int32_t, cmc_flags.OK, hm_flag(map));
+
+        cmc_assert(!hm_update(map, 2, 1, NULL));
+        cmc_assert_equals(int32_t, cmc_flags.NOT_FOUND, hm_flag(map));
+
+        cmc_assert(hm_update(map, 1, 2, NULL));
+        cmc_assert_equals(int32_t, cmc_flags.OK, hm_flag(map));
+
+        // remove
+        cmc_assert(!hm_remove(map, 2, NULL));
+        cmc_assert_equals(int32_t, cmc_flags.NOT_FOUND, hm_flag(map));
+
+        cmc_assert(hm_remove(map, 1, NULL));
+        cmc_assert_equals(int32_t, cmc_flags.OK, hm_flag(map));
+
+        cmc_assert(!hm_remove(map, 1, NULL));
+        cmc_assert_equals(int32_t, cmc_flags.EMPTY, hm_flag(map));
+
+        // max
+        cmc_assert(hm_insert(map, 1, 1));
+        cmc_assert(hm_max(map, NULL, NULL));
+        cmc_assert_equals(int32_t, cmc_flags.OK, hm_flag(map));
+
+        cmc_assert(hm_remove(map, 1, NULL));
+        cmc_assert(!hm_max(map, NULL, NULL));
+        cmc_assert_equals(int32_t, cmc_flags.EMPTY, hm_flag(map));
+
+        // min
+        cmc_assert(hm_insert(map, 1, 1));
+        cmc_assert(hm_min(map, NULL, NULL));
+        cmc_assert_equals(int32_t, cmc_flags.OK, hm_flag(map));
+
+        cmc_assert(hm_remove(map, 1, NULL));
+        cmc_assert(!hm_min(map, NULL, NULL));
+        cmc_assert_equals(int32_t, cmc_flags.EMPTY, hm_flag(map));
+
+        // get
+        hm_get(map, 1);
+        cmc_assert_equals(int32_t, cmc_flags.EMPTY, hm_flag(map));
+
+        cmc_assert(hm_insert(map, 1, 1));
+        hm_get(map, 1);
+        cmc_assert_equals(int32_t, cmc_flags.OK, hm_flag(map));
+
+        hm_get(map, 2);
+        cmc_assert_equals(int32_t, cmc_flags.NOT_FOUND, hm_flag(map));
+
+        hm_clear(map);
+
+        // get_ref
+        hm_get_ref(map, 1);
+        cmc_assert_equals(int32_t, cmc_flags.EMPTY, hm_flag(map));
+
+        cmc_assert(hm_insert(map, 1, 1));
+        hm_get_ref(map, 1);
+        cmc_assert_equals(int32_t, cmc_flags.OK, hm_flag(map));
+
+        hm_get_ref(map, 2);
+        cmc_assert_equals(int32_t, cmc_flags.NOT_FOUND, hm_flag(map));
+
+        // contains
+        hm_contains(map, 1);
+        cmc_assert_equals(int32_t, cmc_flags.OK, hm_flag(map));
+
+        // copy
+        struct hashmap *map2 = hm_copy_of(map);
+
+        cmc_assert_equals(int32_t, cmc_flags.OK, hm_flag(map));
+        cmc_assert_equals(int32_t, cmc_flags.OK, hm_flag(map2));
+
+        size_t tmp = map->capacity;
+        map->capacity = 0;
+
+        struct hashmap *map3 = hm_copy_of(map);
+        cmc_assert_equals(ptr, NULL, map3);
+
+        cmc_assert_equals(int32_t, cmc_flags.ERROR, hm_flag(map));
+
+        map->capacity = tmp;
+
+        cmc_assert(hm_equals(map, map2));
+        cmc_assert_equals(int32_t, cmc_flags.OK, hm_flag(map));
+        cmc_assert_equals(int32_t, cmc_flags.OK, hm_flag(map2));
+
+        hm_free(map);
+        hm_free(map2);
+    });
 });

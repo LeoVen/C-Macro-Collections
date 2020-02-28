@@ -934,7 +934,6 @@ struct cmc_callbacks_bidimap
                                                                                \
     bool PFX##_resize(struct SNAME *_map_, size_t capacity)                    \
     {                                                                          \
-                                                                               \
         _map_->flag = cmc_flags.OK;                                            \
                                                                                \
         if (_map_->capacity == capacity)                                       \
@@ -1026,9 +1025,15 @@ struct cmc_callbacks_bidimap
     struct SNAME *PFX##_copy_of(struct SNAME *_map_)                           \
     {                                                                          \
         /* TODO this function can be optimized */                              \
-        struct SNAME *result =                                                 \
-            PFX##_new_custom(_map_->capacity, _map_->load, _map_->f_key,       \
-                             _map_->f_val, _map_->alloc, _map_->callbacks);    \
+        struct SNAME *result = PFX##_new_custom(                               \
+            _map_->capacity * _map_->load, _map_->load, _map_->f_key,          \
+            _map_->f_val, _map_->alloc, _map_->callbacks);                     \
+                                                                               \
+        if (!result)                                                           \
+        {                                                                      \
+            _map_->flag = cmc_flags.ERROR;                                     \
+            return NULL;                                                       \
+        }                                                                      \
                                                                                \
         for (size_t i = 0; i < _map_->capacity; i++)                           \
         {                                                                      \

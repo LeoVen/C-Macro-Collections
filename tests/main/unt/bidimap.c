@@ -493,6 +493,15 @@ CMC_CREATE_UNIT(bidimap_test, true, {
 
         cmc_assert_equals(int32_t, cmc_flags.OK, bm_flag(map2));
 
+        size_t tmp = map->capacity;
+        map->capacity = 0;
+
+        struct bidimap *map3 = bm_copy_of(map);
+        cmc_assert_equals(ptr, NULL, map3);
+        cmc_assert_equals(int32_t, cmc_flags.ERROR, bm_flag(map));
+
+        map->capacity = tmp;
+
         // equals
         bm_get_key(map, 100);
         bm_get_key(map2, 100);
