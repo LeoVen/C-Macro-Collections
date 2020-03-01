@@ -43,15 +43,13 @@
 ## Available Collections
 
 * Linear Collections
-    * List, LinkedList, Deque, Stack, Queue
+    * List, LinkedList, Deque, Stack, Queue, SortedList
 * Sets
     * HashSet, TreeSet, MultiSet
 * Maps
-    * HashMap, TreeMap, MultiMap
+    * BidiMap, HashMap, TreeMap, MultiMap
 * Heaps
     * Heap, IntervalHeap
-* Coming Soon
-    * BidiMap, SortedList
 
 | Collection <img width=250/>        | Abstract Data Type <img width=250/> | Data Structure <img width=250/> | Details                               |
 | :--------------------------------: | :---------------------------------: | :-----------------------------: | :-----------------------------------: |
@@ -80,6 +78,10 @@ All collections come with a two-way iterator. You can go back and forwards in co
 ### Custom Allocation
 
 All collections have a `cmc_alloc_node` which provides pointers to the four dynamic memory allocation functions in C: `malloc`, `calloc`, `realloc` and `free`. These pointers can be customized for each individual collection created or a default can be used, as specified in `cmc_alloc_node_default`.
+
+### Callbacks
+
+Every function that operates on a collection can be separated in 5 different types. Create, Read, Update, Delete and (an extra one besides CRUD) Resize. You can define one callback function for each operation. Check out the documentation to see when each callback function is called.
 
 ### Functions Table
 
@@ -219,9 +221,9 @@ Or you can generate each part individually:
 
 When including `macro_collections.h` in your source code you gain access to a macro called `CMC_COLLECTION_GENERATE` with the following parameters:
 
-* __C__ - Container name in uppercase (*LIST*, *LINKEDLIST*, *STACK*, *QUEUE*, *DEQUE*, *HEAP*, *TREESET*, *TREEMAP*, *HASHSET*, *HASHMAP*).
+* __C__ - Container name in uppercase (*BIDIMAP*, *DEQUE*, *HASHMAP*, *HASHSET*, *HEAP*, *INTERVALHEAP*, *LINKEDLIST*, *LIST*, *MULTIMAP*, *MULTISET*, *QUEUE*, *SORTEDLIST*, *STACK*, *TREEMAP*, *TREESET*).
 * __PFX__ - Functions prefix or namespace.
-* __SNAME__ - Structure name (`typedef struct SNAME##_s SNAME`).
+* __SNAME__ - Structure name (`struct SNAME`).
 * __K__ - Key type. Only used in *HASHMAP*, *TREEMAP*, *MULTIMAP* and *BIDIMAP*; ignored by others.
 * __V__ - Value type. Primary type for most collections, or value to be mapped by *HASHMAP*, *TREEMAP*, *MULTIMAP* and *BIDIMAP*.
 
@@ -231,17 +233,15 @@ When including `macro_collections.h` in your source code you gain access to a ma
 
 There are 2 for-each macros:
 
-* `CMC_FOR_EACH` - Starts at the start of the collection towards the end.
-* `CMC_FOR_EACH_REV` - Starts at the end of the collection towards the start.
-
-When including `foreach.h` in your source code you gain access to all for-each macros with the following parameters:
+* `CMC_FOREACH` - Starts at the start of the collection towards the end.
+* `CMC_FOREACH_REV` - Starts at the end of the collection towards the start.
 
 * __PFX__ - Functions prefix or namespace.
 * __SNAME__ - Structure name.
 * __TARGET__ - The variable name of the collection you wish to iterate over.
-* __BODY__ - Block of code.
+* __ITERNAME__ - Iterator variable name.
 
-Inside body you will have access to the iterator variable `iter`. With it you can use functions to access the key, value or index from the iterator. Checkout the documentation for more details.
+For `CMC_FOREACH` and `CMC_FOREACH_REV` you will be able to name the iterator variable through the __ITERNAME__ parameter.
 
 <hr>
 

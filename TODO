@@ -8,20 +8,11 @@ TODO
 
 [/] Tests
 [/] Documentation
-[/] Add Function Tables that contains data type functions
-    (compare, copy, display, free, hash, priority)
 [/] Add error codes that can be accessed from the collection's struct
 
 #!! Medium Priority --------------------------------------------------------------------------------
 
 [/] Callback utility
-[ ] Add to iterators struct
-    [ ] get_value
-    [ ] get_index
-    [ ] get_rvalue       {only those that allow it}
-    [ ] get_key          {associative collections}
-    [ ] get_multiplicity {multiset}
-    [ ] get_node         {linkedlist}
 [ ] Add memory usage in the benchmark
 [ ] Add to_array and from_array functions
 [ ] Separate each collection unit test into their own executable
@@ -102,3 +93,5 @@ TODO
 [X] Custom allocators
 [X] Each file needs to be independent without including external files
 [X] Fix cases where new_custom() should be used instead of just new()
+[X] Add Function Tables that contains data type functions
+    (compare, copy, display, free, hash, priority)
