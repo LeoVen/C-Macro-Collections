@@ -303,6 +303,7 @@ struct cmc_callbacks_hashset
     size_t PFX##_count(struct SNAME *_set_);                                   \
     size_t PFX##_capacity(struct SNAME *_set_);                                \
     double PFX##_load(struct SNAME *_set_);                                    \
+    int PFX##_flag(struct SNAME *_set_);                                       \
     /* Collection Utility */                                                   \
     bool PFX##_resize(struct SNAME *_set_, size_t capacity);                   \
     struct SNAME *PFX##_copy_of(struct SNAME *_set_);                          \
@@ -465,6 +466,7 @@ struct cmc_callbacks_hashset
                sizeof(struct SNAME##_entry) * _set_->capacity);                \
                                                                                \
         _set_->count = 0;                                                      \
+        _set_->flag = cmc_flags.OK;                                            \
     }                                                                          \
                                                                                \
     void PFX##_free(struct SNAME *_set_)                                       \
@@ -494,13 +496,15 @@ struct cmc_callbacks_hashset
                                                                                \
         if (callbacks)                                                         \
             _set_->callbacks = callbacks;                                      \
+                                                                               \
+        _set_->flag = cmc_flags.OK;                                            \
     }                                                                          \
                                                                                \
     bool PFX##_insert(struct SNAME *_set_, V element)                          \
     {                                                                          \
         if (PFX##_full(_set_))                                                 \
         {                                                                      \
-            if (!PFX##_resize(_set_, PFX##_capacity(_set_) + 1))               \
+            if (!PFX##_resize(_set_, _set_->capacity + 1))                     \
                 return false;                                                  \
         }                                                                      \
                                                                                \
@@ -511,7 +515,10 @@ struct cmc_callbacks_hashset
         struct SNAME##_entry *target = &(_set_->buffer[pos]);                  \
                                                                                \
         if (PFX##_impl_get_entry(_set_, element) != NULL)                      \
+        {                                                                      \
+            _set_->flag = cmc_flags.DUPLICATE;                                 \
             return false;                                                      \
+        }                                                                      \
                                                                                \
         if (target->state == CMC_ES_EMPTY || target->state == CMC_ES_DELETED)  \
         {                                                                      \
@@ -550,22 +557,33 @@ struct cmc_callbacks_hashset
         }                                                                      \
                                                                                \
         _set_->count++;                                                        \
+        _set_->flag = cmc_flags.OK;                                            \
                                                                                \
         return true;                                                           \
     }                                                                          \
                                                                                \
     bool PFX##_remove(struct SNAME *_set_, V element)                          \
     {                                                                          \
+        if (PFX##_empty(_set_))\
+        {\
+            _set_->flag = cmc_flags.EMPTY;\
+            return false;\
+        }\
+        \
         struct SNAME##_entry *result = PFX##_impl_get_entry(_set_, element);   \
                                                                                \
         if (result == NULL)                                                    \
+        {                                                                      \
+            _set_->flag = cmc_flags.NOT_FOUND;                                 \
             return false;                                                      \
+        }                                                                      \
                                                                                \
         result->value = (V){ 0 };                                              \
         result->dist = 0;                                                      \
         result->state = CMC_ES_DELETED;                                        \
                                                                                \
         _set_->count--;                                                        \
+        _set_->flag = cmc_flags.OK;                                            \
                                                                                \
         return true;                                                           \
     }                                                                          \
@@ -573,10 +591,15 @@ struct cmc_callbacks_hashset
     bool PFX##_max(struct SNAME *_set_, V *value)                              \
     {                                                                          \
         if (PFX##_empty(_set_))                                                \
+        {                                                                      \
+            _set_->flag = cmc_flags.EMPTY;                                     \
             return false;                                                      \
+        }                                                                      \
                                                                                \
+        V max_value;                                                           \
         struct SNAME##_iter iter;                                              \
                                                                                \
+        /* TODO turn this into a normal loop */                                \
         for (PFX##_iter_init(&iter, _set_); !PFX##_iter_end(&iter);            \
              PFX##_iter_next(&iter))                                           \
         {                                                                      \
@@ -584,10 +607,15 @@ struct cmc_callbacks_hashset
             size_t index = PFX##_iter_index(&iter);                            \
                                                                                \
             if (index == 0)                                                    \
-                *value = result;                                               \
-            else if (_set_->f_val->cmp(result, *value) > 0)                    \
-                *value = result;                                               \
+                max_value = result;                                            \
+            else if (_set_->f_val->cmp(result, max_value) > 0)                 \
+                max_value = result;                                            \
         }                                                                      \
+                                                                               \
+        if (value)                                                             \
+            *value = max_value;                                                \
+                                                                               \
+        _set_->flag = cmc_flags.OK;                                            \
                                                                                \
         return true;                                                           \
     }                                                                          \
@@ -595,10 +623,15 @@ struct cmc_callbacks_hashset
     bool PFX##_min(struct SNAME *_set_, V *value)                              \
     {                                                                          \
         if (PFX##_empty(_set_))                                                \
+        {                                                                      \
+            _set_->flag = cmc_flags.EMPTY;                                     \
             return false;                                                      \
+        }                                                                      \
                                                                                \
+        V min_value;                                                           \
         struct SNAME##_iter iter;                                              \
                                                                                \
+        /* TODO turn this into a normal loop */                                \
         for (PFX##_iter_init(&iter, _set_); !PFX##_iter_end(&iter);            \
              PFX##_iter_next(&iter))                                           \
         {                                                                      \
@@ -606,16 +639,23 @@ struct cmc_callbacks_hashset
             size_t index = PFX##_iter_index(&iter);                            \
                                                                                \
             if (index == 0)                                                    \
-                *value = result;                                               \
-            else if (_set_->f_val->cmp(result, *value) < 0)                    \
-                *value = result;                                               \
+                min_value = result;                                            \
+            else if (_set_->f_val->cmp(result, min_value) < 0)                 \
+                min_value = result;                                            \
         }                                                                      \
+                                                                               \
+        if (value)                                                             \
+            *value = min_value;                                                \
+                                                                               \
+        _set_->flag = cmc_flags.OK;                                            \
                                                                                \
         return true;                                                           \
     }                                                                          \
                                                                                \
     bool PFX##_contains(struct SNAME *_set_, V element)                        \
     {                                                                          \
+        _set_->flag = cmc_flags.OK;                                            \
+                                                                               \
         return PFX##_impl_get_entry(_set_, element) != NULL;                   \
     }                                                                          \
                                                                                \
@@ -626,8 +666,7 @@ struct cmc_callbacks_hashset
                                                                                \
     bool PFX##_full(struct SNAME *_set_)                                       \
     {                                                                          \
-        return (double)PFX##_capacity(_set_) * PFX##_load(_set_) <=            \
-               (double)PFX##_count(_set_);                                     \
+        return (double)_set_->capacity * _set_->load <= (double)_set_->count;  \
     }                                                                          \
                                                                                \
     size_t PFX##_count(struct SNAME *_set_)                                    \
@@ -645,34 +684,49 @@ struct cmc_callbacks_hashset
         return _set_->load;                                                    \
     }                                                                          \
                                                                                \
+    int PFX##_flag(struct SNAME *_set_)                                        \
+    {                                                                          \
+        return _set_->flag;                                                    \
+    }                                                                          \
+                                                                               \
     bool PFX##_resize(struct SNAME *_set_, size_t capacity)                    \
     {                                                                          \
-        if (PFX##_capacity(_set_) == capacity)                                 \
+        if (_set_->capacity == capacity)                                       \
             return true;                                                       \
                                                                                \
-        if (PFX##_capacity(_set_) > capacity / PFX##_load(_set_))              \
+        if (_set_->capacity > capacity / _set_->load)                          \
             return true;                                                       \
                                                                                \
         /* Prevent integer overflow */                                         \
-        if (capacity >= UINTMAX_MAX * PFX##_load(_set_))                       \
+        if (capacity >= UINTMAX_MAX * _set_->load)                             \
+        {                                                                      \
+            _set_->flag = cmc_flags.ERROR;                                     \
             return false;                                                      \
+        }                                                                      \
                                                                                \
         /* Calculate required capacity based on the prime numbers */           \
         size_t theoretical_size = PFX##_impl_calculate_size(capacity);         \
                                                                                \
         /* Not possible to shrink with current available prime numbers */      \
-        if (theoretical_size < PFX##_count(_set_) / PFX##_load(_set_))         \
+        if (theoretical_size < _set_->count / _set_->load)                     \
+        {                                                                      \
+            _set_->flag = cmc_flags.ERROR;                                     \
             return false;                                                      \
+        }                                                                      \
                                                                                \
         struct SNAME *_new_set_ =                                              \
             PFX##_new_custom(capacity, _set_->load, _set_->f_val,              \
                              _set_->alloc, _set_->callbacks);                  \
                                                                                \
         if (!_new_set_)                                                        \
+        {                                                                      \
+            _set_->flag = cmc_flags.ALLOC;                                     \
             return false;                                                      \
+        }                                                                      \
                                                                                \
         struct SNAME##_iter iter;                                              \
                                                                                \
+        /* TODO turn this into a normal loop */                                \
         for (PFX##_iter_init(&iter, _set_); !PFX##_iter_end(&iter);            \
              PFX##_iter_next(&iter))                                           \
         {                                                                      \
@@ -681,7 +735,7 @@ struct cmc_callbacks_hashset
             PFX##_insert(_new_set_, value);                                    \
         }                                                                      \
                                                                                \
-        if (PFX##_count(_set_) != PFX##_count(_new_set_))                      \
+        if (_set_->count != _new_set_->count)                                  \
         {                                                                      \
             PFX##_free(_new_set_);                                             \
             return false;                                                      \
@@ -703,11 +757,14 @@ struct cmc_callbacks_hashset
     struct SNAME *PFX##_copy_of(struct SNAME *_set_)                           \
     {                                                                          \
         struct SNAME *result =                                                 \
-            PFX##_new_custom(_set_->capacity, _set_->load, _set_->f_val,       \
-                             _set_->alloc, _set_->callbacks);                  \
+            PFX##_new_custom(_set_->capacity * _set_->load, _set_->load,       \
+                             _set_->f_val, _set_->alloc, _set_->callbacks);    \
                                                                                \
         if (!result)                                                           \
+        {                                                                      \
+            _set_->flag = cmc_flags.ERROR;                                     \
             return NULL;                                                       \
+        }                                                                      \
                                                                                \
         if (_set_->f_val->cpy)                                                 \
         {                                                                      \
@@ -742,15 +799,19 @@ struct cmc_callbacks_hashset
                                                                                \
     bool PFX##_equals(struct SNAME *_set1_, struct SNAME *_set2_)              \
     {                                                                          \
-        if (PFX##_count(_set1_) != PFX##_count(_set2_))                        \
+        _set1_->flag = cmc_flags.OK;                                           \
+        _set2_->flag = cmc_flags.OK;                                           \
+                                                                               \
+        if (_set1_->count != _set2_->count)                                    \
             return false;                                                      \
                                                                                \
-        if (PFX##_count(_set1_) == 0)                                          \
+        if (_set1_->count == 0)                                                \
             return true;                                                       \
                                                                                \
         struct SNAME##_iter iter;                                              \
         PFX##_iter_init(&iter, _set1_);                                        \
                                                                                \
+        /* TODO optimize this loop */                                          \
         for (PFX##_iter_to_start(&iter); !PFX##_iter_end(&iter);               \
              PFX##_iter_next(&iter))                                           \
         {                                                                      \
@@ -781,7 +842,11 @@ struct cmc_callbacks_hashset
                              _set1_->alloc, _set1_->callbacks);                \
                                                                                \
         if (!_set_r_)                                                          \
+        {                                                                      \
+            _set1_->flag = cmc_flags.ALLOC;                                    \
+            _set2_->flag = cmc_flags.ALLOC;                                    \
             return NULL;                                                       \
+        }                                                                      \
                                                                                \
         struct SNAME##_iter iter1, iter2;                                      \
         PFX##_iter_init(&iter1, _set1_);                                       \
@@ -810,7 +875,11 @@ struct cmc_callbacks_hashset
                              _set1_->alloc, _set1_->callbacks);                \
                                                                                \
         if (!_set_r_)                                                          \
+        {                                                                      \
+            _set1_->flag = cmc_flags.ALLOC;                                    \
+            _set2_->flag = cmc_flags.ALLOC;                                    \
             return NULL;                                                       \
+        }                                                                      \
                                                                                \
         struct SNAME *_set_A_ =                                                \
             _set1_->count < _set2_->count ? _set1_ : _set2_;                   \
@@ -838,7 +907,11 @@ struct cmc_callbacks_hashset
                              _set1_->alloc, _set1_->callbacks);                \
                                                                                \
         if (!_set_r_)                                                          \
+        {                                                                      \
+            _set1_->flag = cmc_flags.ALLOC;                                    \
+            _set2_->flag = cmc_flags.ALLOC;                                    \
             return NULL;                                                       \
+        }                                                                      \
                                                                                \
         struct SNAME##_iter iter;                                              \
         PFX##_iter_init(&iter, _set1_);                                        \
@@ -865,7 +938,11 @@ struct cmc_callbacks_hashset
                              _set1_->alloc, _set1_->callbacks);                \
                                                                                \
         if (!_set_r_)                                                          \
+        {                                                                      \
+            _set1_->flag = cmc_flags.ALLOC;                                    \
+            _set2_->flag = cmc_flags.ALLOC;                                    \
             return NULL;                                                       \
+        }                                                                      \
                                                                                \
         PFX##_iter_init(&iter1, _set1_);                                       \
         PFX##_iter_init(&iter2, _set2_);                                       \
@@ -896,9 +973,12 @@ struct cmc_callbacks_hashset
     /* If X is a subset of Y, then Y is a superset of X */                     \
     bool PFX##_is_subset(struct SNAME *_set1_, struct SNAME *_set2_)           \
     {                                                                          \
+        _set1_->flag = cmc_flags.OK;                                           \
+        _set2_->flag = cmc_flags.OK;                                           \
+                                                                               \
         /* If the cardinality of _set1_ is greater than that of _set2_, */     \
         /* then it is safe to say that _set1_ can't be a subset of _set2_ */   \
-        if (PFX##_count(_set1_) > PFX##_count(_set2_))                         \
+        if (_set1_->count > _set2_->count)                                     \
             return false;                                                      \
                                                                                \
         /* The empty set is a subset of all sets */                            \
@@ -934,10 +1014,13 @@ struct cmc_callbacks_hashset
     /* If X is a proper subset of Y, then Y is a proper superset of X */       \
     bool PFX##_is_proper_subset(struct SNAME *_set1_, struct SNAME *_set2_)    \
     {                                                                          \
+        _set1_->flag = cmc_flags.OK;                                           \
+        _set2_->flag = cmc_flags.OK;                                           \
+                                                                               \
         /* If the cardinality of _set1_ is greater than or equal to that of */ \
         /* _set2_, then it is safe to say that _set1_ can't be a proper */     \
         /* subset of _set2_ */                                                 \
-        if (PFX##_count(_set1_) >= PFX##_count(_set2_))                        \
+        if (_set1_->count >= _set2_->count)                                    \
             return false;                                                      \
                                                                                \
         if (PFX##_empty(_set1_))                                               \
@@ -980,6 +1063,9 @@ struct cmc_callbacks_hashset
     /* that is, if there are no elements in common between the two */          \
     bool PFX##_is_disjointset(struct SNAME *_set1_, struct SNAME *_set2_)      \
     {                                                                          \
+        _set1_->flag = cmc_flags.OK;                                           \
+        _set2_->flag = cmc_flags.OK;                                           \
+                                                                               \
         /* The intersection of an empty set with any other set will result */  \
         /* in an empty set */                                                  \
         if (PFX##_empty(_set1_))                                               \
@@ -1077,7 +1163,7 @@ struct cmc_callbacks_hashset
         if (!PFX##_empty(iter->target))                                        \
         {                                                                      \
             iter->cursor = iter->last;                                         \
-            iter->index = PFX##_count(iter->target) - 1;                       \
+            iter->index = iter->target->count - 1;                             \
             iter->start = PFX##_empty(iter->target);                           \
             iter->end = true;                                                  \
         }                                                                      \
@@ -1088,7 +1174,7 @@ struct cmc_callbacks_hashset
         if (iter->end)                                                         \
             return false;                                                      \
                                                                                \
-        if (iter->index + 1 == PFX##_count(iter->target))                      \
+        if (iter->index + 1 == iter->target->count)                            \
         {                                                                      \
             iter->end = true;                                                  \
             return false;                                                      \
@@ -1147,13 +1233,13 @@ struct cmc_callbacks_hashset
         if (iter->end)                                                         \
             return false;                                                      \
                                                                                \
-        if (iter->index + 1 == PFX##_count(iter->target))                      \
+        if (iter->index + 1 == iter->target->count)                            \
         {                                                                      \
             iter->end = true;                                                  \
             return false;                                                      \
         }                                                                      \
                                                                                \
-        if (steps == 0 || iter->index + steps >= PFX##_count(iter->target))    \
+        if (steps == 0 || iter->index + steps >= iter->target->count)          \
             return false;                                                      \
                                                                                \
         for (size_t i = 0; i < steps; i++)                                     \
@@ -1187,7 +1273,7 @@ struct cmc_callbacks_hashset
     /* given index */                                                          \
     bool PFX##_iter_go_to(struct SNAME##_iter *iter, size_t index)             \
     {                                                                          \
-        if (index >= PFX##_count(iter->target))                                \
+        if (index >= iter->target->count)                                      \
             return false;                                                      \
                                                                                \
         if (iter->index > index)                                               \

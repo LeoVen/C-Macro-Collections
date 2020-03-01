@@ -659,7 +659,8 @@ CMC_CREATE_UNIT(deque_test, true, {
         cmc_assert_equals(int32_t, cmc_flags.OK, d_flag(d));
 
         // customize
-        d_customize(d, &cmc_alloc_node_default, &(struct cmc_callbacks_deque) {0});
+        d_customize(d, &cmc_alloc_node_default,
+                    &(struct cmc_callbacks_deque){ 0 });
         cmc_assert_equals(int32_t, cmc_flags.OK, d_flag(d));
 
         // push_front

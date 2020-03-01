@@ -406,4 +406,78 @@ CMC_CREATE_UNIT(hashset_test, true, {
 
         hs_free(set);
     });
+
+    CMC_CREATE_TEST(flags, {
+        struct hashset *set = hs_new(1, 0.99, hs_ftab_val);
+
+        cmc_assert_not_equals(ptr, NULL, set);
+        cmc_assert_equals(int32_t, cmc_flags.OK, hs_flag(set));
+
+        // insert
+        cmc_assert(hs_insert(set, 1));
+        cmc_assert_equals(int32_t, cmc_flags.OK, hs_flag(set));
+        cmc_assert(!hs_insert(set, 1));
+        cmc_assert_equals(int32_t, cmc_flags.DUPLICATE, hs_flag(set));
+
+        // clear
+        hs_clear(set);
+        cmc_assert_equals(int32_t, cmc_flags.OK, hs_flag(set));
+
+        cmc_assert(hs_insert(set, 1));
+
+        // remove
+        cmc_assert(!hs_remove(set, 2));
+        cmc_assert_equals(int32_t, cmc_flags.NOT_FOUND, hs_flag(set));
+
+        cmc_assert(hs_remove(set, 1));
+        cmc_assert_equals(int32_t, cmc_flags.OK, hs_flag(set));
+
+        cmc_assert(!hs_remove(set, 1));
+        cmc_assert_equals(int32_t, cmc_flags.EMPTY, hs_flag(set));
+
+        // max
+        cmc_assert(hs_insert(set, 1));
+        cmc_assert(hs_max(set, NULL));
+        cmc_assert_equals(int32_t, cmc_flags.OK, hs_flag(set));
+
+        cmc_assert(hs_remove(set, 1));
+        cmc_assert(!hs_max(set, NULL));
+        cmc_assert_equals(int32_t, cmc_flags.EMPTY, hs_flag(set));
+
+        // min
+        cmc_assert(hs_insert(set, 1));
+        cmc_assert(hs_min(set, NULL));
+        cmc_assert_equals(int32_t, cmc_flags.OK, hs_flag(set));
+
+        cmc_assert(hs_remove(set, 1));
+        cmc_assert(!hs_min(set, NULL));
+        cmc_assert_equals(int32_t, cmc_flags.EMPTY, hs_flag(set));
+
+        // contains
+        hs_contains(set, 1);
+        cmc_assert_equals(int32_t, cmc_flags.OK, hs_flag(set));
+
+        // copy
+        struct hashset *set2 = hs_copy_of(set);
+
+        cmc_assert_equals(int32_t, cmc_flags.OK, hs_flag(set));
+        cmc_assert_equals(int32_t, cmc_flags.OK, hs_flag(set2));
+
+        size_t tmp = set->capacity;
+        set->capacity = 0;
+
+        struct hashset *set3 = hs_copy_of(set);
+        cmc_assert_equals(ptr, NULL, set3);
+
+        cmc_assert_equals(int32_t, cmc_flags.ERROR, hs_flag(set));
+
+        set->capacity = tmp;
+
+        cmc_assert(hs_equals(set, set2));
+        cmc_assert_equals(int32_t, cmc_flags.OK, hs_flag(set));
+        cmc_assert_equals(int32_t, cmc_flags.OK, hs_flag(set2));
+
+        hs_free(set);
+        hs_free(set2);
+    });
 });
