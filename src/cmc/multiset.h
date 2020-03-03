@@ -772,8 +772,8 @@ struct cmc_callbacks_multiset
     struct SNAME *PFX##_copy_of(struct SNAME *_set_)                           \
     {                                                                          \
         struct SNAME *result =                                                 \
-            PFX##_new_custom(_set_->capacity, _set_->load, _set_->f_val,       \
-                             _set_->alloc, _set_->callbacks);                  \
+            PFX##_new_custom(_set_->capacity * _set_->load, _set_->load,       \
+                             _set_->f_val, _set_->alloc, _set_->callbacks);    \
                                                                                \
         if (!result)                                                           \
             return NULL;                                                       \
