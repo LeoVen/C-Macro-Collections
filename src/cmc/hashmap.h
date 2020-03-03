@@ -343,6 +343,7 @@ struct cmc_callbacks_hashmap
     struct SNAME *PFX##_copy_of(struct SNAME *_map_);                         \
     bool PFX##_equals(struct SNAME *_map1_, struct SNAME *_map2_);            \
     struct cmc_string PFX##_to_string(struct SNAME *_map_);                   \
+    bool PFX##_print(struct SNAME *_map_, FILE *fptr);                        \
                                                                               \
     /* Iterator Functions */                                                  \
     /* Iterator Allocation and Deallocation */                                \
@@ -810,6 +811,8 @@ struct cmc_callbacks_hashmap
                                                                               \
     bool PFX##_resize(struct SNAME *_map_, size_t capacity)                   \
     {                                                                         \
+        _map_->flag = cmc_flags.OK;                                           \
+                                                                              \
         if (_map_->capacity == capacity)                                      \
             return true;                                                      \
                                                                               \
@@ -969,6 +972,23 @@ struct cmc_callbacks_hashmap
                          m_->alloc, m_->callbacks);                           \
                                                                               \
         return n >= 0 ? str : (struct cmc_string){ 0 };                       \
+    }                                                                         \
+                                                                              \
+    bool PFX##_print(struct SNAME *_map_, FILE *fptr)                         \
+    {                                                                         \
+        for (size_t i = 0; i < _map_->capacity; i++)                          \
+        {                                                                     \
+            struct SNAME##_entry *entry = &(_map_->buffer[i]);                \
+                                                                              \
+            if (entry->state == CMC_ES_FILLED)                                \
+            {                                                                 \
+                if (!_map_->f_key->str(fptr, entry->key) ||                   \
+                    !_map_->f_val->str(fptr, entry->value))                   \
+                    return false;                                             \
+            }                                                                 \
+        }                                                                     \
+                                                                              \
+        return true;                                                          \
     }                                                                         \
                                                                               \
     struct SNAME##_iter *PFX##_iter_new(struct SNAME *target)                 \

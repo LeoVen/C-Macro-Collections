@@ -243,11 +243,13 @@ struct cmc_callbacks_heap
     bool PFX##_full(struct SNAME *_heap_);                                   \
     size_t PFX##_count(struct SNAME *_heap_);                                \
     size_t PFX##_capacity(struct SNAME *_heap_);                             \
+    int PFX##_flag(struct SNAME *_heap_);                                    \
     /* Collection Utility */                                                 \
     bool PFX##_resize(struct SNAME *_heap_, size_t capacity);                \
     struct SNAME *PFX##_copy_of(struct SNAME *_heap_);                       \
     bool PFX##_equals(struct SNAME *_heap1_, struct SNAME *_heap2_);         \
     struct cmc_string PFX##_to_string(struct SNAME *_heap_);                 \
+    bool PFX##_print(struct SNAME *_heap_, FILE *fptr);                      \
                                                                              \
     /* Iterator Functions */                                                 \
     /* Iterator Allocation and Deallocation */                               \
@@ -377,6 +379,7 @@ struct cmc_callbacks_heap
         memset(_heap_->buffer, 0, sizeof(V) * _heap_->capacity);               \
                                                                                \
         _heap_->count = 0;                                                     \
+        _heap_->flag = cmc_flags.OK;                                           \
     }                                                                          \
                                                                                \
     void PFX##_free(struct SNAME *_heap_)                                      \
@@ -401,26 +404,36 @@ struct cmc_callbacks_heap
                                                                                \
         if (callbacks)                                                         \
             _heap_->callbacks = callbacks;                                     \
+                                                                               \
+        _heap_->flag = cmc_flags.OK;                                           \
     }                                                                          \
                                                                                \
     bool PFX##_insert(struct SNAME *_heap_, V element)                         \
     {                                                                          \
         if (PFX##_full(_heap_))                                                \
         {                                                                      \
-            if (!PFX##_resize(_heap_, PFX##_count(_heap_) * 2))                \
+            if (!PFX##_resize(_heap_, _heap_->count * 2))                      \
                 return false;                                                  \
         }                                                                      \
                                                                                \
         if (PFX##_empty(_heap_))                                               \
         {                                                                      \
             _heap_->buffer[_heap_->count++] = element;                         \
+                                                                               \
+            _heap_->flag = cmc_flags.OK;                                       \
+                                                                               \
             return true;                                                       \
         }                                                                      \
                                                                                \
         _heap_->buffer[_heap_->count++] = element;                             \
                                                                                \
         if (!PFX##_impl_float_up(_heap_, _heap_->count - 1))                   \
+        {                                                                      \
+            _heap_->flag = cmc_flags.ERROR;                                    \
             return false;                                                      \
+        }                                                                      \
+                                                                               \
+        _heap_->flag = cmc_flags.OK;                                           \
                                                                                \
         return true;                                                           \
     }                                                                          \
@@ -428,16 +441,26 @@ struct cmc_callbacks_heap
     bool PFX##_remove(struct SNAME *_heap_, V *result)                         \
     {                                                                          \
         if (PFX##_empty(_heap_))                                               \
+        {                                                                      \
+            _heap_->flag = cmc_flags.EMPTY;                                    \
             return false;                                                      \
+        }                                                                      \
                                                                                \
-        *result = _heap_->buffer[0];                                           \
+        if (result)                                                            \
+            *result = _heap_->buffer[0];                                       \
+                                                                               \
         _heap_->buffer[0] = _heap_->buffer[_heap_->count - 1];                 \
         _heap_->buffer[_heap_->count - 1] = (V){ 0 };                          \
                                                                                \
         _heap_->count--;                                                       \
                                                                                \
         if (!PFX##_impl_float_down(_heap_, 0))                                 \
+        {                                                                      \
+            _heap_->flag = cmc_flags.ERROR;                                    \
             return false;                                                      \
+        }                                                                      \
+                                                                               \
+        _heap_->flag = cmc_flags.OK;                                           \
                                                                                \
         return true;                                                           \
     }                                                                          \
@@ -445,13 +468,20 @@ struct cmc_callbacks_heap
     V PFX##_peek(struct SNAME *_heap_)                                         \
     {                                                                          \
         if (PFX##_empty(_heap_))                                               \
+        {                                                                      \
+            _heap_->flag = cmc_flags.EMPTY;                                    \
             return (V){ 0 };                                                   \
+        }                                                                      \
+                                                                               \
+        _heap_->flag = cmc_flags.OK;                                           \
                                                                                \
         return _heap_->buffer[0];                                              \
     }                                                                          \
                                                                                \
     bool PFX##_contains(struct SNAME *_heap_, V element)                       \
     {                                                                          \
+        _heap_->flag = cmc_flags.OK;                                           \
+                                                                               \
         for (size_t i = 0; i < _heap_->count; i++)                             \
         {                                                                      \
             if (_heap_->f_val->cmp(_heap_->buffer[i], element) == 0)           \
@@ -481,24 +511,37 @@ struct cmc_callbacks_heap
         return _heap_->capacity;                                               \
     }                                                                          \
                                                                                \
+    int PFX##_flag(struct SNAME *_heap_)                                       \
+    {                                                                          \
+        return _heap_->flag;                                                   \
+    }                                                                          \
+                                                                               \
     bool PFX##_resize(struct SNAME *_heap_, size_t capacity)                   \
     {                                                                          \
-        if (PFX##_capacity(_heap_) == capacity)                                \
+        if (_heap_->capacity == capacity)                                      \
             return true;                                                       \
                                                                                \
-        if (capacity < PFX##_count(_heap_))                                    \
+        if (capacity < _heap_->count)                                          \
+        {                                                                      \
+            _heap_->flag = cmc_flags.ERROR;                                    \
             return false;                                                      \
+        }                                                                      \
                                                                                \
         V *new_buffer =                                                        \
             _heap_->alloc->realloc(_heap_->buffer, sizeof(V) * capacity);      \
                                                                                \
         if (!new_buffer)                                                       \
+        {                                                                      \
+            _heap_->flag = cmc_flags.ALLOC;                                    \
             return false;                                                      \
+        }                                                                      \
                                                                                \
         /* TODO zero out new slots */                                          \
                                                                                \
         _heap_->buffer = new_buffer;                                           \
         _heap_->capacity = capacity;                                           \
+                                                                               \
+        _heap_->flag = cmc_flags.OK;                                           \
                                                                                \
         return true;                                                           \
     }                                                                          \
@@ -510,7 +553,10 @@ struct cmc_callbacks_heap
                              _heap_->alloc, _heap_->callbacks);                \
                                                                                \
         if (!result)                                                           \
+        {                                                                      \
+            _heap_->flag = cmc_flags.ERROR;                                    \
             return NULL;                                                       \
+        }                                                                      \
                                                                                \
         if (_heap_->f_val->cpy)                                                \
         {                                                                      \
@@ -522,15 +568,20 @@ struct cmc_callbacks_heap
                                                                                \
         result->count = _heap_->count;                                         \
                                                                                \
+        _heap_->flag = cmc_flags.OK;                                           \
+                                                                               \
         return result;                                                         \
     }                                                                          \
                                                                                \
     bool PFX##_equals(struct SNAME *_heap1_, struct SNAME *_heap2_)            \
     {                                                                          \
-        if (PFX##_count(_heap1_) != PFX##_count(_heap2_))                      \
+        _heap1_->flag = cmc_flags.OK;                                          \
+        _heap2_->flag = cmc_flags.OK;                                          \
+                                                                               \
+        if (_heap1_->count != _heap2_->count)                                  \
             return false;                                                      \
                                                                                \
-        for (size_t i = 0; i < PFX##_count(_heap1_); i++)                      \
+        for (size_t i = 0; i < _heap1_->count; i++)                            \
         {                                                                      \
             if (_heap1_->f_val->cmp(_heap1_->buffer[i], _heap2_->buffer[i]) != \
                 0)                                                             \
@@ -551,6 +602,17 @@ struct cmc_callbacks_heap
                          h_->flag, h_->f_val, h_->alloc, h_->callbacks);       \
                                                                                \
         return n >= 0 ? str : (struct cmc_string){ 0 };                        \
+    }                                                                          \
+                                                                               \
+    bool PFX##_print(struct SNAME *_heap_, FILE *fptr)                         \
+    {                                                                          \
+        for (size_t i = 0; i < _heap_->count; i++)                             \
+        {                                                                      \
+            if (!_heap_->f_val->str(fptr, _heap_->buffer[i]))                  \
+                return false;                                                  \
+        }                                                                      \
+                                                                               \
+        return true;                                                           \
     }                                                                          \
                                                                                \
     struct SNAME##_iter *PFX##_iter_new(struct SNAME *target)                  \
@@ -603,7 +665,7 @@ struct cmc_callbacks_heap
     {                                                                          \
         if (!PFX##_empty(iter->target))                                        \
         {                                                                      \
-            iter->cursor = PFX##_count(iter->target) - 1;                      \
+            iter->cursor = iter->target->count - 1;                            \
             iter->start = PFX##_empty(iter->target);                           \
             iter->end = true;                                                  \
         }                                                                      \
@@ -614,7 +676,7 @@ struct cmc_callbacks_heap
         if (iter->end)                                                         \
             return false;                                                      \
                                                                                \
-        if (iter->cursor + 1 == PFX##_count(iter->target))                     \
+        if (iter->cursor + 1 == iter->target->count)                           \
         {                                                                      \
             iter->end = true;                                                  \
             return false;                                                      \
@@ -651,13 +713,13 @@ struct cmc_callbacks_heap
         if (iter->start)                                                       \
             return false;                                                      \
                                                                                \
-        if (iter->cursor + 1 == PFX##_count(iter->target))                     \
+        if (iter->cursor + 1 == iter->target->count)                           \
         {                                                                      \
             iter->end = true;                                                  \
             return false;                                                      \
         }                                                                      \
                                                                                \
-        if (steps == 0 || iter->cursor + steps >= PFX##_count(iter->target))   \
+        if (steps == 0 || iter->cursor + steps >= iter->target->count)         \
             return false;                                                      \
                                                                                \
         iter->start = PFX##_empty(iter->target);                               \
@@ -696,7 +758,7 @@ struct cmc_callbacks_heap
     /* given index */                                                          \
     bool PFX##_iter_go_to(struct SNAME##_iter *iter, size_t index)             \
     {                                                                          \
-        if (index >= PFX##_count(iter->target))                                \
+        if (index >= iter->target->count)                                      \
             return false;                                                      \
                                                                                \
         if (iter->cursor > index)                                              \

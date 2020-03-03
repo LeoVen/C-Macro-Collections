@@ -309,6 +309,7 @@ struct cmc_callbacks_hashset
     struct SNAME *PFX##_copy_of(struct SNAME *_set_);                          \
     bool PFX##_equals(struct SNAME *_set1_, struct SNAME *_set2_);             \
     struct cmc_string PFX##_to_string(struct SNAME *_set_);                    \
+    bool PFX##_print(struct SNAME *_set_, FILE *fptr);                         \
                                                                                \
     /* Set Operations */                                                       \
     struct SNAME *PFX##_union(struct SNAME *_set1_, struct SNAME *_set2_);     \
@@ -564,12 +565,12 @@ struct cmc_callbacks_hashset
                                                                                \
     bool PFX##_remove(struct SNAME *_set_, V element)                          \
     {                                                                          \
-        if (PFX##_empty(_set_))\
-        {\
-            _set_->flag = cmc_flags.EMPTY;\
-            return false;\
-        }\
-        \
+        if (PFX##_empty(_set_))                                                \
+        {                                                                      \
+            _set_->flag = cmc_flags.EMPTY;                                     \
+            return false;                                                      \
+        }                                                                      \
+                                                                               \
         struct SNAME##_entry *result = PFX##_impl_get_entry(_set_, element);   \
                                                                                \
         if (result == NULL)                                                    \
@@ -691,6 +692,8 @@ struct cmc_callbacks_hashset
                                                                                \
     bool PFX##_resize(struct SNAME *_set_, size_t capacity)                    \
     {                                                                          \
+        _set_->flag = cmc_flags.OK;                                            \
+                                                                               \
         if (_set_->capacity == capacity)                                       \
             return true;                                                       \
                                                                                \
@@ -833,6 +836,22 @@ struct cmc_callbacks_hashset
                      s_->flag, s_->f_val, s_->alloc, s_->callbacks);           \
                                                                                \
         return n >= 0 ? str : (struct cmc_string){ 0 };                        \
+    }                                                                          \
+                                                                               \
+    bool PFX##_print(struct SNAME *_set_, FILE *fptr)                          \
+    {                                                                          \
+        for (size_t i = 0; i < _set_->capacity; i++)                           \
+        {                                                                      \
+            struct SNAME##_entry *entry = &(_set_->buffer[i]);                 \
+                                                                               \
+            if (entry->state == CMC_ES_FILLED)                                 \
+            {                                                                  \
+                if (!_set_->f_val->str(fptr, entry->value))                    \
+                    return false;                                              \
+            }                                                                  \
+        }                                                                      \
+                                                                               \
+        return true;                                                           \
     }                                                                          \
                                                                                \
     struct SNAME *PFX##_union(struct SNAME *_set1_, struct SNAME *_set2_)      \

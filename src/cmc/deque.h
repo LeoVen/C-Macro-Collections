@@ -547,11 +547,10 @@ struct cmc_callbacks_deque
                                                                                \
     bool PFX##_resize(struct SNAME *_deque_, size_t capacity)                  \
     {                                                                          \
+        _deque_->flag = cmc_flags.OK;                                          \
+                                                                               \
         if (_deque_->capacity == capacity)                                     \
-        {                                                                      \
-            _deque_->flag = cmc_flags.OK;                                      \
             return true;                                                       \
-        }                                                                      \
                                                                                \
         if (capacity < _deque_->count)                                         \
         {                                                                      \
@@ -580,8 +579,6 @@ struct cmc_callbacks_deque
         _deque_->capacity = capacity;                                          \
         _deque_->front = 0;                                                    \
         _deque_->back = _deque_->count;                                        \
-                                                                               \
-        _deque_->flag = cmc_flags.OK;                                          \
                                                                                \
         return true;                                                           \
     }                                                                          \

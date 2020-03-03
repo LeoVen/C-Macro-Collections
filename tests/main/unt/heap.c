@@ -168,4 +168,62 @@ CMC_CREATE_UNIT(heap_test, true, {
 
         h_free(h);
     });
+
+    CMC_CREATE_TEST(flags, {
+        struct heap *h = h_new(100, cmc_max_heap, h_ftab_val);
+
+        cmc_assert_not_equals(ptr, NULL, h);
+        cmc_assert_equals(int32_t, cmc_flags.OK, h_flag(h));
+
+        h->flag = cmc_flags.ERROR;
+
+        // insert
+        cmc_assert(h_insert(h, 10));
+        cmc_assert_equals(int32_t, cmc_flags.OK, h_flag(h));
+
+        h->flag = cmc_flags.ERROR;
+
+        // remove
+        cmc_assert(h_remove(h, NULL));
+        cmc_assert_equals(int32_t, cmc_flags.OK, h_flag(h));
+
+        cmc_assert(!h_remove(h, NULL));
+        cmc_assert_equals(int32_t, cmc_flags.EMPTY, h_flag(h));
+
+        // peek
+        cmc_assert(h_insert(h, 10));
+        h_peek(h);
+        cmc_assert_equals(int32_t, cmc_flags.OK, h_flag(h));
+        cmc_assert(h_remove(h, NULL));
+        h_peek(h);
+        cmc_assert_equals(int32_t, cmc_flags.EMPTY, h_flag(h));
+
+        // clear
+        h_clear(h);
+        cmc_assert_equals(int32_t, cmc_flags.OK, h_flag(h));
+
+        h->flag = cmc_flags.ERROR;
+
+        // contains
+        h_contains(h, 10);
+        cmc_assert_equals(int32_t, cmc_flags.OK, h_flag(h));
+
+        h->flag = cmc_flags.ERROR;
+
+        // copy of
+        struct heap *h2 = h_copy_of(h);
+        cmc_assert_equals(int32_t, cmc_flags.OK, h_flag(h));
+        cmc_assert_equals(int32_t, cmc_flags.OK, h_flag(h2));
+
+        h->flag = cmc_flags.ERROR;
+        h2->flag = cmc_flags.ERROR;
+
+        // equals
+        cmc_assert(h_equals(h, h2));
+        cmc_assert_equals(int32_t, cmc_flags.OK, h_flag(h));
+        cmc_assert_equals(int32_t, cmc_flags.OK, h_flag(h2));
+
+        h_free(h);
+        h_free(h2);
+    });
 });
