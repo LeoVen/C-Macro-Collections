@@ -218,8 +218,8 @@ struct cmc_callbacks_intervalheap
                          struct cmc_callbacks_intervalheap *callbacks);       \
     /* Collection Input and Output */                                         \
     bool PFX##_insert(struct SNAME *_heap_, V element);                       \
-    bool PFX##_remove_max(struct SNAME *_heap_, V *result);                   \
-    bool PFX##_remove_min(struct SNAME *_heap_, V *result);                   \
+    bool PFX##_remove_max(struct SNAME *_heap_);                              \
+    bool PFX##_remove_min(struct SNAME *_heap_);                              \
     /* Collection Update */                                                   \
     bool PFX##_update_max(struct SNAME *_heap_, V element);                   \
     bool PFX##_update_min(struct SNAME *_heap_, V element);                   \
@@ -232,11 +232,13 @@ struct cmc_callbacks_intervalheap
     bool PFX##_full(struct SNAME *_heap_);                                    \
     size_t PFX##_count(struct SNAME *_heap_);                                 \
     size_t PFX##_capacity(struct SNAME *_heap_);                              \
+    int PFX##_flag(struct SNAME *_heap_);                                     \
     /* Collection Utility */                                                  \
     bool PFX##_resize(struct SNAME *_heap_, size_t capacity);                 \
     struct SNAME *PFX##_copy_of(struct SNAME *_set_);                         \
     bool PFX##_equals(struct SNAME *_heap1_, struct SNAME *_heap2_);          \
     struct cmc_string PFX##_to_string(struct SNAME *_heap_);                  \
+    bool PFX##_print(struct SNAME *_heap_, FILE *fptr);                       \
                                                                               \
     /* Iterator Functions */                                                  \
     /* Iterator Allocation and Deallocation */                                \
@@ -276,7 +278,7 @@ struct cmc_callbacks_intervalheap
     {                                                                          \
         struct cmc_alloc_node *alloc = &cmc_alloc_node_default;                \
                                                                                \
-        if (capacity == 0 || capacity == UINT64_MAX)                           \
+        if (capacity == 0 || capacity == UINTMAX_MAX)                          \
             return NULL;                                                       \
                                                                                \
         if (!f_val)                                                            \
@@ -372,6 +374,7 @@ struct cmc_callbacks_intervalheap
                                                                                \
         _heap_->size = 0;                                                      \
         _heap_->count = 0;                                                     \
+        _heap_->flag = cmc_flags.OK;                                           \
     }                                                                          \
                                                                                \
     void PFX##_free(struct SNAME *_heap_)                                      \
@@ -397,17 +400,19 @@ struct cmc_callbacks_intervalheap
                                                                                \
         if (callbacks)                                                         \
             _heap_->callbacks = callbacks;                                     \
+                                                                               \
+        _heap_->flag = cmc_flags.OK;                                           \
     }                                                                          \
                                                                                \
     bool PFX##_insert(struct SNAME *_heap_, V element)                         \
     {                                                                          \
         if (PFX##_full(_heap_))                                                \
         {                                                                      \
-            if (!PFX##_resize(_heap_, PFX##_capacity(_heap_) * 4))             \
+            if (!PFX##_resize(_heap_, _heap_->capacity * 4))                   \
                 return false;                                                  \
         }                                                                      \
                                                                                \
-        if (PFX##_count(_heap_) % 2 == 0)                                      \
+        if (_heap_->count % 2 == 0)                                            \
         {                                                                      \
             /* Occupying a new node */                                         \
             _heap_->buffer[_heap_->size].data[0] = element;                    \
@@ -434,8 +439,9 @@ struct cmc_callbacks_intervalheap
         }                                                                      \
                                                                                \
         _heap_->count++;                                                       \
+        _heap_->flag = cmc_flags.OK;                                           \
                                                                                \
-        if (PFX##_count(_heap_) <= 2)                                          \
+        if (_heap_->count <= 2)                                                \
             return true;                                                       \
                                                                                \
         /* Determine wheather to do a MaxHeap insert or a MinHeap insert */    \
@@ -451,29 +457,31 @@ struct cmc_callbacks_intervalheap
         return true;                                                           \
     }                                                                          \
                                                                                \
-    bool PFX##_remove_max(struct SNAME *_heap_, V *result)                     \
+    bool PFX##_remove_max(struct SNAME *_heap_)                                \
     {                                                                          \
         if (PFX##_empty(_heap_))                                               \
-            return false;                                                      \
-                                                                               \
-        if (PFX##_count(_heap_) == 1)                                          \
         {                                                                      \
-            *result = _heap_->buffer[0].data[0];                               \
+            _heap_->flag = cmc_flags.EMPTY;                                    \
+            return false;                                                      \
+        }                                                                      \
                                                                                \
+        if (_heap_->count == 1)                                                \
+        {                                                                      \
             _heap_->buffer[0].data[0] = (V){ 0 };                              \
                                                                                \
             _heap_->count--;                                                   \
+            _heap_->size--;                                                    \
+                                                                               \
+            _heap_->flag = cmc_flags.OK;                                       \
                                                                                \
             return true;                                                       \
         }                                                                      \
-        else                                                                   \
-            *result = _heap_->buffer[0].data[1];                               \
                                                                                \
         /* Swap the result with the last element in the MaxHeap and float */   \
         /* it down */                                                          \
         struct SNAME##_node *last_node = &(_heap_->buffer[_heap_->size - 1]);  \
                                                                                \
-        if (PFX##_count(_heap_) % 2 == 1)                                      \
+        if (_heap_->count % 2 == 1)                                            \
         {                                                                      \
             /* Grab from MinHeap and discard last node */                      \
             _heap_->buffer[0].data[1] = last_node->data[0];                    \
@@ -490,6 +498,7 @@ struct cmc_callbacks_intervalheap
         }                                                                      \
                                                                                \
         _heap_->count--;                                                       \
+        _heap_->flag = cmc_flags.OK;                                           \
                                                                                \
         /* FLoat Down on the MaxHeap */                                        \
         PFX##_impl_float_down_max(_heap_);                                     \
@@ -497,18 +506,22 @@ struct cmc_callbacks_intervalheap
         return true;                                                           \
     }                                                                          \
                                                                                \
-    bool PFX##_remove_min(struct SNAME *_heap_, V *result)                     \
+    bool PFX##_remove_min(struct SNAME *_heap_)                                \
     {                                                                          \
         if (PFX##_empty(_heap_))                                               \
+        {                                                                      \
+            _heap_->flag = cmc_flags.EMPTY;                                    \
             return false;                                                      \
+        }                                                                      \
                                                                                \
-        *result = _heap_->buffer[0].data[0];                                   \
-                                                                               \
-        if (PFX##_count(_heap_) == 1)                                          \
+        if (_heap_->count == 1)                                                \
         {                                                                      \
             _heap_->buffer[0].data[0] = (V){ 0 };                              \
                                                                                \
             _heap_->count--;                                                   \
+            _heap_->size--;                                                    \
+                                                                               \
+            _heap_->flag = cmc_flags.OK;                                       \
                                                                                \
             return true;                                                       \
         }                                                                      \
@@ -519,7 +532,7 @@ struct cmc_callbacks_intervalheap
                                                                                \
         _heap_->buffer[0].data[0] = last_node->data[0];                        \
                                                                                \
-        if (PFX##_count(_heap_) % 2 == 1)                                      \
+        if (_heap_->count % 2 == 1)                                            \
         {                                                                      \
             /* Discard last node */                                            \
             last_node->data[0] = (V){ 0 };                                     \
@@ -534,6 +547,7 @@ struct cmc_callbacks_intervalheap
         }                                                                      \
                                                                                \
         _heap_->count--;                                                       \
+        _heap_->flag = cmc_flags.OK;                                           \
                                                                                \
         /* FLoat Down on the MinHeap */                                        \
         PFX##_impl_float_down_min(_heap_);                                     \
@@ -544,9 +558,12 @@ struct cmc_callbacks_intervalheap
     bool PFX##_update_max(struct SNAME *_heap_, V element)                     \
     {                                                                          \
         if (PFX##_empty(_heap_))                                               \
+        {                                                                      \
+            _heap_->flag = cmc_flags.EMPTY;                                    \
             return false;                                                      \
+        }                                                                      \
                                                                                \
-        if (PFX##_count(_heap_) == 1)                                          \
+        if (_heap_->count == 1)                                                \
         {                                                                      \
             _heap_->buffer[0].data[0] = element;                               \
         }                                                                      \
@@ -567,15 +584,20 @@ struct cmc_callbacks_intervalheap
             PFX##_impl_float_down_max(_heap_);                                 \
         }                                                                      \
                                                                                \
+        _heap_->flag = cmc_flags.OK;                                           \
+                                                                               \
         return true;                                                           \
     }                                                                          \
                                                                                \
     bool PFX##_update_min(struct SNAME *_heap_, V element)                     \
     {                                                                          \
         if (PFX##_empty(_heap_))                                               \
+        {                                                                      \
+            _heap_->flag = cmc_flags.EMPTY;                                    \
             return false;                                                      \
+        }                                                                      \
                                                                                \
-        if (PFX##_count(_heap_) == 1)                                          \
+        if (_heap_->count == 1)                                                \
         {                                                                      \
             _heap_->buffer[0].data[0] = element;                               \
         }                                                                      \
@@ -596,20 +618,27 @@ struct cmc_callbacks_intervalheap
             PFX##_impl_float_down_min(_heap_);                                 \
         }                                                                      \
                                                                                \
+        _heap_->flag = cmc_flags.OK;                                           \
+                                                                               \
         return true;                                                           \
     }                                                                          \
                                                                                \
     bool PFX##_max(struct SNAME *_heap_, V *value)                             \
     {                                                                          \
         if (PFX##_empty(_heap_))                                               \
+        {                                                                      \
+            _heap_->flag = cmc_flags.EMPTY;                                    \
             return false;                                                      \
+        }                                                                      \
                                                                                \
         /* If there is only one element, then the maximum element is the */    \
         /* same as the one in the MinHeap */                                   \
-        if (PFX##_count(_heap_) == 1)                                          \
+        if (_heap_->count == 1)                                                \
             *value = _heap_->buffer[0].data[0];                                \
         else                                                                   \
             *value = _heap_->buffer[0].data[1];                                \
+                                                                               \
+        _heap_->flag = cmc_flags.OK;                                           \
                                                                                \
         return true;                                                           \
     }                                                                          \
@@ -617,15 +646,22 @@ struct cmc_callbacks_intervalheap
     bool PFX##_min(struct SNAME *_heap_, V *value)                             \
     {                                                                          \
         if (PFX##_empty(_heap_))                                               \
+        {                                                                      \
+            _heap_->flag = cmc_flags.EMPTY;                                    \
             return false;                                                      \
+        }                                                                      \
                                                                                \
         *value = _heap_->buffer[0].data[0];                                    \
+                                                                               \
+        _heap_->flag = cmc_flags.OK;                                           \
                                                                                \
         return true;                                                           \
     }                                                                          \
                                                                                \
     bool PFX##_contains(struct SNAME *_heap_, V element)                       \
     {                                                                          \
+        _heap_->flag = cmc_flags.OK;                                           \
+                                                                               \
         for (size_t i = 0; i < _heap_->count; i++)                             \
         {                                                                      \
             if (_heap_->f_val->cmp(_heap_->buffer[i / 2].data[i % 2],          \
@@ -657,13 +693,23 @@ struct cmc_callbacks_intervalheap
         return _heap_->capacity;                                               \
     }                                                                          \
                                                                                \
+    int PFX##_flag(struct SNAME *_heap_)                                       \
+    {                                                                          \
+        return _heap_->flag;                                                   \
+    }                                                                          \
+                                                                               \
     bool PFX##_resize(struct SNAME *_heap_, size_t capacity)                   \
     {                                                                          \
-        if (PFX##_capacity(_heap_) == capacity)                                \
+        _heap_->flag = cmc_flags.OK;                                           \
+                                                                               \
+        if (_heap_->capacity == capacity)                                      \
             return true;                                                       \
                                                                                \
-        if (capacity < PFX##_count(_heap_))                                    \
+        if (capacity < _heap_->count)                                          \
+        {                                                                      \
+            _heap_->flag = cmc_flags.ERROR;                                    \
             return false;                                                      \
+        }                                                                      \
                                                                                \
         capacity = capacity % 2 == 0 ? capacity / 2 : (capacity + 1) / 2;      \
                                                                                \
@@ -671,7 +717,10 @@ struct cmc_callbacks_intervalheap
             _heap_->buffer, sizeof(struct SNAME##_node) * capacity);           \
                                                                                \
         if (!new_buffer)                                                       \
+        {                                                                      \
+            _heap_->flag = cmc_flags.ALLOC;                                    \
             return false;                                                      \
+        }                                                                      \
                                                                                \
         memset(new_buffer + _heap_->capacity, 0,                               \
                sizeof(struct SNAME##_node) * _heap_->capacity);                \
@@ -687,7 +736,10 @@ struct cmc_callbacks_intervalheap
         struct SNAME *result = _heap_->alloc->malloc(sizeof(struct SNAME));    \
                                                                                \
         if (!result)                                                           \
+        {                                                                      \
+            _heap_->flag = cmc_flags.ALLOC;                                    \
             return NULL;                                                       \
+        }                                                                      \
                                                                                \
         memcpy(result, _heap_, sizeof(struct SNAME));                          \
                                                                                \
@@ -697,6 +749,7 @@ struct cmc_callbacks_intervalheap
         if (!result->buffer)                                                   \
         {                                                                      \
             _heap_->alloc->free(result);                                       \
+            _heap_->flag = cmc_flags.ALLOC;                                    \
             return NULL;                                                       \
         }                                                                      \
                                                                                \
@@ -710,15 +763,27 @@ struct cmc_callbacks_intervalheap
             memcpy(result->buffer, _heap_->buffer,                             \
                    sizeof(struct SNAME##_node) * _heap_->capacity);            \
                                                                                \
+        result->capacity = _heap_->capacity;                                   \
+        result->size = _heap_->size;                                           \
+        result->count = _heap_->count;                                         \
+        result->flag = cmc_flags.OK;                                           \
+        result->f_val = _heap_->f_val;                                         \
         result->alloc = _heap_->alloc;                                         \
         result->callbacks = _heap_->callbacks;                                 \
+        result->it_start = PFX##_impl_it_start;                                \
+        result->it_end = PFX##_impl_it_end;                                    \
+                                                                               \
+        _heap_->flag = cmc_flags.OK;                                           \
                                                                                \
         return result;                                                         \
     }                                                                          \
                                                                                \
     bool PFX##_equals(struct SNAME *_heap1_, struct SNAME *_heap2_)            \
     {                                                                          \
-        if (PFX##_count(_heap1_) != PFX##_count(_heap2_))                      \
+        _heap1_->flag = cmc_flags.OK;                                          \
+        _heap2_->flag = cmc_flags.OK;                                          \
+                                                                               \
+        if (_heap1_->count != _heap2_->count)                                  \
             return false;                                                      \
                                                                                \
         for (size_t i = 0; i < _heap1_->count; i++)                            \
@@ -744,6 +809,17 @@ struct cmc_callbacks_intervalheap
                          h_->callbacks);                                       \
                                                                                \
         return n >= 0 ? str : (struct cmc_string){ 0 };                        \
+    }                                                                          \
+                                                                               \
+    bool PFX##_print(struct SNAME *_heap_, FILE *fptr)                         \
+    {                                                                          \
+        for (size_t i = 0; i < _heap_->count; i++)                             \
+        {                                                                      \
+            if (!_heap_->f_val->str(fptr, _heap_->buffer[i / 2].data[i % 2]))  \
+                return false;                                                  \
+        }                                                                      \
+                                                                               \
+        return true;                                                           \
     }                                                                          \
                                                                                \
     struct SNAME##_iter *PFX##_iter_new(struct SNAME *target)                  \
@@ -807,7 +883,7 @@ struct cmc_callbacks_intervalheap
         if (iter->end)                                                         \
             return false;                                                      \
                                                                                \
-        if (iter->cursor + 1 == PFX##_count(iter->target))                     \
+        if (iter->cursor + 1 == iter->target->count)                           \
         {                                                                      \
             iter->end = true;                                                  \
             return false;                                                      \
@@ -850,7 +926,7 @@ struct cmc_callbacks_intervalheap
             return false;                                                      \
         }                                                                      \
                                                                                \
-        if (steps == 0 || iter->cursor + steps >= PFX##_count(iter->target))   \
+        if (steps == 0 || iter->cursor + steps >= iter->target->count)         \
             return false;                                                      \
                                                                                \
         iter->start = PFX##_empty(iter->target);                               \
@@ -886,7 +962,7 @@ struct cmc_callbacks_intervalheap
     /* given index */                                                          \
     bool PFX##_iter_go_to(struct SNAME##_iter *iter, size_t index)             \
     {                                                                          \
-        if (index >= PFX##_count(iter->target))                                \
+        if (index >= iter->target->count)                                      \
             return false;                                                      \
                                                                                \
         if (iter->cursor > index)                                              \
@@ -924,7 +1000,7 @@ struct cmc_callbacks_intervalheap
                                                                                \
             struct SNAME##_node *parent = &(_heap_->buffer[P_index]);          \
                                                                                \
-            if (index == _heap_->size - 1 && PFX##_count(_heap_) % 2 != 0)     \
+            if (index == _heap_->size - 1 && _heap_->count % 2 != 0)           \
             {                                                                  \
                 /* In this case, the current node has no MaxHeap value so */   \
                 /* we instead compare with the MinHeap value */                \
@@ -1014,8 +1090,7 @@ struct cmc_callbacks_intervalheap
                 /* If the right child is the last node and there is no */      \
                 /* MaxHeap value */                                            \
                 /* then do the comparison with the MinHeap value */            \
-                if (R_index == _heap_->size - 1 &&                             \
-                    PFX##_count(_heap_) % 2 != 0)                              \
+                if (R_index == _heap_->size - 1 && _heap_->count % 2 != 0)     \
                     child = _heap_->f_val->cmp(L->data[1], R->data[0]) > 0     \
                                 ? L_index                                      \
                                 : R_index;                                     \
@@ -1032,7 +1107,7 @@ struct cmc_callbacks_intervalheap
                                                                                \
             /* Again, check if the child node is the last one and has no */    \
             /* MaxHeap value */                                                \
-            if (child == _heap_->size - 1 && PFX##_count(_heap_) % 2 != 0)     \
+            if (child == _heap_->size - 1 && _heap_->count % 2 != 0)           \
             {                                                                  \
                 /* Odd case, compare with MinHeap value */                     \
                 /* If current value is not less than the child node's */       \
@@ -1125,7 +1200,7 @@ struct cmc_callbacks_intervalheap
                                                                                \
             /* If the child node is the last node check if the MinHeap and */  \
             /* MaxHeap values need to be swapped */                            \
-            if (child != _heap_->size - 1 || PFX##_count(_heap_) % 2 == 0)     \
+            if (child != _heap_->size - 1 || _heap_->count % 2 == 0)           \
             {                                                                  \
                 if (_heap_->f_val->cmp(child_node->data[0],                    \
                                        child_node->data[1]) > 0)               \

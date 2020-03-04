@@ -120,23 +120,151 @@ CMC_CREATE_UNIT(intervalheap_test, true, {
         ih_free(ih);
     });
 
-    CMC_CREATE_TEST(insert[max min], {
+    CMC_CREATE_TEST(insert[max], {
         struct intervalheap *ih = ih_new(1, ih_ftab_val);
+
+        cmc_assert(ih_insert(ih, 0));
+        cmc_assert(ih_insert(ih, 1));
+        cmc_assert(ih_insert(ih, 2));
+
+        size_t r;
+        cmc_assert(ih_max(ih, &r));
+
+        cmc_assert_equals(size_t, 2, r);
+
+        ih_free(ih);
+    });
+
+    CMC_CREATE_TEST(insert[min], {
+        struct intervalheap *ih = ih_new(1, ih_ftab_val);
+
+        cmc_assert(ih_insert(ih, 0));
+        cmc_assert(ih_insert(ih, 1));
+        cmc_assert(ih_insert(ih, 2));
+
+        size_t r;
+        cmc_assert(ih_min(ih, &r));
+
+        cmc_assert_equals(size_t, 0, r);
+
+        ih_free(ih);
+    });
+
+    CMC_CREATE_TEST(insert[remove_max remove_min], {
+        struct intervalheap *ih = ih_new(100, ih_ftab_val);
 
         cmc_assert_not_equals(ptr, NULL, ih);
 
+        cmc_assert(ih_insert(ih, 2));
+        cmc_assert_equals(size_t, 2, ih->buffer[0].data[0]);
+
         cmc_assert(ih_insert(ih, 1));
-        cmc_assert(ih_insert(ih, 0));
+        cmc_assert_equals(size_t, 1, ih->buffer[0].data[0]);
+        cmc_assert_equals(size_t, 2, ih->buffer[0].data[1]);
 
-        size_t min;
-        size_t max;
+        cmc_assert(ih_remove_min(ih));
+        cmc_assert_equals(size_t, 2, ih->buffer[0].data[0]);
 
-        cmc_assert(ih_min(ih, &min));
-        cmc_assert(ih_max(ih, &max));
+        cmc_assert(ih_insert(ih, 1));
+        cmc_assert_equals(size_t, 1, ih->buffer[0].data[0]);
+        cmc_assert_equals(size_t, 2, ih->buffer[0].data[1]);
 
-        cmc_assert_equals(size_t, 0, min);
-        cmc_assert_equals(size_t, 1, max);
+        cmc_assert(ih_remove_max(ih));
+        cmc_assert_equals(size_t, 1, ih->buffer[0].data[0]);
 
         ih_free(ih);
+    });
+
+    CMC_CREATE_TEST(flags, {
+        struct intervalheap *ih = ih_new(100, ih_ftab_val);
+
+        cmc_assert_not_equals(ptr, NULL, ih);
+        cmc_assert_equals(int32_t, cmc_flags.OK, ih_flag(ih));
+
+        ih->flag = cmc_flags.ERROR;
+
+        // clear
+        ih_clear(ih);
+        cmc_assert_equals(int32_t, cmc_flags.OK, ih_flag(ih));
+
+        // customize
+        ih->flag = cmc_flags.ERROR;
+        ih_customize(ih, NULL, NULL);
+        cmc_assert_equals(int32_t, cmc_flags.OK, ih_flag(ih));
+
+        // insert
+        ih->flag = cmc_flags.ERROR;
+        cmc_assert(ih_insert(ih, 10));
+        cmc_assert_equals(int32_t, cmc_flags.OK, ih_flag(ih));
+
+        // remove_max
+        cmc_assert(ih_remove_max(ih));
+        cmc_assert_equals(int32_t, cmc_flags.OK, ih_flag(ih));
+        cmc_assert(!ih_remove_max(ih));
+        cmc_assert_equals(int32_t, cmc_flags.EMPTY, ih_flag(ih));
+
+        // remove min
+        cmc_assert(ih_insert(ih, 10));
+        cmc_assert(ih_remove_min(ih));
+        cmc_assert_equals(int32_t, cmc_flags.OK, ih_flag(ih));
+        cmc_assert(!ih_remove_min(ih));
+        cmc_assert_equals(int32_t, cmc_flags.EMPTY, ih_flag(ih));
+
+        // update_max
+        cmc_assert(!ih_update_max(ih, 20));
+        cmc_assert_equals(int32_t, cmc_flags.EMPTY, ih_flag(ih));
+        cmc_assert(ih_insert(ih, 10));
+        ih->flag = cmc_flags.ERROR;
+        cmc_assert(ih_update_max(ih, 20));
+        cmc_assert_equals(int32_t, cmc_flags.OK, ih_flag(ih));
+
+        // update_min
+        ih->flag = cmc_flags.ERROR;
+        cmc_assert(ih_update_min(ih, 20));
+        cmc_assert_equals(int32_t, cmc_flags.OK, ih_flag(ih));
+        cmc_assert(ih_remove_min(ih));
+        ih->flag = cmc_flags.ERROR;
+        cmc_assert(!ih_update_max(ih, 20));
+        cmc_assert_equals(int32_t, cmc_flags.EMPTY, ih_flag(ih));
+
+        // max min
+        size_t r;
+        ih->flag = cmc_flags.ERROR;
+        cmc_assert(!ih_max(ih, &r));
+        cmc_assert_equals(int32_t, cmc_flags.EMPTY, ih_flag(ih));
+
+        ih->flag = cmc_flags.ERROR;
+        cmc_assert(!ih_min(ih, &r));
+        cmc_assert_equals(int32_t, cmc_flags.EMPTY, ih_flag(ih));
+
+        cmc_assert(ih_insert(ih, 10));
+        ih->flag = cmc_flags.ERROR;
+        cmc_assert(ih_max(ih, &r));
+        cmc_assert_equals(int32_t, cmc_flags.OK, ih_flag(ih));
+
+        ih->flag = cmc_flags.ERROR;
+        cmc_assert(ih_max(ih, &r));
+        cmc_assert_equals(int32_t, cmc_flags.OK, ih_flag(ih));
+
+        // contains
+        ih->flag = cmc_flags.ERROR;
+        cmc_assert(ih_contains(ih, 10));
+        cmc_assert_equals(int32_t, cmc_flags.OK, ih_flag(ih));
+
+        // copy_of
+        ih->flag = cmc_flags.ERROR;
+        struct intervalheap *ih2 = ih_copy_of(ih);
+        cmc_assert_equals(int32_t, cmc_flags.OK, ih_flag(ih));
+        cmc_assert_equals(int32_t, cmc_flags.OK, ih_flag(ih2));
+
+        // equals
+        ih->flag = cmc_flags.ERROR;
+        ih2->flag = cmc_flags.ERROR;
+        cmc_assert(ih_equals(ih, ih2));
+        cmc_assert_equals(int32_t, cmc_flags.OK, ih_flag(ih));
+        cmc_assert_equals(int32_t, cmc_flags.OK, ih_flag(ih2));
+
+        ih_free(ih);
+        ih_free(ih2);
     });
 });
