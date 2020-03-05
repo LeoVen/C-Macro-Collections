@@ -242,6 +242,7 @@ struct cmc_callbacks_linkedlist
     bool PFX##_contains(struct SNAME *_list_, V element);                    \
     bool PFX##_empty(struct SNAME *_list_);                                  \
     size_t PFX##_count(struct SNAME *_list_);                                \
+    int PFX##_flag(struct SNAME *_list_);                                    \
     /* Collection Utility */                                                 \
     struct SNAME *PFX##_copy_of(struct SNAME *_list_);                       \
     bool PFX##_equals(struct SNAME *_list1_, struct SNAME *_list2_);         \
@@ -256,16 +257,13 @@ struct cmc_callbacks_linkedlist
     struct SNAME##_node *PFX##_get_node(struct SNAME *_list_, size_t index); \
     struct SNAME##_node *PFX##_tail(struct SNAME *_list_);                   \
     /* Input and Output Relative to a Node */                                \
-    bool PFX##_insert_after(struct SNAME *_owner_,                           \
-                            struct SNAME##_node *_node_, V element);         \
-    bool PFX##_insert_before(struct SNAME *_owner_,                          \
-                             struct SNAME##_node *_node_, V element);        \
-    bool PFX##_remove_after(struct SNAME *_owner_,                           \
-                            struct SNAME##_node *_node_);                    \
-    bool PFX##_remove_current(struct SNAME *_owner_,                         \
-                              struct SNAME##_node *_node_);                  \
-    bool PFX##_remove_before(struct SNAME *_owner_,                          \
-                             struct SNAME##_node *_node_);                   \
+    bool PFX##_add_next(struct SNAME *_owner_, struct SNAME##_node *_node_,  \
+                        V element);                                          \
+    bool PFX##_add_prev(struct SNAME *_owner_, struct SNAME##_node *_node_,  \
+                        V element);                                          \
+    bool PFX##_del_next(struct SNAME *_owner_, struct SNAME##_node *_node_); \
+    bool PFX##_del_curr(struct SNAME *_owner_, struct SNAME##_node *_node_); \
+    bool PFX##_del_prev(struct SNAME *_owner_, struct SNAME##_node *_node_); \
     /* Node Access Relative to a Linked List Node */                         \
     struct SNAME##_node *PFX##_next_node(struct SNAME##_node *_node_);       \
     struct SNAME##_node *PFX##_prev_node(struct SNAME##_node *_node_);       \
@@ -376,6 +374,7 @@ struct cmc_callbacks_linkedlist
         _list_->count = 0;                                                     \
         _list_->head = NULL;                                                   \
         _list_->tail = NULL;                                                   \
+        _list_->flag = cmc_flags.OK;                                           \
     }                                                                          \
                                                                                \
     void PFX##_free(struct SNAME *_list_)                                      \
@@ -393,6 +392,8 @@ struct cmc_callbacks_linkedlist
                                                                                \
         if (callbacks)                                                         \
             _list_->callbacks = callbacks;                                     \
+                                                                               \
+        _list_->flag = cmc_flags.OK;                                           \
     }                                                                          \
                                                                                \
     bool PFX##_push_front(struct SNAME *_list_, V element)                     \
@@ -415,6 +416,7 @@ struct cmc_callbacks_linkedlist
         }                                                                      \
                                                                                \
         _list_->count++;                                                       \
+        _list_->flag = cmc_flags.OK;                                           \
                                                                                \
         return true;                                                           \
     }                                                                          \
@@ -422,7 +424,10 @@ struct cmc_callbacks_linkedlist
     bool PFX##_push_at(struct SNAME *_list_, V element, size_t index)          \
     {                                                                          \
         if (index > _list_->count)                                             \
+        {                                                                      \
+            _list_->flag = cmc_flags.OUT_OF_RANGE;                             \
             return false;                                                      \
+        }                                                                      \
                                                                                \
         if (index == 0)                                                        \
         {                                                                      \
@@ -446,6 +451,7 @@ struct cmc_callbacks_linkedlist
         _node_->prev->next = _node_;                                           \
                                                                                \
         _list_->count++;                                                       \
+        _list_->flag = cmc_flags.OK;                                           \
                                                                                \
         return true;                                                           \
     }                                                                          \
@@ -470,6 +476,7 @@ struct cmc_callbacks_linkedlist
         }                                                                      \
                                                                                \
         _list_->count++;                                                       \
+        _list_->flag = cmc_flags.OK;                                           \
                                                                                \
         return true;                                                           \
     }                                                                          \
@@ -477,7 +484,10 @@ struct cmc_callbacks_linkedlist
     bool PFX##_pop_front(struct SNAME *_list_)                                 \
     {                                                                          \
         if (PFX##_empty(_list_))                                               \
+        {                                                                      \
+            _list_->flag = cmc_flags.EMPTY;                                    \
             return false;                                                      \
+        }                                                                      \
                                                                                \
         struct SNAME##_node *_node_ = _list_->head;                            \
         _list_->head = _list_->head->next;                                     \
@@ -490,6 +500,7 @@ struct cmc_callbacks_linkedlist
             _list_->head->prev = NULL;                                         \
                                                                                \
         _list_->count--;                                                       \
+        _list_->flag = cmc_flags.OK;                                           \
                                                                                \
         return true;                                                           \
     }                                                                          \
@@ -497,10 +508,16 @@ struct cmc_callbacks_linkedlist
     bool PFX##_pop_at(struct SNAME *_list_, size_t index)                      \
     {                                                                          \
         if (PFX##_empty(_list_))                                               \
+        {                                                                      \
+            _list_->flag = cmc_flags.EMPTY;                                    \
             return false;                                                      \
+        }                                                                      \
                                                                                \
         if (index >= _list_->count)                                            \
+        {                                                                      \
+            _list_->flag = cmc_flags.OUT_OF_RANGE;                             \
             return false;                                                      \
+        }                                                                      \
                                                                                \
         if (index == 0)                                                        \
         {                                                                      \
@@ -522,6 +539,7 @@ struct cmc_callbacks_linkedlist
         _list_->alloc->free(_node_);                                           \
                                                                                \
         _list_->count--;                                                       \
+        _list_->flag = cmc_flags.OK;                                           \
                                                                                \
         return true;                                                           \
     }                                                                          \
@@ -529,7 +547,10 @@ struct cmc_callbacks_linkedlist
     bool PFX##_pop_back(struct SNAME *_list_)                                  \
     {                                                                          \
         if (PFX##_empty(_list_))                                               \
+        {                                                                      \
+            _list_->flag = cmc_flags.EMPTY;                                    \
             return false;                                                      \
+        }                                                                      \
                                                                                \
         struct SNAME##_node *_node_ = _list_->tail;                            \
         _list_->tail = _list_->tail->prev;                                     \
@@ -542,6 +563,7 @@ struct cmc_callbacks_linkedlist
             _list_->tail->next = NULL;                                         \
                                                                                \
         _list_->count--;                                                       \
+        _list_->flag = cmc_flags.OK;                                           \
                                                                                \
         return true;                                                           \
     }                                                                          \
@@ -549,15 +571,29 @@ struct cmc_callbacks_linkedlist
     V PFX##_front(struct SNAME *_list_)                                        \
     {                                                                          \
         if (PFX##_empty(_list_))                                               \
+        {                                                                      \
+            _list_->flag = cmc_flags.EMPTY;                                    \
             return (V){ 0 };                                                   \
+        }                                                                      \
+                                                                               \
+        _list_->flag = cmc_flags.OK;                                           \
                                                                                \
         return _list_->head->data;                                             \
     }                                                                          \
                                                                                \
     V PFX##_get(struct SNAME *_list_, size_t index)                            \
     {                                                                          \
-        if (index >= _list_->count || PFX##_empty(_list_))                     \
+        if (PFX##_empty(_list_))                                               \
+        {                                                                      \
+            _list_->flag = cmc_flags.EMPTY;                                    \
             return (V){ 0 };                                                   \
+        }                                                                      \
+                                                                               \
+        if (index >= _list_->count)                                            \
+        {                                                                      \
+            _list_->flag = cmc_flags.OUT_OF_RANGE;                             \
+            return (V){ 0 };                                                   \
+        }                                                                      \
                                                                                \
         struct SNAME##_node *scan = PFX##_get_node(_list_, index);             \
                                                                                \
@@ -569,11 +605,17 @@ struct cmc_callbacks_linkedlist
                                                                                \
     V *PFX##_get_ref(struct SNAME *_list_, size_t index)                       \
     {                                                                          \
-        if (index >= _list_->count)                                            \
-            return NULL;                                                       \
-                                                                               \
         if (PFX##_empty(_list_))                                               \
+        {                                                                      \
+            _list_->flag = cmc_flags.EMPTY;                                    \
             return NULL;                                                       \
+        }                                                                      \
+                                                                               \
+        if (index >= _list_->count)                                            \
+        {                                                                      \
+            _list_->flag = cmc_flags.OUT_OF_RANGE;                             \
+            return NULL;                                                       \
+        }                                                                      \
                                                                                \
         struct SNAME##_node *scan = PFX##_get_node(_list_, index);             \
                                                                                \
@@ -586,13 +628,20 @@ struct cmc_callbacks_linkedlist
     V PFX##_back(struct SNAME *_list_)                                         \
     {                                                                          \
         if (PFX##_empty(_list_))                                               \
+        {                                                                      \
+            _list_->flag = cmc_flags.EMPTY;                                    \
             return (V){ 0 };                                                   \
+        }                                                                      \
+                                                                               \
+        _list_->flag = cmc_flags.OK;                                           \
                                                                                \
         return _list_->tail->data;                                             \
     }                                                                          \
                                                                                \
     bool PFX##_contains(struct SNAME *_list_, V element)                       \
     {                                                                          \
+        _list_->flag = cmc_flags.OK;                                           \
+                                                                               \
         struct SNAME##_node *scan = _list_->head;                              \
                                                                                \
         while (scan != NULL)                                                   \
@@ -614,6 +663,11 @@ struct cmc_callbacks_linkedlist
     size_t PFX##_count(struct SNAME *_list_)                                   \
     {                                                                          \
         return _list_->count;                                                  \
+    }                                                                          \
+                                                                               \
+    int PFX##_flag(struct SNAME *_list_)                                       \
+    {                                                                          \
+        return _list_->flag;                                                   \
     }                                                                          \
                                                                                \
     struct SNAME *PFX##_copy_of(struct SNAME *_list_)                          \
@@ -655,12 +709,17 @@ struct cmc_callbacks_linkedlist
                                                                                \
         result->count = _list_->count;                                         \
                                                                                \
+        _list_->flag = cmc_flags.OK;                                           \
+                                                                               \
         return result;                                                         \
     }                                                                          \
                                                                                \
     bool PFX##_equals(struct SNAME *_list1_, struct SNAME *_list2_)            \
     {                                                                          \
-        if (PFX##_count(_list1_) != PFX##_count(_list2_))                      \
+        _list1_->flag = cmc_flags.OK;                                          \
+        _list2_->flag = cmc_flags.OK;                                          \
+                                                                               \
+        if (_list1_->count != _list2_->count)                                  \
             return false;                                                      \
                                                                                \
         struct SNAME##_node *scan1 = _list1_->head;                            \
@@ -696,7 +755,10 @@ struct cmc_callbacks_linkedlist
             _list_->alloc->malloc(sizeof(struct SNAME##_node));                \
                                                                                \
         if (!_node_)                                                           \
+        {                                                                      \
+            _list_->flag = cmc_flags.ALLOC;                                    \
             return NULL;                                                       \
+        }                                                                      \
                                                                                \
         _node_->data = element;                                                \
         _node_->next = NULL;                                                   \
@@ -717,11 +779,17 @@ struct cmc_callbacks_linkedlist
                                                                                \
     struct SNAME##_node *PFX##_get_node(struct SNAME *_list_, size_t index)    \
     {                                                                          \
-        if (index >= _list_->count)                                            \
-            return NULL;                                                       \
-                                                                               \
         if (PFX##_empty(_list_))                                               \
+        {                                                                      \
+            _list_->flag = cmc_flags.EMPTY;                                    \
             return NULL;                                                       \
+        }                                                                      \
+                                                                               \
+        if (index >= _list_->count)                                            \
+        {                                                                      \
+            _list_->flag = cmc_flags.OUT_OF_RANGE;                             \
+            return NULL;                                                       \
+        }                                                                      \
                                                                                \
         struct SNAME##_node *_node_ = NULL;                                    \
                                                                                \
@@ -742,6 +810,8 @@ struct cmc_callbacks_linkedlist
             }                                                                  \
         }                                                                      \
                                                                                \
+        _list_->flag = cmc_flags.OK;                                           \
+                                                                               \
         return _node_;                                                         \
     }                                                                          \
                                                                                \
@@ -750,8 +820,8 @@ struct cmc_callbacks_linkedlist
         return _list_->tail;                                                   \
     }                                                                          \
                                                                                \
-    bool PFX##_insert_after(struct SNAME *_owner_,                             \
-                            struct SNAME##_node *_node_, V element)            \
+    bool PFX##_add_next(struct SNAME *_owner_, struct SNAME##_node *_node_,    \
+                        V element)                                             \
     {                                                                          \
         struct SNAME##_node *new_node = PFX##_new_node(_owner_, element);      \
                                                                                \
@@ -769,12 +839,13 @@ struct cmc_callbacks_linkedlist
         _node_->next = new_node;                                               \
                                                                                \
         _owner_->count++;                                                      \
+        _owner_->flag = cmc_flags.OK;                                          \
                                                                                \
         return true;                                                           \
     }                                                                          \
                                                                                \
-    bool PFX##_insert_before(struct SNAME *_owner_,                            \
-                             struct SNAME##_node *_node_, V element)           \
+    bool PFX##_add_prev(struct SNAME *_owner_, struct SNAME##_node *_node_,    \
+                        V element)                                             \
     {                                                                          \
         struct SNAME##_node *new_node = PFX##_new_node(_owner_, element);      \
                                                                                \
@@ -792,35 +863,37 @@ struct cmc_callbacks_linkedlist
         _node_->prev = new_node;                                               \
                                                                                \
         _owner_->count++;                                                      \
+        _owner_->flag = cmc_flags.OK;                                          \
                                                                                \
         return true;                                                           \
     }                                                                          \
                                                                                \
-    bool PFX##_remove_after(struct SNAME *_owner_,                             \
-                            struct SNAME##_node *_node_)                       \
+    bool PFX##_del_next(struct SNAME *_owner_, struct SNAME##_node *_node_)    \
     {                                                                          \
         if (_node_->next == NULL)                                              \
+        {                                                                      \
+            _owner_->flag = cmc_flags.INVALID;                                 \
             return false;                                                      \
+        }                                                                      \
                                                                                \
         struct SNAME##_node *tmp = _node_->next;                               \
                                                                                \
+        _node_->next = _node_->next->next;                                     \
+                                                                               \
         if (tmp->next != NULL)                                                 \
-        {                                                                      \
-            _node_->next = _node_->next->next;                                 \
-            _node_->next->prev = _node_;                                       \
-        }                                                                      \
+            tmp->next->prev = _node_;                                          \
         else                                                                   \
             _owner_->tail = _node_;                                            \
                                                                                \
         _owner_->alloc->free(tmp);                                             \
                                                                                \
         _owner_->count--;                                                      \
+        _owner_->flag = cmc_flags.OK;                                          \
                                                                                \
         return true;                                                           \
     }                                                                          \
                                                                                \
-    bool PFX##_remove_current(struct SNAME *_owner_,                           \
-                              struct SNAME##_node *_node_)                     \
+    bool PFX##_del_curr(struct SNAME *_owner_, struct SNAME##_node *_node_)    \
     {                                                                          \
         if (_node_->prev != NULL)                                              \
             _node_->prev->next = _node_->next;                                 \
@@ -835,29 +908,32 @@ struct cmc_callbacks_linkedlist
         _owner_->alloc->free(_node_);                                          \
                                                                                \
         _owner_->count--;                                                      \
+        _owner_->flag = cmc_flags.OK;                                          \
                                                                                \
         return true;                                                           \
     }                                                                          \
                                                                                \
-    bool PFX##_remove_before(struct SNAME *_owner_,                            \
-                             struct SNAME##_node *_node_)                      \
+    bool PFX##_del_prev(struct SNAME *_owner_, struct SNAME##_node *_node_)    \
     {                                                                          \
         if (_node_->prev == NULL)                                              \
+        {                                                                      \
+            _owner_->flag = cmc_flags.INVALID;                                 \
             return false;                                                      \
+        }                                                                      \
                                                                                \
         struct SNAME##_node *tmp = _node_->prev;                               \
                                                                                \
+        _node_->prev = _node_->prev->prev;                                     \
+                                                                               \
         if (tmp->prev != NULL)                                                 \
-        {                                                                      \
-            _node_->prev = _node_->prev->prev;                                 \
-            _node_->prev->next = _node_;                                       \
-        }                                                                      \
+            tmp->prev->next = _node_;                                          \
         else                                                                   \
             _owner_->head = _node_;                                            \
                                                                                \
         _owner_->alloc->free(tmp);                                             \
                                                                                \
         _owner_->count--;                                                      \
+        _owner_->flag = cmc_flags.OK;                                          \
                                                                                \
         return true;                                                           \
     }                                                                          \
@@ -981,7 +1057,7 @@ struct cmc_callbacks_linkedlist
             return false;                                                      \
         }                                                                      \
                                                                                \
-        if (steps == 0 || iter->index + steps >= PFX##_count(iter->target))    \
+        if (steps == 0 || iter->index + steps >= iter->target->count)          \
             return false;                                                      \
                                                                                \
         iter->start = PFX##_empty(iter->target);                               \
@@ -1023,7 +1099,7 @@ struct cmc_callbacks_linkedlist
     /* given index */                                                          \
     bool PFX##_iter_go_to(struct SNAME##_iter *iter, size_t index)             \
     {                                                                          \
-        if (index >= PFX##_count(iter->target))                                \
+        if (index >= iter->target->count)                                      \
             return false;                                                      \
                                                                                \
         if (iter->index > index)                                               \
