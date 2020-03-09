@@ -110,7 +110,7 @@ CMC_CREATE_UNIT(linkedlist_test, true, {
         cmc_assert(ll_push_at(ll, 10, 1));
         cmc_assert_equals(int32_t, cmc_flags.OK, ll_flag(ll));
         cmc_assert(!ll_push_at(ll, 10, 300));
-        cmc_assert_equals(int32_t, cmc_flags.OUT_OF_RANGE, ll_flag(ll));
+        cmc_assert_equals(int32_t, cmc_flags.RANGE, ll_flag(ll));
 
         // push_back
         ll->flag = cmc_flags.ERROR;
@@ -133,7 +133,7 @@ CMC_CREATE_UNIT(linkedlist_test, true, {
         cmc_assert_equals(int32_t, cmc_flags.EMPTY, ll_flag(ll));
         cmc_assert(ll_push_front(ll, 10));
         cmc_assert(!ll_pop_at(ll, 1));
-        cmc_assert_equals(int32_t, cmc_flags.OUT_OF_RANGE, ll_flag(ll));
+        cmc_assert_equals(int32_t, cmc_flags.RANGE, ll_flag(ll));
         cmc_assert(ll_pop_at(ll, 0));
         cmc_assert_equals(int32_t, cmc_flags.OK, ll_flag(ll));
 
@@ -180,11 +180,11 @@ CMC_CREATE_UNIT(linkedlist_test, true, {
         ll_get(ll, 0);
         cmc_assert_equals(int32_t, cmc_flags.OK, ll_flag(ll));
         ll_get(ll, 1);
-        cmc_assert_equals(int32_t, cmc_flags.OUT_OF_RANGE, ll_flag(ll));
+        cmc_assert_equals(int32_t, cmc_flags.RANGE, ll_flag(ll));
         ll_get_ref(ll, 0);
         cmc_assert_equals(int32_t, cmc_flags.OK, ll_flag(ll));
         ll_get_ref(ll, 1);
-        cmc_assert_equals(int32_t, cmc_flags.OUT_OF_RANGE, ll_flag(ll));
+        cmc_assert_equals(int32_t, cmc_flags.RANGE, ll_flag(ll));
 
         // contains
         cmc_assert(ll_contains(ll, 10));
@@ -214,7 +214,7 @@ CMC_CREATE_UNIT(linkedlist_test, true, {
         cmc_assert_equals(int32_t, cmc_flags.OK, ll_flag(ll));
 
         n = ll_get_node(ll, 1);
-        cmc_assert_equals(int32_t, cmc_flags.OUT_OF_RANGE, ll_flag(ll));
+        cmc_assert_equals(int32_t, cmc_flags.RANGE, ll_flag(ll));
 
         // functions relative to node
         ll_clear(ll);

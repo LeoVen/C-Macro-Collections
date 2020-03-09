@@ -89,14 +89,14 @@ static struct cmc_alloc_node
  */
 static struct
 {
-    int OK;    // Everything went as expected
-    int ALLOC; // Allocation failed
-    int EMPTY; // The collection is empty and the operation could not proceed
-    int NOT_FOUND;    // Key or value not found
-    int INVALID;      // Invalid argument
-    int OUT_OF_RANGE; // Index out of array range
-    int DUPLICATE;    // Duplicate key or value
-    int ERROR;        // Generic error, usually caused by unexpected behaviour
+    int OK;        // No errors
+    int ALLOC;     // Allocation failed
+    int EMPTY;     // The collection is empty when it should not
+    int NOT_FOUND; // Key or value not found
+    int INVALID;   // Invalid argument or operation
+    int RANGE;     // Index out of range
+    int DUPLICATE; // Duplicate key or value
+    int ERROR;     // Generic error, usually caused by algorithm error
 } cmc_flags = { 0, 1, 2, 3, 4, 5, 6, 7 };
 
 #endif /* CMC_CORE_H */
@@ -245,7 +245,7 @@ struct cmc_callbacks_list
     V PFX##_get(struct SNAME *_list_, size_t index);                           \
     V *PFX##_get_ref(struct SNAME *_list_, size_t index);                      \
     V PFX##_back(struct SNAME *_list_);                                        \
-    size_t PFX##_indexof(struct SNAME *_list_, V element, bool from_start);    \
+    size_t PFX##_index_of(struct SNAME *_list_, V element, bool from_start);   \
     /* Collection State */                                                     \
     bool PFX##_contains(struct SNAME *_list_, V element);                      \
     bool PFX##_empty(struct SNAME *_list_);                                    \
@@ -253,6 +253,7 @@ struct cmc_callbacks_list
     size_t PFX##_count(struct SNAME *_list_);                                  \
     bool PFX##_fits(struct SNAME *_list_, size_t size);                        \
     size_t PFX##_capacity(struct SNAME *_list_);                               \
+    int PFX##_flag(struct SNAME *_list_);                                      \
     /* Collection Utility */                                                   \
     bool PFX##_resize(struct SNAME *_list_, size_t capacity);                  \
     struct SNAME *PFX##_copy_of(struct SNAME *_list_);                         \
@@ -371,6 +372,7 @@ struct cmc_callbacks_list
         memset(_list_->buffer, 0, sizeof(V) * _list_->capacity);               \
                                                                                \
         _list_->count = 0;                                                     \
+        _list_->flag = cmc_flags.OK;                                           \
     }                                                                          \
                                                                                \
     void PFX##_free(struct SNAME *_list_)                                      \
@@ -393,13 +395,15 @@ struct cmc_callbacks_list
                                                                                \
         if (callbacks)                                                         \
             _list_->callbacks = callbacks;                                     \
+                                                                               \
+        _list_->flag = cmc_flags.OK;                                           \
     }                                                                          \
                                                                                \
     bool PFX##_push_front(struct SNAME *_list_, V element)                     \
     {                                                                          \
         if (PFX##_full(_list_))                                                \
         {                                                                      \
-            if (!PFX##_resize(_list_, PFX##_count(_list_) * 2))                \
+            if (!PFX##_resize(_list_, _list_->count * 2))                      \
                 return false;                                                  \
         }                                                                      \
                                                                                \
@@ -412,6 +416,7 @@ struct cmc_callbacks_list
         _list_->buffer[0] = element;                                           \
                                                                                \
         _list_->count++;                                                       \
+        _list_->flag = cmc_flags.OK;                                           \
                                                                                \
         return true;                                                           \
     }                                                                          \
@@ -419,11 +424,14 @@ struct cmc_callbacks_list
     bool PFX##_push_at(struct SNAME *_list_, V element, size_t index)          \
     {                                                                          \
         if (index > _list_->count)                                             \
+        {                                                                      \
+            _list_->flag = cmc_flags.RANGE;                                    \
             return false;                                                      \
+        }                                                                      \
                                                                                \
         if (PFX##_full(_list_))                                                \
         {                                                                      \
-            if (!PFX##_resize(_list_, PFX##_count(_list_) * 2))                \
+            if (!PFX##_resize(_list_, _list_->count * 2))                      \
                 return false;                                                  \
         }                                                                      \
                                                                                \
@@ -432,6 +440,7 @@ struct cmc_callbacks_list
                                                                                \
         _list_->buffer[index] = element;                                       \
         _list_->count++;                                                       \
+        _list_->flag = cmc_flags.OK;                                           \
                                                                                \
         return true;                                                           \
     }                                                                          \
@@ -440,11 +449,12 @@ struct cmc_callbacks_list
     {                                                                          \
         if (PFX##_full(_list_))                                                \
         {                                                                      \
-            if (!PFX##_resize(_list_, PFX##_count(_list_) * 2))                \
+            if (!PFX##_resize(_list_, _list_->count * 2))                      \
                 return false;                                                  \
         }                                                                      \
                                                                                \
         _list_->buffer[_list_->count++] = element;                             \
+        _list_->flag = cmc_flags.OK;                                           \
                                                                                \
         return true;                                                           \
     }                                                                          \
@@ -452,25 +462,39 @@ struct cmc_callbacks_list
     bool PFX##_pop_front(struct SNAME *_list_)                                 \
     {                                                                          \
         if (PFX##_empty(_list_))                                               \
+        {                                                                      \
+            _list_->flag = cmc_flags.EMPTY;                                    \
             return false;                                                      \
+        }                                                                      \
                                                                                \
         memmove(_list_->buffer, _list_->buffer + 1,                            \
                 (_list_->count - 1) * sizeof(V));                              \
                                                                                \
         _list_->buffer[--_list_->count] = (V){ 0 };                            \
+        _list_->flag = cmc_flags.OK;                                           \
                                                                                \
         return true;                                                           \
     }                                                                          \
                                                                                \
     bool PFX##_pop_at(struct SNAME *_list_, size_t index)                      \
     {                                                                          \
-        if (index >= _list_->count)                                            \
+        if (PFX##_empty(_list_))                                               \
+        {                                                                      \
+            _list_->flag = cmc_flags.EMPTY;                                    \
             return false;                                                      \
+        }                                                                      \
+                                                                               \
+        if (index >= _list_->count)                                            \
+        {                                                                      \
+            _list_->flag = cmc_flags.RANGE;                                    \
+            return false;                                                      \
+        }                                                                      \
                                                                                \
         memmove(_list_->buffer + index, _list_->buffer + index + 1,            \
                 (_list_->count - index - 1) * sizeof(V));                      \
                                                                                \
         _list_->buffer[--_list_->count] = (V){ 0 };                            \
+        _list_->flag = cmc_flags.OK;                                           \
                                                                                \
         return true;                                                           \
     }                                                                          \
@@ -481,6 +505,7 @@ struct cmc_callbacks_list
             return false;                                                      \
                                                                                \
         _list_->buffer[--_list_->count] = (V){ 0 };                            \
+        _list_->flag = cmc_flags.OK;                                           \
                                                                                \
         return true;                                                           \
     }                                                                          \
@@ -488,11 +513,14 @@ struct cmc_callbacks_list
     bool PFX##_seq_push_front(struct SNAME *_list_, V *elements, size_t size)  \
     {                                                                          \
         if (size == 0)                                                         \
+        {                                                                      \
+            _list_->flag = cmc_flags.INVALID;                                  \
             return false;                                                      \
+        }                                                                      \
                                                                                \
         if (!PFX##_fits(_list_, size))                                         \
         {                                                                      \
-            if (!PFX##_resize(_list_, PFX##_count(_list_) + size))             \
+            if (!PFX##_resize(_list_, _list_->count + size))                   \
                 return false;                                                  \
         }                                                                      \
                                                                                \
@@ -502,6 +530,7 @@ struct cmc_callbacks_list
         memcpy(_list_->buffer, elements, size * sizeof(V));                    \
                                                                                \
         _list_->count += size;                                                 \
+        _list_->flag = cmc_flags.OK;                                           \
                                                                                \
         return true;                                                           \
     }                                                                          \
@@ -509,28 +538,36 @@ struct cmc_callbacks_list
     bool PFX##_seq_push_at(struct SNAME *_list_, V *elements, size_t size,     \
                            size_t index)                                       \
     {                                                                          \
-        if (size == 0 || index > _list_->count)                                \
+        if (size == 0)                                                         \
+        {                                                                      \
+            _list_->flag = cmc_flags.INVALID;                                  \
             return false;                                                      \
+        }                                                                      \
+                                                                               \
+        if (index > _list_->count)                                             \
+        {                                                                      \
+            _list_->flag = cmc_flags.RANGE;                                    \
+            return false;                                                      \
+        }                                                                      \
                                                                                \
         if (index == 0)                                                        \
             return PFX##_seq_push_front(_list_, elements, size);               \
         else if (index == _list_->count)                                       \
             return PFX##_seq_push_back(_list_, elements, size);                \
-        else                                                                   \
+                                                                               \
+        if (!PFX##_fits(_list_, size))                                         \
         {                                                                      \
-            if (!PFX##_fits(_list_, size))                                     \
-            {                                                                  \
-                if (!PFX##_resize(_list_, PFX##_count(_list_) + size))         \
-                    return false;                                              \
-            }                                                                  \
-                                                                               \
-            memmove(_list_->buffer + index + size, _list_->buffer + index,     \
-                    (_list_->count - index) * sizeof(V));                      \
-                                                                               \
-            memcpy(_list_->buffer + index, elements, size * sizeof(V));        \
-                                                                               \
-            _list_->count += size;                                             \
+            if (!PFX##_resize(_list_, _list_->count + size))                   \
+                return false;                                                  \
         }                                                                      \
+                                                                               \
+        memmove(_list_->buffer + index + size, _list_->buffer + index,         \
+                (_list_->count - index) * sizeof(V));                          \
+                                                                               \
+        memcpy(_list_->buffer + index, elements, size * sizeof(V));            \
+                                                                               \
+        _list_->count += size;                                                 \
+        _list_->flag = cmc_flags.OK;                                           \
                                                                                \
         return true;                                                           \
     }                                                                          \
@@ -538,7 +575,10 @@ struct cmc_callbacks_list
     bool PFX##_seq_push_back(struct SNAME *_list_, V *elements, size_t size)   \
     {                                                                          \
         if (size == 0)                                                         \
+        {                                                                      \
+            _list_->flag = cmc_flags.INVALID;                                  \
             return false;                                                      \
+        }                                                                      \
                                                                                \
         if (!PFX##_fits(_list_, size))                                         \
         {                                                                      \
@@ -549,14 +589,24 @@ struct cmc_callbacks_list
         memcpy(_list_->buffer + _list_->count, elements, size * sizeof(V));    \
                                                                                \
         _list_->count += size;                                                 \
+        _list_->flag = cmc_flags.OK;                                           \
                                                                                \
         return true;                                                           \
     }                                                                          \
                                                                                \
     bool PFX##_seq_pop_at(struct SNAME *_list_, size_t from, size_t to)        \
     {                                                                          \
-        if (from > to || to >= _list_->count)                                  \
+        if (from > to)                                                         \
+        {                                                                      \
+            _list_->flag = cmc_flags.INVALID;                                  \
             return false;                                                      \
+        }                                                                      \
+                                                                               \
+        if (to >= _list_->count)                                               \
+        {                                                                      \
+            _list_->flag = cmc_flags.RANGE;                                    \
+            return false;                                                      \
+        }                                                                      \
                                                                                \
         size_t length = (to - from + 1);                                       \
                                                                                \
@@ -567,6 +617,7 @@ struct cmc_callbacks_list
                length * sizeof(V));                                            \
                                                                                \
         _list_->count -= to - from + 1;                                        \
+        _list_->flag = cmc_flags.OK;                                           \
                                                                                \
         return true;                                                           \
     }                                                                          \
@@ -574,15 +625,28 @@ struct cmc_callbacks_list
     struct SNAME *PFX##_seq_sublist(struct SNAME *_list_, size_t from,         \
                                     size_t to)                                 \
     {                                                                          \
-        if (from > to || to >= _list_->count)                                  \
-            return false;                                                      \
+        if (from > to)                                                         \
+        {                                                                      \
+            _list_->flag = cmc_flags.INVALID;                                  \
+            return NULL;                                                       \
+        }                                                                      \
+                                                                               \
+        if (to >= _list_->count)                                               \
+        {                                                                      \
+            _list_->flag = cmc_flags.RANGE;                                    \
+            return NULL;                                                       \
+        }                                                                      \
                                                                                \
         size_t length = to - from + 1;                                         \
                                                                                \
-        struct SNAME *result = PFX##_new(length, _list_->f_val);               \
+        struct SNAME *result = PFX##_new_custom(                               \
+            length, _list_->f_val, _list_->alloc, _list_->callbacks);          \
                                                                                \
         if (!result)                                                           \
+        {                                                                      \
+            _list_->flag = cmc_flags.ALLOC;                                    \
             return NULL;                                                       \
+        }                                                                      \
                                                                                \
         memcpy(result->buffer, _list_->buffer, _list_->count * sizeof(V));     \
                                                                                \
@@ -595,32 +659,58 @@ struct cmc_callbacks_list
         _list_->count -= length;                                               \
         result->count = length;                                                \
                                                                                \
+        _list_->flag = cmc_flags.OK;                                           \
+                                                                               \
         return result;                                                         \
     }                                                                          \
                                                                                \
     V PFX##_front(struct SNAME *_list_)                                        \
     {                                                                          \
         if (PFX##_empty(_list_))                                               \
+        {                                                                      \
+            _list_->flag = cmc_flags.EMPTY;                                    \
             return (V){ 0 };                                                   \
+        }                                                                      \
+                                                                               \
+        _list_->flag = cmc_flags.OK;                                           \
                                                                                \
         return _list_->buffer[0];                                              \
     }                                                                          \
                                                                                \
     V PFX##_get(struct SNAME *_list_, size_t index)                            \
     {                                                                          \
-        if (index >= _list_->count || PFX##_empty(_list_))                     \
+        if (PFX##_empty(_list_))                                               \
+        {                                                                      \
+            _list_->flag = cmc_flags.EMPTY;                                    \
             return (V){ 0 };                                                   \
+        }                                                                      \
+                                                                               \
+        if (index >= _list_->count)                                            \
+        {                                                                      \
+            _list_->flag = cmc_flags.RANGE;                                    \
+            return (V){ 0 };                                                   \
+        }                                                                      \
+                                                                               \
+        _list_->flag = cmc_flags.OK;                                           \
                                                                                \
         return _list_->buffer[index];                                          \
     }                                                                          \
                                                                                \
     V *PFX##_get_ref(struct SNAME *_list_, size_t index)                       \
     {                                                                          \
-        if (index >= _list_->count)                                            \
-            return NULL;                                                       \
-                                                                               \
         if (PFX##_empty(_list_))                                               \
+        {                                                                      \
+            _list_->flag = cmc_flags.EMPTY;                                    \
             return NULL;                                                       \
+        }                                                                      \
+                                                                               \
+        if (index >= _list_->count)                                            \
+        {                                                                      \
+            _list_->flag = cmc_flags.RANGE;                                    \
+            return NULL;                                                       \
+        }                                                                      \
+                                                                               \
+        _list_->flag = cmc_flags.OK;                                           \
                                                                                \
         return &(_list_->buffer[index]);                                       \
     }                                                                          \
@@ -628,13 +718,20 @@ struct cmc_callbacks_list
     V PFX##_back(struct SNAME *_list_)                                         \
     {                                                                          \
         if (PFX##_empty(_list_))                                               \
+        {                                                                      \
+            _list_->flag = cmc_flags.EMPTY;                                    \
             return (V){ 0 };                                                   \
+        }                                                                      \
+                                                                               \
+        _list_->flag = cmc_flags.OK;                                           \
                                                                                \
         return _list_->buffer[_list_->count - 1];                              \
     }                                                                          \
                                                                                \
-    size_t PFX##_indexof(struct SNAME *_list_, V element, bool from_start)     \
+    size_t PFX##_index_of(struct SNAME *_list_, V element, bool from_start)    \
     {                                                                          \
+        _list_->flag = cmc_flags.OK;                                           \
+                                                                               \
         if (from_start)                                                        \
         {                                                                      \
             for (size_t i = 0; i < _list_->count; i++)                         \
@@ -657,6 +754,8 @@ struct cmc_callbacks_list
                                                                                \
     bool PFX##_contains(struct SNAME *_list_, V element)                       \
     {                                                                          \
+        _list_->flag = cmc_flags.OK;                                           \
+                                                                               \
         for (size_t i = 0; i < _list_->count; i++)                             \
         {                                                                      \
             if (_list_->f_val->cmp(_list_->buffer[i], element) == 0)           \
@@ -691,19 +790,32 @@ struct cmc_callbacks_list
         return _list_->capacity;                                               \
     }                                                                          \
                                                                                \
+    int PFX##_flag(struct SNAME *_list_)                                       \
+    {                                                                          \
+        return _list_->flag;                                                   \
+    }                                                                          \
+                                                                               \
     bool PFX##_resize(struct SNAME *_list_, size_t capacity)                   \
     {                                                                          \
-        if (PFX##_capacity(_list_) == capacity)                                \
+        _list_->flag = cmc_flags.OK;                                           \
+                                                                               \
+        if (_list_->capacity == capacity)                                      \
             return true;                                                       \
                                                                                \
-        if (capacity < PFX##_count(_list_))                                    \
+        if (capacity < _list_->count)                                          \
+        {                                                                      \
+            _list_->flag = cmc_flags.INVALID;                                  \
             return false;                                                      \
+        }                                                                      \
                                                                                \
         V *new_buffer =                                                        \
             _list_->alloc->realloc(_list_->buffer, sizeof(V) * capacity);      \
                                                                                \
         if (!new_buffer)                                                       \
+        {                                                                      \
+            _list_->flag = cmc_flags.ALLOC;                                    \
             return false;                                                      \
+        }                                                                      \
                                                                                \
         /* TODO zero out new slots */                                          \
                                                                                \
@@ -720,7 +832,10 @@ struct cmc_callbacks_list
                              _list_->callbacks);                               \
                                                                                \
         if (!result)                                                           \
+        {                                                                      \
+            _list_->flag = cmc_flags.ALLOC;                                    \
             return NULL;                                                       \
+        }                                                                      \
                                                                                \
         if (_list_->f_val->cpy)                                                \
         {                                                                      \
@@ -732,15 +847,20 @@ struct cmc_callbacks_list
                                                                                \
         result->count = _list_->count;                                         \
                                                                                \
+        _list_->flag = cmc_flags.OK;                                           \
+                                                                               \
         return result;                                                         \
     }                                                                          \
                                                                                \
     bool PFX##_equals(struct SNAME *_list1_, struct SNAME *_list2_)            \
     {                                                                          \
-        if (PFX##_count(_list1_) != PFX##_count(_list2_))                      \
+        _list1_->flag = cmc_flags.OK;                                          \
+        _list2_->flag = cmc_flags.OK;                                          \
+                                                                               \
+        if (_list1_->count != _list2_->count)                                  \
             return false;                                                      \
                                                                                \
-        for (size_t i = 0; i < PFX##_count(_list1_); i++)                      \
+        for (size_t i = 0; i < _list1_->count; i++)                            \
         {                                                                      \
             if (_list1_->f_val->cmp(_list1_->buffer[i], _list2_->buffer[i]) != \
                 0)                                                             \
@@ -824,7 +944,7 @@ struct cmc_callbacks_list
         if (iter->end)                                                         \
             return false;                                                      \
                                                                                \
-        if (iter->cursor + 1 == PFX##_count(iter->target))                     \
+        if (iter->cursor + 1 == iter->target->count)                           \
         {                                                                      \
             iter->end = true;                                                  \
             return false;                                                      \
@@ -867,7 +987,7 @@ struct cmc_callbacks_list
             return false;                                                      \
         }                                                                      \
                                                                                \
-        if (steps == 0 || iter->cursor + steps >= PFX##_count(iter->target))   \
+        if (steps == 0 || iter->cursor + steps >= iter->target->count)         \
             return false;                                                      \
                                                                                \
         iter->start = PFX##_empty(iter->target);                               \
@@ -903,7 +1023,7 @@ struct cmc_callbacks_list
     /* given index */                                                          \
     bool PFX##_iter_go_to(struct SNAME##_iter *iter, size_t index)             \
     {                                                                          \
-        if (index >= PFX##_count(iter->target))                                \
+        if (index >= iter->target->count)                                      \
             return false;                                                      \
                                                                                \
         if (iter->cursor > index)                                              \

@@ -118,7 +118,7 @@ CMC_CREATE_UNIT(sortedlist_test, true, {
         sl_free(sl);
     });
 
-    CMC_CREATE_TEST(indexof, {
+    CMC_CREATE_TEST(index_of, {
         struct sortedlist *sl = sl_new(1, sl_ftab_val);
 
         cmc_assert_not_equals(ptr, NULL, sl);
@@ -127,21 +127,21 @@ CMC_CREATE_UNIT(sortedlist_test, true, {
             cmc_assert(sl_insert(sl, i % 10));
 
         /* 0, 0, 1, 1, 2, 2, 3, 3, 4, 4, 5, 5, 6, 6, 7, 7, 8, 8, 9, 9 */
-        cmc_assert_equals(size_t, 4, sl_indexof(sl, 2, true));
-        cmc_assert_equals(size_t, 5, sl_indexof(sl, 2, false));
+        cmc_assert_equals(size_t, 4, sl_index_of(sl, 2, true));
+        cmc_assert_equals(size_t, 5, sl_index_of(sl, 2, false));
 
-        cmc_assert_equals(size_t, 0, sl_indexof(sl, 0, true));
-        cmc_assert_equals(size_t, 1, sl_indexof(sl, 0, false));
-
-        cmc_assert(sl_remove(sl, 0));
-
-        cmc_assert_equals(size_t, 0, sl_indexof(sl, 0, true));
-        cmc_assert_equals(size_t, 0, sl_indexof(sl, 0, false));
+        cmc_assert_equals(size_t, 0, sl_index_of(sl, 0, true));
+        cmc_assert_equals(size_t, 1, sl_index_of(sl, 0, false));
 
         cmc_assert(sl_remove(sl, 0));
 
-        cmc_assert_equals(size_t, sl_count(sl), sl_indexof(sl, 0, true));
-        cmc_assert_equals(size_t, sl_count(sl), sl_indexof(sl, 0, false));
+        cmc_assert_equals(size_t, 0, sl_index_of(sl, 0, true));
+        cmc_assert_equals(size_t, 0, sl_index_of(sl, 0, false));
+
+        cmc_assert(sl_remove(sl, 0));
+
+        cmc_assert_equals(size_t, sl_count(sl), sl_index_of(sl, 0, true));
+        cmc_assert_equals(size_t, sl_count(sl), sl_index_of(sl, 0, false));
 
         sl_free(sl);
     });
