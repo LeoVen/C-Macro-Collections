@@ -152,4 +152,119 @@ CMC_CREATE_UNIT(multimap_test, true, {
 
         mm_free(map);
     });
+
+    CMC_CREATE_TEST(flags, {
+        struct multimap *map = mm_new(100, 0.8, mm_ftab_key, mm_ftab_val);
+
+        cmc_assert_not_equals(ptr, NULL, map);
+        cmc_assert_equals(int32_t, cmc_flags.OK, mm_flag(map));
+
+        // clear
+        map->flag = cmc_flags.ERROR;
+        mm_clear(map);
+        cmc_assert_equals(int32_t, cmc_flags.OK, mm_flag(map));
+
+        // customize
+        map->flag = cmc_flags.ERROR;
+        mm_customize(map, NULL, NULL);
+        cmc_assert_equals(int32_t, cmc_flags.OK, mm_flag(map));
+
+        // insert
+        map->flag = cmc_flags.ERROR;
+        cmc_assert(mm_insert(map, 1, 1));
+        cmc_assert_equals(int32_t, cmc_flags.OK, mm_flag(map));
+
+        // update
+        cmc_assert(!mm_update(map, 9, 10, NULL));
+        cmc_assert_equals(int32_t, cmc_flags.NOT_FOUND, mm_flag(map));
+
+        cmc_assert(mm_update(map, 1, 20, NULL));
+        cmc_assert_equals(int32_t, cmc_flags.OK, mm_flag(map));
+
+        // update_all
+        map->flag = cmc_flags.ERROR;
+        cmc_assert_equals(size_t, 1, mm_update_all(map, 1, 2, NULL));
+        cmc_assert_equals(int32_t, cmc_flags.OK, mm_flag(map));
+
+        map->flag = cmc_flags.ERROR;
+        cmc_assert_equals(size_t, 0, mm_update_all(map, 2, 4, NULL));
+        cmc_assert_equals(int32_t, cmc_flags.NOT_FOUND, mm_flag(map));
+
+        mm_clear(map);
+        cmc_assert_equals(size_t, 0, mm_update_all(map, 1, 2, NULL));
+        cmc_assert_equals(int32_t, cmc_flags.EMPTY, mm_flag(map));
+
+        // remove
+        map->flag = cmc_flags.ERROR;
+        cmc_assert(!mm_remove(map, 1, NULL));
+        cmc_assert_equals(int32_t, cmc_flags.EMPTY, mm_flag(map));
+
+        cmc_assert(mm_insert(map, 1, 1));
+        cmc_assert(!mm_remove(map, 2, NULL));
+        cmc_assert_equals(int32_t, cmc_flags.NOT_FOUND, mm_flag(map));
+
+        cmc_assert(mm_remove(map, 1, NULL));
+        cmc_assert_equals(int32_t, cmc_flags.OK, mm_flag(map));
+
+        // remove_all
+        cmc_assert(!mm_remove_all(map, 1, NULL));
+        cmc_assert_equals(int32_t, cmc_flags.EMPTY, mm_flag(map));
+
+        cmc_assert(mm_insert(map, 1, 1) && mm_insert(map, 1, 1));
+        cmc_assert_equals(size_t, 0, mm_remove_all(map, 2, NULL));
+        cmc_assert_equals(int32_t, cmc_flags.NOT_FOUND, mm_flag(map));
+
+        cmc_assert_equals(size_t, 2, mm_remove_all(map, 1, NULL));
+        cmc_assert_equals(int32_t, cmc_flags.OK, mm_flag(map));
+
+        // max min
+        cmc_assert(!mm_max(map, NULL, NULL));
+        cmc_assert_equals(int32_t, cmc_flags.EMPTY, mm_flag(map));
+        map->flag = cmc_flags.ERROR;
+        cmc_assert(!mm_min(map, NULL, NULL));
+        cmc_assert_equals(int32_t, cmc_flags.EMPTY, mm_flag(map));
+
+        cmc_assert(mm_insert(map, 1, 1));
+        cmc_assert(mm_max(map, NULL, NULL));
+        cmc_assert_equals(int32_t, cmc_flags.OK, mm_flag(map));
+        map->flag = cmc_flags.ERROR;
+        cmc_assert(mm_min(map, NULL, NULL));
+        cmc_assert_equals(int32_t, cmc_flags.OK, mm_flag(map));
+
+        // get get_ref
+        mm_get(map, 2);
+        cmc_assert_equals(int32_t, cmc_flags.NOT_FOUND, mm_flag(map));
+        map->flag = cmc_flags.ERROR;
+        mm_get_ref(map, 2);
+        cmc_assert_equals(int32_t, cmc_flags.NOT_FOUND, mm_flag(map));
+
+        mm_get(map, 1);
+        cmc_assert_equals(int32_t, cmc_flags.OK, mm_flag(map));
+        map->flag = cmc_flags.ERROR;
+        mm_get_ref(map, 1);
+        cmc_assert_equals(int32_t, cmc_flags.OK, mm_flag(map));
+
+        mm_clear(map);
+        mm_get(map, 1);
+        cmc_assert_equals(int32_t, cmc_flags.EMPTY, mm_flag(map));
+        map->flag = cmc_flags.ERROR;
+        mm_get_ref(map, 1);
+        cmc_assert_equals(int32_t, cmc_flags.EMPTY, mm_flag(map));
+
+        // copy_of
+        map->flag = cmc_flags.ERROR;
+        struct multimap *map2 = mm_copy_of(map);
+        cmc_assert_equals(int32_t, cmc_flags.OK, mm_flag(map));
+        cmc_assert_equals(int32_t, cmc_flags.OK, mm_flag(map2));
+
+        // equals
+        map->flag = cmc_flags.ERROR;
+        map2->flag = cmc_flags.ERROR;
+        cmc_assert(mm_equals(map, map2));
+        cmc_assert_equals(int32_t, cmc_flags.OK, mm_flag(map));
+        cmc_assert_equals(int32_t, cmc_flags.OK, mm_flag(map2));
+
+        mm_free(map);
+        mm_free(map2);
+    });
 });

@@ -354,11 +354,11 @@ struct cmc_callbacks_multimap
     size_t PFX##_key_count(struct SNAME *_map_, K key);                       \
     size_t PFX##_capacity(struct SNAME *_map_);                               \
     double PFX##_load(struct SNAME *_map_);                                   \
+    int PFX##_flag(struct SNAME *_map_);                                      \
     /* Collection Utility */                                                  \
     bool PFX##_resize(struct SNAME *_map_, size_t capacity);                  \
     struct SNAME *PFX##_copy_of(struct SNAME *_map_);                         \
-    bool PFX##_equals(struct SNAME *_map1_, struct SNAME *_map2_,             \
-                      bool ignore_key_count);                                 \
+    bool PFX##_equals(struct SNAME *_map1_, struct SNAME *_map2_);            \
     struct cmc_string PFX##_to_string(struct SNAME *_map_);                   \
                                                                               \
     /* Iterator Functions */                                                  \
@@ -393,6 +393,7 @@ struct cmc_callbacks_multimap
     struct SNAME##_entry *PFX##_impl_new_entry(struct SNAME *_map_, K key,     \
                                                V value);                       \
     struct SNAME##_entry *PFX##_impl_get_entry(struct SNAME *_map_, K key);    \
+    size_t PFX##_impl_key_count(struct SNAME *_map_, K key);                   \
     size_t PFX##_impl_calculate_size(size_t required);                         \
     static struct SNAME##_iter PFX##_impl_it_start(struct SNAME *_map_);       \
     static struct SNAME##_iter PFX##_impl_it_end(struct SNAME *_map_);         \
@@ -535,6 +536,7 @@ struct cmc_callbacks_multimap
                sizeof(struct SNAME##_entry *[2]) * _map_->capacity);           \
                                                                                \
         _map_->count = 0;                                                      \
+        _map_->flag = cmc_flags.OK;                                            \
     }                                                                          \
                                                                                \
     void PFX##_free(struct SNAME *_map_)                                       \
@@ -589,13 +591,15 @@ struct cmc_callbacks_multimap
                                                                                \
         if (callbacks)                                                         \
             _map_->callbacks = callbacks;                                      \
+                                                                               \
+        _map_->flag = cmc_flags.OK;                                            \
     }                                                                          \
                                                                                \
     bool PFX##_insert(struct SNAME *_map_, K key, V value)                     \
     {                                                                          \
         if (PFX##_full(_map_))                                                 \
         {                                                                      \
-            if (!PFX##_resize(_map_, PFX##_capacity(_map_) + 1))               \
+            if (!PFX##_resize(_map_, _map_->capacity + 1))                     \
                 return false;                                                  \
         }                                                                      \
                                                                                \
@@ -618,40 +622,44 @@ struct cmc_callbacks_multimap
         }                                                                      \
                                                                                \
         _map_->count++;                                                        \
+        _map_->flag = cmc_flags.OK;                                            \
                                                                                \
         return true;                                                           \
     }                                                                          \
                                                                                \
     bool PFX##_update(struct SNAME *_map_, K key, V new_value, V *old_value)   \
     {                                                                          \
+        if (PFX##_empty(_map_))                                                \
+        {                                                                      \
+            _map_->flag = cmc_flags.EMPTY;                                     \
+            return false;                                                      \
+        }                                                                      \
+                                                                               \
         struct SNAME##_entry *entry = PFX##_impl_get_entry(_map_, key);        \
                                                                                \
         if (!entry)                                                            \
+        {                                                                      \
+            _map_->flag = cmc_flags.NOT_FOUND;                                 \
             return false;                                                      \
+        }                                                                      \
                                                                                \
         if (old_value)                                                         \
             *old_value = entry->value;                                         \
                                                                                \
         entry->value = new_value;                                              \
                                                                                \
-        return false;                                                          \
+        _map_->flag = cmc_flags.OK;                                            \
+                                                                               \
+        return true;                                                           \
     }                                                                          \
                                                                                \
     size_t PFX##_update_all(struct SNAME *_map_, K key, V new_value,           \
                             V **old_values)                                    \
     {                                                                          \
-        size_t total = PFX##_key_count(_map_, key);                            \
-        size_t index = 0;                                                      \
-                                                                               \
-        if (total == 0)                                                        \
-            return total;                                                      \
-                                                                               \
-        if (old_values)                                                        \
+        if (PFX##_empty(_map_))                                                \
         {                                                                      \
-            *old_values = _map_->alloc->malloc(sizeof(V) * total);             \
-                                                                               \
-            if (!(*old_values))                                                \
-                return false;                                                  \
+            _map_->flag = cmc_flags.EMPTY;                                     \
+            return 0;                                                          \
         }                                                                      \
                                                                                \
         size_t hash = _map_->f_key->hash(key);                                 \
@@ -659,24 +667,60 @@ struct cmc_callbacks_multimap
         struct SNAME##_entry *entry =                                          \
             _map_->buffer[hash % _map_->capacity][0];                          \
                                                                                \
+        if (entry == NULL)                                                     \
+        {                                                                      \
+            _map_->flag = cmc_flags.NOT_FOUND;                                 \
+            return 0;                                                          \
+        }                                                                      \
+                                                                               \
+        if (old_values)                                                        \
+        {                                                                      \
+            size_t total = PFX##_impl_key_count(_map_, key);                   \
+                                                                               \
+            if (total == 0)                                                    \
+            {                                                                  \
+                _map_->flag = cmc_flags.NOT_FOUND;                             \
+                return 0;                                                      \
+            }                                                                  \
+                                                                               \
+            *old_values = _map_->alloc->malloc(sizeof(V) * total);             \
+                                                                               \
+            if (!(*old_values))                                                \
+            {                                                                  \
+                _map_->flag = cmc_flags.ALLOC;                                 \
+                return 0;                                                      \
+            }                                                                  \
+        }                                                                      \
+                                                                               \
+        size_t index = 0;                                                      \
+                                                                               \
         while (entry != NULL)                                                  \
         {                                                                      \
             if (_map_->f_key->cmp(entry->key, key) == 0)                       \
             {                                                                  \
                 if (old_values)                                                \
-                    (*old_values)[index++] = entry->value;                     \
+                    (*old_values)[index] = entry->value;                       \
                                                                                \
+                index++;                                                       \
                 entry->value = new_value;                                      \
             }                                                                  \
                                                                                \
             entry = entry->next;                                               \
         }                                                                      \
                                                                                \
+        _map_->flag = cmc_flags.OK;                                            \
+                                                                               \
         return index;                                                          \
     }                                                                          \
                                                                                \
     bool PFX##_remove(struct SNAME *_map_, K key, V *out_value)                \
     {                                                                          \
+        if (PFX##_empty(_map_))                                                \
+        {                                                                      \
+            _map_->flag = cmc_flags.EMPTY;                                     \
+            return false;                                                      \
+        }                                                                      \
+                                                                               \
         size_t hash = _map_->f_key->hash(key);                                 \
                                                                                \
         struct SNAME##_entry **head =                                          \
@@ -685,7 +729,10 @@ struct cmc_callbacks_multimap
             &(_map_->buffer[hash % _map_->capacity][1]);                       \
                                                                                \
         if (*head == NULL)                                                     \
+        {                                                                      \
+            _map_->flag = cmc_flags.NOT_FOUND;                                 \
             return false;                                                      \
+        }                                                                      \
                                                                                \
         struct SNAME##_entry *entry = *head;                                   \
                                                                                \
@@ -700,7 +747,10 @@ struct cmc_callbacks_multimap
                     *out_value = entry->value;                                 \
             }                                                                  \
             else                                                               \
+            {                                                                  \
+                _map_->flag = cmc_flags.NOT_FOUND;                             \
                 return false;                                                  \
+            }                                                                  \
         }                                                                      \
         else                                                                   \
         {                                                                      \
@@ -732,18 +782,28 @@ struct cmc_callbacks_multimap
             }                                                                  \
                                                                                \
             if (!found)                                                        \
+            {                                                                  \
+                _map_->flag = cmc_flags.NOT_FOUND;                             \
                 return false;                                                  \
+            }                                                                  \
         }                                                                      \
                                                                                \
         _map_->alloc->free(entry);                                             \
                                                                                \
         _map_->count--;                                                        \
+        _map_->flag = cmc_flags.OK;                                            \
                                                                                \
         return true;                                                           \
     }                                                                          \
                                                                                \
     size_t PFX##_remove_all(struct SNAME *_map_, K key, V **out_values)        \
     {                                                                          \
+        if (PFX##_empty(_map_))                                                \
+        {                                                                      \
+            _map_->flag = cmc_flags.EMPTY;                                     \
+            return false;                                                      \
+        }                                                                      \
+                                                                               \
         size_t hash = _map_->f_key->hash(key);                                 \
                                                                                \
         struct SNAME##_entry **head =                                          \
@@ -752,15 +812,31 @@ struct cmc_callbacks_multimap
             &(_map_->buffer[hash % _map_->capacity][1]);                       \
                                                                                \
         if (*head == NULL)                                                     \
+        {                                                                      \
+            _map_->flag = cmc_flags.NOT_FOUND;                                 \
             return 0;                                                          \
-                                                                               \
-        size_t total = PFX##_key_count(_map_, key);                            \
-        size_t index = 0;                                                      \
+        }                                                                      \
                                                                                \
         if (out_values)                                                        \
-            *out_values =                                                      \
-                _map_->alloc->malloc(sizeof(struct SNAME##_entry) * total);    \
+        {                                                                      \
+            size_t total = PFX##_impl_key_count(_map_, key);                   \
                                                                                \
+            if (total == 0)                                                    \
+            {                                                                  \
+                _map_->flag = cmc_flags.NOT_FOUND;                             \
+                return 0;                                                      \
+            }                                                                  \
+                                                                               \
+            *out_values = _map_->alloc->malloc(sizeof(V) * total);             \
+                                                                               \
+            if (!(*out_values))                                                \
+            {                                                                  \
+                _map_->flag = cmc_flags.ALLOC;                                 \
+                return 0;                                                      \
+            }                                                                  \
+        }                                                                      \
+                                                                               \
+        size_t index = 0;                                                      \
         struct SNAME##_entry *entry = *head;                                   \
                                                                                \
         if (entry->next == NULL)                                               \
@@ -769,8 +845,9 @@ struct cmc_callbacks_multimap
             *tail = NULL;                                                      \
                                                                                \
             if (out_values)                                                    \
-                (*out_values)[index++] = entry->value;                         \
+                (*out_values)[index] = entry->value;                           \
                                                                                \
+            index++;                                                           \
             _map_->alloc->free(entry);                                         \
         }                                                                      \
         else                                                                   \
@@ -784,7 +861,7 @@ struct cmc_callbacks_multimap
                     if (*tail == entry)                                        \
                         *tail = entry->prev;                                   \
                                                                                \
-                    struct SNAME##_entry *temp = entry->next;                  \
+                    struct SNAME##_entry *next = entry->next;                  \
                                                                                \
                     if (entry->prev != NULL)                                   \
                         entry->prev->next = entry->next;                       \
@@ -792,11 +869,12 @@ struct cmc_callbacks_multimap
                         entry->next->prev = entry->prev;                       \
                                                                                \
                     if (out_values)                                            \
-                        (*out_values)[index++] = entry->value;                 \
+                        (*out_values)[index] = entry->value;                   \
                                                                                \
+                    index++;                                                   \
                     _map_->alloc->free(entry);                                 \
                                                                                \
-                    entry = temp;                                              \
+                    entry = next;                                              \
                 }                                                              \
                 else                                                           \
                     entry = entry->next;                                       \
@@ -804,6 +882,7 @@ struct cmc_callbacks_multimap
         }                                                                      \
                                                                                \
         _map_->count -= index;                                                 \
+        _map_->flag = cmc_flags.OK;                                            \
                                                                                \
         return index;                                                          \
     }                                                                          \
@@ -811,7 +890,13 @@ struct cmc_callbacks_multimap
     bool PFX##_max(struct SNAME *_map_, K *key, V *value)                      \
     {                                                                          \
         if (PFX##_empty(_map_))                                                \
+        {                                                                      \
+            _map_->flag = cmc_flags.EMPTY;                                     \
             return false;                                                      \
+        }                                                                      \
+                                                                               \
+        K max_key;                                                             \
+        V max_val;                                                             \
                                                                                \
         struct SNAME##_iter iter;                                              \
                                                                                \
@@ -824,15 +909,22 @@ struct cmc_callbacks_multimap
                                                                                \
             if (index == 0)                                                    \
             {                                                                  \
-                *key = result_key;                                             \
-                *value = result_value;                                         \
+                max_key = result_key;                                          \
+                max_val = result_value;                                        \
             }                                                                  \
-            else if (_map_->f_key->cmp(result_key, *key) > 0)                  \
+            else if (_map_->f_key->cmp(result_key, max_key) > 0)               \
             {                                                                  \
-                *key = result_key;                                             \
-                *value = result_value;                                         \
+                max_key = result_key;                                          \
+                max_val = result_value;                                        \
             }                                                                  \
         }                                                                      \
+                                                                               \
+        if (key)                                                               \
+            *key = max_key;                                                    \
+        if (value)                                                             \
+            *value = max_val;                                                  \
+                                                                               \
+        _map_->flag = cmc_flags.OK;                                            \
                                                                                \
         return true;                                                           \
     }                                                                          \
@@ -840,7 +932,13 @@ struct cmc_callbacks_multimap
     bool PFX##_min(struct SNAME *_map_, K *key, V *value)                      \
     {                                                                          \
         if (PFX##_empty(_map_))                                                \
+        {                                                                      \
+            _map_->flag = cmc_flags.EMPTY;                                     \
             return false;                                                      \
+        }                                                                      \
+                                                                               \
+        K min_key;                                                             \
+        V min_val;                                                             \
                                                                                \
         struct SNAME##_iter iter;                                              \
                                                                                \
@@ -853,35 +951,64 @@ struct cmc_callbacks_multimap
                                                                                \
             if (index == 0)                                                    \
             {                                                                  \
-                *key = result_key;                                             \
-                *value = result_value;                                         \
+                min_key = result_key;                                          \
+                min_val = result_value;                                        \
             }                                                                  \
-            else if (_map_->f_key->cmp(result_key, *key) < 0)                  \
+            else if (_map_->f_key->cmp(result_key, min_key) < 0)               \
             {                                                                  \
-                *key = result_key;                                             \
-                *value = result_value;                                         \
+                min_key = result_key;                                          \
+                min_val = result_value;                                        \
             }                                                                  \
         }                                                                      \
+                                                                               \
+        if (key)                                                               \
+            *key = min_key;                                                    \
+        if (value)                                                             \
+            *value = min_val;                                                  \
+                                                                               \
+        _map_->flag = cmc_flags.OK;                                            \
                                                                                \
         return true;                                                           \
     }                                                                          \
                                                                                \
     V PFX##_get(struct SNAME *_map_, K key)                                    \
     {                                                                          \
+        if (PFX##_empty(_map_))                                                \
+        {                                                                      \
+            _map_->flag = cmc_flags.EMPTY;                                     \
+            return false;                                                      \
+        }                                                                      \
+                                                                               \
         struct SNAME##_entry *entry = PFX##_impl_get_entry(_map_, key);        \
                                                                                \
         if (!entry)                                                            \
+        {                                                                      \
+            _map_->flag = cmc_flags.NOT_FOUND;                                 \
             return (V){ 0 };                                                   \
+        }                                                                      \
+                                                                               \
+        _map_->flag = cmc_flags.OK;                                            \
                                                                                \
         return entry->value;                                                   \
     }                                                                          \
                                                                                \
     V *PFX##_get_ref(struct SNAME *_map_, K key)                               \
     {                                                                          \
+        if (PFX##_empty(_map_))                                                \
+        {                                                                      \
+            _map_->flag = cmc_flags.EMPTY;                                     \
+            return false;                                                      \
+        }                                                                      \
+                                                                               \
         struct SNAME##_entry *entry = PFX##_impl_get_entry(_map_, key);        \
                                                                                \
         if (!entry)                                                            \
+        {                                                                      \
+            _map_->flag = cmc_flags.NOT_FOUND;                                 \
             return NULL;                                                       \
+        }                                                                      \
+                                                                               \
+        _map_->flag = cmc_flags.OK;                                            \
                                                                                \
         return &(entry->value);                                                \
     }                                                                          \
@@ -908,25 +1035,7 @@ struct cmc_callbacks_multimap
                                                                                \
     size_t PFX##_key_count(struct SNAME *_map_, K key)                         \
     {                                                                          \
-        size_t hash = _map_->f_key->hash(key);                                 \
-                                                                               \
-        struct SNAME##_entry *entry =                                          \
-            _map_->buffer[hash % _map_->capacity][0];                          \
-                                                                               \
-        size_t total_count = 0;                                                \
-                                                                               \
-        if (!entry)                                                            \
-            return total_count;                                                \
-                                                                               \
-        while (entry != NULL)                                                  \
-        {                                                                      \
-            if (_map_->f_key->cmp(entry->key, key) == 0)                       \
-                total_count++;                                                 \
-                                                                               \
-            entry = entry->next;                                               \
-        }                                                                      \
-                                                                               \
-        return total_count;                                                    \
+        return PFX##_impl_key_count(_map_, key);                               \
     }                                                                          \
                                                                                \
     size_t PFX##_capacity(struct SNAME *_map_)                                 \
@@ -939,31 +1048,47 @@ struct cmc_callbacks_multimap
         return _map_->load;                                                    \
     }                                                                          \
                                                                                \
+    int PFX##_flag(struct SNAME *_map_)                                        \
+    {                                                                          \
+        return _map_->flag;                                                    \
+    }                                                                          \
+                                                                               \
     bool PFX##_resize(struct SNAME *_map_, size_t capacity)                    \
     {                                                                          \
-        if (PFX##_capacity(_map_) == capacity)                                 \
+        _map_->flag = cmc_flags.OK;                                            \
+                                                                               \
+        if (_map_->capacity == capacity)                                       \
             return true;                                                       \
                                                                                \
-        if (PFX##_capacity(_map_) > capacity / _map_->load)                    \
+        if (_map_->capacity > capacity / _map_->load)                          \
             return true;                                                       \
                                                                                \
         /* Prevent integer overflow */                                         \
         if (capacity >= UINTMAX_MAX * _map_->load)                             \
+        {                                                                      \
+            _map_->flag = cmc_flags.ERROR;                                     \
             return false;                                                      \
+        }                                                                      \
                                                                                \
         /* Calculate required capacity based on the prime numbers */           \
         size_t theoretical_size = PFX##_impl_calculate_size(capacity);         \
                                                                                \
         /* Not possible to shrink with current available prime numbers */      \
-        if (theoretical_size < PFX##_count(_map_) / _map_->load)               \
+        if (theoretical_size < _map_->count / _map_->load)                     \
+        {                                                                      \
+            _map_->flag = cmc_flags.ERROR;                                     \
             return false;                                                      \
+        }                                                                      \
                                                                                \
         struct SNAME *_new_map_ =                                              \
             PFX##_new_custom(capacity, _map_->load, _map_->f_key,              \
                              _map_->f_val, _map_->alloc, _map_->callbacks);    \
                                                                                \
         if (!_new_map_)                                                        \
+        {                                                                      \
+            _map_->flag = cmc_flags.ALLOC;                                     \
             return false;                                                      \
+        }                                                                      \
                                                                                \
         struct SNAME##_iter iter;                                              \
                                                                                \
@@ -976,9 +1101,11 @@ struct cmc_callbacks_multimap
             PFX##_insert(_new_map_, key, value);                               \
         }                                                                      \
                                                                                \
-        if (PFX##_count(_map_) != PFX##_count(_new_map_))                      \
+        if (_map_->count != _new_map_->count)                                  \
         {                                                                      \
             PFX##_free(_new_map_);                                             \
+                                                                               \
+            _map_->flag = cmc_flags.ERROR;                                     \
             return false;                                                      \
         }                                                                      \
                                                                                \
@@ -1002,7 +1129,10 @@ struct cmc_callbacks_multimap
             _map_->f_val, _map_->alloc, _map_->callbacks);                     \
                                                                                \
         if (!result)                                                           \
+        {                                                                      \
+            _map_->flag = cmc_flags.ERROR;                                     \
             return NULL;                                                       \
+        }                                                                      \
                                                                                \
         struct SNAME##_iter iter;                                              \
         PFX##_iter_init(&iter, _map_);                                         \
@@ -1024,44 +1154,30 @@ struct cmc_callbacks_multimap
             }                                                                  \
         }                                                                      \
                                                                                \
+        _map_->flag = cmc_flags.OK;                                            \
+                                                                               \
         return result;                                                         \
     }                                                                          \
                                                                                \
-    bool PFX##_equals(struct SNAME *_map1_, struct SNAME *_map2_,              \
-                      bool ignore_key_count)                                   \
+    bool PFX##_equals(struct SNAME *_map1_, struct SNAME *_map2_)              \
     {                                                                          \
-        if (ignore_key_count)                                                  \
-        {                                                                      \
-            struct SNAME##_iter iter;                                          \
-            PFX##_iter_init(&iter, _map1_);                                    \
+        _map1_->flag = cmc_flags.OK;                                           \
+        _map2_->flag = cmc_flags.OK;                                           \
                                                                                \
-            for (PFX##_iter_to_start(&iter); !PFX##_iter_end(&iter);           \
-                 PFX##_iter_next(&iter))                                       \
-            {                                                                  \
-                if (PFX##_impl_get_entry(_map2_, PFX##_iter_key(&iter)) ==     \
-                    NULL)                                                      \
-                    return false;                                              \
-            }                                                                  \
-        }                                                                      \
-        else                                                                   \
+        if (_map1_->count != _map2_->count)                                    \
+            return false;                                                      \
+                                                                               \
+        struct SNAME##_iter iter;                                              \
+        PFX##_iter_init(&iter, _map1_);                                        \
+                                                                               \
+        for (PFX##_iter_to_start(&iter); !PFX##_iter_end(&iter);               \
+             PFX##_iter_next(&iter))                                           \
         {                                                                      \
-            /* Since the key count matters this can be checked and an */       \
-            /* early exit */                                                   \
-            if (PFX##_count(_map1_) != PFX##_count(_map2_))                    \
+            K key = PFX##_iter_key(&iter);                                     \
+                                                                               \
+            if (PFX##_impl_key_count(_map1_, key) !=                           \
+                PFX##_impl_key_count(_map2_, key))                             \
                 return false;                                                  \
-                                                                               \
-            struct SNAME##_iter iter;                                          \
-            PFX##_iter_init(&iter, _map1_);                                    \
-                                                                               \
-            for (PFX##_iter_to_start(&iter); !PFX##_iter_end(&iter);           \
-                 PFX##_iter_next(&iter))                                       \
-            {                                                                  \
-                K key = PFX##_iter_key(&iter);                                 \
-                                                                               \
-                if (PFX##_key_count(_map1_, key) !=                            \
-                    PFX##_key_count(_map2_, key))                              \
-                    return false;                                              \
-            }                                                                  \
         }                                                                      \
                                                                                \
         return true;                                                           \
@@ -1237,13 +1353,13 @@ struct cmc_callbacks_multimap
         if (iter->end)                                                         \
             return false;                                                      \
                                                                                \
-        if (iter->index + 1 == PFX##_count(iter->target))                      \
+        if (iter->index + 1 == iter->target->count)                            \
         {                                                                      \
             iter->end = true;                                                  \
             return false;                                                      \
         }                                                                      \
                                                                                \
-        if (steps == 0 || iter->index + steps >= PFX##_count(iter->target))    \
+        if (steps == 0 || iter->index + steps >= iter->target->count)          \
             return false;                                                      \
                                                                                \
         for (size_t i = 0; i < steps; i++)                                     \
@@ -1277,7 +1393,7 @@ struct cmc_callbacks_multimap
     /* given index */                                                          \
     bool PFX##_iter_go_to(struct SNAME##_iter *iter, size_t index)             \
     {                                                                          \
-        if (index >= PFX##_count(iter->target))                                \
+        if (index >= iter->target->count)                                      \
             return false;                                                      \
                                                                                \
         if (iter->index > index)                                               \
@@ -1350,6 +1466,29 @@ struct cmc_callbacks_multimap
         }                                                                      \
                                                                                \
         return NULL;                                                           \
+    }                                                                          \
+                                                                               \
+    size_t PFX##_impl_key_count(struct SNAME *_map_, K key)                    \
+    {                                                                          \
+        size_t hash = _map_->f_key->hash(key);                                 \
+                                                                               \
+        struct SNAME##_entry *entry =                                          \
+            _map_->buffer[hash % _map_->capacity][0];                          \
+                                                                               \
+        size_t total_count = 0;                                                \
+                                                                               \
+        if (!entry)                                                            \
+            return total_count;                                                \
+                                                                               \
+        while (entry != NULL)                                                  \
+        {                                                                      \
+            if (_map_->f_key->cmp(entry->key, key) == 0)                       \
+                total_count++;                                                 \
+                                                                               \
+            entry = entry->next;                                               \
+        }                                                                      \
+                                                                               \
+        return total_count;                                                    \
     }                                                                          \
                                                                                \
     size_t PFX##_impl_calculate_size(size_t required)                          \
