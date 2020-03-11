@@ -659,15 +659,18 @@ CMC_CREATE_UNIT(deque_test, true, {
         cmc_assert_equals(int32_t, cmc_flags.OK, d_flag(d));
 
         // customize
+        d->flag = cmc_flags.ERROR;
         d_customize(d, &cmc_alloc_node_default,
                     &(struct cmc_callbacks_deque){ 0 });
         cmc_assert_equals(int32_t, cmc_flags.OK, d_flag(d));
 
         // push_front
+        d->flag = cmc_flags.ERROR;
         cmc_assert(d_push_front(d, 1));
         cmc_assert_equals(int32_t, cmc_flags.OK, d_flag(d));
 
         // pop_front
+        d->flag = cmc_flags.ERROR;
         cmc_assert(d_pop_front(d));
         cmc_assert_equals(int32_t, cmc_flags.OK, d_flag(d));
         cmc_assert(!d_pop_front(d));
@@ -678,20 +681,24 @@ CMC_CREATE_UNIT(deque_test, true, {
         cmc_assert_equals(int32_t, cmc_flags.OK, d_flag(d));
 
         // pop_back
+        d->flag = cmc_flags.ERROR;
         cmc_assert(d_pop_back(d));
         cmc_assert_equals(int32_t, cmc_flags.OK, d_flag(d));
         cmc_assert(!d_pop_back(d));
         cmc_assert_equals(int32_t, cmc_flags.EMPTY, d_flag(d));
 
         // front
+        d->flag = cmc_flags.ERROR;
         cmc_assert(d_front(d) == 0);
         cmc_assert_equals(int32_t, cmc_flags.EMPTY, d_flag(d));
 
         cmc_assert(d_push_back(d, 1));
+        d->flag = cmc_flags.ERROR;
         cmc_assert(d_front(d) == 1);
         cmc_assert_equals(int32_t, cmc_flags.OK, d_flag(d));
 
         // clear
+        d->flag = cmc_flags.ERROR;
         d_clear(d);
         cmc_assert_equals(int32_t, cmc_flags.OK, d_flag(d));
 
@@ -703,14 +710,23 @@ CMC_CREATE_UNIT(deque_test, true, {
         cmc_assert(d_back(d) == 1);
         cmc_assert_equals(int32_t, cmc_flags.OK, d_flag(d));
 
+        // contains
+        d->flag = cmc_flags.ERROR;
+        cmc_assert(d_contains(d, 1));
+        cmc_assert_equals(int32_t, cmc_flags.OK, d_flag(d));
+
         // copy_of
+        d->flag = cmc_flags.ERROR;
         struct deque *d2 = d_copy_of(d);
 
+        cmc_assert_equals(int32_t, cmc_flags.OK, d_flag(d));
         cmc_assert_equals(int32_t, cmc_flags.OK, d_flag(d2));
 
         // equals
         cmc_assert(d_pop_back(d));
         cmc_assert(d_pop_back(d2));
+        d->flag = cmc_flags.ERROR;
+        d2->flag = cmc_flags.ERROR;
         d_front(d);
         d_front(d2);
         cmc_assert_equals(int32_t, cmc_flags.EMPTY, d_flag(d));

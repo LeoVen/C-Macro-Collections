@@ -251,6 +251,11 @@ CMC_CREATE_UNIT(multimap_test, true, {
         mm_get_ref(map, 1);
         cmc_assert_equals(int32_t, cmc_flags.EMPTY, mm_flag(map));
 
+        // contains
+        map->flag = cmc_flags.ERROR;
+        cmc_assert(!mm_contains(map, 1000));
+        cmc_assert_equals(int32_t, cmc_flags.OK, mm_flag(map));
+
         // copy_of
         map->flag = cmc_flags.ERROR;
         struct multimap *map2 = mm_copy_of(map);

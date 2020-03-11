@@ -375,7 +375,7 @@ CMC_CREATE_UNIT(bidimap_test, true, {
 
         cmc_assert(!bm_insert(map, 1, 2));
         cmc_assert_equals(int32_t, cmc_flags.DUPLICATE, bm_flag(map));
-
+        map->flag = cmc_flags.ERROR;
         cmc_assert(!bm_insert(map, 2, 1));
         cmc_assert_equals(int32_t, cmc_flags.DUPLICATE, bm_flag(map));
 
@@ -394,6 +394,7 @@ CMC_CREATE_UNIT(bidimap_test, true, {
         cmc_assert(bm_insert(map, 2, 2));
         cmc_assert(!bm_update_key(map, 1, 2));
         cmc_assert_equals(int32_t, cmc_flags.DUPLICATE, bm_flag(map));
+        map->flag = cmc_flags.ERROR;
         cmc_assert(!bm_update_key(map, 2, 1));
         cmc_assert_equals(int32_t, cmc_flags.DUPLICATE, bm_flag(map));
 
@@ -412,6 +413,7 @@ CMC_CREATE_UNIT(bidimap_test, true, {
         cmc_assert(bm_insert(map, 2, 2));
         cmc_assert(!bm_update_key_by_val(map, 2, 1));
         cmc_assert_equals(int32_t, cmc_flags.DUPLICATE, bm_flag(map));
+        map->flag = cmc_flags.ERROR;
         cmc_assert(!bm_update_key_by_val(map, 1, 2));
         cmc_assert_equals(int32_t, cmc_flags.DUPLICATE, bm_flag(map));
 
@@ -430,6 +432,7 @@ CMC_CREATE_UNIT(bidimap_test, true, {
         cmc_assert(bm_insert(map, 2, 2));
         cmc_assert(!bm_update_val(map, 1, 2));
         cmc_assert_equals(int32_t, cmc_flags.DUPLICATE, bm_flag(map));
+        map->flag = cmc_flags.ERROR;
         cmc_assert(!bm_update_val(map, 2, 1));
         cmc_assert_equals(int32_t, cmc_flags.DUPLICATE, bm_flag(map));
 
@@ -448,6 +451,7 @@ CMC_CREATE_UNIT(bidimap_test, true, {
         cmc_assert(bm_insert(map, 2, 2));
         cmc_assert(!bm_update_val_by_key(map, 2, 1));
         cmc_assert_equals(int32_t, cmc_flags.DUPLICATE, bm_flag(map));
+        map->flag = cmc_flags.ERROR;
         cmc_assert(!bm_update_val_by_key(map, 1, 2));
         cmc_assert_equals(int32_t, cmc_flags.DUPLICATE, bm_flag(map));
 
@@ -480,13 +484,24 @@ CMC_CREATE_UNIT(bidimap_test, true, {
 
         cmc_assert_equals(size_t, 2, bm_get_key(map, 1));
         cmc_assert_equals(int32_t, cmc_flags.OK, bm_flag(map));
+        map->flag = cmc_flags.ERROR;
         cmc_assert_equals(size_t, 1, bm_get_val(map, 2));
         cmc_assert_equals(int32_t, cmc_flags.OK, bm_flag(map));
 
         cmc_assert_equals(size_t, 0, bm_get_key(map, 2));
         cmc_assert_equals(int32_t, cmc_flags.NOT_FOUND, bm_flag(map));
+        map->flag = cmc_flags.ERROR;
         cmc_assert_equals(size_t, 0, bm_get_val(map, 1));
         cmc_assert_equals(int32_t, cmc_flags.NOT_FOUND, bm_flag(map));
+
+        // contains_key
+        cmc_assert(bm_contains_key(map, 2));
+        cmc_assert_equals(int32_t, cmc_flags.OK, bm_flag(map));
+
+        // contains_val
+        map->flag = cmc_flags.ERROR;
+        cmc_assert(bm_contains_val(map, 1));
+        cmc_assert_equals(int32_t, cmc_flags.OK, bm_flag(map));
 
         // copy_of
         struct bidimap *map2 = bm_copy_of(map);
@@ -507,6 +522,7 @@ CMC_CREATE_UNIT(bidimap_test, true, {
         bm_get_key(map2, 100);
         cmc_assert_equals(int32_t, cmc_flags.NOT_FOUND, bm_flag(map));
         cmc_assert_equals(int32_t, cmc_flags.NOT_FOUND, bm_flag(map2));
+        map->flag = cmc_flags.ERROR;
         cmc_assert(bm_equals(map, map2));
         cmc_assert_equals(int32_t, cmc_flags.OK, bm_flag(map));
         cmc_assert_equals(int32_t, cmc_flags.OK, bm_flag(map2));

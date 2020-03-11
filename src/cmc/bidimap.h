@@ -894,11 +894,15 @@ struct cmc_callbacks_bidimap
                                                                                \
     bool PFX##_contains_key(struct SNAME *_map_, K key)                        \
     {                                                                          \
+        _map_->flag = cmc_flags.OK;                                            \
+                                                                               \
         return PFX##_impl_get_entry_by_key(_map_, key) != NULL;                \
     }                                                                          \
                                                                                \
     bool PFX##_contains_val(struct SNAME *_map_, V val)                        \
     {                                                                          \
+        _map_->flag = cmc_flags.OK;                                            \
+                                                                               \
         return PFX##_impl_get_entry_by_val(_map_, val) != NULL;                \
     }                                                                          \
                                                                                \

@@ -1015,6 +1015,8 @@ struct cmc_callbacks_multimap
                                                                                \
     bool PFX##_contains(struct SNAME *_map_, K key)                            \
     {                                                                          \
+        _map_->flag = cmc_flags.OK;                                            \
+                                                                               \
         return PFX##_impl_get_entry(_map_, key) != NULL;                       \
     }                                                                          \
                                                                                \
