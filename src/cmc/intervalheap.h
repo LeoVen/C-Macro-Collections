@@ -798,11 +798,11 @@ struct cmc_callbacks_intervalheap
             V element1 = _heap1_->buffer[i / 2].data[i % 2];                   \
             V element2 = _heap2_->buffer[i / 2].data[i % 2];                   \
                                                                                \
-            if (_heap1_->f_val->cmp(element1, element2) == 0)                  \
-                return true;                                                   \
+            if (_heap1_->f_val->cmp(element1, element2) != 0)                  \
+                return false;                                                  \
         }                                                                      \
                                                                                \
-        return false;                                                          \
+        return true;                                                           \
     }                                                                          \
                                                                                \
     struct cmc_string PFX##_to_string(struct SNAME *_heap_)                    \

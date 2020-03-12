@@ -485,7 +485,15 @@ CMC_CREATE_UNIT(list_test, true, {
         cmc_assert_equals(int32_t, cmc_flags.OK, l_flag(l));
         cmc_assert_equals(int32_t, cmc_flags.OK, l_flag(l3));
 
+        // equals
+        l->flag = cmc_flags.ERROR;
+        l3->flag = cmc_flags.ERROR;
+        cmc_assert(l_equals(l, l3));
+        cmc_assert_equals(int32_t, cmc_flags.OK, l_flag(l));
+        cmc_assert_equals(int32_t, cmc_flags.OK, l_flag(l3));
+
         l_free(l);
         l_free(l2);
+        l_free(l3);
     });
 })

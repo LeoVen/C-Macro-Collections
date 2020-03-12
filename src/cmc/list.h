@@ -867,7 +867,7 @@ struct cmc_callbacks_list
                 return false;                                                  \
         }                                                                      \
                                                                                \
-        return false;                                                          \
+        return true;                                                           \
     }                                                                          \
                                                                                \
     struct cmc_string PFX##_to_string(struct SNAME *_list_)                    \
