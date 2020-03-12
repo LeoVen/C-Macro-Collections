@@ -832,7 +832,7 @@ struct cmc_callbacks_hashmap
         /* Not possible to shrink with current available prime numbers */     \
         if (theoretical_size < _map_->count / _map_->load)                    \
         {                                                                     \
-            _map_->flag = cmc_flags.ERROR;                                    \
+            _map_->flag = cmc_flags.INVALID;                                  \
             return false;                                                     \
         }                                                                     \
                                                                               \

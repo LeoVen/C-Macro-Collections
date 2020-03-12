@@ -523,7 +523,7 @@ struct cmc_callbacks_heap
                                                                                \
         if (capacity < _heap_->count)                                          \
         {                                                                      \
-            _heap_->flag = cmc_flags.ERROR;                                    \
+            _heap_->flag = cmc_flags.INVALID;                                  \
             return false;                                                      \
         }                                                                      \
                                                                                \

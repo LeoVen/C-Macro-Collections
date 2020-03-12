@@ -707,6 +707,13 @@ struct cmc_callbacks_intervalheap
                                                                                \
         if (capacity < _heap_->count)                                          \
         {                                                                      \
+            _heap_->flag = cmc_flags.INVALID;                                  \
+            return false;                                                      \
+        }                                                                      \
+                                                                               \
+        /* Prevent overflow */                                                 \
+        if (capacity == UINTMAX_MAX)                                           \
+        {                                                                      \
             _heap_->flag = cmc_flags.ERROR;                                    \
             return false;                                                      \
         }                                                                      \

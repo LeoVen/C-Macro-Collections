@@ -959,7 +959,7 @@ struct cmc_callbacks_bidimap
         /* Not possible to shrink with current available prime numbers */      \
         if (new_cap < _map_->count / _map_->load)                              \
         {                                                                      \
-            _map_->flag = cmc_flags.ERROR;                                     \
+            _map_->flag = cmc_flags.INVALID;                                   \
             return false;                                                      \
         }                                                                      \
                                                                                \

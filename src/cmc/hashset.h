@@ -713,7 +713,7 @@ struct cmc_callbacks_hashset
         /* Not possible to shrink with current available prime numbers */      \
         if (theoretical_size < _set_->count / _set_->load)                     \
         {                                                                      \
-            _set_->flag = cmc_flags.ERROR;                                     \
+            _set_->flag = cmc_flags.INVALID;                                   \
             return false;                                                      \
         }                                                                      \
                                                                                \
