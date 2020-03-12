@@ -1,3 +1,5 @@
+THIS IS AN OLD DOCUMENTATION MARKDOWN AND IS SOON TO BE REPLACED
+
 __Check out the new documentation at__ https://leoven.github.io/C-Macro-Collections/
 
 

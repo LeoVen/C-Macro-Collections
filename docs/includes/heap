@@ -1,0 +1,24 @@
+<h1 id='heap-h'>heap.h</h1>
+<p>The Heap is a specialized tree-based data structure which is essentially a complete tree that satisfies the heap property:</p>
+
+<p><strong>MaxHeap</strong></p>
+
+<ul>
+<li>- The root node is the greatest element of the unique set of keys.</li>
+<li>- A node key is always greater than or equal to its children keys.</li>
+</ul>
+
+<p><strong>Minheap</strong></p>
+
+<ul>
+<li>- The root node is the smallest element of the unique set of keys.</li>
+<li>- A node Key is always greater than or equal to its children keys.</li>
+</ul>
+
+<p>The heap is mostly used to implement priority queues. Sometimes it can also be used to sort elements. There are three main functions:</p>
+
+<ul>
+<li>insert : Adds an element to the heap</li>
+<li>remove_(min/max): Removes the min/max element from the heap</li>
+<li>min/max : Accesses the min/max element from the heap</li>
+</ul>

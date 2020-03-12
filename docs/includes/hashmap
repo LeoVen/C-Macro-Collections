@@ -1,0 +1,6 @@
+<h1 id='hashmap-h'>hashmap.h</h1>
+<p>A HashMap is an implementation of a Map with unique keys, where every key is mapped to a value (K -&gt; V). The keys are not sorted. To access a value you must specify a key. This key is hashed to a number that uniquely represents it and through this it is possible to find in which position of an array of buckets the value is.</p>
+<h2 id='hashmap-implementation'>HashMap Implementation</h2>
+<p>The HashMap is implemented as a flat HashTable meaning that every entry is allocated when the collection is initialized, but they are all empty.</p>
+
+<p>The HashTable uses <a href="https://en.wikipedia.org/wiki/Open_addressing">Open Addressing</a> and <a href="https://en.wikipedia.org/wiki/Linear_probing">Linear Probing</a> to resolve collisions along with <a href="https://en.wikipedia.org/wiki/Hash_table">Robin Hood Hashing</a> to minimize the worst case scenarios.</p>

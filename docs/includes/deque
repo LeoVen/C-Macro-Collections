@@ -1,0 +1,114 @@
+<h1 id='deque-h'>deque.h</h1>
+<p>A Deque, also known as a double-ended queue, is a linear data structure that is able to add and remove elements from both ends. It can also be thought of a double-ended stack since you can push and pop elements from two ends. The Deque can also be used as a Queue. The only elements accessible from a Deque ar the two elements at its ends (front element and back element).</p>
+<h2 id='deque-implementation'>Deque Implementation</h2>
+<p>This implementation uses a circular buffer (ring buffer or cyclic buffer) in order to operate on O(1) for push and pop on either ends. The only case where it takes longer than O(1) is when the buffer is reallocated. If it was implemented as a regular array, adding or removing elements from the front would take O(N) due to the need to shift all elements in the Deque.</p>
+
+<p>Two indices are kept track of. The <code>front</code> index and the <code>rear</code> index. These represent the both ends of the Deque. If an index reaches one end of the real buffer, they wrap around to the other end and an element is added there. This abstracts the real buffer as a circular buffer with the cost os constantly checking for boundaries and using the modulo operator.</p>
+<h2 id='deque-generation-macro'>Deque Generation Macro</h2>
+<p><code>CMC_GENERATE_DEQUE(PFX, SNAME, V)</code></p>
+
+<table><thead>
+<tr>
+<th></th>
+<th></th>
+</tr>
+</thead><tbody>
+<tr>
+<td><code>PFX</code></td>
+<td>Functions namespace or prefix</td>
+</tr>
+<tr>
+<td><code>SNAME</code></td>
+<td>Structure name</td>
+</tr>
+<tr>
+<td><code>V</code></td>
+<td>Element type</td>
+</tr>
+</tbody></table>
+<h2 id='deque-structures'>Deque Structures</h2>
+<table><thead>
+<tr>
+<th></th>
+<th></th>
+</tr>
+</thead><tbody>
+<tr>
+<td><code>struct SNAME</code></td>
+<td>A double-ended queue data structure</td>
+</tr>
+<tr>
+<td><code>struct SNAME##_iter</code></td>
+<td>A double-ended queue iterator</td>
+</tr>
+</tbody></table>
+<h3 id='members'>Members</h3>
+<table><thead>
+<tr>
+<th><code>struct SNAME</code></th>
+<th></th>
+</tr>
+</thead><tbody>
+<tr>
+<td><code>V *buffer</code></td>
+<td>Dynamic circular array of elements.</td>
+</tr>
+<tr>
+<td><code>size_t capacity</code></td>
+<td>Current circular array capacity.</td>
+</tr>
+<tr>
+<td><code>size_t count</code></td>
+<td>Current amount of elements.</td>
+</tr>
+<tr>
+<td><code>size_t front</code></td>
+<td>Index representing the front of the deque.</td>
+</tr>
+<tr>
+<td><code>size_t rear</code></td>
+<td>Index representing the back of the deque.</td>
+</tr>
+<tr>
+<td><code>it_start</code> <sup>[1]</sup></td>
+<td>Function that returns an iterator to the start of the deque.</td>
+</tr>
+<tr>
+<td><code>it_end</code> <sup>[2]</sup></td>
+<td>Function that returns an iterator to the end of the deque.</td>
+</tr>
+</tbody></table>
+
+<ol>
+<li>Full definition: <code>struct SNAME##_iter (*it_start)(struct SNAME *);</code>.</li>
+<li>Full definition: <code>struct SNAME##_iter (*it_end)(struct SNAME *);</code>.</li>
+</ol>
+
+<table><thead>
+<tr>
+<th><code>struct SNAME##_iter</code></th>
+<th></th>
+</tr>
+</thead><tbody>
+<tr>
+<td><code>struct SNAME *target</code></td>
+<td>Deque being iterated over.</td>
+</tr>
+<tr>
+<td><code>size_t cursor</code></td>
+<td>Cursor&#39;s current position (index).</td>
+</tr>
+<tr>
+<td><code>size_t index</code></td>
+<td>Relative index to all elements in the iteration.</td>
+</tr>
+<tr>
+<td><code>bool start</code></td>
+<td>If the iterator reached the start of the iteration.</td>
+</tr>
+<tr>
+<td><code>bool end</code></td>
+<td>If the iterator reached the end of iteration.</td>
+</tr>
+</tbody></table>
+<h2 id='deque-functions'>Deque Functions</h2><h2 id='deque-callback-table'>Deque Callback Table</h2>

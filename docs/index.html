@@ -1,0 +1,1111 @@
+
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <meta content="IE=edge,chrome=1" http-equiv="X-UA-Compatible">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+    <title>CMC Documentation</title>
+
+    <style>
+      .highlight table td { padding: 5px; }
+.highlight table pre { margin: 0; }
+.highlight .gh {
+  color: #999999;
+}
+.highlight .sr {
+  color: #f6aa11;
+}
+.highlight .go {
+  color: #888888;
+}
+.highlight .gp {
+  color: #555555;
+}
+.highlight .gs {
+}
+.highlight .gu {
+  color: #aaaaaa;
+}
+.highlight .nb {
+  color: #f6aa11;
+}
+.highlight .cm {
+  color: #75715e;
+}
+.highlight .cp {
+  color: #75715e;
+}
+.highlight .c1 {
+  color: #75715e;
+}
+.highlight .cs {
+  color: #75715e;
+}
+.highlight .c, .highlight .cd {
+  color: #75715e;
+}
+.highlight .err {
+  color: #960050;
+}
+.highlight .gr {
+  color: #960050;
+}
+.highlight .gt {
+  color: #960050;
+}
+.highlight .gd {
+  color: #49483e;
+}
+.highlight .gi {
+  color: #49483e;
+}
+.highlight .ge {
+  color: #49483e;
+}
+.highlight .kc {
+  color: #66d9ef;
+}
+.highlight .kd {
+  color: #66d9ef;
+}
+.highlight .kr {
+  color: #66d9ef;
+}
+.highlight .no {
+  color: #66d9ef;
+}
+.highlight .kt {
+  color: #66d9ef;
+}
+.highlight .mf {
+  color: #ae81ff;
+}
+.highlight .mh {
+  color: #ae81ff;
+}
+.highlight .il {
+  color: #ae81ff;
+}
+.highlight .mi {
+  color: #ae81ff;
+}
+.highlight .mo {
+  color: #ae81ff;
+}
+.highlight .m, .highlight .mb, .highlight .mx {
+  color: #ae81ff;
+}
+.highlight .sc {
+  color: #ae81ff;
+}
+.highlight .se {
+  color: #ae81ff;
+}
+.highlight .ss {
+  color: #ae81ff;
+}
+.highlight .sd {
+  color: #e6db74;
+}
+.highlight .s2 {
+  color: #e6db74;
+}
+.highlight .sb {
+  color: #e6db74;
+}
+.highlight .sh {
+  color: #e6db74;
+}
+.highlight .si {
+  color: #e6db74;
+}
+.highlight .sx {
+  color: #e6db74;
+}
+.highlight .s1 {
+  color: #e6db74;
+}
+.highlight .s {
+  color: #e6db74;
+}
+.highlight .na {
+  color: #a6e22e;
+}
+.highlight .nc {
+  color: #a6e22e;
+}
+.highlight .nd {
+  color: #a6e22e;
+}
+.highlight .ne {
+  color: #a6e22e;
+}
+.highlight .nf {
+  color: #a6e22e;
+}
+.highlight .vc {
+  color: #ffffff;
+}
+.highlight .nn {
+  color: #ffffff;
+}
+.highlight .nl {
+  color: #ffffff;
+}
+.highlight .ni {
+  color: #ffffff;
+}
+.highlight .bp {
+  color: #ffffff;
+}
+.highlight .vg {
+  color: #ffffff;
+}
+.highlight .vi {
+  color: #ffffff;
+}
+.highlight .nv {
+  color: #ffffff;
+}
+.highlight .w {
+  color: #ffffff;
+}
+.highlight {
+  color: #ffffff;
+}
+.highlight .n, .highlight .py, .highlight .nx {
+  color: #ffffff;
+}
+.highlight .ow {
+  color: #f92672;
+}
+.highlight .nt {
+  color: #f92672;
+}
+.highlight .k, .highlight .kv {
+  color: #f92672;
+}
+.highlight .kn {
+  color: #f92672;
+}
+.highlight .kp {
+  color: #f92672;
+}
+.highlight .o {
+  color: #f92672;
+}
+    </style>
+    <link href="stylesheets/screen.css" rel="stylesheet" media="screen" />
+    <link href="stylesheets/print.css" rel="stylesheet" media="print" />
+      <script src="javascripts/all.js"></script>
+  </head>
+
+  <body class="index" data-languages="[&quot;C&quot;]">
+    <a href="#" id="nav-button">
+      <span>
+        NAV
+        <img src="images/navbar.png" alt="Navbar" />
+      </span>
+    </a>
+    <div class="toc-wrapper">
+      <img src="images/logo.png" class="logo" alt="Logo" />
+        <div class="lang-selector">
+              <a href="#" data-language-name="C">C</a>
+        </div>
+        <div class="search">
+          <input type="text" class="search" id="input-search" placeholder="Search">
+        </div>
+        <ul class="search-results"></ul>
+      <ul id="toc" class="toc-list-h1">
+          <li>
+            <a href="#introduction" class="toc-h1 toc-link" data-title="Introduction">Introduction</a>
+              <ul class="toc-list-h2">
+                  <li>
+                    <a href="#why-this-library" class="toc-h2 toc-link" data-title="Why this library">Why this library</a>
+                  </li>
+                  <li>
+                    <a href="#library-structure" class="toc-h2 toc-link" data-title="Library Structure">Library Structure</a>
+                  </li>
+                  <li>
+                    <a href="#how-to-install" class="toc-h2 toc-link" data-title="How to install">How to install</a>
+                  </li>
+                  <li>
+                    <a href="#understanding-the-library" class="toc-h2 toc-link" data-title="Understanding the Library">Understanding the Library</a>
+                  </li>
+              </ul>
+          </li>
+          <li>
+            <a href="#features" class="toc-h1 toc-link" data-title="Features">Features</a>
+              <ul class="toc-list-h2">
+                  <li>
+                    <a href="#two-way-iterators" class="toc-h2 toc-link" data-title="Two-Way Iterators">Two-Way Iterators</a>
+                  </li>
+                  <li>
+                    <a href="#custom-allocation" class="toc-h2 toc-link" data-title="Custom Allocation">Custom Allocation</a>
+                  </li>
+                  <li>
+                    <a href="#callbacks" class="toc-h2 toc-link" data-title="Callbacks">Callbacks</a>
+                  </li>
+                  <li>
+                    <a href="#functions-table" class="toc-h2 toc-link" data-title="Functions Table">Functions Table</a>
+                  </li>
+                  <li>
+                    <a href="#minimal-example" class="toc-h2 toc-link" data-title="Minimal Example">Minimal Example</a>
+                  </li>
+              </ul>
+          </li>
+          <li>
+            <a href="#bidimap-h" class="toc-h1 toc-link" data-title="bidimap.h">bidimap.h</a>
+              <ul class="toc-list-h2">
+                  <li>
+                    <a href="#bidimap-implementation" class="toc-h2 toc-link" data-title="BidiMap Implementation">BidiMap Implementation</a>
+                  </li>
+                  <li>
+                    <a href="#bidimap-generation-macro" class="toc-h2 toc-link" data-title="BidiMap Generation Macro">BidiMap Generation Macro</a>
+                  </li>
+                  <li>
+                    <a href="#bidimap-structures" class="toc-h2 toc-link" data-title="BidiMap Structures">BidiMap Structures</a>
+                  </li>
+                  <li>
+                    <a href="#bidimap-functions" class="toc-h2 toc-link" data-title="BidiMap Functions">BidiMap Functions</a>
+                  </li>
+                  <li>
+                    <a href="#bidimap-callback-table" class="toc-h2 toc-link" data-title="BidiMap Callback Table">BidiMap Callback Table</a>
+                  </li>
+              </ul>
+          </li>
+          <li>
+            <a href="#deque-h" class="toc-h1 toc-link" data-title="deque.h">deque.h</a>
+              <ul class="toc-list-h2">
+                  <li>
+                    <a href="#deque-implementation" class="toc-h2 toc-link" data-title="Deque Implementation">Deque Implementation</a>
+                  </li>
+                  <li>
+                    <a href="#deque-generation-macro" class="toc-h2 toc-link" data-title="Deque Generation Macro">Deque Generation Macro</a>
+                  </li>
+                  <li>
+                    <a href="#deque-structures" class="toc-h2 toc-link" data-title="Deque Structures">Deque Structures</a>
+                  </li>
+                  <li>
+                    <a href="#deque-functions" class="toc-h2 toc-link" data-title="Deque Functions">Deque Functions</a>
+                  </li>
+                  <li>
+                    <a href="#deque-callback-table" class="toc-h2 toc-link" data-title="Deque Callback Table">Deque Callback Table</a>
+                  </li>
+              </ul>
+          </li>
+          <li>
+            <a href="#hashmap-h" class="toc-h1 toc-link" data-title="hashmap.h">hashmap.h</a>
+              <ul class="toc-list-h2">
+                  <li>
+                    <a href="#hashmap-implementation" class="toc-h2 toc-link" data-title="HashMap Implementation">HashMap Implementation</a>
+                  </li>
+              </ul>
+          </li>
+          <li>
+            <a href="#hashset-h" class="toc-h1 toc-link" data-title="hashset.h">hashset.h</a>
+              <ul class="toc-list-h2">
+                  <li>
+                    <a href="#hashset-implementation" class="toc-h2 toc-link" data-title="HashSet Implementation">HashSet Implementation</a>
+                  </li>
+              </ul>
+          </li>
+          <li>
+            <a href="#heap-h" class="toc-h1 toc-link" data-title="heap.h">heap.h</a>
+          </li>
+          <li>
+            <a href="#intervalheap-h" class="toc-h1 toc-link" data-title="intervalheap.h">intervalheap.h</a>
+          </li>
+          <li>
+            <a href="#linkedlist-h" class="toc-h1 toc-link" data-title="linkedlist.h">linkedlist.h</a>
+              <ul class="toc-list-h2">
+                  <li>
+                    <a href="#linkedlist-implementation" class="toc-h2 toc-link" data-title="LinkedList Implementation">LinkedList Implementation</a>
+                  </li>
+              </ul>
+          </li>
+          <li>
+            <a href="#list-h" class="toc-h1 toc-link" data-title="list.h">list.h</a>
+              <ul class="toc-list-h2">
+                  <li>
+                    <a href="#list-implementation" class="toc-h2 toc-link" data-title="List Implementation">List Implementation</a>
+                  </li>
+              </ul>
+          </li>
+          <li>
+            <a href="#multimap-h" class="toc-h1 toc-link" data-title="multimap.h">multimap.h</a>
+              <ul class="toc-list-h2">
+                  <li>
+                    <a href="#multimap-implementation" class="toc-h2 toc-link" data-title="MultiMap Implementation">MultiMap Implementation</a>
+                  </li>
+              </ul>
+          </li>
+          <li>
+            <a href="#multiset-h" class="toc-h1 toc-link" data-title="multiset.h">multiset.h</a>
+          </li>
+          <li>
+            <a href="#queue-h" class="toc-h1 toc-link" data-title="queue.h">queue.h</a>
+              <ul class="toc-list-h2">
+                  <li>
+                    <a href="#queue-implementation" class="toc-h2 toc-link" data-title="Queue Implementation">Queue Implementation</a>
+                  </li>
+              </ul>
+          </li>
+          <li>
+            <a href="#sortedlist-h" class="toc-h1 toc-link" data-title="sortedlist.h">sortedlist.h</a>
+          </li>
+          <li>
+            <a href="#stack-h" class="toc-h1 toc-link" data-title="stack.h">stack.h</a>
+              <ul class="toc-list-h2">
+                  <li>
+                    <a href="#stack-implementation" class="toc-h2 toc-link" data-title="Stack Implementation">Stack Implementation</a>
+                  </li>
+              </ul>
+          </li>
+          <li>
+            <a href="#treemap-h" class="toc-h1 toc-link" data-title="treemap.h">treemap.h</a>
+          </li>
+          <li>
+            <a href="#treeset-h" class="toc-h1 toc-link" data-title="treeset.h">treeset.h</a>
+          </li>
+      </ul>
+        <ul class="toc-footer">
+            <li><a href='https://github.com/lord/slate'>Documentation Powered by Slate</a></li>
+        </ul>
+    </div>
+    <div class="page-wrapper">
+      <div class="dark-box"></div>
+      <div class="content">
+        <h1 id='introduction'>Introduction</h1>
+<p><a href="https://github.com/LeoVen/C-Macro-Collections"><img src="https://img.shields.io/badge/GitHub-C%20Macro%20Collections-lightgrey.svg?logo=github" alt="github" /></a></p>
+
+<p><img src="https://img.shields.io/badge/License-MIT-blue.svg" alt="License" />
+<a href="https://travis-ci.org/LeoVen/C-Macro-Collections"><img src="https://travis-ci.org/LeoVen/C-Macro-Collections.svg?branch=master" alt="Build" /></a>
+<a href="https://codecov.io/gh/LeoVen/C-Macro-Collections"><img src="https://codecov.io/gh/LeoVen/C-Macro-Collections/branch/master/graph/badge.svg" alt="codecov" /></a></p>
+
+<p>The C Macro Collections Library is a compilation of macros that can be used to generate common data structures for any desired type. These data structures are <a href="https://en.wikipedia.org/wiki/Type_safety">type safe</a>.</p>
+
+<p>The documentation is currently being written in hopes that in the future it can be used to help you get to know better this amazing C library.</p>
+<h2 id='why-this-library'>Why this library</h2>
+<p>C is a low level language and lacks all the data structures that we commonly use. Many high level languages already come with these collections so that we don&#39;t have to implement everything ourselves. A lot of third party libraries that implement these missing data structures for the C language usually make use of a void pointers and a lot of macros. <strong>This is why the C Macro Collections Library was created.</strong> All you need to do is to write down one macro and which data type you wish to work with. The library currently provides many data structures, such as:</p>
+
+<table><thead>
+<tr>
+<th></th>
+<th></th>
+</tr>
+</thead><tbody>
+<tr>
+<td>Linear Collections</td>
+<td>List, LinkedList, Deque, Stack, Queue, SortedList</td>
+</tr>
+<tr>
+<td>Sets</td>
+<td>HashSet, TreeSet, MultiSet</td>
+</tr>
+<tr>
+<td>Maps</td>
+<td>HashMap, TreeMap, MultiMap, BidiMap</td>
+</tr>
+<tr>
+<td>Heaps</td>
+<td>Heap, IntervalHeap</td>
+</tr>
+</tbody></table>
+
+<p>All with the following features:</p>
+
+<ul>
+<li><strong>Type-safe</strong> - No <code>void *</code> pointers are used. A collection of type <code>int</code> will only accept integers;</li>
+<li><strong>Customization</strong> - Custom struct name and function namespace;</li>
+<li><strong>Bidirectional Iterators</strong> - Full support for iterators;</li>
+<li><strong>Nesting</strong> - Collections can be nested (List of Lists, HashSet of Stacks, etc).</li>
+</ul>
+<h2 id='library-structure'>Library Structure</h2>
+<p>The <code>src</code> folder is subdivided in 5 other folders and one file:</p>
+
+<blockquote>
+<p>The <code>dev</code> folder is an exact copy of <code>cmc</code> but it is filled with logging information regarding the code execution and debugging.</p>
+
+<p>The <code>sac</code> library contains fixed-length collections with an internal C array. They are allocated on the stack so be careful when using these.</p>
+</blockquote>
+
+<ul>
+<li><strong>cmc</strong> - The main C Macro Collections Library</li>
+<li><strong>dev</strong> - The main C Macro Collections Library for development</li>
+<li><strong>sac</strong> - Statically  Allocated Collections</li>
+<li><strong>utl</strong> - Utility like ForEach macros, logging, etc</li>
+<li><strong>macro_collections.h</strong> - Master header containing all collections and utilities</li>
+</ul>
+<h2 id='how-to-install'>How to install</h2>
+<blockquote>
+<p>Include header files like this</p>
+</blockquote>
+<pre class="highlight c tab-c"><code><span class="cp">#include &lt;cmc/list.h&gt;
+#include &lt;dev/deque.h&gt;
+#include &lt;utl/assert.h&gt;
+</span></code></pre>
+<blockquote>
+<p>Not like this</p>
+</blockquote>
+<pre class="highlight c tab-c"><code><span class="cp">#include &lt;list.h&gt;
+#include &lt;deque.h&gt;  // dev or cmc?
+#include &lt;assert.h&gt; // this will import from the standard library
+</span></code></pre>
+<p>No installation is required. All you have to do is include the appropriate header files, generate any collections that you desire and then compile your program. It is recommended that you include the headers relative to the <code>src</code> folder and include it with <code>-I path/to/library/src</code> as shown in the following example.</p>
+
+<p>The library has no external dependencies other than the C standard library.</p>
+<h2 id='understanding-the-library'>Understanding the Library</h2>
+<p>Every macro within the library is prefixed by <code>CMC</code> or <code>cmc</code>. If you have intellisense you can easily check all the features of the library once you include the necessary headers.</p>
+
+<p>When you generate code for a certain collection you will need to pass two very important parameters: <code>SNAME</code> and <code>PFX</code>.</p>
+
+<p><code>SNAME</code> is a short for struct name. This parameter will define your collection so that its type name becomes:</p>
+
+<p><code>struct SNAME</code></p>
+
+<p>No <code>typedef</code>s are used within the code that is generated in order to not pollute the global namespace. If you wish to <code>typedef</code> feel free to give your own naming conventions. <strong>Every other <code>struct</code> that is generated as part of the implementation will be prefixed by <code>SNAME</code></strong>.</p>
+
+<p><code>PFX</code> is a short for prefix. <strong>Every function generated will be within this namespace</strong>. Just write whichever prefix you gave to your functions and everything will be in there. Functions that are part of the implementation and shouldn&#39;t be called directly are prefixed by <code>_impl_</code> (<code>li32_impl_</code> for example where <code>PFX</code> = <code>li32</code>). Every iterator function will be prefixed by <code>_iter_</code> (<code>li32_iter_</code> for example where <code>PFX</code> = <code>li32</code>).</p>
+<h1 id='features'>Features</h1>
+<p>The C Macro Collections Library comes with powerful collections. In this section you will better understand many features that are common to all data structures.</p>
+<h2 id='two-way-iterators'>Two-Way Iterators</h2>
+<p>Every collection comes with an interface of iterators where you can easily access the elements of a collection. These can move at any direction, can start at any &#39;end&#39; of a collection and can move any amount of steps per iteration. Every collection generated comes with an iterator.</p>
+
+<p>By design choice these iterators do not support modifications to the collection. If a collection is modified, all iterators that have been initialized will most likely be invalidated and may cause undefined behavior if used afterwards.</p>
+<h2 id='custom-allocation'>Custom Allocation</h2>
+<p>All collections have an allocation node. This node can be modified so that every allocation and de-allocation can be done with custom functions. The allocation node has pointers to functions that correspond to:</p>
+
+<ul>
+<li><code>calloc</code></li>
+<li><code>free</code></li>
+<li><code>malloc</code></li>
+<li><code>realloc</code></li>
+</ul>
+<h2 id='callbacks'>Callbacks</h2>
+<p>Every collection can have an optional callback node. In this node there are five functions:</p>
+
+<table><thead>
+<tr>
+<th></th>
+<th></th>
+</tr>
+</thead><tbody>
+<tr>
+<td><code>on_create</code></td>
+<td>Is called when an element is about to be added to the collection</td>
+</tr>
+<tr>
+<td><code>on_read</code></td>
+<td>Is called when the collection is about to be queried about an element</td>
+</tr>
+<tr>
+<td><code>on_update</code></td>
+<td>Is called when an element in the collection is about to be updated</td>
+</tr>
+<tr>
+<td><code>on_delete</code></td>
+<td>Is called when an element is about to be removed from the collection</td>
+</tr>
+<tr>
+<td><code>on_resize</code></td>
+<td>Is called when the collection is full and is about to get resized</td>
+</tr>
+</tbody></table>
+
+<p>Check the documentation for each collection to see which functions call which callbacks.</p>
+<h2 id='functions-table'>Functions Table</h2>
+<p>Functions table is a <code>struct</code> of function pointers containing &#39;methods&#39; for a custom data type. Some methods are optional and others are needed in order to a collection to operate. They are:</p>
+<h3 id='cmp'>CMP</h3>
+<p>A comparator function is used in sorted collections or when an equality is being checked like when trying to find a certain element in a list. It is responsible for taking two arguments of the same data type and comparing them. The return value is an <code>int</code> with the following definitions:</p>
+
+<ul>
+<li>Return <code>1</code> if the first argument is greater than the second;</li>
+<li>Return <code>0</code> if the first argument equals the second;</li>
+<li>Return <code>-1</code> if the first argument is less than the second.</li>
+</ul>
+<h3 id='cpy'>CPY</h3>
+<p>A copy function is used when a collection is being copied. It can be used to make a deep copy of of your custom data type. It must take a single parameter and return a new copy of that same data type. If this function is absent (<code>NULL</code>) the data type will be copied by assignment (for pointers this is a shallow copy).</p>
+<h3 id='str'>STR</h3>
+<p>A string function is responsible for taking a <code>FILE</code> pointer and a custom data type and outputting the string representation of that data returning a <code>bool</code> indication success or failure. It is useful for debugging.</p>
+<h3 id='free'>FREE</h3>
+<p>The free function is called when a collection is cleared (all elements removed) or freed (all elements removed and freed from memory) and it is responsible for completely freeing all resources that are usually acquired by your data type.</p>
+<h3 id='hash'>HASH</h3>
+<p>This function receives a custom data type as parameter and returns a <code>size_t</code> hash of that data. Used in hashtables.</p>
+<h3 id='pri'>PRI</h3>
+<p>A priority function works much like the comparator function except that it compares the priority between two elements. It is used in collections whose structure is based on the priority of elements and not in their general comparison.</p>
+
+<ul>
+<li>Return <code>1</code> if the first argument has a greater priority than the second;</li>
+<li>Return <code>0</code> if the first argument has the same priority as second;</li>
+<li>Return <code>-1</code> if the first argument has a lower priority than the second.</li>
+</ul>
+
+<p>The following table shows which functions are required, optional or never used for each Collection:</p>
+
+<table><thead>
+<tr>
+<th>Collection</th>
+<th style="text-align: center">CMP</th>
+<th style="text-align: center">CPY</th>
+<th style="text-align: center">STR</th>
+<th style="text-align: center">FREE</th>
+<th style="text-align: center">HASH</th>
+<th style="text-align: center">PRI</th>
+</tr>
+</thead><tbody>
+<tr>
+<td>BidiMap</td>
+<td style="text-align: center"><img src="https://placehold.it/20/b82b28/000000?text=+" alt="#b82b28" /></td>
+<td style="text-align: center"><img src="https://placehold.it/20/9f3b94/000000?text=+" alt="#9f3b94" /></td>
+<td style="text-align: center"><img src="https://placehold.it/20/497edd/000000?text=+" alt="#497edd" /></td>
+<td style="text-align: center"><img src="https://placehold.it/20/00d3eb/000000?text=+" alt="#00d3eb" /></td>
+<td style="text-align: center"><img src="https://placehold.it/20/b82b28/000000?text=+" alt="#b82b28" /></td>
+<td style="text-align: center"><img src="https://placehold.it/20/2ef625/000000?text=+" alt="#2ef625" /></td>
+</tr>
+<tr>
+<td>Deque</td>
+<td style="text-align: center"><img src="https://placehold.it/20/9f3b94/000000?text=+" alt="#9f3b94" /></td>
+<td style="text-align: center"><img src="https://placehold.it/20/9f3b94/000000?text=+" alt="#9f3b94" /></td>
+<td style="text-align: center"><img src="https://placehold.it/20/497edd/000000?text=+" alt="#497edd" /></td>
+<td style="text-align: center"><img src="https://placehold.it/20/00d3eb/000000?text=+" alt="#00d3eb" /></td>
+<td style="text-align: center"><img src="https://placehold.it/20/2ef625/000000?text=+" alt="#2ef625" /></td>
+<td style="text-align: center"><img src="https://placehold.it/20/2ef625/000000?text=+" alt="#2ef625" /></td>
+</tr>
+<tr>
+<td>HashMap</td>
+<td style="text-align: center"><img src="https://placehold.it/20/b82b28/000000?text=+" alt="#b82b28" /></td>
+<td style="text-align: center"><img src="https://placehold.it/20/9f3b94/000000?text=+" alt="#9f3b94" /></td>
+<td style="text-align: center"><img src="https://placehold.it/20/497edd/000000?text=+" alt="#497edd" /></td>
+<td style="text-align: center"><img src="https://placehold.it/20/00d3eb/000000?text=+" alt="#00d3eb" /></td>
+<td style="text-align: center"><img src="https://placehold.it/20/b82b28/000000?text=+" alt="#b82b28" /></td>
+<td style="text-align: center"><img src="https://placehold.it/20/2ef625/000000?text=+" alt="#2ef625" /></td>
+</tr>
+<tr>
+<td>HashSet</td>
+<td style="text-align: center"><img src="https://placehold.it/20/b82b28/000000?text=+" alt="#b82b28" /></td>
+<td style="text-align: center"><img src="https://placehold.it/20/9f3b94/000000?text=+" alt="#9f3b94" /></td>
+<td style="text-align: center"><img src="https://placehold.it/20/497edd/000000?text=+" alt="#497edd" /></td>
+<td style="text-align: center"><img src="https://placehold.it/20/00d3eb/000000?text=+" alt="#00d3eb" /></td>
+<td style="text-align: center"><img src="https://placehold.it/20/b82b28/000000?text=+" alt="#b82b28" /></td>
+<td style="text-align: center"><img src="https://placehold.it/20/2ef625/000000?text=+" alt="#2ef625" /></td>
+</tr>
+<tr>
+<td>Heap</td>
+<td style="text-align: center"><img src="https://placehold.it/20/9f3b94/000000?text=+" alt="#9f3b94" /></td>
+<td style="text-align: center"><img src="https://placehold.it/20/9f3b94/000000?text=+" alt="#9f3b94" /></td>
+<td style="text-align: center"><img src="https://placehold.it/20/497edd/000000?text=+" alt="#497edd" /></td>
+<td style="text-align: center"><img src="https://placehold.it/20/00d3eb/000000?text=+" alt="#00d3eb" /></td>
+<td style="text-align: center"><img src="https://placehold.it/20/2ef625/000000?text=+" alt="#2ef625" /></td>
+<td style="text-align: center"><img src="https://placehold.it/20/b82b28/000000?text=+" alt="#b82b28" /></td>
+</tr>
+<tr>
+<td>IntervalHeap</td>
+<td style="text-align: center"><img src="https://placehold.it/20/9f3b94/000000?text=+" alt="#9f3b94" /></td>
+<td style="text-align: center"><img src="https://placehold.it/20/9f3b94/000000?text=+" alt="#9f3b94" /></td>
+<td style="text-align: center"><img src="https://placehold.it/20/497edd/000000?text=+" alt="#497edd" /></td>
+<td style="text-align: center"><img src="https://placehold.it/20/00d3eb/000000?text=+" alt="#00d3eb" /></td>
+<td style="text-align: center"><img src="https://placehold.it/20/2ef625/000000?text=+" alt="#2ef625" /></td>
+<td style="text-align: center"><img src="https://placehold.it/20/b82b28/000000?text=+" alt="#b82b28" /></td>
+</tr>
+<tr>
+<td>List</td>
+<td style="text-align: center"><img src="https://placehold.it/20/9f3b94/000000?text=+" alt="#9f3b94" /></td>
+<td style="text-align: center"><img src="https://placehold.it/20/9f3b94/000000?text=+" alt="#9f3b94" /></td>
+<td style="text-align: center"><img src="https://placehold.it/20/497edd/000000?text=+" alt="#497edd" /></td>
+<td style="text-align: center"><img src="https://placehold.it/20/00d3eb/000000?text=+" alt="#00d3eb" /></td>
+<td style="text-align: center"><img src="https://placehold.it/20/2ef625/000000?text=+" alt="#2ef625" /></td>
+<td style="text-align: center"><img src="https://placehold.it/20/2ef625/000000?text=+" alt="#2ef625" /></td>
+</tr>
+<tr>
+<td>LinkedList</td>
+<td style="text-align: center"><img src="https://placehold.it/20/9f3b94/000000?text=+" alt="#9f3b94" /></td>
+<td style="text-align: center"><img src="https://placehold.it/20/9f3b94/000000?text=+" alt="#9f3b94" /></td>
+<td style="text-align: center"><img src="https://placehold.it/20/497edd/000000?text=+" alt="#497edd" /></td>
+<td style="text-align: center"><img src="https://placehold.it/20/00d3eb/000000?text=+" alt="#00d3eb" /></td>
+<td style="text-align: center"><img src="https://placehold.it/20/2ef625/000000?text=+" alt="#2ef625" /></td>
+<td style="text-align: center"><img src="https://placehold.it/20/2ef625/000000?text=+" alt="#2ef625" /></td>
+</tr>
+<tr>
+<td>MultiMap</td>
+<td style="text-align: center"><img src="https://placehold.it/20/b82b28/000000?text=+" alt="#b82b28" /></td>
+<td style="text-align: center"><img src="https://placehold.it/20/9f3b94/000000?text=+" alt="#9f3b94" /></td>
+<td style="text-align: center"><img src="https://placehold.it/20/497edd/000000?text=+" alt="#497edd" /></td>
+<td style="text-align: center"><img src="https://placehold.it/20/00d3eb/000000?text=+" alt="#00d3eb" /></td>
+<td style="text-align: center"><img src="https://placehold.it/20/b82b28/000000?text=+" alt="#b82b28" /></td>
+<td style="text-align: center"><img src="https://placehold.it/20/2ef625/000000?text=+" alt="#2ef625" /></td>
+</tr>
+<tr>
+<td>MultiSet</td>
+<td style="text-align: center"><img src="https://placehold.it/20/b82b28/000000?text=+" alt="#b82b28" /></td>
+<td style="text-align: center"><img src="https://placehold.it/20/9f3b94/000000?text=+" alt="#9f3b94" /></td>
+<td style="text-align: center"><img src="https://placehold.it/20/497edd/000000?text=+" alt="#497edd" /></td>
+<td style="text-align: center"><img src="https://placehold.it/20/00d3eb/000000?text=+" alt="#00d3eb" /></td>
+<td style="text-align: center"><img src="https://placehold.it/20/b82b28/000000?text=+" alt="#b82b28" /></td>
+<td style="text-align: center"><img src="https://placehold.it/20/2ef625/000000?text=+" alt="#2ef625" /></td>
+</tr>
+<tr>
+<td>Queue</td>
+<td style="text-align: center"><img src="https://placehold.it/20/9f3b94/000000?text=+" alt="#9f3b94" /></td>
+<td style="text-align: center"><img src="https://placehold.it/20/9f3b94/000000?text=+" alt="#9f3b94" /></td>
+<td style="text-align: center"><img src="https://placehold.it/20/497edd/000000?text=+" alt="#497edd" /></td>
+<td style="text-align: center"><img src="https://placehold.it/20/00d3eb/000000?text=+" alt="#00d3eb" /></td>
+<td style="text-align: center"><img src="https://placehold.it/20/2ef625/000000?text=+" alt="#2ef625" /></td>
+<td style="text-align: center"><img src="https://placehold.it/20/2ef625/000000?text=+" alt="#2ef625" /></td>
+</tr>
+<tr>
+<td>SortedList</td>
+<td style="text-align: center"><img src="https://placehold.it/20/b82b28/000000?text=+" alt="#b82b28" /></td>
+<td style="text-align: center"><img src="https://placehold.it/20/9f3b94/000000?text=+" alt="#9f3b94" /></td>
+<td style="text-align: center"><img src="https://placehold.it/20/497edd/000000?text=+" alt="#497edd" /></td>
+<td style="text-align: center"><img src="https://placehold.it/20/00d3eb/000000?text=+" alt="#00d3eb" /></td>
+<td style="text-align: center"><img src="https://placehold.it/20/2ef625/000000?text=+" alt="#2ef625" /></td>
+<td style="text-align: center"><img src="https://placehold.it/20/2ef625/000000?text=+" alt="#2ef625" /></td>
+</tr>
+<tr>
+<td>Stack</td>
+<td style="text-align: center"><img src="https://placehold.it/20/9f3b94/000000?text=+" alt="#9f3b94" /></td>
+<td style="text-align: center"><img src="https://placehold.it/20/9f3b94/000000?text=+" alt="#9f3b94" /></td>
+<td style="text-align: center"><img src="https://placehold.it/20/497edd/000000?text=+" alt="#497edd" /></td>
+<td style="text-align: center"><img src="https://placehold.it/20/00d3eb/000000?text=+" alt="#00d3eb" /></td>
+<td style="text-align: center"><img src="https://placehold.it/20/2ef625/000000?text=+" alt="#2ef625" /></td>
+<td style="text-align: center"><img src="https://placehold.it/20/2ef625/000000?text=+" alt="#2ef625" /></td>
+</tr>
+<tr>
+<td>TreeMap</td>
+<td style="text-align: center"><img src="https://placehold.it/20/b82b28/000000?text=+" alt="#b82b28" /></td>
+<td style="text-align: center"><img src="https://placehold.it/20/9f3b94/000000?text=+" alt="#9f3b94" /></td>
+<td style="text-align: center"><img src="https://placehold.it/20/497edd/000000?text=+" alt="#497edd" /></td>
+<td style="text-align: center"><img src="https://placehold.it/20/00d3eb/000000?text=+" alt="#00d3eb" /></td>
+<td style="text-align: center"><img src="https://placehold.it/20/2ef625/000000?text=+" alt="#2ef625" /></td>
+<td style="text-align: center"><img src="https://placehold.it/20/2ef625/000000?text=+" alt="#2ef625" /></td>
+</tr>
+<tr>
+<td>TreeSet</td>
+<td style="text-align: center"><img src="https://placehold.it/20/b82b28/000000?text=+" alt="#b82b28" /></td>
+<td style="text-align: center"><img src="https://placehold.it/20/9f3b94/000000?text=+" alt="#9f3b94" /></td>
+<td style="text-align: center"><img src="https://placehold.it/20/497edd/000000?text=+" alt="#497edd" /></td>
+<td style="text-align: center"><img src="https://placehold.it/20/00d3eb/000000?text=+" alt="#00d3eb" /></td>
+<td style="text-align: center"><img src="https://placehold.it/20/2ef625/000000?text=+" alt="#2ef625" /></td>
+<td style="text-align: center"><img src="https://placehold.it/20/2ef625/000000?text=+" alt="#2ef625" /></td>
+</tr>
+</tbody></table>
+
+<table><thead>
+<tr>
+<th style="text-align: center">Color</th>
+<th>Label</th>
+</tr>
+</thead><tbody>
+<tr>
+<td style="text-align: center"><img src="https://placehold.it/20/b82b28/000000?text=+" alt="#b82b28" /></td>
+<td>Required for basic functionality.</td>
+</tr>
+<tr>
+<td style="text-align: center"><img src="https://placehold.it/20/9f3b94/000000?text=+" alt="#9f3b94" /></td>
+<td>Required for specific functions.</td>
+</tr>
+<tr>
+<td style="text-align: center"><img src="https://placehold.it/20/497edd/000000?text=+" alt="#497edd" /></td>
+<td>Required for non-core specific functions.</td>
+</tr>
+<tr>
+<td style="text-align: center"><img src="https://placehold.it/20/00d3eb/000000?text=+" alt="#00d3eb" /></td>
+<td>Optional.</td>
+</tr>
+<tr>
+<td style="text-align: center"><img src="https://placehold.it/20/2ef625/000000?text=+" alt="#2ef625" /></td>
+<td>Not Used.</td>
+</tr>
+</tbody></table>
+<h2 id='minimal-example'>Minimal Example</h2>
+<p>(TODO this example is currently outdated)</p>
+
+<p>Lets create a list of type <code>int</code>, add some elements to it and get the sum of all the elements printed on the screen.</p>
+<h3 id='include-headers'>Include headers</h3><pre class="highlight c tab-c"><code><span class="cp">#include &lt;cmc/list.h&gt;
+</span></code></pre>
+<p>First you need to include only the necessary headers. It is not recommended that you include everything with <code>macro_collections.h</code>, only in cases where you might be using almost all features from the library.</p>
+<h3 id='generating-a-list'>Generating a list</h3><pre class="highlight c tab-c"><code><span class="c1">// CMC_GENERATE_LIST(PFX, SNAME, V)
+</span><span class="n">CMC_GENERATE_LIST</span><span class="p">(</span><span class="n">il</span><span class="p">,</span> <span class="n">int_list</span><span class="p">,</span> <span class="kt">int</span><span class="p">)</span>
+</code></pre>
+<p>The List is also known as <code>vector</code>, <code>ArrayList</code> and dynamic array. In fact the latter is the best description for this collection. It is a dynamic array that can grow and shrink as needed. To generate it we can simply call the macro <code>CMC_GENERATE_LIST</code> after our includes. It has three parameters:</p>
+
+<table><thead>
+<tr>
+<th style="text-align: center">Parameter name</th>
+<th>Purpose</th>
+</tr>
+</thead><tbody>
+<tr>
+<td style="text-align: center"><strong>PFX</strong></td>
+<td>Functions prefix (namespace)</td>
+</tr>
+<tr>
+<td style="text-align: center"><strong>SNAME</strong></td>
+<td>Struct name</td>
+</tr>
+<tr>
+<td style="text-align: center"><strong>V</strong></td>
+<td>The list value type (can be any valid data type)</td>
+</tr>
+</tbody></table>
+
+<aside class="notice">
+All collections can be generated by using the macro CMC_GENERATE_ and then the name of the include (in this case list.h) but in uppercase without the `.h`.
+</aside>
+<h3 id='initializing-and-adding-elements'>Initializing and adding elements</h3><pre class="highlight c tab-c"><code><span class="c1">// Allocate an int_list with an initial capacity of 100
+</span><span class="n">int_list</span> <span class="o">*</span><span class="n">list</span> <span class="o">=</span> <span class="n">il_new</span><span class="p">(</span><span class="mi">100</span><span class="p">);</span>
+
+<span class="c1">// Adding elements to the back of the list
+</span><span class="k">for</span> <span class="p">(</span><span class="kt">int</span> <span class="n">i</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span> <span class="n">i</span> <span class="o">&lt;=</span> <span class="mi">1000</span><span class="p">;</span> <span class="n">i</span><span class="o">++</span><span class="p">)</span>
+<span class="p">{</span>
+    <span class="k">if</span> <span class="p">(</span><span class="o">!</span><span class="n">il_push_back</span><span class="p">(</span><span class="n">list</span><span class="p">,</span> <span class="n">i</span><span class="p">))</span>
+    <span class="p">{</span>
+        <span class="c1">// Something went wrong (check out documentation)
+</span>    <span class="p">}</span>
+<span class="p">}</span>
+</code></pre>
+<p>To initialize any collection we call a function <code>_new</code>. Since the <code>PFX</code> parameter is set to <code>il</code> all functions related to our list of integer will be prefixed by <code>il</code>, so <code>_new</code> becomes <code>il_new</code>.</p>
+
+<p>The list name is <code>int_list</code> as defined by <code>SNAME</code>. This type is a typedef like:</p>
+
+<p><code>typedef struct SNAME##_s SNAME;</code></p>
+
+<p>Which expands to:</p>
+
+<p><code>typedef struct int_list_s int_list</code></p>
+
+<p>To add elements to the back of a list we can use <code>il_push_back</code>. This function will first check if the list has enough space for a new element. If not, reallocate the internal buffer with doubled size and then add the new element.</p>
+<h3 id='iteration'>Iteration</h3>
+<blockquote>
+<p>It is recommended that the iterator is allocated on the stack</p>
+</blockquote>
+<pre class="highlight c tab-c"><code><span class="c1">// Resulting sum will be stored here
+</span><span class="kt">int</span> <span class="n">sum</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
+
+<span class="c1">// Declare our iterator (allocating it on the stack)
+</span><span class="n">int_list_iter</span> <span class="n">it</span><span class="p">;</span>
+
+<span class="c1">// Loop for each element
+</span><span class="k">for</span> <span class="p">(</span><span class="n">il_iter_init</span><span class="p">(</span><span class="o">&amp;</span><span class="n">it</span><span class="p">,</span> <span class="n">list</span><span class="p">);</span> <span class="o">!</span><span class="n">il_iter_end</span><span class="p">(</span><span class="o">&amp;</span><span class="n">it</span><span class="p">);</span> <span class="n">il_iter_next</span><span class="p">(</span><span class="o">&amp;</span><span class="n">it</span><span class="p">))</span>
+<span class="p">{</span>
+    <span class="c1">// Accessing the value
+</span>    <span class="kt">int</span> <span class="n">elem</span> <span class="o">=</span> <span class="n">il_iter_value</span><span class="p">(</span><span class="o">&amp;</span><span class="n">it</span><span class="p">);</span>
+
+    <span class="n">sum</span> <span class="o">+=</span> <span class="n">elem</span><span class="p">;</span>
+<span class="p">}</span>
+
+<span class="n">printf</span><span class="p">(</span><span class="s">"%d</span><span class="se">\n</span><span class="s">"</span><span class="p">,</span> <span class="n">sum</span><span class="p">);</span>
+</code></pre>
+<p>There are 6 (2 optional) steps to iterate over the elements of any collection:</p>
+
+<table><thead>
+<tr>
+<th style="text-align: center">Step</th>
+<th>Description</th>
+<th>Function</th>
+</tr>
+</thead><tbody>
+<tr>
+<td style="text-align: center">1</td>
+<td>Allocate the iterator (optional)</td>
+<td><code>il_iter_new</code></td>
+</tr>
+<tr>
+<td style="text-align: center">2</td>
+<td>Initialize the iterator given a target list</td>
+<td><code>il_iter_init</code></td>
+</tr>
+<tr>
+<td style="text-align: center">3</td>
+<td>Access the iterator&#39;s elements (value, index, etc)</td>
+<td><code>il_iter_value</code></td>
+</tr>
+<tr>
+<td style="text-align: center">4</td>
+<td>Go to the next element</td>
+<td><code>il_iter_next</code></td>
+</tr>
+<tr>
+<td style="text-align: center">5</td>
+<td>Check if we haven&#39;t reached the end of the list</td>
+<td><code>il_iter_end</code></td>
+</tr>
+<tr>
+<td style="text-align: center">6</td>
+<td>Free the iterator if it was allocated on the heap</td>
+<td><code>il_iter_free</code></td>
+</tr>
+</tbody></table>
+
+<p>Note that all iterator functions are prefixed by the user defined prefix and then by <code>iter</code> (<code>il + iter = il_iter</code>). Also, the steps <strong>1</strong> and <strong>6</strong> are optional so <code>il_iter_new</code> and <code>il_iter_free</code> are not used in the example.</p>
+
+<p>By the end of the example we have the variable <code>sum</code> with the sum of all integers inside our list. We can then print it and this example is almost done.</p>
+<h3 id='freeing-resources'>Freeing resources</h3><pre class="highlight c tab-c"><code><span class="c1">// void il_free(int_list *_list_, void(*deallocator)(int))
+</span><span class="n">il_free</span><span class="p">(</span><span class="n">list</span><span class="p">,</span> <span class="nb">NULL</span><span class="p">);</span>
+</code></pre>
+<p>The list is currently allocated in memory. To deallocate it we call <code>il_free</code>. This function takes a pointer to the allocated list and a pointer to a <code>deallocator</code> function that will be responsible for deallocating each element in the list. This last parameter is optional and we won&#39;t be using it since our data type <code>int</code> is not allocated in the heap. This optional parameter can be set to <code>NULL</code> to be ignored by the <code>il_free</code> function.</p>
+<h3 id='compile-and-run'>Compile and run</h3>
+<blockquote>
+<p>source.c</p>
+</blockquote>
+<pre class="highlight c tab-c"><code><span class="cp">#include &lt;cmc/list.h&gt;
+</span>
+<span class="n">CMC_GENERATE_LIST</span><span class="p">(</span><span class="n">il</span><span class="p">,</span> <span class="n">int_list</span><span class="p">,</span> <span class="kt">int</span><span class="p">)</span>
+
+<span class="kt">int</span> <span class="n">main</span><span class="p">(</span><span class="kt">void</span><span class="p">)</span>
+<span class="p">{</span>
+    <span class="n">int_list</span> <span class="o">*</span><span class="n">list</span> <span class="o">=</span> <span class="n">il_new</span><span class="p">(</span><span class="mi">100</span><span class="p">);</span>
+
+    <span class="k">for</span> <span class="p">(</span><span class="kt">int</span> <span class="n">i</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span> <span class="n">i</span> <span class="o">&lt;=</span> <span class="mi">1000</span><span class="p">;</span> <span class="n">i</span><span class="o">++</span><span class="p">)</span>
+    <span class="p">{</span>
+        <span class="k">if</span> <span class="p">(</span><span class="o">!</span><span class="n">il_push_back</span><span class="p">(</span><span class="n">list</span><span class="p">,</span> <span class="n">i</span><span class="p">))</span>
+        <span class="p">{</span>
+            <span class="c1">// Something went wrong (check out documentation)
+</span>        <span class="p">}</span>
+    <span class="p">}</span>
+
+    <span class="kt">int</span> <span class="n">sum</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
+
+    <span class="n">int_list_iter</span> <span class="n">it</span><span class="p">;</span>
+
+    <span class="k">for</span> <span class="p">(</span><span class="n">il_iter_init</span><span class="p">(</span><span class="o">&amp;</span><span class="n">it</span><span class="p">,</span> <span class="n">list</span><span class="p">);</span> <span class="o">!</span><span class="n">il_iter_end</span><span class="p">(</span><span class="o">&amp;</span><span class="n">it</span><span class="p">);</span> <span class="n">il_iter_next</span><span class="p">(</span><span class="o">&amp;</span><span class="n">it</span><span class="p">))</span>
+    <span class="p">{</span>
+        <span class="kt">int</span> <span class="n">elem</span> <span class="o">=</span> <span class="n">il_iter_value</span><span class="p">(</span><span class="o">&amp;</span><span class="n">it</span><span class="p">);</span>
+        <span class="n">sum</span> <span class="o">+=</span> <span class="n">elem</span><span class="p">;</span>
+    <span class="p">}</span>
+
+    <span class="n">printf</span><span class="p">(</span><span class="s">"%d</span><span class="se">\n</span><span class="s">"</span><span class="p">,</span> <span class="n">sum</span><span class="p">);</span>
+
+    <span class="n">il_free</span><span class="p">(</span><span class="n">list</span><span class="p">,</span> <span class="nb">NULL</span><span class="p">);</span>
+<span class="p">}</span>
+</code></pre>
+<p>If the source file is <code>source.c</code>, all you have to do is to include the <code>src</code> folder to the include path and compile. The following example uses <code>gcc</code>:</p>
+
+<p><code>gcc source.c -I path/to/library/src</code></p>
+<h3 id='conclusion'>Conclusion</h3>
+<p>The C Macro Collections Library is prepared to accept any data type and is highly customizable. It is also very easy to integrate and no previous compilation is required. The library also comes with many utilities in the <code>utl</code> folder that are designed to work well with all collections.</p>
+<h1 id='bidimap-h'>bidimap.h</h1>
+<p>A bidirectional map is a map that allows you to create a bijection in both directions between two sets of elements (K &lt;-&gt; V). It is possible to retrieve the value using a key or retrieve a key using a value. The naming is simply used to differentiate between one set of elements and the other set of elements. There is no difference between key and value since both can be keys and/or values.</p>
+<h2 id='bidimap-implementation'>BidiMap Implementation</h2>
+<p>This implementation uses two arrays of pointers to an entry containing both the key and the value. Robin Hood hashing is used to minimize worst case scenarios.</p>
+<h2 id='bidimap-generation-macro'>BidiMap Generation Macro</h2><h2 id='bidimap-structures'>BidiMap Structures</h2><h3 id='members'>Members</h3><h2 id='bidimap-functions'>BidiMap Functions</h2><h2 id='bidimap-callback-table'>BidiMap Callback Table</h2><h1 id='deque-h'>deque.h</h1>
+<p>A Deque, also known as a double-ended queue, is a linear data structure that is able to add and remove elements from both ends. It can also be thought of a double-ended stack since you can push and pop elements from two ends. The Deque can also be used as a Queue. The only elements accessible from a Deque ar the two elements at its ends (front element and back element).</p>
+<h2 id='deque-implementation'>Deque Implementation</h2>
+<p>This implementation uses a circular buffer (ring buffer or cyclic buffer) in order to operate on O(1) for push and pop on either ends. The only case where it takes longer than O(1) is when the buffer is reallocated. If it was implemented as a regular array, adding or removing elements from the front would take O(N) due to the need to shift all elements in the Deque.</p>
+
+<p>Two indices are kept track of. The <code>front</code> index and the <code>rear</code> index. These represent the both ends of the Deque. If an index reaches one end of the real buffer, they wrap around to the other end and an element is added there. This abstracts the real buffer as a circular buffer with the cost os constantly checking for boundaries and using the modulo operator.</p>
+<h2 id='deque-generation-macro'>Deque Generation Macro</h2>
+<p><code>CMC_GENERATE_DEQUE(PFX, SNAME, V)</code></p>
+
+<table><thead>
+<tr>
+<th></th>
+<th></th>
+</tr>
+</thead><tbody>
+<tr>
+<td><code>PFX</code></td>
+<td>Functions namespace or prefix</td>
+</tr>
+<tr>
+<td><code>SNAME</code></td>
+<td>Structure name</td>
+</tr>
+<tr>
+<td><code>V</code></td>
+<td>Element type</td>
+</tr>
+</tbody></table>
+<h2 id='deque-structures'>Deque Structures</h2>
+<table><thead>
+<tr>
+<th></th>
+<th></th>
+</tr>
+</thead><tbody>
+<tr>
+<td><code>struct SNAME</code></td>
+<td>A double-ended queue data structure</td>
+</tr>
+<tr>
+<td><code>struct SNAME##_iter</code></td>
+<td>A double-ended queue iterator</td>
+</tr>
+</tbody></table>
+<h3 id='members'>Members</h3>
+<table><thead>
+<tr>
+<th><code>struct SNAME</code></th>
+<th></th>
+</tr>
+</thead><tbody>
+<tr>
+<td><code>V *buffer</code></td>
+<td>Dynamic circular array of elements.</td>
+</tr>
+<tr>
+<td><code>size_t capacity</code></td>
+<td>Current circular array capacity.</td>
+</tr>
+<tr>
+<td><code>size_t count</code></td>
+<td>Current amount of elements.</td>
+</tr>
+<tr>
+<td><code>size_t front</code></td>
+<td>Index representing the front of the deque.</td>
+</tr>
+<tr>
+<td><code>size_t rear</code></td>
+<td>Index representing the back of the deque.</td>
+</tr>
+<tr>
+<td><code>it_start</code> <sup>[1]</sup></td>
+<td>Function that returns an iterator to the start of the deque.</td>
+</tr>
+<tr>
+<td><code>it_end</code> <sup>[2]</sup></td>
+<td>Function that returns an iterator to the end of the deque.</td>
+</tr>
+</tbody></table>
+
+<ol>
+<li>Full definition: <code>struct SNAME##_iter (*it_start)(struct SNAME *);</code>.</li>
+<li>Full definition: <code>struct SNAME##_iter (*it_end)(struct SNAME *);</code>.</li>
+</ol>
+
+<table><thead>
+<tr>
+<th><code>struct SNAME##_iter</code></th>
+<th></th>
+</tr>
+</thead><tbody>
+<tr>
+<td><code>struct SNAME *target</code></td>
+<td>Deque being iterated over.</td>
+</tr>
+<tr>
+<td><code>size_t cursor</code></td>
+<td>Cursor&#39;s current position (index).</td>
+</tr>
+<tr>
+<td><code>size_t index</code></td>
+<td>Relative index to all elements in the iteration.</td>
+</tr>
+<tr>
+<td><code>bool start</code></td>
+<td>If the iterator reached the start of the iteration.</td>
+</tr>
+<tr>
+<td><code>bool end</code></td>
+<td>If the iterator reached the end of iteration.</td>
+</tr>
+</tbody></table>
+<h2 id='deque-functions'>Deque Functions</h2><h2 id='deque-callback-table'>Deque Callback Table</h2><h1 id='hashmap-h'>hashmap.h</h1>
+<p>A HashMap is an implementation of a Map with unique keys, where every key is mapped to a value (K -&gt; V). The keys are not sorted. To access a value you must specify a key. This key is hashed to a number that uniquely represents it and through this it is possible to find in which position of an array of buckets the value is.</p>
+<h2 id='hashmap-implementation'>HashMap Implementation</h2>
+<p>The HashMap is implemented as a flat HashTable meaning that every entry is allocated when the collection is initialized, but they are all empty.</p>
+
+<p>The HashTable uses <a href="https://en.wikipedia.org/wiki/Open_addressing">Open Addressing</a> and <a href="https://en.wikipedia.org/wiki/Linear_probing">Linear Probing</a> to resolve collisions along with <a href="https://en.wikipedia.org/wiki/Hash_table">Robin Hood Hashing</a> to minimize the worst case scenarios.</p>
+<h1 id='hashset-h'>hashset.h</h1>
+<p>A HashSet is an implementation of a Set with unique keys. The keys are not sorted. It is implemented as a flat hashtable with linear probing and robin hood hashing.</p>
+<h2 id='hashset-implementation'>HashSet Implementation</h2>
+<p>The HashSet is implemented as a flat HashTable meaning that every entry is allocated when the collection is initialized, but they are all empty.</p>
+
+<p>The HashTable uses <a href="https://en.wikipedia.org/wiki/Open_addressing">Open Addressing</a> and <a href="https://en.wikipedia.org/wiki/Linear_probing">Linear Probing</a> to resolve collisions along with <a href="https://en.wikipedia.org/wiki/Hash_table">Robin Hood Hashing</a> to minimize the worst case scenarios.</p>
+<h1 id='heap-h'>heap.h</h1>
+<p>The Heap is a specialized tree-based data structure which is essentially a complete tree that satisfies the heap property:</p>
+
+<p><strong>MaxHeap</strong></p>
+
+<ul>
+<li>- The root node is the greatest element of the unique set of keys.</li>
+<li>- A node key is always greater than or equal to its children keys.</li>
+</ul>
+
+<p><strong>Minheap</strong></p>
+
+<ul>
+<li>- The root node is the smallest element of the unique set of keys.</li>
+<li>- A node Key is always greater than or equal to its children keys.</li>
+</ul>
+
+<p>The heap is mostly used to implement priority queues. Sometimes it can also be used to sort elements. There are three main functions:</p>
+
+<ul>
+<li>insert : Adds an element to the heap</li>
+<li>remove_(min/max): Removes the min/max element from the heap</li>
+<li>min/max : Accesses the min/max element from the heap</li>
+</ul>
+<h1 id='intervalheap-h'>intervalheap.h</h1>
+<p>An interval heap is a specialized heap with:</p>
+
+<ul>
+<li>O(1) - Find Min</li>
+<li>O(1) - Find Max</li>
+<li>O(log n) - Insert</li>
+<li>O(log n) - Remove Min</li>
+<li>O(log n) - Remove Max</li>
+</ul>
+<h1 id='linkedlist-h'>linkedlist.h</h1>
+<p>A LinkedList is a linear collection of elements, whose order is not given by their physical placement in memory. Instead, each element points to the next (singly-linked list) and to a previous one (doubly-linked list). It consists of nodes connected by these next or previous pointers. Unlike an array, the LinkedList can indefinitely grow.</p>
+<h2 id='linkedlist-implementation'>LinkedList Implementation</h2>
+<p>The LinkedList is implemented as a doubly-linked list and allows insertions and removals at both ends in O(1) and in a given index in O(N). The list has a head and tail pointer. The head points to the first element in the sequence and tail points to the last.</p>
+<h1 id='list-h'>list.h</h1>
+<p>A List is a Dynamic Array that store its elements contiguously. It has an internal buffer that is pre-allocated with a greater capacity than necessary in order to foresee new elements being added. The items can be added at both ends of the list and at the middle (with a given index).</p>
+<h2 id='list-implementation'>List Implementation</h2>
+<p>Insertions at the start are more costly as it is necessary to shift all elements one position to the right to give space to a new element being added at index 0. Insertions at the end are instantaneous as long as there is enough space in the buffer. Insertions at the middle will be based on an index. The index represents where the element being added will be located once the operation ends. This operation might also need to shift elements. It is also possible to add arrays of elements in the list. When the buffer is filled, it is reallocated with a greater capacity, usually being doubled.</p>
+
+<p>Removing elements follows the same principle. Removing the front element will require to shift all other elements one position to the left, thus being slower than removing from the end in which is done in constant time. Removing elements in the middle of the list will also require shifting elements to the left. Is is also possible to remove a range of elements or extract them, creating a new list with the removed items.</p>
+
+<p>The iterator is a simple structure that is capable of going back and forwards. Any modifications to the target list during iteration is considered undefined behavior. Its sole purpose is to facilitate navigation through a list.</p>
+<h1 id='multimap-h'>multimap.h</h1>
+<p>The MultiMap is a Map that allows for multiple keys. This is a data structure that has a very narrow usage. A Map (either TreeMap or HashMap) can also work like a MultiMap if a certain key is mapped to another collection.</p>
+
+<p><code>Map&lt;K = int, V = List&lt;int&gt;&gt;</code> maps an integer to a list of integer.</p>
+
+<p><code>MultiMap&lt;K = int, V = int&gt;</code> maps many integer keys to integer values.</p>
+
+<p>The difference is that in a MultiMap you can store keys that are the same but might be different instances of the same value. This is also relevant if your data type is more complex like a struct where its ID is the same but some other members of this data type are different.</p>
+<h2 id='multimap-implementation'>MultiMap Implementation</h2>
+<p>The map uses separate chaining and robin hood hashing. Its internal buffer is made of a pair of pointers to entries that represent a linked list. So accessing map-&gt;buffer[0] would give the first pair of pointers. Each entry has both a pointer to a previous entry and a next entry. This design choice was made so that every collection in this library has a two-way iterator with a very few exceptions.</p>
+
+<p>Each entry is composed of a Key and a Value. Entries with the same key should always hash to the same linked list. Also, keys that hash to the same bucket will also be in the same linked list.</p>
+
+<p>The order of inserting and removing the same keys will behave like a FIFO. So the first key added will be the first to be removed.</p>
+<h1 id='multiset-h'>multiset.h</h1>
+<p>In mathematics, a multiset is a modification of the concept of a set that, unlike a set, allows for multiple instances for each of its elements. The positive integer number of instances, given for each element is called the multiplicity of this element in the multiset. A MultiSet also has a cardinality which equals the sum of the multiplicities of its elements.</p>
+<h1 id='queue-h'>queue.h</h1>
+<p>A Queue is a First-In First-out (or Last-in Last-out) data structure. It is a Dynamic Circular Array where elements are added from one end of the array and removed from the other end. The circular array here (also known as circular buffer or ring buffer) is very important so that both adding and removing elements from the Queue are done instantly. The array is linear but with the modulo operator it is treated as a circular sequence of elements.</p>
+<h2 id='queue-implementation'>Queue Implementation</h2>
+<p>If the Queue was implemented as a regular Dynamic Array, when adding or removing an element at the front, it would be necessary to shift all elements currently present in the Queue and this would add up a lot of computing time. Shifting <code>100000</code> elements in memory by one position every time an element is added to the Queue is simply not efficient.</p>
+
+<p>The Queue has two ends. The <code>front</code> and <code>back</code>. In this implementation all elements are added to the back of the Queue and removed from the front, which is more or less how queues work in real life. Unlike a Stack that only has operations at one end of the buffer, the Queue needs to be implemented as a circular array in order to quickly add or remove elements.</p>
+
+<p>The Queue has three main functions: <code>enqueue</code> which adds an element to the Queue; <code>dequeue</code> which removes an element from the Queue; and <code>peek</code> which return the element at the front of the Queue, that is, the next element to be removed from it.</p>
+
+<p>The Queue is used in many applications where a resource is shared among multiple consumers and the Queue is responsible for scheduling the access to the resource.</p>
+<h1 id='sortedlist-h'>sortedlist.h</h1>
+<p>A SortedList is a dynamic array, meaning that you can store as many elements as you like and when its capacity is full, the buffer is reallocated. The elements are only sorted when a certain action requires that the array is sorted like accessing min() or max(). This prevents the array from being sorted after every insertion or removal. The array is sorted using a variation of quick sort that uses insertion sort for small partitions.</p>
+<h1 id='stack-h'>stack.h</h1>
+<p>A Stack is a Last-in First-out (or First-in Last-out) data structure used in a variety of algorithms. It is a Dynamic Array that can only add or remove its elements at the end of the buffer, in this case, it represents the top of the stack.</p>
+<h2 id='stack-implementation'>Stack Implementation</h2>
+<p>It has three main functions: <code>push</code> which adds an element at the top of the stack; <code>pop</code> which removes the top element from the stack; and <code>top</code> which returns the top element without removing it (it is also sometimes called <code>peek</code>).</p>
+
+<p>A Stack is used in algorithms like backtracking, depth-first search, expression evaluation, syntax parsing and many more.</p>
+<h1 id='treemap-h'>treemap.h</h1>
+<p>A TreeMap is an implementation of a Map that keeps its keys sorted. Like a Map, it has only unique keys. This implementation uses a balanced binary tree called AVL Tree that uses the height of nodes to keep its keys balanced.</p>
+<h1 id='treeset-h'>treeset.h</h1>
+<p>A TreeSet is an implementation of a Set that keeps its elements sorted. Like a Set it has only unique keys. This implementation uses a balanced binary tree called AVL Tree that uses the height of nodes to keep its keys balanced.</p>
+
+      </div>
+      <div class="dark-box">
+          <div class="lang-selector">
+                <a href="#" data-language-name="C">C</a>
+          </div>
+      </div>
+    </div>
+  </body>
+</html>

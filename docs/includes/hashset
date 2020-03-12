@@ -1,0 +1,6 @@
+<h1 id='hashset-h'>hashset.h</h1>
+<p>A HashSet is an implementation of a Set with unique keys. The keys are not sorted. It is implemented as a flat hashtable with linear probing and robin hood hashing.</p>
+<h2 id='hashset-implementation'>HashSet Implementation</h2>
+<p>The HashSet is implemented as a flat HashTable meaning that every entry is allocated when the collection is initialized, but they are all empty.</p>
+
+<p>The HashTable uses <a href="https://en.wikipedia.org/wiki/Open_addressing">Open Addressing</a> and <a href="https://en.wikipedia.org/wiki/Linear_probing">Linear Probing</a> to resolve collisions along with <a href="https://en.wikipedia.org/wiki/Hash_table">Robin Hood Hashing</a> to minimize the worst case scenarios.</p>
