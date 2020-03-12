@@ -31,7 +31,9 @@
 ## Project Structure
 
 * __benchmarks__ - Where all benchmarks are hosted
-* __examples__ - Examples separated by collections
+* __docs__ - A folder hosting the generated documentation by [Slate](https://github.com/slatedocs/slate)
+* __documentation__ - Backup folder of the markdowns and custom styles used in [Slate](https://github.com/slatedocs/slate)
+* __examples__ - Examples using the C Macro Collections Library
 * __src__ - All headers part of the C Macro Collections Library
     * __cmc__ - The main C Macro Collections Library
     * __dev__ - The main C Macro Collections Library for development (containing logging)

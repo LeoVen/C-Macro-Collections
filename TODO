@@ -9,10 +9,11 @@ TODO
 [/] Tests
 [/] Documentation
 [/] Add error codes that can be accessed from the collection's struct
+[/] Callback utility
+    on_create, on_read, on_update, on_delete, on_resize
 
 #!! Medium Priority --------------------------------------------------------------------------------
 
-[/] Callback utility
 [ ] Add memory usage in the benchmark
 [ ] Add to_array and from_array functions
 [ ] Separate each collection unit test into their own executable
@@ -62,8 +63,7 @@ TODO
 #!! Optimizations ----------------------------------------------------------------------------------
 
 [ ] Use binary search to find optimum hashtable prime size inside impl_calculate_size
-[ ] Optimize certain hashtable loops that use iterators but can simply use a normal loop
-[ ] Use a B-Tree instead of and AVL Tree for TreeMap and TreeSet
+[ ] Optimize certain loops that use iterators but can simply use a normal loop
 
 #!! Done -------------------------------------------------------------------------------------------
 
