@@ -518,6 +518,8 @@ struct cmc_callbacks_heap
                                                                                \
     bool PFX##_resize(struct SNAME *_heap_, size_t capacity)                   \
     {                                                                          \
+        _heap_->flag = cmc_flags.OK;                                           \
+                                                                               \
         if (_heap_->capacity == capacity)                                      \
             return true;                                                       \
                                                                                \
@@ -540,8 +542,6 @@ struct cmc_callbacks_heap
                                                                                \
         _heap_->buffer = new_buffer;                                           \
         _heap_->capacity = capacity;                                           \
-                                                                               \
-        _heap_->flag = cmc_flags.OK;                                           \
                                                                                \
         return true;                                                           \
     }                                                                          \

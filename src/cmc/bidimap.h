@@ -1021,8 +1021,6 @@ struct cmc_callbacks_bidimap
         _map_->alloc->free(tmp_val_buf);                                       \
         _map_->alloc->free(_new_map_);                                         \
                                                                                \
-        _map_->flag = cmc_flags.OK;                                            \
-                                                                               \
         return true;                                                           \
     }                                                                          \
                                                                                \

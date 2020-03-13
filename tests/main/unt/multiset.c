@@ -159,4 +159,107 @@ CMC_CREATE_UNIT(multiset_test, true, {
 
         ms_free(set);
     });
+
+    CMC_CREATE_TEST(flags, {
+        struct multiset *set = ms_new(100, 0.6, ms_ftab_val);
+
+        cmc_assert_not_equals(ptr, NULL, set);
+        cmc_assert_equals(int32_t, cmc_flags.OK, ms_flag(set));
+
+        // clear
+        set->flag = cmc_flags.ERROR;
+        ms_clear(set);
+        cmc_assert_equals(int32_t, cmc_flags.OK, ms_flag(set));
+
+        // customize
+        set->flag = cmc_flags.ERROR;
+        ms_customize(set, NULL, NULL);
+        cmc_assert_equals(int32_t, cmc_flags.OK, ms_flag(set));
+
+        // insert
+        set->flag = cmc_flags.ERROR;
+        cmc_assert(ms_insert(set, 10));
+        cmc_assert_equals(int32_t, cmc_flags.OK, ms_flag(set));
+
+        set->flag = cmc_flags.ERROR;
+        cmc_assert(ms_insert(set, 10));
+        cmc_assert_equals(int32_t, cmc_flags.OK, ms_flag(set));
+
+        // insert_many
+        set->flag = cmc_flags.ERROR;
+        cmc_assert(ms_insert_many(set, 1, 0));
+        cmc_assert_equals(int32_t, cmc_flags.OK, ms_flag(set));
+
+        set->flag = cmc_flags.ERROR;
+        cmc_assert(ms_insert_many(set, 1, 2));
+        cmc_assert_equals(int32_t, cmc_flags.OK, ms_flag(set));
+
+        // update
+        set->flag = cmc_flags.ERROR;
+        cmc_assert(ms_update(set, 1, 1));
+        cmc_assert_equals(int32_t, cmc_flags.OK, ms_flag(set));
+
+        set->flag = cmc_flags.ERROR;
+        cmc_assert(ms_update(set, 10, 0));
+        cmc_assert_equals(int32_t, cmc_flags.OK, ms_flag(set));
+
+        // remove
+        cmc_assert(!ms_remove(set, 10));
+        cmc_assert_equals(int32_t, cmc_flags.NOT_FOUND, ms_flag(set));
+
+        cmc_assert(ms_remove(set, 1));
+        cmc_assert_equals(int32_t, cmc_flags.OK, ms_flag(set));
+
+        // remove_all
+        cmc_assert_equals(size_t, 0, ms_remove_all(set, 1));
+        cmc_assert_equals(int32_t, cmc_flags.EMPTY, ms_flag(set));
+
+        cmc_assert(ms_insert_many(set, 1, 10));
+        cmc_assert_equals(size_t, 0, ms_remove_all(set, 10));
+        cmc_assert_equals(int32_t, cmc_flags.NOT_FOUND, ms_flag(set));
+
+        cmc_assert_equals(size_t, 10, ms_remove_all(set, 1));
+        cmc_assert_equals(int32_t, cmc_flags.OK, ms_flag(set));
+
+        // max min
+        cmc_assert(!ms_max(set, NULL));
+        cmc_assert_equals(int32_t, cmc_flags.EMPTY, ms_flag(set));
+        set->flag = cmc_flags.ERROR;
+        cmc_assert(!ms_min(set, NULL));
+        cmc_assert_equals(int32_t, cmc_flags.EMPTY, ms_flag(set));
+
+        cmc_assert(ms_insert(set, 1));
+        set->flag = cmc_flags.ERROR;
+        cmc_assert(ms_max(set, NULL));
+        cmc_assert_equals(int32_t, cmc_flags.OK, ms_flag(set));
+        set->flag = cmc_flags.ERROR;
+        cmc_assert(ms_min(set, NULL));
+        cmc_assert_equals(int32_t, cmc_flags.OK, ms_flag(set));
+
+        // multiplicity_of
+        set->flag = cmc_flags.ERROR;
+        cmc_assert_equals(size_t, 0, ms_multiplicity_of(set, 10));
+        cmc_assert_equals(int32_t, cmc_flags.OK, ms_flag(set));
+
+        // contains
+        set->flag = cmc_flags.ERROR;
+        cmc_assert(!ms_contains(set, 10));
+        cmc_assert_equals(int32_t, cmc_flags.OK, ms_flag(set));
+
+        // copy_of
+        set->flag = cmc_flags.ERROR;
+        struct multiset *set2 = ms_copy_of(set);
+        cmc_assert_equals(int32_t, cmc_flags.OK, ms_flag(set));
+        cmc_assert_equals(int32_t, cmc_flags.OK, ms_flag(set2));
+
+        // equals
+        set->flag = cmc_flags.ERROR;
+        set2->flag = cmc_flags.ERROR;
+        cmc_assert(ms_equals(set, set2));
+        cmc_assert_equals(int32_t, cmc_flags.OK, ms_flag(set));
+        cmc_assert_equals(int32_t, cmc_flags.OK, ms_flag(set2));
+
+        ms_free(set);
+        ms_free(set2);
+    });
 });

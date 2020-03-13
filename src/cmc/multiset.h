@@ -317,6 +317,7 @@ struct cmc_callbacks_multiset
     size_t PFX##_cardinality(struct SNAME *_set_);                             \
     size_t PFX##_capacity(struct SNAME *_set_);                                \
     double PFX##_load(struct SNAME *_set_);                                    \
+    int PFX##_flag(struct SNAME *_set_);                                       \
     /* Collection Utility */                                                   \
     bool PFX##_resize(struct SNAME *_set_, size_t capacity);                   \
     struct SNAME *PFX##_copy_of(struct SNAME *_set_);                          \
@@ -486,6 +487,7 @@ struct cmc_callbacks_multiset
                sizeof(struct SNAME##_entry) * _set_->capacity);                \
                                                                                \
         _set_->count = 0;                                                      \
+        _set_->flag = cmc_flags.OK;                                            \
     }                                                                          \
                                                                                \
     void PFX##_free(struct SNAME *_set_)                                       \
@@ -515,6 +517,8 @@ struct cmc_callbacks_multiset
                                                                                \
         if (callbacks)                                                         \
             _set_->callbacks = callbacks;                                      \
+                                                                               \
+        _set_->flag = cmc_flags.OK;                                            \
     }                                                                          \
                                                                                \
     bool PFX##_insert(struct SNAME *_set_, V element)                          \
@@ -525,12 +529,16 @@ struct cmc_callbacks_multiset
             PFX##_impl_insert_and_return(_set_, element, &new_node);           \
                                                                                \
         if (!entry)                                                            \
+        {                                                                      \
+            _set_->flag = cmc_flags.ERROR;                                     \
             return false;                                                      \
+        }                                                                      \
                                                                                \
         if (!new_node)                                                         \
             entry->multiplicity++;                                             \
                                                                                \
         _set_->cardinality++;                                                  \
+        _set_->flag = cmc_flags.OK;                                            \
                                                                                \
         return true;                                                           \
     }                                                                          \
@@ -538,7 +546,10 @@ struct cmc_callbacks_multiset
     bool PFX##_insert_many(struct SNAME *_set_, V element, size_t count)       \
     {                                                                          \
         if (count == 0)                                                        \
+        {                                                                      \
+            _set_->flag = cmc_flags.OK;                                        \
             return true;                                                       \
+        }                                                                      \
                                                                                \
         bool new_node;                                                         \
                                                                                \
@@ -546,7 +557,10 @@ struct cmc_callbacks_multiset
             PFX##_impl_insert_and_return(_set_, element, &new_node);           \
                                                                                \
         if (!entry)                                                            \
+        {                                                                      \
+            _set_->flag = cmc_flags.ERROR;                                     \
             return false;                                                      \
+        }                                                                      \
                                                                                \
         if (new_node)                                                          \
             entry->multiplicity = count;                                       \
@@ -554,6 +568,7 @@ struct cmc_callbacks_multiset
             entry->multiplicity += count;                                      \
                                                                                \
         _set_->cardinality += count;                                           \
+        _set_->flag = cmc_flags.OK;                                            \
                                                                                \
         return true;                                                           \
     }                                                                          \
@@ -561,7 +576,27 @@ struct cmc_callbacks_multiset
     bool PFX##_update(struct SNAME *_set_, V element, size_t multiplicity)     \
     {                                                                          \
         if (multiplicity == 0)                                                 \
-            return PFX##_remove_all(_set_, element);                           \
+        {                                                                      \
+            /* Effectively delete the entry */                                 \
+            struct SNAME##_entry *result =                                     \
+                PFX##_impl_get_entry(_set_, element);                          \
+                                                                               \
+            _set_->flag = cmc_flags.OK;                                        \
+                                                                               \
+            if (!result)                                                       \
+                /* If no entry was found then its multiplicity is already 0 */ \
+                return true;                                                   \
+                                                                               \
+            _set_->count--;                                                    \
+            _set_->cardinality -= result->multiplicity;                        \
+                                                                               \
+            result->value = (V){ 0 };                                          \
+            result->multiplicity = 0;                                          \
+            result->dist = 0;                                                  \
+            result->state = CMC_ES_DELETED;                                    \
+                                                                               \
+            return true;                                                       \
+        }                                                                      \
                                                                                \
         bool new_node;                                                         \
                                                                                \
@@ -579,15 +614,26 @@ struct cmc_callbacks_multiset
                                                                                \
         entry->multiplicity = multiplicity;                                    \
                                                                                \
+        _set_->flag = cmc_flags.OK;                                            \
+                                                                               \
         return true;                                                           \
     }                                                                          \
                                                                                \
     bool PFX##_remove(struct SNAME *_set_, V element)                          \
     {                                                                          \
+        if (PFX##_empty(_set_))                                                \
+        {                                                                      \
+            _set_->flag = cmc_flags.EMPTY;                                     \
+            return false;                                                      \
+        }                                                                      \
+                                                                               \
         struct SNAME##_entry *result = PFX##_impl_get_entry(_set_, element);   \
                                                                                \
-        if (result == NULL)                                                    \
+        if (!result)                                                           \
+        {                                                                      \
+            _set_->flag = cmc_flags.NOT_FOUND;                                 \
             return false;                                                      \
+        }                                                                      \
                                                                                \
         if (result->multiplicity > 1)                                          \
             result->multiplicity--;                                            \
@@ -602,16 +648,26 @@ struct cmc_callbacks_multiset
         }                                                                      \
                                                                                \
         _set_->cardinality--;                                                  \
+        _set_->flag = cmc_flags.OK;                                            \
                                                                                \
         return true;                                                           \
     }                                                                          \
                                                                                \
     size_t PFX##_remove_all(struct SNAME *_set_, V element)                    \
     {                                                                          \
+        if (PFX##_empty(_set_))                                                \
+        {                                                                      \
+            _set_->flag = cmc_flags.EMPTY;                                     \
+            return false;                                                      \
+        }                                                                      \
+                                                                               \
         struct SNAME##_entry *result = PFX##_impl_get_entry(_set_, element);   \
                                                                                \
-        if (result == NULL)                                                    \
+        if (!result)                                                           \
+        {                                                                      \
+            _set_->flag = cmc_flags.NOT_FOUND;                                 \
             return 0;                                                          \
+        }                                                                      \
                                                                                \
         size_t removed = result->multiplicity;                                 \
                                                                                \
@@ -622,6 +678,7 @@ struct cmc_callbacks_multiset
                                                                                \
         _set_->count--;                                                        \
         _set_->cardinality -= removed;                                         \
+        _set_->flag = cmc_flags.OK;                                            \
                                                                                \
         return removed;                                                        \
     }                                                                          \
@@ -629,10 +686,15 @@ struct cmc_callbacks_multiset
     bool PFX##_max(struct SNAME *_set_, V *value)                              \
     {                                                                          \
         if (PFX##_empty(_set_))                                                \
+        {                                                                      \
+            _set_->flag = cmc_flags.EMPTY;                                     \
             return false;                                                      \
+        }                                                                      \
                                                                                \
+        V max_val;                                                             \
         struct SNAME##_iter iter;                                              \
                                                                                \
+        /* TODO transform this into a normal loop */                           \
         for (PFX##_iter_init(&iter, _set_); !PFX##_iter_end(&iter);            \
              PFX##_iter_next(&iter))                                           \
         {                                                                      \
@@ -640,10 +702,15 @@ struct cmc_callbacks_multiset
             size_t index = PFX##_iter_index(&iter);                            \
                                                                                \
             if (index == 0)                                                    \
-                *value = result;                                               \
-            else if (_set_->f_val->cmp(result, *value) > 0)                    \
-                *value = result;                                               \
+                max_val = result;                                              \
+            else if (_set_->f_val->cmp(result, max_val) > 0)                   \
+                max_val = result;                                              \
         }                                                                      \
+                                                                               \
+        if (value)                                                             \
+            *value = max_val;                                                  \
+                                                                               \
+        _set_->flag = cmc_flags.OK;                                            \
                                                                                \
         return true;                                                           \
     }                                                                          \
@@ -651,10 +718,15 @@ struct cmc_callbacks_multiset
     bool PFX##_min(struct SNAME *_set_, V *value)                              \
     {                                                                          \
         if (PFX##_empty(_set_))                                                \
+        {                                                                      \
+            _set_->flag = cmc_flags.EMPTY;                                     \
             return false;                                                      \
+        }                                                                      \
                                                                                \
+        V min_val;                                                             \
         struct SNAME##_iter iter;                                              \
                                                                                \
+        /* TODO transform this into a normal loop */                           \
         for (PFX##_iter_init(&iter, _set_); !PFX##_iter_end(&iter);            \
              PFX##_iter_next(&iter))                                           \
         {                                                                      \
@@ -662,10 +734,15 @@ struct cmc_callbacks_multiset
             size_t index = PFX##_iter_index(&iter);                            \
                                                                                \
             if (index == 0)                                                    \
-                *value = result;                                               \
-            else if (_set_->f_val->cmp(result, *value) < 0)                    \
-                *value = result;                                               \
+                min_val = result;                                              \
+            else if (_set_->f_val->cmp(result, min_val) < 0)                   \
+                min_val = result;                                              \
         }                                                                      \
+                                                                               \
+        if (value)                                                             \
+            *value = min_val;                                                  \
+                                                                               \
+        _set_->flag = cmc_flags.OK;                                            \
                                                                                \
         return true;                                                           \
     }                                                                          \
@@ -673,6 +750,8 @@ struct cmc_callbacks_multiset
     size_t PFX##_multiplicity_of(struct SNAME *_set_, V element)               \
     {                                                                          \
         struct SNAME##_entry *entry = PFX##_impl_get_entry(_set_, element);    \
+                                                                               \
+        _set_->flag = cmc_flags.OK;                                            \
                                                                                \
         if (!entry)                                                            \
             return 0;                                                          \
@@ -682,6 +761,8 @@ struct cmc_callbacks_multiset
                                                                                \
     bool PFX##_contains(struct SNAME *_set_, V element)                        \
     {                                                                          \
+        _set_->flag = cmc_flags.OK;                                            \
+                                                                               \
         return PFX##_impl_get_entry(_set_, element) != NULL;                   \
     }                                                                          \
                                                                                \
@@ -715,8 +796,15 @@ struct cmc_callbacks_multiset
         return _set_->load;                                                    \
     }                                                                          \
                                                                                \
+    int PFX##_flag(struct SNAME *_set_)                                        \
+    {                                                                          \
+        return _set_->flag;                                                    \
+    }                                                                          \
+                                                                               \
     bool PFX##_resize(struct SNAME *_set_, size_t capacity)                    \
     {                                                                          \
+        _set_->flag = cmc_flags.OK;                                            \
+                                                                               \
         if (_set_->capacity == capacity)                                       \
             return true;                                                       \
                                                                                \
@@ -725,21 +813,30 @@ struct cmc_callbacks_multiset
                                                                                \
         /* Prevent integer overflow */                                         \
         if (capacity >= UINTMAX_MAX * _set_->load)                             \
+        {                                                                      \
+            _set_->flag = cmc_flags.ERROR;                                     \
             return false;                                                      \
+        }                                                                      \
                                                                                \
         /* Calculate required capacity based on the prime numbers */           \
         size_t theoretical_size = PFX##_impl_calculate_size(capacity);         \
                                                                                \
         /* Not possible to shrink with current available prime numbers */      \
         if (theoretical_size < _set_->count / _set_->load)                     \
+        {                                                                      \
+            _set_->flag = cmc_flags.INVALID;                                   \
             return false;                                                      \
+        }                                                                      \
                                                                                \
         struct SNAME *_new_set_ =                                              \
             PFX##_new_custom(capacity, _set_->load, _set_->f_val,              \
                              _set_->alloc, _set_->callbacks);                  \
                                                                                \
         if (!_new_set_)                                                        \
+        {                                                                      \
+            _set_->flag = cmc_flags.ERROR;                                     \
             return false;                                                      \
+        }                                                                      \
                                                                                \
         struct SNAME##_iter iter;                                              \
                                                                                \
@@ -776,7 +873,10 @@ struct cmc_callbacks_multiset
                              _set_->f_val, _set_->alloc, _set_->callbacks);    \
                                                                                \
         if (!result)                                                           \
+        {                                                                      \
+            _set_->flag = cmc_flags.ERROR;                                     \
             return NULL;                                                       \
+        }                                                                      \
                                                                                \
         if (_set_->f_val->cpy)                                                 \
         {                                                                      \
@@ -808,11 +908,16 @@ struct cmc_callbacks_multiset
         result->count = _set_->count;                                          \
         result->cardinality = _set_->cardinality;                              \
                                                                                \
+        _set_->flag = cmc_flags.OK;                                            \
+                                                                               \
         return result;                                                         \
     }                                                                          \
                                                                                \
     bool PFX##_equals(struct SNAME *_set1_, struct SNAME *_set2_)              \
     {                                                                          \
+        _set1_->flag = cmc_flags.OK;                                           \
+        _set2_->flag = cmc_flags.OK;                                           \
+                                                                               \
         if (_set1_->count != _set2_->count)                                    \
             return false;                                                      \
                                                                                \
