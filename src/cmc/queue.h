@@ -247,6 +247,7 @@ struct cmc_callbacks_queue
     bool PFX##_full(struct SNAME *_queue_);                                   \
     size_t PFX##_count(struct SNAME *_queue_);                                \
     size_t PFX##_capacity(struct SNAME *_queue_);                             \
+    int PFX##_flag(struct SNAME *_queue_);                                    \
     /* Collection Utility */                                                  \
     bool PFX##_resize(struct SNAME *_queue_, size_t capacity);                \
     struct SNAME *PFX##_copy_of(struct SNAME *_queue_);                       \
@@ -378,6 +379,7 @@ struct cmc_callbacks_queue
         _queue_->count = 0;                                                    \
         _queue_->front = 0;                                                    \
         _queue_->back = 0;                                                     \
+        _queue_->flag = cmc_flags.OK;                                          \
     }                                                                          \
                                                                                \
     void PFX##_free(struct SNAME *_queue_)                                     \
@@ -404,13 +406,15 @@ struct cmc_callbacks_queue
                                                                                \
         if (callbacks)                                                         \
             _queue_->callbacks = callbacks;                                    \
+                                                                               \
+        _queue_->flag = cmc_flags.OK;                                          \
     }                                                                          \
                                                                                \
     bool PFX##_enqueue(struct SNAME *_queue_, V element)                       \
     {                                                                          \
         if (PFX##_full(_queue_))                                               \
         {                                                                      \
-            if (!PFX##_resize(_queue_, PFX##_capacity(_queue_) * 2))           \
+            if (!PFX##_resize(_queue_, _queue_->capacity * 2))                 \
                 return false;                                                  \
         }                                                                      \
                                                                                \
@@ -419,6 +423,7 @@ struct cmc_callbacks_queue
         _queue_->back =                                                        \
             (_queue_->back == _queue_->capacity - 1) ? 0 : _queue_->back + 1;  \
         _queue_->count++;                                                      \
+        _queue_->flag = cmc_flags.OK;                                          \
                                                                                \
         return true;                                                           \
     }                                                                          \
@@ -426,7 +431,10 @@ struct cmc_callbacks_queue
     bool PFX##_dequeue(struct SNAME *_queue_)                                  \
     {                                                                          \
         if (PFX##_empty(_queue_))                                              \
+        {                                                                      \
+            _queue_->flag = cmc_flags.EMPTY;                                   \
             return false;                                                      \
+        }                                                                      \
                                                                                \
         _queue_->buffer[_queue_->front] = (V){ 0 };                            \
                                                                                \
@@ -434,6 +442,7 @@ struct cmc_callbacks_queue
                              ? 0                                               \
                              : _queue_->front + 1;                             \
         _queue_->count--;                                                      \
+        _queue_->flag = cmc_flags.OK;                                          \
                                                                                \
         return true;                                                           \
     }                                                                          \
@@ -441,13 +450,20 @@ struct cmc_callbacks_queue
     V PFX##_peek(struct SNAME *_queue_)                                        \
     {                                                                          \
         if (PFX##_empty(_queue_))                                              \
+        {                                                                      \
+            _queue_->flag = cmc_flags.EMPTY;                                   \
             return (V){ 0 };                                                   \
+        }                                                                      \
+                                                                               \
+        _queue_->flag = cmc_flags.OK;                                          \
                                                                                \
         return _queue_->buffer[_queue_->front];                                \
     }                                                                          \
                                                                                \
     bool PFX##_contains(struct SNAME *_queue_, V element)                      \
     {                                                                          \
+        _queue_->flag = cmc_flags.OK;                                          \
+                                                                               \
         for (size_t i = _queue_->front, j = 0; j < _queue_->count; j++)        \
         {                                                                      \
             if (_queue_->f_val->cmp(_queue_->buffer[i], element) == 0)         \
@@ -479,18 +495,31 @@ struct cmc_callbacks_queue
         return _queue_->capacity;                                              \
     }                                                                          \
                                                                                \
+    int PFX##_flag(struct SNAME *_queue_)                                      \
+    {                                                                          \
+        return _queue_->flag;                                                  \
+    }                                                                          \
+                                                                               \
     bool PFX##_resize(struct SNAME *_queue_, size_t capacity)                  \
     {                                                                          \
-        if (PFX##_capacity(_queue_) == capacity)                               \
+        _queue_->flag = cmc_flags.OK;                                          \
+                                                                               \
+        if (_queue_->capacity == capacity)                                     \
             return true;                                                       \
                                                                                \
-        if (capacity < PFX##_count(_queue_))                                   \
+        if (capacity < _queue_->count)                                         \
+        {                                                                      \
+            _queue_->flag = cmc_flags.INVALID;                                 \
             return false;                                                      \
+        }                                                                      \
                                                                                \
         V *new_buffer = _queue_->alloc->malloc(sizeof(V) * capacity);          \
                                                                                \
         if (!new_buffer)                                                       \
+        {                                                                      \
+            _queue_->flag = cmc_flags.ALLOC;                                   \
             return false;                                                      \
+        }                                                                      \
                                                                                \
         for (size_t i = _queue_->front, j = 0; j < _queue_->count; j++)        \
         {                                                                      \
@@ -516,7 +545,10 @@ struct cmc_callbacks_queue
                              _queue_->alloc, _queue_->callbacks);              \
                                                                                \
         if (!result)                                                           \
+        {                                                                      \
+            _queue_->flag = cmc_flags.ERROR;                                   \
             return NULL;                                                       \
+        }                                                                      \
                                                                                \
         if (_queue_->f_val->cpy)                                               \
         {                                                                      \
@@ -541,17 +573,22 @@ struct cmc_callbacks_queue
         result->front = 0;                                                     \
         result->back = _queue_->count;                                         \
                                                                                \
+        _queue_->flag = cmc_flags.OK;                                          \
+                                                                               \
         return result;                                                         \
     }                                                                          \
                                                                                \
     bool PFX##_equals(struct SNAME *_queue1_, struct SNAME *_queue2_)          \
     {                                                                          \
-        if (PFX##_count(_queue1_) != PFX##_count(_queue2_))                    \
+        _queue1_->flag = cmc_flags.OK;                                         \
+        _queue2_->flag = cmc_flags.OK;                                         \
+                                                                               \
+        if (_queue1_->count != _queue2_->count)                                \
             return false;                                                      \
                                                                                \
         size_t i, j, k;                                                        \
         for (i = _queue1_->front, j = _queue2_->front, k = 0;                  \
-             k < PFX##_count(_queue1_); k++)                                   \
+             k < _queue1_->count; k++)                                         \
         {                                                                      \
             if (_queue1_->f_val->cmp(_queue1_->buffer[i],                      \
                                      _queue2_->buffer[j]) != 0)                \
@@ -644,7 +681,7 @@ struct cmc_callbacks_queue
         if (iter->end)                                                         \
             return false;                                                      \
                                                                                \
-        if (iter->index + 1 == PFX##_count(iter->target))                      \
+        if (iter->index + 1 == iter->target->count)                            \
         {                                                                      \
             iter->end = true;                                                  \
             return false;                                                      \
@@ -684,13 +721,13 @@ struct cmc_callbacks_queue
         if (iter->end)                                                         \
             return false;                                                      \
                                                                                \
-        if (iter->index + 1 == PFX##_count(iter->target))                      \
+        if (iter->index + 1 == iter->target->count)                            \
         {                                                                      \
             iter->end = true;                                                  \
             return false;                                                      \
         }                                                                      \
                                                                                \
-        if (steps == 0 || iter->index + steps >= PFX##_count(iter->target))    \
+        if (steps == 0 || iter->index + steps >= iter->target->count)          \
             return false;                                                      \
                                                                                \
         iter->start = PFX##_empty(iter->target);                               \
@@ -722,7 +759,7 @@ struct cmc_callbacks_queue
                                                                                \
         /* Prevent underflow */                                                \
         if (iter->cursor < steps)                                              \
-            iter->cursor += PFX##_capacity(iter->target);                      \
+            iter->cursor += iter->target->capacity;                            \
                                                                                \
         iter->cursor -= steps;                                                 \
                                                                                \
@@ -733,7 +770,7 @@ struct cmc_callbacks_queue
     /* given index */                                                          \
     bool PFX##_iter_go_to(struct SNAME##_iter *iter, size_t index)             \
     {                                                                          \
-        if (index >= PFX##_count(iter->target))                                \
+        if (index >= iter->target->count)                                      \
             return false;                                                      \
                                                                                \
         if (iter->index > index)                                               \
