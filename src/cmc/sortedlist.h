@@ -223,12 +223,14 @@ struct cmc_callbacks_sortedlist
     bool PFX##_full(struct SNAME *_list_);                                    \
     size_t PFX##_count(struct SNAME *_list_);                                 \
     size_t PFX##_capacity(struct SNAME *_list_);                              \
+    int PFX##_flag(struct SNAME *_list_);                                     \
     /* Collection Utility */                                                  \
     bool PFX##_resize(struct SNAME *_list_, size_t capacity);                 \
     void PFX##_sort(struct SNAME *_list_);                                    \
     struct SNAME *PFX##_copy_of(struct SNAME *_list_);                        \
     bool PFX##_equals(struct SNAME *_list1_, struct SNAME *_list2_);          \
     struct cmc_string PFX##_to_string(struct SNAME *_list_);                  \
+    bool PFX##_print(struct SNAME *_list_, FILE *fptr);                       \
                                                                               \
     /* Iterator Functions */                                                  \
     /* Iterator Allocation and Deallocation */                                \
@@ -352,6 +354,7 @@ struct cmc_callbacks_sortedlist
         memset(_list_->buffer, 0, sizeof(V) * _list_->capacity);               \
                                                                                \
         _list_->count = 0;                                                     \
+        _list_->flag = cmc_flags.OK;                                           \
     }                                                                          \
                                                                                \
     void PFX##_free(struct SNAME *_list_)                                      \
@@ -374,6 +377,8 @@ struct cmc_callbacks_sortedlist
                                                                                \
         if (callbacks)                                                         \
             _list_->callbacks = callbacks;                                     \
+                                                                               \
+        _list_->flag = cmc_flags.OK;                                           \
     }                                                                          \
                                                                                \
     bool PFX##_insert(struct SNAME *_list_, V element)                         \
@@ -387,31 +392,31 @@ struct cmc_callbacks_sortedlist
         _list_->buffer[_list_->count++] = element;                             \
                                                                                \
         _list_->is_sorted = false;                                             \
+        _list_->flag = cmc_flags.OK;                                           \
                                                                                \
         return true;                                                           \
     }                                                                          \
                                                                                \
     bool PFX##_remove(struct SNAME *_list_, size_t index)                      \
     {                                                                          \
-        if (index >= _list_->count)                                            \
+        if (PFX##_empty(_list_))                                               \
+        {                                                                      \
+            _list_->flag = cmc_flags.EMPTY;                                    \
             return false;                                                      \
+        }                                                                      \
+                                                                               \
+        if (index >= _list_->count)                                            \
+        {                                                                      \
+            _list_->flag = cmc_flags.RANGE;                                    \
+            return false;                                                      \
+        }                                                                      \
                                                                                \
         memmove(_list_->buffer + index, _list_->buffer + index + 1,            \
                 (_list_->count - index) * sizeof(V));                          \
                                                                                \
         _list_->buffer[--_list_->count] = (V){ 0 };                            \
                                                                                \
-        return true;                                                           \
-    }                                                                          \
-                                                                               \
-    bool PFX##_min(struct SNAME *_list_, V *result)                            \
-    {                                                                          \
-        if (PFX##_empty(_list_))                                               \
-            return false;                                                      \
-                                                                               \
-        PFX##_sort(_list_);                                                    \
-                                                                               \
-        *result = _list_->buffer[0];                                           \
+        _list_->flag = cmc_flags.OK;                                           \
                                                                                \
         return true;                                                           \
     }                                                                          \
@@ -419,27 +424,64 @@ struct cmc_callbacks_sortedlist
     bool PFX##_max(struct SNAME *_list_, V *result)                            \
     {                                                                          \
         if (PFX##_empty(_list_))                                               \
+        {                                                                      \
+            _list_->flag = cmc_flags.EMPTY;                                    \
             return false;                                                      \
+        }                                                                      \
                                                                                \
         PFX##_sort(_list_);                                                    \
                                                                                \
-        *result = _list_->buffer[_list_->count - 1];                           \
+        if (result)                                                            \
+            *result = _list_->buffer[_list_->count - 1];                       \
+                                                                               \
+        _list_->flag = cmc_flags.OK;                                           \
+                                                                               \
+        return true;                                                           \
+    }                                                                          \
+                                                                               \
+    bool PFX##_min(struct SNAME *_list_, V *result)                            \
+    {                                                                          \
+        if (PFX##_empty(_list_))                                               \
+        {                                                                      \
+            _list_->flag = cmc_flags.EMPTY;                                    \
+            return false;                                                      \
+        }                                                                      \
+                                                                               \
+        PFX##_sort(_list_);                                                    \
+                                                                               \
+        if (result)                                                            \
+            *result = _list_->buffer[0];                                       \
+                                                                               \
+        _list_->flag = cmc_flags.OK;                                           \
                                                                                \
         return true;                                                           \
     }                                                                          \
                                                                                \
     V PFX##_get(struct SNAME *_list_, size_t index)                            \
     {                                                                          \
-        if (index >= _list_->count)                                            \
+        if (PFX##_empty(_list_))                                               \
+        {                                                                      \
+            _list_->flag = cmc_flags.EMPTY;                                    \
             return (V){ 0 };                                                   \
+        }                                                                      \
+                                                                               \
+        if (index >= _list_->count)                                            \
+        {                                                                      \
+            _list_->flag = cmc_flags.RANGE;                                    \
+            return (V){ 0 };                                                   \
+        }                                                                      \
                                                                                \
         PFX##_sort(_list_);                                                    \
+                                                                               \
+        _list_->flag = cmc_flags.OK;                                           \
                                                                                \
         return _list_->buffer[index];                                          \
     }                                                                          \
                                                                                \
     size_t PFX##_index_of(struct SNAME *_list_, V element, bool from_start)    \
     {                                                                          \
+        _list_->flag = cmc_flags.OK;                                           \
+                                                                               \
         PFX##_sort(_list_);                                                    \
                                                                                \
         if (from_start)                                                        \
@@ -452,6 +494,8 @@ struct cmc_callbacks_sortedlist
                                                                                \
     bool PFX##_contains(struct SNAME *_list_, V element)                       \
     {                                                                          \
+        _list_->flag = cmc_flags.OK;                                           \
+                                                                               \
         if (PFX##_empty(_list_))                                               \
             return false;                                                      \
                                                                                \
@@ -481,19 +525,32 @@ struct cmc_callbacks_sortedlist
         return _list_->capacity;                                               \
     }                                                                          \
                                                                                \
+    int PFX##_flag(struct SNAME *_list_)                                       \
+    {                                                                          \
+        return _list_->flag;                                                   \
+    }                                                                          \
+                                                                               \
     bool PFX##_resize(struct SNAME *_list_, size_t capacity)                   \
     {                                                                          \
+        _list_->flag = cmc_flags.OK;                                           \
+                                                                               \
         if (_list_->capacity == capacity)                                      \
             return true;                                                       \
                                                                                \
         if (capacity < _list_->count)                                          \
+        {                                                                      \
+            _list_->flag = cmc_flags.INVALID;                                  \
             return false;                                                      \
+        }                                                                      \
                                                                                \
         V *new_buffer =                                                        \
             _list_->alloc->realloc(_list_->buffer, sizeof(V) * capacity);      \
                                                                                \
         if (!new_buffer)                                                       \
+        {                                                                      \
+            _list_->flag = cmc_flags.ALLOC;                                    \
             return false;                                                      \
+        }                                                                      \
                                                                                \
         /* TODO zero out remaining slots */                                    \
                                                                                \
@@ -505,6 +562,8 @@ struct cmc_callbacks_sortedlist
                                                                                \
     void PFX##_sort(struct SNAME *_list_)                                      \
     {                                                                          \
+        _list_->flag = cmc_flags.OK;                                           \
+                                                                               \
         if (!_list_->is_sorted && _list_->count > 1)                           \
         {                                                                      \
             PFX##_impl_sort_quicksort(_list_->buffer, _list_->f_val->cmp, 0,   \
@@ -521,7 +580,10 @@ struct cmc_callbacks_sortedlist
                              _list_->callbacks);                               \
                                                                                \
         if (!result)                                                           \
+        {                                                                      \
+            _list_->flag = cmc_flags.ERROR;                                    \
             return NULL;                                                       \
+        }                                                                      \
                                                                                \
         if (_list_->f_val->cpy)                                                \
         {                                                                      \
@@ -533,25 +595,27 @@ struct cmc_callbacks_sortedlist
                                                                                \
         result->count = _list_->count;                                         \
                                                                                \
+        _list_->flag = cmc_flags.OK;                                           \
+                                                                               \
         return result;                                                         \
     }                                                                          \
                                                                                \
     bool PFX##_equals(struct SNAME *_list1_, struct SNAME *_list2_)            \
     {                                                                          \
-        if (PFX##_count(_list1_) != PFX##_count(_list2_))                      \
+        if (_list1_->count != _list2_->count)                                  \
             return false;                                                      \
                                                                                \
         PFX##_sort(_list1_);                                                   \
         PFX##_sort(_list2_);                                                   \
                                                                                \
-        for (size_t i = 0; i < PFX##_count(_list1_); i++)                      \
+        for (size_t i = 0; i < _list1_->count; i++)                            \
         {                                                                      \
             if (_list1_->f_val->cmp(_list1_->buffer[i], _list2_->buffer[i]) != \
                 0)                                                             \
                 return false;                                                  \
         }                                                                      \
                                                                                \
-        return false;                                                          \
+        return true;                                                           \
     }                                                                          \
                                                                                \
     struct cmc_string PFX##_to_string(struct SNAME *_list_)                    \
@@ -565,6 +629,19 @@ struct cmc_callbacks_sortedlist
                          l_->f_val, l_->alloc, l_->callbacks);                 \
                                                                                \
         return n >= 0 ? str : (struct cmc_string){ 0 };                        \
+    }                                                                          \
+                                                                               \
+    bool PFX##_print(struct SNAME *_list_, FILE *fptr)                         \
+    {                                                                          \
+        PFX##_sort(_list_);                                                    \
+                                                                               \
+        for (size_t i = 0; i < _list_->count; i++)                             \
+        {                                                                      \
+            if (!_list_->f_val->str(fptr, _list_->buffer[i]))                  \
+                return false;                                                  \
+        }                                                                      \
+                                                                               \
+        return true;                                                           \
     }                                                                          \
                                                                                \
     struct SNAME##_iter *PFX##_iter_new(struct SNAME *target)                  \
@@ -631,7 +708,7 @@ struct cmc_callbacks_sortedlist
         if (iter->end)                                                         \
             return false;                                                      \
                                                                                \
-        if (iter->cursor + 1 == PFX##_count(iter->target))                     \
+        if (iter->cursor + 1 == iter->target->count)                           \
         {                                                                      \
             iter->end = true;                                                  \
             return false;                                                      \
@@ -674,7 +751,7 @@ struct cmc_callbacks_sortedlist
             return false;                                                      \
         }                                                                      \
                                                                                \
-        if (steps == 0 || iter->cursor + steps >= PFX##_count(iter->target))   \
+        if (steps == 0 || iter->cursor + steps >= iter->target->count)         \
             return false;                                                      \
                                                                                \
         iter->start = PFX##_empty(iter->target);                               \
@@ -710,7 +787,7 @@ struct cmc_callbacks_sortedlist
     /* given index */                                                          \
     bool PFX##_iter_go_to(struct SNAME##_iter *iter, size_t index)             \
     {                                                                          \
-        if (index >= PFX##_count(iter->target))                                \
+        if (index >= iter->target->count)                                      \
             return false;                                                      \
                                                                                \
         if (iter->cursor > index)                                              \
@@ -741,7 +818,7 @@ struct cmc_callbacks_sortedlist
             return 1;                                                          \
                                                                                \
         size_t L = 0;                                                          \
-        size_t R = PFX##_count(_list_);                                        \
+        size_t R = _list_->count;                                              \
                                                                                \
         while (L < R)                                                          \
         {                                                                      \
@@ -757,7 +834,7 @@ struct cmc_callbacks_sortedlist
             return L;                                                          \
                                                                                \
         /* Not found */                                                        \
-        return PFX##_count(_list_);                                            \
+        return _list_->count;                                                  \
     }                                                                          \
                                                                                \
     static size_t PFX##_impl_binary_search_last(struct SNAME *_list_, V value) \
@@ -766,7 +843,7 @@ struct cmc_callbacks_sortedlist
             return 1;                                                          \
                                                                                \
         size_t L = 0;                                                          \
-        size_t R = PFX##_count(_list_);                                        \
+        size_t R = _list_->count;                                              \
                                                                                \
         while (L < R)                                                          \
         {                                                                      \
@@ -782,7 +859,7 @@ struct cmc_callbacks_sortedlist
             return L - 1;                                                      \
                                                                                \
         /* Not found */                                                        \
-        return PFX##_count(_list_);                                            \
+        return _list_->count;                                                  \
     }                                                                          \
                                                                                \
     /* Characteristics of this quicksort implementation: */                    \
