@@ -221,11 +221,13 @@ struct cmc_callbacks_stack
     bool PFX##_full(struct SNAME *_stack_);                                   \
     size_t PFX##_count(struct SNAME *_stack_);                                \
     size_t PFX##_capacity(struct SNAME *_stack_);                             \
+    int PFX##_flag(struct SNAME *_stack_);                                    \
     /* Collection Utility */                                                  \
     bool PFX##_resize(struct SNAME *_stack_, size_t capacity);                \
     struct SNAME *PFX##_copy_of(struct SNAME *_stack_);                       \
     bool PFX##_equals(struct SNAME *_stack1_, struct SNAME *_stack2_);        \
     struct cmc_string PFX##_to_string(struct SNAME *_stack_);                 \
+    bool PFX##_print(struct SNAME *_stack_, FILE *fptr);                      \
                                                                               \
     /* Iterator Functions */                                                  \
     /* Iterator Allocation and Deallocation */                                \
@@ -341,6 +343,7 @@ struct cmc_callbacks_stack
         memset(_stack_->buffer, 0, sizeof(V) * _stack_->capacity);            \
                                                                               \
         _stack_->count = 0;                                                   \
+        _stack_->flag = cmc_flags.OK;                                         \
     }                                                                         \
                                                                               \
     void PFX##_free(struct SNAME *_stack_)                                    \
@@ -363,6 +366,8 @@ struct cmc_callbacks_stack
                                                                               \
         if (callbacks)                                                        \
             _stack_->callbacks = callbacks;                                   \
+                                                                              \
+        _stack_->flag = cmc_flags.OK;                                         \
     }                                                                         \
                                                                               \
     bool PFX##_push(struct SNAME *_stack_, V element)                         \
@@ -375,15 +380,22 @@ struct cmc_callbacks_stack
                                                                               \
         _stack_->buffer[_stack_->count++] = element;                          \
                                                                               \
+        _stack_->flag = cmc_flags.OK;                                         \
+                                                                              \
         return true;                                                          \
     }                                                                         \
                                                                               \
     bool PFX##_pop(struct SNAME *_stack_)                                     \
     {                                                                         \
         if (PFX##_empty(_stack_))                                             \
+        {                                                                     \
+            _stack_->flag = cmc_flags.EMPTY;                                  \
             return false;                                                     \
+        }                                                                     \
                                                                               \
         _stack_->buffer[--_stack_->count] = (V){ 0 };                         \
+                                                                              \
+        _stack_->flag = cmc_flags.OK;                                         \
                                                                               \
         return true;                                                          \
     }                                                                         \
@@ -391,13 +403,20 @@ struct cmc_callbacks_stack
     V PFX##_top(struct SNAME *_stack_)                                        \
     {                                                                         \
         if (PFX##_empty(_stack_))                                             \
+        {                                                                     \
+            _stack_->flag = cmc_flags.EMPTY;                                  \
             return (V){ 0 };                                                  \
+        }                                                                     \
+                                                                              \
+        _stack_->flag = cmc_flags.OK;                                         \
                                                                               \
         return _stack_->buffer[_stack_->count - 1];                           \
     }                                                                         \
                                                                               \
     bool PFX##_contains(struct SNAME *_stack_, V element)                     \
     {                                                                         \
+        _stack_->flag = cmc_flags.OK;                                         \
+                                                                              \
         for (size_t i = 0; i < _stack_->count; i++)                           \
         {                                                                     \
             if (_stack_->f_val->cmp(_stack_->buffer[i], element) == 0)        \
@@ -427,19 +446,34 @@ struct cmc_callbacks_stack
         return _stack_->capacity;                                             \
     }                                                                         \
                                                                               \
+    int PFX##_flag(struct SNAME *_stack_)                                     \
+    {                                                                         \
+        return _stack_->flag;                                                 \
+    }                                                                         \
+                                                                              \
     bool PFX##_resize(struct SNAME *_stack_, size_t capacity)                 \
     {                                                                         \
+        _stack_->flag = cmc_flags.OK;                                         \
+                                                                              \
         if (_stack_->capacity == capacity)                                    \
             return true;                                                      \
                                                                               \
         if (capacity < _stack_->count)                                        \
+        {                                                                     \
+            _stack_->flag = cmc_flags.INVALID;                                \
             return false;                                                     \
+        }                                                                     \
                                                                               \
         V *new_buffer =                                                       \
             _stack_->alloc->realloc(_stack_->buffer, sizeof(V) * capacity);   \
                                                                               \
         if (!new_buffer)                                                      \
+        {                                                                     \
+            _stack_->flag = cmc_flags.ALLOC;                                  \
             return false;                                                     \
+        }                                                                     \
+                                                                              \
+        /* TODO zero out new slots */                                         \
                                                                               \
         _stack_->buffer = new_buffer;                                         \
         _stack_->capacity = capacity;                                         \
@@ -454,7 +488,10 @@ struct cmc_callbacks_stack
                              _stack_->alloc, _stack_->callbacks);             \
                                                                               \
         if (!result)                                                          \
+        {                                                                     \
+            _stack_->flag = cmc_flags.ERROR;                                  \
             return NULL;                                                      \
+        }                                                                     \
                                                                               \
         if (_stack_->f_val->cpy)                                              \
         {                                                                     \
@@ -467,11 +504,16 @@ struct cmc_callbacks_stack
                                                                               \
         result->count = _stack_->count;                                       \
                                                                               \
+        _stack_->flag = cmc_flags.OK;                                         \
+                                                                              \
         return result;                                                        \
     }                                                                         \
                                                                               \
     bool PFX##_equals(struct SNAME *_stack1_, struct SNAME *_stack2_)         \
     {                                                                         \
+        _stack1_->flag = cmc_flags.OK;                                        \
+        _stack2_->flag = cmc_flags.OK;                                        \
+                                                                              \
         if (_stack1_->count != _stack2_->count)                               \
             return false;                                                     \
                                                                               \
@@ -495,6 +537,17 @@ struct cmc_callbacks_stack
                          s_->flag, s_->f_val, s_->alloc, s_->callbacks);      \
                                                                               \
         return n >= 0 ? str : (struct cmc_string){ 0 };                       \
+    }                                                                         \
+                                                                              \
+    bool PFX##_print(struct SNAME *_stack_, FILE *fptr)                       \
+    {                                                                         \
+        for (size_t i = 0; i < _stack_->count; i++)                           \
+        {                                                                     \
+            if (!_stack_->f_val->str(fptr, _stack_->buffer[i]))               \
+                return false;                                                 \
+        }                                                                     \
+                                                                              \
+        return true;                                                          \
     }                                                                         \
                                                                               \
     struct SNAME##_iter *PFX##_iter_new(struct SNAME *target)                 \
