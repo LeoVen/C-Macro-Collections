@@ -323,6 +323,7 @@ struct cmc_callbacks_multiset
     struct SNAME *PFX##_copy_of(struct SNAME *_set_);                          \
     bool PFX##_equals(struct SNAME *_set1_, struct SNAME *_set2_);             \
     struct cmc_string PFX##_to_string(struct SNAME *_set_);                    \
+    bool PFX##_print(struct SNAME *_set_, FILE *fptr);                         \
                                                                                \
     /* Set Operations */                                                       \
     struct SNAME *PFX##_union(struct SNAME *_set1_, struct SNAME *_set2_);     \
@@ -957,6 +958,22 @@ struct cmc_callbacks_multiset
                          s_->alloc, s_->callbacks);                            \
                                                                                \
         return n >= 0 ? str : (struct cmc_string){ 0 };                        \
+    }                                                                          \
+                                                                               \
+    bool PFX##_print(struct SNAME *_set_, FILE *fptr)                          \
+    {                                                                          \
+        for (size_t i = 0; i < _set_->capacity; i++)                           \
+        {                                                                      \
+            struct SNAME##_entry *entry = &(_set_->buffer[i]);                 \
+                                                                               \
+            if (entry->state == CMC_ES_FILLED)                                 \
+            {                                                                  \
+                if (!_set_->f_val->str(fptr, entry->value))                    \
+                    return false;                                              \
+            }                                                                  \
+        }                                                                      \
+                                                                               \
+        return true;                                                           \
     }                                                                          \
                                                                                \
     struct SNAME *PFX##_union(struct SNAME *_set1_, struct SNAME *_set2_)      \

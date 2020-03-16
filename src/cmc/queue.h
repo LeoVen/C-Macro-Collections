@@ -253,6 +253,7 @@ struct cmc_callbacks_queue
     struct SNAME *PFX##_copy_of(struct SNAME *_queue_);                       \
     bool PFX##_equals(struct SNAME *_queue1_, struct SNAME *_queue2_);        \
     struct cmc_string PFX##_to_string(struct SNAME *_queue_);                 \
+    bool PFX##_print(struct SNAME *_queue_, FILE *fptr);                      \
                                                                               \
     /* Iterator Functions */                                                  \
     /* Iterator Allocation and Deallocation */                                \
@@ -612,6 +613,19 @@ struct cmc_callbacks_queue
                      q_->back, q_->flag, q_->f_val, q_->alloc, q_->callbacks); \
                                                                                \
         return n >= 0 ? str : (struct cmc_string){ 0 };                        \
+    }                                                                          \
+                                                                               \
+    bool PFX##_print(struct SNAME *_queue_, FILE *fptr)                        \
+    {                                                                          \
+        for (size_t i = _queue_->front, j = 0; j < _queue_->count; j++)        \
+        {                                                                      \
+            if (!_queue_->f_val->str(fptr, _queue_->buffer[i]))                \
+                return false;                                                  \
+                                                                               \
+            i = (i + 1) % _queue_->capacity;                                   \
+        }                                                                      \
+                                                                               \
+        return true;                                                           \
     }                                                                          \
                                                                                \
     struct SNAME##_iter *PFX##_iter_new(struct SNAME *target)                  \

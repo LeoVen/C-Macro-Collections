@@ -259,6 +259,7 @@ struct cmc_callbacks_list
     struct SNAME *PFX##_copy_of(struct SNAME *_list_);                         \
     bool PFX##_equals(struct SNAME *_list1_, struct SNAME *_list2_);           \
     struct cmc_string PFX##_to_string(struct SNAME *_list_);                   \
+    bool PFX##_print(struct SNAME *_list_, FILE *fptr);                        \
                                                                                \
     /* Iterator Functions */                                                   \
     /* Iterator Allocation and Deallocation */                                 \
@@ -880,6 +881,17 @@ struct cmc_callbacks_list
                          l_->flag, l_->f_val, l_->alloc, l_->callbacks);       \
                                                                                \
         return n >= 0 ? str : (struct cmc_string){ 0 };                        \
+    }                                                                          \
+                                                                               \
+    bool PFX##_print(struct SNAME *_list_, FILE *fptr)                         \
+    {                                                                          \
+        for (size_t i = 0; i < _list_->count; i++)                             \
+        {                                                                      \
+            if (!_list_->f_val->str(fptr, _list_->buffer[i]))                  \
+                return false;                                                  \
+        }                                                                      \
+                                                                               \
+        return true;                                                           \
     }                                                                          \
                                                                                \
     struct SNAME##_iter *PFX##_iter_new(struct SNAME *target)                  \

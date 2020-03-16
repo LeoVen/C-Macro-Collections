@@ -360,6 +360,7 @@ struct cmc_callbacks_multimap
     struct SNAME *PFX##_copy_of(struct SNAME *_map_);                         \
     bool PFX##_equals(struct SNAME *_map1_, struct SNAME *_map2_);            \
     struct cmc_string PFX##_to_string(struct SNAME *_map_);                   \
+    bool PFX##_print(struct SNAME *_map_, FILE *fptr);                        \
                                                                               \
     /* Iterator Functions */                                                  \
     /* Iterator Allocation and Deallocation */                                \
@@ -494,42 +495,23 @@ struct cmc_callbacks_multimap
                                                                                \
     void PFX##_clear(struct SNAME *_map_)                                      \
     {                                                                          \
-        size_t index = 0;                                                      \
-                                                                               \
-        while (index < _map_->capacity)                                        \
+        for (size_t i = 0; i < _map_->capacity; i++)                           \
         {                                                                      \
-            struct SNAME##_entry *scan = _map_->buffer[index][0];              \
+            struct SNAME##_entry *scan = _map_->buffer[i][0];                  \
                                                                                \
-            if (scan != NULL)                                                  \
+            while (scan != NULL)                                               \
             {                                                                  \
-                if (scan->next == NULL && scan->prev == NULL)                  \
-                {                                                              \
-                    if (_map_->f_key->free)                                    \
-                        _map_->f_key->free(scan->key);                         \
-                    if (_map_->f_val->free)                                    \
-                        _map_->f_val->free(scan->value);                       \
+                struct SNAME##_entry *next = scan->next;                       \
                                                                                \
-                    _map_->alloc->free(scan);                                  \
-                }                                                              \
-                else                                                           \
-                {                                                              \
-                    while (scan != NULL)                                       \
-                    {                                                          \
-                        struct SNAME##_entry *tmp = scan;                      \
+                if (_map_->f_key->free)                                        \
+                    _map_->f_key->free(scan->key);                             \
+                if (_map_->f_val->free)                                        \
+                    _map_->f_val->free(scan->value);                           \
                                                                                \
-                        scan = scan->next;                                     \
+                _map_->alloc->free(scan);                                      \
                                                                                \
-                        if (_map_->f_key->free)                                \
-                            _map_->f_key->free(tmp->key);                      \
-                        if (_map_->f_val->free)                                \
-                            _map_->f_val->free(tmp->value);                    \
-                                                                               \
-                        _map_->alloc->free(tmp);                               \
-                    }                                                          \
-                }                                                              \
+                scan = next;                                                   \
             }                                                                  \
-                                                                               \
-            index++;                                                           \
         }                                                                      \
                                                                                \
         memset(_map_->buffer, 0,                                               \
@@ -1196,6 +1178,25 @@ struct cmc_callbacks_multimap
                          m_->alloc, m_->callbacks);                            \
                                                                                \
         return n >= 0 ? str : (struct cmc_string){ 0 };                        \
+    }                                                                          \
+                                                                               \
+    bool PFX##_print(struct SNAME *_map_, FILE *fptr)                          \
+    {                                                                          \
+        for (size_t i = 0; i < _map_->capacity; i++)                           \
+        {                                                                      \
+            struct SNAME##_entry *scan = _map_->buffer[i][0];                  \
+                                                                               \
+            while (scan != NULL)                                               \
+            {                                                                  \
+                if (!_map_->f_key->str(fptr, scan->key) ||                     \
+                    !_map_->f_val->str(fptr, scan->value))                     \
+                    return false;                                              \
+                                                                               \
+                scan = scan->next;                                             \
+            }                                                                  \
+        }                                                                      \
+                                                                               \
+        return true;                                                           \
     }                                                                          \
                                                                                \
     struct SNAME##_iter *PFX##_iter_new(struct SNAME *target)                  \
