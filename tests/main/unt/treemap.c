@@ -49,4 +49,93 @@ CMC_CREATE_UNIT(treemap_test, true, {
 
         tm_free(map);
     });
+
+    CMC_CREATE_TEST(flags, {
+        struct treemap *map = tm_new(tm_ftab_key, tm_ftab_val);
+
+        cmc_assert_not_equals(ptr, NULL, map);
+        cmc_assert_equals(int32_t, cmc_flags.OK, tm_flag(map));
+
+        // clear
+        map->flag = cmc_flags.ERROR;
+        tm_clear(map);
+        cmc_assert_equals(int32_t, cmc_flags.OK, tm_flag(map));
+
+        // insert
+        map->flag = cmc_flags.ERROR;
+        cmc_assert(tm_insert(map, 1, 1));
+        cmc_assert_equals(int32_t, cmc_flags.OK, tm_flag(map));
+
+        // update
+        cmc_assert(!tm_update(map, 2, 2, NULL));
+        cmc_assert_equals(int32_t, cmc_flags.NOT_FOUND, tm_flag(map));
+
+        cmc_assert(tm_update(map, 1, 2, NULL));
+        cmc_assert_equals(int32_t, cmc_flags.OK, tm_flag(map));
+
+        // remove
+        cmc_assert(!tm_remove(map, 2, NULL));
+        cmc_assert_equals(int32_t, cmc_flags.NOT_FOUND, tm_flag(map));
+
+        cmc_assert(tm_remove(map, 1, NULL));
+        cmc_assert_equals(int32_t, cmc_flags.OK, tm_flag(map));
+
+        cmc_assert(!tm_remove(map, 1, NULL));
+        cmc_assert_equals(int32_t, cmc_flags.EMPTY, tm_flag(map));
+
+        // max min
+        map->flag = cmc_flags.ERROR;
+        cmc_assert(!tm_max(map, NULL, NULL));
+        cmc_assert_equals(int32_t, cmc_flags.EMPTY, tm_flag(map));
+
+        map->flag = cmc_flags.ERROR;
+        cmc_assert(!tm_min(map, NULL, NULL));
+        cmc_assert_equals(int32_t, cmc_flags.EMPTY, tm_flag(map));
+
+        cmc_assert(tm_insert(map, 1, 1));
+        map->flag = cmc_flags.ERROR;
+        cmc_assert(tm_max(map, NULL, NULL));
+        cmc_assert_equals(int32_t, cmc_flags.OK, tm_flag(map));
+
+        map->flag = cmc_flags.ERROR;
+        cmc_assert(tm_min(map, NULL, NULL));
+        cmc_assert_equals(int32_t, cmc_flags.OK, tm_flag(map));
+
+        // get get_ref
+        tm_get(map, 2);
+        cmc_assert_equals(int32_t, cmc_flags.NOT_FOUND, tm_flag(map));
+
+        tm_get(map, 1);
+        cmc_assert_equals(int32_t, cmc_flags.OK, tm_flag(map));
+
+        tm_get_ref(map, 2);
+        cmc_assert_equals(int32_t, cmc_flags.NOT_FOUND, tm_flag(map));
+
+        tm_get_ref(map, 1);
+        cmc_assert_equals(int32_t, cmc_flags.OK, tm_flag(map));
+
+        cmc_assert(tm_remove(map, 1, NULL));
+        map->flag = cmc_flags.ERROR;
+        tm_get(map, 1);
+        cmc_assert_equals(int32_t, cmc_flags.EMPTY, tm_flag(map));
+
+        map->flag = cmc_flags.ERROR;
+        tm_get_ref(map, 1);
+        cmc_assert_equals(int32_t, cmc_flags.EMPTY, tm_flag(map));
+
+        // copy_of
+        map->flag = cmc_flags.ERROR;
+        struct treemap *map2 = tm_copy_of(map);
+        cmc_assert_equals(int32_t, cmc_flags.OK, tm_flag(map));
+        cmc_assert_equals(int32_t, cmc_flags.OK, tm_flag(map2));
+
+        // equals
+        map->flag = cmc_flags.ERROR;
+        map2->flag = cmc_flags.ERROR;
+        cmc_assert(tm_equals(map, map2));
+        cmc_assert_equals(int32_t, cmc_flags.OK, tm_flag(map));
+        cmc_assert_equals(int32_t, cmc_flags.OK, tm_flag(map2));
+
+        tm_free(map);
+    });
 });

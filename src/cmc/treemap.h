@@ -269,10 +269,12 @@ struct cmc_callbacks_treemap
     bool PFX##_contains(struct SNAME *_map_, K key);                          \
     bool PFX##_empty(struct SNAME *_map_);                                    \
     size_t PFX##_count(struct SNAME *_map_);                                  \
+    int PFX##_flag(struct SNAME *_map_);                                      \
     /* Collection Utility */                                                  \
     struct SNAME *PFX##_copy_of(struct SNAME *_map_);                         \
     bool PFX##_equals(struct SNAME *_map1_, struct SNAME *_map2_);            \
     struct cmc_string PFX##_to_string(struct SNAME *_map_);                   \
+    bool PFX##_print(struct SNAME *_map_, FILE *fptr);                        \
                                                                               \
     /* Iterator Functions */                                                  \
     /* Iterator Allocation and Deallocation */                                \
@@ -433,6 +435,7 @@ struct cmc_callbacks_treemap
                                                                                \
         _map_->count = 0;                                                      \
         _map_->root = NULL;                                                    \
+        _map_->flag = cmc_flags.OK;                                            \
     }                                                                          \
                                                                                \
     void PFX##_free(struct SNAME *_map_)                                       \
@@ -449,7 +452,10 @@ struct cmc_callbacks_treemap
             _map_->root = PFX##_impl_new_node(_map_, key, value);              \
                                                                                \
             if (!_map_->root)                                                  \
+            {                                                                  \
+                _map_->flag = cmc_flags.ALLOC;                                 \
                 return false;                                                  \
+            }                                                                  \
         }                                                                      \
         else                                                                   \
         {                                                                      \
@@ -475,7 +481,10 @@ struct cmc_callbacks_treemap
                 parent->left = PFX##_impl_new_node(_map_, key, value);         \
                                                                                \
                 if (!parent->left)                                             \
+                {                                                              \
+                    _map_->flag = cmc_flags.ALLOC;                             \
                     return false;                                              \
+                }                                                              \
                                                                                \
                 parent->left->parent = parent;                                 \
                 node = parent->left;                                           \
@@ -485,7 +494,10 @@ struct cmc_callbacks_treemap
                 parent->right = PFX##_impl_new_node(_map_, key, value);        \
                                                                                \
                 if (!parent->right)                                            \
+                {                                                              \
+                    _map_->flag = cmc_flags.ALLOC;                             \
                     return false;                                              \
+                }                                                              \
                                                                                \
                 parent->right->parent = parent;                                \
                 node = parent->right;                                          \
@@ -495,6 +507,7 @@ struct cmc_callbacks_treemap
         }                                                                      \
                                                                                \
         _map_->count++;                                                        \
+        _map_->flag = cmc_flags.OK;                                            \
                                                                                \
         return true;                                                           \
     }                                                                          \
@@ -504,22 +517,36 @@ struct cmc_callbacks_treemap
         struct SNAME##_node *node = PFX##_impl_get_node(_map_, key);           \
                                                                                \
         if (!node)                                                             \
+        {                                                                      \
+            _map_->flag = cmc_flags.NOT_FOUND;                                 \
             return false;                                                      \
+        }                                                                      \
                                                                                \
         if (old_value)                                                         \
             *old_value = node->value;                                          \
                                                                                \
         node->value = new_value;                                               \
                                                                                \
+        _map_->flag = cmc_flags.OK;                                            \
+                                                                               \
         return true;                                                           \
     }                                                                          \
                                                                                \
     bool PFX##_remove(struct SNAME *_map_, K key, V *out_value)                \
     {                                                                          \
+        if (PFX##_empty(_map_))                                                \
+        {                                                                      \
+            _map_->flag = cmc_flags.EMPTY;                                     \
+            return false;                                                      \
+        }                                                                      \
+                                                                               \
         struct SNAME##_node *node = PFX##_impl_get_node(_map_, key);           \
                                                                                \
         if (!node)                                                             \
+        {                                                                      \
+            _map_->flag = cmc_flags.NOT_FOUND;                                 \
             return false;                                                      \
+        }                                                                      \
                                                                                \
         if (out_value)                                                         \
             *out_value = node->value;                                          \
@@ -633,6 +660,7 @@ struct cmc_callbacks_treemap
             PFX##_impl_rebalance(_map_, unbalanced);                           \
                                                                                \
         _map_->count--;                                                        \
+        _map_->flag = cmc_flags.OK;                                            \
                                                                                \
         if (_map_->count == 0)                                                 \
             _map_->root = NULL;                                                \
@@ -643,15 +671,22 @@ struct cmc_callbacks_treemap
     bool PFX##_max(struct SNAME *_map_, K *key, V *value)                      \
     {                                                                          \
         if (PFX##_empty(_map_))                                                \
+        {                                                                      \
+            _map_->flag = cmc_flags.EMPTY;                                     \
             return false;                                                      \
+        }                                                                      \
                                                                                \
         struct SNAME##_node *scan = _map_->root;                               \
                                                                                \
         while (scan->right != NULL)                                            \
             scan = scan->right;                                                \
                                                                                \
-        *key = scan->key;                                                      \
-        *value = scan->value;                                                  \
+        if (key)                                                               \
+            *key = scan->key;                                                  \
+        if (value)                                                             \
+            *value = scan->value;                                              \
+                                                                               \
+        _map_->flag = cmc_flags.OK;                                            \
                                                                                \
         return true;                                                           \
     }                                                                          \
@@ -659,54 +694,71 @@ struct cmc_callbacks_treemap
     bool PFX##_min(struct SNAME *_map_, K *key, V *value)                      \
     {                                                                          \
         if (PFX##_empty(_map_))                                                \
+        {                                                                      \
+            _map_->flag = cmc_flags.EMPTY;                                     \
             return false;                                                      \
+        }                                                                      \
                                                                                \
         struct SNAME##_node *scan = _map_->root;                               \
                                                                                \
         while (scan->left != NULL)                                             \
             scan = scan->left;                                                 \
                                                                                \
-        *key = scan->key;                                                      \
-        *value = scan->value;                                                  \
+        if (key)                                                               \
+            *key = scan->key;                                                  \
+        if (value)                                                             \
+            *value = scan->value;                                              \
+                                                                               \
+        _map_->flag = cmc_flags.OK;                                            \
                                                                                \
         return true;                                                           \
     }                                                                          \
                                                                                \
     V PFX##_get(struct SNAME *_map_, K key)                                    \
     {                                                                          \
+        if (PFX##_empty(_map_))                                                \
+        {                                                                      \
+            _map_->flag = cmc_flags.EMPTY;                                     \
+            return false;                                                      \
+        }                                                                      \
+                                                                               \
         struct SNAME##_node *node = PFX##_impl_get_node(_map_, key);           \
                                                                                \
         if (!node)                                                             \
+        {                                                                      \
+            _map_->flag = cmc_flags.NOT_FOUND;                                 \
             return (V){ 0 };                                                   \
+        }                                                                      \
+                                                                               \
+        _map_->flag = cmc_flags.OK;                                            \
                                                                                \
         return node->value;                                                    \
     }                                                                          \
                                                                                \
     V *PFX##_get_ref(struct SNAME *_map_, K key)                               \
     {                                                                          \
+        if (PFX##_empty(_map_))                                                \
+        {                                                                      \
+            _map_->flag = cmc_flags.EMPTY;                                     \
+            return false;                                                      \
+        }                                                                      \
+                                                                               \
         struct SNAME##_node *node = PFX##_impl_get_node(_map_, key);           \
                                                                                \
         if (!node)                                                             \
+        {                                                                      \
+            _map_->flag = cmc_flags.NOT_FOUND;                                 \
             return NULL;                                                       \
+        }                                                                      \
+                                                                               \
+        _map_->flag = cmc_flags.OK;                                            \
                                                                                \
         return &(node->value);                                                 \
     }                                                                          \
                                                                                \
     bool PFX##_contains(struct SNAME *_map_, K key)                            \
     {                                                                          \
-        struct SNAME##_node *scan = _map_->root;                               \
-                                                                               \
-        while (scan != NULL)                                                   \
-        {                                                                      \
-            if (_map_->f_key->cmp(scan->key, key) > 0)                         \
-                scan = scan->left;                                             \
-            else if (_map_->f_key->cmp(scan->key, key) < 0)                    \
-                scan = scan->right;                                            \
-            else                                                               \
-                return true;                                                   \
-        }                                                                      \
-                                                                               \
-        return false;                                                          \
+        return PFX##_impl_get_node(_map_, key) != NULL;                        \
     }                                                                          \
                                                                                \
     bool PFX##_empty(struct SNAME *_map_)                                      \
@@ -719,42 +771,55 @@ struct cmc_callbacks_treemap
         return _map_->count;                                                   \
     }                                                                          \
                                                                                \
+    int PFX##_flag(struct SNAME *_map_)                                        \
+    {                                                                          \
+        return _map_->flag;                                                    \
+    }                                                                          \
+                                                                               \
     struct SNAME *PFX##_copy_of(struct SNAME *_map_)                           \
     {                                                                          \
         struct SNAME *result = PFX##_new_custom(                               \
             _map_->f_key, _map_->f_val, _map_->alloc, _map_->callbacks);       \
                                                                                \
         if (!result)                                                           \
+        {                                                                      \
+            _map_->flag = cmc_flags.ERROR;                                     \
             return NULL;                                                       \
+        }                                                                      \
                                                                                \
+        /* TODO turn this into a normal loop */                                \
         struct SNAME##_iter iter;                                              \
         PFX##_iter_init(&iter, _map_);                                         \
                                                                                \
-        if (!PFX##_empty(_map_))                                               \
+        for (PFX##_iter_to_start(&iter); !PFX##_iter_end(&iter);               \
+             PFX##_iter_next(&iter))                                           \
         {                                                                      \
-            for (PFX##_iter_to_start(&iter); !PFX##_iter_end(&iter);           \
-                 PFX##_iter_next(&iter))                                       \
-            {                                                                  \
-                K key = PFX##_iter_key(&iter);                                 \
-                V value = PFX##_iter_value(&iter);                             \
+            K key = PFX##_iter_key(&iter);                                     \
+            V value = PFX##_iter_value(&iter);                                 \
                                                                                \
-                if (_map_->f_key->cpy)                                         \
-                    key = _map_->f_key->cpy(key);                              \
-                if (_map_->f_val->cpy)                                         \
-                    value = _map_->f_val->cpy(value);                          \
+            if (_map_->f_key->cpy)                                             \
+                key = _map_->f_key->cpy(key);                                  \
+            if (_map_->f_val->cpy)                                             \
+                value = _map_->f_val->cpy(value);                              \
                                                                                \
-                PFX##_insert(result, key, value);                              \
-            }                                                                  \
+            /* TODO check this for errors */                                   \
+            PFX##_insert(result, key, value);                                  \
         }                                                                      \
+                                                                               \
+        _map_->flag = cmc_flags.OK;                                            \
                                                                                \
         return result;                                                         \
     }                                                                          \
                                                                                \
     bool PFX##_equals(struct SNAME *_map1_, struct SNAME *_map2_)              \
     {                                                                          \
+        _map1_->flag = cmc_flags.OK;                                           \
+        _map2_->flag = cmc_flags.OK;                                           \
+                                                                               \
         if (_map1_->count != _map2_->count)                                    \
             return false;                                                      \
                                                                                \
+        /* TODO turn this into a normal loop */                                \
         struct SNAME##_iter iter;                                              \
         PFX##_iter_init(&iter, _map1_);                                        \
                                                                                \
@@ -784,6 +849,48 @@ struct cmc_callbacks_treemap
                          m_->f_key, m_->f_val, m_->alloc, m_->callbacks);      \
                                                                                \
         return n >= 0 ? str : (struct cmc_string){ 0 };                        \
+    }                                                                          \
+                                                                               \
+    bool PFX##_print(struct SNAME *_map_, FILE *fptr)                          \
+    {                                                                          \
+        struct SNAME##_node *root = _map_->root;                               \
+                                                                               \
+        bool left_done = false;                                                \
+                                                                               \
+        while (root)                                                           \
+        {                                                                      \
+            if (!left_done)                                                    \
+            {                                                                  \
+                while (root->left)                                             \
+                    root = root->left;                                         \
+            }                                                                  \
+                                                                               \
+            if (!_map_->f_key->str(fptr, root->key) &&                         \
+                !_map_->f_val->str(fptr, root->value))                         \
+                return false;                                                  \
+                                                                               \
+            left_done = true;                                                  \
+                                                                               \
+            if (root->right)                                                   \
+            {                                                                  \
+                left_done = false;                                             \
+                root = root->right;                                            \
+            }                                                                  \
+            else if (root->parent)                                             \
+            {                                                                  \
+                while (root->parent && root == root->parent->right)            \
+                    root = root->parent;                                       \
+                                                                               \
+                if (!root->parent)                                             \
+                    break;                                                     \
+                                                                               \
+                root = root->parent;                                           \
+            }                                                                  \
+            else                                                               \
+                break;                                                         \
+        }                                                                      \
+                                                                               \
+        return true;                                                           \
     }                                                                          \
                                                                                \
     struct SNAME##_iter *PFX##_iter_new(struct SNAME *target)                  \
@@ -951,7 +1058,7 @@ struct cmc_callbacks_treemap
             return false;                                                      \
         }                                                                      \
                                                                                \
-        if (steps == 0 || iter->index + steps >= PFX##_count(iter->target))    \
+        if (steps == 0 || iter->index + steps >= iter->target->count)          \
             return false;                                                      \
                                                                                \
         iter->index += steps;                                                  \
@@ -989,7 +1096,7 @@ struct cmc_callbacks_treemap
     /* given index */                                                          \
     bool PFX##_iter_go_to(struct SNAME##_iter *iter, size_t index)             \
     {                                                                          \
-        if (index >= PFX##_count(iter->target))                                \
+        if (index >= iter->target->count)                                      \
             return false;                                                      \
                                                                                \
         if (iter->index > index)                                               \
@@ -1051,9 +1158,6 @@ struct cmc_callbacks_treemap
     static struct SNAME##_node *PFX##_impl_get_node(struct SNAME *_map_,       \
                                                     K key)                     \
     {                                                                          \
-        if (PFX##_empty(_map_))                                                \
-            return NULL;                                                       \
-                                                                               \
         struct SNAME##_node *scan = _map_->root;                               \
                                                                                \
         while (scan != NULL)                                                   \
