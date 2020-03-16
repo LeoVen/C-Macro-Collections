@@ -235,10 +235,12 @@ struct cmc_callbacks_treeset
     bool PFX##_contains(struct SNAME *_set_, V element);                       \
     bool PFX##_empty(struct SNAME *_set_);                                     \
     size_t PFX##_count(struct SNAME *_set_);                                   \
+    int PFX##_flag(struct SNAME *_set_);                                       \
     /* Collection Utility */                                                   \
     struct SNAME *PFX##_copy_of(struct SNAME *_set_);                          \
     bool PFX##_equals(struct SNAME *_set1_, struct SNAME *_set2_);             \
     struct cmc_string PFX##_to_string(struct SNAME *_set_);                    \
+    bool PFX##_print(struct SNAME *_set_, FILE *fptr);                         \
                                                                                \
     /* Set Operations */                                                       \
     struct SNAME *PFX##_union(struct SNAME *_set1_, struct SNAME *_set2_);     \
@@ -414,6 +416,7 @@ struct cmc_callbacks_treeset
                                                                                \
         _set_->count = 0;                                                      \
         _set_->root = NULL;                                                    \
+        _set_->flag = cmc_flags.OK;                                            \
     }                                                                          \
                                                                                \
     void PFX##_free(struct SNAME *_set_)                                       \
@@ -430,7 +433,10 @@ struct cmc_callbacks_treeset
             _set_->root = PFX##_impl_new_node(_set_, element);                 \
                                                                                \
             if (!_set_->root)                                                  \
+            {                                                                  \
+                _set_->flag = cmc_flags.ALLOC;                                 \
                 return false;                                                  \
+            }                                                                  \
         }                                                                      \
         else                                                                   \
         {                                                                      \
@@ -456,7 +462,10 @@ struct cmc_callbacks_treeset
                 parent->left = PFX##_impl_new_node(_set_, element);            \
                                                                                \
                 if (!parent->left)                                             \
+                {                                                              \
+                    _set_->flag = cmc_flags.ALLOC;                             \
                     return false;                                              \
+                }                                                              \
                                                                                \
                 parent->left->parent = parent;                                 \
                 node = parent->left;                                           \
@@ -466,7 +475,10 @@ struct cmc_callbacks_treeset
                 parent->right = PFX##_impl_new_node(_set_, element);           \
                                                                                \
                 if (!parent->right)                                            \
+                {                                                              \
+                    _set_->flag = cmc_flags.ALLOC;                             \
                     return false;                                              \
+                }                                                              \
                                                                                \
                 parent->right->parent = parent;                                \
                 node = parent->right;                                          \
@@ -476,16 +488,26 @@ struct cmc_callbacks_treeset
         }                                                                      \
                                                                                \
         _set_->count++;                                                        \
+        _set_->flag = cmc_flags.OK;                                            \
                                                                                \
         return true;                                                           \
     }                                                                          \
                                                                                \
     bool PFX##_remove(struct SNAME *_set_, V element)                          \
     {                                                                          \
+        if (PFX##_empty(_set_))                                                \
+        {                                                                      \
+            _set_->flag = cmc_flags.EMPTY;                                     \
+            return false;                                                      \
+        }                                                                      \
+                                                                               \
         struct SNAME##_node *node = PFX##_impl_get_node(_set_, element);       \
                                                                                \
         if (!node)                                                             \
+        {                                                                      \
+            _set_->flag = cmc_flags.NOT_FOUND;                                 \
             return false;                                                      \
+        }                                                                      \
                                                                                \
         struct SNAME##_node *temp = NULL, *unbalanced = NULL;                  \
                                                                                \
@@ -594,6 +616,7 @@ struct cmc_callbacks_treeset
             PFX##_impl_rebalance(_set_, unbalanced);                           \
                                                                                \
         _set_->count--;                                                        \
+        _set_->flag = cmc_flags.OK;                                            \
                                                                                \
         if (_set_->count == 0)                                                 \
             _set_->root = NULL;                                                \
@@ -604,14 +627,20 @@ struct cmc_callbacks_treeset
     bool PFX##_max(struct SNAME *_set_, V *value)                              \
     {                                                                          \
         if (PFX##_empty(_set_))                                                \
+        {                                                                      \
+            _set_->flag = cmc_flags.EMPTY;                                     \
             return false;                                                      \
+        }                                                                      \
                                                                                \
         struct SNAME##_node *scan = _set_->root;                               \
                                                                                \
         while (scan->right != NULL)                                            \
             scan = scan->right;                                                \
                                                                                \
-        *value = scan->value;                                                  \
+        if (value)                                                             \
+            *value = scan->value;                                              \
+                                                                               \
+        _set_->flag = cmc_flags.OK;                                            \
                                                                                \
         return true;                                                           \
     }                                                                          \
@@ -619,33 +648,27 @@ struct cmc_callbacks_treeset
     bool PFX##_min(struct SNAME *_set_, V *value)                              \
     {                                                                          \
         if (PFX##_empty(_set_))                                                \
+        {                                                                      \
+            _set_->flag = cmc_flags.EMPTY;                                     \
             return false;                                                      \
+        }                                                                      \
                                                                                \
         struct SNAME##_node *scan = _set_->root;                               \
                                                                                \
         while (scan->left != NULL)                                             \
             scan = scan->left;                                                 \
                                                                                \
-        *value = scan->value;                                                  \
+        if (value)                                                             \
+            *value = scan->value;                                              \
+                                                                               \
+        _set_->flag = cmc_flags.OK;                                            \
                                                                                \
         return true;                                                           \
     }                                                                          \
                                                                                \
     bool PFX##_contains(struct SNAME *_set_, V element)                        \
     {                                                                          \
-        struct SNAME##_node *scan = _set_->root;                               \
-                                                                               \
-        while (scan != NULL)                                                   \
-        {                                                                      \
-            if (_set_->f_val->cmp(scan->value, element) > 0)                   \
-                scan = scan->left;                                             \
-            else if (_set_->f_val->cmp(scan->value, element) < 0)              \
-                scan = scan->right;                                            \
-            else                                                               \
-                return true;                                                   \
-        }                                                                      \
-                                                                               \
-        return false;                                                          \
+        return PFX##_impl_get_node(_set_, element) != NULL;                    \
     }                                                                          \
                                                                                \
     bool PFX##_empty(struct SNAME *_set_)                                      \
@@ -658,13 +681,21 @@ struct cmc_callbacks_treeset
         return _set_->count;                                                   \
     }                                                                          \
                                                                                \
+    int PFX##_flag(struct SNAME *_set_)                                        \
+    {                                                                          \
+        return _set_->flag;                                                    \
+    }                                                                          \
+                                                                               \
     struct SNAME *PFX##_copy_of(struct SNAME *_set_)                           \
     {                                                                          \
         struct SNAME *result =                                                 \
             PFX##_new_custom(_set_->f_val, _set_->alloc, _set_->callbacks);    \
                                                                                \
         if (!result)                                                           \
+        {                                                                      \
+            _set_->flag = cmc_flags.ERROR;                                     \
             return NULL;                                                       \
+        }                                                                      \
                                                                                \
         struct SNAME##_iter iter;                                              \
         PFX##_iter_init(&iter, _set_);                                         \
@@ -682,11 +713,16 @@ struct cmc_callbacks_treeset
             }                                                                  \
         }                                                                      \
                                                                                \
+        _set_->flag = cmc_flags.OK;                                            \
+                                                                               \
         return result;                                                         \
     }                                                                          \
                                                                                \
     bool PFX##_equals(struct SNAME *_set1_, struct SNAME *_set2_)              \
     {                                                                          \
+        _set1_->flag = cmc_flags.OK;                                           \
+        _set2_->flag = cmc_flags.OK;                                           \
+                                                                               \
         if (_set1_->count != _set2_->count)                                    \
             return false;                                                      \
                                                                                \
@@ -713,6 +749,47 @@ struct cmc_callbacks_treeset
                          s_->f_val, s_->alloc, s_->callbacks);                 \
                                                                                \
         return n >= 0 ? str : (struct cmc_string){ 0 };                        \
+    }                                                                          \
+                                                                               \
+    bool PFX##_print(struct SNAME *_set_, FILE *fptr)                          \
+    {                                                                          \
+        struct SNAME##_node *root = _set_->root;                               \
+                                                                               \
+        bool left_done = false;                                                \
+                                                                               \
+        while (root)                                                           \
+        {                                                                      \
+            if (!left_done)                                                    \
+            {                                                                  \
+                while (root->left)                                             \
+                    root = root->left;                                         \
+            }                                                                  \
+                                                                               \
+            if (!_set_->f_val->str(fptr, root->value))                         \
+                return false;                                                  \
+                                                                               \
+            left_done = true;                                                  \
+                                                                               \
+            if (root->right)                                                   \
+            {                                                                  \
+                left_done = false;                                             \
+                root = root->right;                                            \
+            }                                                                  \
+            else if (root->parent)                                             \
+            {                                                                  \
+                while (root->parent && root == root->parent->right)            \
+                    root = root->parent;                                       \
+                                                                               \
+                if (!root->parent)                                             \
+                    break;                                                     \
+                                                                               \
+                root = root->parent;                                           \
+            }                                                                  \
+            else                                                               \
+                break;                                                         \
+        }                                                                      \
+                                                                               \
+        return true;                                                           \
     }                                                                          \
                                                                                \
     struct SNAME *PFX##_union(struct SNAME *_set1_, struct SNAME *_set2_)      \
@@ -850,7 +927,7 @@ struct cmc_callbacks_treeset
         {                                                                      \
             V value = PFX##_iter_value(&iter);                                 \
                                                                                \
-            if (!PFX##_contains(_set2_, value))                                \
+            if (PFX##_impl_get_node(_set2_, value) == NULL)                    \
                 return false;                                                  \
         }                                                                      \
                                                                                \
@@ -896,7 +973,7 @@ struct cmc_callbacks_treeset
         {                                                                      \
             V value = PFX##_iter_value(&iter);                                 \
                                                                                \
-            if (!PFX##_contains(_set2_, value))                                \
+            if (PFX##_impl_get_node(_set2_, value) == NULL)                    \
                 return false;                                                  \
         }                                                                      \
                                                                                \
@@ -930,7 +1007,7 @@ struct cmc_callbacks_treeset
         {                                                                      \
             V value = PFX##_iter_value(&iter);                                 \
                                                                                \
-            if (PFX##_contains(_set2_, value))                                 \
+            if (PFX##_impl_get_node(_set2_, value) != NULL)                    \
                 return false;                                                  \
         }                                                                      \
                                                                                \
@@ -1186,9 +1263,6 @@ struct cmc_callbacks_treeset
     static struct SNAME##_node *PFX##_impl_get_node(struct SNAME *_set_,       \
                                                     V element)                 \
     {                                                                          \
-        if (PFX##_empty(_set_))                                                \
-            return NULL;                                                       \
-                                                                               \
         struct SNAME##_node *scan = _set_->root;                               \
                                                                                \
         while (scan != NULL)                                                   \

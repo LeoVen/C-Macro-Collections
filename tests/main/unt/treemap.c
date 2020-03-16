@@ -137,5 +137,6 @@ CMC_CREATE_UNIT(treemap_test, true, {
         cmc_assert_equals(int32_t, cmc_flags.OK, tm_flag(map2));
 
         tm_free(map);
+        tm_free(map2);
     });
 });
