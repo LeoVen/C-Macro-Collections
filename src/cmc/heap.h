@@ -30,77 +30,26 @@
 #ifndef CMC_HEAP_H
 #define CMC_HEAP_H
 
-#include <inttypes.h>
-#include <stdbool.h>
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-
 /* -------------------------------------------------------------------------
  * Core functionalities of the C Macro Collections Library
  * ------------------------------------------------------------------------- */
-#ifndef CMC_CORE_H
-#define CMC_CORE_H
-
-/**
- * struct cmc_string
- *
- * Used by all collections when calling the to_string function.
- */
-struct cmc_string
-{
-    char s[400];
-};
-
-static const size_t cmc_string_len = 400;
-
-/**
- * struct cmc_alloc_node
- *
- * Custom allocation node. Allows collections to use custom allocation
- * functions.
- */
-static struct cmc_alloc_node
-{
-    void *(*malloc)(size_t);
-    void *(*calloc)(size_t, size_t);
-    void *(*realloc)(void *, size_t);
-    void (*free)(void *);
-} cmc_alloc_node_default = { malloc, calloc, realloc, free };
-
-/**
- * enum cmc_flags
- *
- * Defines common error codes used by all collections. These are flags that
- * indicate if something went wrong in the last operation by the collection.
- */
-static struct
-{
-    int OK;        // No errors
-    int ALLOC;     // Allocation failed
-    int EMPTY;     // The collection is empty when it should not
-    int NOT_FOUND; // Key or value not found
-    int INVALID;   // Invalid argument or operation
-    int RANGE;     // Index out of range
-    int DUPLICATE; // Duplicate key or value
-    int ERROR;     // Generic error, usually caused by algorithm error
-} cmc_flags = { 0, 1, 2, 3, 4, 5, 6, 7 };
-
-#endif /* CMC_CORE_H */
+#include "../cor/core.h"
 
 /* -------------------------------------------------------------------------
  * Heap Implementation
  * ------------------------------------------------------------------------- */
-#ifndef CMC_IMPL_HEAP_ORDER
-#define CMC_IMPL_HEAP_ORDER
-
+/**
+ * enum cmc_heap_order
+ *
+ * Defines the two possible heaps:
+ * - Max Heap has the greatest element at the top
+ * - Min Heap has the smallest element at the top
+ */
 enum cmc_heap_order
 {
     cmc_max_heap = 1,
     cmc_min_heap = -1
 };
-
-#endif /* CMC_IMPL_HEAP_ORDER */
 
 /* -------------------------------------------------------------------------
  * Heap specific
@@ -116,21 +65,6 @@ static const char *cmc_string_fmt_heap = "struct %s<%s> "
                                          "f_val:%p, "
                                          "alloc:%p, "
                                          "callbacks: %p}";
-
-/**
- * Custom Heap callbacks.
- *
- * There are two types of callbacks, 'before' and 'after':
- *      <before|after>_<function_name>
- */
-struct cmc_callbacks_heap
-{
-    void (*before_clear)(void *);
-    void (*after_clear)(void *);
-    void (*before_free)(void *);
-    void (*after_free)(void *);
-    // TODO implement all callbacks
-};
 
 #define CMC_GENERATE_HEAP(PFX, SNAME, V)    \
     CMC_GENERATE_HEAP_HEADER(PFX, SNAME, V) \
@@ -172,7 +106,7 @@ struct cmc_callbacks_heap
         struct cmc_alloc_node *alloc;                                        \
                                                                              \
         /* Custom callback functions */                                      \
-        struct cmc_callbacks_heap *callbacks;                                \
+        struct cmc_callbacks *callbacks;                                     \
                                                                              \
         /* Function that returns an iterator to the start of the heap */     \
         struct SNAME##_iter (*it_start)(struct SNAME *);                     \
@@ -226,12 +160,12 @@ struct cmc_callbacks_heap
     struct SNAME *PFX##_new_custom(size_t capacity, enum cmc_heap_order HO,  \
                                    struct SNAME##_ftab_val *f_val,           \
                                    struct cmc_alloc_node *alloc,             \
-                                   struct cmc_callbacks_heap *callbacks);    \
+                                   struct cmc_callbacks *callbacks);         \
     void PFX##_clear(struct SNAME *_heap_);                                  \
     void PFX##_free(struct SNAME *_heap_);                                   \
     /* Customization of Allocation and Callbacks */                          \
     void PFX##_customize(struct SNAME *_heap_, struct cmc_alloc_node *alloc, \
-                         struct cmc_callbacks_heap *callbacks);              \
+                         struct cmc_callbacks *callbacks);                   \
     /* Collection Input and Output */                                        \
     bool PFX##_insert(struct SNAME *_heap_, V element);                      \
     bool PFX##_remove(struct SNAME *_heap_, V *result);                      \
@@ -326,7 +260,7 @@ struct cmc_callbacks_heap
     struct SNAME *PFX##_new_custom(size_t capacity, enum cmc_heap_order HO,    \
                                    struct SNAME##_ftab_val *f_val,             \
                                    struct cmc_alloc_node *alloc,               \
-                                   struct cmc_callbacks_heap *callbacks)       \
+                                   struct cmc_callbacks *callbacks)            \
     {                                                                          \
         if (capacity < 1)                                                      \
             return NULL;                                                       \
@@ -397,7 +331,7 @@ struct cmc_callbacks_heap
     }                                                                          \
                                                                                \
     void PFX##_customize(struct SNAME *_heap_, struct cmc_alloc_node *alloc,   \
-                         struct cmc_callbacks_heap *callbacks)                 \
+                         struct cmc_callbacks *callbacks)                      \
     {                                                                          \
         if (alloc)                                                             \
             _heap_->alloc = alloc;                                             \

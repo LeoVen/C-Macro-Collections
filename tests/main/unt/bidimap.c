@@ -55,7 +55,7 @@ CMC_CREATE_UNIT(bidimap_test, true, {
                                                     .calloc = calloc,
                                                     .realloc = realloc,
                                                     .free = free },
-                          &(struct cmc_callbacks_bidimap){ 0 });
+                          &(struct cmc_callbacks){ 0 });
 
         cmc_assert_not_equals(ptr, NULL, map);
 
@@ -69,7 +69,7 @@ CMC_CREATE_UNIT(bidimap_test, true, {
                                                     .calloc = calloc,
                                                     .realloc = realloc,
                                                     .free = free },
-                          &(struct cmc_callbacks_bidimap){ 0 });
+                          &(struct cmc_callbacks){ 0 });
 
         cmc_assert_not_equals(ptr, NULL, map);
 
@@ -238,7 +238,7 @@ CMC_CREATE_UNIT(bidimap_test, true, {
                                                     .calloc = calloc,
                                                     .realloc = realloc,
                                                     .free = free },
-                          &(struct cmc_callbacks_bidimap){ 0 });
+                          &(struct cmc_callbacks){ 0 });
 
         cmc_assert_not_equals(ptr, NULL, map);
 
@@ -271,7 +271,7 @@ CMC_CREATE_UNIT(bidimap_test, true, {
                                                     .calloc = calloc,
                                                     .realloc = realloc,
                                                     .free = free },
-                          &(struct cmc_callbacks_bidimap){ 0 });
+                          &(struct cmc_callbacks){ 0 });
 
         cmc_assert_not_equals(ptr, NULL, map);
 
@@ -366,7 +366,7 @@ CMC_CREATE_UNIT(bidimap_test, true, {
 
         // customize
         bm_customize(map, &cmc_alloc_node_default,
-                     &(struct cmc_callbacks_bidimap){ 0 });
+                     &(struct cmc_callbacks){ 0 });
         cmc_assert_equals(int32_t, cmc_flags.OK, bm_flag(map));
 
         // Insert

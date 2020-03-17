@@ -19,124 +19,15 @@
 #ifndef CMC_HASHSET_H
 #define CMC_HASHSET_H
 
-#include <inttypes.h>
-#include <stdbool.h>
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-
 /* -------------------------------------------------------------------------
  * Core functionalities of the C Macro Collections Library
  * ------------------------------------------------------------------------- */
-#ifndef CMC_CORE_H
-#define CMC_CORE_H
-
-/**
- * struct cmc_string
- *
- * Used by all collections when calling the to_string function.
- */
-struct cmc_string
-{
-    char s[400];
-};
-
-static const size_t cmc_string_len = 400;
-
-/**
- * struct cmc_alloc_node
- *
- * Custom allocation node. Allows collections to use custom allocation
- * functions.
- */
-static struct cmc_alloc_node
-{
-    void *(*malloc)(size_t);
-    void *(*calloc)(size_t, size_t);
-    void *(*realloc)(void *, size_t);
-    void (*free)(void *);
-} cmc_alloc_node_default = { malloc, calloc, realloc, free };
-
-/**
- * enum cmc_flags
- *
- * Defines common error codes used by all collections. These are flags that
- * indicate if something went wrong in the last operation by the collection.
- */
-static struct
-{
-    int OK;        // No errors
-    int ALLOC;     // Allocation failed
-    int EMPTY;     // The collection is empty when it should not
-    int NOT_FOUND; // Key or value not found
-    int INVALID;   // Invalid argument or operation
-    int RANGE;     // Index out of range
-    int DUPLICATE; // Duplicate key or value
-    int ERROR;     // Generic error, usually caused by algorithm error
-} cmc_flags = { 0, 1, 2, 3, 4, 5, 6, 7 };
-
-#endif /* CMC_CORE_H */
+#include "../cor/core.h"
 
 /* -------------------------------------------------------------------------
  * Hashtable Implementation
  * ------------------------------------------------------------------------- */
-#ifndef CMC_IMPL_HASHTABLE_STATE
-#define CMC_IMPL_HASHTABLE_STATE
-
-enum cmc_entry_state
-{
-    CMC_ES_DELETED = -1,
-    CMC_ES_EMPTY = 0,
-    CMC_ES_FILLED = 1
-};
-
-#endif /* CMC_IMPL_HASHTABLE_STATE */
-
-#ifndef CMC_IMPL_HASHTABLE_PRIMES
-#define CMC_IMPL_HASHTABLE_PRIMES
-
-// clang-format off
-static const size_t cmc_hashtable_primes[] = {
-    /* < 1e3 */
-    53, 97, 191, 383, 769,
-    /* < 1e4 */
-    1531, 3067, 6143,
-    /* < 1e5 */
-    12289, 24571, 49157, 98299,
-    /* < 1e6 */
-    196613, 393209, 786431,
-    /* < 1e7 */
-    1572869, 3145721, 6291449,
-    /* < 1e8 */
-    12582917, 25165813, 50331653,
-    /* < 1e9 */
-    100663291, 201326611, 402653189, 805306357,
-    /* < 1e10 */
-    1610612741, 3221225473, 6442450939,
-    /* < 1e11 */
-    12884901893, 25769803799, 51539607551,
-    /* < 1e12 */
-    103079215111, 206158430209, 412316860441, 824633720831,
-    /* < 1e13 */
-    1649267441651, 3298534883309, 6597069766657,
-    /* < 1e14 */
-    13194139533299, 26388279066623, 52776558133303,
-    /* < 1e15 */
-    105553116266489, 211106232532969, 422212465066001, 844424930131963,
-    /* < 1e16 */
-    1688849860263953, 3377699720527861, 6755399441055731,
-    /* < 1e17 */
-    13510798882111483, 27021597764222939, 54043195528445957,
-    /* < 1e18 */
-    108086391056891903, 216172782113783773, 432345564227567621, 864691128455135207,
-    /* < 1e19 */
-    1729382256910270481, 3458764513820540933, 6917529027641081903,
-    /* < 1e20 */
-    13835058055282163729llu,
-};
-// clang-format on
-
-#endif /* CMC_IMPL_HASHTABLE_PRIMES */
+#include "../cor/hashtable.h"
 
 /* -------------------------------------------------------------------------
  * HashSet specific
@@ -152,21 +43,6 @@ static const char *cmc_string_fmt_hashset = "struct %s<%s> "
                                             "f_val:%p, "
                                             "alloc:%p, "
                                             "callbacks: %p }";
-
-/**
- * Custom HashSet callbacks.
- *
- * There are two types of callbacks, 'before' and 'after':
- *      <before|after>_<function_name>
- */
-struct cmc_callbacks_hashset
-{
-    void (*before_clear)(void *);
-    void (*after_clear)(void *);
-    void (*before_free)(void *);
-    void (*after_free)(void *);
-    // TODO implement all callbacks
-};
 
 #define CMC_GENERATE_HASHSET(PFX, SNAME, V)    \
     CMC_GENERATE_HASHSET_HEADER(PFX, SNAME, V) \
@@ -208,7 +84,7 @@ struct cmc_callbacks_hashset
         struct cmc_alloc_node *alloc;                                          \
                                                                                \
         /* Custom callback functions */                                        \
-        struct cmc_callbacks_hashset *callbacks;                               \
+        struct cmc_callbacks *callbacks;                                       \
                                                                                \
         /* Function that returns an iterator to the start of the hashset */    \
         struct SNAME##_iter (*it_start)(struct SNAME *);                       \
@@ -281,15 +157,14 @@ struct cmc_callbacks_hashset
     /* Collection Allocation and Deallocation */                               \
     struct SNAME *PFX##_new(size_t capacity, double load,                      \
                             struct SNAME##_ftab_val *f_val);                   \
-    struct SNAME *PFX##_new_custom(size_t capacity, double load,               \
-                                   struct SNAME##_ftab_val *f_val,             \
-                                   struct cmc_alloc_node *alloc,               \
-                                   struct cmc_callbacks_hashset *callbacks);   \
+    struct SNAME *PFX##_new_custom(                                            \
+        size_t capacity, double load, struct SNAME##_ftab_val *f_val,          \
+        struct cmc_alloc_node *alloc, struct cmc_callbacks *callbacks);        \
     void PFX##_clear(struct SNAME *_set_);                                     \
     void PFX##_free(struct SNAME *_set_);                                      \
     /* Customization of Allocation and Callbacks */                            \
     void PFX##_customize(struct SNAME *_set_, struct cmc_alloc_node *alloc,    \
-                         struct cmc_callbacks_hashset *callbacks);             \
+                         struct cmc_callbacks *callbacks);                     \
     /* Collection Input and Output */                                          \
     bool PFX##_insert(struct SNAME *_set_, V element);                         \
     bool PFX##_remove(struct SNAME *_set_, V element);                         \
@@ -404,7 +279,7 @@ struct cmc_callbacks_hashset
                                                                                \
     struct SNAME *PFX##_new_custom(                                            \
         size_t capacity, double load, struct SNAME##_ftab_val *f_val,          \
-        struct cmc_alloc_node *alloc, struct cmc_callbacks_hashset *callbacks) \
+        struct cmc_alloc_node *alloc, struct cmc_callbacks *callbacks)         \
     {                                                                          \
         if (capacity == 0 || load <= 0 || load >= 1)                           \
             return NULL;                                                       \
@@ -490,7 +365,7 @@ struct cmc_callbacks_hashset
     }                                                                          \
                                                                                \
     void PFX##_customize(struct SNAME *_set_, struct cmc_alloc_node *alloc,    \
-                         struct cmc_callbacks_hashset *callbacks)              \
+                         struct cmc_callbacks *callbacks)                      \
     {                                                                          \
         if (alloc)                                                             \
             _set_->alloc = alloc;                                              \

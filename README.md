@@ -36,6 +36,7 @@
 * __examples__ - Examples using the C Macro Collections Library
 * __src__ - All headers part of the C Macro Collections Library
     * __cmc__ - The main C Macro Collections Library
+    * __cor__ - Core includes in the C Macro Collections Library
     * __dev__ - The main C Macro Collections Library for development (containing logging)
     * __sac__ - Statically  Allocated Collections
     * __utl__ - Utility like ForEach macros, logging, etc

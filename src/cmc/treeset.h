@@ -19,63 +19,10 @@
 #ifndef CMC_TREESET_H
 #define CMC_TREESET_H
 
-#include <inttypes.h>
-#include <stdbool.h>
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-
 /* -------------------------------------------------------------------------
  * Core functionalities of the C Macro Collections Library
  * ------------------------------------------------------------------------- */
-#ifndef CMC_CORE_H
-#define CMC_CORE_H
-
-/**
- * struct cmc_string
- *
- * Used by all collections when calling the to_string function.
- */
-struct cmc_string
-{
-    char s[400];
-};
-
-static const size_t cmc_string_len = 400;
-
-/**
- * struct cmc_alloc_node
- *
- * Custom allocation node. Allows collections to use custom allocation
- * functions.
- */
-static struct cmc_alloc_node
-{
-    void *(*malloc)(size_t);
-    void *(*calloc)(size_t, size_t);
-    void *(*realloc)(void *, size_t);
-    void (*free)(void *);
-} cmc_alloc_node_default = { malloc, calloc, realloc, free };
-
-/**
- * enum cmc_flags
- *
- * Defines common error codes used by all collections. These are flags that
- * indicate if something went wrong in the last operation by the collection.
- */
-static struct
-{
-    int OK;        // No errors
-    int ALLOC;     // Allocation failed
-    int EMPTY;     // The collection is empty when it should not
-    int NOT_FOUND; // Key or value not found
-    int INVALID;   // Invalid argument or operation
-    int RANGE;     // Index out of range
-    int DUPLICATE; // Duplicate key or value
-    int ERROR;     // Generic error, usually caused by algorithm error
-} cmc_flags = { 0, 1, 2, 3, 4, 5, 6, 7 };
-
-#endif /* CMC_CORE_H */
+#include "../cor/core.h"
 
 /* -------------------------------------------------------------------------
  * TreeSet specific
@@ -89,21 +36,6 @@ static const char *cmc_string_fmt_treeset = "struct %s<%s> "
                                             "f_val:%p, "
                                             "alloc:%p, "
                                             "callbacks:%p }";
-
-/**
- * Custom TreeSet callbacks.
- *
- * There are two types of callbacks, 'before' and 'after':
- *      <before|after>_<function_name>
- */
-struct cmc_callbacks_treeset
-{
-    void (*before_clear)(void *);
-    void (*after_clear)(void *);
-    void (*before_free)(void *);
-    void (*after_free)(void *);
-    // TODO implement all callbacks
-};
 
 #define CMC_GENERATE_TREESET(PFX, SNAME, V)    \
     CMC_GENERATE_TREESET_HEADER(PFX, SNAME, V) \
@@ -139,7 +71,7 @@ struct cmc_callbacks_treeset
         struct cmc_alloc_node *alloc;                                          \
                                                                                \
         /* Custom callback functions */                                        \
-        struct cmc_callbacks_treeset *callbacks;                               \
+        struct cmc_callbacks *callbacks;                                       \
                                                                                \
         /* Function that returns an iterator to the start of the treeset */    \
         struct SNAME##_iter (*it_start)(struct SNAME *);                       \
@@ -219,12 +151,12 @@ struct cmc_callbacks_treeset
     struct SNAME *PFX##_new(struct SNAME##_ftab_val *f_val);                   \
     struct SNAME *PFX##_new_custom(struct SNAME##_ftab_val *f_val,             \
                                    struct cmc_alloc_node *alloc,               \
-                                   struct cmc_callbacks_treeset *callbacks);   \
+                                   struct cmc_callbacks *callbacks);           \
     void PFX##_clear(struct SNAME *_set_);                                     \
     void PFX##_free(struct SNAME *_set_);                                      \
     /* Customization of Allocation and Callbacks */                            \
     void PFX##_customize(struct SNAME *_set_, struct cmc_alloc_node *alloc,    \
-                         struct cmc_callbacks_treeset *callbacks);             \
+                         struct cmc_callbacks *callbacks);                     \
     /* Collection Input and Output */                                          \
     bool PFX##_insert(struct SNAME *_set_, V element);                         \
     bool PFX##_remove(struct SNAME *_set_, V element);                         \
@@ -332,7 +264,7 @@ struct cmc_callbacks_treeset
                                                                                \
     struct SNAME *PFX##_new_custom(struct SNAME##_ftab_val *f_val,             \
                                    struct cmc_alloc_node *alloc,               \
-                                   struct cmc_callbacks_treeset *callbacks)    \
+                                   struct cmc_callbacks *callbacks)            \
     {                                                                          \
         if (!f_val)                                                            \
             return NULL;                                                       \
