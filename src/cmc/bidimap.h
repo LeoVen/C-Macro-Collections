@@ -42,8 +42,7 @@
 /* to_string format */
 static const char *cmc_string_fmt_bidimap = "struct %s<%s, %s> "
                                             "at %p { "
-                                            "key_buffer:%p, "
-                                            "val_buffer:%p, "
+                                            "buffer:%p, "
                                             "capacity:%" PRIuMAX ", "
                                             "count:%" PRIuMAX ", "
                                             "load:%lf, "
@@ -66,199 +65,198 @@ static const char *cmc_string_fmt_bidimap = "struct %s<%s, %s> "
 /* -------------------------------------------------------------------------
  * Header
  * ------------------------------------------------------------------------- */
-#define CMC_GENERATE_BIDIMAP_HEADER(PFX, SNAME, K, V)                       \
-                                                                            \
-    /* BidiMap Structure */                                                 \
-    struct SNAME                                                            \
-    {                                                                       \
-        /* Array of Entries mapping K -> V */                               \
-        struct SNAME##_entry **key_buffer;                                  \
-                                                                            \
-        /* Array of entries mapping V -> K */                               \
-        struct SNAME##_entry **val_buffer;                                  \
-                                                                            \
-        /* Current arrays capacity */                                       \
-        size_t capacity;                                                    \
-                                                                            \
-        /* Current amount of keys */                                        \
-        size_t count;                                                       \
-                                                                            \
-        /* Load factor in range (0.0, 1.0) */                               \
-        double load;                                                        \
-                                                                            \
-        /* Flags indicating errors or success */                            \
-        int flag;                                                           \
-                                                                            \
-        /* Key function table */                                            \
-        struct SNAME##_ftab_key *f_key;                                     \
-                                                                            \
-        /* Value function table */                                          \
-        struct SNAME##_ftab_val *f_val;                                     \
-                                                                            \
-        /* Custom allocation functions */                                   \
-        struct cmc_alloc_node *alloc;                                       \
-                                                                            \
-        /* Custom callback functions */                                     \
-        struct cmc_callbacks *callbacks;                                    \
-                                                                            \
-        /* Methods */                                                       \
-        /* Function that returns an iterator to the start of the bidimap */ \
-        struct SNAME##_iter (*it_start)(struct SNAME *);                    \
-                                                                            \
-        /* Function that returns an iterator to the end of the bidimap */   \
-        struct SNAME##_iter (*it_end)(struct SNAME *);                      \
-    };                                                                      \
-                                                                            \
-    /* BidiMap Entry */                                                     \
-    struct SNAME##_entry                                                    \
-    {                                                                       \
-        /* Entry Key */                                                     \
-        K key;                                                              \
-                                                                            \
-        /* Entry Value */                                                   \
-        V value;                                                            \
-                                                                            \
-        /* The distance of this node to its original position, used by */   \
-        /* robin-hood hashing relative to the key_buffer */                 \
-        size_t key_dist;                                                    \
-                                                                            \
-        /* The distance of this node to its original position, used by */   \
-        /* robin-hood hashing relative to the value_buffer */               \
-        size_t val_dist;                                                    \
-    };                                                                      \
-                                                                            \
-    /* Key struct function table */                                         \
-    struct SNAME##_ftab_key                                                 \
-    {                                                                       \
-        /* Comparator function */                                           \
-        int (*cmp)(K, K);                                                   \
-                                                                            \
-        /* Copy function */                                                 \
-        K (*cpy)(K);                                                        \
-                                                                            \
-        /* To string function */                                            \
-        bool (*str)(FILE *, K);                                             \
-                                                                            \
-        /* Free from memory function */                                     \
-        void (*free)(K);                                                    \
-                                                                            \
-        /* Hash function */                                                 \
-        size_t (*hash)(K);                                                  \
-                                                                            \
-        /* Priority function */                                             \
-        int (*pri)(K, K);                                                   \
-    };                                                                      \
-                                                                            \
-    /* Value struct function table */                                       \
-    struct SNAME##_ftab_val                                                 \
-    {                                                                       \
-        /* Comparator function */                                           \
-        int (*cmp)(V, V);                                                   \
-                                                                            \
-        /* Copy function */                                                 \
-        V (*cpy)(V);                                                        \
-                                                                            \
-        /* To string function */                                            \
-        bool (*str)(FILE *, V);                                             \
-                                                                            \
-        /* Free from memory function */                                     \
-        void (*free)(V);                                                    \
-                                                                            \
-        /* Hash function */                                                 \
-        size_t (*hash)(V);                                                  \
-                                                                            \
-        /* Priority function */                                             \
-        int (*pri)(V, V);                                                   \
-    };                                                                      \
-                                                                            \
-    /* BidiMap Iterator */                                                  \
-    struct SNAME##_iter                                                     \
-    {                                                                       \
-        /* Target bidimap */                                                \
-        struct SNAME *target;                                               \
-                                                                            \
-        /* Cursor's position (index) */                                     \
-        size_t cursor;                                                      \
-                                                                            \
-        /* Keeps track of relative index to the iteration of elements */    \
-        size_t index;                                                       \
-                                                                            \
-        /* The index of the first element */                                \
-        size_t first;                                                       \
-                                                                            \
-        /* The index of the last element */                                 \
-        size_t last;                                                        \
-                                                                            \
-        /* If the iterator has reached the start of the iteration */        \
-        bool start;                                                         \
-                                                                            \
-        /* If the iterator has reached the end of the iteration */          \
-        bool end;                                                           \
-    };                                                                      \
-                                                                            \
-    /* Collection Functions */                                              \
-    /* Collection Allocation and Deallocation */                            \
-    struct SNAME *PFX##_new(size_t capacity, double load,                   \
-                            struct SNAME##_ftab_key *f_key,                 \
-                            struct SNAME##_ftab_val *f_val);                \
-    struct SNAME *PFX##_new_custom(                                         \
-        size_t capacity, double load, struct SNAME##_ftab_key *f_key,       \
-        struct SNAME##_ftab_val *f_val, struct cmc_alloc_node *alloc,       \
-        struct cmc_callbacks *callbacks);                                   \
-    void PFX##_clear(struct SNAME *_map_);                                  \
-    void PFX##_free(struct SNAME *_map_);                                   \
-    /* Customization of Allocation and Callbacks */                         \
-    void PFX##_customize(struct SNAME *_map_, struct cmc_alloc_node *alloc, \
-                         struct cmc_callbacks *callbacks);                  \
-    /* Collection Input and Output */                                       \
-    bool PFX##_insert(struct SNAME *_map_, K key, V value);                 \
-    bool PFX##_update_key(struct SNAME *_map_, K key, K new_key);           \
-    bool PFX##_update_key_by_val(struct SNAME *_map_, V val, K new_key);    \
-    bool PFX##_update_val(struct SNAME *_map_, V val, V new_val);           \
-    bool PFX##_update_val_by_key(struct SNAME *_map_, K key, V new_val);    \
-    bool PFX##_remove_by_key(struct SNAME *_map_, K key, K *out_key,        \
-                             V *out_val);                                   \
-    bool PFX##_remove_by_val(struct SNAME *_map_, V val, K *out_key,        \
-                             V *out_val);                                   \
-    /* Element Access */                                                    \
-    K PFX##_get_key(struct SNAME *_map_, V val);                            \
-    V PFX##_get_val(struct SNAME *_map_, K key);                            \
-    /* Collection State */                                                  \
-    bool PFX##_contains_key(struct SNAME *_map_, K key);                    \
-    bool PFX##_contains_val(struct SNAME *_map_, V val);                    \
-    bool PFX##_empty(struct SNAME *_map_);                                  \
-    bool PFX##_full(struct SNAME *_map_);                                   \
-    size_t PFX##_count(struct SNAME *_map_);                                \
-    size_t PFX##_capacity(struct SNAME *_map_);                             \
-    double PFX##_load(struct SNAME *_map_);                                 \
-    int PFX##_flag(struct SNAME *_map_);                                    \
-    /* Collection Utility */                                                \
-    bool PFX##_resize(struct SNAME *_map_, size_t capacity);                \
-    struct SNAME *PFX##_copy_of(struct SNAME *_map_);                       \
-    bool PFX##_equals(struct SNAME *_map1_, struct SNAME *_map2_);          \
-    struct cmc_string PFX##_to_string(struct SNAME *_map_);                 \
-    bool PFX##_print(struct SNAME *_map_, FILE *fptr);                      \
-                                                                            \
-    /* Iterator Functions */                                                \
-    /* Iterator Allocation and Deallocation */                              \
-    struct SNAME##_iter *PFX##_iter_new(struct SNAME *target);              \
-    void PFX##_iter_free(struct SNAME##_iter *iter);                        \
-    /* Iterator Initialization */                                           \
-    void PFX##_iter_init(struct SNAME##_iter *iter, struct SNAME *target);  \
-    /* Iterator State */                                                    \
-    bool PFX##_iter_start(struct SNAME##_iter *iter);                       \
-    bool PFX##_iter_end(struct SNAME##_iter *iter);                         \
-    /* Iterator Movement */                                                 \
-    void PFX##_iter_to_start(struct SNAME##_iter *iter);                    \
-    void PFX##_iter_to_end(struct SNAME##_iter *iter);                      \
-    bool PFX##_iter_next(struct SNAME##_iter *iter);                        \
-    bool PFX##_iter_prev(struct SNAME##_iter *iter);                        \
-    bool PFX##_iter_advance(struct SNAME##_iter *iter, size_t steps);       \
-    bool PFX##_iter_rewind(struct SNAME##_iter *iter, size_t steps);        \
-    bool PFX##_iter_go_to(struct SNAME##_iter *iter, size_t index);         \
-    /* Iterator Access */                                                   \
-    K PFX##_iter_key(struct SNAME##_iter *iter);                            \
-    V PFX##_iter_value(struct SNAME##_iter *iter);                          \
+#define CMC_GENERATE_BIDIMAP_HEADER(PFX, SNAME, K, V)                        \
+                                                                             \
+    /* BidiMap Structure */                                                  \
+    struct SNAME                                                             \
+    {                                                                        \
+        /* Array 0 is K -> V and array 1 is V -> K */                        \
+        struct SNAME##_entry *(*buffer)[2];                                  \
+                                                                             \
+        /* Current arrays capacity */                                        \
+        size_t capacity;                                                     \
+                                                                             \
+        /* Current amount of keys */                                         \
+        size_t count;                                                        \
+                                                                             \
+        /* Load factor in range (0.0, 1.0) */                                \
+        double load;                                                         \
+                                                                             \
+        /* Flags indicating errors or success */                             \
+        int flag;                                                            \
+                                                                             \
+        /* Key function table */                                             \
+        struct SNAME##_ftab_key *f_key;                                      \
+                                                                             \
+        /* Value function table */                                           \
+        struct SNAME##_ftab_val *f_val;                                      \
+                                                                             \
+        /* Custom allocation functions */                                    \
+        struct cmc_alloc_node *alloc;                                        \
+                                                                             \
+        /* Custom callback functions */                                      \
+        struct cmc_callbacks *callbacks;                                     \
+                                                                             \
+        /* Methods */                                                        \
+        /* Function that returns an iterator to the start of the bidimap */  \
+        struct SNAME##_iter (*it_start)(struct SNAME *);                     \
+                                                                             \
+        /* Function that returns an iterator to the end of the bidimap */    \
+        struct SNAME##_iter (*it_end)(struct SNAME *);                       \
+    };                                                                       \
+                                                                             \
+    /* BidiMap Entry */                                                      \
+    struct SNAME##_entry                                                     \
+    {                                                                        \
+        /* Entry Key */                                                      \
+        K key;                                                               \
+                                                                             \
+        /* Entry Value */                                                    \
+        V value;                                                             \
+                                                                             \
+        /* The distance of this node to its original position */             \
+        /* dist[0] is relative to K -> V */                                  \
+        /* dist[1] is relative to V -> K */                                  \
+        size_t dist[2];                                                      \
+                                                                             \
+        /* References to this node in the bidimap buffer. Used to */         \
+        /* prevent searching for this node twice for update() and */         \
+        /* remove(). Increases memory overhead but reduces execution time */ \
+        /* ref[0] is relative to K -> V */                                   \
+        /* ref[1] is relative to V -> K */                                   \
+        struct SNAME##_entry **ref[2];                                       \
+    };                                                                       \
+                                                                             \
+    /* Key struct function table */                                          \
+    struct SNAME##_ftab_key                                                  \
+    {                                                                        \
+        /* Comparator function */                                            \
+        int (*cmp)(K, K);                                                    \
+                                                                             \
+        /* Copy function */                                                  \
+        K (*cpy)(K);                                                         \
+                                                                             \
+        /* To string function */                                             \
+        bool (*str)(FILE *, K);                                              \
+                                                                             \
+        /* Free from memory function */                                      \
+        void (*free)(K);                                                     \
+                                                                             \
+        /* Hash function */                                                  \
+        size_t (*hash)(K);                                                   \
+                                                                             \
+        /* Priority function */                                              \
+        int (*pri)(K, K);                                                    \
+    };                                                                       \
+                                                                             \
+    /* Value struct function table */                                        \
+    struct SNAME##_ftab_val                                                  \
+    {                                                                        \
+        /* Comparator function */                                            \
+        int (*cmp)(V, V);                                                    \
+                                                                             \
+        /* Copy function */                                                  \
+        V (*cpy)(V);                                                         \
+                                                                             \
+        /* To string function */                                             \
+        bool (*str)(FILE *, V);                                              \
+                                                                             \
+        /* Free from memory function */                                      \
+        void (*free)(V);                                                     \
+                                                                             \
+        /* Hash function */                                                  \
+        size_t (*hash)(V);                                                   \
+                                                                             \
+        /* Priority function */                                              \
+        int (*pri)(V, V);                                                    \
+    };                                                                       \
+                                                                             \
+    /* BidiMap Iterator */                                                   \
+    struct SNAME##_iter                                                      \
+    {                                                                        \
+        /* Target bidimap */                                                 \
+        struct SNAME *target;                                                \
+                                                                             \
+        /* Cursor's position (index) */                                      \
+        size_t cursor;                                                       \
+                                                                             \
+        /* Keeps track of relative index to the iteration of elements */     \
+        size_t index;                                                        \
+                                                                             \
+        /* The index of the first element */                                 \
+        size_t first;                                                        \
+                                                                             \
+        /* The index of the last element */                                  \
+        size_t last;                                                         \
+                                                                             \
+        /* If the iterator has reached the start of the iteration */         \
+        bool start;                                                          \
+                                                                             \
+        /* If the iterator has reached the end of the iteration */           \
+        bool end;                                                            \
+    };                                                                       \
+                                                                             \
+    /* Collection Functions */                                               \
+    /* Collection Allocation and Deallocation */                             \
+    struct SNAME *PFX##_new(size_t capacity, double load,                    \
+                            struct SNAME##_ftab_key *f_key,                  \
+                            struct SNAME##_ftab_val *f_val);                 \
+    struct SNAME *PFX##_new_custom(                                          \
+        size_t capacity, double load, struct SNAME##_ftab_key *f_key,        \
+        struct SNAME##_ftab_val *f_val, struct cmc_alloc_node *alloc,        \
+        struct cmc_callbacks *callbacks);                                    \
+    void PFX##_clear(struct SNAME *_map_);                                   \
+    void PFX##_free(struct SNAME *_map_);                                    \
+    /* Customization of Allocation and Callbacks */                          \
+    void PFX##_customize(struct SNAME *_map_, struct cmc_alloc_node *alloc,  \
+                         struct cmc_callbacks *callbacks);                   \
+    /* Collection Input and Output */                                        \
+    bool PFX##_insert(struct SNAME *_map_, K key, V value);                  \
+    bool PFX##_update_key(struct SNAME *_map_, V val, K new_key);            \
+    bool PFX##_update_val(struct SNAME *_map_, K key, V new_val);            \
+    bool PFX##_remove_by_key(struct SNAME *_map_, K key, K *out_key,         \
+                             V *out_val);                                    \
+    bool PFX##_remove_by_val(struct SNAME *_map_, V val, K *out_key,         \
+                             V *out_val);                                    \
+    /* Element Access */                                                     \
+    K PFX##_get_key(struct SNAME *_map_, V val);                             \
+    V PFX##_get_val(struct SNAME *_map_, K key);                             \
+    /* Collection State */                                                   \
+    bool PFX##_contains_key(struct SNAME *_map_, K key);                     \
+    bool PFX##_contains_val(struct SNAME *_map_, V val);                     \
+    bool PFX##_empty(struct SNAME *_map_);                                   \
+    bool PFX##_full(struct SNAME *_map_);                                    \
+    size_t PFX##_count(struct SNAME *_map_);                                 \
+    size_t PFX##_capacity(struct SNAME *_map_);                              \
+    double PFX##_load(struct SNAME *_map_);                                  \
+    int PFX##_flag(struct SNAME *_map_);                                     \
+    /* Collection Utility */                                                 \
+    bool PFX##_resize(struct SNAME *_map_, size_t capacity);                 \
+    struct SNAME *PFX##_copy_of(struct SNAME *_map_);                        \
+    bool PFX##_equals(struct SNAME *_map1_, struct SNAME *_map2_);           \
+    struct cmc_string PFX##_to_string(struct SNAME *_map_);                  \
+    bool PFX##_print(struct SNAME *_map_, FILE *fptr);                       \
+                                                                             \
+    /* Iterator Functions */                                                 \
+    /* Iterator Allocation and Deallocation */                               \
+    struct SNAME##_iter *PFX##_iter_new(struct SNAME *target);               \
+    void PFX##_iter_free(struct SNAME##_iter *iter);                         \
+    /* Iterator Initialization */                                            \
+    void PFX##_iter_init(struct SNAME##_iter *iter, struct SNAME *target);   \
+    /* Iterator State */                                                     \
+    bool PFX##_iter_start(struct SNAME##_iter *iter);                        \
+    bool PFX##_iter_end(struct SNAME##_iter *iter);                          \
+    /* Iterator Movement */                                                  \
+    void PFX##_iter_to_start(struct SNAME##_iter *iter);                     \
+    void PFX##_iter_to_end(struct SNAME##_iter *iter);                       \
+    bool PFX##_iter_next(struct SNAME##_iter *iter);                         \
+    bool PFX##_iter_prev(struct SNAME##_iter *iter);                         \
+    bool PFX##_iter_advance(struct SNAME##_iter *iter, size_t steps);        \
+    bool PFX##_iter_rewind(struct SNAME##_iter *iter, size_t steps);         \
+    bool PFX##_iter_go_to(struct SNAME##_iter *iter, size_t index);          \
+    /* Iterator Access */                                                    \
+    K PFX##_iter_key(struct SNAME##_iter *iter);                             \
+    V PFX##_iter_value(struct SNAME##_iter *iter);                           \
     size_t PFX##_iter_index(struct SNAME##_iter *iter);
 
 /* -------------------------------------------------------------------------
@@ -304,15 +302,12 @@ static const char *cmc_string_fmt_bidimap = "struct %s<%s, %s> "
         if (!_map_)                                                            \
             return NULL;                                                       \
                                                                                \
-        _map_->key_buffer =                                                    \
-            alloc->calloc(real_capacity, sizeof(struct SNAME##_entry *));      \
-        _map_->val_buffer =                                                    \
-            alloc->calloc(real_capacity, sizeof(struct SNAME##_entry *));      \
+        _map_->buffer =                                                        \
+            alloc->calloc(real_capacity, sizeof(struct SNAME##_entry *[2]));   \
                                                                                \
-        if (!_map_->key_buffer || !_map_->val_buffer)                          \
+        if (!_map_->buffer)                                                    \
         {                                                                      \
-            alloc->free(_map_->key_buffer);                                    \
-            alloc->free(_map_->val_buffer);                                    \
+            alloc->free(_map_->buffer);                                        \
             alloc->free(_map_);                                                \
             return NULL;                                                       \
         }                                                                      \
@@ -356,15 +351,12 @@ static const char *cmc_string_fmt_bidimap = "struct %s<%s, %s> "
         if (!_map_)                                                            \
             return NULL;                                                       \
                                                                                \
-        _map_->key_buffer =                                                    \
-            alloc->calloc(real_capacity, sizeof(struct SNAME##_entry *));      \
-        _map_->val_buffer =                                                    \
-            alloc->calloc(real_capacity, sizeof(struct SNAME##_entry *));      \
+        _map_->buffer =                                                        \
+            alloc->calloc(real_capacity, sizeof(struct SNAME##_entry *[2]));   \
                                                                                \
-        if (!_map_->key_buffer || !_map_->val_buffer)                          \
+        if (!_map_->buffer)                                                    \
         {                                                                      \
-            alloc->free(_map_->key_buffer);                                    \
-            alloc->free(_map_->val_buffer);                                    \
+            alloc->free(_map_->buffer);                                        \
             alloc->free(_map_);                                                \
             return NULL;                                                       \
         }                                                                      \
@@ -388,7 +380,7 @@ static const char *cmc_string_fmt_bidimap = "struct %s<%s, %s> "
     {                                                                          \
         for (size_t i = 0; i < _map_->capacity; i++)                           \
         {                                                                      \
-            struct SNAME##_entry *entry = _map_->key_buffer[i];                \
+            struct SNAME##_entry *entry = _map_->buffer[i][0];                 \
                                                                                \
             if (entry && entry != CMC_ENTRY_DELETED)                           \
             {                                                                  \
@@ -400,8 +392,8 @@ static const char *cmc_string_fmt_bidimap = "struct %s<%s, %s> "
                 _map_->alloc->free(entry);                                     \
             }                                                                  \
                                                                                \
-            _map_->key_buffer[i] = NULL;                                       \
-            _map_->val_buffer[i] = NULL;                                       \
+            _map_->buffer[i][0] = NULL;                                        \
+            _map_->buffer[i][1] = NULL;                                        \
         }                                                                      \
                                                                                \
         _map_->count = 0;                                                      \
@@ -412,8 +404,7 @@ static const char *cmc_string_fmt_bidimap = "struct %s<%s, %s> "
     {                                                                          \
         PFX##_clear(_map_);                                                    \
                                                                                \
-        _map_->alloc->free(_map_->key_buffer);                                 \
-        _map_->alloc->free(_map_->val_buffer);                                 \
+        _map_->alloc->free(_map_->buffer);                                     \
         _map_->alloc->free(_map_);                                             \
     }                                                                          \
                                                                                \
@@ -468,10 +459,13 @@ static const char *cmc_string_fmt_bidimap = "struct %s<%s, %s> "
         _map_->count++;                                                        \
         _map_->flag = cmc_flags.OK;                                            \
                                                                                \
+        if (_map_->callbacks && _map_->callbacks->create)                      \
+            _map_->callbacks->create();                                        \
+                                                                               \
         return true;                                                           \
     }                                                                          \
                                                                                \
-    bool PFX##_update_key(struct SNAME *_map_, K key, K new_key)               \
+    bool PFX##_update_key(struct SNAME *_map_, V val, K new_key)               \
     {                                                                          \
         if (PFX##_empty(_map_))                                                \
         {                                                                      \
@@ -479,10 +473,11 @@ static const char *cmc_string_fmt_bidimap = "struct %s<%s, %s> "
             return false;                                                      \
         }                                                                      \
                                                                                \
-        struct SNAME##_entry **entry =                                         \
-            PFX##_impl_get_entry_by_key(_map_, key);                           \
+        struct SNAME##_entry **key_entry, **val_entry;                         \
                                                                                \
-        if (!entry)                                                            \
+        val_entry = PFX##_impl_get_entry_by_val(_map_, val);                   \
+                                                                               \
+        if (!val_entry)                                                        \
         {                                                                      \
             _map_->flag = cmc_flags.NOT_FOUND;                                 \
             return false;                                                      \
@@ -494,16 +489,27 @@ static const char *cmc_string_fmt_bidimap = "struct %s<%s, %s> "
             return false;                                                      \
         }                                                                      \
                                                                                \
-        struct SNAME##_entry *to_add = *entry;                                 \
+        key_entry = (*val_entry)->ref[0];                                      \
+                                                                               \
+        if (!key_entry || *key_entry != *val_entry)                            \
+        {                                                                      \
+            /* Should never happen */                                          \
+            _map_->flag = cmc_flags.ERROR;                                     \
+            return false;                                                      \
+        }                                                                      \
+                                                                               \
+        /* Remove entry from key buffer and add it again with new key */       \
+        struct SNAME##_entry *to_add = *key_entry;                             \
         K tmp_key = to_add->key;                                               \
         to_add->key = new_key;                                                 \
                                                                                \
-        *entry = CMC_ENTRY_DELETED;                                            \
+        *key_entry = CMC_ENTRY_DELETED;                                        \
                                                                                \
         if (!PFX##_impl_add_entry_to_key(_map_, to_add))                       \
         {                                                                      \
+            /* Revert changes */                                               \
             to_add->key = tmp_key;                                             \
-            *entry = to_add;                                                   \
+            *key_entry = to_add;                                               \
                                                                                \
             _map_->flag = cmc_flags.ERROR;                                     \
             return false;                                                      \
@@ -511,10 +517,13 @@ static const char *cmc_string_fmt_bidimap = "struct %s<%s, %s> "
                                                                                \
         _map_->flag = cmc_flags.OK;                                            \
                                                                                \
+        if (_map_->callbacks && _map_->callbacks->update)                      \
+            _map_->callbacks->update();                                        \
+                                                                               \
         return true;                                                           \
     }                                                                          \
                                                                                \
-    bool PFX##_update_key_by_val(struct SNAME *_map_, V val, K new_key)        \
+    bool PFX##_update_val(struct SNAME *_map_, K key, V new_val)               \
     {                                                                          \
         if (PFX##_empty(_map_))                                                \
         {                                                                      \
@@ -522,53 +531,11 @@ static const char *cmc_string_fmt_bidimap = "struct %s<%s, %s> "
             return false;                                                      \
         }                                                                      \
                                                                                \
-        struct SNAME##_entry **entry =                                         \
-            PFX##_impl_get_entry_by_val(_map_, val);                           \
+        struct SNAME##_entry **key_entry, **val_entry;                         \
                                                                                \
-        if (!entry)                                                            \
-        {                                                                      \
-            _map_->flag = cmc_flags.NOT_FOUND;                                 \
-            return false;                                                      \
-        }                                                                      \
+        key_entry = PFX##_impl_get_entry_by_key(_map_, key);                   \
                                                                                \
-        if (PFX##_impl_get_entry_by_key(_map_, new_key) != NULL)               \
-        {                                                                      \
-            _map_->flag = cmc_flags.DUPLICATE;                                 \
-            return false;                                                      \
-        }                                                                      \
-                                                                               \
-        struct SNAME##_entry *to_add = *entry;                                 \
-        K tmp_key = to_add->key;                                               \
-        to_add->key = new_key;                                                 \
-                                                                               \
-        *entry = CMC_ENTRY_DELETED;                                            \
-                                                                               \
-        if (!PFX##_impl_add_entry_to_key(_map_, to_add))                       \
-        {                                                                      \
-            to_add->key = tmp_key;                                             \
-            *entry = to_add;                                                   \
-                                                                               \
-            _map_->flag = cmc_flags.ERROR;                                     \
-            return false;                                                      \
-        }                                                                      \
-                                                                               \
-        _map_->flag = cmc_flags.OK;                                            \
-                                                                               \
-        return true;                                                           \
-    }                                                                          \
-                                                                               \
-    bool PFX##_update_val(struct SNAME *_map_, V val, V new_val)               \
-    {                                                                          \
-        if (PFX##_empty(_map_))                                                \
-        {                                                                      \
-            _map_->flag = cmc_flags.EMPTY;                                     \
-            return false;                                                      \
-        }                                                                      \
-                                                                               \
-        struct SNAME##_entry **entry =                                         \
-            PFX##_impl_get_entry_by_val(_map_, val);                           \
-                                                                               \
-        if (!entry)                                                            \
+        if (!key_entry)                                                        \
         {                                                                      \
             _map_->flag = cmc_flags.NOT_FOUND;                                 \
             return false;                                                      \
@@ -580,65 +547,37 @@ static const char *cmc_string_fmt_bidimap = "struct %s<%s, %s> "
             return false;                                                      \
         }                                                                      \
                                                                                \
-        struct SNAME##_entry *to_add = *entry;                                 \
+        val_entry = (*key_entry)->ref[1];                                      \
+                                                                               \
+        if (!val_entry || *val_entry != *key_entry)                            \
+        {                                                                      \
+            /* Should never happen */                                          \
+            _map_->flag = cmc_flags.ERROR;                                     \
+            return false;                                                      \
+        }                                                                      \
+                                                                               \
+        /* Remove entry from value buffer and add it again with new value */   \
+        struct SNAME##_entry *to_add = *val_entry;                             \
         V tmp_val = to_add->value;                                             \
         to_add->value = new_val;                                               \
                                                                                \
-        *entry = CMC_ENTRY_DELETED;                                            \
+        *val_entry = CMC_ENTRY_DELETED;                                        \
                                                                                \
         if (!PFX##_impl_add_entry_to_val(_map_, to_add))                       \
         {                                                                      \
+            /* Revert changes */                                               \
             to_add->value = tmp_val;                                           \
-            *entry = to_add;                                                   \
+            *val_entry = to_add;                                               \
                                                                                \
             _map_->flag = cmc_flags.ERROR;                                     \
+                                                                               \
             return false;                                                      \
         }                                                                      \
                                                                                \
         _map_->flag = cmc_flags.OK;                                            \
                                                                                \
-        return true;                                                           \
-    }                                                                          \
-                                                                               \
-    bool PFX##_update_val_by_key(struct SNAME *_map_, K key, V new_val)        \
-    {                                                                          \
-        if (PFX##_empty(_map_))                                                \
-        {                                                                      \
-            _map_->flag = cmc_flags.EMPTY;                                     \
-            return false;                                                      \
-        }                                                                      \
-                                                                               \
-        struct SNAME##_entry **entry =                                         \
-            PFX##_impl_get_entry_by_key(_map_, key);                           \
-                                                                               \
-        if (!entry)                                                            \
-        {                                                                      \
-            _map_->flag = cmc_flags.NOT_FOUND;                                 \
-            return false;                                                      \
-        }                                                                      \
-                                                                               \
-        if (PFX##_impl_get_entry_by_val(_map_, new_val) != NULL)               \
-        {                                                                      \
-            _map_->flag = cmc_flags.DUPLICATE;                                 \
-            return false;                                                      \
-        }                                                                      \
-                                                                               \
-        struct SNAME##_entry *to_add = *entry;                                 \
-        V tmp_val = to_add->value;                                             \
-        to_add->value = new_val;                                               \
-                                                                               \
-        *entry = CMC_ENTRY_DELETED;                                            \
-                                                                               \
-        if (!PFX##_impl_add_entry_to_val(_map_, to_add))                       \
-        {                                                                      \
-            to_add->value = tmp_val;                                           \
-            *entry = to_add;                                                   \
-                                                                               \
-            _map_->flag = cmc_flags.ERROR;                                     \
-            return false;                                                      \
-        }                                                                      \
-                                                                               \
-        _map_->flag = cmc_flags.OK;                                            \
+        if (_map_->callbacks && _map_->callbacks->update)                      \
+            _map_->callbacks->update();                                        \
                                                                                \
         return true;                                                           \
     }                                                                          \
@@ -662,16 +601,11 @@ static const char *cmc_string_fmt_bidimap = "struct %s<%s, %s> "
             return false;                                                      \
         }                                                                      \
                                                                                \
-        val_entry = PFX##_impl_get_entry_by_val(_map_, (*key_entry)->value);   \
+        val_entry = (*key_entry)->ref[1];                                      \
                                                                                \
-        if (!val_entry)                                                        \
+        if (!val_entry || *val_entry != *key_entry)                            \
         {                                                                      \
-            _map_->flag = cmc_flags.ERROR;                                     \
-            return false;                                                      \
-        }                                                                      \
-                                                                               \
-        if (*val_entry != *key_entry)                                          \
-        {                                                                      \
+            /* Should never happen */                                          \
             _map_->flag = cmc_flags.ERROR;                                     \
             return false;                                                      \
         }                                                                      \
@@ -688,6 +622,9 @@ static const char *cmc_string_fmt_bidimap = "struct %s<%s, %s> "
                                                                                \
         _map_->count--;                                                        \
         _map_->flag = cmc_flags.OK;                                            \
+                                                                               \
+        if (_map_->callbacks && _map_->callbacks->delete)                      \
+            _map_->callbacks->delete ();                                       \
                                                                                \
         return true;                                                           \
     }                                                                          \
@@ -711,16 +648,11 @@ static const char *cmc_string_fmt_bidimap = "struct %s<%s, %s> "
             return false;                                                      \
         }                                                                      \
                                                                                \
-        key_entry = PFX##_impl_get_entry_by_key(_map_, (*val_entry)->key);     \
+        key_entry = (*val_entry)->ref[0];                                      \
                                                                                \
-        if (!key_entry)                                                        \
+        if (!key_entry || *key_entry != *val_entry)                            \
         {                                                                      \
-            _map_->flag = cmc_flags.ERROR;                                     \
-            return false;                                                      \
-        }                                                                      \
-                                                                               \
-        if (*val_entry != *key_entry)                                          \
-        {                                                                      \
+            /* Should never happen */                                          \
             _map_->flag = cmc_flags.ERROR;                                     \
             return false;                                                      \
         }                                                                      \
@@ -738,6 +670,9 @@ static const char *cmc_string_fmt_bidimap = "struct %s<%s, %s> "
         _map_->count--;                                                        \
         _map_->flag = cmc_flags.OK;                                            \
                                                                                \
+        if (_map_->callbacks && _map_->callbacks->delete)                      \
+            _map_->callbacks->delete ();                                       \
+                                                                               \
         return true;                                                           \
     }                                                                          \
                                                                                \
@@ -753,6 +688,9 @@ static const char *cmc_string_fmt_bidimap = "struct %s<%s, %s> "
         }                                                                      \
                                                                                \
         _map_->flag = cmc_flags.OK;                                            \
+                                                                               \
+        if (_map_->callbacks && _map_->callbacks->read)                        \
+            _map_->callbacks->read();                                          \
                                                                                \
         return (*entry)->key;                                                  \
     }                                                                          \
@@ -770,6 +708,9 @@ static const char *cmc_string_fmt_bidimap = "struct %s<%s, %s> "
                                                                                \
         _map_->flag = cmc_flags.OK;                                            \
                                                                                \
+        if (_map_->callbacks && _map_->callbacks->read)                        \
+            _map_->callbacks->read();                                          \
+                                                                               \
         return (*entry)->value;                                                \
     }                                                                          \
                                                                                \
@@ -777,14 +718,24 @@ static const char *cmc_string_fmt_bidimap = "struct %s<%s, %s> "
     {                                                                          \
         _map_->flag = cmc_flags.OK;                                            \
                                                                                \
-        return PFX##_impl_get_entry_by_key(_map_, key) != NULL;                \
+        bool result = PFX##_impl_get_entry_by_key(_map_, key) != NULL;         \
+                                                                               \
+        if (_map_->callbacks && _map_->callbacks->read)                        \
+            _map_->callbacks->read();                                          \
+                                                                               \
+        return result;                                                         \
     }                                                                          \
                                                                                \
     bool PFX##_contains_val(struct SNAME *_map_, V val)                        \
     {                                                                          \
         _map_->flag = cmc_flags.OK;                                            \
                                                                                \
-        return PFX##_impl_get_entry_by_val(_map_, val) != NULL;                \
+        bool result = PFX##_impl_get_entry_by_val(_map_, val) != NULL;         \
+                                                                               \
+        if (_map_->callbacks && _map_->callbacks->read)                        \
+            _map_->callbacks->read();                                          \
+                                                                               \
+        return result;                                                         \
     }                                                                          \
                                                                                \
     bool PFX##_empty(struct SNAME *_map_)                                      \
@@ -822,10 +773,10 @@ static const char *cmc_string_fmt_bidimap = "struct %s<%s, %s> "
         _map_->flag = cmc_flags.OK;                                            \
                                                                                \
         if (_map_->capacity == capacity)                                       \
-            return true;                                                       \
+            goto success;                                                      \
                                                                                \
         if (_map_->capacity > capacity / _map_->load)                          \
-            return true;                                                       \
+            goto success;                                                      \
                                                                                \
         /* Prevent integer overflow */                                         \
         if (capacity >= UINTMAX_MAX * _map_->load)                             \
@@ -856,7 +807,7 @@ static const char *cmc_string_fmt_bidimap = "struct %s<%s, %s> "
                                                                                \
         for (size_t i = 0; i < _map_->capacity; i++)                           \
         {                                                                      \
-            struct SNAME##_entry *scan = _map_->key_buffer[i];                 \
+            struct SNAME##_entry *scan = _map_->buffer[i][0];                  \
                                                                                \
             if (scan && scan != CMC_ENTRY_DELETED)                             \
             {                                                                  \
@@ -867,8 +818,7 @@ static const char *cmc_string_fmt_bidimap = "struct %s<%s, %s> "
                                                                                \
                 if (!e1 || !e2)                                                \
                 {                                                              \
-                    _map_->alloc->free(_new_map_->key_buffer);                 \
-                    _map_->alloc->free(_new_map_->val_buffer);                 \
+                    _map_->alloc->free(_new_map_->buffer);                     \
                     _map_->alloc->free(_new_map_);                             \
                                                                                \
                     _map_->flag = cmc_flags.ERROR;                             \
@@ -882,8 +832,7 @@ static const char *cmc_string_fmt_bidimap = "struct %s<%s, %s> "
                                                                                \
         if (_map_->count != _new_map_->count)                                  \
         {                                                                      \
-            _map_->alloc->free(_new_map_->key_buffer);                         \
-            _map_->alloc->free(_new_map_->val_buffer);                         \
+            _map_->alloc->free(_new_map_->buffer);                             \
             _map_->alloc->free(_new_map_);                                     \
                                                                                \
             _map_->flag = cmc_flags.ERROR;                                     \
@@ -891,16 +840,18 @@ static const char *cmc_string_fmt_bidimap = "struct %s<%s, %s> "
             return false;                                                      \
         }                                                                      \
                                                                                \
-        struct SNAME##_entry **tmp_key_buf = _map_->key_buffer;                \
-        struct SNAME##_entry **tmp_val_buf = _map_->val_buffer;                \
+        struct SNAME##_entry *(*tmp_buff)[2] = _map_->buffer;                  \
                                                                                \
-        _map_->key_buffer = _new_map_->key_buffer;                             \
-        _map_->val_buffer = _new_map_->val_buffer;                             \
+        _map_->buffer = _new_map_->buffer;                                     \
         _map_->capacity = _new_map_->capacity;                                 \
                                                                                \
-        _map_->alloc->free(tmp_key_buf);                                       \
-        _map_->alloc->free(tmp_val_buf);                                       \
+        _map_->alloc->free(tmp_buff);                                          \
         _map_->alloc->free(_new_map_);                                         \
+                                                                               \
+    success:                                                                   \
+                                                                               \
+        if (_map_->callbacks && _map_->callbacks->resize)                      \
+            _map_->callbacks->resize();                                        \
                                                                                \
         return true;                                                           \
     }                                                                          \
@@ -920,7 +871,7 @@ static const char *cmc_string_fmt_bidimap = "struct %s<%s, %s> "
                                                                                \
         for (size_t i = 0; i < _map_->capacity; i++)                           \
         {                                                                      \
-            struct SNAME##_entry *scan = _map_->key_buffer[i];                 \
+            struct SNAME##_entry *scan = _map_->buffer[i][0];                  \
                                                                                \
             if (scan && scan != CMC_ENTRY_DELETED)                             \
             {                                                                  \
@@ -971,7 +922,7 @@ static const char *cmc_string_fmt_bidimap = "struct %s<%s, %s> "
                                                                                \
         for (size_t i = 0; i < _mapA_->capacity; i++)                          \
         {                                                                      \
-            struct SNAME##_entry *scan = _mapA_->key_buffer[i];                \
+            struct SNAME##_entry *scan = _mapA_->buffer[i][0];                 \
                                                                                \
             if (scan && scan != CMC_ENTRY_DELETED)                             \
             {                                                                  \
@@ -995,9 +946,9 @@ static const char *cmc_string_fmt_bidimap = "struct %s<%s, %s> "
         struct SNAME *m_ = _map_;                                              \
                                                                                \
         int n = snprintf(str.s, cmc_string_len, cmc_string_fmt_bidimap,        \
-                         #SNAME, #K, #V, m_, m_->key_buffer, m_->val_buffer,   \
-                         m_->capacity, m_->count, m_->load, m_->f_key,         \
-                         m_->f_val, m_->alloc, m_->callbacks);                 \
+                         #SNAME, #K, #V, m_, m_->buffer, m_->capacity,         \
+                         m_->count, m_->load, m_->flag, m_->f_key, m_->f_val,  \
+                         m_->alloc, m_->callbacks);                            \
                                                                                \
         return n >= 0 ? str : (struct cmc_string){ 0 };                        \
     }                                                                          \
@@ -1006,7 +957,7 @@ static const char *cmc_string_fmt_bidimap = "struct %s<%s, %s> "
     {                                                                          \
         for (size_t i = 0; i < _map_->capacity; i++)                           \
         {                                                                      \
-            struct SNAME##_entry *target = _map_->key_buffer[i];               \
+            struct SNAME##_entry *target = _map_->buffer[i][0];                \
                                                                                \
             if (target && target != CMC_ENTRY_DELETED)                         \
             {                                                                  \
@@ -1049,7 +1000,7 @@ static const char *cmc_string_fmt_bidimap = "struct %s<%s, %s> "
         {                                                                      \
             for (size_t i = 0; i < target->capacity; i++)                      \
             {                                                                  \
-                struct SNAME##_entry *tmp = target->key_buffer[i];             \
+                struct SNAME##_entry *tmp = target->buffer[i][0];              \
                                                                                \
                 if (tmp != NULL && tmp != CMC_ENTRY_DELETED)                   \
                 {                                                              \
@@ -1062,7 +1013,7 @@ static const char *cmc_string_fmt_bidimap = "struct %s<%s, %s> "
                                                                                \
             for (size_t i = target->capacity; i > 0; i--)                      \
             {                                                                  \
-                struct SNAME##_entry *tmp = target->key_buffer[i - 1];         \
+                struct SNAME##_entry *tmp = target->buffer[i - 1][0];          \
                                                                                \
                 if (tmp != NULL && tmp != CMC_ENTRY_DELETED)                   \
                 {                                                              \
@@ -1118,14 +1069,14 @@ static const char *cmc_string_fmt_bidimap = "struct %s<%s, %s> "
                                                                                \
         iter->start = PFX##_empty(iter->target);                               \
                                                                                \
-        struct SNAME##_entry *scan = iter->target->key_buffer[iter->cursor];   \
+        struct SNAME##_entry *scan = iter->target->buffer[iter->cursor][0];    \
                                                                                \
         iter->index++;                                                         \
                                                                                \
         while (1)                                                              \
         {                                                                      \
             iter->cursor++;                                                    \
-            scan = iter->target->key_buffer[iter->cursor];                     \
+            scan = iter->target->buffer[iter->cursor][0];                      \
                                                                                \
             if (scan != NULL && scan != CMC_ENTRY_DELETED)                     \
                 break;                                                         \
@@ -1147,14 +1098,14 @@ static const char *cmc_string_fmt_bidimap = "struct %s<%s, %s> "
                                                                                \
         iter->end = PFX##_empty(iter->target);                                 \
                                                                                \
-        struct SNAME##_entry *scan = iter->target->key_buffer[iter->cursor];   \
+        struct SNAME##_entry *scan = iter->target->buffer[iter->cursor][0];    \
                                                                                \
         iter->index--;                                                         \
                                                                                \
         while (1)                                                              \
         {                                                                      \
             iter->cursor--;                                                    \
-            scan = iter->target->key_buffer[iter->cursor];                     \
+            scan = iter->target->buffer[iter->cursor][0];                      \
                                                                                \
             if (scan != NULL && scan != CMC_ENTRY_DELETED)                     \
                 break;                                                         \
@@ -1228,7 +1179,7 @@ static const char *cmc_string_fmt_bidimap = "struct %s<%s, %s> "
             return (K){ 0 };                                                   \
         }                                                                      \
                                                                                \
-        return iter->target->key_buffer[iter->cursor]->key;                    \
+        return iter->target->buffer[iter->cursor][0]->key;                     \
     }                                                                          \
                                                                                \
     V PFX##_iter_value(struct SNAME##_iter *iter)                              \
@@ -1239,7 +1190,7 @@ static const char *cmc_string_fmt_bidimap = "struct %s<%s, %s> "
             return (V){ 0 };                                                   \
         }                                                                      \
                                                                                \
-        return iter->target->key_buffer[iter->cursor]->value;                  \
+        return iter->target->buffer[iter->cursor][0]->value;                   \
     }                                                                          \
                                                                                \
     size_t PFX##_iter_index(struct SNAME##_iter *iter)                         \
@@ -1258,8 +1209,10 @@ static const char *cmc_string_fmt_bidimap = "struct %s<%s, %s> "
                                                                                \
         entry->key = key;                                                      \
         entry->value = value;                                                  \
-        entry->key_dist = 0;                                                   \
-        entry->val_dist = 0;                                                   \
+        entry->dist[0] = 0;                                                    \
+        entry->dist[1] = 0;                                                    \
+        entry->ref[0] = NULL;                                                  \
+        entry->ref[1] = NULL;                                                  \
                                                                                \
         return entry;                                                          \
     }                                                                          \
@@ -1270,16 +1223,16 @@ static const char *cmc_string_fmt_bidimap = "struct %s<%s, %s> "
         size_t hash = _map_->f_key->hash(key);                                 \
         size_t pos = hash % _map_->capacity;                                   \
                                                                                \
-        struct SNAME##_entry *target = _map_->key_buffer[pos];                 \
+        struct SNAME##_entry *target = _map_->buffer[pos][0];                  \
                                                                                \
         while (target != NULL)                                                 \
         {                                                                      \
             if (target != CMC_ENTRY_DELETED &&                                 \
                 _map_->f_key->cmp(target->key, key) == 0)                      \
-                return &(_map_->key_buffer[pos % _map_->capacity]);            \
+                return &(_map_->buffer[pos % _map_->capacity][0]);             \
                                                                                \
             pos++;                                                             \
-            target = _map_->key_buffer[pos % _map_->capacity];                 \
+            target = _map_->buffer[pos % _map_->capacity][0];                  \
         }                                                                      \
                                                                                \
         return NULL;                                                           \
@@ -1291,16 +1244,16 @@ static const char *cmc_string_fmt_bidimap = "struct %s<%s, %s> "
         size_t hash = _map_->f_val->hash(val);                                 \
         size_t pos = hash % _map_->capacity;                                   \
                                                                                \
-        struct SNAME##_entry *target = _map_->val_buffer[pos];                 \
+        struct SNAME##_entry *target = _map_->buffer[pos][1];                  \
                                                                                \
         while (target != NULL)                                                 \
         {                                                                      \
             if (target != CMC_ENTRY_DELETED &&                                 \
                 _map_->f_val->cmp(target->value, val) == 0)                    \
-                return &(_map_->val_buffer[pos % _map_->capacity]);            \
+                return &(_map_->buffer[pos % _map_->capacity][1]);             \
                                                                                \
             pos++;                                                             \
-            target = _map_->val_buffer[pos % _map_->capacity];                 \
+            target = _map_->buffer[pos % _map_->capacity][1];                  \
         }                                                                      \
                                                                                \
         return NULL;                                                           \
@@ -1316,11 +1269,13 @@ static const char *cmc_string_fmt_bidimap = "struct %s<%s, %s> "
         size_t pos = original_pos;                                             \
                                                                                \
         struct SNAME##_entry **scan =                                          \
-            &(_map_->key_buffer[hash % _map_->capacity]);                      \
+            &(_map_->buffer[hash % _map_->capacity][0]);                       \
                                                                                \
         if (*scan == NULL)                                                     \
         {                                                                      \
             *scan = entry;                                                     \
+                                                                               \
+            entry->ref[0] = scan;                                              \
                                                                                \
             return scan;                                                       \
         }                                                                      \
@@ -1329,7 +1284,7 @@ static const char *cmc_string_fmt_bidimap = "struct %s<%s, %s> "
             while (true)                                                       \
             {                                                                  \
                 pos++;                                                         \
-                scan = &(_map_->key_buffer[pos % _map_->capacity]);            \
+                scan = &(_map_->buffer[pos % _map_->capacity][0]);             \
                                                                                \
                 if (*scan == NULL || *scan == CMC_ENTRY_DELETED)               \
                 {                                                              \
@@ -1337,18 +1292,21 @@ static const char *cmc_string_fmt_bidimap = "struct %s<%s, %s> "
                         to_return = scan;                                      \
                                                                                \
                     *scan = entry;                                             \
-                    entry->key_dist = pos - original_pos;                      \
+                    entry->ref[0] = scan;                                      \
+                    entry->dist[0] = pos - original_pos;                       \
                                                                                \
                     return to_return;                                          \
                 }                                                              \
-                else if ((*scan)->key_dist < pos - original_pos)               \
+                else if ((*scan)->dist[0] < pos - original_pos)                \
                 {                                                              \
                     if (!to_return)                                            \
                         to_return = scan;                                      \
                                                                                \
-                    size_t tmp_dist = (*scan)->key_dist;                       \
-                    entry->key_dist = pos - original_pos;                      \
+                    size_t tmp_dist = (*scan)->dist[0];                        \
+                    entry->dist[0] = pos - original_pos;                       \
                     original_pos = pos - tmp_dist;                             \
+                                                                               \
+                    entry->ref[0] = scan;                                      \
                                                                                \
                     struct SNAME##_entry *_tmp_ = *scan;                       \
                     *scan = entry;                                             \
@@ -1370,11 +1328,13 @@ static const char *cmc_string_fmt_bidimap = "struct %s<%s, %s> "
         size_t pos = original_pos;                                             \
                                                                                \
         struct SNAME##_entry **scan =                                          \
-            &(_map_->val_buffer[hash % _map_->capacity]);                      \
+            &(_map_->buffer[hash % _map_->capacity][1]);                       \
                                                                                \
         if (*scan == NULL)                                                     \
         {                                                                      \
             *scan = entry;                                                     \
+                                                                               \
+            entry->ref[1] = scan;                                              \
                                                                                \
             return scan;                                                       \
         }                                                                      \
@@ -1383,7 +1343,7 @@ static const char *cmc_string_fmt_bidimap = "struct %s<%s, %s> "
             while (true)                                                       \
             {                                                                  \
                 pos++;                                                         \
-                scan = &(_map_->val_buffer[pos % _map_->capacity]);            \
+                scan = &(_map_->buffer[pos % _map_->capacity][1]);             \
                                                                                \
                 if (*scan == NULL || *scan == CMC_ENTRY_DELETED)               \
                 {                                                              \
@@ -1391,18 +1351,21 @@ static const char *cmc_string_fmt_bidimap = "struct %s<%s, %s> "
                         to_return = scan;                                      \
                                                                                \
                     *scan = entry;                                             \
-                    entry->val_dist = pos - original_pos;                      \
+                    entry->ref[1] = scan;                                      \
+                    entry->dist[1] = pos - original_pos;                       \
                                                                                \
                     return to_return;                                          \
                 }                                                              \
-                else if ((*scan)->val_dist < pos - original_pos)               \
+                else if ((*scan)->dist[1] < pos - original_pos)                \
                 {                                                              \
                     if (!to_return)                                            \
                         to_return = scan;                                      \
                                                                                \
-                    size_t tmp_dist = (*scan)->val_dist;                       \
-                    entry->val_dist = pos - original_pos;                      \
+                    size_t tmp_dist = (*scan)->dist[1];                        \
+                    entry->dist[1] = pos - original_pos;                       \
                     original_pos = pos - tmp_dist;                             \
+                                                                               \
+                    entry->ref[1] = scan;                                      \
                                                                                \
                     struct SNAME##_entry *_tmp_ = *scan;                       \
                     *scan = entry;                                             \

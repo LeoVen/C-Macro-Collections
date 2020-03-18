@@ -41,8 +41,8 @@ CMC_CREATE_UNIT(bidimap_test, true, {
 
         for (size_t i = 0; i < map->capacity; i++)
         {
-            cmc_assert_equals(ptr, NULL, map->key_buffer[i]);
-            cmc_assert_equals(ptr, NULL, map->val_buffer[i]);
+            cmc_assert_equals(ptr, NULL, map->buffer[i][0]);
+            cmc_assert_equals(ptr, NULL, map->buffer[i][1]);
         }
 
         bm_free(map);
@@ -58,6 +58,23 @@ CMC_CREATE_UNIT(bidimap_test, true, {
                           &(struct cmc_callbacks){ 0 });
 
         cmc_assert_not_equals(ptr, NULL, map);
+
+        bm_free(map);
+    });
+
+    CMC_CREATE_TEST(insert[references], {
+        struct bidimap *map = bm_new(500, 0.7, bm_ftab_key, bm_ftab_val);
+
+        cmc_assert_not_equals(ptr, NULL, map);
+
+        for (size_t i = 0; i < 500; i++)
+            cmc_assert(bm_insert(map, i, i));
+
+        for (size_t i = 0; i < map->capacity; i++)
+        {
+            struct bidimap_entry *kentry = map->buffer[i][0];
+            struct bidimap_entry *ventry = map->buffer[i][1];
+        }
 
         bm_free(map);
     });
@@ -124,9 +141,9 @@ CMC_CREATE_UNIT(bidimap_test, true, {
 
         for (size_t i = 0; i < bm_capacity(map); i++)
         {
-            if (map->key_buffer[i] && map->key_buffer[i] != CMC_ENTRY_DELETED)
+            if (map->buffer[i][0] && map->buffer[i][0] != CMC_ENTRY_DELETED)
             {
-                sum += map->key_buffer[i]->key;
+                sum += map->buffer[i][0]->key;
             }
         }
 
@@ -254,8 +271,8 @@ CMC_CREATE_UNIT(bidimap_test, true, {
 
         for (size_t i = 0; i < map->capacity; i++)
         {
-            struct bidimap_entry *k = map->key_buffer[i];
-            struct bidimap_entry *v = map->val_buffer[i];
+            struct bidimap_entry *k = map->buffer[i][0];
+            struct bidimap_entry *v = map->buffer[i][1];
 
             cmc_assert((k == NULL || k == CMC_ENTRY_DELETED) &&
                        (v == NULL || v == CMC_ENTRY_DELETED));
@@ -287,8 +304,8 @@ CMC_CREATE_UNIT(bidimap_test, true, {
 
         for (size_t i = 0; i < map->capacity; i++)
         {
-            struct bidimap_entry *k = map->key_buffer[i];
-            struct bidimap_entry *v = map->val_buffer[i];
+            struct bidimap_entry *k = map->buffer[i][0];
+            struct bidimap_entry *v = map->buffer[i][1];
 
             cmc_assert((k == NULL || k == CMC_ENTRY_DELETED) &&
                        (v == NULL || v == CMC_ENTRY_DELETED));
@@ -383,7 +400,7 @@ CMC_CREATE_UNIT(bidimap_test, true, {
         bm_clear(map);
         cmc_assert_equals(int32_t, cmc_flags.OK, bm_flag(map));
 
-        // update_key
+        // bm_update_key
         cmc_assert(!bm_update_key(map, 1, 1));
         cmc_assert_equals(int32_t, cmc_flags.EMPTY, bm_flag(map));
 
@@ -392,36 +409,17 @@ CMC_CREATE_UNIT(bidimap_test, true, {
         cmc_assert_equals(int32_t, cmc_flags.NOT_FOUND, bm_flag(map));
 
         cmc_assert(bm_insert(map, 2, 2));
-        cmc_assert(!bm_update_key(map, 1, 2));
-        cmc_assert_equals(int32_t, cmc_flags.DUPLICATE, bm_flag(map));
-        map->flag = cmc_flags.ERROR;
         cmc_assert(!bm_update_key(map, 2, 1));
         cmc_assert_equals(int32_t, cmc_flags.DUPLICATE, bm_flag(map));
-
-        // clear
-        bm_clear(map);
-        cmc_assert_equals(int32_t, cmc_flags.OK, bm_flag(map));
-
-        // update_key_by_val
-        cmc_assert(!bm_update_key_by_val(map, 1, 1));
-        cmc_assert_equals(int32_t, cmc_flags.EMPTY, bm_flag(map));
-
-        cmc_assert(bm_insert(map, 1, 1));
-        cmc_assert(!bm_update_key_by_val(map, 2, 1));
-        cmc_assert_equals(int32_t, cmc_flags.NOT_FOUND, bm_flag(map));
-
-        cmc_assert(bm_insert(map, 2, 2));
-        cmc_assert(!bm_update_key_by_val(map, 2, 1));
-        cmc_assert_equals(int32_t, cmc_flags.DUPLICATE, bm_flag(map));
         map->flag = cmc_flags.ERROR;
-        cmc_assert(!bm_update_key_by_val(map, 1, 2));
+        cmc_assert(!bm_update_key(map, 1, 2));
         cmc_assert_equals(int32_t, cmc_flags.DUPLICATE, bm_flag(map));
 
         // clear
         bm_clear(map);
         cmc_assert_equals(int32_t, cmc_flags.OK, bm_flag(map));
 
-        // update_val
+        // bm_update_val
         cmc_assert(!bm_update_val(map, 1, 1));
         cmc_assert_equals(int32_t, cmc_flags.EMPTY, bm_flag(map));
 
@@ -430,29 +428,10 @@ CMC_CREATE_UNIT(bidimap_test, true, {
         cmc_assert_equals(int32_t, cmc_flags.NOT_FOUND, bm_flag(map));
 
         cmc_assert(bm_insert(map, 2, 2));
-        cmc_assert(!bm_update_val(map, 1, 2));
-        cmc_assert_equals(int32_t, cmc_flags.DUPLICATE, bm_flag(map));
-        map->flag = cmc_flags.ERROR;
         cmc_assert(!bm_update_val(map, 2, 1));
         cmc_assert_equals(int32_t, cmc_flags.DUPLICATE, bm_flag(map));
-
-        // clear
-        bm_clear(map);
-        cmc_assert_equals(int32_t, cmc_flags.OK, bm_flag(map));
-
-        // update_val_by_key
-        cmc_assert(!bm_update_val_by_key(map, 1, 1));
-        cmc_assert_equals(int32_t, cmc_flags.EMPTY, bm_flag(map));
-
-        cmc_assert(bm_insert(map, 1, 1));
-        cmc_assert(!bm_update_val_by_key(map, 2, 1));
-        cmc_assert_equals(int32_t, cmc_flags.NOT_FOUND, bm_flag(map));
-
-        cmc_assert(bm_insert(map, 2, 2));
-        cmc_assert(!bm_update_val_by_key(map, 2, 1));
-        cmc_assert_equals(int32_t, cmc_flags.DUPLICATE, bm_flag(map));
         map->flag = cmc_flags.ERROR;
-        cmc_assert(!bm_update_val_by_key(map, 1, 2));
+        cmc_assert(!bm_update_val(map, 1, 2));
         cmc_assert_equals(int32_t, cmc_flags.DUPLICATE, bm_flag(map));
 
         // remove_by_key
@@ -529,5 +508,57 @@ CMC_CREATE_UNIT(bidimap_test, true, {
 
         bm_free(map);
         bm_free(map2);
+    });
+
+    CMC_CREATE_TEST(callbacks, {
+        struct bidimap *map = bm_new_custom(100, 0.7, bm_ftab_key, bm_ftab_val, NULL, callbacks);
+
+        cmc_assert_not_equals(ptr, NULL, map);
+        cmc_assert_equals(ptr, callbacks, map->callbacks);
+
+        total_create = 0;
+        total_read = 0;
+        total_update = 0;
+        total_delete = 0;
+        total_resize = 0;
+
+        cmc_assert(bm_insert(map, 10, 10));
+        cmc_assert_equals(int32_t, 1, total_create);
+
+        cmc_assert(bm_update_key(map, 10, 5));
+        cmc_assert_equals(int32_t, 1, total_update);
+
+        cmc_assert(bm_update_val(map, 5, 5));
+        cmc_assert_equals(int32_t, 2, total_update);
+
+        cmc_assert(bm_insert(map, 10, 10));
+        cmc_assert_equals(int32_t, 2, total_create);
+
+        cmc_assert(bm_remove_by_key(map, 5, NULL, NULL));
+        cmc_assert_equals(int32_t, 1, total_delete);
+
+        cmc_assert(bm_remove_by_val(map, 10, NULL, NULL));
+        cmc_assert_equals(int32_t, 2, total_delete);
+
+        cmc_assert(bm_insert(map, 1, 2));
+        cmc_assert_equals(size_t, 1, bm_get_key(map, 2));
+        cmc_assert_equals(int32_t, 1, total_read);
+
+        cmc_assert_equals(size_t, 2, bm_get_val(map, 1));
+        cmc_assert_equals(int32_t, 2, total_read);
+
+        cmc_assert(bm_resize(map, 1000));
+        cmc_assert_equals(int32_t, 1, total_resize);
+
+        cmc_assert(bm_resize(map, 200));
+        cmc_assert_equals(int32_t, 2, total_resize);
+
+        cmc_assert(bm_contains_key(map, 1));
+        cmc_assert_equals(int32_t, 3, total_read);
+
+        cmc_assert(bm_contains_val(map, 2));
+        cmc_assert_equals(int32_t, 4, total_read);
+
+        bm_free(map);
     });
 });

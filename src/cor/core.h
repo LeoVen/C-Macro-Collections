@@ -10,6 +10,12 @@
 
 /**
  * Core includes and structs used in the library.
+ *
+ * In here you will find:
+ *     struct cmc_string
+ *     struct cmc_alloc_node
+ *     struct cmc_callbacks
+ *     cmc_flags
  */
 
 #ifndef CMC_CORE_H
@@ -51,19 +57,19 @@ static struct cmc_alloc_node
  * struct cmc_callbacks
  *
  * Callback node. Each collection will call one of these functions when:
- * - on_create : an element is about to be added to the collection
- * - on_read   : the collection is about to be queried about an element
- * - on_update : an element in the collection is about to be updated
- * - on_delete : element is about to be removed from the collection
- * - on_resize : the collection is full and is about to get resized
+ * - create : an element was successfully added to the collection
+ * - read   : the collection was successfully queried about an element
+ * - update : an element in the collection was successfully updated
+ * - delete : an element was successfully removed from the collection
+ * - resize : the collection was full and successfully resized
  */
 struct cmc_callbacks
 {
-    void (*on_create)(void);
-    void (*on_read)(void);
-    void (*on_update)(void);
-    void (*on_delete)(void);
-    void (*on_resize)(void);
+    void (*create)(void);
+    void (*read)(void);
+    void (*update)(void);
+    void (*delete)(void);
+    void (*resize)(void);
 };
 
 /**

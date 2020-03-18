@@ -136,11 +136,11 @@ Every collection can have an optional callback node. In this node there are five
 
 | | |
 |-|-|
-| `on_create` | Is called when an element is about to be added to the collection      |
-| `on_read`   | Is called when the collection is about to be queried about an element |
-| `on_update` | Is called when an element in the collection is about to be updated    |
-| `on_delete` | Is called when an element is about to be removed from the collection  |
-| `on_resize` | Is called when the collection is full and is about to get resized     |
+| `create` | Is called when an element was successfully added to the collection      |
+| `read`   | Is called when the collection was successfully queried about an element |
+| `update` | Is called when an element in the collection was successfully updated    |
+| `delete` | Is called when an element was successfully removed from the collection  |
+| `resize` | Is called when the collection was full and successfully resized         |
 
 Check the documentation for each collection to see which functions call which callbacks.
 
