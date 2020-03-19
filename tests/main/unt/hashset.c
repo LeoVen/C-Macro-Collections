@@ -458,6 +458,7 @@ CMC_CREATE_UNIT(hashset_test, true, {
         cmc_assert_equals(int32_t, cmc_flags.OK, hs_flag(set));
 
         // copy
+        set->flag = cmc_flags.ERROR;\
         struct hashset *set2 = hs_copy_of(set);
 
         cmc_assert_equals(int32_t, cmc_flags.OK, hs_flag(set));
@@ -479,5 +480,35 @@ CMC_CREATE_UNIT(hashset_test, true, {
 
         hs_free(set);
         hs_free(set2);
+    });
+
+    CMC_CREATE_TEST(callbacks, {
+        struct hashset *set = hs_new_custom(100, 0.6, hs_ftab_val, NULL, callbacks);
+
+        total_create = 0;
+        total_read = 0;
+        total_update = 0;
+        total_delete = 0;
+        total_resize = 0;
+
+        cmc_assert(hs_insert(set, 1));
+        cmc_assert_equals(int32_t, 1, total_create);
+
+        cmc_assert(hs_remove(set, 1));
+        cmc_assert_equals(int32_t, 1, total_delete);
+
+        cmc_assert(hs_insert(set, 1));
+        cmc_assert_equals(int32_t, 2, total_create);
+
+        cmc_assert(hs_max(set, NULL));
+        cmc_assert_equals(int32_t, 1, total_read);
+
+        cmc_assert(hs_min(set, NULL));
+        cmc_assert_equals(int32_t, 2, total_read);
+
+        cmc_assert(hs_contains(set, 1));
+        cmc_assert_equals(int32_t, 3, total_read);
+
+        hs_free(set);
     });
 });

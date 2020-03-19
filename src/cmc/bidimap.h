@@ -888,8 +888,14 @@ static const char *cmc_string_fmt_bidimap = "struct %s<%s, %s> "
                 else                                                           \
                     tmp_val = scan->value;                                     \
                                                                                \
-                /* TODO should this be checked for failures? */                \
-                PFX##_insert(result, tmp_key, tmp_val);                        \
+                /* TODO treat the possible errors */                           \
+                struct SNAME##_entry *entry =                                  \
+                    PFX##_impl_new_entry(result, tmp_key, tmp_val);            \
+                                                                               \
+                PFX##_impl_add_entry_to_key(result, entry);                    \
+                PFX##_impl_add_entry_to_val(result, entry);                    \
+                                                                               \
+                result->count++;                                               \
             }                                                                  \
         }                                                                      \
                                                                                \

@@ -95,7 +95,7 @@ static const char *cmc_string_fmt_hashset = "struct %s<%s> "
                                                                                \
     struct SNAME##_entry                                                       \
     {                                                                          \
-        /* Entry element */                                                    \
+        /* Entry value */                                                      \
         V value;                                                               \
                                                                                \
         /* The distance of this node to its original position, used by */      \
@@ -227,6 +227,8 @@ static const char *cmc_string_fmt_hashset = "struct %s<%s> "
 #define CMC_GENERATE_HASHSET_SOURCE(PFX, SNAME, V)                             \
                                                                                \
     /* Implementation Detail Functions */                                      \
+    static struct SNAME##_entry *PFX##_impl_insert(struct SNAME *_set_,        \
+                                                   V element);                 \
     static struct SNAME##_entry *PFX##_impl_get_entry(struct SNAME *_set_,     \
                                                       V element);              \
     static size_t PFX##_impl_calculate_size(size_t required);                  \
@@ -384,17 +386,17 @@ static const char *cmc_string_fmt_hashset = "struct %s<%s> "
                 return false;                                                  \
         }                                                                      \
                                                                                \
-        size_t hash = _set_->f_val->hash(element);                             \
-        size_t original_pos = hash % _set_->capacity;                          \
-        size_t pos = original_pos;                                             \
-                                                                               \
-        struct SNAME##_entry *target = &(_set_->buffer[pos]);                  \
-                                                                               \
         if (PFX##_impl_get_entry(_set_, element) != NULL)                      \
         {                                                                      \
             _set_->flag = cmc_flags.DUPLICATE;                                 \
             return false;                                                      \
         }                                                                      \
+                                                                               \
+        size_t hash = _set_->f_val->hash(element);                             \
+        size_t original_pos = hash % _set_->capacity;                          \
+        size_t pos = original_pos;                                             \
+                                                                               \
+        struct SNAME##_entry *target = &(_set_->buffer[pos]);                  \
                                                                                \
         if (target->state == CMC_ES_EMPTY || target->state == CMC_ES_DELETED)  \
         {                                                                      \
@@ -435,6 +437,9 @@ static const char *cmc_string_fmt_hashset = "struct %s<%s> "
         _set_->count++;                                                        \
         _set_->flag = cmc_flags.OK;                                            \
                                                                                \
+        if (_set_->callbacks && _set_->callbacks->create)                      \
+            _set_->callbacks->create();                                        \
+                                                                               \
         return true;                                                           \
     }                                                                          \
                                                                                \
@@ -460,6 +465,9 @@ static const char *cmc_string_fmt_hashset = "struct %s<%s> "
                                                                                \
         _set_->count--;                                                        \
         _set_->flag = cmc_flags.OK;                                            \
+                                                                               \
+        if (_set_->callbacks && _set_->callbacks->delete)                      \
+            _set_->callbacks->delete ();                                       \
                                                                                \
         return true;                                                           \
     }                                                                          \
@@ -493,6 +501,9 @@ static const char *cmc_string_fmt_hashset = "struct %s<%s> "
                                                                                \
         _set_->flag = cmc_flags.OK;                                            \
                                                                                \
+        if (_set_->callbacks && _set_->callbacks->read)                        \
+            _set_->callbacks->read();                                          \
+                                                                               \
         return true;                                                           \
     }                                                                          \
                                                                                \
@@ -525,6 +536,9 @@ static const char *cmc_string_fmt_hashset = "struct %s<%s> "
                                                                                \
         _set_->flag = cmc_flags.OK;                                            \
                                                                                \
+        if (_set_->callbacks && _set_->callbacks->read)                        \
+            _set_->callbacks->read();                                          \
+                                                                               \
         return true;                                                           \
     }                                                                          \
                                                                                \
@@ -532,7 +546,12 @@ static const char *cmc_string_fmt_hashset = "struct %s<%s> "
     {                                                                          \
         _set_->flag = cmc_flags.OK;                                            \
                                                                                \
-        return PFX##_impl_get_entry(_set_, element) != NULL;                   \
+        bool result = PFX##_impl_get_entry(_set_, element) != NULL;            \
+                                                                               \
+        if (_set_->callbacks && _set_->callbacks->read)                        \
+            _set_->callbacks->read();                                          \
+                                                                               \
+        return result;                                                         \
     }                                                                          \
                                                                                \
     bool PFX##_empty(struct SNAME *_set_)                                      \
@@ -570,10 +589,10 @@ static const char *cmc_string_fmt_hashset = "struct %s<%s> "
         _set_->flag = cmc_flags.OK;                                            \
                                                                                \
         if (_set_->capacity == capacity)                                       \
-            return true;                                                       \
+            goto success;                                                      \
                                                                                \
         if (_set_->capacity > capacity / _set_->load)                          \
-            return true;                                                       \
+            goto success;                                                      \
                                                                                \
         /* Prevent integer overflow */                                         \
         if (capacity >= UINTMAX_MAX * _set_->load)                             \
@@ -610,7 +629,8 @@ static const char *cmc_string_fmt_hashset = "struct %s<%s> "
         {                                                                      \
             V value = PFX##_iter_value(&iter);                                 \
                                                                                \
-            PFX##_insert(_new_set_, value);                                    \
+            /* TODO check for error */                                         \
+            PFX##_impl_insert(_new_set_, value);                               \
         }                                                                      \
                                                                                \
         if (_set_->count != _new_set_->count)                                  \
@@ -628,6 +648,11 @@ static const char *cmc_string_fmt_hashset = "struct %s<%s> "
         _new_set_->capacity = tmp_c;                                           \
                                                                                \
         PFX##_free(_new_set_);                                                 \
+                                                                               \
+    success:                                                                   \
+                                                                               \
+        if (_set_->callbacks && _set_->callbacks->resize)                      \
+            _set_->callbacks->resize();                                        \
                                                                                \
         return true;                                                           \
     }                                                                          \
@@ -671,6 +696,8 @@ static const char *cmc_string_fmt_hashset = "struct %s<%s> "
                    sizeof(struct SNAME##_entry) * _set_->capacity);            \
                                                                                \
         result->count = _set_->count;                                          \
+                                                                               \
+        _set_->flag = cmc_flags.OK;                                            \
                                                                                \
         return result;                                                         \
     }                                                                          \
@@ -746,16 +773,17 @@ static const char *cmc_string_fmt_hashset = "struct %s<%s> "
         PFX##_iter_init(&iter1, _set1_);                                       \
         PFX##_iter_init(&iter2, _set2_);                                       \
                                                                                \
+        /* TODO turn this into a normal loop and check for errors */           \
         for (PFX##_iter_to_start(&iter1); !PFX##_iter_end(&iter1);             \
              PFX##_iter_next(&iter1))                                          \
         {                                                                      \
-            PFX##_insert(_set_r_, PFX##_iter_value(&iter1));                   \
+            PFX##_impl_insert(_set_r_, PFX##_iter_value(&iter1));              \
         }                                                                      \
                                                                                \
         for (PFX##_iter_to_start(&iter2); !PFX##_iter_end(&iter2);             \
              PFX##_iter_next(&iter2))                                          \
         {                                                                      \
-            PFX##_insert(_set_r_, PFX##_iter_value(&iter2));                   \
+            PFX##_impl_insert(_set_r_, PFX##_iter_value(&iter2));              \
         }                                                                      \
                                                                                \
         return _set_r_;                                                        \
@@ -788,7 +816,7 @@ static const char *cmc_string_fmt_hashset = "struct %s<%s> "
             V value = PFX##_iter_value(&iter);                                 \
                                                                                \
             if (PFX##_impl_get_entry(_set_B_, value) != NULL)                  \
-                PFX##_insert(_set_r_, value);                                  \
+                PFX##_impl_insert(_set_r_, value);                             \
         }                                                                      \
                                                                                \
         return _set_r_;                                                        \
@@ -816,7 +844,7 @@ static const char *cmc_string_fmt_hashset = "struct %s<%s> "
             V value = PFX##_iter_value(&iter);                                 \
                                                                                \
             if (PFX##_impl_get_entry(_set2_, value) == NULL)                   \
-                PFX##_insert(_set_r_, value);                                  \
+                PFX##_impl_insert(_set_r_, value);                             \
         }                                                                      \
                                                                                \
         return _set_r_;                                                        \
@@ -847,7 +875,7 @@ static const char *cmc_string_fmt_hashset = "struct %s<%s> "
             V value = PFX##_iter_value(&iter1);                                \
                                                                                \
             if (PFX##_impl_get_entry(_set2_, value) == NULL)                   \
-                PFX##_insert(_set_r_, value);                                  \
+                PFX##_impl_insert(_set_r_, value);                             \
         }                                                                      \
                                                                                \
         for (PFX##_iter_to_start(&iter2); !PFX##_iter_end(&iter2);             \
@@ -856,7 +884,7 @@ static const char *cmc_string_fmt_hashset = "struct %s<%s> "
             V value = PFX##_iter_value(&iter2);                                \
                                                                                \
             if (PFX##_impl_get_entry(_set1_, value) == NULL)                   \
-                PFX##_insert(_set_r_, value);                                  \
+                PFX##_impl_insert(_set_r_, value);                             \
         }                                                                      \
                                                                                \
         return _set_r_;                                                        \
@@ -888,7 +916,7 @@ static const char *cmc_string_fmt_hashset = "struct %s<%s> "
         {                                                                      \
             V value = PFX##_iter_value(&iter);                                 \
                                                                                \
-            if (!PFX##_contains(_set2_, value))                                \
+            if (PFX##_impl_get_entry(_set2_, value) == NULL)                   \
                 return false;                                                  \
         }                                                                      \
                                                                                \
@@ -937,7 +965,7 @@ static const char *cmc_string_fmt_hashset = "struct %s<%s> "
         {                                                                      \
             V value = PFX##_iter_value(&iter);                                 \
                                                                                \
-            if (!PFX##_contains(_set2_, value))                                \
+            if (PFX##_impl_get_entry(_set2_, value) == NULL)                   \
                 return false;                                                  \
         }                                                                      \
                                                                                \
@@ -974,7 +1002,7 @@ static const char *cmc_string_fmt_hashset = "struct %s<%s> "
         {                                                                      \
             V value = PFX##_iter_value(&iter);                                 \
                                                                                \
-            if (PFX##_contains(_set2_, value))                                 \
+            if (PFX##_impl_get_entry(_set2_, value) != NULL)                   \
                 return false;                                                  \
         }                                                                      \
                                                                                \
@@ -1189,6 +1217,68 @@ static const char *cmc_string_fmt_hashset = "struct %s<%s> "
     size_t PFX##_iter_index(struct SNAME##_iter *iter)                         \
     {                                                                          \
         return iter->index;                                                    \
+    }                                                                          \
+                                                                               \
+    static struct SNAME##_entry *PFX##_impl_insert(struct SNAME *_set_,        \
+                                                   V element)                  \
+    {                                                                          \
+        if (PFX##_full(_set_))                                                 \
+        {                                                                      \
+            if (!PFX##_resize(_set_, _set_->capacity + 1))                     \
+                return NULL;                                                   \
+        }                                                                      \
+                                                                               \
+        if (PFX##_impl_get_entry(_set_, element) != NULL)                      \
+        {                                                                      \
+            _set_->flag = cmc_flags.DUPLICATE;                                 \
+            return NULL;                                                       \
+        }                                                                      \
+                                                                               \
+        size_t hash = _set_->f_val->hash(element);                             \
+        size_t original_pos = hash % _set_->capacity;                          \
+        size_t pos = original_pos;                                             \
+                                                                               \
+        struct SNAME##_entry *target = &(_set_->buffer[pos]);                  \
+                                                                               \
+        if (target->state == CMC_ES_EMPTY || target->state == CMC_ES_DELETED)  \
+        {                                                                      \
+            target->value = element;                                           \
+            target->dist = 0;                                                  \
+            target->state = CMC_ES_FILLED;                                     \
+        }                                                                      \
+        else                                                                   \
+        {                                                                      \
+            while (true)                                                       \
+            {                                                                  \
+                pos++;                                                         \
+                target = &(_set_->buffer[pos % _set_->capacity]);              \
+                                                                               \
+                if (target->state == CMC_ES_EMPTY ||                           \
+                    target->state == CMC_ES_DELETED)                           \
+                {                                                              \
+                    target->value = element;                                   \
+                    target->dist = pos - original_pos;                         \
+                    target->state = CMC_ES_FILLED;                             \
+                                                                               \
+                    break;                                                     \
+                }                                                              \
+                else if (target->dist < pos - original_pos)                    \
+                {                                                              \
+                    V tmp = target->value;                                     \
+                    size_t tmp_dist = target->dist;                            \
+                                                                               \
+                    target->value = element;                                   \
+                    target->dist = pos - original_pos;                         \
+                                                                               \
+                    element = tmp;                                             \
+                    original_pos = pos - tmp_dist;                             \
+                }                                                              \
+            }                                                                  \
+        }                                                                      \
+                                                                               \
+        _set_->count++;                                                        \
+                                                                               \
+        return target;                                                         \
     }                                                                          \
                                                                                \
     static struct SNAME##_entry *PFX##_impl_get_entry(struct SNAME *_set_,     \

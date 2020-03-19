@@ -483,6 +483,7 @@ CMC_CREATE_UNIT(bidimap_test, true, {
         cmc_assert_equals(int32_t, cmc_flags.OK, bm_flag(map));
 
         // copy_of
+        map->flag = cmc_flags.ERROR;
         struct bidimap *map2 = bm_copy_of(map);
 
         cmc_assert_equals(int32_t, cmc_flags.OK, bm_flag(map2));

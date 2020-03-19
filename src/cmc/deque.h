@@ -349,6 +349,9 @@ static const char *cmc_string_fmt_deque = "struct %s<%s> "
         _deque_->count++;                                                      \
         _deque_->flag = cmc_flags.OK;                                          \
                                                                                \
+        if (_deque_->callbacks && _deque_->callbacks->create)                  \
+            _deque_->callbacks->create();                                      \
+                                                                               \
         return true;                                                           \
     }                                                                          \
                                                                                \
@@ -367,6 +370,9 @@ static const char *cmc_string_fmt_deque = "struct %s<%s> "
                                                                                \
         _deque_->count++;                                                      \
         _deque_->flag = cmc_flags.OK;                                          \
+                                                                               \
+        if (_deque_->callbacks && _deque_->callbacks->create)                  \
+            _deque_->callbacks->create();                                      \
                                                                                \
         return true;                                                           \
     }                                                                          \
@@ -388,6 +394,9 @@ static const char *cmc_string_fmt_deque = "struct %s<%s> "
         _deque_->count--;                                                      \
         _deque_->flag = cmc_flags.OK;                                          \
                                                                                \
+        if (_deque_->callbacks && _deque_->callbacks->delete)                  \
+            _deque_->callbacks->delete ();                                     \
+                                                                               \
         return true;                                                           \
     }                                                                          \
                                                                                \
@@ -407,6 +416,9 @@ static const char *cmc_string_fmt_deque = "struct %s<%s> "
         _deque_->count--;                                                      \
         _deque_->flag = cmc_flags.OK;                                          \
                                                                                \
+        if (_deque_->callbacks && _deque_->callbacks->delete)                  \
+            _deque_->callbacks->delete ();                                     \
+                                                                               \
         return true;                                                           \
     }                                                                          \
                                                                                \
@@ -419,6 +431,9 @@ static const char *cmc_string_fmt_deque = "struct %s<%s> "
         }                                                                      \
                                                                                \
         _deque_->flag = cmc_flags.OK;                                          \
+                                                                               \
+        if (_deque_->callbacks && _deque_->callbacks->read)                    \
+            _deque_->callbacks->read();                                        \
                                                                                \
         return _deque_->buffer[_deque_->front];                                \
     }                                                                          \
@@ -433,6 +448,9 @@ static const char *cmc_string_fmt_deque = "struct %s<%s> "
                                                                                \
         _deque_->flag = cmc_flags.OK;                                          \
                                                                                \
+        if (_deque_->callbacks && _deque_->callbacks->read)                    \
+            _deque_->callbacks->read();                                        \
+                                                                               \
         return _deque_->buffer[(_deque_->back == 0) ? _deque_->capacity - 1    \
                                                     : _deque_->back - 1];      \
     }                                                                          \
@@ -441,15 +459,23 @@ static const char *cmc_string_fmt_deque = "struct %s<%s> "
     {                                                                          \
         _deque_->flag = cmc_flags.OK;                                          \
                                                                                \
+        bool result = false;                                                   \
+                                                                               \
         for (size_t i = _deque_->front, j = 0; j < _deque_->count; j++)        \
         {                                                                      \
             if (_deque_->f_val->cmp(_deque_->buffer[i], element) == 0)         \
-                return true;                                                   \
+            {                                                                  \
+                result = true;                                                 \
+                break;                                                         \
+            }                                                                  \
                                                                                \
             i = (i + 1) % _deque_->capacity;                                   \
         }                                                                      \
                                                                                \
-        return false;                                                          \
+        if (_deque_->callbacks && _deque_->callbacks->read)                    \
+            _deque_->callbacks->read();                                        \
+                                                                               \
+        return result;                                                         \
     }                                                                          \
                                                                                \
     bool PFX##_empty(struct SNAME *_deque_)                                    \
@@ -482,7 +508,7 @@ static const char *cmc_string_fmt_deque = "struct %s<%s> "
         _deque_->flag = cmc_flags.OK;                                          \
                                                                                \
         if (_deque_->capacity == capacity)                                     \
-            return true;                                                       \
+            goto success;                                                      \
                                                                                \
         if (capacity < _deque_->count)                                         \
         {                                                                      \
@@ -511,6 +537,11 @@ static const char *cmc_string_fmt_deque = "struct %s<%s> "
         _deque_->capacity = capacity;                                          \
         _deque_->front = 0;                                                    \
         _deque_->back = _deque_->count;                                        \
+                                                                               \
+    success:                                                                   \
+                                                                               \
+        if (_deque_->callbacks && _deque_->callbacks->resize)                  \
+            _deque_->callbacks->resize();                                      \
                                                                                \
         return true;                                                           \
     }                                                                          \

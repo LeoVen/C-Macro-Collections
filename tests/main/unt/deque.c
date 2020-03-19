@@ -718,7 +718,6 @@ CMC_CREATE_UNIT(deque_test, true, {
         // copy_of
         d->flag = cmc_flags.ERROR;
         struct deque *d2 = d_copy_of(d);
-
         cmc_assert_equals(int32_t, cmc_flags.OK, d_flag(d));
         cmc_assert_equals(int32_t, cmc_flags.OK, d_flag(d2));
 
@@ -737,5 +736,43 @@ CMC_CREATE_UNIT(deque_test, true, {
 
         d_free(d);
         d_free(d2);
+    });
+
+    CMC_CREATE_TEST(callbacks, {
+        struct deque *d = d_new_custom(100, d_ftab_val, NULL, callbacks);
+
+        total_create = 0;
+        total_read = 0;
+        total_update = 0;
+        total_delete = 0;
+        total_resize = 0;
+
+        cmc_assert(d_push_front(d, 10));
+        cmc_assert_equals(int32_t, 1, total_create);
+
+        cmc_assert(d_push_back(d, 10));
+        cmc_assert_equals(int32_t, 2, total_create);
+
+        cmc_assert(d_pop_front(d));
+        cmc_assert_equals(int32_t, 1, total_delete);
+
+        cmc_assert(d_pop_back(d));
+        cmc_assert_equals(int32_t, 2, total_delete);
+
+        cmc_assert(d_push_front(d, 10));
+        cmc_assert(d_push_front(d, 5));
+        cmc_assert_equals(int32_t, 4, total_create);
+
+        cmc_assert_equals(size_t, 5, d_front(d));
+        cmc_assert_equals(int32_t, 1, total_read);
+
+        cmc_assert_equals(size_t, 10, d_back(d));
+        cmc_assert_equals(int32_t, 2, total_read);
+
+        cmc_assert(d_contains(d, 10));
+        cmc_assert(!d_contains(d, 1));
+        cmc_assert_equals(int32_t, 4, total_read);
+
+        d_free(d);
     });
 });
