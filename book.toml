@@ -1,0 +1,11 @@
+[book]
+authors = ["Leonardo Vencovsky"]
+language = "en"
+multilingual = false
+src = "documentation/"
+title = "C Macro Collections"
+
+[build]
+build-dir = "docs/"
+
+[preprocessor.index]

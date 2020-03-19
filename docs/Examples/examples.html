@@ -1,0 +1,326 @@
+<!DOCTYPE HTML>
+<html lang="en" class="sidebar-visible no-js light">
+    <head>
+        <!-- Book generated using mdBook -->
+        <meta charset="UTF-8">
+        <title>Examples - C Macro Collections</title>
+        
+
+        <meta content="text/html; charset=utf-8" http-equiv="Content-Type">
+        <meta name="description" content="">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta name="theme-color" content="#ffffff" />
+
+        <link rel="shortcut icon" href="../favicon.png">
+        <link rel="stylesheet" href="../css/variables.css">
+        <link rel="stylesheet" href="../css/general.css">
+        <link rel="stylesheet" href="../css/chrome.css">
+        <link rel="stylesheet" href="../css/print.css" media="print">
+
+        <!-- Fonts -->
+        <link rel="stylesheet" href="../FontAwesome/css/font-awesome.css">
+        <link href="https://fonts.googleapis.com/css?family=Open+Sans:300italic,400italic,600italic,700italic,800italic,400,300,600,700,800" rel="stylesheet" type="text/css">
+        <link href="https://fonts.googleapis.com/css?family=Source+Code+Pro:500" rel="stylesheet" type="text/css">
+
+        <!-- Highlight.js Stylesheets -->
+        <link rel="stylesheet" href="../highlight.css">
+        <link rel="stylesheet" href="../tomorrow-night.css">
+        <link rel="stylesheet" href="../ayu-highlight.css">
+
+        <!-- Custom theme stylesheets -->
+        
+
+        
+    </head>
+    <body>
+        <!-- Provide site root to javascript -->
+        <script type="text/javascript">
+            var path_to_root = "../";
+            var default_theme = window.matchMedia("(prefers-color-scheme: dark)").matches ? "light" : "light";
+        </script>
+
+        <!-- Work around some values being stored in localStorage wrapped in quotes -->
+        <script type="text/javascript">
+            try {
+                var theme = localStorage.getItem('mdbook-theme');
+                var sidebar = localStorage.getItem('mdbook-sidebar');
+
+                if (theme.startsWith('"') && theme.endsWith('"')) {
+                    localStorage.setItem('mdbook-theme', theme.slice(1, theme.length - 1));
+                }
+
+                if (sidebar.startsWith('"') && sidebar.endsWith('"')) {
+                    localStorage.setItem('mdbook-sidebar', sidebar.slice(1, sidebar.length - 1));
+                }
+            } catch (e) { }
+        </script>
+
+        <!-- Set the theme before any content is loaded, prevents flash -->
+        <script type="text/javascript">
+            var theme;
+            try { theme = localStorage.getItem('mdbook-theme'); } catch(e) { }
+            if (theme === null || theme === undefined) { theme = default_theme; }
+            var html = document.querySelector('html');
+            html.classList.remove('no-js')
+            html.classList.remove('light')
+            html.classList.add(theme);
+            html.classList.add('js');
+        </script>
+
+        <!-- Hide / unhide sidebar before it is displayed -->
+        <script type="text/javascript">
+            var html = document.querySelector('html');
+            var sidebar = 'hidden';
+            if (document.body.clientWidth >= 1080) {
+                try { sidebar = localStorage.getItem('mdbook-sidebar'); } catch(e) { }
+                sidebar = sidebar || 'visible';
+            }
+            html.classList.remove('sidebar-visible');
+            html.classList.add("sidebar-" + sidebar);
+        </script>
+
+        <nav id="sidebar" class="sidebar" aria-label="Table of contents">
+            <div id="sidebar-scrollbox" class="sidebar-scrollbox">
+                <ol class="chapter"><li class="expanded "><a href="../Introduction/introduction.html"><strong aria-hidden="true">1.</strong> Introduction</a></li><li><ol class="section"><li class="expanded "><a href="../Introduction/why_this_library.html"><strong aria-hidden="true">1.1.</strong> Why this library</a></li><li class="expanded "><a href="../Introduction/how_to_install.html"><strong aria-hidden="true">1.2.</strong> How to install</a></li><li class="expanded "><a href="../Introduction/library_structure.html"><strong aria-hidden="true">1.3.</strong> Library structure</a></li><li class="expanded "><a href="../Introduction/understanding_the_library.html"><strong aria-hidden="true">1.4.</strong> Understanding the library</a></li><li class="expanded "><a href="../Introduction/how_to_use_the_library.html"><strong aria-hidden="true">1.5.</strong> How to use the library</a></li></ol></li><li class="expanded "><a href="../Features/features.html"><strong aria-hidden="true">2.</strong> Features</a></li><li><ol class="section"><li class="expanded "><a href="../Features/two_way_iterators.html"><strong aria-hidden="true">2.1.</strong> Two way iterators</a></li><li class="expanded "><a href="../Features/custom_allocation.html"><strong aria-hidden="true">2.2.</strong> Custom allocation</a></li><li class="expanded "><a href="../Features/callbacks.html"><strong aria-hidden="true">2.3.</strong> Callbacks</a></li><li class="expanded "><a href="../Features/functions_table.html"><strong aria-hidden="true">2.4.</strong> Functions Table</a></li></ol></li><li class="expanded "><a href="../Overview/overview.html"><strong aria-hidden="true">3.</strong> Collections Overview</a></li><li class="expanded "><a href="../Examples/examples.html" class="active"><strong aria-hidden="true">4.</strong> Examples</a></li></ol>
+            </div>
+            <div id="sidebar-resize-handle" class="sidebar-resize-handle"></div>
+        </nav>
+
+        <div id="page-wrapper" class="page-wrapper">
+
+            <div class="page">
+                
+                <div id="menu-bar" class="menu-bar">
+                    <div id="menu-bar-sticky-container">
+                        <div class="left-buttons">
+                            <button id="sidebar-toggle" class="icon-button" type="button" title="Toggle Table of Contents" aria-label="Toggle Table of Contents" aria-controls="sidebar">
+                                <i class="fa fa-bars"></i>
+                            </button>
+                            <button id="theme-toggle" class="icon-button" type="button" title="Change theme" aria-label="Change theme" aria-haspopup="true" aria-expanded="false" aria-controls="theme-list">
+                                <i class="fa fa-paint-brush"></i>
+                            </button>
+                            <ul id="theme-list" class="theme-popup" aria-label="Themes" role="menu">
+                                <li role="none"><button role="menuitem" class="theme" id="light">Light (default)</button></li>
+                                <li role="none"><button role="menuitem" class="theme" id="rust">Rust</button></li>
+                                <li role="none"><button role="menuitem" class="theme" id="coal">Coal</button></li>
+                                <li role="none"><button role="menuitem" class="theme" id="navy">Navy</button></li>
+                                <li role="none"><button role="menuitem" class="theme" id="ayu">Ayu</button></li>
+                            </ul>
+                            
+                            <button id="search-toggle" class="icon-button" type="button" title="Search. (Shortkey: s)" aria-label="Toggle Searchbar" aria-expanded="false" aria-keyshortcuts="S" aria-controls="searchbar">
+                                <i class="fa fa-search"></i>
+                            </button>
+                            
+                        </div>
+
+                        <h1 class="menu-title">C Macro Collections</h1>
+
+                        <div class="right-buttons">
+                            <a href="../print.html" title="Print this book" aria-label="Print this book">
+                                <i id="print-button" class="fa fa-print"></i>
+                            </a>
+                            
+                        </div>
+                    </div>
+                </div>
+
+                
+                <div id="search-wrapper" class="hidden">
+                    <form id="searchbar-outer" class="searchbar-outer">
+                        <input type="search" name="search" id="searchbar" name="searchbar" placeholder="Search this book ..." aria-controls="searchresults-outer" aria-describedby="searchresults-header">
+                    </form>
+                    <div id="searchresults-outer" class="searchresults-outer hidden">
+                        <div id="searchresults-header" class="searchresults-header"></div>
+                        <ul id="searchresults">
+                        </ul>
+                    </div>
+                </div>
+                
+
+                <!-- Apply ARIA attributes after the sidebar and the sidebar toggle button are added to the DOM -->
+                <script type="text/javascript">
+                    document.getElementById('sidebar-toggle').setAttribute('aria-expanded', sidebar === 'visible');
+                    document.getElementById('sidebar').setAttribute('aria-hidden', sidebar !== 'visible');
+                    Array.from(document.querySelectorAll('#sidebar a')).forEach(function(link) {
+                        link.setAttribute('tabIndex', sidebar === 'visible' ? 0 : -1);
+                    });
+                </script>
+
+                <div id="content" class="content">
+                    <main>
+                        <h1><a class="header" href="#minimal-example" id="minimal-example">Minimal Example</a></h1>
+<p>(TODO this example is currently outdated)</p>
+<p>Lets create a list of type <code>int</code>, add some elements to it and get the sum of all the elements printed on the screen.</p>
+<h3><a class="header" href="#include-headers" id="include-headers">Include headers</a></h3>
+<pre><code class="language-c">#include &lt;cmc/list.h&gt;
+</code></pre>
+<p>First you need to include only the necessary headers. It is not recommended that you include everything with <code>macro_collections.h</code>, only in cases where you might be using almost all features from the library.</p>
+<h3><a class="header" href="#generating-a-list" id="generating-a-list">Generating a list</a></h3>
+<pre><code class="language-c">// CMC_GENERATE_LIST(PFX, SNAME, V)
+CMC_GENERATE_LIST(il, int_list, int)
+</code></pre>
+<p>The List is also known as <code>vector</code>, <code>ArrayList</code> and dynamic array. In fact the latter is the best description for this collection. It is a dynamic array that can grow and shrink as needed. To generate it we can simply call the macro <code>CMC_GENERATE_LIST</code> after our includes. It has three parameters:</p>
+<table><thead><tr><th align="center">Parameter name</th><th>Purpose</th></tr></thead><tbody>
+<tr><td align="center"><strong>PFX</strong></td><td>Functions prefix (namespace)</td></tr>
+<tr><td align="center"><strong>SNAME</strong></td><td>Struct name</td></tr>
+<tr><td align="center"><strong>V</strong></td><td>The list value type (can be any valid data type)</td></tr>
+</tbody></table>
+<aside class="notice">
+All collections can be generated by using the macro CMC_GENERATE_ and then the name of the include (in this case list.h) but in uppercase without the `.h`.
+</aside>
+<h3><a class="header" href="#initializing-and-adding-elements" id="initializing-and-adding-elements">Initializing and adding elements</a></h3>
+<pre><code class="language-c">// Allocate an int_list with an initial capacity of 100
+int_list *list = il_new(100);
+
+// Adding elements to the back of the list
+for (int i = 0; i &lt;= 1000; i++)
+{
+    if (!il_push_back(list, i))
+    {
+        // Something went wrong (check out documentation)
+    }
+}
+</code></pre>
+<p>To initialize any collection we call a function <code>_new</code>. Since the <code>PFX</code> parameter is set to <code>il</code> all functions related to our list of integer will be prefixed by <code>il</code>, so <code>_new</code> becomes <code>il_new</code>.</p>
+<p>The list name is <code>int_list</code> as defined by <code>SNAME</code>. This type is a typedef like:</p>
+<p><code>typedef struct SNAME##_s SNAME;</code></p>
+<p>Which expands to:</p>
+<p><code>typedef struct int_list_s int_list</code></p>
+<p>To add elements to the back of a list we can use <code>il_push_back</code>. This function will first check if the list has enough space for a new element. If not, reallocate the internal buffer with doubled size and then add the new element.</p>
+<h3><a class="header" href="#iteration" id="iteration">Iteration</a></h3>
+<blockquote>
+<p>It is recommended that the iterator is allocated on the stack</p>
+</blockquote>
+<pre><code class="language-c">// Resulting sum will be stored here
+int sum = 0;
+
+// Declare our iterator (allocating it on the stack)
+int_list_iter it;
+
+// Loop for each element
+for (il_iter_init(&amp;it, list); !il_iter_end(&amp;it); il_iter_next(&amp;it))
+{
+    // Accessing the value
+    int elem = il_iter_value(&amp;it);
+
+    sum += elem;
+}
+
+printf(&quot;%d\n&quot;, sum);
+</code></pre>
+<p>There are 6 (2 optional) steps to iterate over the elements of any collection:</p>
+<table><thead><tr><th align="center">Step</th><th>Description</th><th>Function</th></tr></thead><tbody>
+<tr><td align="center">1</td><td>Allocate the iterator (optional)</td><td><code>il_iter_new</code></td></tr>
+<tr><td align="center">2</td><td>Initialize the iterator given a target list</td><td><code>il_iter_init</code></td></tr>
+<tr><td align="center">3</td><td>Access the iterator's elements (value, index, etc)</td><td><code>il_iter_value</code></td></tr>
+<tr><td align="center">4</td><td>Go to the next element</td><td><code>il_iter_next</code></td></tr>
+<tr><td align="center">5</td><td>Check if we haven't reached the end of the list</td><td><code>il_iter_end</code></td></tr>
+<tr><td align="center">6</td><td>Free the iterator if it was allocated on the heap</td><td><code>il_iter_free</code></td></tr>
+</tbody></table>
+<p>Note that all iterator functions are prefixed by the user defined prefix and then by <code>iter</code> (<code>il + iter = il_iter</code>). Also, the steps <strong>1</strong> and <strong>6</strong> are optional so <code>il_iter_new</code> and <code>il_iter_free</code> are not used in the example.</p>
+<p>By the end of the example we have the variable <code>sum</code> with the sum of all integers inside our list. We can then print it and this example is almost done.</p>
+<h3><a class="header" href="#freeing-resources" id="freeing-resources">Freeing resources</a></h3>
+<pre><code class="language-c">// void il_free(int_list *_list_, void(*deallocator)(int))
+il_free(list, NULL);
+</code></pre>
+<p>The list is currently allocated in memory. To deallocate it we call <code>il_free</code>. This function takes a pointer to the allocated list and a pointer to a <code>deallocator</code> function that will be responsible for deallocating each element in the list. This last parameter is optional and we won't be using it since our data type <code>int</code> is not allocated in the heap. This optional parameter can be set to <code>NULL</code> to be ignored by the <code>il_free</code> function.</p>
+<h3><a class="header" href="#compile-and-run" id="compile-and-run">Compile and run</a></h3>
+<blockquote>
+<p>source.c</p>
+</blockquote>
+<pre><code class="language-c">#include &lt;cmc/list.h&gt;
+
+CMC_GENERATE_LIST(il, int_list, int)
+
+int main(void)
+{
+    int_list *list = il_new(100);
+
+    for (int i = 0; i &lt;= 1000; i++)
+    {
+        if (!il_push_back(list, i))
+        {
+            // Something went wrong (check out documentation)
+        }
+    }
+
+    int sum = 0;
+
+    int_list_iter it;
+
+    for (il_iter_init(&amp;it, list); !il_iter_end(&amp;it); il_iter_next(&amp;it))
+    {
+        int elem = il_iter_value(&amp;it);
+        sum += elem;
+    }
+
+    printf(&quot;%d\n&quot;, sum);
+
+    il_free(list, NULL);
+}
+</code></pre>
+<p>If the source file is <code>source.c</code>, all you have to do is to include the <code>src</code> folder to the include path and compile. The following example uses <code>gcc</code>:</p>
+<p><code>gcc source.c -I path/to/library/src</code></p>
+<h3><a class="header" href="#conclusion" id="conclusion">Conclusion</a></h3>
+<p>The C Macro Collections Library is prepared to accept any data type and is highly customizable. It is also very easy to integrate and no previous compilation is required. The library also comes with many utilities in the <code>utl</code> folder that are designed to work well with all collections.</p>
+
+                    </main>
+
+                    <nav class="nav-wrapper" aria-label="Page navigation">
+                        <!-- Mobile navigation buttons -->
+                        
+                            <a rel="prev" href="../Overview/overview.html" class="mobile-nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                                <i class="fa fa-angle-left"></i>
+                            </a>
+                        
+
+                        
+
+                        <div style="clear: both"></div>
+                    </nav>
+                </div>
+            </div>
+
+            <nav class="nav-wide-wrapper" aria-label="Page navigation">
+                
+                    <a href="../Overview/overview.html" class="nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                        <i class="fa fa-angle-left"></i>
+                    </a>
+                
+
+                
+            </nav>
+
+        </div>
+
+        
+
+        
+
+        
+        
+        
+        <script type="text/javascript">
+            window.playpen_copyable = true;
+        </script>
+        
+
+        
+
+        
+        <script src="../elasticlunr.min.js" type="text/javascript" charset="utf-8"></script>
+        <script src="../mark.min.js" type="text/javascript" charset="utf-8"></script>
+        <script src="../searcher.js" type="text/javascript" charset="utf-8"></script>
+        
+
+        <script src="../clipboard.min.js" type="text/javascript" charset="utf-8"></script>
+        <script src="../highlight.js" type="text/javascript" charset="utf-8"></script>
+        <script src="../book.js" type="text/javascript" charset="utf-8"></script>
+
+        <!-- Custom JS scripts -->
+        
+
+        
+
+    </body>
+</html>

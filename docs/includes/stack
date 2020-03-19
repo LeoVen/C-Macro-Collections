@@ -1,6 +1,0 @@
-<h1 id='stack-h'>stack.h</h1>
-<p>A Stack is a Last-in First-out (or First-in Last-out) data structure used in a variety of algorithms. It is a Dynamic Array that can only add or remove its elements at the end of the buffer, in this case, it represents the top of the stack.</p>
-<h2 id='stack-implementation'>Stack Implementation</h2>
-<p>It has three main functions: <code>push</code> which adds an element at the top of the stack; <code>pop</code> which removes the top element from the stack; and <code>top</code> which returns the top element without removing it (it is also sometimes called <code>peek</code>).</p>
-
-<p>A Stack is used in algorithms like backtracking, depth-first search, expression evaluation, syntax parsing and many more.</p>
