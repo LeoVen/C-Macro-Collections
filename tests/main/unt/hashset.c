@@ -458,7 +458,7 @@ CMC_CREATE_UNIT(hashset_test, true, {
         cmc_assert_equals(int32_t, cmc_flags.OK, hs_flag(set));
 
         // copy
-        set->flag = cmc_flags.ERROR;\
+        set->flag = cmc_flags.ERROR;
         struct hashset *set2 = hs_copy_of(set);
 
         cmc_assert_equals(int32_t, cmc_flags.OK, hs_flag(set));
@@ -483,7 +483,8 @@ CMC_CREATE_UNIT(hashset_test, true, {
     });
 
     CMC_CREATE_TEST(callbacks, {
-        struct hashset *set = hs_new_custom(100, 0.6, hs_ftab_val, NULL, callbacks);
+        struct hashset *set =
+            hs_new_custom(100, 0.6, hs_ftab_val, NULL, callbacks);
 
         total_create = 0;
         total_read = 0;

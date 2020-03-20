@@ -179,18 +179,18 @@ CMC_CREATE_UNIT(sortedlist_test, true, {
 
         // max min
         sl->flag = cmc_flags.ERROR;
-        cmc_assert(!sl_max(sl, NULL));
+        cmc_assert_equals(size_t, (size_t){ 0 }, sl_max(sl));
         cmc_assert_equals(int32_t, cmc_flags.EMPTY, sl_flag(sl));
         sl->flag = cmc_flags.ERROR;
-        cmc_assert(!sl_min(sl, NULL));
+        cmc_assert_equals(size_t, (size_t){ 0 }, sl_min(sl));
         cmc_assert_equals(int32_t, cmc_flags.EMPTY, sl_flag(sl));
 
         cmc_assert(sl_insert(sl, 1));
         sl->flag = cmc_flags.ERROR;
-        cmc_assert(sl_max(sl, NULL));
+        cmc_assert_equals(size_t, 1, sl_max(sl));
         cmc_assert_equals(int32_t, cmc_flags.OK, sl_flag(sl));
         sl->flag = cmc_flags.ERROR;
-        cmc_assert(sl_min(sl, NULL));
+        cmc_assert_equals(size_t, 1, sl_min(sl));
         cmc_assert_equals(int32_t, cmc_flags.OK, sl_flag(sl));
 
         // get

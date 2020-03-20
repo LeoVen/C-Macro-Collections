@@ -168,7 +168,7 @@ static const char *cmc_string_fmt_heap = "struct %s<%s> "
                          struct cmc_callbacks *callbacks);                   \
     /* Collection Input and Output */                                        \
     bool PFX##_insert(struct SNAME *_heap_, V element);                      \
-    bool PFX##_remove(struct SNAME *_heap_, V *result);                      \
+    bool PFX##_remove(struct SNAME *_heap_);                                 \
     /* Element Access */                                                     \
     V PFX##_peek(struct SNAME *_heap_);                                      \
     /* Collection State */                                                   \
@@ -212,8 +212,8 @@ static const char *cmc_string_fmt_heap = "struct %s<%s> "
 #define CMC_GENERATE_HEAP_SOURCE(PFX, SNAME, V)                                \
                                                                                \
     /* Implementation Detail Functions */                                      \
-    static bool PFX##_impl_float_up(struct SNAME *_heap_, size_t index);       \
-    static bool PFX##_impl_float_down(struct SNAME *_heap_, size_t index);     \
+    static void PFX##_impl_float_up(struct SNAME *_heap_, size_t index);       \
+    static void PFX##_impl_float_down(struct SNAME *_heap_, size_t index);     \
     static struct SNAME##_iter PFX##_impl_it_start(struct SNAME *_heap_);      \
     static struct SNAME##_iter PFX##_impl_it_end(struct SNAME *_heap_);        \
                                                                                \
@@ -350,29 +350,22 @@ static const char *cmc_string_fmt_heap = "struct %s<%s> "
                 return false;                                                  \
         }                                                                      \
                                                                                \
-        if (PFX##_empty(_heap_))                                               \
-        {                                                                      \
-            _heap_->buffer[_heap_->count++] = element;                         \
-                                                                               \
-            _heap_->flag = cmc_flags.OK;                                       \
-                                                                               \
-            return true;                                                       \
-        }                                                                      \
-                                                                               \
         _heap_->buffer[_heap_->count++] = element;                             \
                                                                                \
-        if (!PFX##_impl_float_up(_heap_, _heap_->count - 1))                   \
+        if (!PFX##_empty(_heap_))                                              \
         {                                                                      \
-            _heap_->flag = cmc_flags.ERROR;                                    \
-            return false;                                                      \
+            PFX##_impl_float_up(_heap_, _heap_->count - 1);                    \
         }                                                                      \
                                                                                \
         _heap_->flag = cmc_flags.OK;                                           \
                                                                                \
+        if (_heap_->callbacks && _heap_->callbacks->create)                    \
+            _heap_->callbacks->create();                                       \
+                                                                               \
         return true;                                                           \
     }                                                                          \
                                                                                \
-    bool PFX##_remove(struct SNAME *_heap_, V *result)                         \
+    bool PFX##_remove(struct SNAME *_heap_)                                    \
     {                                                                          \
         if (PFX##_empty(_heap_))                                               \
         {                                                                      \
@@ -380,21 +373,17 @@ static const char *cmc_string_fmt_heap = "struct %s<%s> "
             return false;                                                      \
         }                                                                      \
                                                                                \
-        if (result)                                                            \
-            *result = _heap_->buffer[0];                                       \
-                                                                               \
         _heap_->buffer[0] = _heap_->buffer[_heap_->count - 1];                 \
         _heap_->buffer[_heap_->count - 1] = (V){ 0 };                          \
                                                                                \
         _heap_->count--;                                                       \
                                                                                \
-        if (!PFX##_impl_float_down(_heap_, 0))                                 \
-        {                                                                      \
-            _heap_->flag = cmc_flags.ERROR;                                    \
-            return false;                                                      \
-        }                                                                      \
+        PFX##_impl_float_down(_heap_, 0);                                      \
                                                                                \
         _heap_->flag = cmc_flags.OK;                                           \
+                                                                               \
+        if (_heap_->callbacks && _heap_->callbacks->delete)                    \
+            _heap_->callbacks->delete ();                                      \
                                                                                \
         return true;                                                           \
     }                                                                          \
@@ -409,6 +398,9 @@ static const char *cmc_string_fmt_heap = "struct %s<%s> "
                                                                                \
         _heap_->flag = cmc_flags.OK;                                           \
                                                                                \
+        if (_heap_->callbacks && _heap_->callbacks->read)                      \
+            _heap_->callbacks->read();                                         \
+                                                                               \
         return _heap_->buffer[0];                                              \
     }                                                                          \
                                                                                \
@@ -416,13 +408,21 @@ static const char *cmc_string_fmt_heap = "struct %s<%s> "
     {                                                                          \
         _heap_->flag = cmc_flags.OK;                                           \
                                                                                \
+        bool result = false;                                                   \
+                                                                               \
         for (size_t i = 0; i < _heap_->count; i++)                             \
         {                                                                      \
             if (_heap_->f_val->cmp(_heap_->buffer[i], element) == 0)           \
-                return true;                                                   \
+            {                                                                  \
+                result = true;                                                 \
+                break;                                                         \
+            }                                                                  \
         }                                                                      \
                                                                                \
-        return false;                                                          \
+        if (_heap_->callbacks && _heap_->callbacks->read)                      \
+            _heap_->callbacks->read();                                         \
+                                                                               \
+        return result;                                                         \
     }                                                                          \
                                                                                \
     bool PFX##_empty(struct SNAME *_heap_)                                     \
@@ -455,7 +455,7 @@ static const char *cmc_string_fmt_heap = "struct %s<%s> "
         _heap_->flag = cmc_flags.OK;                                           \
                                                                                \
         if (_heap_->capacity == capacity)                                      \
-            return true;                                                       \
+            goto success;                                                      \
                                                                                \
         if (capacity < _heap_->count)                                          \
         {                                                                      \
@@ -476,6 +476,11 @@ static const char *cmc_string_fmt_heap = "struct %s<%s> "
                                                                                \
         _heap_->buffer = new_buffer;                                           \
         _heap_->capacity = capacity;                                           \
+                                                                               \
+    success:                                                                   \
+                                                                               \
+        if (_heap_->callbacks && _heap_->callbacks->resize)                    \
+            _heap_->callbacks->resize();                                       \
                                                                                \
         return true;                                                           \
     }                                                                          \
@@ -716,7 +721,7 @@ static const char *cmc_string_fmt_heap = "struct %s<%s> "
         return iter->cursor;                                                   \
     }                                                                          \
                                                                                \
-    static bool PFX##_impl_float_up(struct SNAME *_heap_, size_t index)        \
+    static void PFX##_impl_float_up(struct SNAME *_heap_, size_t index)        \
     {                                                                          \
         /* Current index */                                                    \
         size_t C = index;                                                      \
@@ -738,11 +743,9 @@ static const char *cmc_string_fmt_heap = "struct %s<%s> "
             child = _heap_->buffer[C];                                         \
             parent = _heap_->buffer[(C - 1) / 2];                              \
         }                                                                      \
-                                                                               \
-        return true;                                                           \
     }                                                                          \
                                                                                \
-    static bool PFX##_impl_float_down(struct SNAME *_heap_, size_t index)      \
+    static void PFX##_impl_float_down(struct SNAME *_heap_, size_t index)      \
     {                                                                          \
         int mod = _heap_->HO;                                                  \
                                                                                \
@@ -781,8 +784,6 @@ static const char *cmc_string_fmt_heap = "struct %s<%s> "
             else                                                               \
                 break;                                                         \
         }                                                                      \
-                                                                               \
-        return true;                                                           \
     }                                                                          \
                                                                                \
     static struct SNAME##_iter PFX##_impl_it_start(struct SNAME *_heap_)       \

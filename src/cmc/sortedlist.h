@@ -144,8 +144,8 @@ static const char *cmc_string_fmt_sortedlist = "struct %s<%s> "
     bool PFX##_insert(struct SNAME *_list_, V element);                       \
     bool PFX##_remove(struct SNAME *_list_, size_t index);                    \
     /* Element Access */                                                      \
-    bool PFX##_max(struct SNAME *_list_, V *result);                          \
-    bool PFX##_min(struct SNAME *_list_, V *result);                          \
+    V PFX##_max(struct SNAME *_list_);                                        \
+    V PFX##_min(struct SNAME *_list_);                                        \
     V PFX##_get(struct SNAME *_list_, size_t index);                          \
     size_t PFX##_index_of(struct SNAME *_list_, V element, bool from_start);  \
     /* Collection State */                                                    \
@@ -351,40 +351,34 @@ static const char *cmc_string_fmt_sortedlist = "struct %s<%s> "
         return true;                                                           \
     }                                                                          \
                                                                                \
-    bool PFX##_max(struct SNAME *_list_, V *result)                            \
+    V PFX##_max(struct SNAME *_list_)                                          \
     {                                                                          \
         if (PFX##_empty(_list_))                                               \
         {                                                                      \
             _list_->flag = cmc_flags.EMPTY;                                    \
-            return false;                                                      \
+            return (V){ 0 };                                                   \
         }                                                                      \
                                                                                \
         PFX##_sort(_list_);                                                    \
                                                                                \
-        if (result)                                                            \
-            *result = _list_->buffer[_list_->count - 1];                       \
-                                                                               \
         _list_->flag = cmc_flags.OK;                                           \
                                                                                \
-        return true;                                                           \
+        return _list_->buffer[_list_->count - 1];                              \
     }                                                                          \
                                                                                \
-    bool PFX##_min(struct SNAME *_list_, V *result)                            \
+    V PFX##_min(struct SNAME *_list_)                                          \
     {                                                                          \
         if (PFX##_empty(_list_))                                               \
         {                                                                      \
             _list_->flag = cmc_flags.EMPTY;                                    \
-            return false;                                                      \
+            return (V){ 0 };                                                   \
         }                                                                      \
                                                                                \
         PFX##_sort(_list_);                                                    \
                                                                                \
-        if (result)                                                            \
-            *result = _list_->buffer[0];                                       \
-                                                                               \
         _list_->flag = cmc_flags.OK;                                           \
                                                                                \
-        return true;                                                           \
+        return _list_->buffer[0];                                              \
     }                                                                          \
                                                                                \
     V PFX##_get(struct SNAME *_list_, size_t index)                            \

@@ -98,12 +98,11 @@ void callback_resize(void)
     total_resize++;
 }
 
-struct cmc_callbacks *callbacks = &(struct cmc_callbacks) {
-    .create = callback_create,
-    .read = callback_read,
-    .update = callback_update,
-    .delete = callback_delete,
-    .resize = callback_resize
-};
+struct cmc_callbacks *callbacks =
+    &(struct cmc_callbacks){ .create = callback_create,
+                             .read = callback_read,
+                             .update = callback_update,
+                             .delete = callback_delete,
+                             .resize = callback_resize };
 
 #endif /* CMC_UNIT_TEST_UTL__ */

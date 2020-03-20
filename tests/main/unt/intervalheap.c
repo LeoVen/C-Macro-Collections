@@ -127,10 +127,7 @@ CMC_CREATE_UNIT(intervalheap_test, true, {
         cmc_assert(ih_insert(ih, 1));
         cmc_assert(ih_insert(ih, 2));
 
-        size_t r;
-        cmc_assert(ih_max(ih, &r));
-
-        cmc_assert_equals(size_t, 2, r);
+        cmc_assert_equals(size_t, 2, ih_max(ih));
 
         ih_free(ih);
     });
@@ -142,10 +139,7 @@ CMC_CREATE_UNIT(intervalheap_test, true, {
         cmc_assert(ih_insert(ih, 1));
         cmc_assert(ih_insert(ih, 2));
 
-        size_t r;
-        cmc_assert(ih_min(ih, &r));
-
-        cmc_assert_equals(size_t, 0, r);
+        cmc_assert_equals(size_t, 0, ih_min(ih));
 
         ih_free(ih);
     });
@@ -228,22 +222,21 @@ CMC_CREATE_UNIT(intervalheap_test, true, {
         cmc_assert_equals(int32_t, cmc_flags.EMPTY, ih_flag(ih));
 
         // max min
-        size_t r;
         ih->flag = cmc_flags.ERROR;
-        cmc_assert(!ih_max(ih, &r));
+        cmc_assert_equals(size_t, (size_t){ 0 }, ih_max(ih));
         cmc_assert_equals(int32_t, cmc_flags.EMPTY, ih_flag(ih));
 
         ih->flag = cmc_flags.ERROR;
-        cmc_assert(!ih_min(ih, &r));
+        cmc_assert_equals(size_t, (size_t){ 0 }, ih_min(ih));
         cmc_assert_equals(int32_t, cmc_flags.EMPTY, ih_flag(ih));
 
         cmc_assert(ih_insert(ih, 10));
         ih->flag = cmc_flags.ERROR;
-        cmc_assert(ih_max(ih, &r));
+        cmc_assert_equals(size_t, 10, ih_max(ih));
         cmc_assert_equals(int32_t, cmc_flags.OK, ih_flag(ih));
 
         ih->flag = cmc_flags.ERROR;
-        cmc_assert(ih_max(ih, &r));
+        cmc_assert_equals(size_t, 10, ih_min(ih));
         cmc_assert_equals(int32_t, cmc_flags.OK, ih_flag(ih));
 
         // contains
@@ -266,5 +259,55 @@ CMC_CREATE_UNIT(intervalheap_test, true, {
 
         ih_free(ih);
         ih_free(ih2);
+    });
+
+    CMC_CREATE_TEST(callbacks, {
+        struct intervalheap *ih =
+            ih_new_custom(100, ih_ftab_val, NULL, callbacks);
+
+        total_create = 0;
+        total_read = 0;
+        total_update = 0;
+        total_delete = 0;
+        total_resize = 0;
+
+        cmc_assert(ih_insert(ih, 10));
+        cmc_assert_equals(int32_t, 1, total_create);
+
+        cmc_assert(ih_remove_max(ih));
+        cmc_assert_equals(int32_t, 1, total_delete);
+
+        cmc_assert(ih_insert(ih, 10));
+        cmc_assert_equals(int32_t, 2, total_create);
+
+        cmc_assert(ih_remove_min(ih));
+        cmc_assert_equals(int32_t, 2, total_delete);
+
+        cmc_assert(ih_insert(ih, 1));
+        cmc_assert(ih_insert(ih, 2));
+        cmc_assert_equals(int32_t, 4, total_create);
+
+        cmc_assert(ih_update_max(ih, 1));
+        cmc_assert_equals(int32_t, 1, total_update);
+
+        cmc_assert(ih_update_min(ih, 2));
+        cmc_assert_equals(int32_t, 2, total_update);
+
+        cmc_assert_equals(size_t, 2, ih_max(ih));
+        cmc_assert_equals(int32_t, 1, total_read);
+
+        cmc_assert_equals(size_t, 1, ih_min(ih));
+        cmc_assert_equals(int32_t, 2, total_read);
+
+        cmc_assert(ih_contains(ih, 1));
+        cmc_assert_equals(int32_t, 3, total_read);
+
+        cmc_assert(ih_resize(ih, 1000));
+        cmc_assert_equals(int32_t, 1, total_resize);
+
+        cmc_assert(ih_resize(ih, 50));
+        cmc_assert_equals(int32_t, 2, total_resize);
+
+        ih_free(ih);
     });
 });

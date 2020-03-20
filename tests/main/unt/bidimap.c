@@ -512,7 +512,8 @@ CMC_CREATE_UNIT(bidimap_test, true, {
     });
 
     CMC_CREATE_TEST(callbacks, {
-        struct bidimap *map = bm_new_custom(100, 0.7, bm_ftab_key, bm_ftab_val, NULL, callbacks);
+        struct bidimap *map =
+            bm_new_custom(100, 0.7, bm_ftab_key, bm_ftab_val, NULL, callbacks);
 
         cmc_assert_not_equals(ptr, NULL, map);
         cmc_assert_equals(ptr, callbacks, map->callbacks);

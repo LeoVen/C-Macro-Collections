@@ -604,7 +604,8 @@ CMC_CREATE_UNIT(hashmap_test, true, {
     });
 
     CMC_CREATE_TEST(callbacks, {
-        struct hashmap *map = hm_new_custom(100, 0.6, hm_ftab_key, hm_ftab_val, NULL, callbacks);
+        struct hashmap *map =
+            hm_new_custom(100, 0.6, hm_ftab_key, hm_ftab_val, NULL, callbacks);
 
         total_create = 0;
         total_read = 0;

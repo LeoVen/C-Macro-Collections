@@ -104,10 +104,9 @@ CMC_CREATE_UNIT(heap_test, true, {
         for (size_t i = 0; i <= 100; i++)
             cmc_assert(h_insert(h, i));
 
-        size_t r;
-        cmc_assert(h_remove(h, &r));
-
-        cmc_assert_equals(size_t, 100, r);
+        cmc_assert_equals(size_t, 100, h_peek(h));
+        cmc_assert(h_remove(h));
+        cmc_assert_equals(size_t, 99, h_peek(h));
 
         h_free(h);
     });
@@ -117,8 +116,7 @@ CMC_CREATE_UNIT(heap_test, true, {
 
         cmc_assert_not_equals(ptr, NULL, h);
 
-        size_t _;
-        cmc_assert(!h_remove(h, &_));
+        cmc_assert(!h_remove(h));
 
         h_free(h);
     });
@@ -136,9 +134,8 @@ CMC_CREATE_UNIT(heap_test, true, {
         size_t arr[100];
         while (!h_empty(h))
         {
-            cmc_assert(h_remove(h, &r));
-
-            arr[i++] = r;
+            arr[i++] = h_peek(h);
+            cmc_assert(h_remove(h));
         }
 
         cmc_assert_array_sorted_any(size_t, arr, cmp, 0, 99);
@@ -184,17 +181,17 @@ CMC_CREATE_UNIT(heap_test, true, {
         h->flag = cmc_flags.ERROR;
 
         // remove
-        cmc_assert(h_remove(h, NULL));
+        cmc_assert(h_remove(h));
         cmc_assert_equals(int32_t, cmc_flags.OK, h_flag(h));
 
-        cmc_assert(!h_remove(h, NULL));
+        cmc_assert(!h_remove(h));
         cmc_assert_equals(int32_t, cmc_flags.EMPTY, h_flag(h));
 
         // peek
         cmc_assert(h_insert(h, 10));
         h_peek(h);
         cmc_assert_equals(int32_t, cmc_flags.OK, h_flag(h));
-        cmc_assert(h_remove(h, NULL));
+        cmc_assert(h_remove(h));
         h_peek(h);
         cmc_assert_equals(int32_t, cmc_flags.EMPTY, h_flag(h));
 
@@ -225,5 +222,39 @@ CMC_CREATE_UNIT(heap_test, true, {
 
         h_free(h);
         h_free(h2);
+    });
+
+    CMC_CREATE_TEST(callbacks, {
+        struct heap *h =
+            h_new_custom(100, cmc_max_heap, h_ftab_val, NULL, callbacks);
+
+        total_create = 0;
+        total_read = 0;
+        total_update = 0;
+        total_delete = 0;
+        total_resize = 0;
+
+        cmc_assert(h_insert(h, 10));
+        cmc_assert_equals(int32_t, 1, total_create);
+
+        cmc_assert(h_remove(h));
+        cmc_assert_equals(int32_t, 1, total_delete);
+
+        cmc_assert(h_insert(h, 10));
+        cmc_assert_equals(int32_t, 2, total_create);
+
+        cmc_assert_equals(size_t, 10, h_peek(h));
+        cmc_assert_equals(int32_t, 1, total_read);
+
+        cmc_assert(h_contains(h, 10));
+        cmc_assert_equals(int32_t, 2, total_read);
+
+        cmc_assert(h_resize(h, 1000));
+        cmc_assert_equals(int32_t, 1, total_resize);
+
+        cmc_assert(h_resize(h, 100));
+        cmc_assert_equals(int32_t, 2, total_resize);
+
+        h_free(h);
     });
 });
