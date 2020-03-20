@@ -256,4 +256,52 @@ CMC_CREATE_UNIT(linkedlist_test, true, {
         ll_free(ll);
         ll_free(ll2);
     });
+
+    CMC_CREATE_TEST(callbacks, {
+        struct linkedlist *ll = ll_new_custom(ll_ftab_val, NULL, callbacks);
+
+        total_create = 0;
+        total_read = 0;
+        total_update = 0;
+        total_delete = 0;
+        total_resize = 0;
+
+        cmc_assert(ll_push_front(ll, 10));
+        cmc_assert_equals(int32_t, 1, total_create);
+
+        cmc_assert(ll_push_back(ll, 10));
+        cmc_assert_equals(int32_t, 2, total_create);
+
+        cmc_assert(ll_push_at(ll, 10, 1));
+        cmc_assert_equals(int32_t, 3, total_create);
+
+        cmc_assert(ll_pop_at(ll, 1));
+        cmc_assert_equals(int32_t, 1, total_delete);
+
+        cmc_assert(ll_pop_front(ll));
+        cmc_assert_equals(int32_t, 2, total_delete);
+
+        cmc_assert(ll_pop_back(ll));
+        cmc_assert_equals(int32_t, 3, total_delete);
+
+        cmc_assert(ll_push_back(ll, 10));
+        cmc_assert_equals(int32_t, 4, total_create);
+
+        cmc_assert_equals(size_t, 10, ll_front(ll));
+        cmc_assert_equals(int32_t, 1, total_read);
+
+        cmc_assert_equals(size_t, 10, ll_back(ll));
+        cmc_assert_equals(int32_t, 2, total_read);
+
+        cmc_assert_equals(size_t, 10, ll_get(ll, 0));
+        cmc_assert_equals(int32_t, 3, total_read);
+
+        cmc_assert_not_equals(ptr, NULL, ll_get_ref(ll, 0));
+        cmc_assert_equals(int32_t, 4, total_read);
+
+        cmc_assert(ll_contains(ll, 10));
+        cmc_assert_equals(int32_t, 5, total_read);
+
+        ll_free(ll);
+    });
 });
