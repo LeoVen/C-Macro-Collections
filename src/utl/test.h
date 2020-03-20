@@ -27,17 +27,8 @@
  *     Parameters:
  *         - TNAME : Test name (const char *)
  *         - BODY  : Block of code containing a specific test
- *     Inside the BODY use the following macros:
- *         - CMC_TEST_PASS
- *             Pass current test.
- *         - CMC_TEST_FAIL
- *             Fail current test.
- *         - CMC_TEST_PASS_ELSE_FAIL
- *             If given expression is true, pass current test, else fail.
- *         - CMC_TEST_ABORT
- *             Abort current unit test and displays error message. All tests
- *             after the abort won't be called.
- *     All of these macros can only be called once per test.
+ *     Inside the BODY use the macros in ./utl/assert.h. The unit test will keep
+ *     track of cmc_assert_state and automatically pass or fail tests.
  *
  * CMC_TEST_COLOR
  *      Define this macro to allow colored output.
@@ -46,14 +37,13 @@
 #ifndef CMC_TEST_H
 #define CMC_TEST_H
 
-#include "assert.h"
-#include "timer.h"
 #include <inttypes.h>
 #include <stdbool.h>
-#include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
-#include <string.h>
+
+#include "assert.h"
+#include "timer.h"
 
 #ifdef CMC_TEST_COLOR
 static const char *cmc_test_color[] = { "\x1b[32m", "\x1b[31m", "\x1b[35m" };
@@ -84,7 +74,7 @@ static void cmc_test_log(const char *unit_name, const char *current_test,
     else
     {
 #ifdef CMC_TEST_COLOR
-        printf("Test from %s %s%7s\x1b[0m %s\n", unit_name,
+        printf("Test from \x1b[33m%s\x1b[0m %s%7s\x1b[0m %s\n", unit_name,
                passed ? cmc_test_color[0] : cmc_test_color[1],
                passed ? "PASSED" : "FAILED", current_test);
 #else

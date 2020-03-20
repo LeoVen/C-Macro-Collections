@@ -18,11 +18,11 @@
  */
 
 /**
- * What each error code means
+ * What each error code means inside the DEV Collections
  *
  * TRACE - Trace is used to describe the inner workings of the function or an
  *         algorithm. It can be useful when trying to find for an error in the
- *         algorithm or an untreated case.
+ *         algorithm or corner cases.
  * DEBUG - Mainly used for debugging, tracking certain variables or anything
  *         useful to help visualizing what your program is doing.
  *  INFO - Info can be used as a heads up. It is also used to track the main
@@ -31,7 +31,7 @@
  *         from and they are usually treated by it. In most cases the user can
  *         treat these warnings himself.
  * ERROR - Something really bad happened. Your program will not crash yet but
- *         depending on what comes next, it might crash indeed.
+ *         depending on what comes next, it will.
  * FATAL - This will probably be the last logging message before your program
  *         crashes or goes into madness. Fatal errors are commonly attributed
  *         to dereferencing NULL pointers.
@@ -45,7 +45,7 @@
  * ERROR - 5
  * FATAL - 6
  *
- * How the Log Level is calculated
+ * How the Log Level is calculated for tlevel and flevel
  *
  * - If the log level is 0 all logs are enabled.
  * - If the log level (X) is positive:

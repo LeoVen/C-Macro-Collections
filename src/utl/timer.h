@@ -8,7 +8,9 @@
  *
  */
 
-/* Simple timer macros utility */
+/**
+ *  Simple timer macros utility for timing code execution.
+ */
 
 #ifndef CMC_TIMER_H
 #define CMC_TIMER_H
@@ -19,7 +21,7 @@ struct cmc_timer
 {
     clock_t start;
     clock_t stop;
-    double result;
+    double result; /* The result is given in milliseconds */
 };
 
 #define cmc_timer_start(timer)          \

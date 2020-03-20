@@ -23,7 +23,7 @@
  * - cmc_assert_in_range
  * - cmc_assert_not_in_range
  *
- * Data types include:
+ * Data types (dtype) include:
  * - int8_t
  * - int16_t
  * - int32_t
@@ -37,8 +37,8 @@
  * - size_t
  * - float
  * - double
- * - ptr
- * - bool (only for equals and not_equals)
+ * - ptr       (only equals and not_equals)
+ * - bool      (only equals and not_equals)
  *
  * Specialized assertions that work with any data type:
  *
@@ -53,7 +53,6 @@
 
 #include <inttypes.h>
 #include <stdbool.h>
-#include <stdint.h>
 #include <stdio.h>
 #include <string.h>
 
@@ -105,25 +104,25 @@ static bool cmc_assert_state = true;
 
 /**
  * dtype    : One of the data types listed at the beggining of this file
- * (excluding ptr). boundary : Expected lowest possible value (excluded). actual
- * : Actual value tested against the given boundary.
+ * boundary : Expected lowest possible value (excluded).
+ * actual   : Actual value tested against the given boundary.
  */
 #define cmc_assert_greater(dtype, boundary, actual) \
     CMC_ASSERT_GLUE(dtype, greater)                 \
     (boundary, actual)
 
 /**
- * dtype    : One of the data types listed at the beggining of this file
- * (excluding ptr). boundary : Expected lowest possible value (included). actual
- * : Actual value tested against the given boundary.
+ * dtype    : One of the data types listed at the beggining of this file.
+ * boundary : Expected lowest possible value (included).
+ * actual   : Actual value tested against the given boundary.
  */
 #define cmc_assert_greater_equals(dtype, boundary, actual) \
     CMC_ASSERT_GLUE(dtype, greater_equals)                 \
     (boundary, actual)
 
 /**
- * dtype    : One of the data types listed at the beggining of this file
- * (excluding ptr). boundary : Expected highest possible value (excluded).
+ * dtype    : One of the data types listed at the beggining of this file.
+ * boundary : Expected highest possible value (excluded).
  * actual   : Actual value tested against the given boundary.
  */
 #define cmc_assert_lesser(dtype, boundary, actual) \
@@ -131,8 +130,8 @@ static bool cmc_assert_state = true;
     (boundary, actual)
 
 /**
- * dtype    : One of the data types listed at the beggining of this file
- * (excluding ptr). boundary : Expected highest possible value (included).
+ * dtype    : One of the data types listed at the beggining of this file.
+ * boundary : Expected highest possible value (included).
  * actual   : Actual value tested against the given boundary.
  */
 #define cmc_assert_lesser_equals(dtype, boundary, actual) \
@@ -140,8 +139,8 @@ static bool cmc_assert_state = true;
     (boundary, actual)
 
 /**
- * dtype       : One of the data types listed at the beggining of this file
- * (excluding ptr). lower_bound : Smallest value of the expected range.
+ * dtype       : One of the data types listed at the beggining of this file.
+ * lower_bound : Smallest value of the expected range.
  * upper_bound : Highest value of the expected range.
  * actual      : Actual value tested against the given range.
  *
@@ -152,8 +151,8 @@ static bool cmc_assert_state = true;
     (lower_bound, upper_bound, actual)
 
 /**
- * dtype       : One of the data types listed at the beggining of this file
- * (excluding ptr). lower_bound : Smallest value of the not expected range.
+ * dtype       : One of the data types listed at the beggining of this file.
+ * lower_bound : Smallest value of the not expected range.
  * upper_bound : Highest value of the not expected range.
  * actual      : Actual value tested against the given range.
  *
@@ -260,13 +259,14 @@ static bool cmc_assert_state = true;
     } while (0)
 
 /**
- * Assert that each element in the array are within bounds.
+ * Assert that each element in the array are out of bounds.
  *
  * dtype       : The type of the array.
- * array       : Array to be checked if its elements are outside of a given
- * range comparator  : A function that has two 'dtype' arguments and returns -1
- * if the first is less then the second, 0 if both are equal or 1 if the first
- * is greater then the second. lower_bound : Smallest value of the given range.
+ * array       : Array to be checked if its elements are outside a given range.
+ * comparator  : A function that has two 'dtype' arguments and returns -1 if the
+ *               first is less then the second, 0 if both are equal or 1 if the
+ *               first is greater then the second.
+ * lower_bound : Smallest value of the given range.
  * upper_bound : Highest value of the given range.
  * from_index  : First index from the array to compare (inclusive).
  * to_index    : Last index from the array to compare (inclusive).

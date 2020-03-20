@@ -8,6 +8,15 @@
  *
  */
 
+/**
+ * For-Each macros that work with all Collections within the library.
+ *
+ * PFX      - Functions prefix
+ * SNAME    - Struct name
+ * ITERNAME - Iterator variable name
+ * TARGET   - Target variable
+ */
+
 #ifndef CMC_FOR_EACH_H
 #define CMC_FOR_EACH_H
 
