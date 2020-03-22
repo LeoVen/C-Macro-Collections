@@ -459,7 +459,8 @@ static const char *cmc_string_fmt_bidimap = "struct %s<%s, %s> "
         _map_->count++;                                                        \
         _map_->flag = cmc_flags.OK;                                            \
                                                                                \
-        if (_map_->callbacks && _map_->callbacks->create)                      \
+        if (_map_->callbacks && _map_->callbacks->enabled &&                   \
+            _map_->callbacks->create)                                          \
             _map_->callbacks->create();                                        \
                                                                                \
         return true;                                                           \
@@ -517,7 +518,8 @@ static const char *cmc_string_fmt_bidimap = "struct %s<%s, %s> "
                                                                                \
         _map_->flag = cmc_flags.OK;                                            \
                                                                                \
-        if (_map_->callbacks && _map_->callbacks->update)                      \
+        if (_map_->callbacks && _map_->callbacks->enabled &&                   \
+            _map_->callbacks->update)                                          \
             _map_->callbacks->update();                                        \
                                                                                \
         return true;                                                           \
@@ -576,7 +578,8 @@ static const char *cmc_string_fmt_bidimap = "struct %s<%s, %s> "
                                                                                \
         _map_->flag = cmc_flags.OK;                                            \
                                                                                \
-        if (_map_->callbacks && _map_->callbacks->update)                      \
+        if (_map_->callbacks && _map_->callbacks->enabled &&                   \
+            _map_->callbacks->update)                                          \
             _map_->callbacks->update();                                        \
                                                                                \
         return true;                                                           \
@@ -623,7 +626,8 @@ static const char *cmc_string_fmt_bidimap = "struct %s<%s, %s> "
         _map_->count--;                                                        \
         _map_->flag = cmc_flags.OK;                                            \
                                                                                \
-        if (_map_->callbacks && _map_->callbacks->delete)                      \
+        if (_map_->callbacks && _map_->callbacks->enabled &&                   \
+            _map_->callbacks->delete)                                          \
             _map_->callbacks->delete ();                                       \
                                                                                \
         return true;                                                           \
@@ -670,7 +674,8 @@ static const char *cmc_string_fmt_bidimap = "struct %s<%s, %s> "
         _map_->count--;                                                        \
         _map_->flag = cmc_flags.OK;                                            \
                                                                                \
-        if (_map_->callbacks && _map_->callbacks->delete)                      \
+        if (_map_->callbacks && _map_->callbacks->enabled &&                   \
+            _map_->callbacks->delete)                                          \
             _map_->callbacks->delete ();                                       \
                                                                                \
         return true;                                                           \
@@ -689,7 +694,8 @@ static const char *cmc_string_fmt_bidimap = "struct %s<%s, %s> "
                                                                                \
         _map_->flag = cmc_flags.OK;                                            \
                                                                                \
-        if (_map_->callbacks && _map_->callbacks->read)                        \
+        if (_map_->callbacks && _map_->callbacks->enabled &&                   \
+            _map_->callbacks->read)                                            \
             _map_->callbacks->read();                                          \
                                                                                \
         return (*entry)->key;                                                  \
@@ -708,7 +714,8 @@ static const char *cmc_string_fmt_bidimap = "struct %s<%s, %s> "
                                                                                \
         _map_->flag = cmc_flags.OK;                                            \
                                                                                \
-        if (_map_->callbacks && _map_->callbacks->read)                        \
+        if (_map_->callbacks && _map_->callbacks->enabled &&                   \
+            _map_->callbacks->read)                                            \
             _map_->callbacks->read();                                          \
                                                                                \
         return (*entry)->value;                                                \
@@ -720,7 +727,8 @@ static const char *cmc_string_fmt_bidimap = "struct %s<%s, %s> "
                                                                                \
         bool result = PFX##_impl_get_entry_by_key(_map_, key) != NULL;         \
                                                                                \
-        if (_map_->callbacks && _map_->callbacks->read)                        \
+        if (_map_->callbacks && _map_->callbacks->enabled &&                   \
+            _map_->callbacks->read)                                            \
             _map_->callbacks->read();                                          \
                                                                                \
         return result;                                                         \
@@ -732,7 +740,8 @@ static const char *cmc_string_fmt_bidimap = "struct %s<%s, %s> "
                                                                                \
         bool result = PFX##_impl_get_entry_by_val(_map_, val) != NULL;         \
                                                                                \
-        if (_map_->callbacks && _map_->callbacks->read)                        \
+        if (_map_->callbacks && _map_->callbacks->enabled &&                   \
+            _map_->callbacks->read)                                            \
             _map_->callbacks->read();                                          \
                                                                                \
         return result;                                                         \
@@ -850,7 +859,8 @@ static const char *cmc_string_fmt_bidimap = "struct %s<%s, %s> "
                                                                                \
     success:                                                                   \
                                                                                \
-        if (_map_->callbacks && _map_->callbacks->resize)                      \
+        if (_map_->callbacks && _map_->callbacks->enabled &&                   \
+            _map_->callbacks->resize)                                          \
             _map_->callbacks->resize();                                        \
                                                                                \
         return true;                                                           \

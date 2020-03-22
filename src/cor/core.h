@@ -62,9 +62,12 @@ static struct cmc_alloc_node
  * - update : an element in the collection was successfully updated
  * - delete : an element was successfully removed from the collection
  * - resize : the collection was full and successfully resized
+ *
+ * enabled : if true, callbacks will be called.
  */
 struct cmc_callbacks
 {
+    bool enabled;
     void (*create)(void);
     void (*read)(void);
     void (*update)(void);

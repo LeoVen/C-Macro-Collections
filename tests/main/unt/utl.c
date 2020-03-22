@@ -99,7 +99,8 @@ void callback_resize(void)
 }
 
 struct cmc_callbacks *callbacks =
-    &(struct cmc_callbacks){ .create = callback_create,
+    &(struct cmc_callbacks){ .enabled = true,
+                             .create = callback_create,
                              .read = callback_read,
                              .update = callback_update,
                              .delete = callback_delete,

@@ -351,7 +351,8 @@ static const char *cmc_string_fmt_list = "struct %s<%s> "
         _list_->count++;                                                       \
         _list_->flag = cmc_flags.OK;                                           \
                                                                                \
-        if (_list_->callbacks && _list_->callbacks->create)                    \
+        if (_list_->callbacks && _list_->callbacks->enabled &&                 \
+            _list_->callbacks->create)                                         \
             _list_->callbacks->create();                                       \
                                                                                \
         return true;                                                           \
@@ -378,7 +379,8 @@ static const char *cmc_string_fmt_list = "struct %s<%s> "
         _list_->count++;                                                       \
         _list_->flag = cmc_flags.OK;                                           \
                                                                                \
-        if (_list_->callbacks && _list_->callbacks->create)                    \
+        if (_list_->callbacks && _list_->callbacks->enabled &&                 \
+            _list_->callbacks->create)                                         \
             _list_->callbacks->create();                                       \
                                                                                \
         return true;                                                           \
@@ -395,7 +397,8 @@ static const char *cmc_string_fmt_list = "struct %s<%s> "
         _list_->buffer[_list_->count++] = element;                             \
         _list_->flag = cmc_flags.OK;                                           \
                                                                                \
-        if (_list_->callbacks && _list_->callbacks->create)                    \
+        if (_list_->callbacks && _list_->callbacks->enabled &&                 \
+            _list_->callbacks->create)                                         \
             _list_->callbacks->create();                                       \
                                                                                \
         return true;                                                           \
@@ -415,7 +418,8 @@ static const char *cmc_string_fmt_list = "struct %s<%s> "
         _list_->buffer[--_list_->count] = (V){ 0 };                            \
         _list_->flag = cmc_flags.OK;                                           \
                                                                                \
-        if (_list_->callbacks && _list_->callbacks->delete)                    \
+        if (_list_->callbacks && _list_->callbacks->enabled &&                 \
+            _list_->callbacks->delete)                                         \
             _list_->callbacks->delete ();                                      \
                                                                                \
         return true;                                                           \
@@ -441,7 +445,8 @@ static const char *cmc_string_fmt_list = "struct %s<%s> "
         _list_->buffer[--_list_->count] = (V){ 0 };                            \
         _list_->flag = cmc_flags.OK;                                           \
                                                                                \
-        if (_list_->callbacks && _list_->callbacks->delete)                    \
+        if (_list_->callbacks && _list_->callbacks->enabled &&                 \
+            _list_->callbacks->delete)                                         \
             _list_->callbacks->delete ();                                      \
                                                                                \
         return true;                                                           \
@@ -455,7 +460,8 @@ static const char *cmc_string_fmt_list = "struct %s<%s> "
         _list_->buffer[--_list_->count] = (V){ 0 };                            \
         _list_->flag = cmc_flags.OK;                                           \
                                                                                \
-        if (_list_->callbacks && _list_->callbacks->delete)                    \
+        if (_list_->callbacks && _list_->callbacks->enabled &&                 \
+            _list_->callbacks->delete)                                         \
             _list_->callbacks->delete ();                                      \
                                                                                \
         return true;                                                           \
@@ -483,7 +489,8 @@ static const char *cmc_string_fmt_list = "struct %s<%s> "
         _list_->count += size;                                                 \
         _list_->flag = cmc_flags.OK;                                           \
                                                                                \
-        if (_list_->callbacks && _list_->callbacks->create)                    \
+        if (_list_->callbacks && _list_->callbacks->enabled &&                 \
+            _list_->callbacks->create)                                         \
             _list_->callbacks->create();                                       \
                                                                                \
         return true;                                                           \
@@ -523,7 +530,8 @@ static const char *cmc_string_fmt_list = "struct %s<%s> "
         _list_->count += size;                                                 \
         _list_->flag = cmc_flags.OK;                                           \
                                                                                \
-        if (_list_->callbacks && _list_->callbacks->create)                    \
+        if (_list_->callbacks && _list_->callbacks->enabled &&                 \
+            _list_->callbacks->create)                                         \
             _list_->callbacks->create();                                       \
                                                                                \
         return true;                                                           \
@@ -548,7 +556,8 @@ static const char *cmc_string_fmt_list = "struct %s<%s> "
         _list_->count += size;                                                 \
         _list_->flag = cmc_flags.OK;                                           \
                                                                                \
-        if (_list_->callbacks && _list_->callbacks->create)                    \
+        if (_list_->callbacks && _list_->callbacks->enabled &&                 \
+            _list_->callbacks->create)                                         \
             _list_->callbacks->create();                                       \
                                                                                \
         return true;                                                           \
@@ -579,7 +588,8 @@ static const char *cmc_string_fmt_list = "struct %s<%s> "
         _list_->count -= to - from + 1;                                        \
         _list_->flag = cmc_flags.OK;                                           \
                                                                                \
-        if (_list_->callbacks && _list_->callbacks->delete)                    \
+        if (_list_->callbacks && _list_->callbacks->enabled &&                 \
+            _list_->callbacks->delete)                                         \
             _list_->callbacks->delete ();                                      \
                                                                                \
         return true;                                                           \
@@ -624,7 +634,8 @@ static const char *cmc_string_fmt_list = "struct %s<%s> "
                                                                                \
         _list_->flag = cmc_flags.OK;                                           \
                                                                                \
-        if (_list_->callbacks && _list_->callbacks->delete)                    \
+        if (_list_->callbacks && _list_->callbacks->enabled &&                 \
+            _list_->callbacks->enabled && _list_->callbacks->delete)           \
             _list_->callbacks->delete ();                                      \
                                                                                \
         return result;                                                         \
@@ -640,7 +651,8 @@ static const char *cmc_string_fmt_list = "struct %s<%s> "
                                                                                \
         _list_->flag = cmc_flags.OK;                                           \
                                                                                \
-        if (_list_->callbacks && _list_->callbacks->read)                      \
+        if (_list_->callbacks && _list_->callbacks->enabled &&                 \
+            _list_->callbacks->read)                                           \
             _list_->callbacks->read();                                         \
                                                                                \
         return _list_->buffer[0];                                              \
@@ -662,7 +674,8 @@ static const char *cmc_string_fmt_list = "struct %s<%s> "
                                                                                \
         _list_->flag = cmc_flags.OK;                                           \
                                                                                \
-        if (_list_->callbacks && _list_->callbacks->read)                      \
+        if (_list_->callbacks && _list_->callbacks->enabled &&                 \
+            _list_->callbacks->read)                                           \
             _list_->callbacks->read();                                         \
                                                                                \
         return _list_->buffer[index];                                          \
@@ -684,7 +697,8 @@ static const char *cmc_string_fmt_list = "struct %s<%s> "
                                                                                \
         _list_->flag = cmc_flags.OK;                                           \
                                                                                \
-        if (_list_->callbacks && _list_->callbacks->read)                      \
+        if (_list_->callbacks && _list_->callbacks->enabled &&                 \
+            _list_->callbacks->read)                                           \
             _list_->callbacks->read();                                         \
                                                                                \
         return &(_list_->buffer[index]);                                       \
@@ -700,7 +714,8 @@ static const char *cmc_string_fmt_list = "struct %s<%s> "
                                                                                \
         _list_->flag = cmc_flags.OK;                                           \
                                                                                \
-        if (_list_->callbacks && _list_->callbacks->read)                      \
+        if (_list_->callbacks && _list_->callbacks->enabled &&                 \
+            _list_->callbacks->read)                                           \
             _list_->callbacks->read();                                         \
                                                                                \
         return _list_->buffer[_list_->count - 1];                              \
@@ -735,7 +750,8 @@ static const char *cmc_string_fmt_list = "struct %s<%s> "
             }                                                                  \
         }                                                                      \
                                                                                \
-        if (_list_->callbacks && _list_->callbacks->read)                      \
+        if (_list_->callbacks && _list_->callbacks->enabled &&                 \
+            _list_->callbacks->read)                                           \
             _list_->callbacks->read();                                         \
                                                                                \
         return result;                                                         \
@@ -756,7 +772,8 @@ static const char *cmc_string_fmt_list = "struct %s<%s> "
             }                                                                  \
         }                                                                      \
                                                                                \
-        if (_list_->callbacks && _list_->callbacks->read)                      \
+        if (_list_->callbacks && _list_->callbacks->enabled &&                 \
+            _list_->callbacks->read)                                           \
             _list_->callbacks->read();                                         \
                                                                                \
         return result;                                                         \
@@ -819,7 +836,8 @@ static const char *cmc_string_fmt_list = "struct %s<%s> "
         _list_->buffer = new_buffer;                                           \
         _list_->capacity = capacity;                                           \
                                                                                \
-        if (_list_->callbacks && _list_->callbacks->resize)                    \
+        if (_list_->callbacks && _list_->callbacks->enabled &&                 \
+            _list_->callbacks->resize)                                         \
             _list_->callbacks->resize();                                       \
                                                                                \
         return true;                                                           \
