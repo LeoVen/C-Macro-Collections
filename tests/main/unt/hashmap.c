@@ -640,6 +640,43 @@ CMC_CREATE_UNIT(hashmap_test, true, {
         cmc_assert(hm_contains(map, 1));
         cmc_assert_equals(int32_t, 5, total_read);
 
+        cmc_assert(hm_resize(map, 10000));
+        cmc_assert_equals(int32_t, 1, total_resize);
+
+        cmc_assert(hm_resize(map, 500));
+        cmc_assert_equals(int32_t, 2, total_resize);
+
+        cmc_assert_equals(int32_t, 2, total_create);
+        cmc_assert_equals(int32_t, 5, total_read);
+        cmc_assert_equals(int32_t, 1, total_update);
+        cmc_assert_equals(int32_t, 1, total_delete);
+        cmc_assert_equals(int32_t, 2, total_resize);
+
+        hm_customize(map, NULL, NULL);
+
+        cmc_assert_equals(ptr, NULL, map->callbacks);
+
+        hm_clear(map);
+        cmc_assert(hm_insert(map, 1, 2));
+        cmc_assert(hm_update(map, 1, 10, NULL));
+        cmc_assert(hm_remove(map, 1, NULL));
+        cmc_assert(hm_insert(map, 1, 2));
+        cmc_assert(hm_max(map, NULL, NULL));
+        cmc_assert(hm_min(map, NULL, NULL));
+        cmc_assert_equals(size_t, 2, hm_get(map, 1));
+        cmc_assert_not_equals(ptr, NULL, hm_get_ref(map, 1));
+        cmc_assert(hm_contains(map, 1));
+        cmc_assert(hm_resize(map, 10000));
+        cmc_assert(hm_resize(map, 500));
+
+        cmc_assert_equals(int32_t, 2, total_create);
+        cmc_assert_equals(int32_t, 5, total_read);
+        cmc_assert_equals(int32_t, 1, total_update);
+        cmc_assert_equals(int32_t, 1, total_delete);
+        cmc_assert_equals(int32_t, 2, total_resize);
+
+        cmc_assert_equals(ptr, NULL, map->callbacks);
+
         hm_free(map);
     });
 });

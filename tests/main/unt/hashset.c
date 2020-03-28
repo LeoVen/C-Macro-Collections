@@ -510,6 +510,40 @@ CMC_CREATE_UNIT(hashset_test, true, {
         cmc_assert(hs_contains(set, 1));
         cmc_assert_equals(int32_t, 3, total_read);
 
+        cmc_assert(hs_resize(set, 10000));
+        cmc_assert_equals(int32_t, 1, total_resize);
+
+        cmc_assert(hs_resize(set, 500));
+        cmc_assert_equals(int32_t, 2, total_resize);
+
+        cmc_assert_equals(int32_t, 2, total_create);
+        cmc_assert_equals(int32_t, 3, total_read);
+        cmc_assert_equals(int32_t, 0, total_update);
+        cmc_assert_equals(int32_t, 1, total_delete);
+        cmc_assert_equals(int32_t, 2, total_resize);
+
+        hs_customize(set, NULL, NULL);
+
+        cmc_assert_equals(ptr, NULL, set->callbacks);
+
+        hs_clear(set);
+        cmc_assert(hs_resize(set, 10000));
+        cmc_assert(hs_resize(set, 500));
+        cmc_assert(hs_insert(set, 1));
+        cmc_assert(hs_remove(set, 1));
+        cmc_assert(hs_insert(set, 1));
+        cmc_assert(hs_max(set, NULL));
+        cmc_assert(hs_min(set, NULL));
+        cmc_assert(hs_contains(set, 1));
+
+        cmc_assert_equals(int32_t, 2, total_create);
+        cmc_assert_equals(int32_t, 3, total_read);
+        cmc_assert_equals(int32_t, 0, total_update);
+        cmc_assert_equals(int32_t, 1, total_delete);
+        cmc_assert_equals(int32_t, 2, total_resize);
+
+        cmc_assert_equals(ptr, NULL, set->callbacks);
+
         hs_free(set);
     });
 });

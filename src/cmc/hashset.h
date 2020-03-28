@@ -367,11 +367,12 @@ static const char *cmc_string_fmt_hashset = "struct %s<%s> "
     void PFX##_customize(struct SNAME *_set_, struct cmc_alloc_node *alloc,    \
                          struct cmc_callbacks *callbacks)                      \
     {                                                                          \
-        if (alloc)                                                             \
+        if (!alloc)                                                            \
+            _set_->alloc = &cmc_alloc_node_default;                            \
+        else                                                                   \
             _set_->alloc = alloc;                                              \
                                                                                \
-        if (callbacks)                                                         \
-            _set_->callbacks = callbacks;                                      \
+        _set_->callbacks = callbacks;                                          \
                                                                                \
         _set_->flag = cmc_flags.OK;                                            \
     }                                                                          \
@@ -435,8 +436,7 @@ static const char *cmc_string_fmt_hashset = "struct %s<%s> "
         _set_->count++;                                                        \
         _set_->flag = cmc_flags.OK;                                            \
                                                                                \
-        if (_set_->callbacks && _set_->callbacks->enabled &&                   \
-            _set_->callbacks->create)                                          \
+        if (_set_->callbacks && _set_->callbacks->create)                      \
             _set_->callbacks->create();                                        \
                                                                                \
         return true;                                                           \
@@ -465,8 +465,7 @@ static const char *cmc_string_fmt_hashset = "struct %s<%s> "
         _set_->count--;                                                        \
         _set_->flag = cmc_flags.OK;                                            \
                                                                                \
-        if (_set_->callbacks && _set_->callbacks->enabled &&                   \
-            _set_->callbacks->delete)                                          \
+        if (_set_->callbacks && _set_->callbacks->delete)                      \
             _set_->callbacks->delete ();                                       \
                                                                                \
         return true;                                                           \
@@ -501,8 +500,7 @@ static const char *cmc_string_fmt_hashset = "struct %s<%s> "
                                                                                \
         _set_->flag = cmc_flags.OK;                                            \
                                                                                \
-        if (_set_->callbacks && _set_->callbacks->enabled &&                   \
-            _set_->callbacks->read)                                            \
+        if (_set_->callbacks && _set_->callbacks->read)                        \
             _set_->callbacks->read();                                          \
                                                                                \
         return true;                                                           \
@@ -537,8 +535,7 @@ static const char *cmc_string_fmt_hashset = "struct %s<%s> "
                                                                                \
         _set_->flag = cmc_flags.OK;                                            \
                                                                                \
-        if (_set_->callbacks && _set_->callbacks->enabled &&                   \
-            _set_->callbacks->read)                                            \
+        if (_set_->callbacks && _set_->callbacks->read)                        \
             _set_->callbacks->read();                                          \
                                                                                \
         return true;                                                           \
@@ -550,8 +547,7 @@ static const char *cmc_string_fmt_hashset = "struct %s<%s> "
                                                                                \
         bool result = PFX##_impl_get_entry(_set_, element) != NULL;            \
                                                                                \
-        if (_set_->callbacks && _set_->callbacks->enabled &&                   \
-            _set_->callbacks->read)                                            \
+        if (_set_->callbacks && _set_->callbacks->read)                        \
             _set_->callbacks->read();                                          \
                                                                                \
         return result;                                                         \
@@ -614,9 +610,9 @@ static const char *cmc_string_fmt_hashset = "struct %s<%s> "
             return false;                                                      \
         }                                                                      \
                                                                                \
-        struct SNAME *_new_set_ =                                              \
-            PFX##_new_custom(capacity, _set_->load, _set_->f_val,              \
-                             _set_->alloc, _set_->callbacks);                  \
+        /* No callbacks since _new_set_ is just a temporary hashtable */       \
+        struct SNAME *_new_set_ = PFX##_new_custom(                            \
+            capacity, _set_->load, _set_->f_val, _set_->alloc, NULL);          \
                                                                                \
         if (!_new_set_)                                                        \
         {                                                                      \
@@ -625,9 +621,6 @@ static const char *cmc_string_fmt_hashset = "struct %s<%s> "
         }                                                                      \
                                                                                \
         struct SNAME##_iter iter;                                              \
-                                                                               \
-        if (_set_->callbacks)                                                  \
-            _set_->callbacks->enabled = false;                                 \
                                                                                \
         /* TODO turn this into a normal loop */                                \
         for (PFX##_iter_init(&iter, _set_); !PFX##_iter_end(&iter);            \
@@ -639,12 +632,12 @@ static const char *cmc_string_fmt_hashset = "struct %s<%s> "
             PFX##_insert(_new_set_, value);                                    \
         }                                                                      \
                                                                                \
-        if (_set_->callbacks)                                                  \
-            _set_->callbacks->enabled = true;                                  \
-                                                                               \
+        /* Unlikely */                                                         \
         if (_set_->count != _new_set_->count)                                  \
         {                                                                      \
             PFX##_free(_new_set_);                                             \
+                                                                               \
+            _set_->flag = cmc_flags.ERROR;                                     \
             return false;                                                      \
         }                                                                      \
                                                                                \
@@ -660,8 +653,7 @@ static const char *cmc_string_fmt_hashset = "struct %s<%s> "
                                                                                \
     success:                                                                   \
                                                                                \
-        if (_set_->callbacks && _set_->callbacks->enabled &&                   \
-            _set_->callbacks->resize)                                          \
+        if (_set_->callbacks && _set_->callbacks->resize)                      \
             _set_->callbacks->resize();                                        \
                                                                                \
         return true;                                                           \
@@ -768,9 +760,10 @@ static const char *cmc_string_fmt_hashset = "struct %s<%s> "
                                                                                \
     struct SNAME *PFX##_union(struct SNAME *_set1_, struct SNAME *_set2_)      \
     {                                                                          \
+        /* Callbacks are added later */                                        \
         struct SNAME *_set_r_ =                                                \
             PFX##_new_custom(_set1_->capacity, _set1_->load, _set1_->f_val,    \
-                             _set1_->alloc, _set1_->callbacks);                \
+                             _set1_->alloc, NULL);                             \
                                                                                \
         if (!_set_r_)                                                          \
         {                                                                      \
@@ -782,9 +775,6 @@ static const char *cmc_string_fmt_hashset = "struct %s<%s> "
         struct SNAME##_iter iter1, iter2;                                      \
         PFX##_iter_init(&iter1, _set1_);                                       \
         PFX##_iter_init(&iter2, _set2_);                                       \
-                                                                               \
-        if (_set_r_->callbacks)                                                \
-            _set_r_->callbacks->enabled = false;                               \
                                                                                \
         /* TODO turn this into a normal loop and check for errors */           \
         for (PFX##_iter_to_start(&iter1); !PFX##_iter_end(&iter1);             \
@@ -799,8 +789,7 @@ static const char *cmc_string_fmt_hashset = "struct %s<%s> "
             PFX##_insert(_set_r_, PFX##_iter_value(&iter2));                   \
         }                                                                      \
                                                                                \
-        if (_set_r_->callbacks)                                                \
-            _set_r_->callbacks->enabled = true;                                \
+        _set_r_->callbacks = _set1_->callbacks;                                \
                                                                                \
         return _set_r_;                                                        \
     }                                                                          \
@@ -808,9 +797,10 @@ static const char *cmc_string_fmt_hashset = "struct %s<%s> "
     struct SNAME *PFX##_intersection(struct SNAME *_set1_,                     \
                                      struct SNAME *_set2_)                     \
     {                                                                          \
+        /* Callbacks are added later */                                        \
         struct SNAME *_set_r_ =                                                \
             PFX##_new_custom(_set1_->capacity, _set1_->load, _set1_->f_val,    \
-                             _set1_->alloc, _set1_->callbacks);                \
+                             _set1_->alloc, NULL);                             \
                                                                                \
         if (!_set_r_)                                                          \
         {                                                                      \
@@ -826,9 +816,6 @@ static const char *cmc_string_fmt_hashset = "struct %s<%s> "
         struct SNAME##_iter iter;                                              \
         PFX##_iter_init(&iter, _set_A_);                                       \
                                                                                \
-        if (_set_r_->callbacks)                                                \
-            _set_r_->callbacks->enabled = false;                               \
-                                                                               \
         for (PFX##_iter_to_start(&iter); !PFX##_iter_end(&iter);               \
              PFX##_iter_next(&iter))                                           \
         {                                                                      \
@@ -838,17 +825,17 @@ static const char *cmc_string_fmt_hashset = "struct %s<%s> "
                 PFX##_insert(_set_r_, value);                                  \
         }                                                                      \
                                                                                \
-        if (_set_r_->callbacks)                                                \
-            _set_r_->callbacks->enabled = true;                                \
+        _set_r_->callbacks = _set1_->callbacks;                                \
                                                                                \
         return _set_r_;                                                        \
     }                                                                          \
                                                                                \
     struct SNAME *PFX##_difference(struct SNAME *_set1_, struct SNAME *_set2_) \
     {                                                                          \
+        /* Callbacks are added later */                                        \
         struct SNAME *_set_r_ =                                                \
             PFX##_new_custom(_set1_->capacity, _set1_->load, _set1_->f_val,    \
-                             _set1_->alloc, _set1_->callbacks);                \
+                             _set1_->alloc, NULL);                             \
                                                                                \
         if (!_set_r_)                                                          \
         {                                                                      \
@@ -860,9 +847,6 @@ static const char *cmc_string_fmt_hashset = "struct %s<%s> "
         struct SNAME##_iter iter;                                              \
         PFX##_iter_init(&iter, _set1_);                                        \
                                                                                \
-        if (_set_r_->callbacks)                                                \
-            _set_r_->callbacks->enabled = false;                               \
-                                                                               \
         for (PFX##_iter_to_start(&iter); !PFX##_iter_end(&iter);               \
              PFX##_iter_next(&iter))                                           \
         {                                                                      \
@@ -872,8 +856,7 @@ static const char *cmc_string_fmt_hashset = "struct %s<%s> "
                 PFX##_insert(_set_r_, value);                                  \
         }                                                                      \
                                                                                \
-        if (_set_r_->callbacks)                                                \
-            _set_r_->callbacks->enabled = true;                                \
+        _set_r_->callbacks = _set1_->callbacks;                                \
                                                                                \
         return _set_r_;                                                        \
     }                                                                          \
@@ -881,11 +864,10 @@ static const char *cmc_string_fmt_hashset = "struct %s<%s> "
     struct SNAME *PFX##_symmetric_difference(struct SNAME *_set1_,             \
                                              struct SNAME *_set2_)             \
     {                                                                          \
-        struct SNAME##_iter iter1, iter2;                                      \
-                                                                               \
+        /* Callbacks are added later */                                        \
         struct SNAME *_set_r_ =                                                \
             PFX##_new_custom(_set1_->capacity, _set1_->load, _set1_->f_val,    \
-                             _set1_->alloc, _set1_->callbacks);                \
+                             _set1_->alloc, NULL);                             \
                                                                                \
         if (!_set_r_)                                                          \
         {                                                                      \
@@ -894,11 +876,10 @@ static const char *cmc_string_fmt_hashset = "struct %s<%s> "
             return NULL;                                                       \
         }                                                                      \
                                                                                \
+        struct SNAME##_iter iter1, iter2;                                      \
+                                                                               \
         PFX##_iter_init(&iter1, _set1_);                                       \
         PFX##_iter_init(&iter2, _set2_);                                       \
-                                                                               \
-        if (_set_r_->callbacks)                                                \
-            _set_r_->callbacks->enabled = false;                               \
                                                                                \
         for (PFX##_iter_to_start(&iter1); !PFX##_iter_end(&iter1);             \
              PFX##_iter_next(&iter1))                                          \
@@ -918,8 +899,7 @@ static const char *cmc_string_fmt_hashset = "struct %s<%s> "
                 PFX##_insert(_set_r_, value);                                  \
         }                                                                      \
                                                                                \
-        if (_set_r_->callbacks)                                                \
-            _set_r_->callbacks->enabled = true;                                \
+        _set_r_->callbacks = _set1_->callbacks;                                \
                                                                                \
         return _set_r_;                                                        \
     }                                                                          \

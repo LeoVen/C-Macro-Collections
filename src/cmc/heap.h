@@ -333,11 +333,12 @@ static const char *cmc_string_fmt_heap = "struct %s<%s> "
     void PFX##_customize(struct SNAME *_heap_, struct cmc_alloc_node *alloc,   \
                          struct cmc_callbacks *callbacks)                      \
     {                                                                          \
-        if (alloc)                                                             \
+        if (!alloc)                                                            \
+            _heap_->alloc = &cmc_alloc_node_default;                           \
+        else                                                                   \
             _heap_->alloc = alloc;                                             \
                                                                                \
-        if (callbacks)                                                         \
-            _heap_->callbacks = callbacks;                                     \
+        _heap_->callbacks = callbacks;                                         \
                                                                                \
         _heap_->flag = cmc_flags.OK;                                           \
     }                                                                          \
@@ -359,8 +360,7 @@ static const char *cmc_string_fmt_heap = "struct %s<%s> "
                                                                                \
         _heap_->flag = cmc_flags.OK;                                           \
                                                                                \
-        if (_heap_->callbacks && _heap_->callbacks->enabled &&                 \
-            _heap_->callbacks->create)                                         \
+        if (_heap_->callbacks && _heap_->callbacks->create)                    \
             _heap_->callbacks->create();                                       \
                                                                                \
         return true;                                                           \
@@ -383,8 +383,7 @@ static const char *cmc_string_fmt_heap = "struct %s<%s> "
                                                                                \
         _heap_->flag = cmc_flags.OK;                                           \
                                                                                \
-        if (_heap_->callbacks && _heap_->callbacks->enabled &&                 \
-            _heap_->callbacks->delete)                                         \
+        if (_heap_->callbacks && _heap_->callbacks->delete)                    \
             _heap_->callbacks->delete ();                                      \
                                                                                \
         return true;                                                           \
@@ -400,8 +399,7 @@ static const char *cmc_string_fmt_heap = "struct %s<%s> "
                                                                                \
         _heap_->flag = cmc_flags.OK;                                           \
                                                                                \
-        if (_heap_->callbacks && _heap_->callbacks->enabled &&                 \
-            _heap_->callbacks->read)                                           \
+        if (_heap_->callbacks && _heap_->callbacks->read)                      \
             _heap_->callbacks->read();                                         \
                                                                                \
         return _heap_->buffer[0];                                              \
@@ -422,8 +420,7 @@ static const char *cmc_string_fmt_heap = "struct %s<%s> "
             }                                                                  \
         }                                                                      \
                                                                                \
-        if (_heap_->callbacks && _heap_->callbacks->enabled &&                 \
-            _heap_->callbacks->read)                                           \
+        if (_heap_->callbacks && _heap_->callbacks->read)                      \
             _heap_->callbacks->read();                                         \
                                                                                \
         return result;                                                         \
@@ -483,8 +480,7 @@ static const char *cmc_string_fmt_heap = "struct %s<%s> "
                                                                                \
     success:                                                                   \
                                                                                \
-        if (_heap_->callbacks && _heap_->callbacks->enabled &&                 \
-            _heap_->callbacks->resize)                                         \
+        if (_heap_->callbacks && _heap_->callbacks->resize)                    \
             _heap_->callbacks->resize();                                       \
                                                                                \
         return true;                                                           \

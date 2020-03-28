@@ -243,6 +243,7 @@ static const char *cmc_string_fmt_multiset = "struct %s<%s> "
 #define CMC_GENERATE_MULTISET_SOURCE(PFX, SNAME, V)                            \
                                                                                \
     /* Implementation Detail Functions */                                      \
+    static size_t PFX##_impl_multiplicity_of(struct SNAME *_set_, V element);  \
     static struct SNAME##_entry *PFX##_impl_insert_and_return(                 \
         struct SNAME *_set_, V element, bool *new_node);                       \
     static struct SNAME##_entry *PFX##_impl_get_entry(struct SNAME *_set_,     \
@@ -387,11 +388,12 @@ static const char *cmc_string_fmt_multiset = "struct %s<%s> "
     void PFX##_customize(struct SNAME *_set_, struct cmc_alloc_node *alloc,    \
                          struct cmc_callbacks *callbacks)                      \
     {                                                                          \
-        if (alloc)                                                             \
+        if (!alloc)                                                            \
+            _set_->alloc = &cmc_alloc_node_default;                            \
+        else                                                                   \
             _set_->alloc = alloc;                                              \
                                                                                \
-        if (callbacks)                                                         \
-            _set_->callbacks = callbacks;                                      \
+        _set_->callbacks = callbacks;                                          \
                                                                                \
         _set_->flag = cmc_flags.OK;                                            \
     }                                                                          \
@@ -415,16 +417,16 @@ static const char *cmc_string_fmt_multiset = "struct %s<%s> "
         _set_->cardinality++;                                                  \
         _set_->flag = cmc_flags.OK;                                            \
                                                                                \
+        if (_set_->callbacks && _set_->callbacks->create)                      \
+            _set_->callbacks->create();                                        \
+                                                                               \
         return true;                                                           \
     }                                                                          \
                                                                                \
     bool PFX##_insert_many(struct SNAME *_set_, V element, size_t count)       \
     {                                                                          \
         if (count == 0)                                                        \
-        {                                                                      \
-            _set_->flag = cmc_flags.OK;                                        \
-            return true;                                                       \
-        }                                                                      \
+            goto success;                                                      \
                                                                                \
         bool new_node;                                                         \
                                                                                \
@@ -443,7 +445,13 @@ static const char *cmc_string_fmt_multiset = "struct %s<%s> "
             entry->multiplicity += count;                                      \
                                                                                \
         _set_->cardinality += count;                                           \
+                                                                               \
+    success:                                                                   \
+                                                                               \
         _set_->flag = cmc_flags.OK;                                            \
+                                                                               \
+        if (_set_->callbacks && _set_->callbacks->create)                      \
+            _set_->callbacks->create();                                        \
                                                                                \
         return true;                                                           \
     }                                                                          \
@@ -456,11 +464,9 @@ static const char *cmc_string_fmt_multiset = "struct %s<%s> "
             struct SNAME##_entry *result =                                     \
                 PFX##_impl_get_entry(_set_, element);                          \
                                                                                \
-            _set_->flag = cmc_flags.OK;                                        \
-                                                                               \
             if (!result)                                                       \
                 /* If no entry was found then its multiplicity is already 0 */ \
-                return true;                                                   \
+                goto success;                                                  \
                                                                                \
             _set_->count--;                                                    \
             _set_->cardinality -= result->multiplicity;                        \
@@ -470,7 +476,7 @@ static const char *cmc_string_fmt_multiset = "struct %s<%s> "
             result->dist = 0;                                                  \
             result->state = CMC_ES_DELETED;                                    \
                                                                                \
-            return true;                                                       \
+            goto success;                                                      \
         }                                                                      \
                                                                                \
         bool new_node;                                                         \
@@ -489,7 +495,12 @@ static const char *cmc_string_fmt_multiset = "struct %s<%s> "
                                                                                \
         entry->multiplicity = multiplicity;                                    \
                                                                                \
+    success:                                                                   \
+                                                                               \
         _set_->flag = cmc_flags.OK;                                            \
+                                                                               \
+        if (_set_->callbacks && _set_->callbacks->update)                      \
+            _set_->callbacks->update();                                        \
                                                                                \
         return true;                                                           \
     }                                                                          \
@@ -525,6 +536,9 @@ static const char *cmc_string_fmt_multiset = "struct %s<%s> "
         _set_->cardinality--;                                                  \
         _set_->flag = cmc_flags.OK;                                            \
                                                                                \
+        if (_set_->callbacks && _set_->callbacks->delete)                      \
+            _set_->callbacks->delete ();                                       \
+                                                                               \
         return true;                                                           \
     }                                                                          \
                                                                                \
@@ -554,6 +568,9 @@ static const char *cmc_string_fmt_multiset = "struct %s<%s> "
         _set_->count--;                                                        \
         _set_->cardinality -= removed;                                         \
         _set_->flag = cmc_flags.OK;                                            \
+                                                                               \
+        if (_set_->callbacks && _set_->callbacks->delete)                      \
+            _set_->callbacks->delete ();                                       \
                                                                                \
         return removed;                                                        \
     }                                                                          \
@@ -587,6 +604,9 @@ static const char *cmc_string_fmt_multiset = "struct %s<%s> "
                                                                                \
         _set_->flag = cmc_flags.OK;                                            \
                                                                                \
+        if (_set_->callbacks && _set_->callbacks->read)                        \
+            _set_->callbacks->read();                                          \
+                                                                               \
         return true;                                                           \
     }                                                                          \
                                                                                \
@@ -619,6 +639,9 @@ static const char *cmc_string_fmt_multiset = "struct %s<%s> "
                                                                                \
         _set_->flag = cmc_flags.OK;                                            \
                                                                                \
+        if (_set_->callbacks && _set_->callbacks->read)                        \
+            _set_->callbacks->read();                                          \
+                                                                               \
         return true;                                                           \
     }                                                                          \
                                                                                \
@@ -627,6 +650,9 @@ static const char *cmc_string_fmt_multiset = "struct %s<%s> "
         struct SNAME##_entry *entry = PFX##_impl_get_entry(_set_, element);    \
                                                                                \
         _set_->flag = cmc_flags.OK;                                            \
+                                                                               \
+        if (_set_->callbacks && _set_->callbacks->read)                        \
+            _set_->callbacks->read();                                          \
                                                                                \
         if (!entry)                                                            \
             return 0;                                                          \
@@ -638,7 +664,12 @@ static const char *cmc_string_fmt_multiset = "struct %s<%s> "
     {                                                                          \
         _set_->flag = cmc_flags.OK;                                            \
                                                                                \
-        return PFX##_impl_get_entry(_set_, element) != NULL;                   \
+        bool result = PFX##_impl_get_entry(_set_, element) != NULL;            \
+                                                                               \
+        if (_set_->callbacks && _set_->callbacks->read)                        \
+            _set_->callbacks->read();                                          \
+                                                                               \
+        return result;                                                         \
     }                                                                          \
                                                                                \
     bool PFX##_empty(struct SNAME *_set_)                                      \
@@ -681,10 +712,10 @@ static const char *cmc_string_fmt_multiset = "struct %s<%s> "
         _set_->flag = cmc_flags.OK;                                            \
                                                                                \
         if (_set_->capacity == capacity)                                       \
-            return true;                                                       \
+            goto success;                                                      \
                                                                                \
         if (_set_->capacity > capacity / _set_->load)                          \
-            return true;                                                       \
+            goto success;                                                      \
                                                                                \
         /* Prevent integer overflow */                                         \
         if (capacity >= UINTMAX_MAX * _set_->load)                             \
@@ -703,9 +734,9 @@ static const char *cmc_string_fmt_multiset = "struct %s<%s> "
             return false;                                                      \
         }                                                                      \
                                                                                \
-        struct SNAME *_new_set_ =                                              \
-            PFX##_new_custom(capacity, _set_->load, _set_->f_val,              \
-                             _set_->alloc, _set_->callbacks);                  \
+        /* No callbacks since _new_set_ is just a temporary hashtable */       \
+        struct SNAME *_new_set_ = PFX##_new_custom(                            \
+            capacity, _set_->load, _set_->f_val, _set_->alloc, NULL);          \
                                                                                \
         if (!_new_set_)                                                        \
         {                                                                      \
@@ -715,6 +746,7 @@ static const char *cmc_string_fmt_multiset = "struct %s<%s> "
                                                                                \
         struct SNAME##_iter iter;                                              \
                                                                                \
+        /* TODO transform this into a normal loop */                           \
         for (PFX##_iter_init(&iter, _set_); !PFX##_iter_end(&iter);            \
              PFX##_iter_next(&iter))                                           \
         {                                                                      \
@@ -725,6 +757,8 @@ static const char *cmc_string_fmt_multiset = "struct %s<%s> "
         if (_set_->count != _new_set_->count)                                  \
         {                                                                      \
             PFX##_free(_new_set_);                                             \
+                                                                               \
+            _set_->flag = cmc_flags.ERROR;                                     \
             return false;                                                      \
         }                                                                      \
                                                                                \
@@ -737,6 +771,11 @@ static const char *cmc_string_fmt_multiset = "struct %s<%s> "
         _new_set_->capacity = tmp_c;                                           \
                                                                                \
         PFX##_free(_new_set_);                                                 \
+                                                                               \
+    success:                                                                   \
+                                                                               \
+        if (_set_->callbacks && _set_->callbacks->resize)                      \
+            _set_->callbacks->resize();                                        \
                                                                                \
         return true;                                                           \
     }                                                                          \
@@ -811,7 +850,7 @@ static const char *cmc_string_fmt_multiset = "struct %s<%s> "
             struct SNAME##_entry *entry =                                      \
                 PFX##_impl_get_entry(_set2_, PFX##_iter_value(&iter));         \
                                                                                \
-            if (entry == NULL)                                                 \
+            if (!entry)                                                        \
                 return false;                                                  \
                                                                                \
             if (entry->multiplicity != PFX##_iter_multiplicity(&iter))         \
@@ -852,9 +891,10 @@ static const char *cmc_string_fmt_multiset = "struct %s<%s> "
                                                                                \
     struct SNAME *PFX##_union(struct SNAME *_set1_, struct SNAME *_set2_)      \
     {                                                                          \
+        /* Callbacks are added later */                                        \
         struct SNAME *_set_r_ =                                                \
             PFX##_new_custom(_set1_->capacity, _set1_->load, _set1_->f_val,    \
-                             _set1_->alloc, _set1_->callbacks);                \
+                             _set1_->alloc, NULL);                             \
                                                                                \
         if (!_set_r_)                                                          \
             return NULL;                                                       \
@@ -869,7 +909,7 @@ static const char *cmc_string_fmt_multiset = "struct %s<%s> "
             V value = PFX##_iter_value(&iter1);                                \
                                                                                \
             size_t m1 = PFX##_iter_multiplicity(&iter1);                       \
-            size_t m2 = PFX##_multiplicity_of(_set2_, value);                  \
+            size_t m2 = PFX##_impl_multiplicity_of(_set2_, value);             \
             size_t max_ = m1 > m2 ? m1 : m2;                                   \
                                                                                \
             PFX##_update(_set_r_, value, max_);                                \
@@ -880,12 +920,14 @@ static const char *cmc_string_fmt_multiset = "struct %s<%s> "
         {                                                                      \
             V value = PFX##_iter_value(&iter2);                                \
                                                                                \
-            size_t m1 = PFX##_multiplicity_of(_set1_, value);                  \
+            size_t m1 = PFX##_impl_multiplicity_of(_set1_, value);             \
             size_t m2 = PFX##_iter_multiplicity(&iter2);                       \
             size_t max_ = m1 > m2 ? m1 : m2;                                   \
                                                                                \
             PFX##_update(_set_r_, value, max_);                                \
         }                                                                      \
+                                                                               \
+        _set_r_->callbacks = _set1_->callbacks;                                \
                                                                                \
         return _set_r_;                                                        \
     }                                                                          \
@@ -893,9 +935,10 @@ static const char *cmc_string_fmt_multiset = "struct %s<%s> "
     struct SNAME *PFX##_intersection(struct SNAME *_set1_,                     \
                                      struct SNAME *_set2_)                     \
     {                                                                          \
+        /* Callbacks are added later */                                        \
         struct SNAME *_set_r_ =                                                \
             PFX##_new_custom(_set1_->capacity, _set1_->load, _set1_->f_val,    \
-                             _set1_->alloc, _set1_->callbacks);                \
+                             _set1_->alloc, NULL);                             \
                                                                                \
         if (!_set_r_)                                                          \
             return NULL;                                                       \
@@ -913,20 +956,23 @@ static const char *cmc_string_fmt_multiset = "struct %s<%s> "
             V value = PFX##_iter_value(&iter);                                 \
                                                                                \
             size_t m1 = PFX##_iter_multiplicity(&iter);                        \
-            size_t m2 = PFX##_multiplicity_of(_set_B_, value);                 \
+            size_t m2 = PFX##_impl_multiplicity_of(_set_B_, value);            \
             size_t max_ = m1 < m2 ? m1 : m2;                                   \
                                                                                \
             PFX##_update(_set_r_, value, max_);                                \
         }                                                                      \
+                                                                               \
+        _set_r_->callbacks = _set1_->callbacks;                                \
                                                                                \
         return _set_r_;                                                        \
     }                                                                          \
                                                                                \
     struct SNAME *PFX##_difference(struct SNAME *_set1_, struct SNAME *_set2_) \
     {                                                                          \
+        /* Callbacks are added later */                                        \
         struct SNAME *_set_r_ =                                                \
             PFX##_new_custom(_set1_->capacity, _set1_->load, _set1_->f_val,    \
-                             _set1_->alloc, _set1_->callbacks);                \
+                             _set1_->alloc, NULL);                             \
                                                                                \
         if (!_set_r_)                                                          \
             return NULL;                                                       \
@@ -940,20 +986,23 @@ static const char *cmc_string_fmt_multiset = "struct %s<%s> "
             V value = PFX##_iter_value(&iter);                                 \
                                                                                \
             size_t m1 = PFX##_iter_multiplicity(&iter);                        \
-            size_t m2 = PFX##_multiplicity_of(_set2_, value);                  \
+            size_t m2 = PFX##_impl_multiplicity_of(_set2_, value);             \
                                                                                \
             if (m1 > m2)                                                       \
                 PFX##_update(_set_r_, value, m1 - m2);                         \
         }                                                                      \
+                                                                               \
+        _set_r_->callbacks = _set1_->callbacks;                                \
                                                                                \
         return _set_r_;                                                        \
     }                                                                          \
                                                                                \
     struct SNAME *PFX##_summation(struct SNAME *_set1_, struct SNAME *_set2_)  \
     {                                                                          \
+        /* Callbacks are added later */                                        \
         struct SNAME *_set_r_ =                                                \
             PFX##_new_custom(_set1_->capacity, _set1_->load, _set1_->f_val,    \
-                             _set1_->alloc, _set1_->callbacks);                \
+                             _set1_->alloc, NULL);                             \
                                                                                \
         if (!_set_r_)                                                          \
             return NULL;                                                       \
@@ -976,20 +1025,23 @@ static const char *cmc_string_fmt_multiset = "struct %s<%s> "
                               PFX##_iter_multiplicity(&iter2));                \
         }                                                                      \
                                                                                \
+        _set_r_->callbacks = _set1_->callbacks;                                \
+                                                                               \
         return _set_r_;                                                        \
     }                                                                          \
                                                                                \
     struct SNAME *PFX##_symmetric_difference(struct SNAME *_set1_,             \
                                              struct SNAME *_set2_)             \
     {                                                                          \
-        struct SNAME##_iter iter1, iter2;                                      \
-                                                                               \
+        /* Callbacks are added later */                                        \
         struct SNAME *_set_r_ =                                                \
             PFX##_new_custom(_set1_->capacity, _set1_->load, _set1_->f_val,    \
-                             _set1_->alloc, _set1_->callbacks);                \
+                             _set1_->alloc, NULL);                             \
                                                                                \
         if (!_set_r_)                                                          \
             return NULL;                                                       \
+                                                                               \
+        struct SNAME##_iter iter1, iter2;                                      \
                                                                                \
         PFX##_iter_init(&iter1, _set1_);                                       \
         PFX##_iter_init(&iter2, _set2_);                                       \
@@ -1000,7 +1052,7 @@ static const char *cmc_string_fmt_multiset = "struct %s<%s> "
             V value = PFX##_iter_value(&iter1);                                \
                                                                                \
             size_t m1 = PFX##_iter_multiplicity(&iter1);                       \
-            size_t m2 = PFX##_multiplicity_of(_set2_, value);                  \
+            size_t m2 = PFX##_impl_multiplicity_of(_set2_, value);             \
                                                                                \
             if (m1 != m2)                                                      \
             {                                                                  \
@@ -1016,7 +1068,7 @@ static const char *cmc_string_fmt_multiset = "struct %s<%s> "
         {                                                                      \
             V value = PFX##_iter_value(&iter2);                                \
                                                                                \
-            size_t m1 = PFX##_multiplicity_of(_set1_, value);                  \
+            size_t m1 = PFX##_impl_multiplicity_of(_set1_, value);             \
             size_t m2 = PFX##_iter_multiplicity(&iter2);                       \
                                                                                \
             if (m1 != m2)                                                      \
@@ -1027,6 +1079,8 @@ static const char *cmc_string_fmt_multiset = "struct %s<%s> "
                     PFX##_update(_set_r_, value, m2 - m1);                     \
             }                                                                  \
         }                                                                      \
+                                                                               \
+        _set_r_->callbacks = _set1_->callbacks;                                \
                                                                                \
         return _set_r_;                                                        \
     }                                                                          \
@@ -1049,7 +1103,7 @@ static const char *cmc_string_fmt_multiset = "struct %s<%s> "
             V value = PFX##_iter_value(&iter);                                 \
                                                                                \
             size_t m1 = PFX##_iter_multiplicity(&iter);                        \
-            size_t m2 = PFX##_multiplicity_of(_set2_, value);                  \
+            size_t m2 = PFX##_impl_multiplicity_of(_set2_, value);             \
                                                                                \
             if (m1 > m2)                                                       \
                 return false;                                                  \
@@ -1086,7 +1140,7 @@ static const char *cmc_string_fmt_multiset = "struct %s<%s> "
             V value = PFX##_iter_value(&iter);                                 \
                                                                                \
             size_t m1 = PFX##_iter_multiplicity(&iter);                        \
-            size_t m2 = PFX##_multiplicity_of(_set2_, value);                  \
+            size_t m2 = PFX##_impl_multiplicity_of(_set2_, value);             \
                                                                                \
             if (m1 >= m2)                                                      \
                 return false;                                                  \
@@ -1114,7 +1168,7 @@ static const char *cmc_string_fmt_multiset = "struct %s<%s> "
         {                                                                      \
             V value = PFX##_iter_value(&iter);                                 \
                                                                                \
-            if (PFX##_contains(_set2_, value))                                 \
+            if (PFX##_impl_get_entry(_set2_, value) != NULL)                   \
                 return false;                                                  \
         }                                                                      \
                                                                                \
@@ -1337,6 +1391,16 @@ static const char *cmc_string_fmt_multiset = "struct %s<%s> "
     size_t PFX##_iter_index(struct SNAME##_iter *iter)                         \
     {                                                                          \
         return iter->index;                                                    \
+    }                                                                          \
+                                                                               \
+    static size_t PFX##_impl_multiplicity_of(struct SNAME *_set_, V element)   \
+    {                                                                          \
+        struct SNAME##_entry *entry = PFX##_impl_get_entry(_set_, element);    \
+                                                                               \
+        if (!entry)                                                            \
+            return 0;                                                          \
+                                                                               \
+        return entry->multiplicity;                                            \
     }                                                                          \
                                                                                \
     static struct SNAME##_entry *PFX##_impl_insert_and_return(                 \

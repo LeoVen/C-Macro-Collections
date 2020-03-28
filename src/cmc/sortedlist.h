@@ -302,11 +302,12 @@ static const char *cmc_string_fmt_sortedlist = "struct %s<%s> "
     void PFX##_customize(struct SNAME *_list_, struct cmc_alloc_node *alloc,   \
                          struct cmc_callbacks *callbacks)                      \
     {                                                                          \
-        if (alloc)                                                             \
+        if (!alloc)                                                            \
+            _list_->alloc = &cmc_alloc_node_default;                           \
+        else                                                                   \
             _list_->alloc = alloc;                                             \
                                                                                \
-        if (callbacks)                                                         \
-            _list_->callbacks = callbacks;                                     \
+        _list_->callbacks = callbacks;                                         \
                                                                                \
         _list_->flag = cmc_flags.OK;                                           \
     }                                                                          \

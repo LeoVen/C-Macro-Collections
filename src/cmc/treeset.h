@@ -358,6 +358,19 @@ static const char *cmc_string_fmt_treeset = "struct %s<%s> "
         _set_->alloc->free(_set_);                                             \
     }                                                                          \
                                                                                \
+    void PFX##_customize(struct SNAME *_set_, struct cmc_alloc_node *alloc,    \
+                         struct cmc_callbacks *callbacks)                      \
+    {                                                                          \
+        if (!alloc)                                                            \
+            _set_->alloc = &cmc_alloc_node_default;                            \
+        else                                                                   \
+            _set_->alloc = alloc;                                              \
+                                                                               \
+        _set_->callbacks = callbacks;                                          \
+                                                                               \
+        _set_->flag = cmc_flags.OK;                                            \
+    }                                                                          \
+                                                                               \
     bool PFX##_insert(struct SNAME *_set_, V element)                          \
     {                                                                          \
         if (PFX##_empty(_set_))                                                \

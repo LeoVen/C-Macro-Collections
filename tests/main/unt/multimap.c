@@ -272,4 +272,97 @@ CMC_CREATE_UNIT(multimap_test, true, {
         mm_free(map);
         mm_free(map2);
     });
+
+    CMC_CREATE_TEST(callbacks, {
+        struct multimap *map =
+            mm_new_custom(100, 0.8, mm_ftab_key, mm_ftab_val, NULL, callbacks);
+
+        total_create = 0;
+        total_read = 0;
+        total_update = 0;
+        total_delete = 0;
+        total_resize = 0;
+
+        cmc_assert(mm_insert(map, 1, 1));
+        cmc_assert_equals(int32_t, 1, total_create);
+
+        cmc_assert(mm_update(map, 1, 2, NULL));
+        cmc_assert_equals(int32_t, 1, total_update);
+
+        cmc_assert(mm_insert(map, 1, 1));
+        cmc_assert_equals(int32_t, 2, total_create);
+
+        cmc_assert_equals(size_t, 2, mm_update_all(map, 1, 3, NULL));
+        cmc_assert_equals(int32_t, 2, total_update);
+
+        cmc_assert(mm_remove(map, 1, NULL));
+        cmc_assert_equals(int32_t, 1, total_delete);
+
+        cmc_assert(mm_insert(map, 1, 2));
+        cmc_assert_equals(int32_t, 3, total_create);
+
+        cmc_assert_equals(size_t, 2, mm_remove_all(map, 1, NULL));
+        cmc_assert_equals(int32_t, 2, total_delete);
+
+        cmc_assert(mm_insert(map, 1, 2));
+        cmc_assert_equals(int32_t, 4, total_create);
+
+        cmc_assert(mm_max(map, NULL, NULL));
+        cmc_assert_equals(int32_t, 1, total_read);
+
+        cmc_assert(mm_min(map, NULL, NULL));
+        cmc_assert_equals(int32_t, 2, total_read);
+
+        cmc_assert_equals(size_t, 2, mm_get(map, 1));
+        cmc_assert_equals(int32_t, 3, total_read);
+
+        cmc_assert_not_equals(ptr, NULL, mm_get_ref(map, 1));
+        cmc_assert_equals(int32_t, 4, total_read);
+
+        cmc_assert(mm_contains(map, 1));
+        cmc_assert_equals(int32_t, 5, total_read);
+
+        cmc_assert(mm_resize(map, 1000));
+        cmc_assert_equals(int32_t, 1, total_resize);
+
+        cmc_assert(mm_resize(map, 100));
+        cmc_assert_equals(int32_t, 2, total_resize);
+
+        cmc_assert_equals(int32_t, 4, total_create);
+        cmc_assert_equals(int32_t, 5, total_read);
+        cmc_assert_equals(int32_t, 2, total_update);
+        cmc_assert_equals(int32_t, 2, total_delete);
+        cmc_assert_equals(int32_t, 2, total_resize);
+
+        mm_customize(map, NULL, NULL);
+
+        cmc_assert_equals(ptr, NULL, map->callbacks);
+
+        mm_clear(map);
+        cmc_assert(mm_insert(map, 1, 1));
+        cmc_assert(mm_update(map, 1, 2, NULL));
+        cmc_assert(mm_insert(map, 1, 1));
+        cmc_assert_equals(size_t, 2, mm_update_all(map, 1, 3, NULL));
+        cmc_assert(mm_remove(map, 1, NULL));
+        cmc_assert(mm_insert(map, 1, 2));
+        cmc_assert_equals(size_t, 2, mm_remove_all(map, 1, NULL));
+        cmc_assert(mm_insert(map, 1, 2));
+        cmc_assert(mm_max(map, NULL, NULL));
+        cmc_assert(mm_min(map, NULL, NULL));
+        cmc_assert_equals(size_t, 2, mm_get(map, 1));
+        cmc_assert_not_equals(ptr, NULL, mm_get_ref(map, 1));
+        cmc_assert(mm_contains(map, 1));
+        cmc_assert(mm_resize(map, 1000));
+        cmc_assert(mm_resize(map, 100));
+
+        cmc_assert_equals(int32_t, 4, total_create);
+        cmc_assert_equals(int32_t, 5, total_read);
+        cmc_assert_equals(int32_t, 2, total_update);
+        cmc_assert_equals(int32_t, 2, total_delete);
+        cmc_assert_equals(int32_t, 2, total_resize);
+
+        cmc_assert_equals(ptr, NULL, map->callbacks);
+
+        mm_free(map);
+    });
 });

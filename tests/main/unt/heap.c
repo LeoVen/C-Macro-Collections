@@ -255,6 +255,33 @@ CMC_CREATE_UNIT(heap_test, true, {
         cmc_assert(h_resize(h, 100));
         cmc_assert_equals(int32_t, 2, total_resize);
 
+        cmc_assert_equals(int32_t, 2, total_create);
+        cmc_assert_equals(int32_t, 2, total_read);
+        cmc_assert_equals(int32_t, 0, total_update);
+        cmc_assert_equals(int32_t, 1, total_delete);
+        cmc_assert_equals(int32_t, 2, total_resize);
+
+        h_customize(h, NULL, NULL);
+
+        cmc_assert_equals(ptr, NULL, h->callbacks);
+
+        h_clear(h);
+        cmc_assert(h_insert(h, 10));
+        cmc_assert(h_remove(h));
+        cmc_assert(h_insert(h, 10));
+        cmc_assert_equals(size_t, 10, h_peek(h));
+        cmc_assert(h_contains(h, 10));
+        cmc_assert(h_resize(h, 1000));
+        cmc_assert(h_resize(h, 100));
+
+        cmc_assert_equals(int32_t, 2, total_create);
+        cmc_assert_equals(int32_t, 2, total_read);
+        cmc_assert_equals(int32_t, 0, total_update);
+        cmc_assert_equals(int32_t, 1, total_delete);
+        cmc_assert_equals(int32_t, 2, total_resize);
+
+        cmc_assert_equals(ptr, NULL, h->callbacks);
+
         h_free(h);
     });
 });

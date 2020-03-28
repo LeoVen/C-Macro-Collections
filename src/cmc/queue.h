@@ -334,11 +334,12 @@ static const char *cmc_string_fmt_queue = "struct %s<%s> "
     void PFX##_customize(struct SNAME *_queue_, struct cmc_alloc_node *alloc,  \
                          struct cmc_callbacks *callbacks)                      \
     {                                                                          \
-        if (alloc)                                                             \
+        if (!alloc)                                                            \
+            _queue_->alloc = &cmc_alloc_node_default;                          \
+        else                                                                   \
             _queue_->alloc = alloc;                                            \
                                                                                \
-        if (callbacks)                                                         \
-            _queue_->callbacks = callbacks;                                    \
+        _queue_->callbacks = callbacks;                                        \
                                                                                \
         _queue_->flag = cmc_flags.OK;                                          \
     }                                                                          \

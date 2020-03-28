@@ -375,6 +375,18 @@ static const char *cmc_string_fmt_treemap = "struct %s<%s, %s> "
                                                                                \
         _map_->alloc->free(_map_);                                             \
     }                                                                          \
+    void PFX##_customize(struct SNAME *_map_, struct cmc_alloc_node *alloc,    \
+                         struct cmc_callbacks *callbacks)                      \
+    {                                                                          \
+        if (!alloc)                                                            \
+            _map_->alloc = &cmc_alloc_node_default;                            \
+        else                                                                   \
+            _map_->alloc = alloc;                                              \
+                                                                               \
+        _map_->callbacks = callbacks;                                          \
+                                                                               \
+        _map_->flag = cmc_flags.OK;                                            \
+    }                                                                          \
                                                                                \
     bool PFX##_insert(struct SNAME *_map_, K key, V value)                     \
     {                                                                          \

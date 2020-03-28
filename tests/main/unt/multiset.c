@@ -262,4 +262,85 @@ CMC_CREATE_UNIT(multiset_test, true, {
         ms_free(set);
         ms_free(set2);
     });
+
+    CMC_CREATE_TEST(callbacks, {
+        struct multiset *set =
+            ms_new_custom(100, 0.8, ms_ftab_val, NULL, callbacks);
+
+        total_create = 0;
+        total_read = 0;
+        total_update = 0;
+        total_delete = 0;
+        total_resize = 0;
+
+        cmc_assert(ms_insert(set, 1));
+        cmc_assert_equals(int32_t, 1, total_create);
+
+        cmc_assert(ms_insert_many(set, 1, 3));
+        cmc_assert_equals(int32_t, 2, total_create);
+
+        cmc_assert(ms_update(set, 1, 0));
+        cmc_assert_equals(int32_t, 1, total_update);
+
+        cmc_assert(ms_update(set, 1, 10));
+        cmc_assert_equals(int32_t, 2, total_update);
+
+        cmc_assert(ms_remove(set, 1));
+        cmc_assert_equals(int32_t, 1, total_delete);
+
+        cmc_assert(ms_remove_all(set, 1));
+        cmc_assert_equals(int32_t, 2, total_delete);
+
+        cmc_assert(ms_update(set, 1, 10));
+        cmc_assert_equals(int32_t, 3, total_update);
+
+        cmc_assert(ms_max(set, NULL));
+        cmc_assert_equals(int32_t, 1, total_read);
+
+        cmc_assert(ms_min(set, NULL));
+        cmc_assert_equals(int32_t, 2, total_read);
+
+        cmc_assert(ms_contains(set, 1));
+        cmc_assert_equals(int32_t, 3, total_read);
+
+        cmc_assert(ms_resize(set, 1000));
+        cmc_assert_equals(int32_t, 1, total_resize);
+
+        cmc_assert(ms_resize(set, 100));
+        cmc_assert_equals(int32_t, 2, total_resize);
+
+        cmc_assert_equals(int32_t, 2, total_create);
+        cmc_assert_equals(int32_t, 3, total_read);
+        cmc_assert_equals(int32_t, 3, total_update);
+        cmc_assert_equals(int32_t, 2, total_delete);
+        cmc_assert_equals(int32_t, 2, total_resize);
+
+        ms_customize(set, NULL, NULL);
+
+        cmc_assert_equals(ptr, NULL, set->callbacks);
+
+        ms_clear(set);
+        cmc_assert(ms_insert(set, 1));
+        cmc_assert(ms_insert_many(set, 1, 3));
+        cmc_assert(ms_update(set, 1, 0));
+        cmc_assert(ms_update(set, 1, 10));
+        cmc_assert(ms_remove(set, 1));
+        cmc_assert(ms_remove_all(set, 1));
+        cmc_assert(ms_update(set, 1, 10));
+        cmc_assert(ms_max(set, NULL));
+        cmc_assert(ms_min(set, NULL));
+        cmc_assert(ms_contains(set, 1));
+        cmc_assert(ms_resize(set, 1000));
+        cmc_assert(ms_resize(set, 100));
+
+        cmc_assert_equals(int32_t, 2, total_create);
+        cmc_assert_equals(int32_t, 3, total_read);
+        cmc_assert_equals(int32_t, 3, total_update);
+        cmc_assert_equals(int32_t, 2, total_delete);
+        cmc_assert_equals(int32_t, 2, total_resize);
+
+        cmc_assert_equals(ptr, NULL, set->callbacks);
+
+        ms_free(set);
+    });
 });

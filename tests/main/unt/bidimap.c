@@ -543,6 +543,8 @@ CMC_CREATE_UNIT(bidimap_test, true, {
         cmc_assert_equals(int32_t, 2, total_delete);
 
         cmc_assert(bm_insert(map, 1, 2));
+        cmc_assert_equals(int32_t, 3, total_create);
+
         cmc_assert_equals(size_t, 1, bm_get_key(map, 2));
         cmc_assert_equals(int32_t, 1, total_read);
 
@@ -560,6 +562,39 @@ CMC_CREATE_UNIT(bidimap_test, true, {
 
         cmc_assert(bm_contains_val(map, 2));
         cmc_assert_equals(int32_t, 4, total_read);
+
+        cmc_assert_equals(int32_t, 3, total_create);
+        cmc_assert_equals(int32_t, 4, total_read);
+        cmc_assert_equals(int32_t, 2, total_update);
+        cmc_assert_equals(int32_t, 2, total_delete);
+        cmc_assert_equals(int32_t, 2, total_resize);
+
+        bm_customize(map, NULL, NULL);
+
+        cmc_assert_equals(ptr, NULL, map->callbacks);
+
+        bm_clear(map);
+        cmc_assert(bm_insert(map, 10, 10));
+        cmc_assert(bm_update_key(map, 10, 5));
+        cmc_assert(bm_update_val(map, 5, 5));
+        cmc_assert(bm_insert(map, 10, 10));
+        cmc_assert(bm_remove_by_key(map, 5, NULL, NULL));
+        cmc_assert(bm_remove_by_val(map, 10, NULL, NULL));
+        cmc_assert(bm_insert(map, 1, 2));
+        cmc_assert_equals(size_t, 1, bm_get_key(map, 2));
+        cmc_assert_equals(size_t, 2, bm_get_val(map, 1));
+        cmc_assert(bm_resize(map, 1000));
+        cmc_assert(bm_resize(map, 200));
+        cmc_assert(bm_contains_key(map, 1));
+        cmc_assert(bm_contains_val(map, 2));
+
+        cmc_assert_equals(int32_t, 3, total_create);
+        cmc_assert_equals(int32_t, 4, total_read);
+        cmc_assert_equals(int32_t, 2, total_update);
+        cmc_assert_equals(int32_t, 2, total_delete);
+        cmc_assert_equals(int32_t, 2, total_resize);
+
+        cmc_assert_equals(ptr, NULL, map->callbacks);
 
         bm_free(map);
     });

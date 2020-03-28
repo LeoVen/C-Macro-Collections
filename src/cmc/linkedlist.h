@@ -320,11 +320,12 @@ static const char *cmc_string_fmt_linkedlist = "struct %s<%s> "
     void PFX##_customize(struct SNAME *_list_, struct cmc_alloc_node *alloc,   \
                          struct cmc_callbacks *callbacks)                      \
     {                                                                          \
-        if (alloc)                                                             \
+        if (!alloc)                                                            \
+            _list_->alloc = &cmc_alloc_node_default;                           \
+        else                                                                   \
             _list_->alloc = alloc;                                             \
                                                                                \
-        if (callbacks)                                                         \
-            _list_->callbacks = callbacks;                                     \
+        _list_->callbacks = callbacks;                                         \
                                                                                \
         _list_->flag = cmc_flags.OK;                                           \
     }                                                                          \
@@ -351,8 +352,7 @@ static const char *cmc_string_fmt_linkedlist = "struct %s<%s> "
         _list_->count++;                                                       \
         _list_->flag = cmc_flags.OK;                                           \
                                                                                \
-        if (_list_->callbacks && _list_->callbacks->enabled &&                 \
-            _list_->callbacks->create)                                         \
+        if (_list_->callbacks && _list_->callbacks->create)                    \
             _list_->callbacks->create();                                       \
                                                                                \
         return true;                                                           \
@@ -390,8 +390,7 @@ static const char *cmc_string_fmt_linkedlist = "struct %s<%s> "
         _list_->count++;                                                       \
         _list_->flag = cmc_flags.OK;                                           \
                                                                                \
-        if (_list_->callbacks && _list_->callbacks->enabled &&                 \
-            _list_->callbacks->create)                                         \
+        if (_list_->callbacks && _list_->callbacks->create)                    \
             _list_->callbacks->create();                                       \
                                                                                \
         return true;                                                           \
@@ -419,8 +418,7 @@ static const char *cmc_string_fmt_linkedlist = "struct %s<%s> "
         _list_->count++;                                                       \
         _list_->flag = cmc_flags.OK;                                           \
                                                                                \
-        if (_list_->callbacks && _list_->callbacks->enabled &&                 \
-            _list_->callbacks->create)                                         \
+        if (_list_->callbacks && _list_->callbacks->create)                    \
             _list_->callbacks->create();                                       \
                                                                                \
         return true;                                                           \
@@ -447,8 +445,7 @@ static const char *cmc_string_fmt_linkedlist = "struct %s<%s> "
         _list_->count--;                                                       \
         _list_->flag = cmc_flags.OK;                                           \
                                                                                \
-        if (_list_->callbacks && _list_->callbacks->enabled &&                 \
-            _list_->callbacks->delete)                                         \
+        if (_list_->callbacks && _list_->callbacks->delete)                    \
             _list_->callbacks->delete ();                                      \
                                                                                \
         return true;                                                           \
@@ -490,8 +487,7 @@ static const char *cmc_string_fmt_linkedlist = "struct %s<%s> "
         _list_->count--;                                                       \
         _list_->flag = cmc_flags.OK;                                           \
                                                                                \
-        if (_list_->callbacks && _list_->callbacks->enabled &&                 \
-            _list_->callbacks->delete)                                         \
+        if (_list_->callbacks && _list_->callbacks->delete)                    \
             _list_->callbacks->delete ();                                      \
                                                                                \
         return true;                                                           \
@@ -518,8 +514,7 @@ static const char *cmc_string_fmt_linkedlist = "struct %s<%s> "
         _list_->count--;                                                       \
         _list_->flag = cmc_flags.OK;                                           \
                                                                                \
-        if (_list_->callbacks && _list_->callbacks->enabled &&                 \
-            _list_->callbacks->delete)                                         \
+        if (_list_->callbacks && _list_->callbacks->delete)                    \
             _list_->callbacks->delete ();                                      \
                                                                                \
         return true;                                                           \
@@ -535,8 +530,7 @@ static const char *cmc_string_fmt_linkedlist = "struct %s<%s> "
                                                                                \
         _list_->flag = cmc_flags.OK;                                           \
                                                                                \
-        if (_list_->callbacks && _list_->callbacks->enabled &&                 \
-            _list_->callbacks->read)                                           \
+        if (_list_->callbacks && _list_->callbacks->read)                      \
             _list_->callbacks->read();                                         \
                                                                                \
         return _list_->head->value;                                            \
@@ -561,8 +555,7 @@ static const char *cmc_string_fmt_linkedlist = "struct %s<%s> "
         if (scan == NULL)                                                      \
             return (V){ 0 };                                                   \
                                                                                \
-        if (_list_->callbacks && _list_->callbacks->enabled &&                 \
-            _list_->callbacks->read)                                           \
+        if (_list_->callbacks && _list_->callbacks->read)                      \
             _list_->callbacks->read();                                         \
                                                                                \
         return scan->value;                                                    \
@@ -587,8 +580,7 @@ static const char *cmc_string_fmt_linkedlist = "struct %s<%s> "
         if (scan == NULL)                                                      \
             return NULL;                                                       \
                                                                                \
-        if (_list_->callbacks && _list_->callbacks->enabled &&                 \
-            _list_->callbacks->read)                                           \
+        if (_list_->callbacks && _list_->callbacks->read)                      \
             _list_->callbacks->read();                                         \
                                                                                \
         return &(scan->value);                                                 \
@@ -604,8 +596,7 @@ static const char *cmc_string_fmt_linkedlist = "struct %s<%s> "
                                                                                \
         _list_->flag = cmc_flags.OK;                                           \
                                                                                \
-        if (_list_->callbacks && _list_->callbacks->enabled &&                 \
-            _list_->callbacks->read)                                           \
+        if (_list_->callbacks && _list_->callbacks->read)                      \
             _list_->callbacks->read();                                         \
                                                                                \
         return _list_->tail->value;                                            \
@@ -630,8 +621,7 @@ static const char *cmc_string_fmt_linkedlist = "struct %s<%s> "
             scan = scan->next;                                                 \
         }                                                                      \
                                                                                \
-        if (_list_->callbacks && _list_->callbacks->enabled &&                 \
-            _list_->callbacks->read)                                           \
+        if (_list_->callbacks && _list_->callbacks->read)                      \
             _list_->callbacks->read();                                         \
                                                                                \
         return result;                                                         \

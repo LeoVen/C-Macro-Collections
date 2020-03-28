@@ -293,11 +293,12 @@ static const char *cmc_string_fmt_stack = "struct %s<%s> "
     void PFX##_customize(struct SNAME *_stack_, struct cmc_alloc_node *alloc, \
                          struct cmc_callbacks *callbacks)                     \
     {                                                                         \
-        if (alloc)                                                            \
+        if (!alloc)                                                           \
+            _stack_->alloc = &cmc_alloc_node_default;                         \
+        else                                                                  \
             _stack_->alloc = alloc;                                           \
                                                                               \
-        if (callbacks)                                                        \
-            _stack_->callbacks = callbacks;                                   \
+        _stack_->callbacks = callbacks;                                       \
                                                                               \
         _stack_->flag = cmc_flags.OK;                                         \
     }                                                                         \

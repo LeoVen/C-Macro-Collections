@@ -542,13 +542,13 @@ CMC_CREATE_UNIT(list_test, true, {
         cmc_assert(l_contains(l, 10));
         cmc_assert_equals(int32_t, 5, total_read);
 
-        cmc_assert(l_seq_push_front(l, (size_t[]) {7, 8, 9}, 3));
+        cmc_assert(l_seq_push_front(l, (size_t[]){ 7, 8, 9 }, 3));
         cmc_assert_equals(int32_t, 5, total_create);
 
-        cmc_assert(l_seq_push_back(l, (size_t[]) {14, 15, 16}, 3));
+        cmc_assert(l_seq_push_back(l, (size_t[]){ 14, 15, 16 }, 3));
         cmc_assert_equals(int32_t, 6, total_create);
 
-        cmc_assert(l_seq_push_at(l, (size_t[]) {11, 12, 13}, 3, 4));
+        cmc_assert(l_seq_push_at(l, (size_t[]){ 11, 12, 13 }, 3, 4));
         cmc_assert_equals(int32_t, 7, total_create);
 
         cmc_assert(l_seq_pop_at(l, 1, 4));
@@ -557,7 +557,53 @@ CMC_CREATE_UNIT(list_test, true, {
         struct list *l2 = l_seq_sublist(l, 0, 4);
         cmc_assert_equals(int32_t, 5, total_delete);
 
+        cmc_assert(l_resize(l, 1000));
+        cmc_assert_equals(int32_t, 1, total_resize);
+
+        cmc_assert(l_resize(l2, 1000));
+        cmc_assert_equals(int32_t, 2, total_resize);
+
+        cmc_assert_equals(int32_t, 7, total_create);
+        cmc_assert_equals(int32_t, 5, total_read);
+        cmc_assert_equals(int32_t, 0, total_update);
+        cmc_assert_equals(int32_t, 5, total_delete);
+        cmc_assert_equals(int32_t, 2, total_resize);
+
+        l_customize(l, NULL, NULL);
+
+        cmc_assert_equals(ptr, NULL, l->callbacks);
+
+        l_clear(l);
+        cmc_assert(l_push_front(l, 10));
+        cmc_assert(l_push_back(l, 10));
+        cmc_assert(l_push_at(l, 10, 1));
+        cmc_assert(l_pop_at(l, 1));
+        cmc_assert(l_pop_front(l));
+        cmc_assert(l_pop_back(l));
+        cmc_assert(l_push_back(l, 10));
+        cmc_assert_equals(size_t, 10, l_front(l));
+        cmc_assert_equals(size_t, 10, l_back(l));
+        cmc_assert_equals(size_t, 10, l_get(l, 0));
+        cmc_assert_not_equals(ptr, NULL, l_get_ref(l, 0));
+        cmc_assert(l_contains(l, 10));
+        cmc_assert(l_seq_push_front(l, (size_t[]){ 7, 8, 9 }, 3));
+        cmc_assert(l_seq_push_back(l, (size_t[]){ 14, 15, 16 }, 3));
+        cmc_assert(l_seq_push_at(l, (size_t[]){ 11, 12, 13 }, 3, 4));
+        cmc_assert(l_seq_pop_at(l, 1, 4));
+        struct list *l3 = l_seq_sublist(l, 0, 4);
+        cmc_assert(l_resize(l, 1000));
+        cmc_assert(l_resize(l3, 1000));
+
+        cmc_assert_equals(int32_t, 7, total_create);
+        cmc_assert_equals(int32_t, 5, total_read);
+        cmc_assert_equals(int32_t, 0, total_update);
+        cmc_assert_equals(int32_t, 5, total_delete);
+        cmc_assert_equals(int32_t, 2, total_resize);
+
+        cmc_assert_equals(ptr, NULL, l->callbacks);
+
         l_free(l);
         l_free(l2);
+        l_free(l3);
     });
 })

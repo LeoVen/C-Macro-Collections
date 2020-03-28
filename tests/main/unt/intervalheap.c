@@ -308,6 +308,39 @@ CMC_CREATE_UNIT(intervalheap_test, true, {
         cmc_assert(ih_resize(ih, 50));
         cmc_assert_equals(int32_t, 2, total_resize);
 
+        cmc_assert_equals(int32_t, 4, total_create);
+        cmc_assert_equals(int32_t, 3, total_read);
+        cmc_assert_equals(int32_t, 2, total_update);
+        cmc_assert_equals(int32_t, 2, total_delete);
+        cmc_assert_equals(int32_t, 2, total_resize);
+
+        ih_customize(ih, NULL, NULL);
+
+        cmc_assert_equals(ptr, NULL, ih->callbacks);
+
+        ih_clear(ih);
+        cmc_assert(ih_insert(ih, 10));
+        cmc_assert(ih_remove_max(ih));
+        cmc_assert(ih_insert(ih, 10));
+        cmc_assert(ih_remove_min(ih));
+        cmc_assert(ih_insert(ih, 1));
+        cmc_assert(ih_insert(ih, 2));
+        cmc_assert(ih_update_max(ih, 1));
+        cmc_assert(ih_update_min(ih, 2));
+        cmc_assert_equals(size_t, 2, ih_max(ih));
+        cmc_assert_equals(size_t, 1, ih_min(ih));
+        cmc_assert(ih_contains(ih, 1));
+        cmc_assert(ih_resize(ih, 1000));
+        cmc_assert(ih_resize(ih, 50));
+
+        cmc_assert_equals(int32_t, 4, total_create);
+        cmc_assert_equals(int32_t, 3, total_read);
+        cmc_assert_equals(int32_t, 2, total_update);
+        cmc_assert_equals(int32_t, 2, total_delete);
+        cmc_assert_equals(int32_t, 2, total_resize);
+
+        cmc_assert_equals(ptr, NULL, ih->callbacks);
+
         ih_free(ih);
     });
 });

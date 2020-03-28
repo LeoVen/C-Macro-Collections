@@ -456,11 +456,12 @@ static const char *cmc_string_fmt_multimap = "struct %s<%s, %s> "
     void PFX##_customize(struct SNAME *_map_, struct cmc_alloc_node *alloc,    \
                          struct cmc_callbacks *callbacks)                      \
     {                                                                          \
-        if (alloc)                                                             \
+        if (!alloc)                                                            \
+            _map_->alloc = &cmc_alloc_node_default;                            \
+        else                                                                   \
             _map_->alloc = alloc;                                              \
                                                                                \
-        if (callbacks)                                                         \
-            _map_->callbacks = callbacks;                                      \
+        _map_->callbacks = callbacks;                                          \
                                                                                \
         _map_->flag = cmc_flags.OK;                                            \
     }                                                                          \
@@ -494,6 +495,9 @@ static const char *cmc_string_fmt_multimap = "struct %s<%s, %s> "
         _map_->count++;                                                        \
         _map_->flag = cmc_flags.OK;                                            \
                                                                                \
+        if (_map_->callbacks && _map_->callbacks->create)                      \
+            _map_->callbacks->create();                                        \
+                                                                               \
         return true;                                                           \
     }                                                                          \
                                                                                \
@@ -519,6 +523,9 @@ static const char *cmc_string_fmt_multimap = "struct %s<%s, %s> "
         entry->value = new_value;                                              \
                                                                                \
         _map_->flag = cmc_flags.OK;                                            \
+                                                                               \
+        if (_map_->callbacks && _map_->callbacks->update)                      \
+            _map_->callbacks->update();                                        \
                                                                                \
         return true;                                                           \
     }                                                                          \
@@ -579,6 +586,9 @@ static const char *cmc_string_fmt_multimap = "struct %s<%s, %s> "
         }                                                                      \
                                                                                \
         _map_->flag = cmc_flags.OK;                                            \
+                                                                               \
+        if (_map_->callbacks && _map_->callbacks->update)                      \
+            _map_->callbacks->update();                                        \
                                                                                \
         return index;                                                          \
     }                                                                          \
@@ -662,6 +672,9 @@ static const char *cmc_string_fmt_multimap = "struct %s<%s, %s> "
                                                                                \
         _map_->count--;                                                        \
         _map_->flag = cmc_flags.OK;                                            \
+                                                                               \
+        if (_map_->callbacks && _map_->callbacks->delete)                      \
+            _map_->callbacks->delete ();                                       \
                                                                                \
         return true;                                                           \
     }                                                                          \
@@ -754,6 +767,9 @@ static const char *cmc_string_fmt_multimap = "struct %s<%s, %s> "
         _map_->count -= index;                                                 \
         _map_->flag = cmc_flags.OK;                                            \
                                                                                \
+        if (_map_->callbacks && _map_->callbacks->delete)                      \
+            _map_->callbacks->delete ();                                       \
+                                                                               \
         return index;                                                          \
     }                                                                          \
                                                                                \
@@ -770,6 +786,7 @@ static const char *cmc_string_fmt_multimap = "struct %s<%s, %s> "
                                                                                \
         struct SNAME##_iter iter;                                              \
                                                                                \
+        /* TODO Turn this into a normal loop */                                \
         for (PFX##_iter_init(&iter, _map_); !PFX##_iter_end(&iter);            \
              PFX##_iter_next(&iter))                                           \
         {                                                                      \
@@ -796,6 +813,9 @@ static const char *cmc_string_fmt_multimap = "struct %s<%s, %s> "
                                                                                \
         _map_->flag = cmc_flags.OK;                                            \
                                                                                \
+        if (_map_->callbacks && _map_->callbacks->read)                        \
+            _map_->callbacks->read();                                          \
+                                                                               \
         return true;                                                           \
     }                                                                          \
                                                                                \
@@ -812,6 +832,7 @@ static const char *cmc_string_fmt_multimap = "struct %s<%s, %s> "
                                                                                \
         struct SNAME##_iter iter;                                              \
                                                                                \
+        /* TODO Turn this into a normal loop */                                \
         for (PFX##_iter_init(&iter, _map_); !PFX##_iter_end(&iter);            \
              PFX##_iter_next(&iter))                                           \
         {                                                                      \
@@ -838,6 +859,9 @@ static const char *cmc_string_fmt_multimap = "struct %s<%s, %s> "
                                                                                \
         _map_->flag = cmc_flags.OK;                                            \
                                                                                \
+        if (_map_->callbacks && _map_->callbacks->read)                        \
+            _map_->callbacks->read();                                          \
+                                                                               \
         return true;                                                           \
     }                                                                          \
                                                                                \
@@ -858,6 +882,9 @@ static const char *cmc_string_fmt_multimap = "struct %s<%s, %s> "
         }                                                                      \
                                                                                \
         _map_->flag = cmc_flags.OK;                                            \
+                                                                               \
+        if (_map_->callbacks && _map_->callbacks->read)                        \
+            _map_->callbacks->read();                                          \
                                                                                \
         return entry->value;                                                   \
     }                                                                          \
@@ -880,6 +907,9 @@ static const char *cmc_string_fmt_multimap = "struct %s<%s, %s> "
                                                                                \
         _map_->flag = cmc_flags.OK;                                            \
                                                                                \
+        if (_map_->callbacks && _map_->callbacks->read)                        \
+            _map_->callbacks->read();                                          \
+                                                                               \
         return &(entry->value);                                                \
     }                                                                          \
                                                                                \
@@ -887,7 +917,12 @@ static const char *cmc_string_fmt_multimap = "struct %s<%s, %s> "
     {                                                                          \
         _map_->flag = cmc_flags.OK;                                            \
                                                                                \
-        return PFX##_impl_get_entry(_map_, key) != NULL;                       \
+        bool result = PFX##_impl_get_entry(_map_, key) != NULL;                \
+                                                                               \
+        if (_map_->callbacks && _map_->callbacks->read)                        \
+            _map_->callbacks->read();                                          \
+                                                                               \
+        return result;                                                         \
     }                                                                          \
                                                                                \
     bool PFX##_empty(struct SNAME *_map_)                                      \
@@ -930,10 +965,10 @@ static const char *cmc_string_fmt_multimap = "struct %s<%s, %s> "
         _map_->flag = cmc_flags.OK;                                            \
                                                                                \
         if (_map_->capacity == capacity)                                       \
-            return true;                                                       \
+            goto success;                                                      \
                                                                                \
         if (_map_->capacity > capacity / _map_->load)                          \
-            return true;                                                       \
+            goto success;                                                      \
                                                                                \
         /* Prevent integer overflow */                                         \
         if (capacity >= UINTMAX_MAX * _map_->load)                             \
@@ -952,9 +987,10 @@ static const char *cmc_string_fmt_multimap = "struct %s<%s, %s> "
             return false;                                                      \
         }                                                                      \
                                                                                \
+        /* No callbacks since _new_map_ is just a temporary hashtable */       \
         struct SNAME *_new_map_ =                                              \
             PFX##_new_custom(capacity, _map_->load, _map_->f_key,              \
-                             _map_->f_val, _map_->alloc, _map_->callbacks);    \
+                             _map_->f_val, _map_->alloc, NULL);                \
                                                                                \
         if (!_new_map_)                                                        \
         {                                                                      \
@@ -964,12 +1000,14 @@ static const char *cmc_string_fmt_multimap = "struct %s<%s, %s> "
                                                                                \
         struct SNAME##_iter iter;                                              \
                                                                                \
+        /* TODO Turn this into a normal loop */                                \
         for (PFX##_iter_init(&iter, _map_); !PFX##_iter_end(&iter);            \
              PFX##_iter_next(&iter))                                           \
         {                                                                      \
             K key = PFX##_iter_key(&iter);                                     \
             V value = PFX##_iter_value(&iter);                                 \
                                                                                \
+            /* TODO check for errors */                                        \
             PFX##_insert(_new_map_, key, value);                               \
         }                                                                      \
                                                                                \
@@ -991,14 +1029,20 @@ static const char *cmc_string_fmt_multimap = "struct %s<%s, %s> "
                                                                                \
         PFX##_free(_new_map_);                                                 \
                                                                                \
+    success:                                                                   \
+                                                                               \
+        if (_map_->callbacks && _map_->callbacks->resize)                      \
+            _map_->callbacks->resize();                                        \
+                                                                               \
         return true;                                                           \
     }                                                                          \
                                                                                \
     struct SNAME *PFX##_copy_of(struct SNAME *_map_)                           \
     {                                                                          \
-        struct SNAME *result = PFX##_new_custom(                               \
-            _map_->capacity * _map_->load, _map_->load, _map_->f_key,          \
-            _map_->f_val, _map_->alloc, _map_->callbacks);                     \
+        /* Callback will be added later */                                     \
+        struct SNAME *result =                                                 \
+            PFX##_new_custom(_map_->capacity * _map_->load, _map_->load,       \
+                             _map_->f_key, _map_->f_val, _map_->alloc, NULL);  \
                                                                                \
         if (!result)                                                           \
         {                                                                      \
@@ -1011,6 +1055,7 @@ static const char *cmc_string_fmt_multimap = "struct %s<%s, %s> "
                                                                                \
         if (!PFX##_empty(_map_))                                               \
         {                                                                      \
+            /* TODO Turn this into a normal loop */                            \
             for (PFX##_iter_to_start(&iter); !PFX##_iter_end(&iter);           \
                  PFX##_iter_next(&iter))                                       \
             {                                                                  \
@@ -1022,10 +1067,12 @@ static const char *cmc_string_fmt_multimap = "struct %s<%s, %s> "
                 if (_map_->f_val->cpy)                                         \
                     value = _map_->f_val->cpy(value);                          \
                                                                                \
+                /* TODO check for errors */                                    \
                 PFX##_insert(result, key, value);                              \
             }                                                                  \
         }                                                                      \
                                                                                \
+        result->callbacks = _map_->callbacks;                                  \
         _map_->flag = cmc_flags.OK;                                            \
                                                                                \
         return result;                                                         \
@@ -1042,6 +1089,7 @@ static const char *cmc_string_fmt_multimap = "struct %s<%s, %s> "
         struct SNAME##_iter iter;                                              \
         PFX##_iter_init(&iter, _map1_);                                        \
                                                                                \
+        /* TODO Turn this into a normal loop */                                \
         for (PFX##_iter_to_start(&iter); !PFX##_iter_end(&iter);               \
              PFX##_iter_next(&iter))                                           \
         {                                                                      \

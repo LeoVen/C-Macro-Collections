@@ -772,6 +772,44 @@ CMC_CREATE_UNIT(deque_test, true, {
         cmc_assert(!d_contains(d, 1));
         cmc_assert_equals(int32_t, 4, total_read);
 
+        cmc_assert(d_resize(d, 1000));
+        cmc_assert_equals(int32_t, 1, total_resize);
+
+        cmc_assert(d_resize(d, 10));
+        cmc_assert_equals(int32_t, 2, total_resize);
+
+        cmc_assert_equals(int32_t, 4, total_create);
+        cmc_assert_equals(int32_t, 4, total_read);
+        cmc_assert_equals(int32_t, 0, total_update);
+        cmc_assert_equals(int32_t, 2, total_delete);
+        cmc_assert_equals(int32_t, 2, total_resize);
+
+        d_customize(d, NULL, NULL);
+
+        cmc_assert_equals(ptr, NULL, d->callbacks);
+
+        d_clear(d);
+        cmc_assert(d_push_front(d, 10));
+        cmc_assert(d_push_back(d, 10));
+        cmc_assert(d_pop_front(d));
+        cmc_assert(d_pop_back(d));
+        cmc_assert(d_push_front(d, 10));
+        cmc_assert(d_push_front(d, 5));
+        cmc_assert_equals(size_t, 5, d_front(d));
+        cmc_assert_equals(size_t, 10, d_back(d));
+        cmc_assert(d_contains(d, 10));
+        cmc_assert(!d_contains(d, 1));
+        cmc_assert(d_resize(d, 1000));
+        cmc_assert(d_resize(d, 10));
+
+        cmc_assert_equals(int32_t, 4, total_create);
+        cmc_assert_equals(int32_t, 4, total_read);
+        cmc_assert_equals(int32_t, 0, total_update);
+        cmc_assert_equals(int32_t, 2, total_delete);
+        cmc_assert_equals(int32_t, 2, total_resize);
+
+        cmc_assert_equals(ptr, NULL, d->callbacks);
+
         d_free(d);
     });
 });
