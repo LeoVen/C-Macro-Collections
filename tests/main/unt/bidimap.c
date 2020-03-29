@@ -597,5 +597,11 @@ CMC_CREATE_UNIT(bidimap_test, true, {
         cmc_assert_equals(ptr, NULL, map->callbacks);
 
         bm_free(map);
+
+        total_create = 0;
+        total_read = 0;
+        total_update = 0;
+        total_delete = 0;
+        total_resize = 0;
     });
 });

@@ -277,6 +277,8 @@ CMC_CREATE_UNIT(multimap_test, true, {
         struct multimap *map =
             mm_new_custom(100, 0.8, mm_ftab_key, mm_ftab_val, NULL, callbacks);
 
+        cmc_assert_not_equals(ptr, NULL, map);
+
         total_create = 0;
         total_read = 0;
         total_update = 0;
@@ -364,5 +366,11 @@ CMC_CREATE_UNIT(multimap_test, true, {
         cmc_assert_equals(ptr, NULL, map->callbacks);
 
         mm_free(map);
+
+        total_create = 0;
+        total_read = 0;
+        total_update = 0;
+        total_delete = 0;
+        total_resize = 0;
     });
 });

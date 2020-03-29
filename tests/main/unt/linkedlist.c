@@ -260,6 +260,8 @@ CMC_CREATE_UNIT(linkedlist_test, true, {
     CMC_CREATE_TEST(callbacks, {
         struct linkedlist *ll = ll_new_custom(ll_ftab_val, NULL, callbacks);
 
+        cmc_assert_not_equals(ptr, NULL, ll);
+
         total_create = 0;
         total_read = 0;
         total_update = 0;
@@ -335,5 +337,11 @@ CMC_CREATE_UNIT(linkedlist_test, true, {
         cmc_assert_equals(ptr, NULL, ll->callbacks);
 
         ll_free(ll);
+
+        total_create = 0;
+        total_read = 0;
+        total_update = 0;
+        total_delete = 0;
+        total_resize = 0;
     });
 });

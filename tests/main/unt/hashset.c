@@ -486,6 +486,8 @@ CMC_CREATE_UNIT(hashset_test, true, {
         struct hashset *set =
             hs_new_custom(100, 0.6, hs_ftab_val, NULL, callbacks);
 
+        cmc_assert_not_equals(ptr, NULL, set);
+
         total_create = 0;
         total_read = 0;
         total_update = 0;
@@ -545,5 +547,11 @@ CMC_CREATE_UNIT(hashset_test, true, {
         cmc_assert_equals(ptr, NULL, set->callbacks);
 
         hs_free(set);
+
+        total_create = 0;
+        total_read = 0;
+        total_update = 0;
+        total_delete = 0;
+        total_resize = 0;
     });
 });

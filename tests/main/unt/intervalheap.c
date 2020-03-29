@@ -265,6 +265,8 @@ CMC_CREATE_UNIT(intervalheap_test, true, {
         struct intervalheap *ih =
             ih_new_custom(100, ih_ftab_val, NULL, callbacks);
 
+        cmc_assert_not_equals(ptr, NULL, ih);
+
         total_create = 0;
         total_read = 0;
         total_update = 0;
@@ -342,5 +344,11 @@ CMC_CREATE_UNIT(intervalheap_test, true, {
         cmc_assert_equals(ptr, NULL, ih->callbacks);
 
         ih_free(ih);
+
+        total_create = 0;
+        total_read = 0;
+        total_update = 0;
+        total_delete = 0;
+        total_resize = 0;
     });
 });

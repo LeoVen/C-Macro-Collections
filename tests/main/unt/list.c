@@ -500,6 +500,8 @@ CMC_CREATE_UNIT(list_test, true, {
     CMC_CREATE_TEST(callbacks, {
         struct list *l = l_new_custom(100, l_ftab_val, NULL, callbacks);
 
+        cmc_assert_not_equals(ptr, NULL, l);
+
         total_create = 0;
         total_read = 0;
         total_update = 0;
@@ -605,5 +607,11 @@ CMC_CREATE_UNIT(list_test, true, {
         l_free(l);
         l_free(l2);
         l_free(l3);
+
+        total_create = 0;
+        total_read = 0;
+        total_update = 0;
+        total_delete = 0;
+        total_resize = 0;
     });
 })

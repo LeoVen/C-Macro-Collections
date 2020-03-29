@@ -811,5 +811,11 @@ CMC_CREATE_UNIT(deque_test, true, {
         cmc_assert_equals(ptr, NULL, d->callbacks);
 
         d_free(d);
+
+        total_create = 0;
+        total_read = 0;
+        total_update = 0;
+        total_delete = 0;
+        total_resize = 0;
     });
 });

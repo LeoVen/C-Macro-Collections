@@ -607,11 +607,7 @@ CMC_CREATE_UNIT(hashmap_test, true, {
         struct hashmap *map =
             hm_new_custom(100, 0.6, hm_ftab_key, hm_ftab_val, NULL, callbacks);
 
-        total_create = 0;
-        total_read = 0;
-        total_update = 0;
-        total_delete = 0;
-        total_resize = 0;
+        cmc_assert_not_equals(ptr, NULL, map);
 
         cmc_assert(hm_insert(map, 1, 2));
         cmc_assert_equals(int32_t, 1, total_create);
@@ -678,5 +674,11 @@ CMC_CREATE_UNIT(hashmap_test, true, {
         cmc_assert_equals(ptr, NULL, map->callbacks);
 
         hm_free(map);
+
+        total_create = 0;
+        total_read = 0;
+        total_update = 0;
+        total_delete = 0;
+        total_resize = 0;
     });
 });

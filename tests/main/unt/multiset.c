@@ -267,6 +267,8 @@ CMC_CREATE_UNIT(multiset_test, true, {
         struct multiset *set =
             ms_new_custom(100, 0.8, ms_ftab_val, NULL, callbacks);
 
+        cmc_assert_not_equals(ptr, NULL, set);
+
         total_create = 0;
         total_read = 0;
         total_update = 0;
@@ -342,5 +344,11 @@ CMC_CREATE_UNIT(multiset_test, true, {
         cmc_assert_equals(ptr, NULL, set->callbacks);
 
         ms_free(set);
+
+        total_create = 0;
+        total_read = 0;
+        total_update = 0;
+        total_delete = 0;
+        total_resize = 0;
     });
 });

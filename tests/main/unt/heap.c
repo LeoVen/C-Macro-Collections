@@ -228,6 +228,8 @@ CMC_CREATE_UNIT(heap_test, true, {
         struct heap *h =
             h_new_custom(100, cmc_max_heap, h_ftab_val, NULL, callbacks);
 
+        cmc_assert_not_equals(ptr, NULL, h);
+
         total_create = 0;
         total_read = 0;
         total_update = 0;
@@ -283,5 +285,11 @@ CMC_CREATE_UNIT(heap_test, true, {
         cmc_assert_equals(ptr, NULL, h->callbacks);
 
         h_free(h);
+
+        total_create = 0;
+        total_read = 0;
+        total_update = 0;
+        total_delete = 0;
+        total_resize = 0;
     });
 });
