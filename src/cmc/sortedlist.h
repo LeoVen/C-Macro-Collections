@@ -325,6 +325,9 @@ static const char *cmc_string_fmt_sortedlist = "struct %s<%s> "
         _list_->is_sorted = false;                                             \
         _list_->flag = cmc_flags.OK;                                           \
                                                                                \
+        if (_list_->callbacks && _list_->callbacks->create)                    \
+            _list_->callbacks->create();                                       \
+                                                                               \
         return true;                                                           \
     }                                                                          \
                                                                                \
@@ -349,6 +352,9 @@ static const char *cmc_string_fmt_sortedlist = "struct %s<%s> "
                                                                                \
         _list_->flag = cmc_flags.OK;                                           \
                                                                                \
+        if (_list_->callbacks && _list_->callbacks->delete)                    \
+            _list_->callbacks->delete ();                                      \
+                                                                               \
         return true;                                                           \
     }                                                                          \
                                                                                \
@@ -364,6 +370,9 @@ static const char *cmc_string_fmt_sortedlist = "struct %s<%s> "
                                                                                \
         _list_->flag = cmc_flags.OK;                                           \
                                                                                \
+        if (_list_->callbacks && _list_->callbacks->read)                      \
+            _list_->callbacks->read();                                         \
+                                                                               \
         return _list_->buffer[_list_->count - 1];                              \
     }                                                                          \
                                                                                \
@@ -378,6 +387,9 @@ static const char *cmc_string_fmt_sortedlist = "struct %s<%s> "
         PFX##_sort(_list_);                                                    \
                                                                                \
         _list_->flag = cmc_flags.OK;                                           \
+                                                                               \
+        if (_list_->callbacks && _list_->callbacks->read)                      \
+            _list_->callbacks->read();                                         \
                                                                                \
         return _list_->buffer[0];                                              \
     }                                                                          \
@@ -400,6 +412,9 @@ static const char *cmc_string_fmt_sortedlist = "struct %s<%s> "
                                                                                \
         _list_->flag = cmc_flags.OK;                                           \
                                                                                \
+        if (_list_->callbacks && _list_->callbacks->read)                      \
+            _list_->callbacks->read();                                         \
+                                                                               \
         return _list_->buffer[index];                                          \
     }                                                                          \
                                                                                \
@@ -408,6 +423,9 @@ static const char *cmc_string_fmt_sortedlist = "struct %s<%s> "
         _list_->flag = cmc_flags.OK;                                           \
                                                                                \
         PFX##_sort(_list_);                                                    \
+                                                                               \
+        if (_list_->callbacks && _list_->callbacks->read)                      \
+            _list_->callbacks->read();                                         \
                                                                                \
         if (from_start)                                                        \
         {                                                                      \
@@ -425,6 +443,9 @@ static const char *cmc_string_fmt_sortedlist = "struct %s<%s> "
             return false;                                                      \
                                                                                \
         PFX##_sort(_list_);                                                    \
+                                                                               \
+        if (_list_->callbacks && _list_->callbacks->read)                      \
+            _list_->callbacks->read();                                         \
                                                                                \
         return PFX##_impl_binary_search_first(_list_, element) <               \
                _list_->count;                                                  \
@@ -457,10 +478,8 @@ static const char *cmc_string_fmt_sortedlist = "struct %s<%s> "
                                                                                \
     bool PFX##_resize(struct SNAME *_list_, size_t capacity)                   \
     {                                                                          \
-        _list_->flag = cmc_flags.OK;                                           \
-                                                                               \
         if (_list_->capacity == capacity)                                      \
-            return true;                                                       \
+            goto success;                                                      \
                                                                                \
         if (capacity < _list_->count)                                          \
         {                                                                      \
@@ -481,6 +500,13 @@ static const char *cmc_string_fmt_sortedlist = "struct %s<%s> "
                                                                                \
         _list_->buffer = new_buffer;                                           \
         _list_->capacity = capacity;                                           \
+                                                                               \
+    success:                                                                   \
+                                                                               \
+        _list_->flag = cmc_flags.OK;                                           \
+                                                                               \
+        if (_list_->callbacks && _list_->callbacks->resize)                    \
+            _list_->callbacks->resize();                                       \
                                                                                \
         return true;                                                           \
     }                                                                          \

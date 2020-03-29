@@ -671,4 +671,70 @@ CMC_CREATE_UNIT(stack_test, true, {
 
         s_free(s);
     });
+
+    CMC_CREATE_TEST(callbacks, {
+        struct stack *s = s_new_custom(100, s_ftab_val, NULL, callbacks);
+
+        cmc_assert_not_equals(ptr, NULL, s);
+
+        total_create = 0;
+        total_read = 0;
+        total_update = 0;
+        total_delete = 0;
+        total_resize = 0;
+
+        cmc_assert(s_push(s, 10));
+        cmc_assert_equals(int32_t, 1, total_create);
+
+        cmc_assert(s_pop(s));
+        cmc_assert_equals(int32_t, 1, total_delete);
+
+        cmc_assert(s_push(s, 1));
+        cmc_assert_equals(int32_t, 2, total_create);
+
+        cmc_assert_equals(size_t, 1, s_top(s));
+        cmc_assert_equals(int32_t, 1, total_read);
+
+        cmc_assert(s_contains(s, 1));
+        cmc_assert_equals(int32_t, 2, total_read);
+
+        cmc_assert(s_resize(s, 1000));
+        cmc_assert_equals(int32_t, 1, total_resize);
+
+        cmc_assert(s_resize(s, 10));
+        cmc_assert_equals(int32_t, 2, total_resize);
+
+        cmc_assert_equals(int32_t, 2, total_create);
+        cmc_assert_equals(int32_t, 2, total_read);
+        cmc_assert_equals(int32_t, 0, total_update);
+        cmc_assert_equals(int32_t, 1, total_delete);
+        cmc_assert_equals(int32_t, 2, total_resize);
+
+        s_customize(s, NULL, NULL);
+
+        s_clear(s);
+        cmc_assert(s_push(s, 10));
+        cmc_assert(s_pop(s));
+        cmc_assert(s_push(s, 1));
+        cmc_assert_equals(size_t, 1, s_top(s));
+        cmc_assert(s_contains(s, 1));
+        cmc_assert(s_resize(s, 1000));
+        cmc_assert(s_resize(s, 10));
+
+        cmc_assert_equals(int32_t, 2, total_create);
+        cmc_assert_equals(int32_t, 2, total_read);
+        cmc_assert_equals(int32_t, 0, total_update);
+        cmc_assert_equals(int32_t, 1, total_delete);
+        cmc_assert_equals(int32_t, 2, total_resize);
+
+        cmc_assert_equals(ptr, NULL, s->callbacks);
+
+        s_free(s);
+
+        total_create = 0;
+        total_read = 0;
+        total_update = 0;
+        total_delete = 0;
+        total_resize = 0;
+    });
 });

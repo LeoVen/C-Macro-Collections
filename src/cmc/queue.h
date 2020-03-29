@@ -359,6 +359,9 @@ static const char *cmc_string_fmt_queue = "struct %s<%s> "
         _queue_->count++;                                                      \
         _queue_->flag = cmc_flags.OK;                                          \
                                                                                \
+        if (_queue_->callbacks && _queue_->callbacks->create)                  \
+            _queue_->callbacks->create();                                      \
+                                                                               \
         return true;                                                           \
     }                                                                          \
                                                                                \
@@ -378,6 +381,9 @@ static const char *cmc_string_fmt_queue = "struct %s<%s> "
         _queue_->count--;                                                      \
         _queue_->flag = cmc_flags.OK;                                          \
                                                                                \
+        if (_queue_->callbacks && _queue_->callbacks->delete)                  \
+            _queue_->callbacks->delete ();                                     \
+                                                                               \
         return true;                                                           \
     }                                                                          \
                                                                                \
@@ -391,6 +397,9 @@ static const char *cmc_string_fmt_queue = "struct %s<%s> "
                                                                                \
         _queue_->flag = cmc_flags.OK;                                          \
                                                                                \
+        if (_queue_->callbacks && _queue_->callbacks->read)                    \
+            _queue_->callbacks->read();                                        \
+                                                                               \
         return _queue_->buffer[_queue_->front];                                \
     }                                                                          \
                                                                                \
@@ -398,15 +407,23 @@ static const char *cmc_string_fmt_queue = "struct %s<%s> "
     {                                                                          \
         _queue_->flag = cmc_flags.OK;                                          \
                                                                                \
+        bool result = false;                                                   \
+                                                                               \
         for (size_t i = _queue_->front, j = 0; j < _queue_->count; j++)        \
         {                                                                      \
             if (_queue_->f_val->cmp(_queue_->buffer[i], element) == 0)         \
-                return true;                                                   \
+            {                                                                  \
+                result = true;                                                 \
+                break;                                                         \
+            }                                                                  \
                                                                                \
             i = (i + 1) % _queue_->capacity;                                   \
         }                                                                      \
                                                                                \
-        return false;                                                          \
+        if (_queue_->callbacks && _queue_->callbacks->read)                    \
+            _queue_->callbacks->read();                                        \
+                                                                               \
+        return result;                                                         \
     }                                                                          \
                                                                                \
     bool PFX##_empty(struct SNAME *_queue_)                                    \
@@ -436,10 +453,8 @@ static const char *cmc_string_fmt_queue = "struct %s<%s> "
                                                                                \
     bool PFX##_resize(struct SNAME *_queue_, size_t capacity)                  \
     {                                                                          \
-        _queue_->flag = cmc_flags.OK;                                          \
-                                                                               \
         if (_queue_->capacity == capacity)                                     \
-            return true;                                                       \
+            goto success;                                                      \
                                                                                \
         if (capacity < _queue_->count)                                         \
         {                                                                      \
@@ -468,6 +483,13 @@ static const char *cmc_string_fmt_queue = "struct %s<%s> "
         _queue_->capacity = capacity;                                          \
         _queue_->front = 0;                                                    \
         _queue_->back = _queue_->count;                                        \
+                                                                               \
+    success:                                                                   \
+                                                                               \
+        _queue_->flag = cmc_flags.OK;                                          \
+                                                                               \
+        if (_queue_->callbacks && _queue_->callbacks->resize)                  \
+            _queue_->callbacks->resize();                                      \
                                                                                \
         return true;                                                           \
     }                                                                          \

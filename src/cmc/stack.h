@@ -315,6 +315,9 @@ static const char *cmc_string_fmt_stack = "struct %s<%s> "
                                                                               \
         _stack_->flag = cmc_flags.OK;                                         \
                                                                               \
+        if (_stack_->callbacks && _stack_->callbacks->create)                 \
+            _stack_->callbacks->create();                                     \
+                                                                              \
         return true;                                                          \
     }                                                                         \
                                                                               \
@@ -330,6 +333,9 @@ static const char *cmc_string_fmt_stack = "struct %s<%s> "
                                                                               \
         _stack_->flag = cmc_flags.OK;                                         \
                                                                               \
+        if (_stack_->callbacks && _stack_->callbacks->delete)                 \
+            _stack_->callbacks->delete ();                                    \
+                                                                              \
         return true;                                                          \
     }                                                                         \
                                                                               \
@@ -343,6 +349,9 @@ static const char *cmc_string_fmt_stack = "struct %s<%s> "
                                                                               \
         _stack_->flag = cmc_flags.OK;                                         \
                                                                               \
+        if (_stack_->callbacks && _stack_->callbacks->read)                   \
+            _stack_->callbacks->read();                                       \
+                                                                              \
         return _stack_->buffer[_stack_->count - 1];                           \
     }                                                                         \
                                                                               \
@@ -350,13 +359,21 @@ static const char *cmc_string_fmt_stack = "struct %s<%s> "
     {                                                                         \
         _stack_->flag = cmc_flags.OK;                                         \
                                                                               \
+        bool result = false;                                                  \
+                                                                              \
         for (size_t i = 0; i < _stack_->count; i++)                           \
         {                                                                     \
             if (_stack_->f_val->cmp(_stack_->buffer[i], element) == 0)        \
-                return true;                                                  \
+            {                                                                 \
+                result = true;                                                \
+                break;                                                        \
+            }                                                                 \
         }                                                                     \
                                                                               \
-        return false;                                                         \
+        if (_stack_->callbacks && _stack_->callbacks->read)                   \
+            _stack_->callbacks->read();                                       \
+                                                                              \
+        return result;                                                        \
     }                                                                         \
                                                                               \
     bool PFX##_empty(struct SNAME *_stack_)                                   \
@@ -386,10 +403,8 @@ static const char *cmc_string_fmt_stack = "struct %s<%s> "
                                                                               \
     bool PFX##_resize(struct SNAME *_stack_, size_t capacity)                 \
     {                                                                         \
-        _stack_->flag = cmc_flags.OK;                                         \
-                                                                              \
         if (_stack_->capacity == capacity)                                    \
-            return true;                                                      \
+            goto success;                                                     \
                                                                               \
         if (capacity < _stack_->count)                                        \
         {                                                                     \
@@ -410,6 +425,13 @@ static const char *cmc_string_fmt_stack = "struct %s<%s> "
                                                                               \
         _stack_->buffer = new_buffer;                                         \
         _stack_->capacity = capacity;                                         \
+                                                                              \
+    success:                                                                  \
+                                                                              \
+        _stack_->flag = cmc_flags.OK;                                         \
+                                                                              \
+        if (_stack_->callbacks && _stack_->callbacks->resize)                 \
+            _stack_->callbacks->resize();                                     \
                                                                               \
         return true;                                                          \
     }                                                                         \
