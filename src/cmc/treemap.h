@@ -375,6 +375,7 @@ static const char *cmc_string_fmt_treemap = "struct %s<%s, %s> "
                                                                                \
         _map_->alloc->free(_map_);                                             \
     }                                                                          \
+                                                                               \
     void PFX##_customize(struct SNAME *_map_, struct cmc_alloc_node *alloc,    \
                          struct cmc_callbacks *callbacks)                      \
     {                                                                          \
@@ -452,6 +453,9 @@ static const char *cmc_string_fmt_treemap = "struct %s<%s, %s> "
         _map_->count++;                                                        \
         _map_->flag = cmc_flags.OK;                                            \
                                                                                \
+        if (_map_->callbacks && _map_->callbacks->create)                      \
+            _map_->callbacks->create();                                        \
+                                                                               \
         return true;                                                           \
     }                                                                          \
                                                                                \
@@ -471,6 +475,9 @@ static const char *cmc_string_fmt_treemap = "struct %s<%s, %s> "
         node->value = new_value;                                               \
                                                                                \
         _map_->flag = cmc_flags.OK;                                            \
+                                                                               \
+        if (_map_->callbacks && _map_->callbacks->update)                      \
+            _map_->callbacks->update();                                        \
                                                                                \
         return true;                                                           \
     }                                                                          \
@@ -602,11 +609,14 @@ static const char *cmc_string_fmt_treemap = "struct %s<%s, %s> "
         if (unbalanced != NULL)                                                \
             PFX##_impl_rebalance(_map_, unbalanced);                           \
                                                                                \
+        if (_map_->count == 0)                                                 \
+            _map_->root = NULL;                                                \
+                                                                               \
         _map_->count--;                                                        \
         _map_->flag = cmc_flags.OK;                                            \
                                                                                \
-        if (_map_->count == 0)                                                 \
-            _map_->root = NULL;                                                \
+        if (_map_->callbacks && _map_->callbacks->delete)                      \
+            _map_->callbacks->delete ();                                       \
                                                                                \
         return true;                                                           \
     }                                                                          \
@@ -631,6 +641,9 @@ static const char *cmc_string_fmt_treemap = "struct %s<%s, %s> "
                                                                                \
         _map_->flag = cmc_flags.OK;                                            \
                                                                                \
+        if (_map_->callbacks && _map_->callbacks->read)                        \
+            _map_->callbacks->read();                                          \
+                                                                               \
         return true;                                                           \
     }                                                                          \
                                                                                \
@@ -654,6 +667,9 @@ static const char *cmc_string_fmt_treemap = "struct %s<%s, %s> "
                                                                                \
         _map_->flag = cmc_flags.OK;                                            \
                                                                                \
+        if (_map_->callbacks && _map_->callbacks->read)                        \
+            _map_->callbacks->read();                                          \
+                                                                               \
         return true;                                                           \
     }                                                                          \
                                                                                \
@@ -674,6 +690,9 @@ static const char *cmc_string_fmt_treemap = "struct %s<%s, %s> "
         }                                                                      \
                                                                                \
         _map_->flag = cmc_flags.OK;                                            \
+                                                                               \
+        if (_map_->callbacks && _map_->callbacks->read)                        \
+            _map_->callbacks->read();                                          \
                                                                                \
         return node->value;                                                    \
     }                                                                          \
@@ -696,12 +715,20 @@ static const char *cmc_string_fmt_treemap = "struct %s<%s, %s> "
                                                                                \
         _map_->flag = cmc_flags.OK;                                            \
                                                                                \
+        if (_map_->callbacks && _map_->callbacks->read)                        \
+            _map_->callbacks->read();                                          \
+                                                                               \
         return &(node->value);                                                 \
     }                                                                          \
                                                                                \
     bool PFX##_contains(struct SNAME *_map_, K key)                            \
     {                                                                          \
-        return PFX##_impl_get_node(_map_, key) != NULL;                        \
+        bool result = PFX##_impl_get_node(_map_, key) != NULL;                 \
+                                                                               \
+        if (_map_->callbacks && _map_->callbacks->read)                        \
+            _map_->callbacks->read();                                          \
+                                                                               \
+        return result;                                                         \
     }                                                                          \
                                                                                \
     bool PFX##_empty(struct SNAME *_map_)                                      \
@@ -721,8 +748,9 @@ static const char *cmc_string_fmt_treemap = "struct %s<%s, %s> "
                                                                                \
     struct SNAME *PFX##_copy_of(struct SNAME *_map_)                           \
     {                                                                          \
-        struct SNAME *result = PFX##_new_custom(                               \
-            _map_->f_key, _map_->f_val, _map_->alloc, _map_->callbacks);       \
+        /* Callback will be added later */                                     \
+        struct SNAME *result =                                                 \
+            PFX##_new_custom(_map_->f_key, _map_->f_val, _map_->alloc, NULL);  \
                                                                                \
         if (!result)                                                           \
         {                                                                      \
@@ -749,6 +777,7 @@ static const char *cmc_string_fmt_treemap = "struct %s<%s, %s> "
             PFX##_insert(result, key, value);                                  \
         }                                                                      \
                                                                                \
+        result->callbacks = _map_->callbacks;                                  \
         _map_->flag = cmc_flags.OK;                                            \
                                                                                \
         return result;                                                         \

@@ -435,6 +435,9 @@ static const char *cmc_string_fmt_treeset = "struct %s<%s> "
         _set_->count++;                                                        \
         _set_->flag = cmc_flags.OK;                                            \
                                                                                \
+        if (_set_->callbacks && _set_->callbacks->create)                      \
+            _set_->callbacks->create();                                        \
+                                                                               \
         return true;                                                           \
     }                                                                          \
                                                                                \
@@ -560,11 +563,14 @@ static const char *cmc_string_fmt_treeset = "struct %s<%s> "
         if (unbalanced != NULL)                                                \
             PFX##_impl_rebalance(_set_, unbalanced);                           \
                                                                                \
+        if (_set_->count == 0)                                                 \
+            _set_->root = NULL;                                                \
+                                                                               \
         _set_->count--;                                                        \
         _set_->flag = cmc_flags.OK;                                            \
                                                                                \
-        if (_set_->count == 0)                                                 \
-            _set_->root = NULL;                                                \
+        if (_set_->callbacks && _set_->callbacks->delete)                      \
+            _set_->callbacks->delete ();                                       \
                                                                                \
         return true;                                                           \
     }                                                                          \
@@ -587,6 +593,9 @@ static const char *cmc_string_fmt_treeset = "struct %s<%s> "
                                                                                \
         _set_->flag = cmc_flags.OK;                                            \
                                                                                \
+        if (_set_->callbacks && _set_->callbacks->read)                        \
+            _set_->callbacks->read();                                          \
+                                                                               \
         return true;                                                           \
     }                                                                          \
                                                                                \
@@ -608,12 +617,20 @@ static const char *cmc_string_fmt_treeset = "struct %s<%s> "
                                                                                \
         _set_->flag = cmc_flags.OK;                                            \
                                                                                \
+        if (_set_->callbacks && _set_->callbacks->read)                        \
+            _set_->callbacks->read();                                          \
+                                                                               \
         return true;                                                           \
     }                                                                          \
                                                                                \
     bool PFX##_contains(struct SNAME *_set_, V element)                        \
     {                                                                          \
-        return PFX##_impl_get_node(_set_, element) != NULL;                    \
+        bool result = PFX##_impl_get_node(_set_, element) != NULL;             \
+                                                                               \
+        if (_set_->callbacks && _set_->callbacks->read)                        \
+            _set_->callbacks->read();                                          \
+                                                                               \
+        return result;                                                         \
     }                                                                          \
                                                                                \
     bool PFX##_empty(struct SNAME *_set_)                                      \
