@@ -1,5 +1,19 @@
 # RELEASE.MAJOR.MINOR
 
+1.8.0
+    Added Function Tables
+    Added Error Codes
+    Added Callback Functions
+    Added custom allocation functions support
+    Added .clang-format
+    Added makefile in root folder for automated code formatting
+    Created into core folder for implementation of common data structures:
+        - ./cor/core.h
+        - ./cor/hashtable.h
+    Documentation changed to mdbook
+    Removed ./utl/cmc_string.h
+    Replaced CMC_FOR_EACH and CMC_FOR_EACH_REV by CMC_FOREACH and CMC_FOREACH_REV
+
 1.7.3
     Breaking changes:
         - ext collections merged to cmc

@@ -7,15 +7,12 @@ TODO
 
 [/] Tests
 [/] Documentation
-[/] Callback utility
-    on_create, on_read, on_update, on_delete, on_resize
 
 #!! Medium Priority --------------------------------------------------------------------------------
 
 [ ] Add to_array and from_array functions
-[ ] Separate each collection unit test into their own executable
 
-#!! Low Priority -----------------------------------------------------------------------------------
+#!! Being Considered -------------------------------------------------------------------------------
 
 [ ] Serialization
     [ ] save         {all}
@@ -24,12 +21,11 @@ TODO
     [ ] deserialize  {all}
 [ ] Zip Iterators
 [ ] Consumer Iterators
-[ ] Add memory usage in the benchmark
 
 #!! Optimizations ----------------------------------------------------------------------------------
 
 [ ] Use binary search to find optimum hashtable prime size inside impl_calculate_size
-[ ] Optimize certain loops that use iterators but can simply use a normal loop
+[ ] Optimize certain loops that use iterators that can simply use a normal loop
 [ ] Replace IntervalHeap node by a simple buffer of two pointers (V (*buffer)[2])
 
 #!! Done -------------------------------------------------------------------------------------------
@@ -64,3 +60,5 @@ TODO
     (compare, copy, display, free, hash, priority)
 [X] Add error codes that can be accessed from the collection's struct
 [X] Merge bidirectional map key_buffer and val_buffer to a single buffer and make key_dist and val_dist into dist[2]
+[X] Callback utility
+    on_create, on_read, on_update, on_delete, on_resize
