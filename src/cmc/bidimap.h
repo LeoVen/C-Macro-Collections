@@ -484,6 +484,10 @@ static const char *cmc_string_fmt_bidimap = "struct %s<%s, %s> "
             return false;                                                      \
         }                                                                      \
                                                                                \
+        /* The mapping val -> new_key is already true */                       \
+        if (_map_->f_key->cmp(new_key, (*val_entry)->key) == 0)                \
+            goto success;                                                      \
+                                                                               \
         if (PFX##_impl_get_entry_by_key(_map_, new_key) != NULL)               \
         {                                                                      \
             _map_->flag = cmc_flags.DUPLICATE;                                 \
@@ -516,6 +520,8 @@ static const char *cmc_string_fmt_bidimap = "struct %s<%s, %s> "
             return false;                                                      \
         }                                                                      \
                                                                                \
+    success:                                                                   \
+                                                                               \
         _map_->flag = cmc_flags.OK;                                            \
                                                                                \
         if (_map_->callbacks && _map_->callbacks->update)                      \
@@ -541,6 +547,10 @@ static const char *cmc_string_fmt_bidimap = "struct %s<%s, %s> "
             _map_->flag = cmc_flags.NOT_FOUND;                                 \
             return false;                                                      \
         }                                                                      \
+                                                                               \
+        /* The mapping key -> new_val is already true */                       \
+        if (_map_->f_key->cmp(new_val, (*key_entry)->value) == 0)              \
+            goto success;                                                      \
                                                                                \
         if (PFX##_impl_get_entry_by_val(_map_, new_val) != NULL)               \
         {                                                                      \
@@ -574,6 +584,8 @@ static const char *cmc_string_fmt_bidimap = "struct %s<%s, %s> "
                                                                                \
             return false;                                                      \
         }                                                                      \
+                                                                               \
+    success:                                                                   \
                                                                                \
         _map_->flag = cmc_flags.OK;                                            \
                                                                                \
