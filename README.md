@@ -1,7 +1,7 @@
 # C Macro Collections
 
 <p align="center">
-    <img src="https://leoven.github.io/C-Macro-Collections/images/logo.png" alt="C Macro Collections Logo" width="300"/>
+    <img src="https://leoven.github.io/C-Macro-Collections/img/logo.png" alt="C Macro Collections Logo" width="300"/>
 </p>
 
 <p align="center">Header only, macro generated, generic and type-safe Collections in C.</p>
