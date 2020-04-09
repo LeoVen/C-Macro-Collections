@@ -2,44 +2,19 @@
 
 ## Single Value Assertion Macros
 
-* cmc_assert
-* cmc_assert_equals
-* cmc_assert_not_equals
-* cmc_assert_greater
-* cmc_assert_greater_equals
-* cmc_assert_lesser
-* cmc_assert_lesser_equals
-* cmc_assert_in_range
-* cmc_assert_not_in_range
+* __cmc_assert__ - Asserts that an expression evaluates to true;
+* __cmc_assert_equals__ - Asserts that a value from type `dtype` equals another;
+* __cmc_assert_not_equals__ - Asserts that value from type `dtype` does not equals another;
+* __cmc_assert_greater__ - Asserts that a value from type `dtype` is greater than a lower bound;
+* __cmc_assert_greater_equals__ - Asserts that a value from type `dtpype` is greater than or equal to a lower bound;
+* __cmc_assert_lesser__ - Asserts that a value from type `dtpype` is lesser than an upper bound;
+* __cmc_assert_lesser_equals__ - Asserts that a value from type `dtpype` is lesser than or equal to an upper bound;
+* __cmc_assert_in_range__ - Asserts that a value from type `dtpype` is within a certain range;
+* __cmc_assert_not_in_range__ - Asserts that a value from type `dtpype` is outside of a certain range.
 
 ## Array Assertion Macros
 
-* cmc_assert_array_equals_any
-* cmc_assert_array_within_any
-* cmc_assert_array_outside_any
-* cmc_assert_array_sorted_any
-
-## dtype
-
-These are the data types supported by the single value assertion macros:
-
-* int8_t
-* int16_t
-* int32_t
-* int64_t
-* uint8_t
-* uint16_t
-* uint32_t
-* uint64_t
-* intmax_t
-* uintmax_t
-* size_t
-* float
-* double
-
-The following two are only accepted by `cmc_assert_equals` and `cmc_assert_not_equals`:
-
-* ptr
-* bool
-
-Note that `ptr` is used for any pointers. They are first casted to `void *` and then their address is compared.
+* __cmc_assert_array_equals_any__ - Assert that two arrays are equal element by element;
+* __cmc_assert_array_within_any__ - Assert that each element in the array are within a bounds;
+* __cmc_assert_array_outside_any__ - Assert that each element in the array are out of bounds;
+* __cmc_assert_array_sorted_any__ - Assert that the array is sorted.

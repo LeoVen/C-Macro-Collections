@@ -81,7 +81,7 @@
 
         <nav id="sidebar" class="sidebar" aria-label="Table of contents">
             <div id="sidebar-scrollbox" class="sidebar-scrollbox">
-                <ol class="chapter"><li class="expanded "><a href="../../Introduction/introduction.html"><strong aria-hidden="true">1.</strong> Introduction</a></li><li><ol class="section"><li class="expanded "><a href="../../Introduction/why_this_library.html"><strong aria-hidden="true">1.1.</strong> Why this library</a></li><li class="expanded "><a href="../../Introduction/how_to_install.html"><strong aria-hidden="true">1.2.</strong> How to install</a></li><li class="expanded "><a href="../../Introduction/library_structure.html"><strong aria-hidden="true">1.3.</strong> Library structure</a></li><li class="expanded "><a href="../../Introduction/understanding_the_library.html"><strong aria-hidden="true">1.4.</strong> Understanding the library</a></li><li class="expanded "><a href="../../Introduction/how_to_use_the_library.html"><strong aria-hidden="true">1.5.</strong> How to use the library</a></li></ol></li><li class="expanded "><a href="../../Features/features.html"><strong aria-hidden="true">2.</strong> Features</a></li><li><ol class="section"><li class="expanded "><a href="../../Features/two_way_iterators.html"><strong aria-hidden="true">2.1.</strong> Two way iterators</a></li><li class="expanded "><a href="../../Features/custom_allocation.html"><strong aria-hidden="true">2.2.</strong> Custom allocation</a></li><li class="expanded "><a href="../../Features/callbacks.html"><strong aria-hidden="true">2.3.</strong> Callbacks</a></li><li class="expanded "><a href="../../Features/functions_table.html"><strong aria-hidden="true">2.4.</strong> Functions Table</a></li></ol></li><li class="expanded "><a href="../../Overview/overview.html"><strong aria-hidden="true">3.</strong> Collections Overview</a></li><li class="expanded "><a href="../../utl/utl.html"><strong aria-hidden="true">4.</strong> utl</a></li><li><ol class="section"><li class="expanded "><a href="../../utl/assert.h/index.html" class="active"><strong aria-hidden="true">4.1.</strong> assert.h</a></li><li><ol class="section"><li class="expanded "><a href="../../utl/assert.h/overview.html"><strong aria-hidden="true">4.1.1.</strong> Overview</a></li><li class="expanded "><a href="../../utl/assert.h/single_value_assertion.html"><strong aria-hidden="true">4.1.2.</strong> Single Value Assertion</a></li><li class="expanded "><a href="../../utl/assert.h/array_assertion.html"><strong aria-hidden="true">4.1.3.</strong> Array Assertion</a></li></ol></li><li class="expanded "><a href="../../utl/foreach.html"><strong aria-hidden="true">4.2.</strong> foreach.h</a></li><li class="expanded "><a href="../../utl/log.html"><strong aria-hidden="true">4.3.</strong> log.h</a></li><li class="expanded "><a href="../../utl/test.html"><strong aria-hidden="true">4.4.</strong> test.h</a></li><li class="expanded "><a href="../../utl/timer.html"><strong aria-hidden="true">4.5.</strong> timer.h</a></li></ol></li><li class="expanded "><a href="../../Examples/examples.html"><strong aria-hidden="true">5.</strong> Examples</a></li></ol>
+                <ol class="chapter"><li class="expanded "><a href="../../Introduction/introduction.html"><strong aria-hidden="true">1.</strong> Introduction</a></li><li><ol class="section"><li class="expanded "><a href="../../Introduction/why_this_library.html"><strong aria-hidden="true">1.1.</strong> Why this library</a></li><li class="expanded "><a href="../../Introduction/how_to_install.html"><strong aria-hidden="true">1.2.</strong> How to install</a></li><li class="expanded "><a href="../../Introduction/library_structure.html"><strong aria-hidden="true">1.3.</strong> Library structure</a></li><li class="expanded "><a href="../../Introduction/understanding_the_library.html"><strong aria-hidden="true">1.4.</strong> Understanding the library</a></li><li class="expanded "><a href="../../Introduction/how_to_use_the_library.html"><strong aria-hidden="true">1.5.</strong> How to use the library</a></li></ol></li><li class="expanded "><a href="../../Features/features.html"><strong aria-hidden="true">2.</strong> Features</a></li><li><ol class="section"><li class="expanded "><a href="../../Features/two_way_iterators.html"><strong aria-hidden="true">2.1.</strong> Two way iterators</a></li><li class="expanded "><a href="../../Features/custom_allocation.html"><strong aria-hidden="true">2.2.</strong> Custom allocation</a></li><li class="expanded "><a href="../../Features/callbacks.html"><strong aria-hidden="true">2.3.</strong> Callbacks</a></li><li class="expanded "><a href="../../Features/functions_table.html"><strong aria-hidden="true">2.4.</strong> Functions Table</a></li></ol></li><li class="expanded "><a href="../../Overview/overview.html"><strong aria-hidden="true">3.</strong> Collections Overview</a></li><li class="expanded "><a href="../../utl/index.html"><strong aria-hidden="true">4.</strong> utl</a></li><li><ol class="section"><li class="expanded "><a href="../../utl/assert.h/index.html" class="active"><strong aria-hidden="true">4.1.</strong> assert.h</a></li><li><ol class="section"><li class="expanded "><a href="../../utl/assert.h/overview.html"><strong aria-hidden="true">4.1.1.</strong> Overview</a></li><li class="expanded "><a href="../../utl/assert.h/valued_assertions.html"><strong aria-hidden="true">4.1.2.</strong> Valued Assertions</a></li><li class="expanded "><a href="../../utl/assert.h/generic_assertions.html"><strong aria-hidden="true">4.1.3.</strong> Generic Assertions</a></li></ol></li><li class="expanded "><a href="../../utl/foreach.h/index.html"><strong aria-hidden="true">4.2.</strong> foreach.h</a></li><li class="expanded "><a href="../../utl/log.h/index.html"><strong aria-hidden="true">4.3.</strong> log.h</a></li><li class="expanded "><a href="../../utl/test.h/index.html"><strong aria-hidden="true">4.4.</strong> test.h</a></li><li class="expanded "><a href="../../utl/timer.h/index.html"><strong aria-hidden="true">4.5.</strong> timer.h</a></li></ol></li><li class="expanded "><a href="../../Examples/examples.html"><strong aria-hidden="true">5.</strong> Examples</a></li></ol>
             </div>
             <div id="sidebar-resize-handle" class="sidebar-resize-handle"></div>
         </nav>
@@ -151,15 +151,68 @@
                         <h1><a class="header" href="#asserth" id="asserth">assert.h</a></h1>
 <p>Definition of many typed non-abortive assertions. Every assertion that fails will print a message to <code>stderr</code> but will not abort the program execution. The macro parameters are first assigned to a temporary variable of the specified <code>dtype</code> in order to generate warnings from the compiler in case of type mismatch.</p>
 <p>The advantage of these typed macros is that when an assertion fails, it is possible to print to <code>stderr</code> the actual value that was passed to the function and check the expected result(s) all in one message.</p>
-<p>There are assertions that work with a single value to be tested and others that work with arrays. Single value assertions work with a selected list of <code>dtype</code>, while the assertion with arrays work with any <code>dtype</code> that is a valid data type.</p>
-<p>The macro parameters can be an lvalue or an rvalue.</p>
+<p>There are assertions that work with <a href="valued_assertions.html">predefined values</a> and others that work with <a href="generic_assertions.html">generic values</a>. Valued assertions work with a selected list of <code>dtype</code> (see further below), while the generic assertions work with any data type.</p>
+<p>The macro parameters can be an <em>lvalue</em> or an <em>rvalue</em> because the parameters will be first assigned to local variables of the selected data type. Then, these local variables will be tested for whichever test that needs to be checked.</p>
+<p>Assigning the macro parameter to a local variable can be useful. These local variables will be of type <code>dtype</code> and if the parameters don't match that type a warning will pop up.</p>
+<p>Ever assertion is inside a block of <code>do { } while (0)</code>.</p>
+<h2><a class="header" href="#printed-messages" id="printed-messages">Printed Messages</a></h2>
+<p>Whenever an assertion fails, a message will be printed to <code>stderr</code>. The message will look something like this:</p>
+<pre><code>Assertion Failed at FILE:FUNCTION:LINE for { ACTUAL }: DETAILS
+</code></pre>
+<p>The first information is the file where that assertion failed. Then the function name and the line number. Then in place of <code>ACTUAL</code>, a stringified version of the <code>actual</code> parameter, which is the variable being checked in the assertion, will be printed.</p>
+<p>In <code>DETAILS</code> is where more information about the assertion will be printed. This is the most useful part of these macros. In here, the actual value of the variable will be printed along with the expected value or range or lower bound, etc. <strong>In here you will be able to debug your application to check the expected value(s) against the actual one.</strong></p>
+<p><strong>Example</strong></p>
+<pre><code class="language-c">#include &quot;utl/assert.h&quot;
+
+void is_one_hundred(int variable)
+{
+    cmc_assert_equals(int32_t, 100, variable);
+}
+
+int main(void)
+{
+    int my_var = 9;
+    is_one_hundred(my_var);
+}
+</code></pre>
+<p>This will print the following message:</p>
+<p><code>Assertion Failed at main.c:is_one_hundred:5 for { variable }: Expected: 100 Actual: 9</code></p>
+<h2><a class="header" href="#cmc_assert_state" id="cmc_assert_state">cmc_assert_state</a></h2>
+<p>This is a global variable that can be used to test if all assertions passed. If any assertion fails, this variable will be set to <code>false</code>. If an assertion passes this variable will <strong>not</strong> be set back to <code>true</code>. If you wish to, you can set the state back to <code>true</code> manually.</p>
+<pre><code class="language-c">static bool cmc_assert_state = true;
+</code></pre>
+<p>This variable is used in <a href="../test.h/index.html">test.h</a> utility to automatically pass or fail a unit test. Once the unit test finishes, this variable is set back to <code>true</code> so that another unit test may follow.</p>
+<h2><a class="header" href="#dtype" id="dtype">dtype</a></h2>
+<p>These are the data types supported by the Valued Assertion macros:</p>
+<ul>
+<li><code>int8_t</code></li>
+<li><code>int16_t</code></li>
+<li><code>int32_t</code></li>
+<li><code>int64_t</code></li>
+<li><code>uint8_t</code></li>
+<li><code>uint16_t</code></li>
+<li><code>uint32_t</code></li>
+<li><code>uint64_t</code></li>
+<li><code>intmax_t</code></li>
+<li><code>uintmax_t</code></li>
+<li><code>size_t</code></li>
+<li><code>float</code></li>
+<li><code>double</code></li>
+</ul>
+<p>The following two are only accepted by <code>cmc_assert_equals</code> and <code>cmc_assert_not_equals</code>:</p>
+<ul>
+<li><code>ptr</code></li>
+<li><code>bool</code></li>
+</ul>
+<p>Note that <code>ptr</code> is used for any pointers. They are first casted to <code>void *</code> and then their address is compared.</p>
+<p>Note that bool will be expanded to <code>_Bool</code>.</p>
 
                     </main>
 
                     <nav class="nav-wrapper" aria-label="Page navigation">
                         <!-- Mobile navigation buttons -->
                         
-                            <a rel="prev" href="../../utl/utl.html" class="mobile-nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                            <a rel="prev" href="../../utl/index.html" class="mobile-nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
                                 <i class="fa fa-angle-left"></i>
                             </a>
                         
@@ -177,7 +230,7 @@
 
             <nav class="nav-wide-wrapper" aria-label="Page navigation">
                 
-                    <a href="../../utl/utl.html" class="nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                    <a href="../../utl/index.html" class="nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
                         <i class="fa fa-angle-left"></i>
                     </a>
                 
