@@ -1,226 +1,651 @@
 #include <cmc/bidimap.h>
 
-//CMC_GENERATE_BIDIMAP(bm, bidimap, size_t, size_t)
+// CMC_GENERATE_BIDIMAP(bm, bidimap, size_t, size_t)
 
-typedef struct bidimap_s
+struct bidimap
 {
-    struct bidimap_entry_s **key_buffer;
-    struct bidimap_entry_s **val_buffer;
+    struct bidimap_entry *(*buffer)[2];
     size_t capacity;
     size_t count;
     double load;
-    int (*key_cmp)(size_t, size_t);
-    int (*val_cmp)(size_t, size_t);
-    size_t (*key_hash)(size_t);
-    size_t (*val_hash)(size_t);
-    struct bidimap_iter_s (*it_start)(struct bidimap_s *);
-    struct bidimap_iter_s (*it_end)(struct bidimap_s *);
-} bidimap, *bidimap_ptr;
-typedef struct bidimap_entry_s
+    int flag;
+    struct bidimap_ftab_key *f_key;
+    struct bidimap_ftab_val *f_val;
+    struct cmc_alloc_node *alloc;
+    struct cmc_callbacks *callbacks;
+    struct bidimap_iter (*it_start)(struct bidimap *);
+    struct bidimap_iter (*it_end)(struct bidimap *);
+};
+struct bidimap_entry
 {
     size_t key;
     size_t value;
-    size_t key_dist;
-    size_t val_dist;
-} bidimap_entry, *bidimap_entry_ptr;
-typedef struct bidimap_iter_s
+    size_t dist[2];
+    struct bidimap_entry **ref[2];
+};
+struct bidimap_ftab_key
 {
-    struct bidimap_s *target;
+    int (*cmp)(size_t, size_t);
+    size_t (*cpy)(size_t);
+    _Bool (*str)(FILE *, size_t);
+    void (*free)(size_t);
+    size_t (*hash)(size_t);
+    int (*pri)(size_t, size_t);
+};
+struct bidimap_ftab_val
+{
+    int (*cmp)(size_t, size_t);
+    size_t (*cpy)(size_t);
+    _Bool (*str)(FILE *, size_t);
+    void (*free)(size_t);
+    size_t (*hash)(size_t);
+    int (*pri)(size_t, size_t);
+};
+struct bidimap_iter
+{
+    struct bidimap *target;
     size_t cursor;
     size_t index;
     size_t first;
     size_t last;
     _Bool start;
     _Bool end;
-} bidimap_iter, *bidimap_iter_ptr;
-bidimap *bm_new(size_t capacity, double load, int (*key_cmp)(size_t, size_t), size_t (*key_hash)(size_t), int (*val_cmp)(size_t, size_t), size_t (*val_hash)(size_t));
-void bm_clear(bidimap *_map_, void (*deallocator)(size_t, size_t));
-void bm_free(bidimap *_map_, void (*deallocator)(size_t, size_t));
-_Bool bm_insert(bidimap *_map_, size_t key, size_t value);
-_Bool bm_update_key(bidimap *_map_, size_t key, size_t *old_key);
-_Bool bm_update_val(bidimap *_map_, size_t val, size_t *old_val);
-_Bool bm_remove_by_key(bidimap *_map_, size_t key, size_t *out_value);
-_Bool bm_remove_by_val(bidimap *_map_, size_t value, size_t *out_key);
-size_t bm_get_key(bidimap *_map_, size_t val);
-size_t bm_get_val(bidimap *_map_, size_t key);
-_Bool bm_contains_key(bidimap *_map_, size_t key);
-_Bool bm_contains_val(bidimap *_map_, size_t val);
-_Bool bm_empty(bidimap *_map_);
-_Bool bm_full(bidimap *_map_);
-size_t bm_count(bidimap *_map_);
-size_t bm_capacity(bidimap *_map_);
-double bm_load(bidimap *_map_);
-bidimap *bm_copy_of(bidimap *_map_, size_t (*key_copy_func)(size_t), size_t (*value_copy_func)(size_t));
-_Bool bm_equals(bidimap *_map1_, bidimap *_map2_);
-struct cmc_string bm_to_string(bidimap *_map_);
-bidimap_iter *bm_iter_new(bidimap *target);
-void bm_iter_free(bidimap_iter *iter);
-void bm_iter_init(bidimap_iter *iter, bidimap *target);
-_Bool bm_iter_start(bidimap_iter *iter);
-_Bool bm_iter_end(bidimap_iter *iter);
-void bm_iter_to_start(bidimap_iter *iter);
-void bm_iter_to_end(bidimap_iter *iter);
-_Bool bm_iter_next(bidimap_iter *iter);
-_Bool bm_iter_prev(bidimap_iter *iter);
-_Bool bm_iter_advance(bidimap_iter *iter, size_t steps);
-_Bool bm_iter_rewind(bidimap_iter *iter, size_t steps);
-_Bool bm_iter_go_to(bidimap_iter *iter, size_t index);
-size_t bm_iter_key(bidimap_iter *iter);
-size_t bm_iter_value(bidimap_iter *iter);
-size_t bm_iter_index(bidimap_iter *iter);
-static _Bool bm_impl_grow(bidimap *_map_);
-static bidimap_entry *bm_impl_new_entry(size_t key, size_t value);
-static bidimap_entry **bm_impl_get_entry_by_key(bidimap *_map_, size_t key);
-static bidimap_entry **bm_impl_get_entry_by_val(bidimap *_map_, size_t val);
-static bidimap_entry **bm_impl_add_entry_to_key(bidimap *_map_, bidimap_entry *entry);
-static bidimap_entry **bm_impl_add_entry_to_val(bidimap *_map_, bidimap_entry *entry);
+};
+struct bidimap *bm_new(size_t capacity, double load,
+                       struct bidimap_ftab_key *f_key,
+                       struct bidimap_ftab_val *f_val);
+struct bidimap *bm_new_custom(size_t capacity, double load,
+                              struct bidimap_ftab_key *f_key,
+                              struct bidimap_ftab_val *f_val,
+                              struct cmc_alloc_node *alloc,
+                              struct cmc_callbacks *callbacks);
+void bm_clear(struct bidimap *_map_);
+void bm_free(struct bidimap *_map_);
+void bm_customize(struct bidimap *_map_, struct cmc_alloc_node *alloc,
+                  struct cmc_callbacks *callbacks);
+_Bool bm_insert(struct bidimap *_map_, size_t key, size_t value);
+_Bool bm_update_key(struct bidimap *_map_, size_t val, size_t new_key);
+_Bool bm_update_val(struct bidimap *_map_, size_t key, size_t new_val);
+_Bool bm_remove_by_key(struct bidimap *_map_, size_t key, size_t *out_key,
+                       size_t *out_val);
+_Bool bm_remove_by_val(struct bidimap *_map_, size_t val, size_t *out_key,
+                       size_t *out_val);
+size_t bm_get_key(struct bidimap *_map_, size_t val);
+size_t bm_get_val(struct bidimap *_map_, size_t key);
+_Bool bm_contains_key(struct bidimap *_map_, size_t key);
+_Bool bm_contains_val(struct bidimap *_map_, size_t val);
+_Bool bm_empty(struct bidimap *_map_);
+_Bool bm_full(struct bidimap *_map_);
+size_t bm_count(struct bidimap *_map_);
+size_t bm_capacity(struct bidimap *_map_);
+double bm_load(struct bidimap *_map_);
+int bm_flag(struct bidimap *_map_);
+_Bool bm_resize(struct bidimap *_map_, size_t capacity);
+struct bidimap *bm_copy_of(struct bidimap *_map_);
+_Bool bm_equals(struct bidimap *_map1_, struct bidimap *_map2_);
+struct cmc_string bm_to_string(struct bidimap *_map_);
+_Bool bm_print(struct bidimap *_map_, FILE *fptr);
+struct bidimap_iter *bm_iter_new(struct bidimap *target);
+void bm_iter_free(struct bidimap_iter *iter);
+void bm_iter_init(struct bidimap_iter *iter, struct bidimap *target);
+_Bool bm_iter_start(struct bidimap_iter *iter);
+_Bool bm_iter_end(struct bidimap_iter *iter);
+void bm_iter_to_start(struct bidimap_iter *iter);
+void bm_iter_to_end(struct bidimap_iter *iter);
+_Bool bm_iter_next(struct bidimap_iter *iter);
+_Bool bm_iter_prev(struct bidimap_iter *iter);
+_Bool bm_iter_advance(struct bidimap_iter *iter, size_t steps);
+_Bool bm_iter_rewind(struct bidimap_iter *iter, size_t steps);
+_Bool bm_iter_go_to(struct bidimap_iter *iter, size_t index);
+size_t bm_iter_key(struct bidimap_iter *iter);
+size_t bm_iter_value(struct bidimap_iter *iter);
+size_t bm_iter_index(struct bidimap_iter *iter);
+static struct bidimap_entry *bm_impl_new_entry(struct bidimap *_map_,
+                                               size_t key, size_t value);
+static struct bidimap_entry **bm_impl_get_entry_by_key(struct bidimap *_map_,
+                                                       size_t key);
+static struct bidimap_entry **bm_impl_get_entry_by_val(struct bidimap *_map_,
+                                                       size_t val);
+static struct bidimap_entry **
+bm_impl_add_entry_to_key(struct bidimap *_map_, struct bidimap_entry *entry);
+static struct bidimap_entry **
+bm_impl_add_entry_to_val(struct bidimap *_map_, struct bidimap_entry *entry);
 static size_t bm_impl_calculate_size(size_t required);
-static bidimap_iter bm_impl_it_start(bidimap *_map_);
-static bidimap_iter bm_impl_it_end(bidimap *_map_);
-bidimap *bm_new(size_t capacity, double load, int (*key_cmp)(size_t, size_t), size_t (*key_hash)(size_t), int (*val_cmp)(size_t, size_t), size_t (*val_hash)(size_t))
+static struct bidimap_iter bm_impl_it_start(struct bidimap *_map_);
+static struct bidimap_iter bm_impl_it_end(struct bidimap *_map_);
+struct bidimap *bm_new(size_t capacity, double load,
+                       struct bidimap_ftab_key *f_key,
+                       struct bidimap_ftab_val *f_val)
 {
+    struct cmc_alloc_node *alloc = &cmc_alloc_node_default;
     if (capacity == 0 || load <= 0 || load >= 1)
         return ((void *)0);
     if (capacity >= 0xffffffffffffffff * load)
         return ((void *)0);
+    if (!f_key || !f_val)
+        return ((void *)0);
     size_t real_capacity = bm_impl_calculate_size(capacity / load);
-    bidimap *_map_ = malloc(sizeof(bidimap));
+    struct bidimap *_map_ = alloc->malloc(sizeof(struct bidimap));
     if (!_map_)
         return ((void *)0);
-    _map_->key_buffer = calloc(real_capacity, sizeof(bidimap_entry *));
-    _map_->val_buffer = calloc(real_capacity, sizeof(bidimap_entry *));
-    if (!_map_->key_buffer || !_map_->val_buffer)
+    _map_->buffer =
+        alloc->calloc(real_capacity, sizeof(struct bidimap_entry *[2]));
+    if (!_map_->buffer)
     {
-        free(_map_->key_buffer);
-        free(_map_->val_buffer);
-        free(_map_);
+        alloc->free(_map_->buffer);
+        alloc->free(_map_);
         return ((void *)0);
     }
     _map_->count = 0;
     _map_->capacity = real_capacity;
     _map_->load = load;
-    _map_->key_cmp = key_cmp;
-    _map_->val_cmp = val_cmp;
-    _map_->key_hash = key_hash;
-    _map_->val_hash = val_hash;
+    _map_->flag = cmc_flags.OK;
+    _map_->f_key = f_key;
+    _map_->f_val = f_val;
+    _map_->alloc = alloc;
+    _map_->callbacks = ((void *)0);
     _map_->it_start = bm_impl_it_start;
     _map_->it_end = bm_impl_it_end;
     return _map_;
 }
-void bm_clear(bidimap *_map_, void (*deallocator)(size_t, size_t))
+struct bidimap *bm_new_custom(size_t capacity, double load,
+                              struct bidimap_ftab_key *f_key,
+                              struct bidimap_ftab_val *f_val,
+                              struct cmc_alloc_node *alloc,
+                              struct cmc_callbacks *callbacks)
+{
+    if (capacity == 0 || load <= 0 || load >= 1)
+        return ((void *)0);
+    if (capacity >= 0xffffffffffffffff * load)
+        return ((void *)0);
+    if (!f_key || !f_val)
+        return ((void *)0);
+    size_t real_capacity = bm_impl_calculate_size(capacity / load);
+    if (!alloc)
+        alloc = &cmc_alloc_node_default;
+    struct bidimap *_map_ = alloc->malloc(sizeof(struct bidimap));
+    if (!_map_)
+        return ((void *)0);
+    _map_->buffer =
+        alloc->calloc(real_capacity, sizeof(struct bidimap_entry *[2]));
+    if (!_map_->buffer)
+    {
+        alloc->free(_map_->buffer);
+        alloc->free(_map_);
+        return ((void *)0);
+    }
+    _map_->count = 0;
+    _map_->capacity = real_capacity;
+    _map_->load = load;
+    _map_->flag = cmc_flags.OK;
+    _map_->f_key = f_key;
+    _map_->f_val = f_val;
+    _map_->flag = cmc_flags.OK;
+    _map_->alloc = alloc;
+    _map_->callbacks = callbacks;
+    _map_->it_start = bm_impl_it_start;
+    _map_->it_end = bm_impl_it_end;
+    return _map_;
+}
+void bm_clear(struct bidimap *_map_)
 {
     for (size_t i = 0; i < _map_->capacity; i++)
     {
-        bidimap_entry *entry = _map_->key_buffer[i];
-        if (entry != ((void *)0) && entry != ((void *)1))
+        struct bidimap_entry *entry = _map_->buffer[i][0];
+        if (entry && entry != ((void *)1))
         {
-            if (deallocator)
-                deallocator(entry->key, entry->value);
-            free(entry);
+            if (_map_->f_key->free)
+                _map_->f_key->free(entry->key);
+            if (_map_->f_val->free)
+                _map_->f_val->free(entry->value);
+            _map_->alloc->free(entry);
         }
-        _map_->key_buffer[i] = ((void *)0);
-        _map_->val_buffer[i] = ((void *)0);
+        _map_->buffer[i][0] = ((void *)0);
+        _map_->buffer[i][1] = ((void *)0);
     }
     _map_->count = 0;
+    _map_->flag = cmc_flags.OK;
 }
-void bm_free(bidimap *_map_, void (*deallocator)(size_t, size_t))
+void bm_free(struct bidimap *_map_)
 {
-    bm_clear(_map_, deallocator);
-    free(_map_->key_buffer);
-    free(_map_->val_buffer);
-    free(_map_);
+    bm_clear(_map_);
+    _map_->alloc->free(_map_->buffer);
+    _map_->alloc->free(_map_);
 }
-_Bool bm_insert(bidimap *_map_, size_t key, size_t value)
+void bm_customize(struct bidimap *_map_, struct cmc_alloc_node *alloc,
+                  struct cmc_callbacks *callbacks)
+{
+    if (!alloc)
+        _map_->alloc = &cmc_alloc_node_default;
+    else
+        _map_->alloc = alloc;
+    _map_->callbacks = callbacks;
+    _map_->flag = cmc_flags.OK;
+}
+_Bool bm_insert(struct bidimap *_map_, size_t key, size_t value)
 {
     if (bm_full(_map_))
     {
-        if (!bm_impl_grow(_map_))
+        if (!bm_resize(_map_, _map_->capacity + 1))
             return 0;
     }
-    if (bm_impl_get_entry_by_key(_map_, key) != ((void *)0) || bm_impl_get_entry_by_val(_map_, value) != ((void *)0))
+    if (bm_impl_get_entry_by_key(_map_, key) != ((void *)0) ||
+        bm_impl_get_entry_by_val(_map_, value) != ((void *)0))
+    {
+        _map_->flag = cmc_flags.DUPLICATE;
         return 0;
-    bidimap_entry *entry = bm_impl_new_entry(key, value);
-    bidimap_entry **key_entry = bm_impl_add_entry_to_key(_map_, entry);
-    bidimap_entry **val_entry = bm_impl_add_entry_to_val(_map_, entry);
+    }
+    struct bidimap_entry *entry = bm_impl_new_entry(_map_, key, value);
+    struct bidimap_entry **key_entry = bm_impl_add_entry_to_key(_map_, entry);
+    struct bidimap_entry **val_entry = bm_impl_add_entry_to_val(_map_, entry);
     if (!key_entry || !val_entry)
     {
         if (key_entry)
             *key_entry = ((void *)1);
         if (val_entry)
             *val_entry = ((void *)1);
-        free(entry);
+        _map_->alloc->free(entry);
+        _map_->flag = cmc_flags.ERROR;
         return 0;
     }
     _map_->count++;
+    _map_->flag = cmc_flags.OK;
+    if (_map_->callbacks && _map_->callbacks->create)
+        _map_->callbacks->create();
     return 1;
 }
-_Bool bm_update_key(bidimap *_map_, size_t key, size_t *old_key)
+_Bool bm_update_key(struct bidimap *_map_, size_t val, size_t new_key)
 {
     if (bm_empty(_map_))
+    {
+        _map_->flag = cmc_flags.EMPTY;
         return 0;
+    }
+    struct bidimap_entry **key_entry, **val_entry;
+    val_entry = bm_impl_get_entry_by_val(_map_, val);
+    if (!val_entry)
+    {
+        _map_->flag = cmc_flags.NOT_FOUND;
+        return 0;
+    }
+    if (_map_->f_key->cmp(new_key, (*val_entry)->key) == 0)
+        goto success;
+    if (bm_impl_get_entry_by_key(_map_, new_key) != ((void *)0))
+    {
+        _map_->flag = cmc_flags.DUPLICATE;
+        return 0;
+    }
+    key_entry = (*val_entry)->ref[0];
+    if (!key_entry || *key_entry != *val_entry)
+    {
+        _map_->flag = cmc_flags.ERROR;
+        return 0;
+    }
+    struct bidimap_entry *to_add = *key_entry;
+    size_t tmp_key = to_add->key;
+    to_add->key = new_key;
+    *key_entry = ((void *)1);
+    if (!bm_impl_add_entry_to_key(_map_, to_add))
+    {
+        to_add->key = tmp_key;
+        *key_entry = to_add;
+        _map_->flag = cmc_flags.ERROR;
+        return 0;
+    }
+success:
+    _map_->flag = cmc_flags.OK;
+    if (_map_->callbacks && _map_->callbacks->update)
+        _map_->callbacks->update();
     return 1;
 }
-_Bool bm_update_val(bidimap *_map_, size_t val, size_t *old_val)
+_Bool bm_update_val(struct bidimap *_map_, size_t key, size_t new_val)
 {
     if (bm_empty(_map_))
+    {
+        _map_->flag = cmc_flags.EMPTY;
         return 0;
+    }
+    struct bidimap_entry **key_entry, **val_entry;
+    key_entry = bm_impl_get_entry_by_key(_map_, key);
+    if (!key_entry)
+    {
+        _map_->flag = cmc_flags.NOT_FOUND;
+        return 0;
+    }
+    if (_map_->f_key->cmp(new_val, (*key_entry)->value) == 0)
+        goto success;
+    if (bm_impl_get_entry_by_val(_map_, new_val) != ((void *)0))
+    {
+        _map_->flag = cmc_flags.DUPLICATE;
+        return 0;
+    }
+    val_entry = (*key_entry)->ref[1];
+    if (!val_entry || *val_entry != *key_entry)
+    {
+        _map_->flag = cmc_flags.ERROR;
+        return 0;
+    }
+    struct bidimap_entry *to_add = *val_entry;
+    size_t tmp_val = to_add->value;
+    to_add->value = new_val;
+    *val_entry = ((void *)1);
+    if (!bm_impl_add_entry_to_val(_map_, to_add))
+    {
+        to_add->value = tmp_val;
+        *val_entry = to_add;
+        _map_->flag = cmc_flags.ERROR;
+        return 0;
+    }
+success:
+    _map_->flag = cmc_flags.OK;
+    if (_map_->callbacks && _map_->callbacks->update)
+        _map_->callbacks->update();
     return 1;
 }
-_Bool bm_remove_by_key(bidimap *_map_, size_t key, size_t *out_value)
+_Bool bm_remove_by_key(struct bidimap *_map_, size_t key, size_t *out_key,
+                       size_t *out_val)
 {
     if (bm_empty(_map_))
+    {
+        _map_->flag = cmc_flags.EMPTY;
         return 0;
+    }
+    struct bidimap_entry **key_entry, **val_entry;
+    key_entry = bm_impl_get_entry_by_key(_map_, key);
+    if (!key_entry)
+    {
+        _map_->flag = cmc_flags.NOT_FOUND;
+        return 0;
+    }
+    val_entry = (*key_entry)->ref[1];
+    if (!val_entry || *val_entry != *key_entry)
+    {
+        _map_->flag = cmc_flags.ERROR;
+        return 0;
+    }
+    if (out_key)
+        *out_key = (*key_entry)->key;
+    if (out_val)
+        *out_val = (*key_entry)->value;
+    _map_->alloc->free(*key_entry);
+    *key_entry = ((void *)1);
+    *val_entry = ((void *)1);
+    _map_->count--;
+    _map_->flag = cmc_flags.OK;
+    if (_map_->callbacks && _map_->callbacks->delete)
+        _map_->callbacks->delete ();
     return 1;
 }
-_Bool bm_remove_by_val(bidimap *_map_, size_t value, size_t *out_key)
+_Bool bm_remove_by_val(struct bidimap *_map_, size_t val, size_t *out_key,
+                       size_t *out_val)
 {
     if (bm_empty(_map_))
+    {
+        _map_->flag = cmc_flags.EMPTY;
         return 0;
+    }
+    struct bidimap_entry **key_entry, **val_entry;
+    val_entry = bm_impl_get_entry_by_val(_map_, val);
+    if (!val_entry)
+    {
+        _map_->flag = cmc_flags.NOT_FOUND;
+        return 0;
+    }
+    key_entry = (*val_entry)->ref[0];
+    if (!key_entry || *key_entry != *val_entry)
+    {
+        _map_->flag = cmc_flags.ERROR;
+        return 0;
+    }
+    if (out_key)
+        *out_key = (*val_entry)->key;
+    if (out_val)
+        *out_val = (*val_entry)->value;
+    _map_->alloc->free(*val_entry);
+    *key_entry = ((void *)1);
+    *val_entry = ((void *)1);
+    _map_->count--;
+    _map_->flag = cmc_flags.OK;
+    if (_map_->callbacks && _map_->callbacks->delete)
+        _map_->callbacks->delete ();
     return 1;
 }
-size_t bm_get_key(bidimap *_map_, size_t val)
+size_t bm_get_key(struct bidimap *_map_, size_t val)
 {
-    bidimap_entry **entry = bm_impl_get_entry_by_val(_map_, val);
+    struct bidimap_entry **entry = bm_impl_get_entry_by_val(_map_, val);
     if (!entry)
-        return (size_t){0};
+    {
+        _map_->flag = cmc_flags.NOT_FOUND;
+        return (size_t){ 0 };
+    }
+    _map_->flag = cmc_flags.OK;
+    if (_map_->callbacks && _map_->callbacks->read)
+        _map_->callbacks->read();
     return (*entry)->key;
 }
-size_t bm_get_val(bidimap *_map_, size_t key)
+size_t bm_get_val(struct bidimap *_map_, size_t key)
 {
-    bidimap_entry **entry = bm_impl_get_entry_by_key(_map_, key);
+    struct bidimap_entry **entry = bm_impl_get_entry_by_key(_map_, key);
     if (!entry)
-        return (size_t){0};
+    {
+        _map_->flag = cmc_flags.NOT_FOUND;
+        return (size_t){ 0 };
+    }
+    _map_->flag = cmc_flags.OK;
+    if (_map_->callbacks && _map_->callbacks->read)
+        _map_->callbacks->read();
     return (*entry)->value;
 }
-_Bool bm_contains_key(bidimap *_map_, size_t key) { return bm_impl_get_entry_by_key(_map_, key) != ((void *)0); }
-_Bool bm_contains_val(bidimap *_map_, size_t val) { return bm_impl_get_entry_by_val(_map_, val) != ((void *)0); }
-_Bool bm_empty(bidimap *_map_) { return _map_->count == 0; }
-_Bool bm_full(bidimap *_map_) { return (double)bm_capacity(_map_) * bm_load(_map_) <= (double)bm_count(_map_); }
-size_t bm_count(bidimap *_map_) { return _map_->count; }
-size_t bm_capacity(bidimap *_map_) { return _map_->capacity; }
-double bm_load(bidimap *_map_) { return _map_->load; }
-bidimap *bm_copy_of(bidimap *_map_, size_t (*key_copy_func)(size_t), size_t (*value_copy_func)(size_t)) { return ((void *)0); }
-_Bool bm_equals(bidimap *_map1_, bidimap *_map2_) { return 0; }
-struct cmc_string bm_to_string(bidimap *_map_)
+_Bool bm_contains_key(struct bidimap *_map_, size_t key)
+{
+    _map_->flag = cmc_flags.OK;
+    _Bool result = bm_impl_get_entry_by_key(_map_, key) != ((void *)0);
+    if (_map_->callbacks && _map_->callbacks->read)
+        _map_->callbacks->read();
+    return result;
+}
+_Bool bm_contains_val(struct bidimap *_map_, size_t val)
+{
+    _map_->flag = cmc_flags.OK;
+    _Bool result = bm_impl_get_entry_by_val(_map_, val) != ((void *)0);
+    if (_map_->callbacks && _map_->callbacks->read)
+        _map_->callbacks->read();
+    return result;
+}
+_Bool bm_empty(struct bidimap *_map_)
+{
+    return _map_->count == 0;
+}
+_Bool bm_full(struct bidimap *_map_)
+{
+    return (double)_map_->capacity * _map_->load <= (double)_map_->count;
+}
+size_t bm_count(struct bidimap *_map_)
+{
+    return _map_->count;
+}
+size_t bm_capacity(struct bidimap *_map_)
+{
+    return _map_->capacity;
+}
+double bm_load(struct bidimap *_map_)
+{
+    return _map_->load;
+}
+int bm_flag(struct bidimap *_map_)
+{
+    return _map_->flag;
+}
+_Bool bm_resize(struct bidimap *_map_, size_t capacity)
+{
+    _map_->flag = cmc_flags.OK;
+    if (_map_->capacity == capacity)
+        goto success;
+    if (_map_->capacity > capacity / _map_->load)
+        goto success;
+    if (capacity >= 0xffffffffffffffff * _map_->load)
+    {
+        _map_->flag = cmc_flags.ERROR;
+        return 0;
+    }
+    size_t new_cap = bm_impl_calculate_size(capacity);
+    if (new_cap < _map_->count / _map_->load)
+    {
+        _map_->flag = cmc_flags.INVALID;
+        return 0;
+    }
+    struct bidimap *_new_map_ =
+        bm_new_custom(capacity, _map_->load, _map_->f_key, _map_->f_val,
+                      _map_->alloc, ((void *)0));
+    if (!_new_map_)
+    {
+        _map_->flag = cmc_flags.ALLOC;
+        return 0;
+    }
+    for (size_t i = 0; i < _map_->capacity; i++)
+    {
+        struct bidimap_entry *scan = _map_->buffer[i][0];
+        if (scan && scan != ((void *)1))
+        {
+            struct bidimap_entry **e1 =
+                bm_impl_add_entry_to_key(_new_map_, scan);
+            struct bidimap_entry **e2 =
+                bm_impl_add_entry_to_val(_new_map_, scan);
+            if (!e1 || !e2)
+            {
+                _map_->alloc->free(_new_map_->buffer);
+                _map_->alloc->free(_new_map_);
+                _map_->flag = cmc_flags.ERROR;
+                return 0;
+            }
+            _new_map_->count++;
+        }
+    }
+    if (_map_->count != _new_map_->count)
+    {
+        _map_->alloc->free(_new_map_->buffer);
+        _map_->alloc->free(_new_map_);
+        _map_->flag = cmc_flags.ERROR;
+        return 0;
+    }
+    struct bidimap_entry *(*tmp_buff)[2] = _map_->buffer;
+    _map_->buffer = _new_map_->buffer;
+    _map_->capacity = _new_map_->capacity;
+    _map_->alloc->free(tmp_buff);
+    _map_->alloc->free(_new_map_);
+success:
+    if (_map_->callbacks && _map_->callbacks->resize)
+        _map_->callbacks->resize();
+    return 1;
+}
+struct bidimap *bm_copy_of(struct bidimap *_map_)
+{
+    struct bidimap *result =
+        bm_new_custom(_map_->capacity * _map_->load, _map_->load, _map_->f_key,
+                      _map_->f_val, _map_->alloc, _map_->callbacks);
+    if (!result)
+    {
+        _map_->flag = cmc_flags.ERROR;
+        return ((void *)0);
+    }
+    for (size_t i = 0; i < _map_->capacity; i++)
+    {
+        struct bidimap_entry *scan = _map_->buffer[i][0];
+        if (scan && scan != ((void *)1))
+        {
+            size_t tmp_key;
+            size_t tmp_val;
+            if (_map_->f_key->cpy)
+                tmp_key = _map_->f_key->cpy(scan->key);
+            else
+                tmp_key = scan->key;
+            if (_map_->f_val->cpy)
+                tmp_val = _map_->f_val->cpy(scan->value);
+            else
+                tmp_val = scan->value;
+            struct bidimap_entry *entry =
+                bm_impl_new_entry(result, tmp_key, tmp_val);
+            bm_impl_add_entry_to_key(result, entry);
+            bm_impl_add_entry_to_val(result, entry);
+            result->count++;
+        }
+    }
+    _map_->flag = cmc_flags.OK;
+    return result;
+}
+_Bool bm_equals(struct bidimap *_map1_, struct bidimap *_map2_)
+{
+    _map1_->flag = cmc_flags.OK;
+    _map2_->flag = cmc_flags.OK;
+    if (_map1_->count != _map2_->count)
+        return 0;
+    struct bidimap *_mapA_;
+    struct bidimap *_mapB_;
+    if (_map1_->capacity < _map2_->capacity)
+    {
+        _mapA_ = _map1_;
+        _mapB_ = _map2_;
+    }
+    else
+    {
+        _mapA_ = _map2_;
+        _mapB_ = _map1_;
+    }
+    for (size_t i = 0; i < _mapA_->capacity; i++)
+    {
+        struct bidimap_entry *scan = _mapA_->buffer[i][0];
+        if (scan && scan != ((void *)1))
+        {
+            struct bidimap_entry **entry_B =
+                bm_impl_get_entry_by_key(_mapB_, scan->key);
+            if (!entry_B)
+                return 0;
+            if (_mapA_->f_val->cmp((*entry_B)->value, scan->value) != 0)
+                return 0;
+        }
+    }
+    return 1;
+}
+struct cmc_string bm_to_string(struct bidimap *_map_)
 {
     struct cmc_string str;
-    bidimap *m_ = _map_;
-    const char *name = "bidimap";
-    snprintf(str.s, cmc_string_len, cmc_string_fmt_bidimap, name, m_, m_->key_buffer, m_->val_buffer, m_->capacity, m_->count, m_->load, m_->key_cmp, m_->val_cmp, m_->key_hash, m_->val_hash);
-    return str;
+    struct bidimap *m_ = _map_;
+    int n = snprintf(str.s, cmc_string_len, cmc_string_fmt_bidimap, "bidimap",
+                     "size_t", "size_t", m_, m_->buffer, m_->capacity,
+                     m_->count, m_->load, m_->flag, m_->f_key, m_->f_val,
+                     m_->alloc, m_->callbacks);
+    return n >= 0 ? str : (struct cmc_string){ 0 };
 }
-bidimap_iter *bm_iter_new(bidimap *target)
+_Bool bm_print(struct bidimap *_map_, FILE *fptr)
 {
-    bidimap_iter *iter = malloc(sizeof(bidimap_iter));
+    for (size_t i = 0; i < _map_->capacity; i++)
+    {
+        struct bidimap_entry *target = _map_->buffer[i][0];
+        if (target && target != ((void *)1))
+        {
+            if (!_map_->f_key->str(fptr, target->key) ||
+                !_map_->f_val->str(fptr, target->value))
+                return 0;
+        }
+    }
+    return 1;
+}
+struct bidimap_iter *bm_iter_new(struct bidimap *target)
+{
+    struct bidimap_iter *iter =
+        target->alloc->malloc(sizeof(struct bidimap_iter));
     if (!iter)
         return ((void *)0);
     bm_iter_init(iter, target);
     return iter;
 }
-void bm_iter_free(bidimap_iter *iter) { free(iter); }
-void bm_iter_init(bidimap_iter *iter, bidimap *target)
+void bm_iter_free(struct bidimap_iter *iter)
 {
-    memset(iter, 0, sizeof(bidimap_iter));
+    iter->target->alloc->free(iter);
+}
+void bm_iter_init(struct bidimap_iter *iter, struct bidimap *target)
+{
+    memset(iter, 0, sizeof(struct bidimap_iter));
     iter->target = target;
     iter->start = 1;
     iter->end = bm_empty(target);
@@ -228,7 +653,7 @@ void bm_iter_init(bidimap_iter *iter, bidimap *target)
     {
         for (size_t i = 0; i < target->capacity; i++)
         {
-            bidimap_entry *tmp = target->key_buffer[i];
+            struct bidimap_entry *tmp = target->buffer[i][0];
             if (tmp != ((void *)0) && tmp != ((void *)1))
             {
                 iter->first = i;
@@ -238,7 +663,7 @@ void bm_iter_init(bidimap_iter *iter, bidimap *target)
         iter->cursor = iter->first;
         for (size_t i = target->capacity; i > 0; i--)
         {
-            bidimap_entry *tmp = target->key_buffer[i - 1];
+            struct bidimap_entry *tmp = target->buffer[i - 1][0];
             if (tmp != ((void *)0) && tmp != ((void *)1))
             {
                 iter->last = i - 1;
@@ -247,9 +672,15 @@ void bm_iter_init(bidimap_iter *iter, bidimap *target)
         }
     }
 }
-_Bool bm_iter_start(bidimap_iter *iter) { return bm_empty(iter->target) || iter->start; }
-_Bool bm_iter_end(bidimap_iter *iter) { return bm_empty(iter->target) || iter->end; }
-void bm_iter_to_start(bidimap_iter *iter)
+_Bool bm_iter_start(struct bidimap_iter *iter)
+{
+    return bm_empty(iter->target) || iter->start;
+}
+_Bool bm_iter_end(struct bidimap_iter *iter)
+{
+    return bm_empty(iter->target) || iter->end;
+}
+void bm_iter_to_start(struct bidimap_iter *iter)
 {
     if (!bm_empty(iter->target))
     {
@@ -259,38 +690,38 @@ void bm_iter_to_start(bidimap_iter *iter)
         iter->end = 0;
     }
 }
-void bm_iter_to_end(bidimap_iter *iter)
+void bm_iter_to_end(struct bidimap_iter *iter)
 {
     if (!bm_empty(iter->target))
     {
         iter->cursor = iter->last;
-        iter->index = bm_count(iter->target) - 1;
+        iter->index = iter->target->count - 1;
         iter->start = 0;
         iter->end = 1;
     }
 }
-_Bool bm_iter_next(bidimap_iter *iter)
+_Bool bm_iter_next(struct bidimap_iter *iter)
 {
     if (iter->end)
         return 0;
-    if (iter->index + 1 == bm_count(iter->target))
+    if (iter->index + 1 == iter->target->count)
     {
         iter->end = 1;
         return 0;
     }
     iter->start = bm_empty(iter->target);
-    bidimap_entry *scan = iter->target->key_buffer[iter->cursor];
+    struct bidimap_entry *scan = iter->target->buffer[iter->cursor][0];
     iter->index++;
     while (1)
     {
         iter->cursor++;
-        scan = iter->target->key_buffer[iter->cursor];
+        scan = iter->target->buffer[iter->cursor][0];
         if (scan != ((void *)0) && scan != ((void *)1))
             break;
     }
     return 1;
 }
-_Bool bm_iter_prev(bidimap_iter *iter)
+_Bool bm_iter_prev(struct bidimap_iter *iter)
 {
     if (iter->start)
         return 0;
@@ -300,33 +731,33 @@ _Bool bm_iter_prev(bidimap_iter *iter)
         return 0;
     }
     iter->end = bm_empty(iter->target);
-    bidimap_entry *scan = iter->target->key_buffer[iter->cursor];
+    struct bidimap_entry *scan = iter->target->buffer[iter->cursor][0];
     iter->index--;
     while (1)
     {
         iter->cursor--;
-        scan = iter->target->key_buffer[iter->cursor];
+        scan = iter->target->buffer[iter->cursor][0];
         if (scan != ((void *)0) && scan != ((void *)1))
             break;
     }
     return 1;
 }
-_Bool bm_iter_advance(bidimap_iter *iter, size_t steps)
+_Bool bm_iter_advance(struct bidimap_iter *iter, size_t steps)
 {
     if (iter->end)
         return 0;
-    if (iter->index + 1 == bm_count(iter->target))
+    if (iter->index + 1 == iter->target->count)
     {
         iter->end = 1;
         return 0;
     }
-    if (steps == 0 || iter->index + steps >= bm_count(iter->target))
+    if (steps == 0 || iter->index + steps >= iter->target->count)
         return 0;
     for (size_t i = 0; i < steps; i++)
         bm_iter_next(iter);
     return 1;
 }
-_Bool bm_iter_rewind(bidimap_iter *iter, size_t steps)
+_Bool bm_iter_rewind(struct bidimap_iter *iter, size_t steps)
 {
     if (iter->start)
         return 0;
@@ -341,9 +772,9 @@ _Bool bm_iter_rewind(bidimap_iter *iter, size_t steps)
         bm_iter_prev(iter);
     return 1;
 }
-_Bool bm_iter_go_to(bidimap_iter *iter, size_t index)
+_Bool bm_iter_go_to(struct bidimap_iter *iter, size_t index)
 {
-    if (index >= bm_count(iter->target))
+    if (index >= iter->target->count)
         return 0;
     if (iter->index > index)
         return bm_iter_rewind(iter, iter->index - index);
@@ -351,69 +782,85 @@ _Bool bm_iter_go_to(bidimap_iter *iter, size_t index)
         return bm_iter_advance(iter, index - iter->index);
     return 1;
 }
-size_t bm_iter_key(bidimap_iter *iter)
+size_t bm_iter_key(struct bidimap_iter *iter)
 {
     if (bm_empty(iter->target))
-        return (size_t){0};
-    return iter->target->key_buffer[iter->cursor]->key;
+    {
+        iter->target->flag = cmc_flags.EMPTY;
+        return (size_t){ 0 };
+    }
+    return iter->target->buffer[iter->cursor][0]->key;
 }
-size_t bm_iter_value(bidimap_iter *iter)
+size_t bm_iter_value(struct bidimap_iter *iter)
 {
     if (bm_empty(iter->target))
-        return (size_t){0};
-    return iter->target->key_buffer[iter->cursor]->value;
+    {
+        iter->target->flag = cmc_flags.EMPTY;
+        return (size_t){ 0 };
+    }
+    return iter->target->buffer[iter->cursor][0]->value;
 }
-size_t bm_iter_index(bidimap_iter *iter) { return iter->index; }
-static _Bool bm_impl_grow(bidimap *_map_) { return 0; }
-static bidimap_entry *bm_impl_new_entry(size_t key, size_t value)
+size_t bm_iter_index(struct bidimap_iter *iter)
 {
-    bidimap_entry *entry = malloc(sizeof(bidimap_entry));
+    return iter->index;
+}
+static struct bidimap_entry *bm_impl_new_entry(struct bidimap *_map_,
+                                               size_t key, size_t value)
+{
+    struct bidimap_entry *entry =
+        _map_->alloc->malloc(sizeof(struct bidimap_entry));
     if (!entry)
         return ((void *)0);
     entry->key = key;
     entry->value = value;
-    entry->key_dist = 0;
-    entry->val_dist = 0;
+    entry->dist[0] = 0;
+    entry->dist[1] = 0;
+    entry->ref[0] = ((void *)0);
+    entry->ref[1] = ((void *)0);
     return entry;
 }
-static bidimap_entry **bm_impl_get_entry_by_key(bidimap *_map_, size_t key)
+static struct bidimap_entry **bm_impl_get_entry_by_key(struct bidimap *_map_,
+                                                       size_t key)
 {
-    size_t hash = _map_->key_hash(key);
+    size_t hash = _map_->f_key->hash(key);
     size_t pos = hash % _map_->capacity;
-    bidimap_entry *target = _map_->key_buffer[pos];
+    struct bidimap_entry *target = _map_->buffer[pos][0];
     while (target != ((void *)0))
     {
-        if (target != ((void *)1) && _map_->key_cmp(target->key, key) == 0)
-            return &(_map_->key_buffer[pos % _map_->capacity]);
+        if (target != ((void *)1) && _map_->f_key->cmp(target->key, key) == 0)
+            return &(_map_->buffer[pos % _map_->capacity][0]);
         pos++;
-        target = _map_->key_buffer[pos % _map_->capacity];
+        target = _map_->buffer[pos % _map_->capacity][0];
     }
     return ((void *)0);
 }
-static bidimap_entry **bm_impl_get_entry_by_val(bidimap *_map_, size_t val)
+static struct bidimap_entry **bm_impl_get_entry_by_val(struct bidimap *_map_,
+                                                       size_t val)
 {
-    size_t hash = _map_->val_hash(val);
+    size_t hash = _map_->f_val->hash(val);
     size_t pos = hash % _map_->capacity;
-    bidimap_entry *target = _map_->val_buffer[pos];
+    struct bidimap_entry *target = _map_->buffer[pos][1];
     while (target != ((void *)0))
     {
-        if (target != ((void *)1) && _map_->val_cmp(target->value, val) == 0)
-            return &(_map_->val_buffer[pos % _map_->capacity]);
+        if (target != ((void *)1) && _map_->f_val->cmp(target->value, val) == 0)
+            return &(_map_->buffer[pos % _map_->capacity][1]);
         pos++;
-        target = _map_->val_buffer[pos % _map_->capacity];
+        target = _map_->buffer[pos % _map_->capacity][1];
     }
     return ((void *)0);
 }
-static bidimap_entry **bm_impl_add_entry_to_key(bidimap *_map_, bidimap_entry *entry)
+static struct bidimap_entry **
+bm_impl_add_entry_to_key(struct bidimap *_map_, struct bidimap_entry *entry)
 {
-    bidimap_entry **to_return = ((void *)0);
-    size_t hash = _map_->key_hash(entry->key);
+    struct bidimap_entry **to_return = ((void *)0);
+    size_t hash = _map_->f_key->hash(entry->key);
     size_t original_pos = hash % _map_->capacity;
     size_t pos = original_pos;
-    bidimap_entry **scan = &(_map_->key_buffer[hash % _map_->capacity]);
+    struct bidimap_entry **scan = &(_map_->buffer[hash % _map_->capacity][0]);
     if (*scan == ((void *)0))
     {
         *scan = entry;
+        entry->ref[0] = scan;
         return scan;
     }
     else
@@ -421,23 +868,25 @@ static bidimap_entry **bm_impl_add_entry_to_key(bidimap *_map_, bidimap_entry *e
         while (1)
         {
             pos++;
-            scan = &(_map_->key_buffer[pos % _map_->capacity]);
+            scan = &(_map_->buffer[pos % _map_->capacity][0]);
             if (*scan == ((void *)0) || *scan == ((void *)1))
             {
                 if (!to_return)
                     to_return = scan;
                 *scan = entry;
-                entry->key_dist = pos - original_pos;
+                entry->ref[0] = scan;
+                entry->dist[0] = pos - original_pos;
                 return to_return;
             }
-            else if ((*scan)->key_dist < pos - original_pos)
+            else if ((*scan)->dist[0] < pos - original_pos)
             {
                 if (!to_return)
                     to_return = scan;
-                size_t tmp_dist = (*scan)->key_dist;
-                entry->key_dist = pos - original_pos;
+                size_t tmp_dist = (*scan)->dist[0];
+                entry->dist[0] = pos - original_pos;
                 original_pos = pos - tmp_dist;
-                bidimap_entry *_tmp_ = *scan;
+                entry->ref[0] = scan;
+                struct bidimap_entry *_tmp_ = *scan;
                 *scan = entry;
                 entry = _tmp_;
             }
@@ -445,16 +894,18 @@ static bidimap_entry **bm_impl_add_entry_to_key(bidimap *_map_, bidimap_entry *e
     }
     return ((void *)0);
 }
-static bidimap_entry **bm_impl_add_entry_to_val(bidimap *_map_, bidimap_entry *entry)
+static struct bidimap_entry **
+bm_impl_add_entry_to_val(struct bidimap *_map_, struct bidimap_entry *entry)
 {
-    bidimap_entry **to_return = ((void *)0);
-    size_t hash = _map_->val_hash(entry->value);
+    struct bidimap_entry **to_return = ((void *)0);
+    size_t hash = _map_->f_val->hash(entry->value);
     size_t original_pos = hash % _map_->capacity;
     size_t pos = original_pos;
-    bidimap_entry **scan = &(_map_->val_buffer[hash % _map_->capacity]);
+    struct bidimap_entry **scan = &(_map_->buffer[hash % _map_->capacity][1]);
     if (*scan == ((void *)0))
     {
         *scan = entry;
+        entry->ref[1] = scan;
         return scan;
     }
     else
@@ -462,23 +913,25 @@ static bidimap_entry **bm_impl_add_entry_to_val(bidimap *_map_, bidimap_entry *e
         while (1)
         {
             pos++;
-            scan = &(_map_->val_buffer[pos % _map_->capacity]);
+            scan = &(_map_->buffer[pos % _map_->capacity][1]);
             if (*scan == ((void *)0) || *scan == ((void *)1))
             {
                 if (!to_return)
                     to_return = scan;
                 *scan = entry;
-                entry->val_dist = pos - original_pos;
+                entry->ref[1] = scan;
+                entry->dist[1] = pos - original_pos;
                 return to_return;
             }
-            else if ((*scan)->val_dist < pos - original_pos)
+            else if ((*scan)->dist[1] < pos - original_pos)
             {
                 if (!to_return)
                     to_return = scan;
-                size_t tmp_dist = (*scan)->val_dist;
-                entry->val_dist = pos - original_pos;
+                size_t tmp_dist = (*scan)->dist[1];
+                entry->dist[1] = pos - original_pos;
                 original_pos = pos - tmp_dist;
-                bidimap_entry *_tmp_ = *scan;
+                entry->ref[1] = scan;
+                struct bidimap_entry *_tmp_ = *scan;
                 *scan = entry;
                 entry = _tmp_;
             }
@@ -488,7 +941,8 @@ static bidimap_entry **bm_impl_add_entry_to_val(bidimap *_map_, bidimap_entry *e
 }
 static size_t bm_impl_calculate_size(size_t required)
 {
-    const size_t count = sizeof(cmc_hashtable_primes) / sizeof(cmc_hashtable_primes[0]);
+    const size_t count =
+        sizeof(cmc_hashtable_primes) / sizeof(cmc_hashtable_primes[0]);
     if (cmc_hashtable_primes[count - 1] < required)
         return required;
     size_t i = 0;
@@ -496,15 +950,15 @@ static size_t bm_impl_calculate_size(size_t required)
         i++;
     return cmc_hashtable_primes[i];
 }
-static bidimap_iter bm_impl_it_start(bidimap *_map_)
+static struct bidimap_iter bm_impl_it_start(struct bidimap *_map_)
 {
-    bidimap_iter iter;
+    struct bidimap_iter iter;
     bm_iter_init(&iter, _map_);
     return iter;
 }
-static bidimap_iter bm_impl_it_end(bidimap *_map_)
+static struct bidimap_iter bm_impl_it_end(struct bidimap *_map_)
 {
-    bidimap_iter iter;
+    struct bidimap_iter iter;
     bm_iter_init(&iter, _map_);
     bm_iter_to_end(&iter);
     return iter;

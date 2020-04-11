@@ -40,7 +40,6 @@ int main(void)
     failed += treeset_test();
 
     cmc_timer_stop(timer);
-    cmc_timer_calc(timer);
 
     printf("+--------------------------------------------------+\n");
     printf("| Total running time : %14.0lf milliseconds |\n", timer.result);

@@ -1,86 +1,143 @@
 #include <cmc/queue.h>
 
-//CMC_GENERATE_QUEUE(q, queue, size_t)
+// CMC_GENERATE_QUEUE(q, queue, size_t)
 
-typedef struct queue_s
+struct queue
 {
     size_t *buffer;
     size_t capacity;
     size_t count;
     size_t front;
     size_t back;
-    struct queue_iter_s (*it_start)(struct queue_s *);
-    struct queue_iter_s (*it_end)(struct queue_s *);
-} queue, *queue_ptr;
-typedef struct queue_iter_s
+    int flag;
+    struct queue_ftab_val *f_val;
+    struct cmc_alloc_node *alloc;
+    struct cmc_callbacks *callbacks;
+    struct queue_iter (*it_start)(struct queue *);
+    struct queue_iter (*it_end)(struct queue *);
+};
+struct queue_ftab_val
 {
-    struct queue_s *target;
+    int (*cmp)(size_t, size_t);
+    size_t (*cpy)(size_t);
+    _Bool (*str)(FILE *, size_t);
+    void (*free)(size_t);
+    size_t (*hash)(size_t);
+    int (*pri)(size_t, size_t);
+};
+struct queue_iter
+{
+    struct queue *target;
     size_t cursor;
     size_t index;
     _Bool start;
     _Bool end;
-} queue_iter, *queue_iter_ptr;
-queue *q_new(size_t capacity);
-void q_clear(queue *_queue_, void (*deallocator)(size_t));
-void q_free(queue *_queue_, void (*deallocator)(size_t));
-_Bool q_enqueue(queue *_queue_, size_t element);
-_Bool q_dequeue(queue *_queue_);
-size_t q_peek(queue *_queue_);
-_Bool q_contains(queue *_queue_, size_t element, int (*comparator)(size_t, size_t));
-_Bool q_empty(queue *_queue_);
-_Bool q_full(queue *_queue_);
-size_t q_count(queue *_queue_);
-size_t q_capacity(queue *_queue_);
-_Bool q_resize(queue *_queue_, size_t capacity);
-queue *q_copy_of(queue *_queue_, size_t (*copy_func)(size_t));
-_Bool q_equals(queue *_queue1_, queue *_queue2_, int (*comparator)(size_t, size_t));
-struct cmc_string q_to_string(queue *_queue_);
-queue_iter *q_iter_new(queue *target);
-void q_iter_free(queue_iter *iter);
-void q_iter_init(queue_iter *iter, queue *target);
-_Bool q_iter_start(queue_iter *iter);
-_Bool q_iter_end(queue_iter *iter);
-void q_iter_to_start(queue_iter *iter);
-void q_iter_to_end(queue_iter *iter);
-_Bool q_iter_next(queue_iter *iter);
-_Bool q_iter_prev(queue_iter *iter);
-_Bool q_iter_advance(queue_iter *iter, size_t steps);
-_Bool q_iter_rewind(queue_iter *iter, size_t steps);
-_Bool q_iter_go_to(queue_iter *iter, size_t index);
-size_t q_iter_value(queue_iter *iter);
-size_t *q_iter_rvalue(queue_iter *iter);
-size_t q_iter_index(queue_iter *iter);
-static queue_iter q_impl_it_start(queue *_queue_);
-static queue_iter q_impl_it_end(queue *_queue_);
-queue *q_new(size_t capacity)
+};
+struct queue *q_new(size_t capacity, struct queue_ftab_val *f_val);
+struct queue *q_new_custom(size_t capacity, struct queue_ftab_val *f_val,
+                           struct cmc_alloc_node *alloc,
+                           struct cmc_callbacks *callbacks);
+void q_clear(struct queue *_queue_);
+void q_free(struct queue *_queue_);
+void q_customize(struct queue *_queue_, struct cmc_alloc_node *alloc,
+                 struct cmc_callbacks *callbacks);
+_Bool q_enqueue(struct queue *_queue_, size_t element);
+_Bool q_dequeue(struct queue *_queue_);
+size_t q_peek(struct queue *_queue_);
+_Bool q_contains(struct queue *_queue_, size_t element);
+_Bool q_empty(struct queue *_queue_);
+_Bool q_full(struct queue *_queue_);
+size_t q_count(struct queue *_queue_);
+size_t q_capacity(struct queue *_queue_);
+int q_flag(struct queue *_queue_);
+_Bool q_resize(struct queue *_queue_, size_t capacity);
+struct queue *q_copy_of(struct queue *_queue_);
+_Bool q_equals(struct queue *_queue1_, struct queue *_queue2_);
+struct cmc_string q_to_string(struct queue *_queue_);
+_Bool q_print(struct queue *_queue_, FILE *fptr);
+struct queue_iter *q_iter_new(struct queue *target);
+void q_iter_free(struct queue_iter *iter);
+void q_iter_init(struct queue_iter *iter, struct queue *target);
+_Bool q_iter_start(struct queue_iter *iter);
+_Bool q_iter_end(struct queue_iter *iter);
+void q_iter_to_start(struct queue_iter *iter);
+void q_iter_to_end(struct queue_iter *iter);
+_Bool q_iter_next(struct queue_iter *iter);
+_Bool q_iter_prev(struct queue_iter *iter);
+_Bool q_iter_advance(struct queue_iter *iter, size_t steps);
+_Bool q_iter_rewind(struct queue_iter *iter, size_t steps);
+_Bool q_iter_go_to(struct queue_iter *iter, size_t index);
+size_t q_iter_value(struct queue_iter *iter);
+size_t *q_iter_rvalue(struct queue_iter *iter);
+size_t q_iter_index(struct queue_iter *iter);
+static struct queue_iter q_impl_it_start(struct queue *_queue_);
+static struct queue_iter q_impl_it_end(struct queue *_queue_);
+struct queue *q_new(size_t capacity, struct queue_ftab_val *f_val)
 {
+    struct cmc_alloc_node *alloc = &cmc_alloc_node_default;
     if (capacity < 1)
         return ((void *)0);
-    queue *_queue_ = malloc(sizeof(queue));
+    if (!f_val)
+        return ((void *)0);
+    struct queue *_queue_ = alloc->malloc(sizeof(struct queue));
     if (!_queue_)
         return ((void *)0);
-    _queue_->buffer = malloc(sizeof(size_t) * capacity);
+    _queue_->buffer = alloc->calloc(capacity, sizeof(size_t));
     if (!_queue_->buffer)
     {
-        free(_queue_);
+        alloc->free(_queue_);
         return ((void *)0);
     }
-    memset(_queue_->buffer, 0, sizeof(size_t) * capacity);
     _queue_->capacity = capacity;
     _queue_->count = 0;
     _queue_->front = 0;
     _queue_->back = 0;
+    _queue_->flag = cmc_flags.OK;
+    _queue_->f_val = f_val;
+    _queue_->alloc = alloc;
+    _queue_->callbacks = ((void *)0);
     _queue_->it_start = q_impl_it_start;
     _queue_->it_end = q_impl_it_end;
     return _queue_;
 }
-void q_clear(queue *_queue_, void (*deallocator)(size_t))
+struct queue *q_new_custom(size_t capacity, struct queue_ftab_val *f_val,
+                           struct cmc_alloc_node *alloc,
+                           struct cmc_callbacks *callbacks)
 {
-    if (deallocator)
+    if (capacity < 1)
+        return ((void *)0);
+    if (!f_val)
+        return ((void *)0);
+    if (!alloc)
+        alloc = &cmc_alloc_node_default;
+    struct queue *_queue_ = alloc->malloc(sizeof(struct queue));
+    if (!_queue_)
+        return ((void *)0);
+    _queue_->buffer = alloc->calloc(capacity, sizeof(size_t));
+    if (!_queue_->buffer)
+    {
+        alloc->free(_queue_);
+        return ((void *)0);
+    }
+    _queue_->capacity = capacity;
+    _queue_->count = 0;
+    _queue_->front = 0;
+    _queue_->back = 0;
+    _queue_->flag = cmc_flags.OK;
+    _queue_->f_val = f_val;
+    _queue_->alloc = alloc;
+    _queue_->callbacks = callbacks;
+    _queue_->it_start = q_impl_it_start;
+    _queue_->it_end = q_impl_it_end;
+    return _queue_;
+}
+void q_clear(struct queue *_queue_)
+{
+    if (_queue_->f_val->free)
     {
         for (size_t i = _queue_->front, j = 0; j < _queue_->count; j++)
         {
-            deallocator(_queue_->buffer[i]);
+            _queue_->f_val->free(_queue_->buffer[i]);
             i = (i + 1) % _queue_->capacity;
         }
     }
@@ -88,92 +145,157 @@ void q_clear(queue *_queue_, void (*deallocator)(size_t))
     _queue_->count = 0;
     _queue_->front = 0;
     _queue_->back = 0;
+    _queue_->flag = cmc_flags.OK;
 }
-void q_free(queue *_queue_, void (*deallocator)(size_t))
+void q_free(struct queue *_queue_)
 {
-    if (deallocator)
+    if (_queue_->f_val->free)
     {
         for (size_t i = _queue_->front, j = 0; j < _queue_->count; j++)
         {
-            deallocator(_queue_->buffer[i]);
+            _queue_->f_val->free(_queue_->buffer[i]);
             i = (i + 1) % _queue_->capacity;
         }
     }
-    free(_queue_->buffer);
-    free(_queue_);
+    _queue_->alloc->free(_queue_->buffer);
+    _queue_->alloc->free(_queue_);
 }
-_Bool q_enqueue(queue *_queue_, size_t element)
+void q_customize(struct queue *_queue_, struct cmc_alloc_node *alloc,
+                 struct cmc_callbacks *callbacks)
+{
+    if (!alloc)
+        _queue_->alloc = &cmc_alloc_node_default;
+    else
+        _queue_->alloc = alloc;
+    _queue_->callbacks = callbacks;
+    _queue_->flag = cmc_flags.OK;
+}
+_Bool q_enqueue(struct queue *_queue_, size_t element)
 {
     if (q_full(_queue_))
     {
-        if (!q_resize(_queue_, q_capacity(_queue_) * 2))
+        if (!q_resize(_queue_, _queue_->capacity * 2))
             return 0;
     }
     _queue_->buffer[_queue_->back] = element;
-    _queue_->back = (_queue_->back == _queue_->capacity - 1) ? 0 : _queue_->back + 1;
+    _queue_->back =
+        (_queue_->back == _queue_->capacity - 1) ? 0 : _queue_->back + 1;
     _queue_->count++;
+    _queue_->flag = cmc_flags.OK;
+    if (_queue_->callbacks && _queue_->callbacks->create)
+        _queue_->callbacks->create();
     return 1;
 }
-_Bool q_dequeue(queue *_queue_)
+_Bool q_dequeue(struct queue *_queue_)
 {
     if (q_empty(_queue_))
+    {
+        _queue_->flag = cmc_flags.EMPTY;
         return 0;
-    _queue_->buffer[_queue_->front] = (size_t){0};
-    _queue_->front = (_queue_->front == _queue_->capacity - 1) ? 0 : _queue_->front + 1;
+    }
+    _queue_->buffer[_queue_->front] = (size_t){ 0 };
+    _queue_->front =
+        (_queue_->front == _queue_->capacity - 1) ? 0 : _queue_->front + 1;
     _queue_->count--;
+    _queue_->flag = cmc_flags.OK;
+    if (_queue_->callbacks && _queue_->callbacks->delete)
+        _queue_->callbacks->delete ();
     return 1;
 }
-size_t q_peek(queue *_queue_)
+size_t q_peek(struct queue *_queue_)
 {
     if (q_empty(_queue_))
-        return (size_t){0};
+    {
+        _queue_->flag = cmc_flags.EMPTY;
+        return (size_t){ 0 };
+    }
+    _queue_->flag = cmc_flags.OK;
+    if (_queue_->callbacks && _queue_->callbacks->read)
+        _queue_->callbacks->read();
     return _queue_->buffer[_queue_->front];
 }
-_Bool q_contains(queue *_queue_, size_t element, int (*comparator)(size_t, size_t))
+_Bool q_contains(struct queue *_queue_, size_t element)
 {
+    _queue_->flag = cmc_flags.OK;
+    _Bool result = 0;
     for (size_t i = _queue_->front, j = 0; j < _queue_->count; j++)
     {
-        if (comparator(_queue_->buffer[i], element) == 0)
-            return 1;
+        if (_queue_->f_val->cmp(_queue_->buffer[i], element) == 0)
+        {
+            result = 1;
+            break;
+        }
         i = (i + 1) % _queue_->capacity;
     }
-    return 0;
+    if (_queue_->callbacks && _queue_->callbacks->read)
+        _queue_->callbacks->read();
+    return result;
 }
-_Bool q_empty(queue *_queue_) { return _queue_->count == 0; }
-_Bool q_full(queue *_queue_) { return _queue_->count >= _queue_->capacity; }
-size_t q_count(queue *_queue_) { return _queue_->count; }
-size_t q_capacity(queue *_queue_) { return _queue_->capacity; }
-_Bool q_resize(queue *_queue_, size_t capacity)
+_Bool q_empty(struct queue *_queue_)
 {
-    if (q_capacity(_queue_) == capacity)
-        return 1;
-    if (capacity < q_count(_queue_))
+    return _queue_->count == 0;
+}
+_Bool q_full(struct queue *_queue_)
+{
+    return _queue_->count >= _queue_->capacity;
+}
+size_t q_count(struct queue *_queue_)
+{
+    return _queue_->count;
+}
+size_t q_capacity(struct queue *_queue_)
+{
+    return _queue_->capacity;
+}
+int q_flag(struct queue *_queue_)
+{
+    return _queue_->flag;
+}
+_Bool q_resize(struct queue *_queue_, size_t capacity)
+{
+    if (_queue_->capacity == capacity)
+        goto success;
+    if (capacity < _queue_->count)
+    {
+        _queue_->flag = cmc_flags.INVALID;
         return 0;
-    size_t *new_buffer = malloc(sizeof(size_t) * capacity);
+    }
+    size_t *new_buffer = _queue_->alloc->malloc(sizeof(size_t) * capacity);
     if (!new_buffer)
+    {
+        _queue_->flag = cmc_flags.ALLOC;
         return 0;
+    }
     for (size_t i = _queue_->front, j = 0; j < _queue_->count; j++)
     {
         new_buffer[j] = _queue_->buffer[i];
-        i = (i + 1) % q_capacity(_queue_);
+        i = (i + 1) % _queue_->capacity;
     }
-    free(_queue_->buffer);
+    _queue_->alloc->free(_queue_->buffer);
     _queue_->buffer = new_buffer;
     _queue_->capacity = capacity;
     _queue_->front = 0;
     _queue_->back = _queue_->count;
+success:
+    _queue_->flag = cmc_flags.OK;
+    if (_queue_->callbacks && _queue_->callbacks->resize)
+        _queue_->callbacks->resize();
     return 1;
 }
-queue *q_copy_of(queue *_queue_, size_t (*copy_func)(size_t))
+struct queue *q_copy_of(struct queue *_queue_)
 {
-    queue *result = q_new(_queue_->capacity);
+    struct queue *result = q_new_custom(_queue_->capacity, _queue_->f_val,
+                                        _queue_->alloc, _queue_->callbacks);
     if (!result)
+    {
+        _queue_->flag = cmc_flags.ERROR;
         return ((void *)0);
-    if (copy_func)
+    }
+    if (_queue_->f_val->cpy)
     {
         for (size_t i = _queue_->front, j = 0; j < _queue_->count; j++)
         {
-            result->buffer[j] = copy_func(_queue_->buffer[i]);
+            result->buffer[j] = _queue_->f_val->cpy(_queue_->buffer[i]);
             i = (i + 1) % _queue_->capacity;
         }
     }
@@ -186,40 +308,61 @@ queue *q_copy_of(queue *_queue_, size_t (*copy_func)(size_t))
         }
     }
     result->count = _queue_->count;
+    result->front = 0;
+    result->back = _queue_->count;
+    _queue_->flag = cmc_flags.OK;
     return result;
 }
-_Bool q_equals(queue *_queue1_, queue *_queue2_, int (*comparator)(size_t, size_t))
+_Bool q_equals(struct queue *_queue1_, struct queue *_queue2_)
 {
-    if (q_count(_queue1_) != q_count(_queue2_))
+    _queue1_->flag = cmc_flags.OK;
+    _queue2_->flag = cmc_flags.OK;
+    if (_queue1_->count != _queue2_->count)
         return 0;
     size_t i, j, k;
-    for (i = _queue1_->front, j = _queue2_->front, k = 0; k < q_count(_queue1_); k++)
+    for (i = _queue1_->front, j = _queue2_->front, k = 0; k < _queue1_->count;
+         k++)
     {
-        if (comparator(_queue1_->buffer[i], _queue2_->buffer[j]) != 0)
+        if (_queue1_->f_val->cmp(_queue1_->buffer[i], _queue2_->buffer[j]) != 0)
             return 0;
         i = (i + 1) % _queue1_->capacity;
         j = (j + 1) % _queue2_->capacity;
     }
     return 1;
 }
-struct cmc_string q_to_string(queue *_queue_)
+struct cmc_string q_to_string(struct queue *_queue_)
 {
     struct cmc_string str;
-    queue *q_ = _queue_;
-    const char *name = "queue";
-    snprintf(str.s, cmc_string_len, cmc_string_fmt_queue, name, q_, q_->buffer, q_->capacity, q_->count, q_->front, q_->back);
-    return str;
+    struct queue *q_ = _queue_;
+    int n =
+        snprintf(str.s, cmc_string_len, cmc_string_fmt_queue, "queue", "size_t",
+                 q_, q_->buffer, q_->capacity, q_->count, q_->front, q_->back,
+                 q_->flag, q_->f_val, q_->alloc, q_->callbacks);
+    return n >= 0 ? str : (struct cmc_string){ 0 };
 }
-queue_iter *q_iter_new(queue *target)
+_Bool q_print(struct queue *_queue_, FILE *fptr)
 {
-    queue_iter *iter = malloc(sizeof(queue_iter));
+    for (size_t i = _queue_->front, j = 0; j < _queue_->count; j++)
+    {
+        if (!_queue_->f_val->str(fptr, _queue_->buffer[i]))
+            return 0;
+        i = (i + 1) % _queue_->capacity;
+    }
+    return 1;
+}
+struct queue_iter *q_iter_new(struct queue *target)
+{
+    struct queue_iter *iter = target->alloc->malloc(sizeof(struct queue_iter));
     if (!iter)
         return ((void *)0);
     q_iter_init(iter, target);
     return iter;
 }
-void q_iter_free(queue_iter *iter) { free(iter); }
-void q_iter_init(queue_iter *iter, queue *target)
+void q_iter_free(struct queue_iter *iter)
+{
+    iter->target->alloc->free(iter);
+}
+void q_iter_init(struct queue_iter *iter, struct queue *target)
 {
     iter->target = target;
     iter->cursor = target->front;
@@ -227,16 +370,22 @@ void q_iter_init(queue_iter *iter, queue *target)
     iter->start = 1;
     iter->end = q_empty(target);
 }
-_Bool q_iter_start(queue_iter *iter) { return q_empty(iter->target) || iter->start; }
-_Bool q_iter_end(queue_iter *iter) { return q_empty(iter->target) || iter->end; }
-void q_iter_to_start(queue_iter *iter)
+_Bool q_iter_start(struct queue_iter *iter)
+{
+    return q_empty(iter->target) || iter->start;
+}
+_Bool q_iter_end(struct queue_iter *iter)
+{
+    return q_empty(iter->target) || iter->end;
+}
+void q_iter_to_start(struct queue_iter *iter)
 {
     iter->cursor = iter->target->front;
     iter->index = 0;
     iter->start = 1;
     iter->end = q_empty(iter->target);
 }
-void q_iter_to_end(queue_iter *iter)
+void q_iter_to_end(struct queue_iter *iter)
 {
     if (q_empty(iter->target))
         iter->cursor = 0;
@@ -251,11 +400,11 @@ void q_iter_to_end(queue_iter *iter)
     iter->start = q_empty(iter->target);
     iter->end = 1;
 }
-_Bool q_iter_next(queue_iter *iter)
+_Bool q_iter_next(struct queue_iter *iter)
 {
     if (iter->end)
         return 0;
-    if (iter->index + 1 == q_count(iter->target))
+    if (iter->index + 1 == iter->target->count)
     {
         iter->end = 1;
         return 0;
@@ -265,7 +414,7 @@ _Bool q_iter_next(queue_iter *iter)
     iter->index++;
     return 1;
 }
-_Bool q_iter_prev(queue_iter *iter)
+_Bool q_iter_prev(struct queue_iter *iter)
 {
     if (iter->start)
         return 0;
@@ -275,27 +424,28 @@ _Bool q_iter_prev(queue_iter *iter)
         return 0;
     }
     iter->end = q_empty(iter->target);
-    iter->cursor = (iter->cursor == 0) ? iter->target->capacity - 1 : iter->cursor - 1;
+    iter->cursor =
+        (iter->cursor == 0) ? iter->target->capacity - 1 : iter->cursor - 1;
     iter->index--;
     return 1;
 }
-_Bool q_iter_advance(queue_iter *iter, size_t steps)
+_Bool q_iter_advance(struct queue_iter *iter, size_t steps)
 {
     if (iter->end)
         return 0;
-    if (iter->index + 1 == q_count(iter->target))
+    if (iter->index + 1 == iter->target->count)
     {
         iter->end = 1;
         return 0;
     }
-    if (steps == 0 || iter->index + steps >= q_count(iter->target))
+    if (steps == 0 || iter->index + steps >= iter->target->count)
         return 0;
     iter->start = q_empty(iter->target);
     iter->index += steps;
     iter->cursor = (iter->cursor + steps) % iter->target->capacity;
     return 1;
 }
-_Bool q_iter_rewind(queue_iter *iter, size_t steps)
+_Bool q_iter_rewind(struct queue_iter *iter, size_t steps)
 {
     if (iter->start)
         return 0;
@@ -309,13 +459,13 @@ _Bool q_iter_rewind(queue_iter *iter, size_t steps)
     iter->end = q_empty(iter->target);
     iter->index -= steps;
     if (iter->cursor < steps)
-        iter->cursor += q_capacity(iter->target);
+        iter->cursor += iter->target->capacity;
     iter->cursor -= steps;
     return 1;
 }
-_Bool q_iter_go_to(queue_iter *iter, size_t index)
+_Bool q_iter_go_to(struct queue_iter *iter, size_t index)
 {
-    if (index >= q_count(iter->target))
+    if (index >= iter->target->count)
         return 0;
     if (iter->index > index)
         return q_iter_rewind(iter, iter->index - index);
@@ -323,29 +473,32 @@ _Bool q_iter_go_to(queue_iter *iter, size_t index)
         return q_iter_advance(iter, index - iter->index);
     return 1;
 }
-size_t q_iter_value(queue_iter *iter)
+size_t q_iter_value(struct queue_iter *iter)
 {
     if (q_empty(iter->target))
-        return (size_t){0};
+        return (size_t){ 0 };
     return iter->target->buffer[iter->cursor];
 }
-size_t *q_iter_rvalue(queue_iter *iter)
+size_t *q_iter_rvalue(struct queue_iter *iter)
 {
     if (q_empty(iter->target))
         return ((void *)0);
     return &(iter->target->buffer[iter->cursor]);
 }
-size_t q_iter_index(queue_iter *iter) { return iter->index; }
-static queue_iter q_impl_it_start(queue *_queue_)
+size_t q_iter_index(struct queue_iter *iter)
 {
-    queue_iter iter;
+    return iter->index;
+}
+static struct queue_iter q_impl_it_start(struct queue *_queue_)
+{
+    struct queue_iter iter;
     q_iter_init(&iter, _queue_);
     q_iter_to_start(&iter);
     return iter;
 }
-static queue_iter q_impl_it_end(queue *_queue_)
+static struct queue_iter q_impl_it_end(struct queue *_queue_)
 {
-    queue_iter iter;
+    struct queue_iter iter;
     q_iter_init(&iter, _queue_);
     q_iter_to_end(&iter);
     return iter;
