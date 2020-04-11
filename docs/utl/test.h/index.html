@@ -149,7 +149,78 @@
                 <div id="content" class="content">
                     <main>
                         <h1><a class="header" href="#testh" id="testh">test.h</a></h1>
-<p>Simple unit test utility.</p>
+<p>A simple <a href="https://en.wikipedia.org/wiki/Unit_testing">Unit Test</a> utility used by the C Macro Collections Library. It has two main components: a Unit and a Test.</p>
+<p>This utility uses two other libraries defined in the C Macro Collections library:</p>
+<ul>
+<li><a href="../assert.h/index.html"><code>assert.h</code></a></li>
+<li><a href="../timer.h/index.html"><code>timer.h</code></a></li>
+</ul>
+<p>When a test is created inside a unit, it will first set the global variable <a href="../assert.h/index.html#cmc_assert_state"><code>cmc_assert_state</code></a> to <code>true</code>. Then, inside the test you can use the assertions provided by the <code>assert.h</code> library to pass or fail a unit test automatically. By the end of a test the variable will be checked. If <code>false</code> it means that a certain assertion failed.</p>
+<p>The runtime of each Unit Test is calculated using the <code>timer.h</code> library.</p>
+<h2><a class="header" href="#cmc_create_unit" id="cmc_create_unit">CMC_CREATE_UNIT</a></h2>
+<p>Creates a Unit that can contain tests.</p>
+<pre><code class="language-c">#define CMC_CREATE_UNIT(UNAME, VERBOSE, BODY)
+</code></pre>
+<ul>
+<li><code>UNAME</code> - Unit name. This needs to be a valid function name!</li>
+<li><code>VERBOSE</code> - Either <code>true</code> or <code>false</code>. If <code>true</code>, prints every message of <code>PASSED</code> or <code>FAILED</code> from each test</li>
+<li><code>BODY</code> - A block of code containing tests</li>
+</ul>
+<h2><a class="header" href="#cmc_create_test" id="cmc_create_test">CMC_CREATE_TEST</a></h2>
+<p>Creates a test within a unit. This macro can only be used inside the <code>BODY</code> of a <code>CMC_CREATE_UNIT</code> since it uses local variables allocated by the latter.</p>
+<pre><code class="language-c">#define CMC_CREATE_TEST(TNAME, BODY)
+</code></pre>
+<ul>
+<li><code>TNAME</code> - Test name</li>
+<li><code>BODY</code> - A block of code containing the test itself</li>
+</ul>
+<p>Inside a test you can use the assertions from <code>assert.h</code> to automatically pass or fail a test.</p>
+<h2><a class="header" href="#cmc_test_abort" id="cmc_test_abort">CMC_TEST_ABORT</a></h2>
+<p>Aborts a unit test. This will jump to a <code>goto</code> located at the end of the Unit Test.</p>
+<h2><a class="header" href="#cmc_test_info" id="cmc_test_info">cmc_test_info</a></h2>
+<p>Contains information about a Unit Test. Used internally.</p>
+<pre><code class="language-c">struct cmc_test_info
+{
+    uintmax_t total;
+    uintmax_t passed;
+    uintmax_t failed;
+    bool aborted;
+    bool verbose;
+};
+</code></pre>
+<h2><a class="header" href="#cmc_test_color" id="cmc_test_color">CMC_TEST_COLOR</a></h2>
+<p>Define this macro if you wish to have color output from the messages printed by each test. Note that a Unit Test need to have <code>VERBOSE</code> equal to <code>true</code>.</p>
+<h2><a class="header" href="#example" id="example">Example</a></h2>
+<pre><code class="language-c">#include &quot;utl/test.h&quot;
+
+CMC_CREATE_UNIT(check_math, true, {
+    CMC_CREATE_TEST(summation, {
+        // assert.h already comes with test.h
+        cmc_assert_equals(int32_t, 4, 2 + 2);
+    });
+
+    CMC_CREATE_TEST(subtraction, {
+        cmc_assert_equals(int32_t, -1, 2 - 3);
+    });
+
+    CMC_CREATE_TEST(this will fail, {
+        // test names can be text as long as they don't have a comma
+        cmc_assert_greater(double, 1.0, 0.0);
+    });
+
+    CMC_CREATE_TEST(fish, {
+        // You can also manually fail a test
+        if (strcmp(&quot;2 + 2&quot;, &quot;fish&quot;) != 0)
+            cmc_assert_state = false;
+    });
+});
+
+int main(void)
+{
+    // returns how many tests failed
+    return check_math();
+}
+</code></pre>
 
                     </main>
 

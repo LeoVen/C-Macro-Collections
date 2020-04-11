@@ -5,9 +5,24 @@ For-Each macros. Since doing a for loop with iterators can be a lot to write, th
 * `CMC_FOREACH` - Goes from the beginning of a Collection to the end
 * `CMC_FOREAC_REV` - Goes from the end of a Collection to the beginning
 
-## Parameters
+## CMC_FOREACH
+
+```c
+#define CMC_FOREACH(PFX, SNAME, ITERNAME, TARGET)
+```
 
 * `PFX` - Functions prefix
 * `SNAME` - Struct name
 * `ITERNAME` - Iterator variable name
-* `TARGET` - Target variable
+* `TARGET` - Target collection variable name
+
+## CMC_FOREACH_REV
+
+```c
+#define CMC_FOREACH_REV(PFX, SNAME, ITERNAME, TARGET)
+```
+
+* `PFX` - Functions prefix
+* `SNAME` - Struct name
+* `ITERNAME` - Iterator variable name
+* `TARGET` - Target collection variable name

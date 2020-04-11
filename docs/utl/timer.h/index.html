@@ -149,7 +149,55 @@
                 <div id="content" class="content">
                     <main>
                         <h1><a class="header" href="#timerh" id="timerh">timer.h</a></h1>
-<p>Simple code execution utility.</p>
+<p>A very simple library that encapsulates <code>clock()</code> from <code>&lt;time.h&gt;</code>, making life easier.</p>
+<h2><a class="header" href="#cmc_timer" id="cmc_timer">cmc_timer</a></h2>
+<pre><code class="language-c">struct cmc_timer
+{
+    clock_t start;
+    clock_t stop;
+    double result;
+};
+</code></pre>
+<ul>
+<li><code>clock_t start</code> - Start of timing</li>
+<li><code>clock_t stop</code> - End of timing</li>
+<li><code>double result</code> - Result in milliseconds</li>
+</ul>
+<h2><a class="header" href="#cmc_timer_start" id="cmc_timer_start">cmc_timer_start</a></h2>
+<p>Starts the timer by setting <code>start</code> with <code>clock()</code>.</p>
+<pre><code class="language-c">#define cmc_timer_start(timer)
+</code></pre>
+<ul>
+<li><code>timer</code> - A <code>struct cmc_timer</code> variable</li>
+</ul>
+<h2><a class="header" href="#cmc_timer_stop" id="cmc_timer_stop">cmc_timer_stop</a></h2>
+<p>Sets the <code>stop</code> variable with <code>clock()</code> and calculates the <code>result</code> in milliseconds.</p>
+<pre><code class="language-c">#define cmc_timer_start(timer)
+</code></pre>
+<ul>
+<li><code>timer</code> - A <code>struct cmc_timer</code> variable</li>
+</ul>
+<h2><a class="header" href="#example" id="example">Example</a></h2>
+<pre><code class="language-c">#include &lt;stdio.h&gt;
+
+#include &quot;utl/timer.h&quot;
+
+int main(void)
+{
+    struct cmc_timer t;
+
+    cmc_timer_start(t);
+
+    size_t total = 0;
+
+    for (size_t i = 0; i &lt; 1000000000; i++)
+        total += i;
+
+    cmc_timer_stop(t);
+
+    printf(&quot;Sum took %.0lf milliseconds to calculate\n&quot;, t.result);
+}
+</code></pre>
 
                     </main>
 

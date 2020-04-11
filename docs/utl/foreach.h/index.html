@@ -154,12 +154,23 @@
 <li><code>CMC_FOREACH</code> - Goes from the beginning of a Collection to the end</li>
 <li><code>CMC_FOREAC_REV</code> - Goes from the end of a Collection to the beginning</li>
 </ul>
-<h2><a class="header" href="#parameters" id="parameters">Parameters</a></h2>
+<h2><a class="header" href="#cmc_foreach" id="cmc_foreach">CMC_FOREACH</a></h2>
+<pre><code class="language-c">#define CMC_FOREACH(PFX, SNAME, ITERNAME, TARGET)
+</code></pre>
 <ul>
 <li><code>PFX</code> - Functions prefix</li>
 <li><code>SNAME</code> - Struct name</li>
 <li><code>ITERNAME</code> - Iterator variable name</li>
-<li><code>TARGET</code> - Target variable</li>
+<li><code>TARGET</code> - Target collection variable name</li>
+</ul>
+<h2><a class="header" href="#cmc_foreach_rev" id="cmc_foreach_rev">CMC_FOREACH_REV</a></h2>
+<pre><code class="language-c">#define CMC_FOREACH_REV(PFX, SNAME, ITERNAME, TARGET)
+</code></pre>
+<ul>
+<li><code>PFX</code> - Functions prefix</li>
+<li><code>SNAME</code> - Struct name</li>
+<li><code>ITERNAME</code> - Iterator variable name</li>
+<li><code>TARGET</code> - Target collection variable name</li>
 </ul>
 
                     </main>

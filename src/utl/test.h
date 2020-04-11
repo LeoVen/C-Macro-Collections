@@ -101,7 +101,6 @@ static void cmc_test_log(const char *unit_name, const char *current_test,
         BODY;                                                                \
                                                                              \
         cmc_timer_stop(timer);                                               \
-        cmc_timer_calc(timer);                                               \
                                                                              \
     unittest_abort:                                                          \
         if (tinfo.aborted)                                                   \
