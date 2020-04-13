@@ -6,24 +6,24 @@ INCLUDE = ../../src/
 
 main: FORCE
 	$(CC) main.c -o main.exe $(CFLAGS) $(CVFLAGS) -I $(INCLUDE)
-	./main
+	./main.exe
 	gcov ./main.c
 
 dev: FORCE
 	$(CC) main.c -o main.exe $(CFLAGS) $(CVFLAGS) -I $(INCLUDE)
-	./main
+	./main.exe
 	gcov ./main.c -n
 	rm *.gcda *.gcno *.exe
 
 windev: FORCE
 	$(CC) main.c -o main.exe $(CFLAGS) $(CVFLAGS) -I $(INCLUDE)
-	./main
+	./main.exe
 	gcov ./main.c -n
 	del *.gcda *.gcno *.exe
 
 nocov: FORCE
 	$(CC) main.c -o main.exe $(CFLAGS) -I $(INCLUDE)
-	./main
+	./main.exe
 	rm *.exe
 
 FORCE:
