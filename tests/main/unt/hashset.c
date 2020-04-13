@@ -1,11 +1,9 @@
 #include "utl.c"
-#include <utl/assert.h>
-#include <utl/log.h>
-#include <utl/test.h>
+#include "utl/assert.h"
+#include "utl/log.h"
+#include "utl/test.h"
 
-#include <cmc/hashset.h>
-
-CMC_GENERATE_HASHSET(hs, hashset, size_t)
+#include "../src/hashset.c"
 
 struct hashset_ftab_val *hs_ftab_val =
     &(struct hashset_ftab_val){ .cmp = cmp,

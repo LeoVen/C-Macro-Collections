@@ -1,21 +1,29 @@
 CC = gcc
 CFLAGS = -std=c11 -Wall -Wextra
-CFLAGS += -Wno-unused -Wno-missing-braces
-CFLAGS += -DCMC_TEST_COLOR
+CFLAGS += -Wno-unused -Wno-missing-braces -DCMC_TEST_COLOR
+CVFLAGS = --coverage -O0
 INCLUDE = ../../src/
 
 main: FORCE
-	$(CC) main.c -o main $(CFLAGS) -I $(INCLUDE)
+	$(CC) main.c -o main.exe $(CFLAGS) $(CVFLAGS) -I $(INCLUDE)
 	./main
+	gcov ./main.c
 
 dev: FORCE
-	$(CC) main.c -o main.exe $(CFLAGS) -I $(INCLUDE)
-	./main.exe
-	rm *.exe
+	$(CC) main.c -o main.exe $(CFLAGS) $(CVFLAGS) -I $(INCLUDE)
+	./main
+	gcov ./main.c -n
+	rm *.gcda *.gcno *.exe
 
 windev: FORCE
-	$(CC) main.c -o main $(CFLAGS) -I $(INCLUDE)
+	$(CC) main.c -o main.exe $(CFLAGS) $(CVFLAGS) -I $(INCLUDE)
 	./main
-	del *.exe
+	gcov ./main.c -n
+	del *.gcda *.gcno *.exe
+
+nocov: FORCE
+	$(CC) main.c -o main.exe $(CFLAGS) -I $(INCLUDE)
+	./main
+	rm *.exe
 
 FORCE:

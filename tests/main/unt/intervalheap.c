@@ -1,11 +1,9 @@
 #include "utl.c"
-#include <utl/assert.h>
-#include <utl/log.h>
-#include <utl/test.h>
+#include "utl/assert.h"
+#include "utl/log.h"
+#include "utl/test.h"
 
-#include <cmc/intervalheap.h>
-
-CMC_GENERATE_INTERVALHEAP(ih, intervalheap, size_t)
+#include "../src/intervalheap.c"
 
 struct intervalheap_ftab_val *ih_ftab_val =
     &(struct intervalheap_ftab_val){ .cmp = cmp,

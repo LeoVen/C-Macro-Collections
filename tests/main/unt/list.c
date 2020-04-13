@@ -1,11 +1,9 @@
 #include "utl.c"
-#include <utl/assert.h>
-#include <utl/log.h>
-#include <utl/test.h>
+#include "utl/assert.h"
+#include "utl/log.h"
+#include "utl/test.h"
 
-#include <cmc/list.h>
-
-CMC_GENERATE_LIST(l, list, size_t)
+#include "../src/list.c"
 
 struct list_ftab_val *l_ftab_val = &(struct list_ftab_val){ .cmp = cmp,
                                                             .cpy = copy,

@@ -1,11 +1,9 @@
 #include "utl.c"
-#include <utl/assert.h>
-#include <utl/log.h>
-#include <utl/test.h>
+#include "utl/assert.h"
+#include "utl/log.h"
+#include "utl/test.h"
 
-#include <cmc/queue.h>
-
-CMC_GENERATE_QUEUE(q, queue, size_t)
+#include "../src/queue.c"
 
 struct queue_ftab_val *q_ftab_val =
     &(struct queue_ftab_val){ .cmp = cmp,

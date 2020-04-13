@@ -96,7 +96,7 @@ static bool cmc_assert_state = true;
 /**
  * dtype    : One of the data types listed at the beggining of this file.
  * expected : Expected value for the assertion to pass.
- * actual   : Actual value tested against 'expected'.
+ * actual   : Actual value tested against 'not_expected'.
  */
 #define cmc_assert_not_equals(dtype, not_expected, actual) \
     CMC_ASSERT_GLUE(dtype, not_equals)                     \

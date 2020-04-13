@@ -1,11 +1,9 @@
 #include "utl.c"
-#include <utl/assert.h>
-#include <utl/log.h>
-#include <utl/test.h>
+#include "utl/assert.h"
+#include "utl/log.h"
+#include "utl/test.h"
 
-#include <cmc/multiset.h>
-
-CMC_GENERATE_MULTISET(ms, multiset, size_t)
+#include "../src/multiset.c"
 
 struct multiset_ftab_val *ms_ftab_val =
     &(struct multiset_ftab_val){ .cmp = cmp,

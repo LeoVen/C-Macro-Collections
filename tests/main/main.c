@@ -1,4 +1,4 @@
-#include <utl/timer.h>
+#include "utl/timer.h"
 
 #include "unt/bidimap.c"
 #include "unt/deque.c"
@@ -42,8 +42,9 @@ int main(void)
     cmc_timer_stop(timer);
 
     printf("+--------------------------------------------------+\n");
-    printf("| Total running time : %14.0lf milliseconds |\n", timer.result);
+    printf("| Total Tests Failed : %14" PRIuMAX " tests        |\n", failed);
+    printf("| Total Running Time : %14.0lf milliseconds |\n", timer.result);
     printf("+--------------------------------------------------+\n");
 
-    return failed;
+    return 0;
 }

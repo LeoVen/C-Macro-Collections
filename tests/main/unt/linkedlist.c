@@ -1,11 +1,9 @@
 #include "utl.c"
-#include <utl/assert.h>
-#include <utl/log.h>
-#include <utl/test.h>
+#include "utl/assert.h"
+#include "utl/log.h"
+#include "utl/test.h"
 
-#include <cmc/linkedlist.h>
-
-CMC_GENERATE_LINKEDLIST(ll, linkedlist, size_t)
+#include "../src/linkedlist.c"
 
 struct linkedlist_ftab_val *ll_ftab_val =
     &(struct linkedlist_ftab_val){ .cmp = cmp,

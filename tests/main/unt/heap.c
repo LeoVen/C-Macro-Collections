@@ -1,11 +1,9 @@
 #include "utl.c"
-#include <utl/assert.h>
-#include <utl/log.h>
-#include <utl/test.h>
+#include "utl/assert.h"
+#include "utl/log.h"
+#include "utl/test.h"
 
-#include <cmc/heap.h>
-
-CMC_GENERATE_HEAP(h, heap, size_t)
+#include "../src/heap.c"
 
 struct heap_ftab_val *h_ftab_val = &(struct heap_ftab_val){ .cmp = cmp,
                                                             .cpy = copy,

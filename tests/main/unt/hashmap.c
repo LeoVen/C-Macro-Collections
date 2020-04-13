@@ -1,11 +1,9 @@
 #include "utl.c"
-#include <utl/assert.h>
-#include <utl/log.h>
-#include <utl/test.h>
+#include "utl/assert.h"
+#include "utl/log.h"
+#include "utl/test.h"
 
-#include <cmc/hashmap.h>
-
-CMC_GENERATE_HASHMAP(hm, hashmap, size_t, size_t)
+#include "../src/hashmap.c"
 
 struct hashmap_ftab_key *hm_ftab_key =
     &(struct hashmap_ftab_key){ .cmp = cmp,

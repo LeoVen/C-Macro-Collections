@@ -1,11 +1,9 @@
 #include "utl.c"
-#include <utl/assert.h>
-#include <utl/log.h>
-#include <utl/test.h>
+#include "utl/assert.h"
+#include "utl/log.h"
+#include "utl/test.h"
 
-#include <cmc/multimap.h>
-
-CMC_GENERATE_MULTIMAP(mm, multimap, size_t, size_t)
+#include "../src/multimap.c"
 
 struct multimap_ftab_key *mm_ftab_key =
     &(struct multimap_ftab_key){ .cmp = cmp,

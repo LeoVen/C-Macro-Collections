@@ -1,11 +1,9 @@
 #include "utl.c"
-#include <utl/assert.h>
-#include <utl/log.h>
-#include <utl/test.h>
+#include "utl/assert.h"
+#include "utl/log.h"
+#include "utl/test.h"
 
-#include <cmc/stack.h>
-
-CMC_GENERATE_STACK(s, stack, size_t)
+#include "../src/stack.c"
 
 struct stack_ftab_val *s_ftab_val =
     &(struct stack_ftab_val){ .cmp = cmp,

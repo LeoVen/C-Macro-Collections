@@ -1,11 +1,9 @@
 #include "utl.c"
-#include <utl/assert.h>
-#include <utl/log.h>
-#include <utl/test.h>
+#include "utl/assert.h"
+#include "utl/log.h"
+#include "utl/test.h"
 
-#include <cmc/treemap.h>
-
-CMC_GENERATE_TREEMAP(tm, treemap, size_t, size_t)
+#include "../src/treemap.c"
 
 struct treemap_ftab_key *tm_ftab_key =
     &(struct treemap_ftab_key){ .cmp = cmp,

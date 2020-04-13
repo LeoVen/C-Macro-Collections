@@ -1,11 +1,9 @@
 #include "utl.c"
-#include <utl/assert.h>
-#include <utl/log.h>
-#include <utl/test.h>
+#include "utl/assert.h"
+#include "utl/log.h"
+#include "utl/test.h"
 
-#include <cmc/treeset.h>
-
-CMC_GENERATE_TREESET(ts, treeset, size_t)
+#include "../src/treeset.c"
 
 struct treeset_ftab_val *ts_ftab_val =
     &(struct treeset_ftab_val){ .cmp = cmp,

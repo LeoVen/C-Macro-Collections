@@ -1,11 +1,9 @@
 #include "utl.c"
-#include <utl/assert.h>
-#include <utl/log.h>
-#include <utl/test.h>
+#include "utl/assert.h"
+#include "utl/log.h"
+#include "utl/test.h"
 
-#include <cmc/bidimap.h>
-
-CMC_GENERATE_BIDIMAP(bm, bidimap, size_t, size_t)
+#include "../src/bidimap.c"
 
 struct bidimap_ftab_key *bm_ftab_key =
     &(struct bidimap_ftab_key){ .cmp = cmp,

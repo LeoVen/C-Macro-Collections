@@ -2,7 +2,6 @@
 
 import os
 import re
-import time
 import subprocess
 
 # Compiler settings
@@ -22,7 +21,7 @@ UNIQUE_FLAG = '// C_MACRO_COLLECTIONS_CODE'
 TMP_FILE = 'main.c'
 
 # Output directory
-OUTPUT_DIR = './tests/codecov/src'
+OUTPUT_DIR = './tests/main/src'
 
 collections = [
     # type, header, pfx, sname, key, val

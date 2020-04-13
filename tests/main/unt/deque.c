@@ -1,11 +1,9 @@
 #include "utl.c"
-#include <utl/assert.h>
-#include <utl/log.h>
-#include <utl/test.h>
+#include "utl/assert.h"
+#include "utl/log.h"
+#include "utl/test.h"
 
-#include <cmc/deque.h>
-
-CMC_GENERATE_DEQUE(d, deque, size_t)
+#include "../src/deque.c"
 
 struct deque_ftab_val *d_ftab_val =
     &(struct deque_ftab_val){ .cmp = cmp,
