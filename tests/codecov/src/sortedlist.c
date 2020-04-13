@@ -1,6 +1,4 @@
-#include <cmc/sortedlist.h>
-
-// CMC_GENERATE_SORTEDLIST(sl, sortedlist, size_t)
+#include "cmc/sortedlist.h"
 
 struct sortedlist
 {

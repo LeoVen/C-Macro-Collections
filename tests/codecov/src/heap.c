@@ -1,6 +1,4 @@
-#include <cmc/heap.h>
-
-// CMC_GENERATE_HEAP(h, heap, size_t)
+#include "cmc/heap.h"
 
 struct heap
 {

@@ -1,6 +1,4 @@
-#include <cmc/queue.h>
-
-// CMC_GENERATE_QUEUE(q, queue, size_t)
+#include "cmc/queue.h"
 
 struct queue
 {

@@ -1,6 +1,4 @@
-#include <cmc/list.h>
-
-// CMC_GENERATE_LIST(l, list, size_t)
+#include "cmc/list.h"
 
 struct list
 {

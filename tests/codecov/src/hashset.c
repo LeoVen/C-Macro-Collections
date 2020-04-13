@@ -1,6 +1,4 @@
-#include <cmc/hashset.h>
-
-// CMC_GENERATE_HASHSET(hs, hashset, size_t)
+#include "cmc/hashset.h"
 
 struct hashset
 {
@@ -101,7 +99,7 @@ struct hashset *hs_new(size_t capacity, double load,
     struct cmc_alloc_node *alloc = &cmc_alloc_node_default;
     if (capacity == 0 || load <= 0 || load >= 1)
         return ((void *)0);
-    if (capacity >= 0xffffffffffffffff * load)
+    if (capacity >= 0xffffffffffffffffULL * load)
         return ((void *)0);
     if (!f_val)
         return ((void *)0);
@@ -133,7 +131,7 @@ struct hashset *hs_new_custom(size_t capacity, double load,
 {
     if (capacity == 0 || load <= 0 || load >= 1)
         return ((void *)0);
-    if (capacity >= 0xffffffffffffffff * load)
+    if (capacity >= 0xffffffffffffffffULL * load)
         return ((void *)0);
     if (!f_val)
         return ((void *)0);
@@ -367,7 +365,7 @@ _Bool hs_resize(struct hashset *_set_, size_t capacity)
         goto success;
     if (_set_->capacity > capacity / _set_->load)
         goto success;
-    if (capacity >= 0xffffffffffffffff * _set_->load)
+    if (capacity >= 0xffffffffffffffffULL * _set_->load)
     {
         _set_->flag = cmc_flags.ERROR;
         return 0;

@@ -1,6 +1,4 @@
-#include <cmc/treemap.h>
-
-// CMC_GENERATE_TREEMAP(tm, treemap, size_t, size_t)
+#include "cmc/treemap.h"
 
 struct treemap
 {

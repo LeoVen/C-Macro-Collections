@@ -1,6 +1,4 @@
-#include <cmc/intervalheap.h>
-
-// CMC_GENERATE_INTERVALHEAP(ih, intervalheap, size_t)
+#include "cmc/intervalheap.h"
 
 struct intervalheap
 {
@@ -87,7 +85,7 @@ struct intervalheap *ih_new(size_t capacity,
                             struct intervalheap_ftab_val *f_val)
 {
     struct cmc_alloc_node *alloc = &cmc_alloc_node_default;
-    if (capacity == 0 || capacity == 0xffffffffffffffff)
+    if (capacity == 0 || capacity == 0xffffffffffffffffULL)
         return ((void *)0);
     if (!f_val)
         return ((void *)0);
@@ -117,7 +115,7 @@ struct intervalheap *ih_new_custom(size_t capacity,
                                    struct cmc_alloc_node *alloc,
                                    struct cmc_callbacks *callbacks)
 {
-    if (capacity == 0 || capacity == 0xffffffffffffffff)
+    if (capacity == 0 || capacity == 0xffffffffffffffffULL)
         return ((void *)0);
     if (!f_val)
         return ((void *)0);
@@ -414,7 +412,7 @@ _Bool ih_resize(struct intervalheap *_heap_, size_t capacity)
         _heap_->flag = cmc_flags.INVALID;
         return 0;
     }
-    if (capacity == 0xffffffffffffffff)
+    if (capacity == 0xffffffffffffffffULL)
     {
         _heap_->flag = cmc_flags.ERROR;
         return 0;

@@ -1,6 +1,4 @@
-#include <cmc/multiset.h>
-
-// CMC_GENERATE_MULTISET(ms, multiset, size_t)
+#include "cmc/multiset.h"
 
 struct multiset
 {
@@ -116,7 +114,7 @@ struct multiset *ms_new(size_t capacity, double load,
     struct cmc_alloc_node *alloc = &cmc_alloc_node_default;
     if (capacity == 0 || load <= 0 || load >= 1)
         return ((void *)0);
-    if (capacity >= 0xffffffffffffffff * load)
+    if (capacity >= 0xffffffffffffffffULL * load)
         return ((void *)0);
     if (!f_val)
         return ((void *)0);
@@ -149,7 +147,7 @@ struct multiset *ms_new_custom(size_t capacity, double load,
 {
     if (capacity == 0 || load <= 0 || load >= 1)
         return ((void *)0);
-    if (capacity >= 0xffffffffffffffff * load)
+    if (capacity >= 0xffffffffffffffffULL * load)
         return ((void *)0);
     if (!f_val)
         return ((void *)0);
@@ -449,7 +447,7 @@ _Bool ms_resize(struct multiset *_set_, size_t capacity)
         goto success;
     if (_set_->capacity > capacity / _set_->load)
         goto success;
-    if (capacity >= 0xffffffffffffffff * _set_->load)
+    if (capacity >= 0xffffffffffffffffULL * _set_->load)
     {
         _set_->flag = cmc_flags.ERROR;
         return 0;

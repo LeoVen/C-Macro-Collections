@@ -1,6 +1,4 @@
-#include <cmc/deque.h>
-
-// CMC_GENERATE_DEQUE(d, deque, size_t)
+#include "cmc/deque.h"
 
 struct deque
 {

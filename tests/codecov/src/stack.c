@@ -1,6 +1,4 @@
-#include <cmc/stack.h>
-
-// CMC_GENERATE_STACK(s, stack, size_t)
+#include "cmc/stack.h"
 
 struct stack
 {

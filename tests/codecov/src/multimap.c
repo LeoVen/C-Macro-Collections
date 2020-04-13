@@ -1,6 +1,4 @@
-#include <cmc/multimap.h>
-
-// CMC_GENERATE_MULTIMAP(mm, multimap, size_t, size_t)
+#include "cmc/multimap.h"
 
 struct multimap
 {
@@ -118,7 +116,7 @@ struct multimap *mm_new(size_t capacity, double load,
     struct cmc_alloc_node *alloc = &cmc_alloc_node_default;
     if (capacity == 0 || load <= 0)
         return ((void *)0);
-    if (capacity >= 0xffffffffffffffff * load)
+    if (capacity >= 0xffffffffffffffffULL * load)
         return ((void *)0);
     if (!f_key || !f_val)
         return ((void *)0);
@@ -153,7 +151,7 @@ struct multimap *mm_new_custom(size_t capacity, double load,
 {
     if (capacity == 0 || load <= 0)
         return ((void *)0);
-    if (capacity >= 0xffffffffffffffff * load)
+    if (capacity >= 0xffffffffffffffffULL * load)
         return ((void *)0);
     if (!f_key || !f_val)
         return ((void *)0);
@@ -632,7 +630,7 @@ _Bool mm_resize(struct multimap *_map_, size_t capacity)
         goto success;
     if (_map_->capacity > capacity / _map_->load)
         goto success;
-    if (capacity >= 0xffffffffffffffff * _map_->load)
+    if (capacity >= 0xffffffffffffffffULL * _map_->load)
     {
         _map_->flag = cmc_flags.ERROR;
         return 0;

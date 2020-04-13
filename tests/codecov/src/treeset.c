@@ -1,6 +1,4 @@
-#include <cmc/treeset.h>
-
-// CMC_GENERATE_TREESET(ts, treeset, size_t)
+#include "cmc/treeset.h"
 
 struct treeset
 {

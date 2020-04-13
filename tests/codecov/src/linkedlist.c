@@ -1,6 +1,4 @@
-#include <cmc/linkedlist.h>
-
-// CMC_GENERATE_LINKEDLIST(ll, linkedlist, size_t)
+#include "cmc/linkedlist.h"
 
 struct linkedlist
 {
