@@ -17,8 +17,8 @@
  * TARGET   - Target variable
  */
 
-#ifndef CMC_FOR_EACH_H
-#define CMC_FOR_EACH_H
+#ifndef CMC_FOREACH_H
+#define CMC_FOREACH_H
 
 #define CMC_FOREACH(PFX, SNAME, ITERNAME, TARGET)                   \
     for (struct SNAME##_iter ITERNAME = (TARGET)->it_start(TARGET); \
@@ -28,4 +28,4 @@
     for (struct SNAME##_iter ITERNAME = (TARGET)->it_end(TARGET); \
          !PFX##_iter_start(&ITERNAME); PFX##_iter_prev(&ITERNAME))
 
-#endif /* CMC_FOR_EACH_H */
+#endif /* CMC_FOREACH_H */
