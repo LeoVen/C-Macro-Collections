@@ -5,16 +5,16 @@
 
 #include "../src/treemap.c"
 
-struct treemap_ftab_key *tm_ftab_key =
-    &(struct treemap_ftab_key){ .cmp = cmp,
+struct treemap_fkey *tm_fkey =
+    &(struct treemap_fkey){ .cmp = cmp,
                                 .cpy = copy,
                                 .str = str,
                                 .free = custom_free,
                                 .hash = hash,
                                 .pri = pri };
 
-struct treemap_ftab_val *tm_ftab_val =
-    &(struct treemap_ftab_val){ .cmp = cmp,
+struct treemap_fval *tm_fval =
+    &(struct treemap_fval){ .cmp = cmp,
                                 .cpy = copy,
                                 .str = str,
                                 .free = custom_free,
@@ -23,7 +23,7 @@ struct treemap_ftab_val *tm_ftab_val =
 
 CMC_CREATE_UNIT(treemap_test, true, {
     CMC_CREATE_TEST(new, {
-        struct treemap *map = tm_new(tm_ftab_key, tm_ftab_val);
+        struct treemap *map = tm_new(tm_fkey, tm_fval);
 
         cmc_assert_not_equals(ptr, NULL, map);
 
@@ -31,7 +31,7 @@ CMC_CREATE_UNIT(treemap_test, true, {
     });
 
     CMC_CREATE_TEST(clear[count], {
-        struct treemap *map = tm_new(tm_ftab_key, tm_ftab_val);
+        struct treemap *map = tm_new(tm_fkey, tm_fval);
 
         cmc_assert_not_equals(ptr, NULL, map);
 
@@ -49,7 +49,7 @@ CMC_CREATE_UNIT(treemap_test, true, {
     });
 
     CMC_CREATE_TEST(flags, {
-        struct treemap *map = tm_new(tm_ftab_key, tm_ftab_val);
+        struct treemap *map = tm_new(tm_fkey, tm_fval);
 
         cmc_assert_not_equals(ptr, NULL, map);
         cmc_assert_equals(int32_t, cmc_flags.OK, tm_flag(map));
@@ -140,7 +140,7 @@ CMC_CREATE_UNIT(treemap_test, true, {
 
     CMC_CREATE_TEST(callbacks, {
         struct treemap *map =
-            tm_new_custom(tm_ftab_key, tm_ftab_val, NULL, callbacks);
+            tm_new_custom(tm_fkey, tm_fval, NULL, callbacks);
 
         cmc_assert_not_equals(ptr, NULL, map);
 

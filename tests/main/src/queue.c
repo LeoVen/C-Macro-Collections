@@ -8,13 +8,13 @@ struct queue
     size_t front;
     size_t back;
     int flag;
-    struct queue_ftab_val *f_val;
+    struct queue_fval *f_val;
     struct cmc_alloc_node *alloc;
     struct cmc_callbacks *callbacks;
     struct queue_iter (*it_start)(struct queue *);
     struct queue_iter (*it_end)(struct queue *);
 };
-struct queue_ftab_val
+struct queue_fval
 {
     int (*cmp)(size_t, size_t);
     size_t (*cpy)(size_t);
@@ -31,8 +31,8 @@ struct queue_iter
     _Bool start;
     _Bool end;
 };
-struct queue *q_new(size_t capacity, struct queue_ftab_val *f_val);
-struct queue *q_new_custom(size_t capacity, struct queue_ftab_val *f_val,
+struct queue *q_new(size_t capacity, struct queue_fval *f_val);
+struct queue *q_new_custom(size_t capacity, struct queue_fval *f_val,
                            struct cmc_alloc_node *alloc,
                            struct cmc_callbacks *callbacks);
 void q_clear(struct queue *_queue_);
@@ -70,7 +70,7 @@ size_t *q_iter_rvalue(struct queue_iter *iter);
 size_t q_iter_index(struct queue_iter *iter);
 static struct queue_iter q_impl_it_start(struct queue *_queue_);
 static struct queue_iter q_impl_it_end(struct queue *_queue_);
-struct queue *q_new(size_t capacity, struct queue_ftab_val *f_val)
+struct queue *q_new(size_t capacity, struct queue_fval *f_val)
 {
     struct cmc_alloc_node *alloc = &cmc_alloc_node_default;
     if (capacity < 1)
@@ -98,7 +98,7 @@ struct queue *q_new(size_t capacity, struct queue_ftab_val *f_val)
     _queue_->it_end = q_impl_it_end;
     return _queue_;
 }
-struct queue *q_new_custom(size_t capacity, struct queue_ftab_val *f_val,
+struct queue *q_new_custom(size_t capacity, struct queue_fval *f_val,
                            struct cmc_alloc_node *alloc,
                            struct cmc_callbacks *callbacks)
 {

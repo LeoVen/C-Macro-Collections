@@ -93,7 +93,7 @@ static const char *cmc_string_fmt_list = "struct %s<%s> "
         int flag;                                                              \
                                                                                \
         /* Value function table */                                             \
-        struct SNAME##_ftab_val *f_val;                                        \
+        struct SNAME##_fval *f_val;                                            \
                                                                                \
         /* Function that returns an iterator to the start of the list */       \
         struct SNAME##_iter (*it_start)(struct SNAME *);                       \
@@ -109,7 +109,7 @@ static const char *cmc_string_fmt_list = "struct %s<%s> "
     };                                                                         \
                                                                                \
     /* Value struct function table */                                          \
-    struct SNAME##_ftab_val                                                    \
+    struct SNAME##_fval                                                        \
     {                                                                          \
         /* Comparator function */                                              \
         int (*cmp)(V, V);                                                      \
@@ -148,9 +148,9 @@ static const char *cmc_string_fmt_list = "struct %s<%s> "
                                                                                \
     /* Collection Functions */                                                 \
     /* Collection Allocation and Deallocation */                               \
-    struct SNAME *PFX##_new(size_t capacity, struct SNAME##_ftab_val *f_val);  \
+    struct SNAME *PFX##_new(size_t capacity, struct SNAME##_fval *f_val);      \
     struct SNAME *PFX##_new_custom(                                            \
-        size_t capacity, struct SNAME##_ftab_val *f_val,                       \
+        size_t capacity, struct SNAME##_fval *f_val,                           \
         struct cmc_alloc_node *alloc, struct cmc_callbacks *callbacks);        \
     void PFX##_clear(struct SNAME *_list_);                                    \
     void PFX##_free(struct SNAME *_list_);                                     \
@@ -224,7 +224,7 @@ static const char *cmc_string_fmt_list = "struct %s<%s> "
     static struct SNAME##_iter PFX##_impl_it_start(struct SNAME *_list_);      \
     static struct SNAME##_iter PFX##_impl_it_end(struct SNAME *_list_);        \
                                                                                \
-    struct SNAME *PFX##_new(size_t capacity, struct SNAME##_ftab_val *f_val)   \
+    struct SNAME *PFX##_new(size_t capacity, struct SNAME##_fval *f_val)       \
     {                                                                          \
         struct cmc_alloc_node *alloc = &cmc_alloc_node_default;                \
                                                                                \
@@ -257,7 +257,7 @@ static const char *cmc_string_fmt_list = "struct %s<%s> "
     }                                                                          \
                                                                                \
     struct SNAME *PFX##_new_custom(                                            \
-        size_t capacity, struct SNAME##_ftab_val *f_val,                       \
+        size_t capacity, struct SNAME##_fval *f_val,                           \
         struct cmc_alloc_node *alloc, struct cmc_callbacks *callbacks)         \
     {                                                                          \
         if (capacity < 1)                                                      \

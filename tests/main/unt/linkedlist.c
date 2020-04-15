@@ -5,8 +5,8 @@
 
 #include "../src/linkedlist.c"
 
-struct linkedlist_ftab_val *ll_ftab_val =
-    &(struct linkedlist_ftab_val){ .cmp = cmp,
+struct linkedlist_fval *ll_fval =
+    &(struct linkedlist_fval){ .cmp = cmp,
                                    .cpy = copy,
                                    .str = str,
                                    .free = custom_free,
@@ -15,7 +15,7 @@ struct linkedlist_ftab_val *ll_ftab_val =
 
 CMC_CREATE_UNIT(linkedlist_test, true, {
     CMC_CREATE_TEST(new, {
-        struct linkedlist *ll = ll_new(ll_ftab_val);
+        struct linkedlist *ll = ll_new(ll_fval);
 
         cmc_assert_not_equals(ptr, NULL, ll);
         cmc_assert_equals(size_t, 0, ll_count(ll));
@@ -26,7 +26,7 @@ CMC_CREATE_UNIT(linkedlist_test, true, {
     });
 
     CMC_CREATE_TEST(clear[count capacity], {
-        struct linkedlist *ll = ll_new(ll_ftab_val);
+        struct linkedlist *ll = ll_new(ll_fval);
 
         cmc_assert_not_equals(ptr, NULL, ll);
 
@@ -43,7 +43,7 @@ CMC_CREATE_UNIT(linkedlist_test, true, {
     });
 
     CMC_CREATE_TEST(clear[count = 0], {
-        struct linkedlist *ll = ll_new(ll_ftab_val);
+        struct linkedlist *ll = ll_new(ll_fval);
 
         cmc_assert_not_equals(ptr, NULL, ll);
 
@@ -55,7 +55,7 @@ CMC_CREATE_UNIT(linkedlist_test, true, {
     });
 
     CMC_CREATE_TEST(push_front[count], {
-        struct linkedlist *ll = ll_new(ll_ftab_val);
+        struct linkedlist *ll = ll_new(ll_fval);
 
         cmc_assert_not_equals(ptr, NULL, ll);
 
@@ -69,7 +69,7 @@ CMC_CREATE_UNIT(linkedlist_test, true, {
     });
 
     CMC_CREATE_TEST(push_front[item preservation], {
-        struct linkedlist *ll = ll_new(ll_ftab_val);
+        struct linkedlist *ll = ll_new(ll_fval);
 
         cmc_assert_not_equals(ptr, NULL, ll);
 
@@ -83,7 +83,7 @@ CMC_CREATE_UNIT(linkedlist_test, true, {
     });
 
     CMC_CREATE_TEST(flags, {
-        struct linkedlist *ll = ll_new(ll_ftab_val);
+        struct linkedlist *ll = ll_new(ll_fval);
 
         cmc_assert_not_equals(ptr, NULL, ll);
         cmc_assert_equals(int32_t, cmc_flags.OK, ll_flag(ll));
@@ -256,7 +256,7 @@ CMC_CREATE_UNIT(linkedlist_test, true, {
     });
 
     CMC_CREATE_TEST(callbacks, {
-        struct linkedlist *ll = ll_new_custom(ll_ftab_val, NULL, callbacks);
+        struct linkedlist *ll = ll_new_custom(ll_fval, NULL, callbacks);
 
         cmc_assert_not_equals(ptr, NULL, ll);
 

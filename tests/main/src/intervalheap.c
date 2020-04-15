@@ -7,7 +7,7 @@ struct intervalheap
     size_t size;
     size_t count;
     int flag;
-    struct intervalheap_ftab_val *f_val;
+    struct intervalheap_fval *f_val;
     struct intervalheap_iter (*it_start)(struct intervalheap *);
     struct intervalheap_iter (*it_end)(struct intervalheap *);
     struct cmc_alloc_node *alloc;
@@ -17,7 +17,7 @@ struct intervalheap_node
 {
     size_t data[2];
 };
-struct intervalheap_ftab_val
+struct intervalheap_fval
 {
     int (*cmp)(size_t, size_t);
     size_t (*cpy)(size_t);
@@ -33,10 +33,9 @@ struct intervalheap_iter
     _Bool start;
     _Bool end;
 };
-struct intervalheap *ih_new(size_t capacity,
-                            struct intervalheap_ftab_val *f_val);
+struct intervalheap *ih_new(size_t capacity, struct intervalheap_fval *f_val);
 struct intervalheap *ih_new_custom(size_t capacity,
-                                   struct intervalheap_ftab_val *f_val,
+                                   struct intervalheap_fval *f_val,
                                    struct cmc_alloc_node *alloc,
                                    struct cmc_callbacks *callbacks);
 void ih_clear(struct intervalheap *_heap_);
@@ -81,8 +80,7 @@ static void ih_impl_float_down_max(struct intervalheap *_heap_);
 static void ih_impl_float_down_min(struct intervalheap *_heap_);
 static struct intervalheap_iter ih_impl_it_start(struct intervalheap *_heap_);
 static struct intervalheap_iter ih_impl_it_end(struct intervalheap *_heap_);
-struct intervalheap *ih_new(size_t capacity,
-                            struct intervalheap_ftab_val *f_val)
+struct intervalheap *ih_new(size_t capacity, struct intervalheap_fval *f_val)
 {
     struct cmc_alloc_node *alloc = &cmc_alloc_node_default;
     if (capacity == 0 || capacity == 0xffffffffffffffffULL)
@@ -111,7 +109,7 @@ struct intervalheap *ih_new(size_t capacity,
     return _heap_;
 }
 struct intervalheap *ih_new_custom(size_t capacity,
-                                   struct intervalheap_ftab_val *f_val,
+                                   struct intervalheap_fval *f_val,
                                    struct cmc_alloc_node *alloc,
                                    struct cmc_callbacks *callbacks)
 {

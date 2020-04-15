@@ -5,8 +5,8 @@
 
 #include "../src/treeset.c"
 
-struct treeset_ftab_val *ts_ftab_val =
-    &(struct treeset_ftab_val){ .cmp = cmp,
+struct treeset_fval *ts_fval =
+    &(struct treeset_fval){ .cmp = cmp,
                                 .cpy = copy,
                                 .str = str,
                                 .free = custom_free,
@@ -15,7 +15,7 @@ struct treeset_ftab_val *ts_ftab_val =
 
 CMC_CREATE_UNIT(treeset_test, true, {
     CMC_CREATE_TEST(new, {
-        struct treeset *set = ts_new(ts_ftab_val);
+        struct treeset *set = ts_new(ts_fval);
 
         cmc_assert_not_equals(ptr, NULL, set);
 
@@ -23,7 +23,7 @@ CMC_CREATE_UNIT(treeset_test, true, {
     });
 
     CMC_CREATE_TEST(clear[count], {
-        struct treeset *set = ts_new(ts_ftab_val);
+        struct treeset *set = ts_new(ts_fval);
 
         cmc_assert_not_equals(ptr, NULL, set);
 
@@ -41,7 +41,7 @@ CMC_CREATE_UNIT(treeset_test, true, {
     });
 
     CMC_CREATE_TEST(flags, {
-        struct treeset *set = ts_new(ts_ftab_val);
+        struct treeset *set = ts_new(ts_fval);
 
         cmc_assert_not_equals(ptr, NULL, set);
         cmc_assert_equals(int32_t, cmc_flags.OK, ts_flag(set));
@@ -102,7 +102,7 @@ CMC_CREATE_UNIT(treeset_test, true, {
     });
 
     CMC_CREATE_TEST(callbacks, {
-        struct treeset *set = ts_new_custom(ts_ftab_val, NULL, callbacks);
+        struct treeset *set = ts_new_custom(ts_fval, NULL, callbacks);
 
         cmc_assert_not_equals(ptr, NULL, set);
 

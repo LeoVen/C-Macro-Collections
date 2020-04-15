@@ -5,8 +5,8 @@ struct treemap
     struct treemap_node *root;
     size_t count;
     int flag;
-    struct treemap_ftab_key *f_key;
-    struct treemap_ftab_val *f_val;
+    struct treemap_fkey *f_key;
+    struct treemap_fval *f_val;
     struct cmc_alloc_node *alloc;
     struct cmc_callbacks *callbacks;
     struct treemap_iter (*it_start)(struct treemap *);
@@ -21,7 +21,7 @@ struct treemap_node
     struct treemap_node *left;
     struct treemap_node *parent;
 };
-struct treemap_ftab_key
+struct treemap_fkey
 {
     int (*cmp)(size_t, size_t);
     size_t (*cpy)(size_t);
@@ -30,7 +30,7 @@ struct treemap_ftab_key
     size_t (*hash)(size_t);
     int (*pri)(size_t, size_t);
 };
-struct treemap_ftab_val
+struct treemap_fval
 {
     int (*cmp)(size_t, size_t);
     size_t (*cpy)(size_t);
@@ -49,10 +49,9 @@ struct treemap_iter
     _Bool start;
     _Bool end;
 };
-struct treemap *tm_new(struct treemap_ftab_key *f_key,
-                       struct treemap_ftab_val *f_val);
-struct treemap *tm_new_custom(struct treemap_ftab_key *f_key,
-                              struct treemap_ftab_val *f_val,
+struct treemap *tm_new(struct treemap_fkey *f_key, struct treemap_fval *f_val);
+struct treemap *tm_new_custom(struct treemap_fkey *f_key,
+                              struct treemap_fval *f_val,
                               struct cmc_alloc_node *alloc,
                               struct cmc_callbacks *callbacks);
 void tm_clear(struct treemap *_map_);
@@ -101,8 +100,7 @@ static void tm_impl_rotate_left(struct treemap_node **Z);
 static void tm_impl_rebalance(struct treemap *_map_, struct treemap_node *node);
 static struct treemap_iter tm_impl_it_start(struct treemap *_map_);
 static struct treemap_iter tm_impl_it_end(struct treemap *_map_);
-struct treemap *tm_new(struct treemap_ftab_key *f_key,
-                       struct treemap_ftab_val *f_val)
+struct treemap *tm_new(struct treemap_fkey *f_key, struct treemap_fval *f_val)
 {
     if (!f_key || !f_val)
         return ((void *)0);
@@ -121,8 +119,8 @@ struct treemap *tm_new(struct treemap_ftab_key *f_key,
     _map_->it_end = tm_impl_it_end;
     return _map_;
 }
-struct treemap *tm_new_custom(struct treemap_ftab_key *f_key,
-                              struct treemap_ftab_val *f_val,
+struct treemap *tm_new_custom(struct treemap_fkey *f_key,
+                              struct treemap_fval *f_val,
                               struct cmc_alloc_node *alloc,
                               struct cmc_callbacks *callbacks)
 {

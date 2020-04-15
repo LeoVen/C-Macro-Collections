@@ -5,8 +5,8 @@
 
 #include "../src/sortedlist.c"
 
-struct sortedlist_ftab_val *sl_ftab_val =
-    &(struct sortedlist_ftab_val){ .cmp = cmp,
+struct sortedlist_fval *sl_fval =
+    &(struct sortedlist_fval){ .cmp = cmp,
                                    .cpy = copy,
                                    .str = str,
                                    .free = custom_free,
@@ -15,7 +15,7 @@ struct sortedlist_ftab_val *sl_ftab_val =
 
 CMC_CREATE_UNIT(sortedlist_test, true, {
     CMC_CREATE_TEST(new, {
-        struct sortedlist *sl = sl_new(1000000, sl_ftab_val);
+        struct sortedlist *sl = sl_new(1000000, sl_fval);
 
         cmc_assert_not_equals(ptr, NULL, sl);
         cmc_assert_not_equals(ptr, NULL, sl->buffer);
@@ -27,19 +27,19 @@ CMC_CREATE_UNIT(sortedlist_test, true, {
     });
 
     CMC_CREATE_TEST(new[capacity = 0], {
-        struct sortedlist *sl = sl_new(0, sl_ftab_val);
+        struct sortedlist *sl = sl_new(0, sl_fval);
 
         cmc_assert_equals(ptr, NULL, sl);
     });
 
     CMC_CREATE_TEST(new[capacity = UINT64_MAX], {
-        struct sortedlist *sl = sl_new(UINT64_MAX, sl_ftab_val);
+        struct sortedlist *sl = sl_new(UINT64_MAX, sl_fval);
 
         cmc_assert_equals(ptr, NULL, sl);
     });
 
     CMC_CREATE_TEST(clear[count capacity], {
-        struct sortedlist *sl = sl_new(100, sl_ftab_val);
+        struct sortedlist *sl = sl_new(100, sl_fval);
 
         cmc_assert_not_equals(ptr, NULL, sl);
 
@@ -57,7 +57,7 @@ CMC_CREATE_UNIT(sortedlist_test, true, {
     });
 
     CMC_CREATE_TEST(buffer_growth[capacity = 1], {
-        struct sortedlist *sl = sl_new(1, sl_ftab_val);
+        struct sortedlist *sl = sl_new(1, sl_fval);
 
         cmc_assert_not_equals(ptr, NULL, sl);
 
@@ -73,7 +73,7 @@ CMC_CREATE_UNIT(sortedlist_test, true, {
     });
 
     CMC_CREATE_TEST(insert, {
-        struct sortedlist *sl = sl_new(100, sl_ftab_val);
+        struct sortedlist *sl = sl_new(100, sl_fval);
 
         cmc_assert_not_equals(ptr, NULL, sl);
 
@@ -83,7 +83,7 @@ CMC_CREATE_UNIT(sortedlist_test, true, {
     });
 
     CMC_CREATE_TEST(remove, {
-        struct sortedlist *sl = sl_new(100, sl_ftab_val);
+        struct sortedlist *sl = sl_new(100, sl_fval);
 
         cmc_assert_not_equals(ptr, NULL, sl);
 
@@ -95,7 +95,7 @@ CMC_CREATE_UNIT(sortedlist_test, true, {
     });
 
     CMC_CREATE_TEST(remove[count = 0], {
-        struct sortedlist *sl = sl_new(100, sl_ftab_val);
+        struct sortedlist *sl = sl_new(100, sl_fval);
 
         cmc_assert_not_equals(ptr, NULL, sl);
 
@@ -105,7 +105,7 @@ CMC_CREATE_UNIT(sortedlist_test, true, {
     });
 
     CMC_CREATE_TEST(remove[out of range], {
-        struct sortedlist *sl = sl_new(100, sl_ftab_val);
+        struct sortedlist *sl = sl_new(100, sl_fval);
 
         cmc_assert_not_equals(ptr, NULL, sl);
 
@@ -117,7 +117,7 @@ CMC_CREATE_UNIT(sortedlist_test, true, {
     });
 
     CMC_CREATE_TEST(index_of, {
-        struct sortedlist *sl = sl_new(1, sl_ftab_val);
+        struct sortedlist *sl = sl_new(1, sl_fval);
 
         cmc_assert_not_equals(ptr, NULL, sl);
 
@@ -145,7 +145,7 @@ CMC_CREATE_UNIT(sortedlist_test, true, {
     });
 
     CMC_CREATE_TEST(flags, {
-        struct sortedlist *sl = sl_new(100, sl_ftab_val);
+        struct sortedlist *sl = sl_new(100, sl_fval);
 
         cmc_assert_not_equals(ptr, NULL, sl);
         cmc_assert_equals(int32_t, cmc_flags.OK, sl_flag(sl));
@@ -236,7 +236,7 @@ CMC_CREATE_UNIT(sortedlist_test, true, {
 
     CMC_CREATE_TEST(callbacks, {
         struct sortedlist *sl =
-            sl_new_custom(100, sl_ftab_val, NULL, callbacks);
+            sl_new_custom(100, sl_fval, NULL, callbacks);
 
         cmc_assert_not_equals(ptr, NULL, sl);
 

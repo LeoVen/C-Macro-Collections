@@ -8,7 +8,7 @@ struct multiset
     size_t cardinality;
     double load;
     int flag;
-    struct multiset_ftab_val *f_val;
+    struct multiset_fval *f_val;
     struct cmc_alloc_node *alloc;
     struct cmc_callbacks *callbacks;
     struct multiset_iter (*it_start)(struct multiset *);
@@ -21,7 +21,7 @@ struct multiset_entry
     size_t dist;
     enum cmc_entry_state state;
 };
-struct multiset_ftab_val
+struct multiset_fval
 {
     int (*cmp)(size_t, size_t);
     size_t (*cpy)(size_t);
@@ -41,9 +41,9 @@ struct multiset_iter
     _Bool end;
 };
 struct multiset *ms_new(size_t capacity, double load,
-                        struct multiset_ftab_val *f_val);
+                        struct multiset_fval *f_val);
 struct multiset *ms_new_custom(size_t capacity, double load,
-                               struct multiset_ftab_val *f_val,
+                               struct multiset_fval *f_val,
                                struct cmc_alloc_node *alloc,
                                struct cmc_callbacks *callbacks);
 void ms_clear(struct multiset *_set_);
@@ -109,7 +109,7 @@ static size_t ms_impl_calculate_size(size_t required);
 static struct multiset_iter ms_impl_it_start(struct multiset *_set_);
 static struct multiset_iter ms_impl_it_end(struct multiset *_set_);
 struct multiset *ms_new(size_t capacity, double load,
-                        struct multiset_ftab_val *f_val)
+                        struct multiset_fval *f_val)
 {
     struct cmc_alloc_node *alloc = &cmc_alloc_node_default;
     if (capacity == 0 || load <= 0 || load >= 1)
@@ -141,7 +141,7 @@ struct multiset *ms_new(size_t capacity, double load,
     return _set_;
 }
 struct multiset *ms_new_custom(size_t capacity, double load,
-                               struct multiset_ftab_val *f_val,
+                               struct multiset_fval *f_val,
                                struct cmc_alloc_node *alloc,
                                struct cmc_callbacks *callbacks)
 {

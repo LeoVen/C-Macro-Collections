@@ -8,13 +8,13 @@ struct deque
     size_t front;
     size_t back;
     int flag;
-    struct deque_ftab_val *f_val;
+    struct deque_fval *f_val;
     struct cmc_alloc_node *alloc;
     struct cmc_callbacks *callbacks;
     struct deque_iter (*it_start)(struct deque *);
     struct deque_iter (*it_end)(struct deque *);
 };
-struct deque_ftab_val
+struct deque_fval
 {
     int (*cmp)(size_t, size_t);
     size_t (*cpy)(size_t);
@@ -31,8 +31,8 @@ struct deque_iter
     _Bool start;
     _Bool end;
 };
-struct deque *d_new(size_t capacity, struct deque_ftab_val *f_val);
-struct deque *d_new_custom(size_t capacity, struct deque_ftab_val *f_val,
+struct deque *d_new(size_t capacity, struct deque_fval *f_val);
+struct deque *d_new_custom(size_t capacity, struct deque_fval *f_val,
                            struct cmc_alloc_node *alloc,
                            struct cmc_callbacks *callbacks);
 void d_clear(struct deque *_deque_);
@@ -73,7 +73,7 @@ size_t *d_iter_rvalue(struct deque_iter *iter);
 size_t d_iter_index(struct deque_iter *iter);
 static struct deque_iter d_impl_it_start(struct deque *_deque_);
 static struct deque_iter d_impl_it_end(struct deque *_deque_);
-struct deque *d_new(size_t capacity, struct deque_ftab_val *f_val)
+struct deque *d_new(size_t capacity, struct deque_fval *f_val)
 {
     struct cmc_alloc_node *alloc = &cmc_alloc_node_default;
     if (capacity < 1)
@@ -101,7 +101,7 @@ struct deque *d_new(size_t capacity, struct deque_ftab_val *f_val)
     _deque_->it_end = d_impl_it_end;
     return _deque_;
 }
-struct deque *d_new_custom(size_t capacity, struct deque_ftab_val *f_val,
+struct deque *d_new_custom(size_t capacity, struct deque_fval *f_val,
                            struct cmc_alloc_node *alloc,
                            struct cmc_callbacks *callbacks)
 {

@@ -5,7 +5,7 @@
 
 #include "../src/heap.c"
 
-struct heap_ftab_val *h_ftab_val = &(struct heap_ftab_val){ .cmp = cmp,
+struct heap_fval *h_fval = &(struct heap_fval){ .cmp = cmp,
                                                             .cpy = copy,
                                                             .str = str,
                                                             .free = custom_free,
@@ -14,7 +14,7 @@ struct heap_ftab_val *h_ftab_val = &(struct heap_ftab_val){ .cmp = cmp,
 
 CMC_CREATE_UNIT(heap_test, true, {
     CMC_CREATE_TEST(new, {
-        struct heap *h = h_new(1000000, cmc_max_heap, h_ftab_val);
+        struct heap *h = h_new(1000000, cmc_max_heap, h_fval);
 
         cmc_assert_not_equals(ptr, NULL, h);
         cmc_assert_not_equals(ptr, NULL, h->buffer);
@@ -25,19 +25,19 @@ CMC_CREATE_UNIT(heap_test, true, {
     });
 
     CMC_CREATE_TEST(new[edge_case capacity = 0], {
-        struct heap *h = h_new(0, cmc_max_heap, h_ftab_val);
+        struct heap *h = h_new(0, cmc_max_heap, h_fval);
 
         cmc_assert_equals(ptr, NULL, h);
     });
 
     CMC_CREATE_TEST(new[edge_case capacity = UINT64_MAX], {
-        struct heap *h = h_new(UINT64_MAX, cmc_max_heap, h_ftab_val);
+        struct heap *h = h_new(UINT64_MAX, cmc_max_heap, h_fval);
 
         cmc_assert_equals(ptr, NULL, h);
     });
 
     CMC_CREATE_TEST(clear[count capacity], {
-        struct heap *h = h_new(100, cmc_max_heap, h_ftab_val);
+        struct heap *h = h_new(100, cmc_max_heap, h_fval);
 
         cmc_assert_not_equals(ptr, NULL, h);
 
@@ -55,7 +55,7 @@ CMC_CREATE_UNIT(heap_test, true, {
     });
 
     CMC_CREATE_TEST(buffer_growth[edge_case capacity = 1], {
-        struct heap *h = h_new(1, cmc_max_heap, h_ftab_val);
+        struct heap *h = h_new(1, cmc_max_heap, h_fval);
 
         cmc_assert_not_equals(ptr, NULL, h);
 
@@ -68,7 +68,7 @@ CMC_CREATE_UNIT(heap_test, true, {
     });
 
     CMC_CREATE_TEST(insert, {
-        struct heap *h = h_new(100, cmc_max_heap, h_ftab_val);
+        struct heap *h = h_new(100, cmc_max_heap, h_fval);
 
         cmc_assert_not_equals(ptr, NULL, h);
 
@@ -78,7 +78,7 @@ CMC_CREATE_UNIT(heap_test, true, {
     });
 
     CMC_CREATE_TEST(insert[item preservation], {
-        struct heap *h = h_new(50, cmc_max_heap, h_ftab_val);
+        struct heap *h = h_new(50, cmc_max_heap, h_fval);
 
         cmc_assert_not_equals(ptr, NULL, h);
 
@@ -95,7 +95,7 @@ CMC_CREATE_UNIT(heap_test, true, {
     });
 
     CMC_CREATE_TEST(remove, {
-        struct heap *h = h_new(50, cmc_max_heap, h_ftab_val);
+        struct heap *h = h_new(50, cmc_max_heap, h_fval);
 
         cmc_assert_not_equals(ptr, NULL, h);
 
@@ -110,7 +110,7 @@ CMC_CREATE_UNIT(heap_test, true, {
     });
 
     CMC_CREATE_TEST(remove[count = 0], {
-        struct heap *h = h_new(100, cmc_max_heap, h_ftab_val);
+        struct heap *h = h_new(100, cmc_max_heap, h_fval);
 
         cmc_assert_not_equals(ptr, NULL, h);
 
@@ -120,7 +120,7 @@ CMC_CREATE_UNIT(heap_test, true, {
     });
 
     CMC_CREATE_TEST(remove[sorted], {
-        struct heap *h = h_new(100, cmc_min_heap, h_ftab_val);
+        struct heap *h = h_new(100, cmc_min_heap, h_fval);
 
         cmc_assert_not_equals(ptr, NULL, h);
 
@@ -142,7 +142,7 @@ CMC_CREATE_UNIT(heap_test, true, {
     });
 
     CMC_CREATE_TEST(peek, {
-        struct heap *h = h_new(100, cmc_max_heap, h_ftab_val);
+        struct heap *h = h_new(100, cmc_max_heap, h_fval);
 
         cmc_assert_not_equals(ptr, NULL, h);
 
@@ -155,7 +155,7 @@ CMC_CREATE_UNIT(heap_test, true, {
     });
 
     CMC_CREATE_TEST(peek[count = 0], {
-        struct heap *h = h_new(100, cmc_max_heap, h_ftab_val);
+        struct heap *h = h_new(100, cmc_max_heap, h_fval);
 
         cmc_assert_not_equals(ptr, NULL, h);
 
@@ -165,7 +165,7 @@ CMC_CREATE_UNIT(heap_test, true, {
     });
 
     CMC_CREATE_TEST(flags, {
-        struct heap *h = h_new(100, cmc_max_heap, h_ftab_val);
+        struct heap *h = h_new(100, cmc_max_heap, h_fval);
 
         cmc_assert_not_equals(ptr, NULL, h);
         cmc_assert_equals(int32_t, cmc_flags.OK, h_flag(h));
@@ -224,7 +224,7 @@ CMC_CREATE_UNIT(heap_test, true, {
 
     CMC_CREATE_TEST(callbacks, {
         struct heap *h =
-            h_new_custom(100, cmc_max_heap, h_ftab_val, NULL, callbacks);
+            h_new_custom(100, cmc_max_heap, h_fval, NULL, callbacks);
 
         cmc_assert_not_equals(ptr, NULL, h);
 

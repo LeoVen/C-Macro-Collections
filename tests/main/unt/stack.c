@@ -5,8 +5,8 @@
 
 #include "../src/stack.c"
 
-struct stack_ftab_val *s_ftab_val =
-    &(struct stack_ftab_val){ .cmp = cmp,
+struct stack_fval *s_fval =
+    &(struct stack_fval){ .cmp = cmp,
                               .cpy = copy,
                               .str = str,
                               .free = custom_free,
@@ -15,7 +15,7 @@ struct stack_ftab_val *s_ftab_val =
 
 CMC_CREATE_UNIT(stack_test, true, {
     CMC_CREATE_TEST(new, {
-        struct stack *s = s_new(1000000, s_ftab_val);
+        struct stack *s = s_new(1000000, s_fval);
 
         cmc_assert_not_equals(ptr, NULL, s);
         cmc_assert_not_equals(ptr, NULL, s->buffer);
@@ -27,19 +27,19 @@ CMC_CREATE_UNIT(stack_test, true, {
     });
 
     CMC_CREATE_TEST(new[capacity = 0], {
-        struct stack *s = s_new(0, s_ftab_val);
+        struct stack *s = s_new(0, s_fval);
 
         cmc_assert_equals(ptr, NULL, s);
     });
 
     CMC_CREATE_TEST(new[capacity = UINT64_MAX], {
-        struct stack *s = s_new(UINT64_MAX, s_ftab_val);
+        struct stack *s = s_new(UINT64_MAX, s_fval);
 
         cmc_assert_equals(ptr, NULL, s);
     });
 
     CMC_CREATE_TEST(clear[count capacity], {
-        struct stack *s = s_new(100, s_ftab_val);
+        struct stack *s = s_new(100, s_fval);
 
         cmc_assert_not_equals(ptr, NULL, s);
 
@@ -57,7 +57,7 @@ CMC_CREATE_UNIT(stack_test, true, {
     });
 
     CMC_CREATE_TEST(buffer_growth[capacity = 1], {
-        struct stack *s = s_new(1, s_ftab_val);
+        struct stack *s = s_new(1, s_fval);
 
         cmc_assert_not_equals(ptr, NULL, s);
 
@@ -71,7 +71,7 @@ CMC_CREATE_UNIT(stack_test, true, {
     });
 
     CMC_CREATE_TEST(push[count], {
-        struct stack *s = s_new(100, s_ftab_val);
+        struct stack *s = s_new(100, s_fval);
 
         cmc_assert_not_equals(ptr, NULL, s);
 
@@ -84,7 +84,7 @@ CMC_CREATE_UNIT(stack_test, true, {
     });
 
     CMC_CREATE_TEST(push[capacity], {
-        struct stack *s = s_new(100, s_ftab_val);
+        struct stack *s = s_new(100, s_fval);
 
         cmc_assert_not_equals(ptr, NULL, s);
 
@@ -97,7 +97,7 @@ CMC_CREATE_UNIT(stack_test, true, {
     });
 
     CMC_CREATE_TEST(push[item preservation], {
-        struct stack *s = s_new(100, s_ftab_val);
+        struct stack *s = s_new(100, s_fval);
 
         cmc_assert_not_equals(ptr, NULL, s);
 
@@ -111,7 +111,7 @@ CMC_CREATE_UNIT(stack_test, true, {
     });
 
     CMC_CREATE_TEST(pop[count], {
-        struct stack *s = s_new(100, s_ftab_val);
+        struct stack *s = s_new(100, s_fval);
 
         cmc_assert_not_equals(ptr, NULL, s);
 
@@ -126,7 +126,7 @@ CMC_CREATE_UNIT(stack_test, true, {
     });
 
     CMC_CREATE_TEST(pop[capacity], {
-        struct stack *s = s_new(100, s_ftab_val);
+        struct stack *s = s_new(100, s_fval);
 
         cmc_assert_not_equals(ptr, NULL, s);
 
@@ -141,7 +141,7 @@ CMC_CREATE_UNIT(stack_test, true, {
     });
 
     CMC_CREATE_TEST(pop[item preservation], {
-        struct stack *s = s_new(100, s_ftab_val);
+        struct stack *s = s_new(100, s_fval);
 
         cmc_assert_not_equals(ptr, NULL, s);
 
@@ -158,7 +158,7 @@ CMC_CREATE_UNIT(stack_test, true, {
     });
 
     CMC_CREATE_TEST(pop[count = 0], {
-        struct stack *s = s_new(100, s_ftab_val);
+        struct stack *s = s_new(100, s_fval);
 
         cmc_assert_not_equals(ptr, NULL, s);
 
@@ -168,7 +168,7 @@ CMC_CREATE_UNIT(stack_test, true, {
     });
 
     CMC_CREATE_TEST(top, {
-        struct stack *s = s_new(100, s_ftab_val);
+        struct stack *s = s_new(100, s_fval);
 
         cmc_assert_not_equals(ptr, NULL, s);
 
@@ -184,7 +184,7 @@ CMC_CREATE_UNIT(stack_test, true, {
     });
 
     CMC_CREATE_TEST(top[count = 0], {
-        struct stack *s = s_new(100, s_ftab_val);
+        struct stack *s = s_new(100, s_fval);
 
         cmc_assert_not_equals(ptr, NULL, s);
 
@@ -198,7 +198,7 @@ CMC_CREATE_UNIT(stack_test, true, {
     });
 
     CMC_CREATE_TEST(top[count = 1], {
-        struct stack *s = s_new(100, s_ftab_val);
+        struct stack *s = s_new(100, s_fval);
 
         cmc_assert_not_equals(ptr, NULL, s);
 
@@ -210,7 +210,7 @@ CMC_CREATE_UNIT(stack_test, true, {
     });
 
     CMC_CREATE_TEST(contains, {
-        struct stack *s = s_new(100, s_ftab_val);
+        struct stack *s = s_new(100, s_fval);
 
         cmc_assert_not_equals(ptr, NULL, s);
 
@@ -224,7 +224,7 @@ CMC_CREATE_UNIT(stack_test, true, {
     });
 
     CMC_CREATE_TEST(contains[count = 0], {
-        struct stack *s = s_new(100, s_ftab_val);
+        struct stack *s = s_new(100, s_fval);
 
         cmc_assert_not_equals(ptr, NULL, s);
 
@@ -234,7 +234,7 @@ CMC_CREATE_UNIT(stack_test, true, {
     });
 
     CMC_CREATE_TEST(empty, {
-        struct stack *s = s_new(100, s_ftab_val);
+        struct stack *s = s_new(100, s_fval);
 
         cmc_assert_not_equals(ptr, NULL, s);
 
@@ -244,7 +244,7 @@ CMC_CREATE_UNIT(stack_test, true, {
     });
 
     CMC_CREATE_TEST(empty[after_io], {
-        struct stack *s = s_new(100, s_ftab_val);
+        struct stack *s = s_new(100, s_fval);
 
         cmc_assert_not_equals(ptr, NULL, s);
 
@@ -256,7 +256,7 @@ CMC_CREATE_UNIT(stack_test, true, {
     });
 
     CMC_CREATE_TEST(full, {
-        struct stack *s = s_new(100, s_ftab_val);
+        struct stack *s = s_new(100, s_fval);
 
         cmc_assert_not_equals(ptr, NULL, s);
 
@@ -269,7 +269,7 @@ CMC_CREATE_UNIT(stack_test, true, {
     });
 
     CMC_CREATE_TEST(full[capacity = 1], {
-        struct stack *s = s_new(1, s_ftab_val);
+        struct stack *s = s_new(1, s_fval);
 
         cmc_assert_not_equals(ptr, NULL, s);
 
@@ -281,7 +281,7 @@ CMC_CREATE_UNIT(stack_test, true, {
     });
 
     CMC_CREATE_TEST(iter_alloc, {
-        struct stack *s = s_new(100, s_ftab_val);
+        struct stack *s = s_new(100, s_fval);
 
         cmc_assert_not_equals(ptr, NULL, s);
 
@@ -294,7 +294,7 @@ CMC_CREATE_UNIT(stack_test, true, {
     });
 
     CMC_CREATE_TEST(iter_init[count = 0], {
-        struct stack *s = s_new(100, s_ftab_val);
+        struct stack *s = s_new(100, s_fval);
 
         cmc_assert_not_equals(ptr, NULL, s);
 
@@ -311,7 +311,7 @@ CMC_CREATE_UNIT(stack_test, true, {
     });
 
     CMC_CREATE_TEST(iter_start[count = 0], {
-        struct stack *s = s_new(100, s_ftab_val);
+        struct stack *s = s_new(100, s_fval);
 
         cmc_assert_not_equals(ptr, NULL, s);
 
@@ -325,7 +325,7 @@ CMC_CREATE_UNIT(stack_test, true, {
     });
 
     CMC_CREATE_TEST(iter_end[count = 0], {
-        struct stack *s = s_new(100, s_ftab_val);
+        struct stack *s = s_new(100, s_fval);
 
         cmc_assert_not_equals(ptr, NULL, s);
 
@@ -339,7 +339,7 @@ CMC_CREATE_UNIT(stack_test, true, {
     });
 
     CMC_CREATE_TEST(iteration, {
-        struct stack *s = s_new(100, s_ftab_val);
+        struct stack *s = s_new(100, s_fval);
 
         cmc_assert_not_equals(ptr, NULL, s);
 
@@ -368,7 +368,7 @@ CMC_CREATE_UNIT(stack_test, true, {
     });
 
     CMC_CREATE_TEST(iteration[while loop], {
-        struct stack *s = s_new(100, s_ftab_val);
+        struct stack *s = s_new(100, s_fval);
 
         cmc_assert_not_equals(ptr, NULL, s);
 
@@ -398,7 +398,7 @@ CMC_CREATE_UNIT(stack_test, true, {
     });
 
     CMC_CREATE_TEST(iteration[count = 1], {
-        struct stack *s = s_new(100, s_ftab_val);
+        struct stack *s = s_new(100, s_fval);
 
         cmc_assert_not_equals(ptr, NULL, s);
         cmc_assert(s_push(s, 10));
@@ -423,7 +423,7 @@ CMC_CREATE_UNIT(stack_test, true, {
     });
 
     CMC_CREATE_TEST(iteration[count = capacity], {
-        struct stack *s = s_new(100, s_ftab_val);
+        struct stack *s = s_new(100, s_fval);
 
         cmc_assert_not_equals(ptr, NULL, s);
 
@@ -454,7 +454,7 @@ CMC_CREATE_UNIT(stack_test, true, {
     });
 
     CMC_CREATE_TEST(iteration[to_start = it_start and to_end = it_end], {
-        struct stack *s = s_new(100, s_ftab_val);
+        struct stack *s = s_new(100, s_fval);
 
         cmc_assert_not_equals(ptr, NULL, s);
 
@@ -489,7 +489,7 @@ CMC_CREATE_UNIT(stack_test, true, {
     });
 
     CMC_CREATE_TEST(iteration[boundaries count = 0], {
-        struct stack *s = s_new(100, s_ftab_val);
+        struct stack *s = s_new(100, s_fval);
 
         cmc_assert_not_equals(ptr, NULL, s);
 
@@ -508,7 +508,7 @@ CMC_CREATE_UNIT(stack_test, true, {
     });
 
     CMC_CREATE_TEST(iteration[boundaries count > 0], {
-        struct stack *s = s_new(100, s_ftab_val);
+        struct stack *s = s_new(100, s_fval);
 
         cmc_assert_not_equals(ptr, NULL, s);
 
@@ -530,7 +530,7 @@ CMC_CREATE_UNIT(stack_test, true, {
     });
 
     CMC_CREATE_TEST(iter_value[count = 0], {
-        struct stack *s = s_new(100, s_ftab_val);
+        struct stack *s = s_new(100, s_fval);
 
         cmc_assert_not_equals(ptr, NULL, s);
 
@@ -544,7 +544,7 @@ CMC_CREATE_UNIT(stack_test, true, {
     });
 
     CMC_CREATE_TEST(iter_rvalue[count = 0], {
-        struct stack *s = s_new(100, s_ftab_val);
+        struct stack *s = s_new(100, s_fval);
 
         cmc_assert_not_equals(ptr, NULL, s);
 
@@ -558,7 +558,7 @@ CMC_CREATE_UNIT(stack_test, true, {
     });
 
     CMC_CREATE_TEST(index, {
-        struct stack *s = s_new(100, s_ftab_val);
+        struct stack *s = s_new(100, s_fval);
 
         cmc_assert_not_equals(ptr, NULL, s);
 
@@ -599,7 +599,7 @@ CMC_CREATE_UNIT(stack_test, true, {
     });
 
     CMC_CREATE_TEST(index[count = 0], {
-        struct stack *s = s_new(100, s_ftab_val);
+        struct stack *s = s_new(100, s_fval);
 
         cmc_assert_not_equals(ptr, NULL, s);
 
@@ -612,7 +612,7 @@ CMC_CREATE_UNIT(stack_test, true, {
     });
 
     CMC_CREATE_TEST(flags, {
-        struct stack *s = s_new(100, s_ftab_val);
+        struct stack *s = s_new(100, s_fval);
 
         cmc_assert_not_equals(ptr, NULL, s);
         cmc_assert_equals(int32_t, cmc_flags.OK, s_flag(s));
@@ -671,7 +671,7 @@ CMC_CREATE_UNIT(stack_test, true, {
     });
 
     CMC_CREATE_TEST(callbacks, {
-        struct stack *s = s_new_custom(100, s_ftab_val, NULL, callbacks);
+        struct stack *s = s_new_custom(100, s_fval, NULL, callbacks);
 
         cmc_assert_not_equals(ptr, NULL, s);
 

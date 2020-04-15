@@ -79,10 +79,10 @@ static const char *cmc_string_fmt_hashmap = "struct %s<%s, %s> "
         int flag;                                                             \
                                                                               \
         /* Key function table */                                              \
-        struct SNAME##_ftab_key *f_key;                                       \
+        struct SNAME##_fkey *f_key;                                           \
                                                                               \
         /* Value function table */                                            \
-        struct SNAME##_ftab_val *f_val;                                       \
+        struct SNAME##_fval *f_val;                                           \
                                                                               \
         /* Custom allocation functions */                                     \
         struct cmc_alloc_node *alloc;                                         \
@@ -115,7 +115,7 @@ static const char *cmc_string_fmt_hashmap = "struct %s<%s, %s> "
     };                                                                        \
                                                                               \
     /* Key struct function table */                                           \
-    struct SNAME##_ftab_key                                                   \
+    struct SNAME##_fkey                                                       \
     {                                                                         \
         /* Comparator function */                                             \
         int (*cmp)(K, K);                                                     \
@@ -137,7 +137,7 @@ static const char *cmc_string_fmt_hashmap = "struct %s<%s, %s> "
     };                                                                        \
                                                                               \
     /* Value struct function table */                                         \
-    struct SNAME##_ftab_val                                                   \
+    struct SNAME##_fval                                                       \
     {                                                                         \
         /* Comparator function */                                             \
         int (*cmp)(V, V);                                                     \
@@ -186,11 +186,11 @@ static const char *cmc_string_fmt_hashmap = "struct %s<%s, %s> "
     /* Collection Functions */                                                \
     /* Collection Allocation and Deallocation */                              \
     struct SNAME *PFX##_new(size_t capacity, double load,                     \
-                            struct SNAME##_ftab_key *f_key,                   \
-                            struct SNAME##_ftab_val *f_val);                  \
+                            struct SNAME##_fkey *f_key,                       \
+                            struct SNAME##_fval *f_val);                      \
     struct SNAME *PFX##_new_custom(                                           \
-        size_t capacity, double load, struct SNAME##_ftab_key *f_key,         \
-        struct SNAME##_ftab_val *f_val, struct cmc_alloc_node *alloc,         \
+        size_t capacity, double load, struct SNAME##_fkey *f_key,             \
+        struct SNAME##_fval *f_val, struct cmc_alloc_node *alloc,             \
         struct cmc_callbacks *callbacks);                                     \
     void PFX##_clear(struct SNAME *_map_);                                    \
     void PFX##_free(struct SNAME *_map_);                                     \
@@ -257,8 +257,8 @@ static const char *cmc_string_fmt_hashmap = "struct %s<%s, %s> "
     static struct SNAME##_iter PFX##_impl_it_end(struct SNAME *_map_);        \
                                                                               \
     struct SNAME *PFX##_new(size_t capacity, double load,                     \
-                            struct SNAME##_ftab_key *f_key,                   \
-                            struct SNAME##_ftab_val *f_val)                   \
+                            struct SNAME##_fkey *f_key,                       \
+                            struct SNAME##_fval *f_val)                       \
     {                                                                         \
         struct cmc_alloc_node *alloc = &cmc_alloc_node_default;               \
                                                                               \
@@ -303,8 +303,8 @@ static const char *cmc_string_fmt_hashmap = "struct %s<%s, %s> "
     }                                                                         \
                                                                               \
     struct SNAME *PFX##_new_custom(                                           \
-        size_t capacity, double load, struct SNAME##_ftab_key *f_key,         \
-        struct SNAME##_ftab_val *f_val, struct cmc_alloc_node *alloc,         \
+        size_t capacity, double load, struct SNAME##_fkey *f_key,             \
+        struct SNAME##_fval *f_val, struct cmc_alloc_node *alloc,             \
         struct cmc_callbacks *callbacks)                                      \
     {                                                                         \
         if (capacity == 0 || load <= 0 || load >= 1)                          \

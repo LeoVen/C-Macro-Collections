@@ -46,5 +46,5 @@ int main(void)
     printf("| Total Running Time : %14.0lf milliseconds |\n", timer.result);
     printf("+--------------------------------------------------+\n");
 
-    return 0;
+    return failed;
 }

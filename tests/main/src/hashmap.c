@@ -7,8 +7,8 @@ struct hashmap
     size_t count;
     double load;
     int flag;
-    struct hashmap_ftab_key *f_key;
-    struct hashmap_ftab_val *f_val;
+    struct hashmap_fkey *f_key;
+    struct hashmap_fval *f_val;
     struct cmc_alloc_node *alloc;
     struct cmc_callbacks *callbacks;
     struct hashmap_iter (*it_start)(struct hashmap *);
@@ -21,7 +21,7 @@ struct hashmap_entry
     size_t dist;
     enum cmc_entry_state state;
 };
-struct hashmap_ftab_key
+struct hashmap_fkey
 {
     int (*cmp)(size_t, size_t);
     size_t (*cpy)(size_t);
@@ -30,7 +30,7 @@ struct hashmap_ftab_key
     size_t (*hash)(size_t);
     int (*pri)(size_t, size_t);
 };
-struct hashmap_ftab_val
+struct hashmap_fval
 {
     int (*cmp)(size_t, size_t);
     size_t (*cpy)(size_t);
@@ -49,12 +49,11 @@ struct hashmap_iter
     _Bool start;
     _Bool end;
 };
-struct hashmap *hm_new(size_t capacity, double load,
-                       struct hashmap_ftab_key *f_key,
-                       struct hashmap_ftab_val *f_val);
+struct hashmap *hm_new(size_t capacity, double load, struct hashmap_fkey *f_key,
+                       struct hashmap_fval *f_val);
 struct hashmap *hm_new_custom(size_t capacity, double load,
-                              struct hashmap_ftab_key *f_key,
-                              struct hashmap_ftab_val *f_val,
+                              struct hashmap_fkey *f_key,
+                              struct hashmap_fval *f_val,
                               struct cmc_alloc_node *alloc,
                               struct cmc_callbacks *callbacks);
 void hm_clear(struct hashmap *_map_);
@@ -102,9 +101,8 @@ static struct hashmap_entry *hm_impl_get_entry(struct hashmap *_map_,
 static size_t hm_impl_calculate_size(size_t required);
 static struct hashmap_iter hm_impl_it_start(struct hashmap *_map_);
 static struct hashmap_iter hm_impl_it_end(struct hashmap *_map_);
-struct hashmap *hm_new(size_t capacity, double load,
-                       struct hashmap_ftab_key *f_key,
-                       struct hashmap_ftab_val *f_val)
+struct hashmap *hm_new(size_t capacity, double load, struct hashmap_fkey *f_key,
+                       struct hashmap_fval *f_val)
 {
     struct cmc_alloc_node *alloc = &cmc_alloc_node_default;
     if (capacity == 0 || load <= 0 || load >= 1)
@@ -136,8 +134,8 @@ struct hashmap *hm_new(size_t capacity, double load,
     return _map_;
 }
 struct hashmap *hm_new_custom(size_t capacity, double load,
-                              struct hashmap_ftab_key *f_key,
-                              struct hashmap_ftab_val *f_val,
+                              struct hashmap_fkey *f_key,
+                              struct hashmap_fval *f_val,
                               struct cmc_alloc_node *alloc,
                               struct cmc_callbacks *callbacks)
 {

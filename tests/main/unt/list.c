@@ -5,7 +5,7 @@
 
 #include "../src/list.c"
 
-struct list_ftab_val *l_ftab_val = &(struct list_ftab_val){ .cmp = cmp,
+struct list_fval *l_fval = &(struct list_fval){ .cmp = cmp,
                                                             .cpy = copy,
                                                             .str = str,
                                                             .free = custom_free,
@@ -14,7 +14,7 @@ struct list_ftab_val *l_ftab_val = &(struct list_ftab_val){ .cmp = cmp,
 
 CMC_CREATE_UNIT(list_test, true, {
     CMC_CREATE_TEST(new, {
-        struct list *l = l_new(1000000, l_ftab_val);
+        struct list *l = l_new(1000000, l_fval);
 
         cmc_assert_not_equals(ptr, NULL, l);
         cmc_assert_not_equals(ptr, NULL, l->buffer);
@@ -25,19 +25,19 @@ CMC_CREATE_UNIT(list_test, true, {
     });
 
     CMC_CREATE_TEST(new[capacity = 0], {
-        struct list *l = l_new(0, l_ftab_val);
+        struct list *l = l_new(0, l_fval);
 
         cmc_assert_equals(ptr, NULL, l);
     });
 
     CMC_CREATE_TEST(new[capacity = UINT64_MAX], {
-        struct list *l = l_new(UINT64_MAX, l_ftab_val);
+        struct list *l = l_new(UINT64_MAX, l_fval);
 
         cmc_assert_equals(ptr, NULL, l);
     });
 
     CMC_CREATE_TEST(clear[count capacity], {
-        struct list *l = l_new(100, l_ftab_val);
+        struct list *l = l_new(100, l_fval);
 
         cmc_assert_not_equals(ptr, NULL, l);
 
@@ -55,7 +55,7 @@ CMC_CREATE_UNIT(list_test, true, {
     });
 
     CMC_CREATE_TEST(buffer_growth[capacity = 1], {
-        struct list *l = l_new(1, l_ftab_val);
+        struct list *l = l_new(1, l_fval);
 
         cmc_assert_not_equals(ptr, NULL, l);
 
@@ -71,7 +71,7 @@ CMC_CREATE_UNIT(list_test, true, {
     });
 
     CMC_CREATE_TEST(push_front[count], {
-        struct list *l = l_new(100, l_ftab_val);
+        struct list *l = l_new(100, l_fval);
 
         cmc_assert_not_equals(ptr, NULL, l);
 
@@ -84,7 +84,7 @@ CMC_CREATE_UNIT(list_test, true, {
     });
 
     CMC_CREATE_TEST(push_front[capacity], {
-        struct list *l = l_new(100, l_ftab_val);
+        struct list *l = l_new(100, l_fval);
 
         cmc_assert_not_equals(ptr, NULL, l);
 
@@ -97,7 +97,7 @@ CMC_CREATE_UNIT(list_test, true, {
     });
 
     CMC_CREATE_TEST(push_front[item preservation], {
-        struct list *l = l_new(100, l_ftab_val);
+        struct list *l = l_new(100, l_fval);
 
         cmc_assert_not_equals(ptr, NULL, l);
 
@@ -111,7 +111,7 @@ CMC_CREATE_UNIT(list_test, true, {
     });
 
     CMC_CREATE_TEST(push_at[count], {
-        struct list *l = l_new(100, l_ftab_val);
+        struct list *l = l_new(100, l_fval);
 
         cmc_assert_not_equals(ptr, NULL, l);
 
@@ -127,7 +127,7 @@ CMC_CREATE_UNIT(list_test, true, {
     });
 
     CMC_CREATE_TEST(push_at[capacity], {
-        struct list *l = l_new(100, l_ftab_val);
+        struct list *l = l_new(100, l_fval);
 
         cmc_assert_not_equals(ptr, NULL, l);
 
@@ -143,7 +143,7 @@ CMC_CREATE_UNIT(list_test, true, {
     });
 
     CMC_CREATE_TEST(push_at[item preservation], {
-        struct list *l = l_new(100, l_ftab_val);
+        struct list *l = l_new(100, l_fval);
 
         cmc_assert_not_equals(ptr, NULL, l);
 
@@ -160,7 +160,7 @@ CMC_CREATE_UNIT(list_test, true, {
     });
 
     CMC_CREATE_TEST(push_back[count], {
-        struct list *l = l_new(100, l_ftab_val);
+        struct list *l = l_new(100, l_fval);
 
         cmc_assert_not_equals(ptr, NULL, l);
 
@@ -173,7 +173,7 @@ CMC_CREATE_UNIT(list_test, true, {
     });
 
     CMC_CREATE_TEST(push_back[capacity], {
-        struct list *l = l_new(100, l_ftab_val);
+        struct list *l = l_new(100, l_fval);
 
         cmc_assert_not_equals(ptr, NULL, l);
 
@@ -186,7 +186,7 @@ CMC_CREATE_UNIT(list_test, true, {
     });
 
     CMC_CREATE_TEST(push_back[item preservation], {
-        struct list *l = l_new(100, l_ftab_val);
+        struct list *l = l_new(100, l_fval);
 
         cmc_assert_not_equals(ptr, NULL, l);
 
@@ -200,7 +200,7 @@ CMC_CREATE_UNIT(list_test, true, {
     });
 
     CMC_CREATE_TEST(pop_front[count], {
-        struct list *l = l_new(100, l_ftab_val);
+        struct list *l = l_new(100, l_fval);
 
         cmc_assert_not_equals(ptr, NULL, l);
 
@@ -213,7 +213,7 @@ CMC_CREATE_UNIT(list_test, true, {
     });
 
     CMC_CREATE_TEST(pop_front[item preservation], {
-        struct list *l = l_new(100, l_ftab_val);
+        struct list *l = l_new(100, l_fval);
 
         cmc_assert_not_equals(ptr, NULL, l);
 
@@ -229,7 +229,7 @@ CMC_CREATE_UNIT(list_test, true, {
     });
 
     CMC_CREATE_TEST(pop_front[count = 0], {
-        struct list *l = l_new(100, l_ftab_val);
+        struct list *l = l_new(100, l_fval);
 
         cmc_assert_not_equals(ptr, NULL, l);
         cmc_assert(!l_pop_front(l));
@@ -238,7 +238,7 @@ CMC_CREATE_UNIT(list_test, true, {
     });
 
     CMC_CREATE_TEST(pop_front[count = 1], {
-        struct list *l = l_new(100, l_ftab_val);
+        struct list *l = l_new(100, l_fval);
 
         cmc_assert_not_equals(ptr, NULL, l);
         cmc_assert(l_push_back(l, 10));
@@ -248,7 +248,7 @@ CMC_CREATE_UNIT(list_test, true, {
     });
 
     CMC_CREATE_TEST(pop_front[buffer_clear], {
-        struct list *l = l_new(100, l_ftab_val);
+        struct list *l = l_new(100, l_fval);
 
         cmc_assert_not_equals(ptr, NULL, l);
         cmc_assert(l_push_back(l, 1));
@@ -262,7 +262,7 @@ CMC_CREATE_UNIT(list_test, true, {
     });
 
     CMC_CREATE_TEST(pop_at[count = 0], {
-        struct list *l = l_new(100, l_ftab_val);
+        struct list *l = l_new(100, l_fval);
 
         cmc_assert_not_equals(ptr, NULL, l);
         cmc_assert(!l_pop_at(l, 1));
@@ -271,7 +271,7 @@ CMC_CREATE_UNIT(list_test, true, {
     });
 
     CMC_CREATE_TEST(pop_at[count = 1], {
-        struct list *l = l_new(100, l_ftab_val);
+        struct list *l = l_new(100, l_fval);
 
         cmc_assert_not_equals(ptr, NULL, l);
         cmc_assert(l_push_back(l, 1));
@@ -283,7 +283,7 @@ CMC_CREATE_UNIT(list_test, true, {
     });
 
     CMC_CREATE_TEST(pop_at[buffer_clear], {
-        struct list *l = l_new(100, l_ftab_val);
+        struct list *l = l_new(100, l_fval);
 
         cmc_assert_not_equals(ptr, NULL, l);
         cmc_assert(l_push_back(l, 1));
@@ -295,7 +295,7 @@ CMC_CREATE_UNIT(list_test, true, {
     });
 
     CMC_CREATE_TEST(pop_back[count = 0], {
-        struct list *l = l_new(100, l_ftab_val);
+        struct list *l = l_new(100, l_fval);
 
         cmc_assert_not_equals(ptr, NULL, l);
         cmc_assert(!l_pop_back(l));
@@ -304,7 +304,7 @@ CMC_CREATE_UNIT(list_test, true, {
     });
 
     CMC_CREATE_TEST(pop_back[count = 1], {
-        struct list *l = l_new(100, l_ftab_val);
+        struct list *l = l_new(100, l_fval);
 
         cmc_assert_not_equals(ptr, NULL, l);
         cmc_assert(l_push_back(l, 10));
@@ -314,7 +314,7 @@ CMC_CREATE_UNIT(list_test, true, {
     });
 
     CMC_CREATE_TEST(flags, {
-        struct list *l = l_new(100, l_ftab_val);
+        struct list *l = l_new(100, l_fval);
 
         cmc_assert_not_equals(ptr, NULL, l);
         cmc_assert_equals(int32_t, cmc_flags.OK, l_flag(l));
@@ -496,7 +496,7 @@ CMC_CREATE_UNIT(list_test, true, {
     });
 
     CMC_CREATE_TEST(callbacks, {
-        struct list *l = l_new_custom(100, l_ftab_val, NULL, callbacks);
+        struct list *l = l_new_custom(100, l_fval, NULL, callbacks);
 
         cmc_assert_not_equals(ptr, NULL, l);
 

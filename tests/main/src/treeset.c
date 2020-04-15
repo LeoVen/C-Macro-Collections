@@ -5,7 +5,7 @@ struct treeset
     struct treeset_node *root;
     size_t count;
     int flag;
-    struct treeset_ftab_val *f_val;
+    struct treeset_fval *f_val;
     struct cmc_alloc_node *alloc;
     struct cmc_callbacks *callbacks;
     struct treeset_iter (*it_start)(struct treeset *);
@@ -19,7 +19,7 @@ struct treeset_node
     struct treeset_node *left;
     struct treeset_node *parent;
 };
-struct treeset_ftab_val
+struct treeset_fval
 {
     int (*cmp)(size_t, size_t);
     size_t (*cpy)(size_t);
@@ -38,8 +38,8 @@ struct treeset_iter
     _Bool start;
     _Bool end;
 };
-struct treeset *ts_new(struct treeset_ftab_val *f_val);
-struct treeset *ts_new_custom(struct treeset_ftab_val *f_val,
+struct treeset *ts_new(struct treeset_fval *f_val);
+struct treeset *ts_new_custom(struct treeset_fval *f_val,
                               struct cmc_alloc_node *alloc,
                               struct cmc_callbacks *callbacks);
 void ts_clear(struct treeset *_set_);
@@ -99,7 +99,7 @@ static void ts_impl_rotate_left(struct treeset_node **Z);
 static void ts_impl_rebalance(struct treeset *_set_, struct treeset_node *node);
 static struct treeset_iter ts_impl_it_start(struct treeset *_set_);
 static struct treeset_iter ts_impl_it_end(struct treeset *_set_);
-struct treeset *ts_new(struct treeset_ftab_val *f_val)
+struct treeset *ts_new(struct treeset_fval *f_val)
 {
     if (!f_val)
         return ((void *)0);
@@ -117,7 +117,7 @@ struct treeset *ts_new(struct treeset_ftab_val *f_val)
     _set_->it_end = ts_impl_it_end;
     return _set_;
 }
-struct treeset *ts_new_custom(struct treeset_ftab_val *f_val,
+struct treeset *ts_new_custom(struct treeset_fval *f_val,
                               struct cmc_alloc_node *alloc,
                               struct cmc_callbacks *callbacks)
 {

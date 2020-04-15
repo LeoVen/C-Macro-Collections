@@ -6,13 +6,13 @@ struct list
     size_t capacity;
     size_t count;
     int flag;
-    struct list_ftab_val *f_val;
+    struct list_fval *f_val;
     struct list_iter (*it_start)(struct list *);
     struct list_iter (*it_end)(struct list *);
     struct cmc_alloc_node *alloc;
     struct cmc_callbacks *callbacks;
 };
-struct list_ftab_val
+struct list_fval
 {
     int (*cmp)(size_t, size_t);
     size_t (*cpy)(size_t);
@@ -28,8 +28,8 @@ struct list_iter
     _Bool start;
     _Bool end;
 };
-struct list *l_new(size_t capacity, struct list_ftab_val *f_val);
-struct list *l_new_custom(size_t capacity, struct list_ftab_val *f_val,
+struct list *l_new(size_t capacity, struct list_fval *f_val);
+struct list *l_new_custom(size_t capacity, struct list_fval *f_val,
                           struct cmc_alloc_node *alloc,
                           struct cmc_callbacks *callbacks);
 void l_clear(struct list *_list_);
@@ -82,7 +82,7 @@ size_t *l_iter_rvalue(struct list_iter *iter);
 size_t l_iter_index(struct list_iter *iter);
 static struct list_iter l_impl_it_start(struct list *_list_);
 static struct list_iter l_impl_it_end(struct list *_list_);
-struct list *l_new(size_t capacity, struct list_ftab_val *f_val)
+struct list *l_new(size_t capacity, struct list_fval *f_val)
 {
     struct cmc_alloc_node *alloc = &cmc_alloc_node_default;
     if (capacity < 1)
@@ -106,7 +106,7 @@ struct list *l_new(size_t capacity, struct list_ftab_val *f_val)
     _list_->it_end = l_impl_it_end;
     return _list_;
 }
-struct list *l_new_custom(size_t capacity, struct list_ftab_val *f_val,
+struct list *l_new_custom(size_t capacity, struct list_fval *f_val,
                           struct cmc_alloc_node *alloc,
                           struct cmc_callbacks *callbacks)
 {

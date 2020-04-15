@@ -78,7 +78,7 @@ static const char *cmc_string_fmt_linkedlist = "struct %s<%s> "
         int flag;                                                            \
                                                                              \
         /* Value function table */                                           \
-        struct SNAME##_ftab_val *f_val;                                      \
+        struct SNAME##_fval *f_val;                                          \
                                                                              \
         /* Custom allocation functions */                                    \
         struct cmc_alloc_node *alloc;                                        \
@@ -107,7 +107,7 @@ static const char *cmc_string_fmt_linkedlist = "struct %s<%s> "
     };                                                                       \
                                                                              \
     /* Value struct function table */                                        \
-    struct SNAME##_ftab_val                                                  \
+    struct SNAME##_fval                                                      \
     {                                                                        \
         /* Comparator function */                                            \
         int (*cmp)(V, V);                                                    \
@@ -149,8 +149,8 @@ static const char *cmc_string_fmt_linkedlist = "struct %s<%s> "
                                                                              \
     /* Collection Functions */                                               \
     /* Collection Allocation and Deallocation */                             \
-    struct SNAME *PFX##_new(struct SNAME##_ftab_val *f_val);                 \
-    struct SNAME *PFX##_new_custom(struct SNAME##_ftab_val *f_val,           \
+    struct SNAME *PFX##_new(struct SNAME##_fval *f_val);                     \
+    struct SNAME *PFX##_new_custom(struct SNAME##_fval *f_val,               \
                                    struct cmc_alloc_node *alloc,             \
                                    struct cmc_callbacks *callbacks);         \
     void PFX##_clear(struct SNAME *_list_);                                  \
@@ -233,7 +233,7 @@ static const char *cmc_string_fmt_linkedlist = "struct %s<%s> "
     static struct SNAME##_iter PFX##_impl_it_start(struct SNAME *_list_);      \
     static struct SNAME##_iter PFX##_impl_it_end(struct SNAME *_list_);        \
                                                                                \
-    struct SNAME *PFX##_new(struct SNAME##_ftab_val *f_val)                    \
+    struct SNAME *PFX##_new(struct SNAME##_fval *f_val)                        \
     {                                                                          \
         if (!f_val)                                                            \
             return NULL;                                                       \
@@ -258,7 +258,7 @@ static const char *cmc_string_fmt_linkedlist = "struct %s<%s> "
         return _list_;                                                         \
     }                                                                          \
                                                                                \
-    struct SNAME *PFX##_new_custom(struct SNAME##_ftab_val *f_val,             \
+    struct SNAME *PFX##_new_custom(struct SNAME##_fval *f_val,                 \
                                    struct cmc_alloc_node *alloc,               \
                                    struct cmc_callbacks *callbacks)            \
     {                                                                          \

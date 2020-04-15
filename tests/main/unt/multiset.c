@@ -5,8 +5,8 @@
 
 #include "../src/multiset.c"
 
-struct multiset_ftab_val *ms_ftab_val =
-    &(struct multiset_ftab_val){ .cmp = cmp,
+struct multiset_fval *ms_fval =
+    &(struct multiset_fval){ .cmp = cmp,
                                  .cpy = copy,
                                  .str = str,
                                  .free = custom_free,
@@ -15,7 +15,7 @@ struct multiset_ftab_val *ms_ftab_val =
 
 CMC_CREATE_UNIT(multiset_test, true, {
     CMC_CREATE_TEST(new, {
-        struct multiset *set = ms_new(943722, 0.6, ms_ftab_val);
+        struct multiset *set = ms_new(943722, 0.6, ms_fval);
 
         cmc_assert_not_equals(ptr, NULL, set);
         cmc_assert_not_equals(ptr, NULL, set->buffer);
@@ -27,19 +27,19 @@ CMC_CREATE_UNIT(multiset_test, true, {
     });
 
     CMC_CREATE_TEST(new[capacity = 0], {
-        struct multiset *set = ms_new(0, 0.6, ms_ftab_val);
+        struct multiset *set = ms_new(0, 0.6, ms_fval);
 
         cmc_assert_equals(ptr, NULL, set);
     });
 
     CMC_CREATE_TEST(new[capacity = UINT64_MAX], {
-        struct multiset *set = ms_new(UINT64_MAX, 0.99, ms_ftab_val);
+        struct multiset *set = ms_new(UINT64_MAX, 0.99, ms_fval);
 
         cmc_assert_equals(ptr, NULL, set);
     });
 
     CMC_CREATE_TEST(clear[count capacity], {
-        struct multiset *set = ms_new(100, 0.6, ms_ftab_val);
+        struct multiset *set = ms_new(100, 0.6, ms_fval);
 
         cmc_assert_not_equals(ptr, NULL, set);
 
@@ -56,7 +56,7 @@ CMC_CREATE_UNIT(multiset_test, true, {
     });
 
     CMC_CREATE_TEST(insert[count cardinality multiplicity], {
-        struct multiset *set = ms_new(100, 0.6, ms_ftab_val);
+        struct multiset *set = ms_new(100, 0.6, ms_fval);
 
         cmc_assert_not_equals(ptr, NULL, set);
 
@@ -77,7 +77,7 @@ CMC_CREATE_UNIT(multiset_test, true, {
     });
 
     CMC_CREATE_TEST(remove[count cardinality multiplicity], {
-        struct multiset *set = ms_new(100, 0.6, ms_ftab_val);
+        struct multiset *set = ms_new(100, 0.6, ms_fval);
 
         cmc_assert_not_equals(ptr, NULL, set);
 
@@ -110,7 +110,7 @@ CMC_CREATE_UNIT(multiset_test, true, {
     });
 
     CMC_CREATE_TEST(remove_all[count cardinality multiplicity], {
-        struct multiset *set = ms_new(100, 0.6, ms_ftab_val);
+        struct multiset *set = ms_new(100, 0.6, ms_fval);
 
         cmc_assert_not_equals(ptr, NULL, set);
 
@@ -142,7 +142,7 @@ CMC_CREATE_UNIT(multiset_test, true, {
     });
 
     CMC_CREATE_TEST(multiplicity, {
-        struct multiset *set = ms_new(50, 0.6, ms_ftab_val);
+        struct multiset *set = ms_new(50, 0.6, ms_fval);
 
         cmc_assert_not_equals(ptr, NULL, set);
 
@@ -159,7 +159,7 @@ CMC_CREATE_UNIT(multiset_test, true, {
     });
 
     CMC_CREATE_TEST(flags, {
-        struct multiset *set = ms_new(100, 0.6, ms_ftab_val);
+        struct multiset *set = ms_new(100, 0.6, ms_fval);
 
         cmc_assert_not_equals(ptr, NULL, set);
         cmc_assert_equals(int32_t, cmc_flags.OK, ms_flag(set));
@@ -263,7 +263,7 @@ CMC_CREATE_UNIT(multiset_test, true, {
 
     CMC_CREATE_TEST(callbacks, {
         struct multiset *set =
-            ms_new_custom(100, 0.8, ms_ftab_val, NULL, callbacks);
+            ms_new_custom(100, 0.8, ms_fval, NULL, callbacks);
 
         cmc_assert_not_equals(ptr, NULL, set);
 

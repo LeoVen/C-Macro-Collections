@@ -7,7 +7,7 @@ struct hashset
     size_t count;
     double load;
     int flag;
-    struct hashset_ftab_val *f_val;
+    struct hashset_fval *f_val;
     struct cmc_alloc_node *alloc;
     struct cmc_callbacks *callbacks;
     struct hashset_iter (*it_start)(struct hashset *);
@@ -19,7 +19,7 @@ struct hashset_entry
     size_t dist;
     enum cmc_entry_state state;
 };
-struct hashset_ftab_val
+struct hashset_fval
 {
     int (*cmp)(size_t, size_t);
     size_t (*cpy)(size_t);
@@ -39,9 +39,9 @@ struct hashset_iter
     _Bool end;
 };
 struct hashset *hs_new(size_t capacity, double load,
-                       struct hashset_ftab_val *f_val);
+                       struct hashset_fval *f_val);
 struct hashset *hs_new_custom(size_t capacity, double load,
-                              struct hashset_ftab_val *f_val,
+                              struct hashset_fval *f_val,
                               struct cmc_alloc_node *alloc,
                               struct cmc_callbacks *callbacks);
 void hs_clear(struct hashset *_set_);
@@ -93,8 +93,7 @@ static struct hashset_entry *hs_impl_get_entry(struct hashset *_set_,
 static size_t hs_impl_calculate_size(size_t required);
 static struct hashset_iter hs_impl_it_start(struct hashset *_set_);
 static struct hashset_iter hs_impl_it_end(struct hashset *_set_);
-struct hashset *hs_new(size_t capacity, double load,
-                       struct hashset_ftab_val *f_val)
+struct hashset *hs_new(size_t capacity, double load, struct hashset_fval *f_val)
 {
     struct cmc_alloc_node *alloc = &cmc_alloc_node_default;
     if (capacity == 0 || load <= 0 || load >= 1)
@@ -125,7 +124,7 @@ struct hashset *hs_new(size_t capacity, double load,
     return _set_;
 }
 struct hashset *hs_new_custom(size_t capacity, double load,
-                              struct hashset_ftab_val *f_val,
+                              struct hashset_fval *f_val,
                               struct cmc_alloc_node *alloc,
                               struct cmc_callbacks *callbacks)
 {

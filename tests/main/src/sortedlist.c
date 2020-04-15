@@ -7,13 +7,13 @@ struct sortedlist
     size_t count;
     _Bool is_sorted;
     int flag;
-    struct sortedlist_ftab_val *f_val;
+    struct sortedlist_fval *f_val;
     struct cmc_alloc_node *alloc;
     struct cmc_callbacks *callbacks;
     struct sortedlist_iter (*it_start)(struct sortedlist *);
     struct sortedlist_iter (*it_end)(struct sortedlist *);
 };
-struct sortedlist_ftab_val
+struct sortedlist_fval
 {
     int (*cmp)(size_t, size_t);
     size_t (*cpy)(size_t);
@@ -29,9 +29,8 @@ struct sortedlist_iter
     _Bool start;
     _Bool end;
 };
-struct sortedlist *sl_new(size_t capacity, struct sortedlist_ftab_val *f_val);
-struct sortedlist *sl_new_custom(size_t capacity,
-                                 struct sortedlist_ftab_val *f_val,
+struct sortedlist *sl_new(size_t capacity, struct sortedlist_fval *f_val);
+struct sortedlist *sl_new_custom(size_t capacity, struct sortedlist_fval *f_val,
                                  struct cmc_alloc_node *alloc,
                                  struct cmc_callbacks *callbacks);
 void sl_clear(struct sortedlist *_list_);
@@ -80,7 +79,7 @@ void sl_impl_sort_insertion(size_t *array, int (*cmp)(size_t, size_t),
                             size_t low, size_t high);
 static struct sortedlist_iter sl_impl_it_start(struct sortedlist *_list_);
 static struct sortedlist_iter sl_impl_it_end(struct sortedlist *_list_);
-struct sortedlist *sl_new(size_t capacity, struct sortedlist_ftab_val *f_val)
+struct sortedlist *sl_new(size_t capacity, struct sortedlist_fval *f_val)
 {
     struct cmc_alloc_node *alloc = &cmc_alloc_node_default;
     if (capacity < 1)
@@ -107,8 +106,7 @@ struct sortedlist *sl_new(size_t capacity, struct sortedlist_ftab_val *f_val)
     _list_->it_end = sl_impl_it_end;
     return _list_;
 }
-struct sortedlist *sl_new_custom(size_t capacity,
-                                 struct sortedlist_ftab_val *f_val,
+struct sortedlist *sl_new_custom(size_t capacity, struct sortedlist_fval *f_val,
                                  struct cmc_alloc_node *alloc,
                                  struct cmc_callbacks *callbacks)
 {

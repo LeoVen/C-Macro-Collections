@@ -7,13 +7,13 @@ struct heap
     size_t count;
     enum cmc_heap_order HO;
     int flag;
-    struct heap_ftab_val *f_val;
+    struct heap_fval *f_val;
     struct cmc_alloc_node *alloc;
     struct cmc_callbacks *callbacks;
     struct heap_iter (*it_start)(struct heap *);
     struct heap_iter (*it_end)(struct heap *);
 };
-struct heap_ftab_val
+struct heap_fval
 {
     int (*cmp)(size_t, size_t);
     size_t (*cpy)(size_t);
@@ -30,10 +30,9 @@ struct heap_iter
     _Bool end;
 };
 struct heap *h_new(size_t capacity, enum cmc_heap_order HO,
-                   struct heap_ftab_val *f_val);
+                   struct heap_fval *f_val);
 struct heap *h_new_custom(size_t capacity, enum cmc_heap_order HO,
-                          struct heap_ftab_val *f_val,
-                          struct cmc_alloc_node *alloc,
+                          struct heap_fval *f_val, struct cmc_alloc_node *alloc,
                           struct cmc_callbacks *callbacks);
 void h_clear(struct heap *_heap_);
 void h_free(struct heap *_heap_);
@@ -72,7 +71,7 @@ static void h_impl_float_down(struct heap *_heap_, size_t index);
 static struct heap_iter h_impl_it_start(struct heap *_heap_);
 static struct heap_iter h_impl_it_end(struct heap *_heap_);
 struct heap *h_new(size_t capacity, enum cmc_heap_order HO,
-                   struct heap_ftab_val *f_val)
+                   struct heap_fval *f_val)
 {
     struct cmc_alloc_node *alloc = &cmc_alloc_node_default;
     if (capacity < 1)
@@ -102,8 +101,7 @@ struct heap *h_new(size_t capacity, enum cmc_heap_order HO,
     return _heap_;
 }
 struct heap *h_new_custom(size_t capacity, enum cmc_heap_order HO,
-                          struct heap_ftab_val *f_val,
-                          struct cmc_alloc_node *alloc,
+                          struct heap_fval *f_val, struct cmc_alloc_node *alloc,
                           struct cmc_callbacks *callbacks)
 {
     if (capacity < 1)

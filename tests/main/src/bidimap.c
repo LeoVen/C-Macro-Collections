@@ -7,8 +7,8 @@ struct bidimap
     size_t count;
     double load;
     int flag;
-    struct bidimap_ftab_key *f_key;
-    struct bidimap_ftab_val *f_val;
+    struct bidimap_fkey *f_key;
+    struct bidimap_fval *f_val;
     struct cmc_alloc_node *alloc;
     struct cmc_callbacks *callbacks;
     struct bidimap_iter (*it_start)(struct bidimap *);
@@ -21,7 +21,7 @@ struct bidimap_entry
     size_t dist[2];
     struct bidimap_entry **ref[2];
 };
-struct bidimap_ftab_key
+struct bidimap_fkey
 {
     int (*cmp)(size_t, size_t);
     size_t (*cpy)(size_t);
@@ -30,7 +30,7 @@ struct bidimap_ftab_key
     size_t (*hash)(size_t);
     int (*pri)(size_t, size_t);
 };
-struct bidimap_ftab_val
+struct bidimap_fval
 {
     int (*cmp)(size_t, size_t);
     size_t (*cpy)(size_t);
@@ -49,12 +49,11 @@ struct bidimap_iter
     _Bool start;
     _Bool end;
 };
-struct bidimap *bm_new(size_t capacity, double load,
-                       struct bidimap_ftab_key *f_key,
-                       struct bidimap_ftab_val *f_val);
+struct bidimap *bm_new(size_t capacity, double load, struct bidimap_fkey *f_key,
+                       struct bidimap_fval *f_val);
 struct bidimap *bm_new_custom(size_t capacity, double load,
-                              struct bidimap_ftab_key *f_key,
-                              struct bidimap_ftab_val *f_val,
+                              struct bidimap_fkey *f_key,
+                              struct bidimap_fval *f_val,
                               struct cmc_alloc_node *alloc,
                               struct cmc_callbacks *callbacks);
 void bm_clear(struct bidimap *_map_);
@@ -111,9 +110,8 @@ bm_impl_add_entry_to_val(struct bidimap *_map_, struct bidimap_entry *entry);
 static size_t bm_impl_calculate_size(size_t required);
 static struct bidimap_iter bm_impl_it_start(struct bidimap *_map_);
 static struct bidimap_iter bm_impl_it_end(struct bidimap *_map_);
-struct bidimap *bm_new(size_t capacity, double load,
-                       struct bidimap_ftab_key *f_key,
-                       struct bidimap_ftab_val *f_val)
+struct bidimap *bm_new(size_t capacity, double load, struct bidimap_fkey *f_key,
+                       struct bidimap_fval *f_val)
 {
     struct cmc_alloc_node *alloc = &cmc_alloc_node_default;
     if (capacity == 0 || load <= 0 || load >= 1)
@@ -147,8 +145,8 @@ struct bidimap *bm_new(size_t capacity, double load,
     return _map_;
 }
 struct bidimap *bm_new_custom(size_t capacity, double load,
-                              struct bidimap_ftab_key *f_key,
-                              struct bidimap_ftab_val *f_val,
+                              struct bidimap_fkey *f_key,
+                              struct bidimap_fval *f_val,
                               struct cmc_alloc_node *alloc,
                               struct cmc_callbacks *callbacks)
 {

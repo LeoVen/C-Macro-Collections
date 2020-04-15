@@ -6,7 +6,7 @@ struct linkedlist
     struct linkedlist_node *tail;
     size_t count;
     int flag;
-    struct linkedlist_ftab_val *f_val;
+    struct linkedlist_fval *f_val;
     struct cmc_alloc_node *alloc;
     struct cmc_callbacks *callbacks;
     struct linkedlist_iter (*it_start)(struct linkedlist *);
@@ -18,7 +18,7 @@ struct linkedlist_node
     struct linkedlist_node *next;
     struct linkedlist_node *prev;
 };
-struct linkedlist_ftab_val
+struct linkedlist_fval
 {
     int (*cmp)(size_t, size_t);
     size_t (*cpy)(size_t);
@@ -35,8 +35,8 @@ struct linkedlist_iter
     _Bool start;
     _Bool end;
 };
-struct linkedlist *ll_new(struct linkedlist_ftab_val *f_val);
-struct linkedlist *ll_new_custom(struct linkedlist_ftab_val *f_val,
+struct linkedlist *ll_new(struct linkedlist_fval *f_val);
+struct linkedlist *ll_new_custom(struct linkedlist_fval *f_val,
                                  struct cmc_alloc_node *alloc,
                                  struct cmc_callbacks *callbacks);
 void ll_clear(struct linkedlist *_list_);
@@ -93,7 +93,7 @@ size_t ll_iter_index(struct linkedlist_iter *iter);
 struct linkedlist_node *ll_iter_node(struct linkedlist_iter *iter);
 static struct linkedlist_iter ll_impl_it_start(struct linkedlist *_list_);
 static struct linkedlist_iter ll_impl_it_end(struct linkedlist *_list_);
-struct linkedlist *ll_new(struct linkedlist_ftab_val *f_val)
+struct linkedlist *ll_new(struct linkedlist_fval *f_val)
 {
     if (!f_val)
         return ((void *)0);
@@ -112,7 +112,7 @@ struct linkedlist *ll_new(struct linkedlist_ftab_val *f_val)
     _list_->it_end = ll_impl_it_end;
     return _list_;
 }
-struct linkedlist *ll_new_custom(struct linkedlist_ftab_val *f_val,
+struct linkedlist *ll_new_custom(struct linkedlist_fval *f_val,
                                  struct cmc_alloc_node *alloc,
                                  struct cmc_callbacks *callbacks)
 {

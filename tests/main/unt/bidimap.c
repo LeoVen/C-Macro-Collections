@@ -5,32 +5,32 @@
 
 #include "../src/bidimap.c"
 
-struct bidimap_ftab_key *bm_ftab_key =
-    &(struct bidimap_ftab_key){ .cmp = cmp,
+struct bidimap_fkey *bm_fkey =
+    &(struct bidimap_fkey){ .cmp = cmp,
                                 .cpy = copy,
                                 .str = str,
                                 .free = custom_free,
                                 .hash = hash,
                                 .pri = pri };
 
-struct bidimap_ftab_val *bm_ftab_val =
-    &(struct bidimap_ftab_val){ .cmp = cmp,
+struct bidimap_fval *bm_fval =
+    &(struct bidimap_fval){ .cmp = cmp,
                                 .cpy = copy,
                                 .str = str,
                                 .free = custom_free,
                                 .hash = hash,
                                 .pri = pri };
 
-struct bidimap_ftab_key *bm_ftab_key_counter =
-    &(struct bidimap_ftab_key){ .cmp = k_c_cmp,
+struct bidimap_fkey *bm_fkey_counter =
+    &(struct bidimap_fkey){ .cmp = k_c_cmp,
                                 .cpy = k_c_cpy,
                                 .str = k_c_str,
                                 .free = k_c_free,
                                 .hash = k_c_hash,
                                 .pri = k_c_pri };
 
-struct bidimap_ftab_val *bm_ftab_val_counter =
-    &(struct bidimap_ftab_val){ .cmp = v_c_cmp,
+struct bidimap_fval *bm_fval_counter =
+    &(struct bidimap_fval){ .cmp = v_c_cmp,
                                 .cpy = v_c_cpy,
                                 .str = v_c_str,
                                 .free = v_c_free,
@@ -39,7 +39,7 @@ struct bidimap_ftab_val *bm_ftab_val_counter =
 
 CMC_CREATE_UNIT(bidimap_test, true, {
     CMC_CREATE_TEST(new, {
-        struct bidimap *map = bm_new(100, 0.6, bm_ftab_key, bm_ftab_val);
+        struct bidimap *map = bm_new(100, 0.6, bm_fkey, bm_fval);
 
         cmc_assert_not_equals(ptr, NULL, map);
 
@@ -49,7 +49,7 @@ CMC_CREATE_UNIT(bidimap_test, true, {
     });
 
     CMC_CREATE_TEST(new[null buffer], {
-        struct bidimap *map = bm_new(100, 0.6, bm_ftab_key, bm_ftab_val);
+        struct bidimap *map = bm_new(100, 0.6, bm_fkey, bm_fval);
 
         cmc_assert_not_equals(ptr, NULL, map);
 
@@ -64,7 +64,7 @@ CMC_CREATE_UNIT(bidimap_test, true, {
 
     CMC_CREATE_TEST(new_custom, {
         struct bidimap *map =
-            bm_new_custom(100, 0.6, bm_ftab_key, bm_ftab_val,
+            bm_new_custom(100, 0.6, bm_fkey, bm_fval,
                           &(struct cmc_alloc_node){ .malloc = malloc,
                                                     .calloc = calloc,
                                                     .realloc = realloc,
@@ -78,7 +78,7 @@ CMC_CREATE_UNIT(bidimap_test, true, {
 
     CMC_CREATE_TEST(new_custom[insert remove], {
         struct bidimap *map =
-            bm_new_custom(500, 0.6, bm_ftab_key, bm_ftab_val,
+            bm_new_custom(500, 0.6, bm_fkey, bm_fval,
                           &(struct cmc_alloc_node){ .malloc = malloc,
                                                     .calloc = calloc,
                                                     .realloc = realloc,
@@ -111,7 +111,7 @@ CMC_CREATE_UNIT(bidimap_test, true, {
 
     CMC_CREATE_TEST(clear[ftab free calls], {
         struct bidimap *map =
-            bm_new(1000, 0.6, bm_ftab_key_counter, bm_ftab_val_counter);
+            bm_new(1000, 0.6, bm_fkey_counter, bm_fval_counter);
 
         cmc_assert_not_equals(ptr, NULL, map);
 
@@ -131,7 +131,7 @@ CMC_CREATE_UNIT(bidimap_test, true, {
         cmc_assert_equals(int32_t, 1000, k_total_free);
         cmc_assert_equals(int32_t, 1000, v_total_free);
 
-        bm_ftab_val_counter->free = NULL;
+        bm_fval_counter->free = NULL;
 
         for (size_t i = 0; i < 1000; i++)
             cmc_assert(bm_insert(map, i, i));
@@ -141,8 +141,8 @@ CMC_CREATE_UNIT(bidimap_test, true, {
         cmc_assert_equals(int32_t, 2000, k_total_free);
         cmc_assert_equals(int32_t, 1000, v_total_free);
 
-        bm_ftab_val_counter->free = v_c_free;
-        bm_ftab_key_counter->free = NULL;
+        bm_fval_counter->free = v_c_free;
+        bm_fkey_counter->free = NULL;
 
         for (size_t i = 0; i < 1000; i++)
             cmc_assert(bm_insert(map, i, i));
@@ -152,7 +152,7 @@ CMC_CREATE_UNIT(bidimap_test, true, {
         cmc_assert_equals(int32_t, 2000, k_total_free);
         cmc_assert_equals(int32_t, 2000, v_total_free);
 
-        bm_ftab_key_counter->free = k_c_free;
+        bm_fkey_counter->free = k_c_free;
 
         bm_free(map);
 
@@ -161,7 +161,7 @@ CMC_CREATE_UNIT(bidimap_test, true, {
     });
 
     CMC_CREATE_TEST(clear[count], {
-        struct bidimap *map = bm_new(100, 0.6, bm_ftab_key, bm_ftab_val);
+        struct bidimap *map = bm_new(100, 0.6, bm_fkey, bm_fval);
 
         cmc_assert_not_equals(ptr, NULL, map);
 
@@ -179,7 +179,7 @@ CMC_CREATE_UNIT(bidimap_test, true, {
 
     CMC_CREATE_TEST(customize, {
         struct bidimap *map =
-            bm_new_custom(100, 0.6, bm_ftab_key, bm_ftab_val, NULL, NULL);
+            bm_new_custom(100, 0.6, bm_fkey, bm_fval, NULL, NULL);
 
         cmc_assert_not_equals(ptr, NULL, map);
 
@@ -195,7 +195,7 @@ CMC_CREATE_UNIT(bidimap_test, true, {
         node.calloc = calloc;
 
         map =
-            bm_new_custom(100, 0.6, bm_ftab_key, bm_ftab_val, &node, callbacks);
+            bm_new_custom(100, 0.6, bm_fkey, bm_fval, &node, callbacks);
 
         cmc_assert_not_equals(ptr, NULL, map);
 
@@ -206,7 +206,7 @@ CMC_CREATE_UNIT(bidimap_test, true, {
     });
 
     CMC_CREATE_TEST(buffer_growth[capacity = 1], {
-        struct bidimap *map = bm_new(1, 0.7, bm_ftab_key, bm_ftab_val);
+        struct bidimap *map = bm_new(1, 0.7, bm_fkey, bm_fval);
 
         cmc_assert_not_equals(ptr, NULL, map);
 
@@ -229,7 +229,7 @@ CMC_CREATE_UNIT(bidimap_test, true, {
     });
 
     CMC_CREATE_TEST(insert, {
-        struct bidimap *map = bm_new(100, 0.7, bm_ftab_key, bm_ftab_val);
+        struct bidimap *map = bm_new(100, 0.7, bm_fkey, bm_fval);
 
         cmc_assert_not_equals(ptr, NULL, map);
 
@@ -243,7 +243,7 @@ CMC_CREATE_UNIT(bidimap_test, true, {
     });
 
     CMC_CREATE_TEST(insert[duplicate], {
-        struct bidimap *map = bm_new(100, 0.7, bm_ftab_key, bm_ftab_val);
+        struct bidimap *map = bm_new(100, 0.7, bm_fkey, bm_fval);
 
         cmc_assert_not_equals(ptr, NULL, map);
 
@@ -259,7 +259,7 @@ CMC_CREATE_UNIT(bidimap_test, true, {
     });
 
     CMC_CREATE_TEST(insert[references], {
-        struct bidimap *map = bm_new(500, 0.7, bm_ftab_key, bm_ftab_val);
+        struct bidimap *map = bm_new(500, 0.7, bm_fkey, bm_fval);
 
         cmc_assert_not_equals(ptr, NULL, map);
 
@@ -281,7 +281,7 @@ CMC_CREATE_UNIT(bidimap_test, true, {
     });
 
     CMC_CREATE_TEST(insert[growth remove clear], {
-        struct bidimap *map = bm_new(100, 0.7, bm_ftab_key, bm_ftab_val);
+        struct bidimap *map = bm_new(100, 0.7, bm_fkey, bm_fval);
 
         cmc_assert_not_equals(ptr, NULL, map);
 
@@ -315,7 +315,7 @@ CMC_CREATE_UNIT(bidimap_test, true, {
 
     CMC_CREATE_TEST(insert[ftab hash calls], {
         struct bidimap *map =
-            bm_new(100, 0.7, bm_ftab_key_counter, bm_ftab_val_counter);
+            bm_new(100, 0.7, bm_fkey_counter, bm_fval_counter);
 
         cmc_assert_not_equals(ptr, NULL, map);
 
@@ -335,7 +335,7 @@ CMC_CREATE_UNIT(bidimap_test, true, {
     });
 
     CMC_CREATE_TEST(update_key, {
-        struct bidimap *map = bm_new(100, 0.7, bm_ftab_key, bm_ftab_val);
+        struct bidimap *map = bm_new(100, 0.7, bm_fkey, bm_fval);
 
         cmc_assert_not_equals(ptr, NULL, map);
 
@@ -358,7 +358,7 @@ CMC_CREATE_UNIT(bidimap_test, true, {
     });
 
     CMC_CREATE_TEST(update_key[empty], {
-        struct bidimap *map = bm_new(100, 0.7, bm_ftab_key, bm_ftab_val);
+        struct bidimap *map = bm_new(100, 0.7, bm_fkey, bm_fval);
 
         cmc_assert_not_equals(ptr, NULL, map);
 
@@ -372,7 +372,7 @@ CMC_CREATE_UNIT(bidimap_test, true, {
     });
 
     CMC_CREATE_TEST(update_key[not_found duplicate], {
-        struct bidimap *map = bm_new(100, 0.7, bm_ftab_key, bm_ftab_val);
+        struct bidimap *map = bm_new(100, 0.7, bm_fkey, bm_fval);
 
         cmc_assert_not_equals(ptr, NULL, map);
 
@@ -402,7 +402,7 @@ CMC_CREATE_UNIT(bidimap_test, true, {
     });
 
     CMC_CREATE_TEST(update_val, {
-        struct bidimap *map = bm_new(100, 0.7, bm_ftab_key, bm_ftab_val);
+        struct bidimap *map = bm_new(100, 0.7, bm_fkey, bm_fval);
 
         cmc_assert_not_equals(ptr, NULL, map);
 
@@ -425,7 +425,7 @@ CMC_CREATE_UNIT(bidimap_test, true, {
     });
 
     CMC_CREATE_TEST(update_val[empty], {
-        struct bidimap *map = bm_new(100, 0.7, bm_ftab_key, bm_ftab_val);
+        struct bidimap *map = bm_new(100, 0.7, bm_fkey, bm_fval);
 
         cmc_assert_not_equals(ptr, NULL, map);
 
@@ -439,7 +439,7 @@ CMC_CREATE_UNIT(bidimap_test, true, {
     });
 
     CMC_CREATE_TEST(update_val[not_found duplicate], {
-        struct bidimap *map = bm_new(100, 0.7, bm_ftab_key, bm_ftab_val);
+        struct bidimap *map = bm_new(100, 0.7, bm_fkey, bm_fval);
 
         cmc_assert_not_equals(ptr, NULL, map);
 
@@ -470,7 +470,7 @@ CMC_CREATE_UNIT(bidimap_test, true, {
 
     CMC_CREATE_TEST(remove_by_key[cleanup custom], {
         struct bidimap *map =
-            bm_new_custom(10000, 0.6, bm_ftab_key, bm_ftab_val,
+            bm_new_custom(10000, 0.6, bm_fkey, bm_fval,
                           &(struct cmc_alloc_node){ .malloc = malloc,
                                                     .calloc = calloc,
                                                     .realloc = realloc,
@@ -503,7 +503,7 @@ CMC_CREATE_UNIT(bidimap_test, true, {
 
     CMC_CREATE_TEST(remove_by_val[cleanup custom], {
         struct bidimap *map =
-            bm_new_custom(10000, 0.6, bm_ftab_key, bm_ftab_val,
+            bm_new_custom(10000, 0.6, bm_fkey, bm_fval,
                           &(struct cmc_alloc_node){ .malloc = malloc,
                                                     .calloc = calloc,
                                                     .realloc = realloc,
@@ -535,7 +535,7 @@ CMC_CREATE_UNIT(bidimap_test, true, {
     });
 
     CMC_CREATE_TEST(copy_of, {
-        struct bidimap *map1 = bm_new(100, 0.7, bm_ftab_key, bm_ftab_val);
+        struct bidimap *map1 = bm_new(100, 0.7, bm_fkey, bm_fval);
 
         for (size_t i = 0; i < 100; i++)
             cmc_assert(bm_insert(map1, i, i));
@@ -556,8 +556,8 @@ CMC_CREATE_UNIT(bidimap_test, true, {
     });
 
     CMC_CREATE_TEST(equals, {
-        struct bidimap *map1 = bm_new(100, 0.7, bm_ftab_key, bm_ftab_val);
-        struct bidimap *map2 = bm_new(1000, 0.9, bm_ftab_key, bm_ftab_val);
+        struct bidimap *map1 = bm_new(100, 0.7, bm_fkey, bm_fval);
+        struct bidimap *map2 = bm_new(1000, 0.9, bm_fkey, bm_fval);
 
         for (size_t i = 0; i < 100; i++)
         {
@@ -580,7 +580,7 @@ CMC_CREATE_UNIT(bidimap_test, true, {
     });
 
     CMC_CREATE_TEST(equals[from copy], {
-        struct bidimap *map1 = bm_new(100, 0.7, bm_ftab_key, bm_ftab_val);
+        struct bidimap *map1 = bm_new(100, 0.7, bm_fkey, bm_fval);
 
         for (size_t i = 0; i < 100; i++)
             cmc_assert(bm_insert(map1, i, i));
@@ -596,7 +596,7 @@ CMC_CREATE_UNIT(bidimap_test, true, {
     });
 
     CMC_CREATE_TEST(flags, {
-        struct bidimap *map = bm_new(100, 0.7, bm_ftab_key, bm_ftab_val);
+        struct bidimap *map = bm_new(100, 0.7, bm_fkey, bm_fval);
 
         cmc_assert_not_equals(ptr, NULL, map);
         cmc_assert_equals(int32_t, cmc_flags.OK, bm_flag(map));
@@ -733,7 +733,7 @@ CMC_CREATE_UNIT(bidimap_test, true, {
 
     CMC_CREATE_TEST(callbacks, {
         struct bidimap *map =
-            bm_new_custom(100, 0.7, bm_ftab_key, bm_ftab_val, NULL, callbacks);
+            bm_new_custom(100, 0.7, bm_fkey, bm_fval, NULL, callbacks);
 
         cmc_assert_not_equals(ptr, NULL, map);
         cmc_assert_equals(ptr, callbacks, map->callbacks);

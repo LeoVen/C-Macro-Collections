@@ -7,8 +7,8 @@ struct multimap
     size_t count;
     double load;
     int flag;
-    struct multimap_ftab_key *f_key;
-    struct multimap_ftab_val *f_val;
+    struct multimap_fkey *f_key;
+    struct multimap_fval *f_val;
     struct cmc_alloc_node *alloc;
     struct cmc_callbacks *callbacks;
     struct multimap_iter (*it_start)(struct multimap *);
@@ -21,7 +21,7 @@ struct multimap_entry
     struct multimap_entry *next;
     struct multimap_entry *prev;
 };
-struct multimap_ftab_key
+struct multimap_fkey
 {
     int (*cmp)(size_t, size_t);
     size_t (*cpy)(size_t);
@@ -30,7 +30,7 @@ struct multimap_ftab_key
     size_t (*hash)(size_t);
     int (*pri)(size_t, size_t);
 };
-struct multimap_ftab_val
+struct multimap_fval
 {
     int (*cmp)(size_t, size_t);
     size_t (*cpy)(size_t);
@@ -51,11 +51,11 @@ struct multimap_iter
     _Bool end;
 };
 struct multimap *mm_new(size_t capacity, double load,
-                        struct multimap_ftab_key *f_key,
-                        struct multimap_ftab_val *f_val);
+                        struct multimap_fkey *f_key,
+                        struct multimap_fval *f_val);
 struct multimap *mm_new_custom(size_t capacity, double load,
-                               struct multimap_ftab_key *f_key,
-                               struct multimap_ftab_val *f_val,
+                               struct multimap_fkey *f_key,
+                               struct multimap_fval *f_val,
                                struct cmc_alloc_node *alloc,
                                struct cmc_callbacks *callbacks);
 void mm_clear(struct multimap *_map_);
@@ -110,8 +110,8 @@ size_t mm_impl_calculate_size(size_t required);
 static struct multimap_iter mm_impl_it_start(struct multimap *_map_);
 static struct multimap_iter mm_impl_it_end(struct multimap *_map_);
 struct multimap *mm_new(size_t capacity, double load,
-                        struct multimap_ftab_key *f_key,
-                        struct multimap_ftab_val *f_val)
+                        struct multimap_fkey *f_key,
+                        struct multimap_fval *f_val)
 {
     struct cmc_alloc_node *alloc = &cmc_alloc_node_default;
     if (capacity == 0 || load <= 0)
@@ -144,8 +144,8 @@ struct multimap *mm_new(size_t capacity, double load,
     return _map_;
 }
 struct multimap *mm_new_custom(size_t capacity, double load,
-                               struct multimap_ftab_key *f_key,
-                               struct multimap_ftab_val *f_val,
+                               struct multimap_fkey *f_key,
+                               struct multimap_fval *f_val,
                                struct cmc_alloc_node *alloc,
                                struct cmc_callbacks *callbacks)
 {

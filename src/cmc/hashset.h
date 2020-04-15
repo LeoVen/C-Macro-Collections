@@ -78,7 +78,7 @@ static const char *cmc_string_fmt_hashset = "struct %s<%s> "
         int flag;                                                              \
                                                                                \
         /* Value function table */                                             \
-        struct SNAME##_ftab_val *f_val;                                        \
+        struct SNAME##_fval *f_val;                                            \
                                                                                \
         /* Custom allocation functions */                                      \
         struct cmc_alloc_node *alloc;                                          \
@@ -107,7 +107,7 @@ static const char *cmc_string_fmt_hashset = "struct %s<%s> "
     };                                                                         \
                                                                                \
     /* Value struct function table */                                          \
-    struct SNAME##_ftab_val                                                    \
+    struct SNAME##_fval                                                        \
     {                                                                          \
         /* Comparator function */                                              \
         int (*cmp)(V, V);                                                      \
@@ -156,9 +156,9 @@ static const char *cmc_string_fmt_hashset = "struct %s<%s> "
     /* Collection Functions */                                                 \
     /* Collection Allocation and Deallocation */                               \
     struct SNAME *PFX##_new(size_t capacity, double load,                      \
-                            struct SNAME##_ftab_val *f_val);                   \
+                            struct SNAME##_fval *f_val);                       \
     struct SNAME *PFX##_new_custom(                                            \
-        size_t capacity, double load, struct SNAME##_ftab_val *f_val,          \
+        size_t capacity, double load, struct SNAME##_fval *f_val,              \
         struct cmc_alloc_node *alloc, struct cmc_callbacks *callbacks);        \
     void PFX##_clear(struct SNAME *_set_);                                     \
     void PFX##_free(struct SNAME *_set_);                                      \
@@ -234,7 +234,7 @@ static const char *cmc_string_fmt_hashset = "struct %s<%s> "
     static struct SNAME##_iter PFX##_impl_it_end(struct SNAME *_set_);         \
                                                                                \
     struct SNAME *PFX##_new(size_t capacity, double load,                      \
-                            struct SNAME##_ftab_val *f_val)                    \
+                            struct SNAME##_fval *f_val)                        \
     {                                                                          \
         struct cmc_alloc_node *alloc = &cmc_alloc_node_default;                \
                                                                                \
@@ -278,7 +278,7 @@ static const char *cmc_string_fmt_hashset = "struct %s<%s> "
     }                                                                          \
                                                                                \
     struct SNAME *PFX##_new_custom(                                            \
-        size_t capacity, double load, struct SNAME##_ftab_val *f_val,          \
+        size_t capacity, double load, struct SNAME##_fval *f_val,              \
         struct cmc_alloc_node *alloc, struct cmc_callbacks *callbacks)         \
     {                                                                          \
         if (capacity == 0 || load <= 0 || load >= 1)                           \

@@ -66,10 +66,10 @@ static const char *cmc_string_fmt_treemap = "struct %s<%s, %s> "
         int flag;                                                             \
                                                                               \
         /* Key function table */                                              \
-        struct SNAME##_ftab_key *f_key;                                       \
+        struct SNAME##_fkey *f_key;                                           \
                                                                               \
         /* Value function table */                                            \
-        struct SNAME##_ftab_val *f_val;                                       \
+        struct SNAME##_fval *f_val;                                           \
                                                                               \
         /* Custom allocation functions */                                     \
         struct cmc_alloc_node *alloc;                                         \
@@ -107,7 +107,7 @@ static const char *cmc_string_fmt_treemap = "struct %s<%s, %s> "
     };                                                                        \
                                                                               \
     /* Key struct function table */                                           \
-    struct SNAME##_ftab_key                                                   \
+    struct SNAME##_fkey                                                       \
     {                                                                         \
         /* Comparator function */                                             \
         int (*cmp)(K, K);                                                     \
@@ -129,7 +129,7 @@ static const char *cmc_string_fmt_treemap = "struct %s<%s, %s> "
     };                                                                        \
                                                                               \
     /* Value struct function table */                                         \
-    struct SNAME##_ftab_val                                                   \
+    struct SNAME##_fval                                                       \
     {                                                                         \
         /* Comparator function */                                             \
         int (*cmp)(V, V);                                                     \
@@ -177,10 +177,10 @@ static const char *cmc_string_fmt_treemap = "struct %s<%s, %s> "
                                                                               \
     /* Collection Functions */                                                \
     /* Collection Allocation and Deallocation */                              \
-    struct SNAME *PFX##_new(struct SNAME##_ftab_key *f_key,                   \
-                            struct SNAME##_ftab_val *f_val);                  \
+    struct SNAME *PFX##_new(struct SNAME##_fkey *f_key,                       \
+                            struct SNAME##_fval *f_val);                      \
     struct SNAME *PFX##_new_custom(                                           \
-        struct SNAME##_ftab_key *f_key, struct SNAME##_ftab_val *f_val,       \
+        struct SNAME##_fkey *f_key, struct SNAME##_fval *f_val,               \
         struct cmc_alloc_node *alloc, struct cmc_callbacks *callbacks);       \
     void PFX##_clear(struct SNAME *_map_);                                    \
     void PFX##_free(struct SNAME *_map_);                                     \
@@ -249,8 +249,8 @@ static const char *cmc_string_fmt_treemap = "struct %s<%s, %s> "
     static struct SNAME##_iter PFX##_impl_it_start(struct SNAME *_map_);       \
     static struct SNAME##_iter PFX##_impl_it_end(struct SNAME *_map_);         \
                                                                                \
-    struct SNAME *PFX##_new(struct SNAME##_ftab_key *f_key,                    \
-                            struct SNAME##_ftab_val *f_val)                    \
+    struct SNAME *PFX##_new(struct SNAME##_fkey *f_key,                        \
+                            struct SNAME##_fval *f_val)                        \
     {                                                                          \
         if (!f_key || !f_val)                                                  \
             return NULL;                                                       \
@@ -276,7 +276,7 @@ static const char *cmc_string_fmt_treemap = "struct %s<%s, %s> "
     }                                                                          \
                                                                                \
     struct SNAME *PFX##_new_custom(                                            \
-        struct SNAME##_ftab_key *f_key, struct SNAME##_ftab_val *f_val,        \
+        struct SNAME##_fkey *f_key, struct SNAME##_fval *f_val,                \
         struct cmc_alloc_node *alloc, struct cmc_callbacks *callbacks)         \
     {                                                                          \
         if (!f_key || !f_val)                                                  \

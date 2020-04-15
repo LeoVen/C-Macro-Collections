@@ -6,13 +6,13 @@ struct stack
     size_t capacity;
     size_t count;
     int flag;
-    struct stack_ftab_val *f_val;
+    struct stack_fval *f_val;
     struct cmc_alloc_node *alloc;
     struct cmc_callbacks *callbacks;
     struct stack_iter (*it_start)(struct stack *);
     struct stack_iter (*it_end)(struct stack *);
 };
-struct stack_ftab_val
+struct stack_fval
 {
     int (*cmp)(size_t, size_t);
     size_t (*cpy)(size_t);
@@ -28,8 +28,8 @@ struct stack_iter
     _Bool start;
     _Bool end;
 };
-struct stack *s_new(size_t capacity, struct stack_ftab_val *f_val);
-struct stack *s_new_custom(size_t capacity, struct stack_ftab_val *f_val,
+struct stack *s_new(size_t capacity, struct stack_fval *f_val);
+struct stack *s_new_custom(size_t capacity, struct stack_fval *f_val,
                            struct cmc_alloc_node *alloc,
                            struct cmc_callbacks *callbacks);
 void s_clear(struct stack *_stack_);
@@ -67,7 +67,7 @@ size_t *s_iter_rvalue(struct stack_iter *iter);
 size_t s_iter_index(struct stack_iter *iter);
 static struct stack_iter s_impl_it_start(struct stack *_stack_);
 static struct stack_iter s_impl_it_end(struct stack *_stack_);
-struct stack *s_new(size_t capacity, struct stack_ftab_val *f_val)
+struct stack *s_new(size_t capacity, struct stack_fval *f_val)
 {
     struct cmc_alloc_node *alloc = &cmc_alloc_node_default;
     if (capacity < 1)
@@ -93,7 +93,7 @@ struct stack *s_new(size_t capacity, struct stack_ftab_val *f_val)
     _stack_->it_end = s_impl_it_end;
     return _stack_;
 }
-struct stack *s_new_custom(size_t capacity, struct stack_ftab_val *f_val,
+struct stack *s_new_custom(size_t capacity, struct stack_fval *f_val,
                            struct cmc_alloc_node *alloc,
                            struct cmc_callbacks *callbacks)
 {
