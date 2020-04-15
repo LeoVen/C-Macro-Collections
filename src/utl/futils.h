@@ -216,7 +216,7 @@ static inline bool cmc_str_str(FILE *file, char *element)
 
 // Integers
 
-size_t cmc_i64_hash(int64_t e)
+static inline size_t cmc_i64_hash(int64_t e)
 {
     size_t x = (size_t)e;
 
@@ -227,24 +227,24 @@ size_t cmc_i64_hash(int64_t e)
     return x;
 }
 
-size_t cmc_i32_hash(int32_t e)
+static inline size_t cmc_i32_hash(int32_t e)
 {
     return cmc_i64_hash((int64_t)e);
 }
 
-size_t cmc_i16_hash(int16_t e)
+static inline size_t cmc_i16_hash(int16_t e)
 {
     return cmc_i64_hash((int64_t)e);
 }
 
-size_t cmc_i8_hash(int8_t e)
+static inline size_t cmc_i8_hash(int8_t e)
 {
     return cmc_i64_hash((int64_t)e);
 }
 
 // Unsigned Integers
 
-size_t cmc_u64_hash(uint64_t e)
+static inline size_t cmc_u64_hash(uint64_t e)
 {
     size_t x = (size_t)e;
 
@@ -255,24 +255,24 @@ size_t cmc_u64_hash(uint64_t e)
     return x;
 }
 
-size_t cmc_u32_hash(uint32_t e)
+static inline size_t cmc_u32_hash(uint32_t e)
 {
     return cmc_u64_hash((uint64_t)e);
 }
 
-size_t cmc_u16_hash(uint16_t e)
+static inline size_t cmc_u16_hash(uint16_t e)
 {
     return cmc_u64_hash((uint64_t)e);
 }
 
-size_t cmc_u8_hash(uint8_t e)
+static inline size_t cmc_u8_hash(uint8_t e)
 {
     return cmc_u64_hash((uint64_t)e);
 }
 
 // Other Integers
 
-size_t cmc_size_hash(size_t e)
+static inline size_t cmc_size_hash(size_t e)
 {
     size_t x = (size_t)e;
 
@@ -283,7 +283,7 @@ size_t cmc_size_hash(size_t e)
     return x;
 }
 
-size_t cmc_imax_hash(intmax_t e)
+static inline size_t cmc_imax_hash(intmax_t e)
 {
     size_t x = (size_t)e;
 
@@ -294,7 +294,7 @@ size_t cmc_imax_hash(intmax_t e)
     return x;
 }
 
-size_t cmc_umax_hash(uintmax_t e)
+static inline size_t cmc_umax_hash(uintmax_t e)
 {
     size_t x = (size_t)e;
 
@@ -307,7 +307,7 @@ size_t cmc_umax_hash(uintmax_t e)
 
 // Floating Point
 
-size_t cmc_float_hash(float e)
+static inline size_t cmc_float_hash(float e)
 {
     // Make both representations of 0.0 hash to the same value
     // 0.0 and -0.0
@@ -326,7 +326,7 @@ size_t cmc_float_hash(float e)
     return x.b & 0xFFFFFFF8;
 }
 
-size_t cmc_double_hash(double e)
+static inline size_t cmc_double_hash(double e)
 {
     // Make both representations of 0.0 hash to the same value
     // 0.0 and -0.0
@@ -351,7 +351,7 @@ size_t cmc_double_hash(double e)
 // https://en.wikipedia.org/wiki/Linear_congruential_generator
 
 // http://www.cse.yorku.ca/~oz/hash.html
-size_t cmc_str_hash_djb2(char *str)
+static inline size_t cmc_str_hash_djb2(char *str)
 {
     size_t hash = 5381;
     int c;
@@ -363,7 +363,7 @@ size_t cmc_str_hash_djb2(char *str)
 }
 
 // http://www.cse.yorku.ca/~oz/hash.html
-size_t cmc_str_hash_sdbm(char *str)
+static inline size_t cmc_str_hash_sdbm(char *str)
 {
     size_t hash = 0;
     int c;
@@ -375,7 +375,7 @@ size_t cmc_str_hash_sdbm(char *str)
 }
 
 // Based on Java's String.hashCode()
-size_t cmc_str_hash_java(char *str)
+static inline size_t cmc_str_hash_java(char *str)
 {
     size_t hash = UINT64_C(1125899906842597); // prime
     int c;
@@ -388,7 +388,7 @@ size_t cmc_str_hash_java(char *str)
 
 // https://en.wikipedia.org/wiki/MurmurHash
 // https://github.com/aappleby/smhasher/blob/61a0530f28277f2e850bfc39600ce61d02b518de/src/MurmurHash3.cpp#L81
-size_t cmc_str_hash_murmur3(uint64_t e)
+static inline size_t cmc_str_hash_murmur3(uint64_t e)
 {
     size_t x = (size_t)e;
 
@@ -403,7 +403,7 @@ size_t cmc_str_hash_murmur3(uint64_t e)
 
 // A variant or murmurhash3 from
 // http://web.archive.org/web/20200310023308/http://zimbry.blogspot.com/2011/09/better-bit-mixing-improving-on.html
-size_t cmc_str_hash_murmur3_variant(uint64_t e)
+static inline size_t cmc_str_hash_murmur3_variant(uint64_t e)
 {
     size_t x = (size_t)e;
 
