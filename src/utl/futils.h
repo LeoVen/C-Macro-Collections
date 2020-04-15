@@ -1,7 +1,7 @@
 /**
  * futils.h
  *
- * Creation Date: 15/04/2019
+ * Creation Date: 15/04/2020
  *
  * Authors:
  * Leonardo Vencovsky (https://github.com/LeoVen)
@@ -211,7 +211,7 @@ static inline bool cmc_str_str(FILE *file, char *element)
  * hash
  */
 
-// The default integer hashing is based on splitmix64
+// These integer hashing functions are based on splitmix64
 // http://web.archive.org/web/20190929030557/http://xorshift.di.unimi.it/splitmix64.c
 
 // Integers
@@ -384,6 +384,36 @@ size_t cmc_str_hash_java(char *str)
         hash = 31 * hash + c;
 
     return hash;
+}
+
+// https://en.wikipedia.org/wiki/MurmurHash
+// https://github.com/aappleby/smhasher/blob/61a0530f28277f2e850bfc39600ce61d02b518de/src/MurmurHash3.cpp#L81
+size_t cmc_str_hash_murmur3(uint64_t e)
+{
+    size_t x = (size_t)e;
+
+    x ^= (x >> 33);
+    x *= 0xff51afd7ed558ccd;
+    x ^= (x >> 33);
+    x *= 0xc4ceb9fe1a85ec53;
+    x ^= (x >> 33);
+
+    return x;
+}
+
+// A variant or murmurhash3 from
+// http://web.archive.org/web/20200310023308/http://zimbry.blogspot.com/2011/09/better-bit-mixing-improving-on.html
+size_t cmc_str_hash_murmur3_variant(uint64_t e)
+{
+    size_t x = (size_t)e;
+
+    x ^= (x >> 31);
+    x *= 0x7fb5d329728ea185;
+    x ^= (x >> 27);
+    x *= 0x81dadef4bc2dd44d;
+    x ^= (x >> 33);
+
+    return x;
 }
 
 // Others
