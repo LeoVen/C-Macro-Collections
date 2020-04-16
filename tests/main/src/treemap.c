@@ -237,7 +237,10 @@ _Bool tm_insert(struct treemap *_map_, size_t key, size_t value)
             else if (_map_->f_key->cmp(scan->key, key) < 0)
                 scan = scan->right;
             else
+            {
+                _map_->flag = cmc_flags.DUPLICATE;
                 return 0;
+            }
         }
         struct treemap_node *node;
         if (_map_->f_key->cmp(parent->key, key) > 0)

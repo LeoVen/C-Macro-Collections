@@ -415,7 +415,10 @@ static const char *cmc_string_fmt_treemap = "struct %s<%s, %s> "
                 else if (_map_->f_key->cmp(scan->key, key) < 0)                \
                     scan = scan->right;                                        \
                 else                                                           \
+                {                                                              \
+                    _map_->flag = cmc_flags.DUPLICATE;                         \
                     return false;                                              \
+                }                                                              \
             }                                                                  \
                                                                                \
             struct SNAME##_node *node;                                         \

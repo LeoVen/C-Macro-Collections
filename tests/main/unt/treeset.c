@@ -56,6 +56,9 @@ CMC_CREATE_UNIT(treeset_test, true, {
         cmc_assert(ts_insert(set, 1));
         cmc_assert_equals(int32_t, cmc_flags.OK, ts_flag(set));
 
+        cmc_assert(!ts_insert(set, 1));
+        cmc_assert_equals(int32_t, cmc_flags.DUPLICATE, ts_flag(set));
+
         // remove
         cmc_assert(!ts_remove(set, 2));
         cmc_assert_equals(int32_t, cmc_flags.NOT_FOUND, ts_flag(set));

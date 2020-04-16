@@ -397,7 +397,10 @@ static const char *cmc_string_fmt_treeset = "struct %s<%s> "
                 else if (_set_->f_val->cmp(scan->value, element) < 0)          \
                     scan = scan->right;                                        \
                 else                                                           \
+                {                                                              \
+                    _set_->flag = cmc_flags.DUPLICATE;                         \
                     return false;                                              \
+                }                                                              \
             }                                                                  \
                                                                                \
             struct SNAME##_node *node;                                         \

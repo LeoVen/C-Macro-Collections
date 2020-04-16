@@ -64,6 +64,9 @@ CMC_CREATE_UNIT(treemap_test, true, {
         cmc_assert(tm_insert(map, 1, 1));
         cmc_assert_equals(int32_t, cmc_flags.OK, tm_flag(map));
 
+        cmc_assert(!tm_insert(map, 1, 2));
+        cmc_assert_equals(int32_t, cmc_flags.DUPLICATE, tm_flag(map));
+
         // update
         cmc_assert(!tm_update(map, 2, 2, NULL));
         cmc_assert_equals(int32_t, cmc_flags.NOT_FOUND, tm_flag(map));

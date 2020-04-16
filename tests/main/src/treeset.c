@@ -229,7 +229,10 @@ _Bool ts_insert(struct treeset *_set_, size_t element)
             else if (_set_->f_val->cmp(scan->value, element) < 0)
                 scan = scan->right;
             else
+            {
+                _set_->flag = cmc_flags.DUPLICATE;
                 return 0;
+            }
         }
         struct treeset_node *node;
         if (_set_->f_val->cmp(parent->value, element) > 0)
