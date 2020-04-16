@@ -15,4 +15,4 @@ All with the following features:
 * __Nesting__ - Collections can be nested (List of Lists, HashSet of Stacks, etc);
 * __One macro to rule them all__ - Only one macro to generate everything and that's it.
 
-and many other powerful features (see [Features](../Features/features.html)).
+and many other powerful features (see [Features](../Overview/features_overview.html)).

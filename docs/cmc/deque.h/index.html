@@ -1,0 +1,302 @@
+<!DOCTYPE HTML>
+<html lang="en" class="sidebar-visible no-js light">
+    <head>
+        <!-- Book generated using mdBook -->
+        <meta charset="UTF-8">
+        <title>deque.h - C Macro Collections</title>
+        
+
+        <meta content="text/html; charset=utf-8" http-equiv="Content-Type">
+        <meta name="description" content="">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta name="theme-color" content="#ffffff" />
+
+        <link rel="shortcut icon" href="../../favicon.png">
+        <link rel="stylesheet" href="../../css/variables.css">
+        <link rel="stylesheet" href="../../css/general.css">
+        <link rel="stylesheet" href="../../css/chrome.css">
+        <link rel="stylesheet" href="../../css/print.css" media="print">
+
+        <!-- Fonts -->
+        <link rel="stylesheet" href="../../FontAwesome/css/font-awesome.css">
+        <link href="https://fonts.googleapis.com/css?family=Open+Sans:300italic,400italic,600italic,700italic,800italic,400,300,600,700,800" rel="stylesheet" type="text/css">
+        <link href="https://fonts.googleapis.com/css?family=Source+Code+Pro:500" rel="stylesheet" type="text/css">
+
+        <!-- Highlight.js Stylesheets -->
+        <link rel="stylesheet" href="../../highlight.css">
+        <link rel="stylesheet" href="../../tomorrow-night.css">
+        <link rel="stylesheet" href="../../ayu-highlight.css">
+
+        <!-- Custom theme stylesheets -->
+        
+
+        
+    </head>
+    <body>
+        <!-- Provide site root to javascript -->
+        <script type="text/javascript">
+            var path_to_root = "../../";
+            var default_theme = window.matchMedia("(prefers-color-scheme: dark)").matches ? "light" : "light";
+        </script>
+
+        <!-- Work around some values being stored in localStorage wrapped in quotes -->
+        <script type="text/javascript">
+            try {
+                var theme = localStorage.getItem('mdbook-theme');
+                var sidebar = localStorage.getItem('mdbook-sidebar');
+
+                if (theme.startsWith('"') && theme.endsWith('"')) {
+                    localStorage.setItem('mdbook-theme', theme.slice(1, theme.length - 1));
+                }
+
+                if (sidebar.startsWith('"') && sidebar.endsWith('"')) {
+                    localStorage.setItem('mdbook-sidebar', sidebar.slice(1, sidebar.length - 1));
+                }
+            } catch (e) { }
+        </script>
+
+        <!-- Set the theme before any content is loaded, prevents flash -->
+        <script type="text/javascript">
+            var theme;
+            try { theme = localStorage.getItem('mdbook-theme'); } catch(e) { }
+            if (theme === null || theme === undefined) { theme = default_theme; }
+            var html = document.querySelector('html');
+            html.classList.remove('no-js')
+            html.classList.remove('light')
+            html.classList.add(theme);
+            html.classList.add('js');
+        </script>
+
+        <!-- Hide / unhide sidebar before it is displayed -->
+        <script type="text/javascript">
+            var html = document.querySelector('html');
+            var sidebar = 'hidden';
+            if (document.body.clientWidth >= 1080) {
+                try { sidebar = localStorage.getItem('mdbook-sidebar'); } catch(e) { }
+                sidebar = sidebar || 'visible';
+            }
+            html.classList.remove('sidebar-visible');
+            html.classList.add("sidebar-" + sidebar);
+        </script>
+
+        <nav id="sidebar" class="sidebar" aria-label="Table of contents">
+            <div id="sidebar-scrollbox" class="sidebar-scrollbox">
+                <ol class="chapter"><li class="expanded "><a href="../../Introduction/introduction.html"><strong aria-hidden="true">1.</strong> Introduction</a></li><li><ol class="section"><li class="expanded "><a href="../../Introduction/why_this_library.html"><strong aria-hidden="true">1.1.</strong> Why this library</a></li><li class="expanded "><a href="../../Introduction/how_to_install.html"><strong aria-hidden="true">1.2.</strong> How to install</a></li><li class="expanded "><a href="../../Introduction/library_structure.html"><strong aria-hidden="true">1.3.</strong> Library structure</a></li><li class="expanded "><a href="../../Introduction/understanding_the_library.html"><strong aria-hidden="true">1.4.</strong> Understanding the library</a></li><li class="expanded "><a href="../../Introduction/how_to_use_the_library.html"><strong aria-hidden="true">1.5.</strong> How to use the library</a></li></ol></li><li class="expanded "><a href="../../Overview/index.html"><strong aria-hidden="true">2.</strong> Overview</a></li><li><ol class="section"><li class="expanded "><a href="../../Overview/collections_overview.html"><strong aria-hidden="true">2.1.</strong> Collections Overview</a></li><li class="expanded "><a href="../../Overview/features_overview.html"><strong aria-hidden="true">2.2.</strong> Features Overview</a></li></ol></li><li class="expanded "><a href="../../cor/index.html"><strong aria-hidden="true">3.</strong> cor</a></li><li><ol class="section"><li class="expanded "><a href="../../cor/callbacks/index.html"><strong aria-hidden="true">3.1.</strong> Callbacks</a></li><li class="expanded "><a href="../../cor/custom_allocation/index.html"><strong aria-hidden="true">3.2.</strong> Custom allocation</a></li><li class="expanded "><a href="../../cor/functions_table/index.html"><strong aria-hidden="true">3.3.</strong> Functions Table</a></li><li class="expanded "><a href="../../cor/iterators/index.html"><strong aria-hidden="true">3.4.</strong> Iterators</a></li></ol></li><li class="expanded "><a href="../../cmc/index.html"><strong aria-hidden="true">4.</strong> cmc</a></li><li><ol class="section"><li class="expanded "><a href="../../cmc/deque.h/index.html" class="active"><strong aria-hidden="true">4.1.</strong> deque.h</a></li></ol></li><li class="expanded "><a href="../../dev/index.html"><strong aria-hidden="true">5.</strong> dev</a></li><li class="expanded "><a href="../../sac/index.html"><strong aria-hidden="true">6.</strong> sac</a></li><li class="expanded "><a href="../../utl/index.html"><strong aria-hidden="true">7.</strong> utl</a></li><li><ol class="section"><li class="expanded "><a href="../../utl/assert.h/index.html"><strong aria-hidden="true">7.1.</strong> assert.h</a></li><li><ol class="section"><li class="expanded "><a href="../../utl/assert.h/overview.html"><strong aria-hidden="true">7.1.1.</strong> Overview</a></li><li class="expanded "><a href="../../utl/assert.h/valued_assertions.html"><strong aria-hidden="true">7.1.2.</strong> Valued Assertions</a></li><li class="expanded "><a href="../../utl/assert.h/generic_assertions.html"><strong aria-hidden="true">7.1.3.</strong> Generic Assertions</a></li></ol></li><li class="expanded "><a href="../../utl/foreach.h/index.html"><strong aria-hidden="true">7.2.</strong> foreach.h</a></li><li class="expanded "><a href="../../utl/futils.h/index.html"><strong aria-hidden="true">7.3.</strong> futils.h</a></li><li class="expanded "><a href="../../utl/log.h/index.html"><strong aria-hidden="true">7.4.</strong> log.h</a></li><li><ol class="section"><li class="expanded "><a href="../../utl/log.h/log_functions.html"><strong aria-hidden="true">7.4.1.</strong> Log Functions</a></li><li class="expanded "><a href="../../utl/log.h/configuration.html"><strong aria-hidden="true">7.4.2.</strong> Configuration</a></li><li class="expanded "><a href="../../utl/log.h/meanings.html"><strong aria-hidden="true">7.4.3.</strong> Meanings</a></li></ol></li><li class="expanded "><a href="../../utl/test.h/index.html"><strong aria-hidden="true">7.5.</strong> test.h</a></li><li class="expanded "><a href="../../utl/timer.h/index.html"><strong aria-hidden="true">7.6.</strong> timer.h</a></li></ol></li><li class="expanded "><a href="../../Examples/examples.html"><strong aria-hidden="true">8.</strong> Examples</a></li></ol>
+            </div>
+            <div id="sidebar-resize-handle" class="sidebar-resize-handle"></div>
+        </nav>
+
+        <div id="page-wrapper" class="page-wrapper">
+
+            <div class="page">
+                
+                <div id="menu-bar" class="menu-bar">
+                    <div id="menu-bar-sticky-container">
+                        <div class="left-buttons">
+                            <button id="sidebar-toggle" class="icon-button" type="button" title="Toggle Table of Contents" aria-label="Toggle Table of Contents" aria-controls="sidebar">
+                                <i class="fa fa-bars"></i>
+                            </button>
+                            <button id="theme-toggle" class="icon-button" type="button" title="Change theme" aria-label="Change theme" aria-haspopup="true" aria-expanded="false" aria-controls="theme-list">
+                                <i class="fa fa-paint-brush"></i>
+                            </button>
+                            <ul id="theme-list" class="theme-popup" aria-label="Themes" role="menu">
+                                <li role="none"><button role="menuitem" class="theme" id="light">Light (default)</button></li>
+                                <li role="none"><button role="menuitem" class="theme" id="rust">Rust</button></li>
+                                <li role="none"><button role="menuitem" class="theme" id="coal">Coal</button></li>
+                                <li role="none"><button role="menuitem" class="theme" id="navy">Navy</button></li>
+                                <li role="none"><button role="menuitem" class="theme" id="ayu">Ayu</button></li>
+                            </ul>
+                            
+                            <button id="search-toggle" class="icon-button" type="button" title="Search. (Shortkey: s)" aria-label="Toggle Searchbar" aria-expanded="false" aria-keyshortcuts="S" aria-controls="searchbar">
+                                <i class="fa fa-search"></i>
+                            </button>
+                            
+                        </div>
+
+                        <h1 class="menu-title">C Macro Collections</h1>
+
+                        <div class="right-buttons">
+                            <a href="../../print.html" title="Print this book" aria-label="Print this book">
+                                <i id="print-button" class="fa fa-print"></i>
+                            </a>
+                            
+                        </div>
+                    </div>
+                </div>
+
+                
+                <div id="search-wrapper" class="hidden">
+                    <form id="searchbar-outer" class="searchbar-outer">
+                        <input type="search" name="search" id="searchbar" name="searchbar" placeholder="Search this book ..." aria-controls="searchresults-outer" aria-describedby="searchresults-header">
+                    </form>
+                    <div id="searchresults-outer" class="searchresults-outer hidden">
+                        <div id="searchresults-header" class="searchresults-header"></div>
+                        <ul id="searchresults">
+                        </ul>
+                    </div>
+                </div>
+                
+
+                <!-- Apply ARIA attributes after the sidebar and the sidebar toggle button are added to the DOM -->
+                <script type="text/javascript">
+                    document.getElementById('sidebar-toggle').setAttribute('aria-expanded', sidebar === 'visible');
+                    document.getElementById('sidebar').setAttribute('aria-hidden', sidebar !== 'visible');
+                    Array.from(document.querySelectorAll('#sidebar a')).forEach(function(link) {
+                        link.setAttribute('tabIndex', sidebar === 'visible' ? 0 : -1);
+                    });
+                </script>
+
+                <div id="content" class="content">
+                    <main>
+                        <h1><a class="header" href="#dequeh" id="dequeh">deque.h</a></h1>
+<p>A Deque, also known as a double-ended queue, is a linear data structure that is able to add and remove elements from both ends. It can also be thought of a double-ended stack since you can push and pop elements from two ends. The Deque can also be used as a Queue. The only elements accessible from a Deque ar the two elements at its ends (front element and back element).</p>
+<h2><a class="header" href="#deque-implementation" id="deque-implementation">Deque Implementation</a></h2>
+<p>This implementation uses a circular buffer (ring buffer or cyclic buffer) in order to operate on O(1) for push and pop on either ends. The only case where it takes longer than O(1) is when the buffer is reallocated. If it was implemented as a regular array, adding or removing elements from the front would take O(N) due to the need to shift all elements in the Deque.</p>
+<p>Two indices are kept track of. The <code>front</code> index and the <code>rear</code> index. These represent the both ends of the Deque. If an index reaches one end of the real buffer, they wrap around to the other end and an element is added there. This abstracts the real buffer as a circular buffer with the cost os constantly checking for boundaries and using the modulo operator.</p>
+<h2><a class="header" href="#deque-generation-macros" id="deque-generation-macros">Deque Generation Macros</a></h2>
+<ul>
+<li><code>CMC_GENERATE_DEQUE(PFX, SNAME, V)</code> - Generate full definition.</li>
+<li><code>CMC_GENERATE_DEQUE_HEADER(PFX, SNAME, V)</code> - Generate only the header portion</li>
+<li><code>CMC_GENERATE_DEQUE_SOURCE(PFX, SNAME, V)</code> - Generate only the source portion</li>
+</ul>
+<table><thead><tr><th>Parameter</th><th>Description</th></tr></thead><tbody>
+<tr><td><code>PFX</code></td><td>Functions namespace or prefix</td></tr>
+<tr><td><code>SNAME</code></td><td>Structure name</td></tr>
+<tr><td><code>V</code></td><td>Value type</td></tr>
+</tbody></table>
+<h2><a class="header" href="#deque-structures" id="deque-structures">Deque Structures</a></h2>
+<table><thead><tr><th>Declared structs</th><th>Description</th></tr></thead><tbody>
+<tr><td><code>struct SNAME</code></td><td>A double-ended queue data structure</td></tr>
+<tr><td><code>struct SNAME##_fval</code></td><td>A function table for the <code>V</code> type</td></tr>
+<tr><td><code>struct SNAME##_iter</code></td><td>A double-ended queue iterator</td></tr>
+</tbody></table>
+<h2><a class="header" href="#struct-sname" id="struct-sname">struct SNAME</a></h2>
+<table><thead><tr><th><code>struct SNAME</code></th><th>Description</th></tr></thead><tbody>
+<tr><td><code>V *buffer</code></td><td>Dynamic circular array of elements.</td></tr>
+<tr><td><code>size_t capacity</code></td><td>Current circular array capacity.</td></tr>
+<tr><td><code>size_t count</code></td><td>Current amount of elements.</td></tr>
+<tr><td><code>size_t front</code></td><td>Index representing the front of the Deque.</td></tr>
+<tr><td><code>size_t rear</code></td><td>Index representing the back of the Deque.</td></tr>
+<tr><td><code>int flag</code></td><td>Flag indicating errors or success.</td></tr>
+<tr><td><code>struct SNAME##_fval *f_val</code></td><td>Functions table for the Value type.</td></tr>
+<tr><td><code>struct cmc_alloc_node *alloc</code></td><td>Custom allocation functions.</td></tr>
+<tr><td><code>struct cmc_callbacks *callbacks</code></td><td>Callback functions.</td></tr>
+<tr><td><code>it_start</code> <sup>[1]</sup></td><td>Returns an iterator to the start of the Deque.</td></tr>
+<tr><td><code>it_end</code> <sup>[2]</sup></td><td>Returns an iterator to the end of the Deque.</td></tr>
+</tbody></table>
+<ol>
+<li>Full definition: <code>struct SNAME##_iter (*it_start)(struct SNAME *);</code>.</li>
+<li>Full definition: <code>struct SNAME##_iter (*it_end)(struct SNAME *);</code>.</li>
+</ol>
+<h2><a class="header" href="#struct-sname_fval" id="struct-sname_fval">struct SNAME##_fval</a></h2>
+<p>The Functions Table for <code>V</code>. Check out the Functions Table documentation <a href="../../cor/functions_table/index.html">here</a>.</p>
+<h2><a class="header" href="#struct-sname_iter" id="struct-sname_iter">struct SNAME##_iter</a></h2>
+<table><thead><tr><th><code>struct SNAME##_iter</code></th><th>Description</th></tr></thead><tbody>
+<tr><td><code>struct SNAME *target</code></td><td>Deque being iterated over.</td></tr>
+<tr><td><code>size_t cursor</code></td><td>Cursor's current position (index).</td></tr>
+<tr><td><code>size_t index</code></td><td>Relative index to all elements in the iteration.</td></tr>
+<tr><td><code>bool start</code></td><td>If the iterator reached the start of the iteration.</td></tr>
+<tr><td><code>bool end</code></td><td>If the iterator reached the end of iteration.</td></tr>
+</tbody></table>
+<h2><a class="header" href="#callbacks" id="callbacks">Callbacks</a></h2>
+<p>This list associates which functions calls which callbacks.</p>
+<ul>
+<li><code>create</code>
+<ul>
+<li><code>PFX##_push_front()</code></li>
+<li><code>PFX##_push_back()</code></li>
+</ul>
+</li>
+<li><code>read</code>
+<ul>
+<li><code>PFX##_front()</code></li>
+<li><code>PFX##_back()</code></li>
+<li><code>PFX##_contains()</code></li>
+</ul>
+</li>
+<li><code>update</code></li>
+<li><code>delete</code>
+<ul>
+<li><code>PFX##_pop_front()</code></li>
+<li><code>PFX##_pop_back()</code></li>
+</ul>
+</li>
+<li><code>resize</code>
+<ul>
+<li><code>PFX##_resize()</code></li>
+</ul>
+</li>
+</ul>
+<h2><a class="header" href="#functions-table" id="functions-table">Functions Table</a></h2>
+<table><thead><tr><th align="center">CMP</th><th align="center">CPY</th><th align="center">STR</th><th align="center">FREE</th><th align="center">HASH</th><th align="center">PRI</th></tr></thead><tbody>
+<tr><td align="center"><img src="https://placehold.it/20/9f3b94/000000?text=+" alt="#9f3b94" /></td><td align="center"><img src="https://placehold.it/20/9f3b94/000000?text=+" alt="#9f3b94" /></td><td align="center"><img src="https://placehold.it/20/497edd/000000?text=+" alt="#497edd" /></td><td align="center"><img src="https://placehold.it/20/00d3eb/000000?text=+" alt="#00d3eb" /></td><td align="center"><img src="https://placehold.it/20/2ef625/000000?text=+" alt="#2ef625" /></td><td align="center"><img src="https://placehold.it/20/2ef625/000000?text=+" alt="#2ef625" /></td></tr>
+</tbody></table>
+
+                    </main>
+
+                    <nav class="nav-wrapper" aria-label="Page navigation">
+                        <!-- Mobile navigation buttons -->
+                        
+                            <a rel="prev" href="../../cmc/index.html" class="mobile-nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                                <i class="fa fa-angle-left"></i>
+                            </a>
+                        
+
+                        
+                            <a rel="next" href="../../dev/index.html" class="mobile-nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                                <i class="fa fa-angle-right"></i>
+                            </a>
+                        
+
+                        <div style="clear: both"></div>
+                    </nav>
+                </div>
+            </div>
+
+            <nav class="nav-wide-wrapper" aria-label="Page navigation">
+                
+                    <a href="../../cmc/index.html" class="nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                        <i class="fa fa-angle-left"></i>
+                    </a>
+                
+
+                
+                    <a href="../../dev/index.html" class="nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                        <i class="fa fa-angle-right"></i>
+                    </a>
+                
+            </nav>
+
+        </div>
+
+        
+
+        
+
+        
+        
+        
+        <script type="text/javascript">
+            window.playpen_copyable = true;
+        </script>
+        
+
+        
+
+        
+        <script src="../../elasticlunr.min.js" type="text/javascript" charset="utf-8"></script>
+        <script src="../../mark.min.js" type="text/javascript" charset="utf-8"></script>
+        <script src="../../searcher.js" type="text/javascript" charset="utf-8"></script>
+        
+
+        <script src="../../clipboard.min.js" type="text/javascript" charset="utf-8"></script>
+        <script src="../../highlight.js" type="text/javascript" charset="utf-8"></script>
+        <script src="../../book.js" type="text/javascript" charset="utf-8"></script>
+
+        <!-- Custom JS scripts -->
+        
+
+        
+
+    </body>
+</html>

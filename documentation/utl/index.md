@@ -4,8 +4,9 @@ Inside the `./utl/` folder there are many utility functions and macros that can 
 
 ## Contents
 
-* [assert.h](assert.h/index.html)
-* [foreach.h](foreach.h/index.html)
-* [log.h](log.h/index.html)
-* [test.h](test.h/index.html)
-* [timer.h](timer.h/index.html)
+* [assert.h](assert.h/index.html) - Non-abortive assert macros
+* [foreach.h](foreach.h/index.html) - For Each macros
+* [futils.h](futils.h/index.html) - Common functions used by Functions Table
+* [log.h](log.h/index.html) - Logging utility with levels of severity
+* [test.h](test.h/index.html) - Simple Unit Test building with macros
+* [timer.h](timer.h/index.html) - Timing code execution utility

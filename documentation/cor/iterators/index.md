@@ -1,4 +1,4 @@
-# Two-Way Iterators
+# Iterators
 
 Every collection comes with an interface of iterators where you can easily access the elements of a collection. These can move at any direction, can start at any 'end' of a collection and can move any amount of steps per iteration. Every collection generated comes with an iterator.
 
