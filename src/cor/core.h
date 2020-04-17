@@ -90,4 +90,13 @@ static struct
     int ERROR;     // Generic error, usually caused by algorithm error
 } cmc_flags = { 0, 1, 2, 3, 4, 5, 6, 7 };
 
+/**
+ * cmc_flags_to_str
+ *
+ * Maps the error codes to their character representation.
+ */
+const char *cmc_flags_to_str[8] = { "OK",        "ALLOC",   "EMPTY",
+                                    "NOT_FOUND", "INVALID", "RANGE",
+                                    "DUPLICATE", "ERROR" };
+
 #endif /* CMC_CORE_H */
