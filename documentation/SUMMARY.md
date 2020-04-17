@@ -12,6 +12,7 @@
 - [cor](./cor/index.md)
     - [Callbacks](./cor/callbacks/index.md)
     - [Custom allocation](./cor/custom_allocation/index.md)
+    - [Error Codes](./cor/error_codes/index.md)
     - [Functions Table](./cor/functions_table/index.md)
     - [Iterators](./cor/iterators/index.md)
 - [cmc](./cmc/index.md)
