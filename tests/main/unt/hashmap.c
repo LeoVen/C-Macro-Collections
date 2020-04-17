@@ -5,23 +5,21 @@
 
 #include "../src/hashmap.c"
 
-struct hashmap_fkey *hm_fkey =
-    &(struct hashmap_fkey){ .cmp = cmp,
-                                .cpy = copy,
-                                .str = str,
-                                .free = custom_free,
-                                .hash = hash,
-                                .pri = pri };
+struct hashmap_fkey *hm_fkey = &(struct hashmap_fkey){ .cmp = cmc_size_cmp,
+                                                       .cpy = NULL,
+                                                       .str = cmc_size_str,
+                                                       .free = NULL,
+                                                       .hash = cmc_size_hash,
+                                                       .pri = cmc_size_cmp };
 
-struct hashmap_fval *hm_fval =
-    &(struct hashmap_fval){ .cmp = cmp,
-                                .cpy = copy,
-                                .str = str,
-                                .free = custom_free,
-                                .hash = hash,
-                                .pri = pri };
+struct hashmap_fval *hm_fval = &(struct hashmap_fval){ .cmp = cmc_size_cmp,
+                                                       .cpy = NULL,
+                                                       .str = cmc_size_str,
+                                                       .free = NULL,
+                                                       .hash = cmc_size_hash,
+                                                       .pri = cmc_size_cmp };
 
-CMC_CREATE_UNIT(hashmap_test, true, {
+CMC_CREATE_UNIT(HashMap, true, {
     CMC_CREATE_TEST(new, {
         struct hashmap *map = hm_new(943722, 0.6, hm_fkey, hm_fval);
 
@@ -40,8 +38,7 @@ CMC_CREATE_UNIT(hashmap_test, true, {
     });
 
     CMC_CREATE_TEST(new[capacity = UINT64_MAX], {
-        struct hashmap *map =
-            hm_new(UINT64_MAX, 0.99, hm_fkey, hm_fval);
+        struct hashmap *map = hm_new(UINT64_MAX, 0.99, hm_fkey, hm_fval);
 
         cmc_assert_equals(ptr, NULL, map);
     });
@@ -104,7 +101,7 @@ CMC_CREATE_UNIT(hashmap_test, true, {
         cmc_assert_equals(size_t, capacity - 1, map->buffer[capacity - 1].key);
         cmc_assert_equals(size_t, capacity, map->buffer[0].key);
 
-        hm_fkey->hash = hash;
+        hm_fkey->hash = cmc_size_hash;
 
         hm_free(map);
     });
@@ -125,7 +122,7 @@ CMC_CREATE_UNIT(hashmap_test, true, {
         for (size_t i = 0; i < 200; i++)
             cmc_assert_equals(size_t, i, map->buffer[i].dist);
 
-        hm_fkey->hash = hash;
+        hm_fkey->hash = cmc_size_hash;
 
         hm_free(map);
     });
@@ -151,7 +148,7 @@ CMC_CREATE_UNIT(hashmap_test, true, {
         cmc_assert_equals(size_t, 0, map->buffer[capacity - 1].dist);
         cmc_assert_equals(size_t, 1, map->buffer[0].dist);
 
-        hm_fkey->hash = hash;
+        hm_fkey->hash = cmc_size_hash;
 
         hm_free(map);
     });
@@ -172,7 +169,7 @@ CMC_CREATE_UNIT(hashmap_test, true, {
         for (size_t i = 0; i < 6; i++)
             cmc_assert_equals(size_t, i, hm_impl_get_entry(map, i)->dist);
 
-        hm_fkey->hash = hash;
+        hm_fkey->hash = cmc_size_hash;
 
         hm_free(map);
     });

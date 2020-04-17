@@ -5,15 +5,14 @@
 
 #include "../src/deque.c"
 
-struct deque_fval *d_fval =
-    &(struct deque_fval){ .cmp = cmp,
-                              .cpy = copy,
-                              .str = str,
-                              .free = custom_free,
-                              .hash = hash,
-                              .pri = pri };
+struct deque_fval *d_fval = &(struct deque_fval){ .cmp = cmc_size_cmp,
+                                                  .cpy = NULL,
+                                                  .str = cmc_size_str,
+                                                  .free = NULL,
+                                                  .hash = cmc_size_hash,
+                                                  .pri = cmc_size_cmp };
 
-CMC_CREATE_UNIT(deque_test, true, {
+CMC_CREATE_UNIT(Deque, true, {
     CMC_CREATE_TEST(new, {
         struct deque *d = d_new(1000000, d_fval);
 

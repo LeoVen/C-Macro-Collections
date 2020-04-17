@@ -5,15 +5,14 @@
 
 #include "../src/hashset.c"
 
-struct hashset_fval *hs_fval =
-    &(struct hashset_fval){ .cmp = cmp,
-                                .cpy = copy,
-                                .str = str,
-                                .free = custom_free,
-                                .hash = hash,
-                                .pri = pri };
+struct hashset_fval *hs_fval = &(struct hashset_fval){ .cmp = cmc_size_cmp,
+                                                       .cpy = NULL,
+                                                       .str = cmc_size_str,
+                                                       .free = NULL,
+                                                       .hash = cmc_size_hash,
+                                                       .pri = cmc_size_cmp };
 
-CMC_CREATE_UNIT(hashset_test, true, {
+CMC_CREATE_UNIT(HashSet, true, {
     CMC_CREATE_TEST(new, {
         struct hashset *set = hs_new(943722, 0.6, hs_fval);
 
@@ -96,7 +95,7 @@ CMC_CREATE_UNIT(hashset_test, true, {
                           set->buffer[capacity - 1].value);
         cmc_assert_equals(size_t, capacity, set->buffer[0].value);
 
-        hs_fval->hash = hash;
+        hs_fval->hash = cmc_size_hash;
 
         hs_free(set);
     });
@@ -117,7 +116,7 @@ CMC_CREATE_UNIT(hashset_test, true, {
         for (size_t i = 0; i < 200; i++)
             cmc_assert_equals(size_t, i, set->buffer[i].dist);
 
-        hs_fval->hash = hash;
+        hs_fval->hash = cmc_size_hash;
 
         hs_free(set);
     });
@@ -143,7 +142,7 @@ CMC_CREATE_UNIT(hashset_test, true, {
         cmc_assert_equals(size_t, 0, set->buffer[capacity - 1].dist);
         cmc_assert_equals(size_t, 1, set->buffer[0].dist);
 
-        hs_fval->hash = hash;
+        hs_fval->hash = cmc_size_hash;
 
         hs_free(set);
     });
@@ -164,7 +163,7 @@ CMC_CREATE_UNIT(hashset_test, true, {
         for (size_t i = 0; i < 6; i++)
             cmc_assert_equals(size_t, i, hs_impl_get_entry(set, i)->dist);
 
-        hs_fval->hash = hash;
+        hs_fval->hash = cmc_size_hash;
 
         hs_free(set);
     });
@@ -339,8 +338,7 @@ CMC_CREATE_UNIT(hashset_test, true, {
     });
 
     CMC_CREATE_TEST(full, {
-        struct hashset *set =
-            hs_new(cmc_hashtable_primes[0], 0.99999, hs_fval);
+        struct hashset *set = hs_new(cmc_hashtable_primes[0], 0.99999, hs_fval);
 
         cmc_assert_not_equals(ptr, NULL, set);
 
@@ -481,8 +479,7 @@ CMC_CREATE_UNIT(hashset_test, true, {
     });
 
     CMC_CREATE_TEST(callbacks, {
-        struct hashset *set =
-            hs_new_custom(100, 0.6, hs_fval, NULL, callbacks);
+        struct hashset *set = hs_new_custom(100, 0.6, hs_fval, NULL, callbacks);
 
         cmc_assert_not_equals(ptr, NULL, set);
 

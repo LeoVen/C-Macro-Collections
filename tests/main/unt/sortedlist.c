@@ -6,14 +6,14 @@
 #include "../src/sortedlist.c"
 
 struct sortedlist_fval *sl_fval =
-    &(struct sortedlist_fval){ .cmp = cmp,
-                                   .cpy = copy,
-                                   .str = str,
-                                   .free = custom_free,
-                                   .hash = hash,
-                                   .pri = pri };
+    &(struct sortedlist_fval){ .cmp = cmc_size_cmp,
+                               .cpy = NULL,
+                               .str = cmc_size_str,
+                               .free = NULL,
+                               .hash = cmc_size_hash,
+                               .pri = cmc_size_cmp };
 
-CMC_CREATE_UNIT(sortedlist_test, true, {
+CMC_CREATE_UNIT(SortedList, true, {
     CMC_CREATE_TEST(new, {
         struct sortedlist *sl = sl_new(1000000, sl_fval);
 
@@ -67,7 +67,8 @@ CMC_CREATE_UNIT(sortedlist_test, true, {
         sl_sort(sl);
 
         cmc_assert_equals(size_t, 50, sl_count(sl));
-        cmc_assert_array_sorted_any(size_t, sl->buffer, cmp, 0, sl->count - 1);
+        cmc_assert_array_sorted_any(size_t, sl->buffer, cmc_size_cmp, 0,
+                                    sl->count - 1);
 
         sl_free(sl);
     });
@@ -235,8 +236,7 @@ CMC_CREATE_UNIT(sortedlist_test, true, {
     });
 
     CMC_CREATE_TEST(callbacks, {
-        struct sortedlist *sl =
-            sl_new_custom(100, sl_fval, NULL, callbacks);
+        struct sortedlist *sl = sl_new_custom(100, sl_fval, NULL, callbacks);
 
         cmc_assert_not_equals(ptr, NULL, sl);
 

@@ -5,23 +5,21 @@
 
 #include "../src/multimap.c"
 
-struct multimap_fkey *mm_fkey =
-    &(struct multimap_fkey){ .cmp = cmp,
-                                 .cpy = copy,
-                                 .str = str,
-                                 .free = custom_free,
-                                 .hash = hash,
-                                 .pri = pri };
+struct multimap_fkey *mm_fkey = &(struct multimap_fkey){ .cmp = cmc_size_cmp,
+                                                         .cpy = NULL,
+                                                         .str = cmc_size_str,
+                                                         .free = NULL,
+                                                         .hash = cmc_size_hash,
+                                                         .pri = cmc_size_cmp };
 
-struct multimap_fval *mm_fval =
-    &(struct multimap_fval){ .cmp = cmp,
-                                 .cpy = copy,
-                                 .str = str,
-                                 .free = custom_free,
-                                 .hash = hash,
-                                 .pri = pri };
+struct multimap_fval *mm_fval = &(struct multimap_fval){ .cmp = cmc_size_cmp,
+                                                         .cpy = NULL,
+                                                         .str = cmc_size_str,
+                                                         .free = NULL,
+                                                         .hash = cmc_size_hash,
+                                                         .pri = cmc_size_cmp };
 
-CMC_CREATE_UNIT(multimap_test, true, {
+CMC_CREATE_UNIT(MultiMap, true, {
     CMC_CREATE_TEST(new, {
         struct multimap *map = mm_new(943722, 0.8, mm_fkey, mm_fval);
 
@@ -40,8 +38,7 @@ CMC_CREATE_UNIT(multimap_test, true, {
     });
 
     CMC_CREATE_TEST(new[capacity = UINT64_MAX], {
-        struct multimap *map =
-            mm_new(UINT64_MAX, 0.99, mm_fkey, mm_fval);
+        struct multimap *map = mm_new(UINT64_MAX, 0.99, mm_fkey, mm_fval);
 
         cmc_assert_equals(ptr, NULL, map);
     });

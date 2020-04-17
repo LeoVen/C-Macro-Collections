@@ -2,48 +2,12 @@
 #ifndef CMC_UNIT_TEST_UTL__
 #define CMC_UNIT_TEST_UTL__
 
-#include <cmc/hashmap.h>
 #include <inttypes.h>
 #include <stdbool.h>
 #include <stdlib.h>
 
-int cmp(size_t a, size_t b)
-{
-    return (a > b) - (a < b);
-}
-
-size_t copy(size_t a)
-{
-    return a;
-}
-
-bool str(FILE *fptr, size_t a)
-{
-    return fprintf(fptr, "%" PRIuMAX " ", a) > 0;
-}
-
-void custom_free(size_t a)
-{
-    // blank
-    // Free any resources if necessary
-}
-
-size_t hash(size_t a)
-{
-    a += ~(a << 15);
-    a ^= (a >> 10);
-    a += (a << 3);
-    a ^= (a >> 6);
-    a += ~(a << 11);
-    a ^= (a >> 16);
-    return a;
-}
-
-int pri(size_t a, size_t b)
-{
-    // Could contain different logic
-    return cmp(a, b);
-}
+#include "cmc/hashmap.h"
+#include "utl/futils.h"
 
 size_t numhash(size_t a)
 {
@@ -116,7 +80,7 @@ size_t k_c_hash(size_t x)
 int k_c_pri(size_t a, size_t b)
 {
     k_total_pri++;
-    return cmp(a, b);
+    return cmc_size_cmp(a, b);
 }
 
 int v_c_cmp(size_t a, size_t b)
@@ -154,7 +118,7 @@ size_t v_c_hash(size_t x)
 int v_c_pri(size_t a, size_t b)
 {
     v_total_pri++;
-    return cmp(a, b);
+    return cmc_size_cmp(a, b);
 }
 
 // callbacks

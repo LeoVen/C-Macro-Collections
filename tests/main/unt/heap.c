@@ -5,14 +5,14 @@
 
 #include "../src/heap.c"
 
-struct heap_fval *h_fval = &(struct heap_fval){ .cmp = cmp,
-                                                            .cpy = copy,
-                                                            .str = str,
-                                                            .free = custom_free,
-                                                            .hash = hash,
-                                                            .pri = pri };
+struct heap_fval *h_fval = &(struct heap_fval){ .cmp = cmc_size_cmp,
+                                                .cpy = NULL,
+                                                .str = cmc_size_str,
+                                                .free = NULL,
+                                                .hash = cmc_size_hash,
+                                                .pri = cmc_size_cmp };
 
-CMC_CREATE_UNIT(heap_test, true, {
+CMC_CREATE_UNIT(Heap, true, {
     CMC_CREATE_TEST(new, {
         struct heap *h = h_new(1000000, cmc_max_heap, h_fval);
 
@@ -136,7 +136,7 @@ CMC_CREATE_UNIT(heap_test, true, {
             cmc_assert(h_remove(h));
         }
 
-        cmc_assert_array_sorted_any(size_t, arr, cmp, 0, 99);
+        cmc_assert_array_sorted_any(size_t, arr, cmc_size_cmp, 0, 99);
 
         h_free(h);
     });

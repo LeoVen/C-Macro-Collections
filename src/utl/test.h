@@ -45,18 +45,34 @@
 #include "assert.h"
 #include "timer.h"
 
-#ifdef CMC_TEST_COLOR
-static const char *cmc_test_color[] = { "\x1b[32m", "\x1b[31m", "\x1b[35m" };
-#endif
-
 struct cmc_test_info
 {
     uintmax_t total;
     uintmax_t passed;
     uintmax_t failed;
+    uintmax_t assert_total;
+    uintmax_t assert_failed;
     bool aborted;
     bool verbose;
 };
+
+static inline const char *cmc_test_color(int i)
+{
+#ifdef CMC_TEST_COLOR
+    // 0 - Default, all off
+    // 1 - Failed (red)
+    // 2 - Passed (green)
+    // 3 - Box    (gray)
+    // 4 - Name   (cyan)
+    // 5 - Total  (yellow)
+    static const char *cmc_test_colors[] = {
+        "\x1b[0m", "\x1b[31m", "\x1b[32m", "\x1b[90m", "\x1b[36m", "\x1b[33m"
+    };
+    return cmc_test_colors[i];
+#else
+    return "";
+#endif
+}
 
 /* Logging function */
 static void cmc_test_log(const char *unit_name, const char *current_test,
@@ -64,64 +80,127 @@ static void cmc_test_log(const char *unit_name, const char *current_test,
 {
     if (aborted)
     {
-#ifdef CMC_TEST_COLOR
-        printf("UNIT_TEST %s %sABORTED\x1b[0m AT %s\n", unit_name,
-               cmc_test_color[2], current_test);
-#else
-        printf("UNIT_TEST %s ABORTED at %s\n", unit_name, current_test);
-#endif
+        printf("    X UNIT TEST");
+        printf("%s", cmc_test_color(4));
+        printf(" %s ", unit_name);
+        printf("%sABORTED%s", cmc_test_color(5), cmc_test_color(0));
+        printf(" at %s\n", current_test);
     }
     else
     {
-#ifdef CMC_TEST_COLOR
-        printf("Test from \x1b[33m%s\x1b[0m %s%7s\x1b[0m %s\n", unit_name,
-               passed ? cmc_test_color[0] : cmc_test_color[1],
-               passed ? "PASSED" : "FAILED", current_test);
-#else
-        printf("Test from %s %7s %s\n", unit_name, passed ? "PASSED" : "FAILED",
-               current_test);
-#endif
+        printf("%s", passed ? cmc_test_color(2) : cmc_test_color(1));
+        printf("    |");
+        printf("%s", cmc_test_color(0));
+        printf(" %s", current_test);
+        size_t str_len = strlen(current_test);
+        if (str_len < 53)
+        {
+            printf(cmc_test_color(3));
+            for (size_t i = 0; i < 53 - str_len; i++)
+                putchar('.');
+        }
+        printf("%s", passed ? cmc_test_color(2) : cmc_test_color(1));
+        printf("%s", passed ? "PASSED" : "FAILED");
+        printf("%s\n", cmc_test_color(0));
     }
 }
 
-#define CMC_CREATE_UNIT(UNAME, VERBOSE, BODY)                                \
-    uintmax_t UNAME(void)                                                    \
-    {                                                                        \
-        const char *unit_name = #UNAME;                                      \
-        const char *current_test = NULL;                                     \
-                                                                             \
-        struct cmc_test_info tinfo = { 0 };                                  \
-        struct cmc_timer timer = { 0 };                                      \
-                                                                             \
-        tinfo.verbose = VERBOSE;                                             \
-                                                                             \
-        /* Tests */                                                          \
-        cmc_timer_start(timer);                                              \
-                                                                             \
-        BODY;                                                                \
-                                                                             \
-        cmc_timer_stop(timer);                                               \
-                                                                             \
-    unittest_abort:                                                          \
-        if (tinfo.aborted)                                                   \
-        {                                                                    \
-            cmc_test_log(unit_name, current_test, true, false);              \
-        }                                                                    \
-                                                                             \
-        printf("+--------------------------------------------------+\n");    \
-        printf("| Unit Test Report : %-30s|\n", unit_name);                  \
-        printf("|   TOTAL  : %10" PRIuMAX "                            |\n", \
-               tinfo.total);                                                 \
-        printf("|   PASSED : %10" PRIuMAX "                            |\n", \
-               tinfo.passed);                                                \
-        printf("|   FAILED : %10" PRIuMAX "                            |\n", \
-               tinfo.failed);                                                \
-        printf("|                                                  |\n");    \
-        printf("| Total Unit Test Runtime : %9.0f milliseconds |\n",         \
-               timer.result);                                                \
-        printf("+--------------------------------------------------+\n");    \
-                                                                             \
-        return tinfo.failed;                                                 \
+#define CMC_CREATE_UNIT(UNAME, VERBOSE, BODY)                                           \
+    uintmax_t UNAME(void)                                                               \
+    {                                                                                   \
+        const char *unit_name = #UNAME;                                                 \
+        const char *current_test = NULL;                                                \
+                                                                                        \
+        struct cmc_test_info tinfo = { 0 };                                             \
+        struct cmc_timer timer = { 0 };                                                 \
+                                                                                        \
+        tinfo.verbose = VERBOSE;                                                        \
+        tinfo.assert_total = cmc_assert_total;                                          \
+        tinfo.assert_failed = cmc_assert_failed;                                        \
+                                                                                        \
+        /* Tests */                                                                     \
+        cmc_timer_start(timer);                                                         \
+                                                                                        \
+        printf(cmc_test_color(3));                                                      \
+        printf(                                                                         \
+            " +---------------------------------------------------------------+\n");    \
+        printf(" | ");                                                                  \
+        printf(cmc_test_color(0));                                                      \
+        printf("Unit ");                                                                \
+        printf(cmc_test_color(4));                                                      \
+        printf("%-56s", unit_name);                                                     \
+        printf(cmc_test_color(3));                                                      \
+        printf(                                                                         \
+            " |\n +---------------------------------------------------------------+");  \
+        printf("%s\n", cmc_test_color(0));                                              \
+                                                                                        \
+        BODY;                                                                           \
+                                                                                        \
+        cmc_timer_stop(timer);                                                          \
+                                                                                        \
+        tinfo.assert_total = cmc_assert_total - tinfo.assert_total;                     \
+        tinfo.assert_failed = cmc_assert_failed - tinfo.assert_failed;                  \
+                                                                                        \
+    unittest_abort:                                                                     \
+        if (tinfo.aborted)                                                              \
+        {                                                                               \
+            cmc_test_log(unit_name, current_test, true, false);                         \
+        }                                                                               \
+                                                                                        \
+        printf(cmc_test_color(3));                                                      \
+        printf(                                                                         \
+            " +---------------------------------------------------------------+\n | "); \
+        printf(cmc_test_color(0));                                                      \
+        printf("Summary : ");                                                           \
+        printf(cmc_test_color(4));                                                      \
+        printf("%-52s", unit_name);                                                     \
+        printf("%s|\n", cmc_test_color(3));                                             \
+        printf(                                                                         \
+            " +---------++----------------+-----------------+-----------------+\n | "); \
+        printf(cmc_test_color(0));                                                      \
+        printf("Tests   ");                                                             \
+        printf(cmc_test_color(3));                                                      \
+        printf("||");                                                                   \
+        printf(cmc_test_color(5));                                                      \
+        printf(" Total %8" PRIuMAX "", tinfo.total);                                    \
+        printf(cmc_test_color(3));                                                      \
+        printf(" | ");                                                                  \
+        printf(cmc_test_color(2));                                                      \
+        printf("Passed %8" PRIuMAX "", tinfo.passed);                                   \
+        printf(cmc_test_color(3));                                                      \
+        printf(" | ");                                                                  \
+        printf(cmc_test_color(1));                                                      \
+        printf("Failed %8" PRIuMAX "", tinfo.failed);                                   \
+        printf(cmc_test_color(3));                                                      \
+        printf(" |\n | ");                                                              \
+        printf(cmc_test_color(0));                                                      \
+        printf("Asserts ");                                                             \
+        printf(cmc_test_color(3));                                                      \
+        printf("||");                                                                   \
+        printf(cmc_test_color(5));                                                      \
+        printf(" Total %8" PRIuMAX "", tinfo.assert_total);                             \
+        printf(cmc_test_color(3));                                                      \
+        printf(" | ");                                                                  \
+        printf(cmc_test_color(2));                                                      \
+        printf("Passed %8" PRIuMAX "",                                                  \
+               tinfo.assert_total - tinfo.assert_failed);                               \
+        printf(cmc_test_color(3));                                                      \
+        printf(" | ");                                                                  \
+        printf(cmc_test_color(1));                                                      \
+        printf("Failed %8" PRIuMAX "", tinfo.assert_failed);                            \
+        printf(cmc_test_color(3));                                                      \
+        printf(" |\n");                                                                 \
+        printf(                                                                         \
+            " +---------++----------------+-----------------+-----------------+\n | "); \
+        printf(cmc_test_color(0));                                                      \
+        printf("Total Runtime : %32.0f milliseconds", timer.result);                    \
+        printf(" %s|\n", cmc_test_color(3));                                            \
+        printf(                                                                         \
+            " +---------------------------------------------------------------+\n");    \
+        printf(cmc_test_color(0));                                                      \
+        printf("\n\n");                                                                 \
+                                                                                        \
+        return tinfo.failed;                                                            \
     }
 
 #define CMC_CREATE_TEST(TNAME, BODY)                                 \

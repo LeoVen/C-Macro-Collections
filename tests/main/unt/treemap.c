@@ -5,23 +5,21 @@
 
 #include "../src/treemap.c"
 
-struct treemap_fkey *tm_fkey =
-    &(struct treemap_fkey){ .cmp = cmp,
-                                .cpy = copy,
-                                .str = str,
-                                .free = custom_free,
-                                .hash = hash,
-                                .pri = pri };
+struct treemap_fkey *tm_fkey = &(struct treemap_fkey){ .cmp = cmc_size_cmp,
+                                                       .cpy = NULL,
+                                                       .str = cmc_size_str,
+                                                       .free = NULL,
+                                                       .hash = cmc_size_hash,
+                                                       .pri = cmc_size_cmp };
 
-struct treemap_fval *tm_fval =
-    &(struct treemap_fval){ .cmp = cmp,
-                                .cpy = copy,
-                                .str = str,
-                                .free = custom_free,
-                                .hash = hash,
-                                .pri = pri };
+struct treemap_fval *tm_fval = &(struct treemap_fval){ .cmp = cmc_size_cmp,
+                                                       .cpy = NULL,
+                                                       .str = cmc_size_str,
+                                                       .free = NULL,
+                                                       .hash = cmc_size_hash,
+                                                       .pri = cmc_size_cmp };
 
-CMC_CREATE_UNIT(treemap_test, true, {
+CMC_CREATE_UNIT(TreeMap, true, {
     CMC_CREATE_TEST(new, {
         struct treemap *map = tm_new(tm_fkey, tm_fval);
 
@@ -142,8 +140,7 @@ CMC_CREATE_UNIT(treemap_test, true, {
     });
 
     CMC_CREATE_TEST(callbacks, {
-        struct treemap *map =
-            tm_new_custom(tm_fkey, tm_fval, NULL, callbacks);
+        struct treemap *map = tm_new_custom(tm_fkey, tm_fval, NULL, callbacks);
 
         cmc_assert_not_equals(ptr, NULL, map);
 

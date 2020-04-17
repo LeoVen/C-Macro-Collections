@@ -20,6 +20,6 @@ utl: FORCE
 	clang-format --style=file -i ./src/utl/*.h
 
 tests: FORCE
-	clang-format --style=file -i ./tests/main/unt/*.c ./tests/*.c
+	clang-format --style=file -i ./tests/main/unt/*.c ./tests/main/main.c ./tests/*.c
 
 FORCE:

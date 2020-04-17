@@ -5,39 +5,35 @@
 
 #include "../src/bidimap.c"
 
-struct bidimap_fkey *bm_fkey =
-    &(struct bidimap_fkey){ .cmp = cmp,
-                                .cpy = copy,
-                                .str = str,
-                                .free = custom_free,
-                                .hash = hash,
-                                .pri = pri };
+struct bidimap_fkey *bm_fkey = &(struct bidimap_fkey){ .cmp = cmc_size_cmp,
+                                                       .cpy = NULL,
+                                                       .str = cmc_size_str,
+                                                       .free = NULL,
+                                                       .hash = cmc_size_hash,
+                                                       .pri = cmc_size_cmp };
 
-struct bidimap_fval *bm_fval =
-    &(struct bidimap_fval){ .cmp = cmp,
-                                .cpy = copy,
-                                .str = str,
-                                .free = custom_free,
-                                .hash = hash,
-                                .pri = pri };
+struct bidimap_fval *bm_fval = &(struct bidimap_fval){ .cmp = cmc_size_cmp,
+                                                       .cpy = NULL,
+                                                       .str = cmc_size_str,
+                                                       .free = NULL,
+                                                       .hash = cmc_size_hash,
+                                                       .pri = cmc_size_cmp };
 
-struct bidimap_fkey *bm_fkey_counter =
-    &(struct bidimap_fkey){ .cmp = k_c_cmp,
-                                .cpy = k_c_cpy,
-                                .str = k_c_str,
-                                .free = k_c_free,
-                                .hash = k_c_hash,
-                                .pri = k_c_pri };
+struct bidimap_fkey *bm_fkey_counter = &(struct bidimap_fkey){ .cmp = k_c_cmp,
+                                                               .cpy = k_c_cpy,
+                                                               .str = k_c_str,
+                                                               .free = k_c_free,
+                                                               .hash = k_c_hash,
+                                                               .pri = k_c_pri };
 
-struct bidimap_fval *bm_fval_counter =
-    &(struct bidimap_fval){ .cmp = v_c_cmp,
-                                .cpy = v_c_cpy,
-                                .str = v_c_str,
-                                .free = v_c_free,
-                                .hash = v_c_hash,
-                                .pri = v_c_pri };
+struct bidimap_fval *bm_fval_counter = &(struct bidimap_fval){ .cmp = v_c_cmp,
+                                                               .cpy = v_c_cpy,
+                                                               .str = v_c_str,
+                                                               .free = v_c_free,
+                                                               .hash = v_c_hash,
+                                                               .pri = v_c_pri };
 
-CMC_CREATE_UNIT(bidimap_test, true, {
+CMC_CREATE_UNIT(BidiMap, true, {
     CMC_CREATE_TEST(new, {
         struct bidimap *map = bm_new(100, 0.6, bm_fkey, bm_fval);
 
@@ -194,8 +190,7 @@ CMC_CREATE_UNIT(bidimap_test, true, {
         node.free = free;
         node.calloc = calloc;
 
-        map =
-            bm_new_custom(100, 0.6, bm_fkey, bm_fval, &node, callbacks);
+        map = bm_new_custom(100, 0.6, bm_fkey, bm_fval, &node, callbacks);
 
         cmc_assert_not_equals(ptr, NULL, map);
 

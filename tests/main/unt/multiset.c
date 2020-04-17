@@ -5,15 +5,14 @@
 
 #include "../src/multiset.c"
 
-struct multiset_fval *ms_fval =
-    &(struct multiset_fval){ .cmp = cmp,
-                                 .cpy = copy,
-                                 .str = str,
-                                 .free = custom_free,
-                                 .hash = hash,
-                                 .pri = pri };
+struct multiset_fval *ms_fval = &(struct multiset_fval){ .cmp = cmc_size_cmp,
+                                                         .cpy = NULL,
+                                                         .str = cmc_size_str,
+                                                         .free = NULL,
+                                                         .hash = cmc_size_hash,
+                                                         .pri = cmc_size_cmp };
 
-CMC_CREATE_UNIT(multiset_test, true, {
+CMC_CREATE_UNIT(MultiSet, true, {
     CMC_CREATE_TEST(new, {
         struct multiset *set = ms_new(943722, 0.6, ms_fval);
 

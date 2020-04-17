@@ -60,6 +60,8 @@
 #define CMC_ASSERT_GLUE(dtype, assertion) CMC_ASSERT_GLUE_(dtype, assertion)
 
 /**
+ * cmc_assert_state
+ *
  * This is a global variable that can be used to test if all assertions passed.
  * If a single assertion fails, this variable will be set to false.
  *
@@ -69,15 +71,31 @@
 static bool cmc_assert_state = true;
 
 /**
+ * cmc_assert_total
+ *
+ * Tracks the total calls to any type of assertion.
+ */
+static uintmax_t cmc_assert_total = 0;
+
+/**
+ * cmc_assert_failed
+ *
+ * Tracks the total failed assertions.
+ */
+static uintmax_t cmc_assert_failed = 0;
+
+/**
  * expression : An expression that is expected to be evaluated to true.
  */
 #define cmc_assert(expression)                                           \
     do                                                                   \
     {                                                                    \
+        cmc_assert_total++;                                              \
         const char *str = #expression;                                   \
         if (!(expression))                                               \
         {                                                                \
             cmc_assert_state = false;                                    \
+            cmc_assert_failed++;                                         \
                                                                          \
             fprintf(stderr, "Assertion Failed at %s:%s:%u for { %s }\n", \
                     __FILE__, __func__, __LINE__, str);                  \
@@ -186,6 +204,7 @@ static bool cmc_assert_state = true;
                                     from_index, to_index)                                                            \
     do                                                                                                               \
     {                                                                                                                \
+        cmc_assert_total++;                                                                                          \
         const char *str1__ = #array1;                                                                                \
         const char *str2__ = #array2;                                                                                \
         dtype *arr1__ = array1;                                                                                      \
@@ -199,6 +218,7 @@ static bool cmc_assert_state = true;
             if (cmp__(arr1__[i__], arr2__[i__]) != 0)                                                                \
             {                                                                                                        \
                 cmc_assert_state = false;                                                                            \
+                cmc_assert_failed++;                                                                                 \
                                                                                                                      \
                 fprintf(                                                                                             \
                     stderr,                                                                                          \
@@ -231,6 +251,7 @@ static bool cmc_assert_state = true;
                                     upper_bound, from_index, to_index)                                          \
     do                                                                                                          \
     {                                                                                                           \
+        cmc_assert_total++;                                                                                     \
         const char *str__ = #array;                                                                             \
         dtype *arr__ = array;                                                                                   \
         dtype lower_bound___ = lower_bound;                                                                     \
@@ -245,6 +266,7 @@ static bool cmc_assert_state = true;
                 cmp__(arr__[i__], upper_bound___) > 0)                                                          \
             {                                                                                                   \
                 cmc_assert_state = false;                                                                       \
+                cmc_assert_failed++;                                                                            \
                                                                                                                 \
                 fprintf(                                                                                        \
                     stderr,                                                                                     \
@@ -277,6 +299,7 @@ static bool cmc_assert_state = true;
                                      upper_bound, from_index, to_index)                                          \
     do                                                                                                           \
     {                                                                                                            \
+        cmc_assert_total++;                                                                                      \
         const char *str__ = #array;                                                                              \
         dtype *arr__ = array;                                                                                    \
         dtype lower_bound___ = lower_bound;                                                                      \
@@ -291,6 +314,7 @@ static bool cmc_assert_state = true;
                 cmp__(arr__[i__], upper_bound___) <= 0)                                                          \
             {                                                                                                    \
                 cmc_assert_state = false;                                                                        \
+                cmc_assert_failed++;                                                                             \
                                                                                                                  \
                 fprintf(                                                                                         \
                     stderr,                                                                                      \
@@ -321,6 +345,7 @@ static bool cmc_assert_state = true;
                                     to_index)                                                              \
     do                                                                                                     \
     {                                                                                                      \
+        cmc_assert_total++;                                                                                \
         const char *str__ = #array;                                                                        \
         dtype *arr__ = array;                                                                              \
         size_t from__ = from_index;                                                                        \
@@ -334,6 +359,7 @@ static bool cmc_assert_state = true;
             if (cmp__(arr__[iprev__], arr__[i__]) > 0)                                                     \
             {                                                                                              \
                 cmc_assert_state = false;                                                                  \
+                cmc_assert_failed++;                                                                       \
                                                                                                            \
                 fprintf(                                                                                   \
                     stderr,                                                                                \
@@ -358,6 +384,7 @@ static bool cmc_assert_state = true;
 #define cmc_assert_equals_int8_t(expected, actual)                           \
     do                                                                       \
     {                                                                        \
+        cmc_assert_total++;                                                  \
         const char *str = #actual;                                           \
         int8_t expected__ = (expected);                                      \
         int8_t actual__ = (actual);                                          \
@@ -365,6 +392,7 @@ static bool cmc_assert_state = true;
         if (expected__ != actual__)                                          \
         {                                                                    \
             cmc_assert_state = false;                                        \
+            cmc_assert_failed++;                                             \
                                                                              \
             fprintf(                                                         \
                 stderr,                                                      \
@@ -378,6 +406,7 @@ static bool cmc_assert_state = true;
 #define cmc_assert_equals_int16_t(expected, actual)                           \
     do                                                                        \
     {                                                                         \
+        cmc_assert_total++;                                                   \
         const char *str = #actual;                                            \
         int16_t expected__ = (expected);                                      \
         int16_t actual__ = (actual);                                          \
@@ -385,6 +414,7 @@ static bool cmc_assert_state = true;
         if (expected__ != actual__)                                           \
         {                                                                     \
             cmc_assert_state = false;                                         \
+            cmc_assert_failed++;                                              \
                                                                               \
             fprintf(                                                          \
                 stderr,                                                       \
@@ -398,6 +428,7 @@ static bool cmc_assert_state = true;
 #define cmc_assert_equals_int32_t(expected, actual)                           \
     do                                                                        \
     {                                                                         \
+        cmc_assert_total++;                                                   \
         const char *str = #actual;                                            \
         int32_t expected__ = (expected);                                      \
         int32_t actual__ = (actual);                                          \
@@ -405,6 +436,7 @@ static bool cmc_assert_state = true;
         if (expected__ != actual__)                                           \
         {                                                                     \
             cmc_assert_state = false;                                         \
+            cmc_assert_failed++;                                              \
                                                                               \
             fprintf(                                                          \
                 stderr,                                                       \
@@ -418,6 +450,7 @@ static bool cmc_assert_state = true;
 #define cmc_assert_equals_int64_t(expected, actual)                           \
     do                                                                        \
     {                                                                         \
+        cmc_assert_total++;                                                   \
         const char *str = #actual;                                            \
         int64_t expected__ = (expected);                                      \
         int64_t actual__ = (actual);                                          \
@@ -425,6 +458,7 @@ static bool cmc_assert_state = true;
         if (expected__ != actual__)                                           \
         {                                                                     \
             cmc_assert_state = false;                                         \
+            cmc_assert_failed++;                                              \
                                                                               \
             fprintf(                                                          \
                 stderr,                                                       \
@@ -438,6 +472,7 @@ static bool cmc_assert_state = true;
 #define cmc_assert_equals_uint8_t(expected, actual)                          \
     do                                                                       \
     {                                                                        \
+        cmc_assert_total++;                                                  \
         const char *str = #actual;                                           \
         uint8_t expected__ = (expected);                                     \
         uint8_t actual__ = (actual);                                         \
@@ -445,6 +480,7 @@ static bool cmc_assert_state = true;
         if (expected__ != actual__)                                          \
         {                                                                    \
             cmc_assert_state = false;                                        \
+            cmc_assert_failed++;                                             \
                                                                              \
             fprintf(                                                         \
                 stderr,                                                      \
@@ -458,6 +494,7 @@ static bool cmc_assert_state = true;
 #define cmc_assert_equals_uint16_t(expected, actual)                          \
     do                                                                        \
     {                                                                         \
+        cmc_assert_total++;                                                   \
         const char *str = #actual;                                            \
         uint16_t expected__ = (expected);                                     \
         uint16_t actual__ = (actual);                                         \
@@ -465,6 +502,7 @@ static bool cmc_assert_state = true;
         if (expected__ != actual__)                                           \
         {                                                                     \
             cmc_assert_state = false;                                         \
+            cmc_assert_failed++;                                              \
                                                                               \
             fprintf(                                                          \
                 stderr,                                                       \
@@ -478,6 +516,7 @@ static bool cmc_assert_state = true;
 #define cmc_assert_equals_uint32_t(expected, actual)                          \
     do                                                                        \
     {                                                                         \
+        cmc_assert_total++;                                                   \
         const char *str = #actual;                                            \
         uint32_t expected__ = (expected);                                     \
         uint32_t actual__ = (actual);                                         \
@@ -485,6 +524,7 @@ static bool cmc_assert_state = true;
         if (expected__ != actual__)                                           \
         {                                                                     \
             cmc_assert_state = false;                                         \
+            cmc_assert_failed++;                                              \
                                                                               \
             fprintf(                                                          \
                 stderr,                                                       \
@@ -498,6 +538,7 @@ static bool cmc_assert_state = true;
 #define cmc_assert_equals_uint64_t(expected, actual)                          \
     do                                                                        \
     {                                                                         \
+        cmc_assert_total++;                                                   \
         const char *str = #actual;                                            \
         uint64_t expected__ = (expected);                                     \
         uint64_t actual__ = (actual);                                         \
@@ -505,6 +546,7 @@ static bool cmc_assert_state = true;
         if (expected__ != actual__)                                           \
         {                                                                     \
             cmc_assert_state = false;                                         \
+            cmc_assert_failed++;                                              \
                                                                               \
             fprintf(                                                          \
                 stderr,                                                       \
@@ -518,6 +560,7 @@ static bool cmc_assert_state = true;
 #define cmc_assert_equals_intmax_t(expected, actual)                           \
     do                                                                         \
     {                                                                          \
+        cmc_assert_total++;                                                    \
         const char *str = #actual;                                             \
         intmax_t expected__ = (expected);                                      \
         intmax_t actual__ = (actual);                                          \
@@ -525,6 +568,7 @@ static bool cmc_assert_state = true;
         if (expected__ != actual__)                                            \
         {                                                                      \
             cmc_assert_state = false;                                          \
+            cmc_assert_failed++;                                               \
                                                                                \
             fprintf(                                                           \
                 stderr,                                                        \
@@ -538,6 +582,7 @@ static bool cmc_assert_state = true;
 #define cmc_assert_equals_uintmax_t(expected, actual)                          \
     do                                                                         \
     {                                                                          \
+        cmc_assert_total++;                                                    \
         const char *str = #actual;                                             \
         uintmax_t expected__ = (expected);                                     \
         uintmax_t actual__ = (actual);                                         \
@@ -545,6 +590,7 @@ static bool cmc_assert_state = true;
         if (expected__ != actual__)                                            \
         {                                                                      \
             cmc_assert_state = false;                                          \
+            cmc_assert_failed++;                                               \
                                                                                \
             fprintf(                                                           \
                 stderr,                                                        \
@@ -558,6 +604,7 @@ static bool cmc_assert_state = true;
 #define cmc_assert_equals_size_t(expected, actual)                             \
     do                                                                         \
     {                                                                          \
+        cmc_assert_total++;                                                    \
         const char *str = #actual;                                             \
         size_t expected__ = (expected);                                        \
         size_t actual__ = (actual);                                            \
@@ -565,6 +612,7 @@ static bool cmc_assert_state = true;
         if (expected__ != actual__)                                            \
         {                                                                      \
             cmc_assert_state = false;                                          \
+            cmc_assert_failed++;                                               \
                                                                                \
             fprintf(                                                           \
                 stderr,                                                        \
@@ -578,6 +626,7 @@ static bool cmc_assert_state = true;
 #define cmc_assert_equals_float(expected, actual)                                     \
     do                                                                                \
     {                                                                                 \
+        cmc_assert_total++;                                                           \
         const char *str = #actual;                                                    \
         float expected__ = (expected);                                                \
         float actual__ = (actual);                                                    \
@@ -585,6 +634,7 @@ static bool cmc_assert_state = true;
         if (expected__ != actual__)                                                   \
         {                                                                             \
             cmc_assert_state = false;                                                 \
+            cmc_assert_failed++;                                                      \
                                                                                       \
             fprintf(                                                                  \
                 stderr,                                                               \
@@ -597,6 +647,7 @@ static bool cmc_assert_state = true;
 #define cmc_assert_equals_double(expected, actual)                                      \
     do                                                                                  \
     {                                                                                   \
+        cmc_assert_total++;                                                             \
         const char *str = #actual;                                                      \
         double expected__ = (expected);                                                 \
         double actual__ = (actual);                                                     \
@@ -604,6 +655,7 @@ static bool cmc_assert_state = true;
         if (expected__ != actual__)                                                     \
         {                                                                               \
             cmc_assert_state = false;                                                   \
+            cmc_assert_failed++;                                                        \
                                                                                         \
             fprintf(                                                                    \
                 stderr,                                                                 \
@@ -616,6 +668,7 @@ static bool cmc_assert_state = true;
 #define cmc_assert_equals_ptr(expected, actual)                                       \
     do                                                                                \
     {                                                                                 \
+        cmc_assert_total++;                                                           \
         const char *str = #actual;                                                    \
         void *expected__ = (expected);                                                \
         void *actual__ = (actual);                                                    \
@@ -623,6 +676,7 @@ static bool cmc_assert_state = true;
         if (expected__ != actual__)                                                   \
         {                                                                             \
             cmc_assert_state = false;                                                 \
+            cmc_assert_failed++;                                                      \
                                                                                       \
             fprintf(                                                                  \
                 stderr,                                                               \
@@ -635,6 +689,7 @@ static bool cmc_assert_state = true;
 #define cmc_assert_equals__Bool(expected, actual)                                     \
     do                                                                                \
     {                                                                                 \
+        cmc_assert_total++;                                                           \
         const char *str = #actual;                                                    \
         bool expected__ = (expected);                                                 \
         bool actual__ = (actual);                                                     \
@@ -642,6 +697,7 @@ static bool cmc_assert_state = true;
         if (expected__ != actual__)                                                   \
         {                                                                             \
             cmc_assert_state = false;                                                 \
+            cmc_assert_failed++;                                                      \
                                                                                       \
             fprintf(                                                                  \
                 stderr,                                                               \
@@ -660,6 +716,7 @@ static bool cmc_assert_state = true;
 #define cmc_assert_not_equals_int8_t(not_expected, actual)                       \
     do                                                                           \
     {                                                                            \
+        cmc_assert_total++;                                                      \
         const char *str = #actual;                                               \
         int8_t not_expected__ = (not_expected);                                  \
         int8_t actual__ = (actual);                                              \
@@ -667,6 +724,7 @@ static bool cmc_assert_state = true;
         if (not_expected__ == actual__)                                          \
         {                                                                        \
             cmc_assert_state = false;                                            \
+            cmc_assert_failed++;                                                 \
                                                                                  \
             fprintf(                                                             \
                 stderr,                                                          \
@@ -680,6 +738,7 @@ static bool cmc_assert_state = true;
 #define cmc_assert_not_equals_int16_t(not_expected, actual)                       \
     do                                                                            \
     {                                                                             \
+        cmc_assert_total++;                                                       \
         const char *str = #actual;                                                \
         int16_t not_expected__ = (not_expected);                                  \
         int16_t actual__ = (actual);                                              \
@@ -687,6 +746,7 @@ static bool cmc_assert_state = true;
         if (not_expected__ == actual__)                                           \
         {                                                                         \
             cmc_assert_state = false;                                             \
+            cmc_assert_failed++;                                                  \
                                                                                   \
             fprintf(                                                              \
                 stderr,                                                           \
@@ -700,6 +760,7 @@ static bool cmc_assert_state = true;
 #define cmc_assert_not_equals_int32_t(not_expected, actual)                       \
     do                                                                            \
     {                                                                             \
+        cmc_assert_total++;                                                       \
         const char *str = #actual;                                                \
         int32_t not_expected__ = (not_expected);                                  \
         int32_t actual__ = (actual);                                              \
@@ -707,6 +768,7 @@ static bool cmc_assert_state = true;
         if (not_expected__ == actual__)                                           \
         {                                                                         \
             cmc_assert_state = false;                                             \
+            cmc_assert_failed++;                                                  \
                                                                                   \
             fprintf(                                                              \
                 stderr,                                                           \
@@ -720,6 +782,7 @@ static bool cmc_assert_state = true;
 #define cmc_assert_not_equals_int64_t(not_expected, actual)                       \
     do                                                                            \
     {                                                                             \
+        cmc_assert_total++;                                                       \
         const char *str = #actual;                                                \
         int64_t not_expected__ = (not_expected);                                  \
         int64_t actual__ = (actual);                                              \
@@ -727,6 +790,7 @@ static bool cmc_assert_state = true;
         if (not_expected__ == actual__)                                           \
         {                                                                         \
             cmc_assert_state = false;                                             \
+            cmc_assert_failed++;                                                  \
                                                                                   \
             fprintf(                                                              \
                 stderr,                                                           \
@@ -740,6 +804,7 @@ static bool cmc_assert_state = true;
 #define cmc_assert_not_equals_uint8_t(not_expected, actual)                      \
     do                                                                           \
     {                                                                            \
+        cmc_assert_total++;                                                      \
         const char *str = #actual;                                               \
         uint8_t not_expected__ = (not_expected);                                 \
         uint8_t actual__ = (actual);                                             \
@@ -747,6 +812,7 @@ static bool cmc_assert_state = true;
         if (not_expected__ == actual__)                                          \
         {                                                                        \
             cmc_assert_state = false;                                            \
+            cmc_assert_failed++;                                                 \
                                                                                  \
             fprintf(                                                             \
                 stderr,                                                          \
@@ -760,6 +826,7 @@ static bool cmc_assert_state = true;
 #define cmc_assert_not_equals_uint16_t(not_expected, actual)                      \
     do                                                                            \
     {                                                                             \
+        cmc_assert_total++;                                                       \
         const char *str = #actual;                                                \
         uint16_t not_expected__ = (not_expected);                                 \
         uint16_t actual__ = (actual);                                             \
@@ -767,6 +834,7 @@ static bool cmc_assert_state = true;
         if (not_expected__ == actual__)                                           \
         {                                                                         \
             cmc_assert_state = false;                                             \
+            cmc_assert_failed++;                                                  \
                                                                                   \
             fprintf(                                                              \
                 stderr,                                                           \
@@ -780,6 +848,7 @@ static bool cmc_assert_state = true;
 #define cmc_assert_not_equals_uint32_t(not_expected, actual)                      \
     do                                                                            \
     {                                                                             \
+        cmc_assert_total++;                                                       \
         const char *str = #actual;                                                \
         uint32_t not_expected__ = (not_expected);                                 \
         uint32_t actual__ = (actual);                                             \
@@ -787,6 +856,7 @@ static bool cmc_assert_state = true;
         if (not_expected__ == actual__)                                           \
         {                                                                         \
             cmc_assert_state = false;                                             \
+            cmc_assert_failed++;                                                  \
                                                                                   \
             fprintf(                                                              \
                 stderr,                                                           \
@@ -800,6 +870,7 @@ static bool cmc_assert_state = true;
 #define cmc_assert_not_equals_uint64_t(not_expected, actual)                      \
     do                                                                            \
     {                                                                             \
+        cmc_assert_total++;                                                       \
         const char *str = #actual;                                                \
         uint64_t not_expected__ = (not_expected);                                 \
         uint64_t actual__ = (actual);                                             \
@@ -820,6 +891,7 @@ static bool cmc_assert_state = true;
 #define cmc_assert_not_equals_intmax_t(not_expected, actual)                       \
     do                                                                             \
     {                                                                              \
+        cmc_assert_total++;                                                        \
         const char *str = #actual;                                                 \
         intmax_t not_expected__ = (not_expected);                                  \
         intmax_t actual__ = (actual);                                              \
@@ -827,6 +899,7 @@ static bool cmc_assert_state = true;
         if (not_expected__ == actual__)                                            \
         {                                                                          \
             cmc_assert_state = false;                                              \
+            cmc_assert_failed++;                                                   \
                                                                                    \
             fprintf(                                                               \
                 stderr,                                                            \
@@ -840,6 +913,7 @@ static bool cmc_assert_state = true;
 #define cmc_assert_not_equals_uintmax_t(not_expected, actual)                      \
     do                                                                             \
     {                                                                              \
+        cmc_assert_total++;                                                        \
         const char *str = #actual;                                                 \
         uintmax_t not_expected__ = (not_expected);                                 \
         uintmax_t actual__ = (actual);                                             \
@@ -847,6 +921,7 @@ static bool cmc_assert_state = true;
         if (not_expected__ == actual__)                                            \
         {                                                                          \
             cmc_assert_state = false;                                              \
+            cmc_assert_failed++;                                                   \
                                                                                    \
             fprintf(                                                               \
                 stderr,                                                            \
@@ -860,6 +935,7 @@ static bool cmc_assert_state = true;
 #define cmc_assert_not_equals_size_t(not_expected, actual)                         \
     do                                                                             \
     {                                                                              \
+        cmc_assert_total++;                                                        \
         const char *str = #actual;                                                 \
         size_t not_expected__ = (not_expected);                                    \
         size_t actual__ = (actual);                                                \
@@ -867,6 +943,7 @@ static bool cmc_assert_state = true;
         if (not_expected__ == actual__)                                            \
         {                                                                          \
             cmc_assert_state = false;                                              \
+            cmc_assert_failed++;                                                   \
                                                                                    \
             fprintf(                                                               \
                 stderr,                                                            \
@@ -880,6 +957,7 @@ static bool cmc_assert_state = true;
 #define cmc_assert_not_equals_float(not_expected, actual)                                 \
     do                                                                                    \
     {                                                                                     \
+        cmc_assert_total++;                                                               \
         const char *str = #actual;                                                        \
         float not_expected__ = (not_expected);                                            \
         float actual__ = (actual);                                                        \
@@ -887,6 +965,7 @@ static bool cmc_assert_state = true;
         if (not_expected__ == actual__)                                                   \
         {                                                                                 \
             cmc_assert_state = false;                                                     \
+            cmc_assert_failed++;                                                          \
                                                                                           \
             fprintf(                                                                      \
                 stderr,                                                                   \
@@ -899,6 +978,7 @@ static bool cmc_assert_state = true;
 #define cmc_assert_not_equals_double(not_expected, actual)                                  \
     do                                                                                      \
     {                                                                                       \
+        cmc_assert_total++;                                                                 \
         const char *str = #actual;                                                          \
         double not_expected__ = (not_expected);                                             \
         double actual__ = (actual);                                                         \
@@ -906,6 +986,7 @@ static bool cmc_assert_state = true;
         if (not_expected__ == actual__)                                                     \
         {                                                                                   \
             cmc_assert_state = false;                                                       \
+            cmc_assert_failed++;                                                            \
                                                                                             \
             fprintf(                                                                        \
                 stderr,                                                                     \
@@ -918,6 +999,7 @@ static bool cmc_assert_state = true;
 #define cmc_assert_not_equals_ptr(not_expected, actual)                                   \
     do                                                                                    \
     {                                                                                     \
+        cmc_assert_total++;                                                               \
         const char *str = #actual;                                                        \
         void *not_expected__ = (not_expected);                                            \
         void *actual__ = (actual);                                                        \
@@ -925,6 +1007,7 @@ static bool cmc_assert_state = true;
         if (not_expected__ == actual__)                                                   \
         {                                                                                 \
             cmc_assert_state = false;                                                     \
+            cmc_assert_failed++;                                                          \
                                                                                           \
             fprintf(                                                                      \
                 stderr,                                                                   \
@@ -937,6 +1020,7 @@ static bool cmc_assert_state = true;
 #define cmc_assert_not_equals__Bool(expected, actual)                                     \
     do                                                                                    \
     {                                                                                     \
+        cmc_assert_total++;                                                               \
         const char *str = #actual;                                                        \
         bool expected__ = (expected);                                                     \
         bool actual__ = (actual);                                                         \
@@ -944,6 +1028,7 @@ static bool cmc_assert_state = true;
         if (expected__ == actual__)                                                       \
         {                                                                                 \
             cmc_assert_state = false;                                                     \
+            cmc_assert_failed++;                                                          \
                                                                                           \
             fprintf(                                                                      \
                 stderr,                                                                   \
@@ -962,6 +1047,7 @@ static bool cmc_assert_state = true;
 #define cmc_assert_greater_int8_t(boundary, actual)                                  \
     do                                                                               \
     {                                                                                \
+        cmc_assert_total++;                                                          \
         const char *str = #actual;                                                   \
         int8_t boundary__ = (boundary);                                              \
         int8_t actual__ = (actual);                                                  \
@@ -969,6 +1055,7 @@ static bool cmc_assert_state = true;
         if (actual__ <= boundary__)                                                  \
         {                                                                            \
             cmc_assert_state = false;                                                \
+            cmc_assert_failed++;                                                     \
                                                                                      \
             fprintf(                                                                 \
                 stderr,                                                              \
@@ -982,6 +1069,7 @@ static bool cmc_assert_state = true;
 #define cmc_assert_greater_int16_t(boundary, actual)                                  \
     do                                                                                \
     {                                                                                 \
+        cmc_assert_total++;                                                           \
         const char *str = #actual;                                                    \
         int16_t boundary__ = (boundary);                                              \
         int16_t actual__ = (actual);                                                  \
@@ -989,6 +1077,7 @@ static bool cmc_assert_state = true;
         if (actual__ <= boundary__)                                                   \
         {                                                                             \
             cmc_assert_state = false;                                                 \
+            cmc_assert_failed++;                                                      \
                                                                                       \
             fprintf(                                                                  \
                 stderr,                                                               \
@@ -1002,6 +1091,7 @@ static bool cmc_assert_state = true;
 #define cmc_assert_greater_int32_t(boundary, actual)                                  \
     do                                                                                \
     {                                                                                 \
+        cmc_assert_total++;                                                           \
         const char *str = #actual;                                                    \
         int32_t boundary__ = (boundary);                                              \
         int32_t actual__ = (actual);                                                  \
@@ -1009,6 +1099,7 @@ static bool cmc_assert_state = true;
         if (actual__ <= boundary__)                                                   \
         {                                                                             \
             cmc_assert_state = false;                                                 \
+            cmc_assert_failed++;                                                      \
                                                                                       \
             fprintf(                                                                  \
                 stderr,                                                               \
@@ -1022,6 +1113,7 @@ static bool cmc_assert_state = true;
 #define cmc_assert_greater_int64_t(boundary, actual)                                  \
     do                                                                                \
     {                                                                                 \
+        cmc_assert_total++;                                                           \
         const char *str = #actual;                                                    \
         int64_t boundary__ = (boundary);                                              \
         int64_t actual__ = (actual);                                                  \
@@ -1029,6 +1121,7 @@ static bool cmc_assert_state = true;
         if (actual__ <= boundary__)                                                   \
         {                                                                             \
             cmc_assert_state = false;                                                 \
+            cmc_assert_failed++;                                                      \
                                                                                       \
             fprintf(                                                                  \
                 stderr,                                                               \
@@ -1042,6 +1135,7 @@ static bool cmc_assert_state = true;
 #define cmc_assert_greater_uint8_t(boundary, actual)                                 \
     do                                                                               \
     {                                                                                \
+        cmc_assert_total++;                                                          \
         const char *str = #actual;                                                   \
         uint8_t boundary__ = (boundary);                                             \
         uint8_t actual__ = (actual);                                                 \
@@ -1049,6 +1143,7 @@ static bool cmc_assert_state = true;
         if (actual__ <= boundary__)                                                  \
         {                                                                            \
             cmc_assert_state = false;                                                \
+            cmc_assert_failed++;                                                     \
                                                                                      \
             fprintf(                                                                 \
                 stderr,                                                              \
@@ -1062,6 +1157,7 @@ static bool cmc_assert_state = true;
 #define cmc_assert_greater_uint16_t(boundary, actual)                                 \
     do                                                                                \
     {                                                                                 \
+        cmc_assert_total++;                                                           \
         const char *str = #actual;                                                    \
         uint16_t boundary__ = (boundary);                                             \
         uint16_t actual__ = (actual);                                                 \
@@ -1069,6 +1165,7 @@ static bool cmc_assert_state = true;
         if (actual__ <= boundary__)                                                   \
         {                                                                             \
             cmc_assert_state = false;                                                 \
+            cmc_assert_failed++;                                                      \
                                                                                       \
             fprintf(                                                                  \
                 stderr,                                                               \
@@ -1082,6 +1179,7 @@ static bool cmc_assert_state = true;
 #define cmc_assert_greater_uint32_t(boundary, actual)                                 \
     do                                                                                \
     {                                                                                 \
+        cmc_assert_total++;                                                           \
         const char *str = #actual;                                                    \
         uint32_t boundary__ = (boundary);                                             \
         uint32_t actual__ = (actual);                                                 \
@@ -1089,6 +1187,7 @@ static bool cmc_assert_state = true;
         if (actual__ <= boundary__)                                                   \
         {                                                                             \
             cmc_assert_state = false;                                                 \
+            cmc_assert_failed++;                                                      \
                                                                                       \
             fprintf(                                                                  \
                 stderr,                                                               \
@@ -1102,6 +1201,7 @@ static bool cmc_assert_state = true;
 #define cmc_assert_greater_uint64_t(boundary, actual)                                 \
     do                                                                                \
     {                                                                                 \
+        cmc_assert_total++;                                                           \
         const char *str = #actual;                                                    \
         uint64_t boundary__ = (boundary);                                             \
         uint64_t actual__ = (actual);                                                 \
@@ -1109,6 +1209,7 @@ static bool cmc_assert_state = true;
         if (actual__ <= boundary__)                                                   \
         {                                                                             \
             cmc_assert_state = false;                                                 \
+            cmc_assert_failed++;                                                      \
                                                                                       \
             fprintf(                                                                  \
                 stderr,                                                               \
@@ -1122,6 +1223,7 @@ static bool cmc_assert_state = true;
 #define cmc_assert_greater_intmax_t(boundary, actual)                                  \
     do                                                                                 \
     {                                                                                  \
+        cmc_assert_total++;                                                            \
         const char *str = #actual;                                                     \
         intmax_t boundary__ = (boundary);                                              \
         intmax_t actual__ = (actual);                                                  \
@@ -1129,6 +1231,7 @@ static bool cmc_assert_state = true;
         if (actual__ <= boundary__)                                                    \
         {                                                                              \
             cmc_assert_state = false;                                                  \
+            cmc_assert_failed++;                                                       \
                                                                                        \
             fprintf(                                                                   \
                 stderr,                                                                \
@@ -1142,6 +1245,7 @@ static bool cmc_assert_state = true;
 #define cmc_assert_greater_uintmax_t(boundary, actual)                                 \
     do                                                                                 \
     {                                                                                  \
+        cmc_assert_total++;                                                            \
         const char *str = #actual;                                                     \
         uintmax_t boundary__ = (boundary);                                             \
         uintmax_t actual__ = (actual);                                                 \
@@ -1149,6 +1253,7 @@ static bool cmc_assert_state = true;
         if (actual__ <= boundary__)                                                    \
         {                                                                              \
             cmc_assert_state = false;                                                  \
+            cmc_assert_failed++;                                                       \
                                                                                        \
             fprintf(                                                                   \
                 stderr,                                                                \
@@ -1162,6 +1267,7 @@ static bool cmc_assert_state = true;
 #define cmc_assert_greater_size_t(boundary, actual)                                    \
     do                                                                                 \
     {                                                                                  \
+        cmc_assert_total++;                                                            \
         const char *str = #actual;                                                     \
         size_t boundary__ = (boundary);                                                \
         size_t actual__ = (actual);                                                    \
@@ -1169,6 +1275,7 @@ static bool cmc_assert_state = true;
         if (actual__ <= boundary__)                                                    \
         {                                                                              \
             cmc_assert_state = false;                                                  \
+            cmc_assert_failed++;                                                       \
                                                                                        \
             fprintf(                                                                   \
                 stderr,                                                                \
@@ -1182,6 +1289,7 @@ static bool cmc_assert_state = true;
 #define cmc_assert_greater_float(boundary, actual)                                            \
     do                                                                                        \
     {                                                                                         \
+        cmc_assert_total++;                                                                   \
         const char *str = #actual;                                                            \
         float boundary__ = (boundary);                                                        \
         float actual__ = (actual);                                                            \
@@ -1189,6 +1297,7 @@ static bool cmc_assert_state = true;
         if (actual__ <= boundary__)                                                           \
         {                                                                                     \
             cmc_assert_state = false;                                                         \
+            cmc_assert_failed++;                                                              \
                                                                                               \
             fprintf(                                                                          \
                 stderr,                                                                       \
@@ -1201,6 +1310,7 @@ static bool cmc_assert_state = true;
 #define cmc_assert_greater_double(boundary, actual)                                             \
     do                                                                                          \
     {                                                                                           \
+        cmc_assert_total++;                                                                     \
         const char *str = #actual;                                                              \
         double boundary__ = (boundary);                                                         \
         double actual__ = (actual);                                                             \
@@ -1208,6 +1318,7 @@ static bool cmc_assert_state = true;
         if (actual__ <= boundary__)                                                             \
         {                                                                                       \
             cmc_assert_state = false;                                                           \
+            cmc_assert_failed++;                                                                \
                                                                                                 \
             fprintf(                                                                            \
                 stderr,                                                                         \
@@ -1226,6 +1337,7 @@ static bool cmc_assert_state = true;
 #define cmc_assert_greater_equals_int8_t(boundary, actual)                                     \
     do                                                                                         \
     {                                                                                          \
+        cmc_assert_total++;                                                                    \
         const char *str = #actual;                                                             \
         int8_t boundary__ = (boundary);                                                        \
         int8_t actual__ = (actual);                                                            \
@@ -1233,6 +1345,7 @@ static bool cmc_assert_state = true;
         if (actual__ < boundary__)                                                             \
         {                                                                                      \
             cmc_assert_state = false;                                                          \
+            cmc_assert_failed++;                                                               \
                                                                                                \
             fprintf(                                                                           \
                 stderr,                                                                        \
@@ -1246,6 +1359,7 @@ static bool cmc_assert_state = true;
 #define cmc_assert_greater_equals_int16_t(boundary, actual)                                     \
     do                                                                                          \
     {                                                                                           \
+        cmc_assert_total++;                                                                     \
         const char *str = #actual;                                                              \
         int16_t boundary__ = (boundary);                                                        \
         int16_t actual__ = (actual);                                                            \
@@ -1253,6 +1367,7 @@ static bool cmc_assert_state = true;
         if (actual__ < boundary__)                                                              \
         {                                                                                       \
             cmc_assert_state = false;                                                           \
+            cmc_assert_failed++;                                                                \
                                                                                                 \
             fprintf(                                                                            \
                 stderr,                                                                         \
@@ -1266,6 +1381,7 @@ static bool cmc_assert_state = true;
 #define cmc_assert_greater_equals_int32_t(boundary, actual)                                     \
     do                                                                                          \
     {                                                                                           \
+        cmc_assert_total++;                                                                     \
         const char *str = #actual;                                                              \
         int32_t boundary__ = (boundary);                                                        \
         int32_t actual__ = (actual);                                                            \
@@ -1273,6 +1389,7 @@ static bool cmc_assert_state = true;
         if (actual__ < boundary__)                                                              \
         {                                                                                       \
             cmc_assert_state = false;                                                           \
+            cmc_assert_failed++;                                                                \
                                                                                                 \
             fprintf(                                                                            \
                 stderr,                                                                         \
@@ -1286,6 +1403,7 @@ static bool cmc_assert_state = true;
 #define cmc_assert_greater_equals_int64_t(boundary, actual)                                     \
     do                                                                                          \
     {                                                                                           \
+        cmc_assert_total++;                                                                     \
         const char *str = #actual;                                                              \
         int64_t boundary__ = (boundary);                                                        \
         int64_t actual__ = (actual);                                                            \
@@ -1293,6 +1411,7 @@ static bool cmc_assert_state = true;
         if (actual__ < boundary__)                                                              \
         {                                                                                       \
             cmc_assert_state = false;                                                           \
+            cmc_assert_failed++;                                                                \
                                                                                                 \
             fprintf(                                                                            \
                 stderr,                                                                         \
@@ -1306,6 +1425,7 @@ static bool cmc_assert_state = true;
 #define cmc_assert_greater_equals_uint8_t(boundary, actual)                                    \
     do                                                                                         \
     {                                                                                          \
+        cmc_assert_total++;                                                                    \
         const char *str = #actual;                                                             \
         uint8_t boundary__ = (boundary);                                                       \
         uint8_t actual__ = (actual);                                                           \
@@ -1313,6 +1433,7 @@ static bool cmc_assert_state = true;
         if (actual__ < boundary__)                                                             \
         {                                                                                      \
             cmc_assert_state = false;                                                          \
+            cmc_assert_failed++;                                                               \
                                                                                                \
             fprintf(                                                                           \
                 stderr,                                                                        \
@@ -1326,6 +1447,7 @@ static bool cmc_assert_state = true;
 #define cmc_assert_greater_equals_uint16_t(boundary, actual)                                    \
     do                                                                                          \
     {                                                                                           \
+        cmc_assert_total++;                                                                     \
         const char *str = #actual;                                                              \
         uint16_t boundary__ = (boundary);                                                       \
         uint16_t actual__ = (actual);                                                           \
@@ -1333,6 +1455,7 @@ static bool cmc_assert_state = true;
         if (actual__ < boundary__)                                                              \
         {                                                                                       \
             cmc_assert_state = false;                                                           \
+            cmc_assert_failed++;                                                                \
                                                                                                 \
             fprintf(                                                                            \
                 stderr,                                                                         \
@@ -1346,6 +1469,7 @@ static bool cmc_assert_state = true;
 #define cmc_assert_greater_equals_uint32_t(boundary, actual)                                    \
     do                                                                                          \
     {                                                                                           \
+        cmc_assert_total++;                                                                     \
         const char *str = #actual;                                                              \
         uint32_t boundary__ = (boundary);                                                       \
         uint32_t actual__ = (actual);                                                           \
@@ -1353,6 +1477,7 @@ static bool cmc_assert_state = true;
         if (actual__ < boundary__)                                                              \
         {                                                                                       \
             cmc_assert_state = false;                                                           \
+            cmc_assert_failed++;                                                                \
                                                                                                 \
             fprintf(                                                                            \
                 stderr,                                                                         \
@@ -1366,6 +1491,7 @@ static bool cmc_assert_state = true;
 #define cmc_assert_greater_equals_uint64_t(boundary, actual)                                    \
     do                                                                                          \
     {                                                                                           \
+        cmc_assert_total++;                                                                     \
         const char *str = #actual;                                                              \
         uint64_t boundary__ = (boundary);                                                       \
         uint64_t actual__ = (actual);                                                           \
@@ -1373,6 +1499,7 @@ static bool cmc_assert_state = true;
         if (actual__ < boundary__)                                                              \
         {                                                                                       \
             cmc_assert_state = false;                                                           \
+            cmc_assert_failed++;                                                                \
                                                                                                 \
             fprintf(                                                                            \
                 stderr,                                                                         \
@@ -1386,6 +1513,7 @@ static bool cmc_assert_state = true;
 #define cmc_assert_greater_equals_intmax_t(boundary, actual)                                     \
     do                                                                                           \
     {                                                                                            \
+        cmc_assert_total++;                                                                      \
         const char *str = #actual;                                                               \
         intmax_t boundary__ = (boundary);                                                        \
         intmax_t actual__ = (actual);                                                            \
@@ -1393,6 +1521,7 @@ static bool cmc_assert_state = true;
         if (actual__ < boundary__)                                                               \
         {                                                                                        \
             cmc_assert_state = false;                                                            \
+            cmc_assert_failed++;                                                                 \
                                                                                                  \
             fprintf(                                                                             \
                 stderr,                                                                          \
@@ -1406,6 +1535,7 @@ static bool cmc_assert_state = true;
 #define cmc_assert_greater_equals_uintmax_t(boundary, actual)                                    \
     do                                                                                           \
     {                                                                                            \
+        cmc_assert_total++;                                                                      \
         const char *str = #actual;                                                               \
         uintmax_t boundary__ = (boundary);                                                       \
         uintmax_t actual__ = (actual);                                                           \
@@ -1413,6 +1543,7 @@ static bool cmc_assert_state = true;
         if (actual__ < boundary__)                                                               \
         {                                                                                        \
             cmc_assert_state = false;                                                            \
+            cmc_assert_failed++;                                                                 \
                                                                                                  \
             fprintf(                                                                             \
                 stderr,                                                                          \
@@ -1426,6 +1557,7 @@ static bool cmc_assert_state = true;
 #define cmc_assert_greater_equals_size_t(boundary, actual)                                       \
     do                                                                                           \
     {                                                                                            \
+        cmc_assert_total++;                                                                      \
         const char *str = #actual;                                                               \
         size_t boundary__ = (boundary);                                                          \
         size_t actual__ = (actual);                                                              \
@@ -1433,6 +1565,7 @@ static bool cmc_assert_state = true;
         if (actual__ < boundary__)                                                               \
         {                                                                                        \
             cmc_assert_state = false;                                                            \
+            cmc_assert_failed++;                                                                 \
                                                                                                  \
             fprintf(                                                                             \
                 stderr,                                                                          \
@@ -1446,6 +1579,7 @@ static bool cmc_assert_state = true;
 #define cmc_assert_greater_equals_float(boundary, actual)                                               \
     do                                                                                                  \
     {                                                                                                   \
+        cmc_assert_total++;                                                                             \
         const char *str = #actual;                                                                      \
         float boundary__ = (boundary);                                                                  \
         float actual__ = (actual);                                                                      \
@@ -1453,6 +1587,7 @@ static bool cmc_assert_state = true;
         if (actual__ < boundary__)                                                                      \
         {                                                                                               \
             cmc_assert_state = false;                                                                   \
+            cmc_assert_failed++;                                                                        \
                                                                                                         \
             fprintf(                                                                                    \
                 stderr,                                                                                 \
@@ -1465,6 +1600,7 @@ static bool cmc_assert_state = true;
 #define cmc_assert_greater_equals_double(boundary, actual)                                                \
     do                                                                                                    \
     {                                                                                                     \
+        cmc_assert_total++;                                                                               \
         const char *str = #actual;                                                                        \
         double boundary__ = (boundary);                                                                   \
         double actual__ = (actual);                                                                       \
@@ -1472,6 +1608,7 @@ static bool cmc_assert_state = true;
         if (actual__ < boundary__)                                                                        \
         {                                                                                                 \
             cmc_assert_state = false;                                                                     \
+            cmc_assert_failed++;                                                                          \
                                                                                                           \
             fprintf(                                                                                      \
                 stderr,                                                                                   \
@@ -1490,6 +1627,7 @@ static bool cmc_assert_state = true;
 #define cmc_assert_lesser_int8_t(boundary, actual)                                  \
     do                                                                              \
     {                                                                               \
+        cmc_assert_total++;                                                         \
         const char *str = #actual;                                                  \
         int8_t boundary__ = (boundary);                                             \
         int8_t actual__ = (actual);                                                 \
@@ -1497,6 +1635,7 @@ static bool cmc_assert_state = true;
         if (actual__ >= boundary__)                                                 \
         {                                                                           \
             cmc_assert_state = false;                                               \
+            cmc_assert_failed++;                                                    \
                                                                                     \
             fprintf(                                                                \
                 stderr,                                                             \
@@ -1510,6 +1649,7 @@ static bool cmc_assert_state = true;
 #define cmc_assert_lesser_int16_t(boundary, actual)                                  \
     do                                                                               \
     {                                                                                \
+        cmc_assert_total++;                                                          \
         const char *str = #actual;                                                   \
         int16_t boundary__ = (boundary);                                             \
         int16_t actual__ = (actual);                                                 \
@@ -1517,6 +1657,7 @@ static bool cmc_assert_state = true;
         if (actual__ >= boundary__)                                                  \
         {                                                                            \
             cmc_assert_state = false;                                                \
+            cmc_assert_failed++;                                                     \
                                                                                      \
             fprintf(                                                                 \
                 stderr,                                                              \
@@ -1530,6 +1671,7 @@ static bool cmc_assert_state = true;
 #define cmc_assert_lesser_int32_t(boundary, actual)                                  \
     do                                                                               \
     {                                                                                \
+        cmc_assert_total++;                                                          \
         const char *str = #actual;                                                   \
         int32_t boundary__ = (boundary);                                             \
         int32_t actual__ = (actual);                                                 \
@@ -1537,6 +1679,7 @@ static bool cmc_assert_state = true;
         if (actual__ >= boundary__)                                                  \
         {                                                                            \
             cmc_assert_state = false;                                                \
+            cmc_assert_failed++;                                                     \
                                                                                      \
             fprintf(                                                                 \
                 stderr,                                                              \
@@ -1550,6 +1693,7 @@ static bool cmc_assert_state = true;
 #define cmc_assert_lesser_int64_t(boundary, actual)                                  \
     do                                                                               \
     {                                                                                \
+        cmc_assert_total++;                                                          \
         const char *str = #actual;                                                   \
         int64_t boundary__ = (boundary);                                             \
         int64_t actual__ = (actual);                                                 \
@@ -1557,6 +1701,7 @@ static bool cmc_assert_state = true;
         if (actual__ >= boundary__)                                                  \
         {                                                                            \
             cmc_assert_state = false;                                                \
+            cmc_assert_failed++;                                                     \
                                                                                      \
             fprintf(                                                                 \
                 stderr,                                                              \
@@ -1570,6 +1715,7 @@ static bool cmc_assert_state = true;
 #define cmc_assert_lesser_uint8_t(boundary, actual)                                 \
     do                                                                              \
     {                                                                               \
+        cmc_assert_total++;                                                         \
         const char *str = #actual;                                                  \
         uint8_t boundary__ = (boundary);                                            \
         uint8_t actual__ = (actual);                                                \
@@ -1577,6 +1723,7 @@ static bool cmc_assert_state = true;
         if (actual__ >= boundary__)                                                 \
         {                                                                           \
             cmc_assert_state = false;                                               \
+            cmc_assert_failed++;                                                    \
                                                                                     \
             fprintf(                                                                \
                 stderr,                                                             \
@@ -1590,6 +1737,7 @@ static bool cmc_assert_state = true;
 #define cmc_assert_lesser_uint16_t(boundary, actual)                                 \
     do                                                                               \
     {                                                                                \
+        cmc_assert_total++;                                                          \
         const char *str = #actual;                                                   \
         uint16_t boundary__ = (boundary);                                            \
         uint16_t actual__ = (actual);                                                \
@@ -1597,6 +1745,7 @@ static bool cmc_assert_state = true;
         if (actual__ >= boundary__)                                                  \
         {                                                                            \
             cmc_assert_state = false;                                                \
+            cmc_assert_failed++;                                                     \
                                                                                      \
             fprintf(                                                                 \
                 stderr,                                                              \
@@ -1610,6 +1759,7 @@ static bool cmc_assert_state = true;
 #define cmc_assert_lesser_uint32_t(boundary, actual)                                 \
     do                                                                               \
     {                                                                                \
+        cmc_assert_total++;                                                          \
         const char *str = #actual;                                                   \
         uint32_t boundary__ = (boundary);                                            \
         uint32_t actual__ = (actual);                                                \
@@ -1617,6 +1767,7 @@ static bool cmc_assert_state = true;
         if (actual__ >= boundary__)                                                  \
         {                                                                            \
             cmc_assert_state = false;                                                \
+            cmc_assert_failed++;                                                     \
                                                                                      \
             fprintf(                                                                 \
                 stderr,                                                              \
@@ -1630,6 +1781,7 @@ static bool cmc_assert_state = true;
 #define cmc_assert_lesser_uint64_t(boundary, actual)                                 \
     do                                                                               \
     {                                                                                \
+        cmc_assert_total++;                                                          \
         const char *str = #actual;                                                   \
         uint64_t boundary__ = (boundary);                                            \
         uint64_t actual__ = (actual);                                                \
@@ -1637,6 +1789,7 @@ static bool cmc_assert_state = true;
         if (actual__ >= boundary__)                                                  \
         {                                                                            \
             cmc_assert_state = false;                                                \
+            cmc_assert_failed++;                                                     \
                                                                                      \
             fprintf(                                                                 \
                 stderr,                                                              \
@@ -1650,6 +1803,7 @@ static bool cmc_assert_state = true;
 #define cmc_assert_lesser_intmax_t(boundary, actual)                                  \
     do                                                                                \
     {                                                                                 \
+        cmc_assert_total++;                                                           \
         const char *str = #actual;                                                    \
         intmax_t boundary__ = (boundary);                                             \
         intmax_t actual__ = (actual);                                                 \
@@ -1657,6 +1811,7 @@ static bool cmc_assert_state = true;
         if (actual__ >= boundary__)                                                   \
         {                                                                             \
             cmc_assert_state = false;                                                 \
+            cmc_assert_failed++;                                                      \
                                                                                       \
             fprintf(                                                                  \
                 stderr,                                                               \
@@ -1670,6 +1825,7 @@ static bool cmc_assert_state = true;
 #define cmc_assert_lesser_uintmax_t(boundary, actual)                                 \
     do                                                                                \
     {                                                                                 \
+        cmc_assert_total++;                                                           \
         const char *str = #actual;                                                    \
         uintmax_t boundary__ = (boundary);                                            \
         uintmax_t actual__ = (actual);                                                \
@@ -1677,6 +1833,7 @@ static bool cmc_assert_state = true;
         if (actual__ >= boundary__)                                                   \
         {                                                                             \
             cmc_assert_state = false;                                                 \
+            cmc_assert_failed++;                                                      \
                                                                                       \
             fprintf(                                                                  \
                 stderr,                                                               \
@@ -1690,6 +1847,7 @@ static bool cmc_assert_state = true;
 #define cmc_assert_lesser_size_t(boundary, actual)                                    \
     do                                                                                \
     {                                                                                 \
+        cmc_assert_total++;                                                           \
         const char *str = #actual;                                                    \
         size_t boundary__ = (boundary);                                               \
         size_t actual__ = (actual);                                                   \
@@ -1697,6 +1855,7 @@ static bool cmc_assert_state = true;
         if (actual__ >= boundary__)                                                   \
         {                                                                             \
             cmc_assert_state = false;                                                 \
+            cmc_assert_failed++;                                                      \
                                                                                       \
             fprintf(                                                                  \
                 stderr,                                                               \
@@ -1710,6 +1869,7 @@ static bool cmc_assert_state = true;
 #define cmc_assert_lesser_float(boundary, actual)                                            \
     do                                                                                       \
     {                                                                                        \
+        cmc_assert_total++;                                                                  \
         const char *str = #actual;                                                           \
         float boundary__ = (boundary);                                                       \
         float actual__ = (actual);                                                           \
@@ -1717,6 +1877,7 @@ static bool cmc_assert_state = true;
         if (actual__ >= boundary__)                                                          \
         {                                                                                    \
             cmc_assert_state = false;                                                        \
+            cmc_assert_failed++;                                                             \
                                                                                              \
             fprintf(                                                                         \
                 stderr,                                                                      \
@@ -1729,6 +1890,7 @@ static bool cmc_assert_state = true;
 #define cmc_assert_lesser_double(boundary, actual)                                             \
     do                                                                                         \
     {                                                                                          \
+        cmc_assert_total++;                                                                    \
         const char *str = #actual;                                                             \
         double boundary__ = (boundary);                                                        \
         double actual__ = (actual);                                                            \
@@ -1736,6 +1898,7 @@ static bool cmc_assert_state = true;
         if (actual__ >= boundary__)                                                            \
         {                                                                                      \
             cmc_assert_state = false;                                                          \
+            cmc_assert_failed++;                                                               \
                                                                                                \
             fprintf(                                                                           \
                 stderr,                                                                        \
@@ -1754,6 +1917,7 @@ static bool cmc_assert_state = true;
 #define cmc_assert_lesser_equals_int8_t(boundary, actual)                                     \
     do                                                                                        \
     {                                                                                         \
+        cmc_assert_total++;                                                                   \
         const char *str = #actual;                                                            \
         int8_t boundary__ = (boundary);                                                       \
         int8_t actual__ = (actual);                                                           \
@@ -1761,6 +1925,7 @@ static bool cmc_assert_state = true;
         if (actual__ > boundary__)                                                            \
         {                                                                                     \
             cmc_assert_state = false;                                                         \
+            cmc_assert_failed++;                                                              \
                                                                                               \
             fprintf(                                                                          \
                 stderr,                                                                       \
@@ -1774,6 +1939,7 @@ static bool cmc_assert_state = true;
 #define cmc_assert_lesser_equals_int16_t(boundary, actual)                                     \
     do                                                                                         \
     {                                                                                          \
+        cmc_assert_total++;                                                                    \
         const char *str = #actual;                                                             \
         int16_t boundary__ = (boundary);                                                       \
         int16_t actual__ = (actual);                                                           \
@@ -1781,6 +1947,7 @@ static bool cmc_assert_state = true;
         if (actual__ > boundary__)                                                             \
         {                                                                                      \
             cmc_assert_state = false;                                                          \
+            cmc_assert_failed++;                                                               \
                                                                                                \
             fprintf(                                                                           \
                 stderr,                                                                        \
@@ -1794,6 +1961,7 @@ static bool cmc_assert_state = true;
 #define cmc_assert_lesser_equals_int32_t(boundary, actual)                                     \
     do                                                                                         \
     {                                                                                          \
+        cmc_assert_total++;                                                                    \
         const char *str = #actual;                                                             \
         int32_t boundary__ = (boundary);                                                       \
         int32_t actual__ = (actual);                                                           \
@@ -1801,6 +1969,7 @@ static bool cmc_assert_state = true;
         if (actual__ > boundary__)                                                             \
         {                                                                                      \
             cmc_assert_state = false;                                                          \
+            cmc_assert_failed++;                                                               \
                                                                                                \
             fprintf(                                                                           \
                 stderr,                                                                        \
@@ -1814,6 +1983,7 @@ static bool cmc_assert_state = true;
 #define cmc_assert_lesser_equals_int64_t(boundary, actual)                                     \
     do                                                                                         \
     {                                                                                          \
+        cmc_assert_total++;                                                                    \
         const char *str = #actual;                                                             \
         int64_t boundary__ = (boundary);                                                       \
         int64_t actual__ = (actual);                                                           \
@@ -1821,6 +1991,7 @@ static bool cmc_assert_state = true;
         if (actual__ > boundary__)                                                             \
         {                                                                                      \
             cmc_assert_state = false;                                                          \
+            cmc_assert_failed++;                                                               \
                                                                                                \
             fprintf(                                                                           \
                 stderr,                                                                        \
@@ -1834,6 +2005,7 @@ static bool cmc_assert_state = true;
 #define cmc_assert_lesser_equals_uint8_t(boundary, actual)                                    \
     do                                                                                        \
     {                                                                                         \
+        cmc_assert_total++;                                                                   \
         const char *str = #actual;                                                            \
         uint8_t boundary__ = (boundary);                                                      \
         uint8_t actual__ = (actual);                                                          \
@@ -1841,6 +2013,7 @@ static bool cmc_assert_state = true;
         if (actual__ > boundary__)                                                            \
         {                                                                                     \
             cmc_assert_state = false;                                                         \
+            cmc_assert_failed++;                                                              \
                                                                                               \
             fprintf(                                                                          \
                 stderr,                                                                       \
@@ -1854,6 +2027,7 @@ static bool cmc_assert_state = true;
 #define cmc_assert_lesser_equals_uint16_t(boundary, actual)                                    \
     do                                                                                         \
     {                                                                                          \
+        cmc_assert_total++;                                                                    \
         const char *str = #actual;                                                             \
         uint16_t boundary__ = (boundary);                                                      \
         uint16_t actual__ = (actual);                                                          \
@@ -1861,6 +2035,7 @@ static bool cmc_assert_state = true;
         if (actual__ > boundary__)                                                             \
         {                                                                                      \
             cmc_assert_state = false;                                                          \
+            cmc_assert_failed++;                                                               \
                                                                                                \
             fprintf(                                                                           \
                 stderr,                                                                        \
@@ -1874,6 +2049,7 @@ static bool cmc_assert_state = true;
 #define cmc_assert_lesser_equals_uint32_t(boundary, actual)                                    \
     do                                                                                         \
     {                                                                                          \
+        cmc_assert_total++;                                                                    \
         const char *str = #actual;                                                             \
         uint32_t boundary__ = (boundary);                                                      \
         uint32_t actual__ = (actual);                                                          \
@@ -1881,6 +2057,7 @@ static bool cmc_assert_state = true;
         if (actual__ > boundary__)                                                             \
         {                                                                                      \
             cmc_assert_state = false;                                                          \
+            cmc_assert_failed++;                                                               \
                                                                                                \
             fprintf(                                                                           \
                 stderr,                                                                        \
@@ -1894,6 +2071,7 @@ static bool cmc_assert_state = true;
 #define cmc_assert_lesser_equals_uint64_t(boundary, actual)                                    \
     do                                                                                         \
     {                                                                                          \
+        cmc_assert_total++;                                                                    \
         const char *str = #actual;                                                             \
         uint64_t boundary__ = (boundary);                                                      \
         uint64_t actual__ = (actual);                                                          \
@@ -1901,6 +2079,7 @@ static bool cmc_assert_state = true;
         if (actual__ > boundary__)                                                             \
         {                                                                                      \
             cmc_assert_state = false;                                                          \
+            cmc_assert_failed++;                                                               \
                                                                                                \
             fprintf(                                                                           \
                 stderr,                                                                        \
@@ -1914,6 +2093,7 @@ static bool cmc_assert_state = true;
 #define cmc_assert_lesser_equals_intmax_t(boundary, actual)                                     \
     do                                                                                          \
     {                                                                                           \
+        cmc_assert_total++;                                                                     \
         const char *str = #actual;                                                              \
         intmax_t boundary__ = (boundary);                                                       \
         intmax_t actual__ = (actual);                                                           \
@@ -1921,6 +2101,7 @@ static bool cmc_assert_state = true;
         if (actual__ > boundary__)                                                              \
         {                                                                                       \
             cmc_assert_state = false;                                                           \
+            cmc_assert_failed++;                                                                \
                                                                                                 \
             fprintf(                                                                            \
                 stderr,                                                                         \
@@ -1934,6 +2115,7 @@ static bool cmc_assert_state = true;
 #define cmc_assert_lesser_equals_uintmax_t(boundary, actual)                                    \
     do                                                                                          \
     {                                                                                           \
+        cmc_assert_total++;                                                                     \
         const char *str = #actual;                                                              \
         uintmax_t boundary__ = (boundary);                                                      \
         uintmax_t actual__ = (actual);                                                          \
@@ -1941,6 +2123,7 @@ static bool cmc_assert_state = true;
         if (actual__ > boundary__)                                                              \
         {                                                                                       \
             cmc_assert_state = false;                                                           \
+            cmc_assert_failed++;                                                                \
                                                                                                 \
             fprintf(                                                                            \
                 stderr,                                                                         \
@@ -1954,6 +2137,7 @@ static bool cmc_assert_state = true;
 #define cmc_assert_lesser_equals_size_t(boundary, actual)                                       \
     do                                                                                          \
     {                                                                                           \
+        cmc_assert_total++;                                                                     \
         const char *str = #actual;                                                              \
         size_t boundary__ = (boundary);                                                         \
         size_t actual__ = (actual);                                                             \
@@ -1961,6 +2145,7 @@ static bool cmc_assert_state = true;
         if (actual__ > boundary__)                                                              \
         {                                                                                       \
             cmc_assert_state = false;                                                           \
+            cmc_assert_failed++;                                                                \
                                                                                                 \
             fprintf(                                                                            \
                 stderr,                                                                         \
@@ -1974,6 +2159,7 @@ static bool cmc_assert_state = true;
 #define cmc_assert_lesser_equals_float(boundary, actual)                                               \
     do                                                                                                 \
     {                                                                                                  \
+        cmc_assert_total++;                                                                            \
         const char *str = #actual;                                                                     \
         float boundary__ = (boundary);                                                                 \
         float actual__ = (actual);                                                                     \
@@ -1981,6 +2167,7 @@ static bool cmc_assert_state = true;
         if (actual__ > boundary__)                                                                     \
         {                                                                                              \
             cmc_assert_state = false;                                                                  \
+            cmc_assert_failed++;                                                                       \
                                                                                                        \
             fprintf(                                                                                   \
                 stderr,                                                                                \
@@ -1993,6 +2180,7 @@ static bool cmc_assert_state = true;
 #define cmc_assert_lesser_equals_double(boundary, actual)                                                \
     do                                                                                                   \
     {                                                                                                    \
+        cmc_assert_total++;                                                                              \
         const char *str = #actual;                                                                       \
         double boundary__ = (boundary);                                                                  \
         double actual__ = (actual);                                                                      \
@@ -2000,6 +2188,7 @@ static bool cmc_assert_state = true;
         if (actual__ > boundary__)                                                                       \
         {                                                                                                \
             cmc_assert_state = false;                                                                    \
+            cmc_assert_failed++;                                                                         \
                                                                                                          \
             fprintf(                                                                                     \
                 stderr,                                                                                  \
@@ -2018,6 +2207,7 @@ static bool cmc_assert_state = true;
 #define cmc_assert_in_range_int8_t(lower_bound, upper_bound, actual)                \
     do                                                                              \
     {                                                                               \
+        cmc_assert_total++;                                                         \
         const char *str = #actual;                                                  \
         int8_t lower_bound__ = (lower_bound);                                       \
         int8_t upper_bound__ = (upper_bound);                                       \
@@ -2026,6 +2216,7 @@ static bool cmc_assert_state = true;
         if ((actual__) < (lower_bound__) || (actual__) > (upper_bound__))           \
         {                                                                           \
             cmc_assert_state = false;                                               \
+            cmc_assert_failed++;                                                    \
                                                                                     \
             fprintf(                                                                \
                 stderr,                                                             \
@@ -2040,6 +2231,7 @@ static bool cmc_assert_state = true;
 #define cmc_assert_in_range_int16_t(lower_bound, upper_bound, actual)                \
     do                                                                               \
     {                                                                                \
+        cmc_assert_total++;                                                          \
         const char *str = #actual;                                                   \
         int16_t lower_bound__ = (lower_bound);                                       \
         int16_t upper_bound__ = (upper_bound);                                       \
@@ -2048,6 +2240,7 @@ static bool cmc_assert_state = true;
         if ((actual__) < (lower_bound__) || (actual__) > (upper_bound__))            \
         {                                                                            \
             cmc_assert_state = false;                                                \
+            cmc_assert_failed++;                                                     \
                                                                                      \
             fprintf(                                                                 \
                 stderr,                                                              \
@@ -2062,6 +2255,7 @@ static bool cmc_assert_state = true;
 #define cmc_assert_in_range_int32_t(lower_bound, upper_bound, actual)                \
     do                                                                               \
     {                                                                                \
+        cmc_assert_total++;                                                          \
         const char *str = #actual;                                                   \
         int32_t lower_bound__ = (lower_bound);                                       \
         int32_t upper_bound__ = (upper_bound);                                       \
@@ -2070,6 +2264,7 @@ static bool cmc_assert_state = true;
         if ((actual__) < (lower_bound__) || (actual__) > (upper_bound__))            \
         {                                                                            \
             cmc_assert_state = false;                                                \
+            cmc_assert_failed++;                                                     \
                                                                                      \
             fprintf(                                                                 \
                 stderr,                                                              \
@@ -2084,6 +2279,7 @@ static bool cmc_assert_state = true;
 #define cmc_assert_in_range_int64_t(lower_bound, upper_bound, actual)                \
     do                                                                               \
     {                                                                                \
+        cmc_assert_total++;                                                          \
         const char *str = #actual;                                                   \
         int64_t lower_bound__ = (lower_bound);                                       \
         int64_t upper_bound__ = (upper_bound);                                       \
@@ -2092,6 +2288,7 @@ static bool cmc_assert_state = true;
         if ((actual__) < (lower_bound__) || (actual__) > (upper_bound__))            \
         {                                                                            \
             cmc_assert_state = false;                                                \
+            cmc_assert_failed++;                                                     \
                                                                                      \
             fprintf(                                                                 \
                 stderr,                                                              \
@@ -2106,6 +2303,7 @@ static bool cmc_assert_state = true;
 #define cmc_assert_in_range_uint8_t(lower_bound, upper_bound, actual)               \
     do                                                                              \
     {                                                                               \
+        cmc_assert_total++;                                                         \
         const char *str = #actual;                                                  \
         uint8_t lower_bound__ = (lower_bound);                                      \
         uint8_t upper_bound__ = (upper_bound);                                      \
@@ -2114,6 +2312,7 @@ static bool cmc_assert_state = true;
         if ((actual__) < (lower_bound__) || (actual__) > (upper_bound__))           \
         {                                                                           \
             cmc_assert_state = false;                                               \
+            cmc_assert_failed++;                                                    \
                                                                                     \
             fprintf(                                                                \
                 stderr,                                                             \
@@ -2128,6 +2327,7 @@ static bool cmc_assert_state = true;
 #define cmc_assert_in_range_uint16_t(lower_bound, upper_bound, actual)               \
     do                                                                               \
     {                                                                                \
+        cmc_assert_total++;                                                          \
         const char *str = #actual;                                                   \
         uint16_t lower_bound__ = (lower_bound);                                      \
         uint16_t upper_bound__ = (upper_bound);                                      \
@@ -2136,6 +2336,7 @@ static bool cmc_assert_state = true;
         if ((actual__) < (lower_bound__) || (actual__) > (upper_bound__))            \
         {                                                                            \
             cmc_assert_state = false;                                                \
+            cmc_assert_failed++;                                                     \
                                                                                      \
             fprintf(                                                                 \
                 stderr,                                                              \
@@ -2150,6 +2351,7 @@ static bool cmc_assert_state = true;
 #define cmc_assert_in_range_uint32_t(lower_bound, upper_bound, actual)               \
     do                                                                               \
     {                                                                                \
+        cmc_assert_total++;                                                          \
         const char *str = #actual;                                                   \
         uint32_t lower_bound__ = (lower_bound);                                      \
         uint32_t upper_bound__ = (upper_bound);                                      \
@@ -2158,6 +2360,7 @@ static bool cmc_assert_state = true;
         if ((actual__) < (lower_bound__) || (actual__) > (upper_bound__))            \
         {                                                                            \
             cmc_assert_state = false;                                                \
+            cmc_assert_failed++;                                                     \
                                                                                      \
             fprintf(                                                                 \
                 stderr,                                                              \
@@ -2172,6 +2375,7 @@ static bool cmc_assert_state = true;
 #define cmc_assert_in_range_uint64_t(lower_bound, upper_bound, actual)               \
     do                                                                               \
     {                                                                                \
+        cmc_assert_total++;                                                          \
         const char *str = #actual;                                                   \
         uint64_t lower_bound__ = (lower_bound);                                      \
         uint64_t upper_bound__ = (upper_bound);                                      \
@@ -2180,6 +2384,7 @@ static bool cmc_assert_state = true;
         if ((actual__) < (lower_bound__) || (actual__) > (upper_bound__))            \
         {                                                                            \
             cmc_assert_state = false;                                                \
+            cmc_assert_failed++;                                                     \
                                                                                      \
             fprintf(                                                                 \
                 stderr,                                                              \
@@ -2194,6 +2399,7 @@ static bool cmc_assert_state = true;
 #define cmc_assert_in_range_intmax_t(lower_bound, upper_bound, actual)                \
     do                                                                                \
     {                                                                                 \
+        cmc_assert_total++;                                                           \
         const char *str = #actual;                                                    \
         intmax_t lower_bound__ = (lower_bound);                                       \
         intmax_t upper_bound__ = (upper_bound);                                       \
@@ -2202,6 +2408,7 @@ static bool cmc_assert_state = true;
         if ((actual__) < (lower_bound__) || (actual__) > (upper_bound__))             \
         {                                                                             \
             cmc_assert_state = false;                                                 \
+            cmc_assert_failed++;                                                      \
                                                                                       \
             fprintf(                                                                  \
                 stderr,                                                               \
@@ -2216,6 +2423,7 @@ static bool cmc_assert_state = true;
 #define cmc_assert_in_range_uintmax_t(lower_bound, upper_bound, actual)               \
     do                                                                                \
     {                                                                                 \
+        cmc_assert_total++;                                                           \
         const char *str = #actual;                                                    \
         uintmax_t lower_bound__ = (lower_bound);                                      \
         uintmax_t upper_bound__ = (upper_bound);                                      \
@@ -2224,6 +2432,7 @@ static bool cmc_assert_state = true;
         if ((actual__) < (lower_bound__) || (actual__) > (upper_bound__))             \
         {                                                                             \
             cmc_assert_state = false;                                                 \
+            cmc_assert_failed++;                                                      \
                                                                                       \
             fprintf(                                                                  \
                 stderr,                                                               \
@@ -2238,6 +2447,7 @@ static bool cmc_assert_state = true;
 #define cmc_assert_in_range_size_t(lower_bound, upper_bound, actual)                  \
     do                                                                                \
     {                                                                                 \
+        cmc_assert_total++;                                                           \
         const char *str = #actual;                                                    \
         size_t lower_bound__ = (lower_bound);                                         \
         size_t upper_bound__ = (upper_bound);                                         \
@@ -2246,6 +2456,7 @@ static bool cmc_assert_state = true;
         if ((actual__) < (lower_bound__) || (actual__) > (upper_bound__))             \
         {                                                                             \
             cmc_assert_state = false;                                                 \
+            cmc_assert_failed++;                                                      \
                                                                                       \
             fprintf(                                                                  \
                 stderr,                                                               \
@@ -2260,6 +2471,7 @@ static bool cmc_assert_state = true;
 #define cmc_assert_in_range_float(lower_bound, upper_bound, actual)                               \
     do                                                                                            \
     {                                                                                             \
+        cmc_assert_total++;                                                                       \
         const char *str = #actual;                                                                \
         float lower_bound__ = (lower_bound);                                                      \
         float upper_bound__ = (upper_bound);                                                      \
@@ -2268,6 +2480,7 @@ static bool cmc_assert_state = true;
         if ((actual__) < (lower_bound__) || (actual__) > (upper_bound__))                         \
         {                                                                                         \
             cmc_assert_state = false;                                                             \
+            cmc_assert_failed++;                                                                  \
                                                                                                   \
             fprintf(                                                                              \
                 stderr,                                                                           \
@@ -2281,6 +2494,7 @@ static bool cmc_assert_state = true;
 #define cmc_assert_in_range_double(lower_bound, upper_bound, actual)                                 \
     do                                                                                               \
     {                                                                                                \
+        cmc_assert_total++;                                                                          \
         const char *str = #actual;                                                                   \
         double lower_bound__ = (lower_bound);                                                        \
         double upper_bound__ = (upper_bound);                                                        \
@@ -2289,6 +2503,7 @@ static bool cmc_assert_state = true;
         if ((actual__) < (lower_bound__) || (actual__) > (upper_bound__))                            \
         {                                                                                            \
             cmc_assert_state = false;                                                                \
+            cmc_assert_failed++;                                                                     \
                                                                                                      \
             fprintf(                                                                                 \
                 stderr,                                                                              \
@@ -2308,6 +2523,7 @@ static bool cmc_assert_state = true;
 #define cmc_assert_not_in_range_int8_t(lower_bound, upper_bound, actual)                \
     do                                                                                  \
     {                                                                                   \
+        cmc_assert_total++;                                                             \
         const char *str = #actual;                                                      \
         int8_t lower_bound__ = (lower_bound);                                           \
         int8_t upper_bound__ = (upper_bound);                                           \
@@ -2316,6 +2532,7 @@ static bool cmc_assert_state = true;
         if ((actual__) >= (lower_bound__) && (actual__) <= (upper_bound__))             \
         {                                                                               \
             cmc_assert_state = false;                                                   \
+            cmc_assert_failed++;                                                        \
                                                                                         \
             fprintf(                                                                    \
                 stderr,                                                                 \
@@ -2330,6 +2547,7 @@ static bool cmc_assert_state = true;
 #define cmc_assert_not_in_range_int16_t(lower_bound, upper_bound, actual)                \
     do                                                                                   \
     {                                                                                    \
+        cmc_assert_total++;                                                              \
         const char *str = #actual;                                                       \
         int16_t lower_bound__ = (lower_bound);                                           \
         int16_t upper_bound__ = (upper_bound);                                           \
@@ -2338,6 +2556,7 @@ static bool cmc_assert_state = true;
         if ((actual__) >= (lower_bound__) && (actual__) <= (upper_bound__))              \
         {                                                                                \
             cmc_assert_state = false;                                                    \
+            cmc_assert_failed++;                                                         \
                                                                                          \
             fprintf(                                                                     \
                 stderr,                                                                  \
@@ -2352,6 +2571,7 @@ static bool cmc_assert_state = true;
 #define cmc_assert_not_in_range_int32_t(lower_bound, upper_bound, actual)                \
     do                                                                                   \
     {                                                                                    \
+        cmc_assert_total++;                                                              \
         const char *str = #actual;                                                       \
         int32_t lower_bound__ = (lower_bound);                                           \
         int32_t upper_bound__ = (upper_bound);                                           \
@@ -2360,6 +2580,7 @@ static bool cmc_assert_state = true;
         if ((actual__) >= (lower_bound__) && (actual__) <= (upper_bound__))              \
         {                                                                                \
             cmc_assert_state = false;                                                    \
+            cmc_assert_failed++;                                                         \
                                                                                          \
             fprintf(                                                                     \
                 stderr,                                                                  \
@@ -2374,6 +2595,7 @@ static bool cmc_assert_state = true;
 #define cmc_assert_not_in_range_int64_t(lower_bound, upper_bound, actual)                \
     do                                                                                   \
     {                                                                                    \
+        cmc_assert_total++;                                                              \
         const char *str = #actual;                                                       \
         int64_t lower_bound__ = (lower_bound);                                           \
         int64_t upper_bound__ = (upper_bound);                                           \
@@ -2382,6 +2604,7 @@ static bool cmc_assert_state = true;
         if ((actual__) >= (lower_bound__) && (actual__) <= (upper_bound__))              \
         {                                                                                \
             cmc_assert_state = false;                                                    \
+            cmc_assert_failed++;                                                         \
                                                                                          \
             fprintf(                                                                     \
                 stderr,                                                                  \
@@ -2396,6 +2619,7 @@ static bool cmc_assert_state = true;
 #define cmc_assert_not_in_range_uint8_t(lower_bound, upper_bound, actual)               \
     do                                                                                  \
     {                                                                                   \
+        cmc_assert_total++;                                                             \
         const char *str = #actual;                                                      \
         uint8_t lower_bound__ = (lower_bound);                                          \
         uint8_t upper_bound__ = (upper_bound);                                          \
@@ -2404,6 +2628,7 @@ static bool cmc_assert_state = true;
         if ((actual__) >= (lower_bound__) && (actual__) <= (upper_bound__))             \
         {                                                                               \
             cmc_assert_state = false;                                                   \
+            cmc_assert_failed++;                                                        \
                                                                                         \
             fprintf(                                                                    \
                 stderr,                                                                 \
@@ -2418,6 +2643,7 @@ static bool cmc_assert_state = true;
 #define cmc_assert_not_in_range_uint16_t(lower_bound, upper_bound, actual)               \
     do                                                                                   \
     {                                                                                    \
+        cmc_assert_total++;                                                              \
         const char *str = #actual;                                                       \
         uint16_t lower_bound__ = (lower_bound);                                          \
         uint16_t upper_bound__ = (upper_bound);                                          \
@@ -2426,6 +2652,7 @@ static bool cmc_assert_state = true;
         if ((actual__) >= (lower_bound__) && (actual__) <= (upper_bound__))              \
         {                                                                                \
             cmc_assert_state = false;                                                    \
+            cmc_assert_failed++;                                                         \
                                                                                          \
             fprintf(                                                                     \
                 stderr,                                                                  \
@@ -2440,6 +2667,7 @@ static bool cmc_assert_state = true;
 #define cmc_assert_not_in_range_uint32_t(lower_bound, upper_bound, actual)               \
     do                                                                                   \
     {                                                                                    \
+        cmc_assert_total++;                                                              \
         const char *str = #actual;                                                       \
         uint32_t lower_bound__ = (lower_bound);                                          \
         uint32_t upper_bound__ = (upper_bound);                                          \
@@ -2448,6 +2676,7 @@ static bool cmc_assert_state = true;
         if ((actual__) >= (lower_bound__) && (actual__) <= (upper_bound__))              \
         {                                                                                \
             cmc_assert_state = false;                                                    \
+            cmc_assert_failed++;                                                         \
                                                                                          \
             fprintf(                                                                     \
                 stderr,                                                                  \
@@ -2462,6 +2691,7 @@ static bool cmc_assert_state = true;
 #define cmc_assert_not_in_range_uint64_t(lower_bound, upper_bound, actual)               \
     do                                                                                   \
     {                                                                                    \
+        cmc_assert_total++;                                                              \
         const char *str = #actual;                                                       \
         uint64_t lower_bound__ = (lower_bound);                                          \
         uint64_t upper_bound__ = (upper_bound);                                          \
@@ -2470,6 +2700,7 @@ static bool cmc_assert_state = true;
         if ((actual__) >= (lower_bound__) && (actual__) <= (upper_bound__))              \
         {                                                                                \
             cmc_assert_state = false;                                                    \
+            cmc_assert_failed++;                                                         \
                                                                                          \
             fprintf(                                                                     \
                 stderr,                                                                  \
@@ -2484,6 +2715,7 @@ static bool cmc_assert_state = true;
 #define cmc_assert_not_in_range_intmax_t(lower_bound, upper_bound, actual)                \
     do                                                                                    \
     {                                                                                     \
+        cmc_assert_total++;                                                               \
         const char *str = #actual;                                                        \
         intmax_t lower_bound__ = (lower_bound);                                           \
         intmax_t upper_bound__ = (upper_bound);                                           \
@@ -2492,6 +2724,7 @@ static bool cmc_assert_state = true;
         if ((actual__) >= (lower_bound__) && (actual__) <= (upper_bound__))               \
         {                                                                                 \
             cmc_assert_state = false;                                                     \
+            cmc_assert_failed++;                                                          \
                                                                                           \
             fprintf(                                                                      \
                 stderr,                                                                   \
@@ -2506,6 +2739,7 @@ static bool cmc_assert_state = true;
 #define cmc_assert_not_in_range_uintmax_t(lower_bound, upper_bound, actual)               \
     do                                                                                    \
     {                                                                                     \
+        cmc_assert_total++;                                                               \
         const char *str = #actual;                                                        \
         uintmax_t lower_bound__ = (lower_bound);                                          \
         uintmax_t upper_bound__ = (upper_bound);                                          \
@@ -2514,6 +2748,7 @@ static bool cmc_assert_state = true;
         if ((actual__) >= (lower_bound__) && (actual__) <= (upper_bound__))               \
         {                                                                                 \
             cmc_assert_state = false;                                                     \
+            cmc_assert_failed++;                                                          \
                                                                                           \
             fprintf(                                                                      \
                 stderr,                                                                   \
@@ -2528,6 +2763,7 @@ static bool cmc_assert_state = true;
 #define cmc_assert_not_in_range_size_t(lower_bound, upper_bound, actual)                  \
     do                                                                                    \
     {                                                                                     \
+        cmc_assert_total++;                                                               \
         const char *str = #actual;                                                        \
         size_t lower_bound__ = (lower_bound);                                             \
         size_t upper_bound__ = (upper_bound);                                             \
@@ -2536,6 +2772,7 @@ static bool cmc_assert_state = true;
         if ((actual__) >= (lower_bound__) && (actual__) <= (upper_bound__))               \
         {                                                                                 \
             cmc_assert_state = false;                                                     \
+            cmc_assert_failed++;                                                          \
                                                                                           \
             fprintf(                                                                      \
                 stderr,                                                                   \
@@ -2550,6 +2787,7 @@ static bool cmc_assert_state = true;
 #define cmc_assert_not_in_range_float(lower_bound, upper_bound, actual)                               \
     do                                                                                                \
     {                                                                                                 \
+        cmc_assert_total++;                                                                           \
         const char *str = #actual;                                                                    \
         float lower_bound__ = (lower_bound);                                                          \
         float upper_bound__ = (upper_bound);                                                          \
@@ -2558,6 +2796,7 @@ static bool cmc_assert_state = true;
         if ((actual__) >= (lower_bound__) && (actual__) <= (upper_bound__))                           \
         {                                                                                             \
             cmc_assert_state = false;                                                                 \
+            cmc_assert_failed++;                                                                      \
                                                                                                       \
             fprintf(                                                                                  \
                 stderr,                                                                               \
@@ -2571,6 +2810,7 @@ static bool cmc_assert_state = true;
 #define cmc_assert_not_in_range_double(lower_bound, upper_bound, actual)                                 \
     do                                                                                                   \
     {                                                                                                    \
+        cmc_assert_total++;                                                                              \
         const char *str = #actual;                                                                       \
         double lower_bound__ = (lower_bound);                                                            \
         double upper_bound__ = (upper_bound);                                                            \
@@ -2579,6 +2819,7 @@ static bool cmc_assert_state = true;
         if ((actual__) >= (lower_bound__) && (actual__) <= (upper_bound__))                              \
         {                                                                                                \
             cmc_assert_state = false;                                                                    \
+            cmc_assert_failed++;                                                                         \
                                                                                                          \
             fprintf(                                                                                     \
                 stderr,                                                                                  \
