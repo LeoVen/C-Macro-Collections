@@ -39,7 +39,8 @@ enum cmc_entry_state
 /**
  * static const size_t cmc_hashtable_primes[59]
  *
- * Prime numbers used to define a capacity for the hashtables for better hashing.
+ * Prime numbers used to define a capacity for the hashtables for better
+ * hashing.
  */
 // clang-format off
 static const size_t cmc_hashtable_primes[] = {

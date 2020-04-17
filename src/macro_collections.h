@@ -25,6 +25,9 @@
 #define CMC_COLLECTION_GENERATE_SOURCE(C, PFX, SNAME, K, V) \
     CMC_CONCAT(C, SOURCE)(PFX, SNAME, K, V)
 
+#include "cor/core.h"         /* Added in 17/03/2020 */
+#include "cor/hashtable.h"    /* Added in 17/03/2020 */
+
 #include "cmc/bidimap.h"      /* Added in 26/09/2019 */
 #include "cmc/deque.h"        /* Added in 20/03/2019 */
 #include "cmc/hashmap.h"      /* Added in 03/04/2019 */
