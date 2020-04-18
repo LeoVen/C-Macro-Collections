@@ -138,14 +138,14 @@ static void cmc_test_log(const char *unit_name, const char *current_test,
                                                                                         \
         cmc_timer_stop(timer);                                                          \
                                                                                         \
-        tinfo.assert_total = cmc_assert_total - tinfo.assert_total;                     \
-        tinfo.assert_failed = cmc_assert_failed - tinfo.assert_failed;                  \
-                                                                                        \
     unittest_abort:                                                                     \
         if (tinfo.aborted)                                                              \
         {                                                                               \
             cmc_test_log(unit_name, current_test, true, false);                         \
         }                                                                               \
+                                                                                        \
+        tinfo.assert_total = cmc_assert_total - tinfo.assert_total;                     \
+        tinfo.assert_failed = cmc_assert_failed - tinfo.assert_failed;                  \
                                                                                         \
         printf(cmc_test_color(3));                                                      \
         printf(                                                                         \

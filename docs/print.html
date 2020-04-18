@@ -1241,7 +1241,9 @@ int main(void)
 </ul>
 <p>Inside a test you can use the assertions from <code>assert.h</code> to automatically pass or fail a test.</p>
 <h2><a class="header" href="#cmc_test_abort" id="cmc_test_abort">CMC_TEST_ABORT</a></h2>
-<p>Aborts a unit test. This will jump to a <code>goto</code> located at the end of the Unit Test.</p>
+<p>Aborts a unit test. This will jump to a <code>goto</code> located at the end of the Unit Test. Must be called inside a <code>CMC_CREATE_TEST</code>.</p>
+<pre><code class="language-c">#define CMC_TEST_ABORT()
+</code></pre>
 <h2><a class="header" href="#cmc_test_info" id="cmc_test_info">cmc_test_info</a></h2>
 <p>Contains information about a Unit Test. Used internally.</p>
 <pre><code class="language-c">struct cmc_test_info
@@ -1249,10 +1251,21 @@ int main(void)
     uintmax_t total;
     uintmax_t passed;
     uintmax_t failed;
+    uintmax_t assert_total;
+    uintmax_t assert_failed;
     bool aborted;
     bool verbose;
 };
 </code></pre>
+<ul>
+<li><code>uintmax_t total</code> - Total tests in the unit test</li>
+<li><code>uintmax_t passed</code> - Total tests passed in the unit test</li>
+<li><code>uintmax_t failed</code> - Total tests failed in the unit test</li>
+<li><code>uintmax_t assert_total</code> - Total assertions in the unit test</li>
+<li><code>uintmax_t assert_failed</code> - Total assertions failed in the unit test</li>
+<li><code>bool aborted</code> - If the unit test was aborted</li>
+<li><code>bool verbose</code> - Information about each test is displayed</li>
+</ul>
 <h2><a class="header" href="#cmc_test_color" id="cmc_test_color">CMC_TEST_COLOR</a></h2>
 <p>Define this macro if you wish to have color output from the messages printed by each test. Note that a Unit Test need to have <code>VERBOSE</code> equal to <code>true</code>.</p>
 <h2><a class="header" href="#example-4" id="example-4">Example</a></h2>
@@ -1277,6 +1290,16 @@ CMC_CREATE_UNIT(check_math, true, {
         // You can also manually fail a test
         if (strcmp(&quot;2 + 2&quot;, &quot;fish&quot;) != 0)
             cmc_assert_state = false;
+    });
+
+    CMC_CREATE_TEST(abort!, {
+        if (4 % 2 == 0)
+            CMC_TEST_ABORT();
+    });
+
+    CMC_CREATE_TEST(sad..., {
+        // This test won't be called because unit test was aborted above
+        cmc_assert(true);
     });
 });
 

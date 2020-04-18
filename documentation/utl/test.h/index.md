@@ -38,7 +38,11 @@ Inside a test you can use the assertions from `assert.h` to automatically pass o
 
 ## CMC_TEST_ABORT
 
-Aborts a unit test. This will jump to a `goto` located at the end of the Unit Test.
+Aborts a unit test. This will jump to a `goto` located at the end of the Unit Test. Must be called inside a `CMC_CREATE_TEST`.
+
+```c
+#define CMC_TEST_ABORT()
+```
 
 ## cmc_test_info
 
@@ -50,10 +54,20 @@ struct cmc_test_info
     uintmax_t total;
     uintmax_t passed;
     uintmax_t failed;
+    uintmax_t assert_total;
+    uintmax_t assert_failed;
     bool aborted;
     bool verbose;
 };
 ```
+
+* `uintmax_t total` - Total tests in the unit test
+* `uintmax_t passed` - Total tests passed in the unit test
+* `uintmax_t failed` - Total tests failed in the unit test
+* `uintmax_t assert_total` - Total assertions in the unit test
+* `uintmax_t assert_failed` - Total assertions failed in the unit test
+* `bool aborted` - If the unit test was aborted
+* `bool verbose` - Information about each test is displayed
 
 ## CMC_TEST_COLOR
 
@@ -83,6 +97,16 @@ CMC_CREATE_UNIT(check_math, true, {
         // You can also manually fail a test
         if (strcmp("2 + 2", "fish") != 0)
             cmc_assert_state = false;
+    });
+
+    CMC_CREATE_TEST(abort!, {
+        if (4 % 2 == 0)
+            CMC_TEST_ABORT();
+    });
+
+    CMC_CREATE_TEST(sad..., {
+        // This test won't be called because unit test was aborted above
+        cmc_assert(true);
     });
 });
 
