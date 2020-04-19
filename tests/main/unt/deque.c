@@ -12,8 +12,19 @@ struct deque_fval *d_fval = &(struct deque_fval){ .cmp = cmc_size_cmp,
                                                   .hash = cmc_size_hash,
                                                   .pri = cmc_size_cmp };
 
+struct deque_fval *d_fval_counter = &(struct deque_fval){ .cmp = v_c_cmp,
+                                                          .cpy = v_c_cpy,
+                                                          .str = v_c_str,
+                                                          .free = v_c_free,
+                                                          .hash = v_c_hash,
+                                                          .pri = v_c_pri };
+
+struct cmc_alloc_node *d_alloc_node = &(struct cmc_alloc_node){
+    .malloc = malloc, .calloc = calloc, .realloc = realloc, .free = free
+};
+
 CMC_CREATE_UNIT(Deque, true, {
-    CMC_CREATE_TEST(new, {
+    CMC_CREATE_TEST(PFX##_new(), {
         struct deque *d = d_new(1000000, d_fval);
 
         cmc_assert_not_equals(ptr, NULL, d);
@@ -22,22 +33,41 @@ CMC_CREATE_UNIT(Deque, true, {
         cmc_assert_equals(size_t, 0, d_count(d));
 
         d_free(d);
+
+        d = d_new(0, d_fval);
+
+        cmc_assert_equals(ptr, NULL, d);
+
+        d = d_new(UINT64_MAX, d_fval);
+
+        cmc_assert_equals(ptr, NULL, d);
+
+        if (d)
+            d_free(d);
     });
 
-    CMC_CREATE_TEST(new[capacity = 0], {
-        struct deque *d = d_new(0, d_fval);
+    CMC_CREATE_TEST(PFX##_new_custom(), {
+        struct deque *d = d_new_custom(100, d_fval, d_alloc_node, callbacks);
+
+        cmc_assert_not_equals(ptr, NULL, d);
+        cmc_assert_equals(ptr, d_alloc_node, d->alloc);
+        cmc_assert_equals(ptr, callbacks, d->callbacks);
+
+        d_free(d);
+
+        d = d_new_custom(0, d_fval, d_alloc_node, callbacks);
+
+        cmc_assert_equals(ptr, NULL, d);
+
+        d = d_new_custom(UINT64_MAX, d_fval, d_alloc_node, callbacks);
 
         cmc_assert_equals(ptr, NULL, d);
     });
 
-    CMC_CREATE_TEST(new[capacity = UINT64_MAX], {
-        struct deque *d = d_new(UINT64_MAX, d_fval);
+    CMC_CREATE_TEST(PFX##_clear(), {
+        v_total_free = 0;
 
-        cmc_assert_equals(ptr, NULL, d);
-    });
-
-    CMC_CREATE_TEST(clear[count capacity], {
-        struct deque *d = d_new(100, d_fval);
+        struct deque *d = d_new(100, d_fval_counter);
 
         cmc_assert_not_equals(ptr, NULL, d);
 
@@ -48,32 +78,12 @@ CMC_CREATE_UNIT(Deque, true, {
 
         d_clear(d);
 
+        cmc_assert_equals(size_t, 50, v_total_free);
+
         cmc_assert_equals(size_t, 0, d_count(d));
         cmc_assert_equals(size_t, 100, d_capacity(d));
 
-        d_free(d);
-    });
-
-    CMC_CREATE_TEST(buffer_growth[capacity = 1], {
-        struct deque *d = d_new(1, d_fval);
-
-        cmc_assert_not_equals(ptr, NULL, d);
-
-        for (size_t i = 0; i < 50; i++)
-            d_push_back(d, i);
-
-        cmc_assert_equals(size_t, 50, d_count(d));
-        cmc_assert_lesser_equals(size_t, d_capacity(d), d_count(d));
-
-        d_free(d);
-    });
-
-    CMC_CREATE_TEST(buffer_growth[item preservation], {
-        struct deque *d = d_new(100, d_fval);
-
-        cmc_assert_not_equals(ptr, NULL, d);
-
-        for (size_t i = 1; i <= 1200; i++)
+        for (size_t i = 1; i <= 1000; i++)
         {
             if (i % 2 == 0)
                 d_push_front(d, i);
@@ -81,18 +91,70 @@ CMC_CREATE_UNIT(Deque, true, {
                 d_push_back(d, i);
         }
 
+        cmc_assert_equals(size_t, 1000, d_count(d));
+
         size_t sum = 0;
         for (size_t i = d->front, j = 0; j < d->count;
              i = (i + 1) % d->capacity, j++)
             sum += d->buffer[i];
 
-        cmc_assert_equals(size_t, 1200, d_count(d));
-        cmc_assert_equals(size_t, 720600, sum);
+        cmc_assert_equals(size_t, 500500, sum);
+
+        d_free(d);
+
+        cmc_assert_equals(size_t, 1050, v_total_free);
+
+        v_total_free = 0;
+    });
+
+    CMC_CREATE_TEST(PFX##_free(), {
+        v_total_free = 0;
+
+        struct deque *d = d_new(100, d_fval_counter);
+
+        cmc_assert_not_equals(ptr, NULL, d);
+
+        for (size_t i = 1; i <= 1000; i++)
+        {
+            if (i % 2 == 0)
+                d_push_front(d, i);
+            else
+                d_push_back(d, i);
+        }
+
+        cmc_assert_equals(size_t, 1000, d_count(d));
+
+        size_t sum = 0;
+        for (size_t i = d->front, j = 0; j < d->count;
+             i = (i + 1) % d->capacity, j++)
+            sum += d->buffer[i];
+
+        cmc_assert_equals(size_t, 500500, sum);
+
+        d_free(d);
+
+        cmc_assert_equals(size_t, 1000, v_total_free);
+
+        v_total_free = 0;
+    });
+
+    CMC_CREATE_TEST(PFX##_customize(), {
+        struct deque *d = d_new(100, d_fval);
+
+        d_customize(d, d_alloc_node, callbacks);
+
+        cmc_assert_equals(ptr, d_alloc_node, d->alloc);
+        cmc_assert_equals(ptr, callbacks, d->callbacks);
+
+        d_customize(d, NULL, NULL);
+
+        cmc_assert_equals(ptr, &cmc_alloc_node_default, d->alloc);
+        cmc_assert_equals(ptr, NULL, d->callbacks);
 
         d_free(d);
     });
 
-    CMC_CREATE_TEST(push_front[count capacity], {
+    CMC_CREATE_TEST(PFX##_push_front(), {
         struct deque *d = d_new(100, d_fval);
 
         cmc_assert_not_equals(ptr, NULL, d);
@@ -104,14 +166,12 @@ CMC_CREATE_UNIT(Deque, true, {
         cmc_assert_greater(size_t, 100, d_capacity(d));
 
         d_free(d);
-    });
 
-    CMC_CREATE_TEST(push_front[item preservation], {
-        struct deque *d = d_new(100, d_fval);
+        d = d_new(100, d_fval);
 
         cmc_assert_not_equals(ptr, NULL, d);
 
-        for (size_t i = 1; i <= 100; i++)
+        for (size_t i = 1; i <= 1000; i++)
             cmc_assert(d_push_front(d, i));
 
         size_t sum = 0;
@@ -122,12 +182,12 @@ CMC_CREATE_UNIT(Deque, true, {
             sum += d->buffer[i];
         }
 
-        cmc_assert_equals(size_t, 5050, sum);
+        cmc_assert_equals(size_t, 500500, sum);
 
         d_free(d);
     });
 
-    CMC_CREATE_TEST(push_back[count capacity], {
+    CMC_CREATE_TEST(PFX##_push_back(), {
         struct deque *d = d_new(100, d_fval);
 
         cmc_assert_not_equals(ptr, NULL, d);
@@ -139,14 +199,12 @@ CMC_CREATE_UNIT(Deque, true, {
         cmc_assert_greater(size_t, 100, d_capacity(d));
 
         d_free(d);
-    });
 
-    CMC_CREATE_TEST(push_back[item preservation], {
-        struct deque *d = d_new(100, d_fval);
+        d = d_new(100, d_fval);
 
         cmc_assert_not_equals(ptr, NULL, d);
 
-        for (size_t i = 1; i <= 100; i++)
+        for (size_t i = 1; i <= 1000; i++)
             cmc_assert(d_push_back(d, i));
 
         size_t sum = 0;
@@ -157,12 +215,12 @@ CMC_CREATE_UNIT(Deque, true, {
             sum += d->buffer[i];
         }
 
-        cmc_assert_equals(size_t, 5050, sum);
+        cmc_assert_equals(size_t, 500500, sum);
 
         d_free(d);
     });
 
-    CMC_CREATE_TEST(pop_front[count capacity], {
+    CMC_CREATE_TEST(PFX##_pop_front(), {
         struct deque *d = d_new(100, d_fval);
 
         cmc_assert_not_equals(ptr, NULL, d);
@@ -178,10 +236,8 @@ CMC_CREATE_UNIT(Deque, true, {
         cmc_assert_equals(size_t, 0, d_count(d));
 
         d_free(d);
-    });
 
-    CMC_CREATE_TEST(pop_front[item preservation], {
-        struct deque *d = d_new(100, d_fval);
+        d = d_new(100, d_fval);
 
         cmc_assert_not_equals(ptr, NULL, d);
 
@@ -647,6 +703,44 @@ CMC_CREATE_UNIT(Deque, true, {
 
         d_free(d1);
         d_free(d2);
+    });
+
+    CMC_CREATE_TEST(buffer_growth[capacity = 1], {
+        struct deque *d = d_new(1, d_fval);
+
+        cmc_assert_not_equals(ptr, NULL, d);
+
+        for (size_t i = 0; i < 50; i++)
+            d_push_back(d, i);
+
+        cmc_assert_equals(size_t, 50, d_count(d));
+        cmc_assert_lesser_equals(size_t, d_capacity(d), d_count(d));
+
+        d_free(d);
+    });
+
+    CMC_CREATE_TEST(buffer_growth[item preservation], {
+        struct deque *d = d_new(100, d_fval);
+
+        cmc_assert_not_equals(ptr, NULL, d);
+
+        for (size_t i = 1; i <= 1200; i++)
+        {
+            if (i % 2 == 0)
+                d_push_front(d, i);
+            else
+                d_push_back(d, i);
+        }
+
+        size_t sum = 0;
+        for (size_t i = d->front, j = 0; j < d->count;
+             i = (i + 1) % d->capacity, j++)
+            sum += d->buffer[i];
+
+        cmc_assert_equals(size_t, 1200, d_count(d));
+        cmc_assert_equals(size_t, 720600, sum);
+
+        d_free(d);
     });
 
     CMC_CREATE_TEST(flags, {
