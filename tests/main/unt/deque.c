@@ -38,6 +38,10 @@ CMC_CREATE_UNIT(Deque, true, {
 
         cmc_assert_equals(ptr, NULL, d);
 
+        d = d_new(1000, NULL);
+
+        cmc_assert_equals(ptr, NULL, d);
+
         d = d_new(UINT64_MAX, d_fval);
 
         cmc_assert_equals(ptr, NULL, d);
@@ -59,9 +63,16 @@ CMC_CREATE_UNIT(Deque, true, {
 
         cmc_assert_equals(ptr, NULL, d);
 
+        d = d_new_custom(1000, NULL, d_alloc_node, callbacks);
+
+        cmc_assert_equals(ptr, NULL, d);
+
         d = d_new_custom(UINT64_MAX, d_fval, d_alloc_node, callbacks);
 
         cmc_assert_equals(ptr, NULL, d);
+
+        if (d)
+            d_free(d);
     });
 
     CMC_CREATE_TEST(PFX##_clear(), {
@@ -76,9 +87,11 @@ CMC_CREATE_UNIT(Deque, true, {
 
         cmc_assert_equals(size_t, 50, d_count(d));
 
+        d->flag = cmc_flags.ERROR;
         d_clear(d);
 
         cmc_assert_equals(size_t, 50, v_total_free);
+        cmc_assert_equals(int32_t, cmc_flags.OK, d->flag);
 
         cmc_assert_equals(size_t, 0, d_count(d));
         cmc_assert_equals(size_t, 100, d_capacity(d));
@@ -99,6 +112,18 @@ CMC_CREATE_UNIT(Deque, true, {
             sum += d->buffer[i];
 
         cmc_assert_equals(size_t, 500500, sum);
+
+        d->flag = cmc_flags.ERROR;
+        d_clear(d);
+
+        cmc_assert_equals(size_t, 1050, v_total_free);
+        cmc_assert_equals(int32_t, cmc_flags.OK, d->flag);
+
+        sum = 0;
+        for (size_t i = 0; i < d->capacity; i++)
+            sum += d->buffer[i];
+
+        cmc_assert_equals(size_t, 0, sum);
 
         d_free(d);
 
@@ -141,26 +166,40 @@ CMC_CREATE_UNIT(Deque, true, {
     CMC_CREATE_TEST(PFX##_customize(), {
         struct deque *d = d_new(100, d_fval);
 
+        d->flag = cmc_flags.ERROR;
         d_customize(d, d_alloc_node, callbacks);
 
         cmc_assert_equals(ptr, d_alloc_node, d->alloc);
         cmc_assert_equals(ptr, callbacks, d->callbacks);
+        cmc_assert_equals(int32_t, cmc_flags.OK, d->flag);
 
+        d->flag = cmc_flags.ERROR;
         d_customize(d, NULL, NULL);
 
         cmc_assert_equals(ptr, &cmc_alloc_node_default, d->alloc);
         cmc_assert_equals(ptr, NULL, d->callbacks);
+        cmc_assert_equals(int32_t, cmc_flags.OK, d->flag);
 
         d_free(d);
     });
 
     CMC_CREATE_TEST(PFX##_push_front(), {
-        struct deque *d = d_new(100, d_fval);
+        total_create = 0;
+        struct deque *d = d_new_custom(100, d_fval, NULL, callbacks);
 
         cmc_assert_not_equals(ptr, NULL, d);
 
+        cmc_assert(d_push_front(d, 10));
+        cmc_assert_equals(size_t, 1, d_count(d));
+
+        cmc_assert_equals(int32_t, 1, total_create);
+
+        d_customize(d, NULL, NULL);
+
+        d_clear(d);
+
         for (size_t i = 0; i < 150; i++)
-            cmc_assert(d_push_front(d, i));
+            d_push_front(d, i);
 
         cmc_assert_equals(size_t, 150, d_count(d));
         cmc_assert_greater(size_t, 100, d_capacity(d));
@@ -172,7 +211,7 @@ CMC_CREATE_UNIT(Deque, true, {
         cmc_assert_not_equals(ptr, NULL, d);
 
         for (size_t i = 1; i <= 1000; i++)
-            cmc_assert(d_push_front(d, i));
+            d_push_front(d, i);
 
         size_t sum = 0;
 
@@ -185,15 +224,28 @@ CMC_CREATE_UNIT(Deque, true, {
         cmc_assert_equals(size_t, 500500, sum);
 
         d_free(d);
+
+        cmc_assert_equals(int32_t, 1, total_create);
+        total_create = 0;
     });
 
     CMC_CREATE_TEST(PFX##_push_back(), {
-        struct deque *d = d_new(100, d_fval);
+        total_create = 0;
+        struct deque *d = d_new_custom(100, d_fval, NULL, callbacks);
 
         cmc_assert_not_equals(ptr, NULL, d);
 
+        cmc_assert(d_push_front(d, 10));
+        cmc_assert_equals(size_t, 1, d_count(d));
+
+        cmc_assert_equals(int32_t, 1, total_create);
+
+        d_customize(d, NULL, NULL);
+
+        d_clear(d);
+
         for (size_t i = 0; i < 150; i++)
-            cmc_assert(d_push_back(d, i));
+            d_push_back(d, i);
 
         cmc_assert_equals(size_t, 150, d_count(d));
         cmc_assert_greater(size_t, 100, d_capacity(d));
@@ -205,7 +257,7 @@ CMC_CREATE_UNIT(Deque, true, {
         cmc_assert_not_equals(ptr, NULL, d);
 
         for (size_t i = 1; i <= 1000; i++)
-            cmc_assert(d_push_back(d, i));
+            d_push_back(d, i);
 
         size_t sum = 0;
 
@@ -218,6 +270,9 @@ CMC_CREATE_UNIT(Deque, true, {
         cmc_assert_equals(size_t, 500500, sum);
 
         d_free(d);
+
+        cmc_assert_equals(int32_t, 1, total_create);
+        total_create = 0;
     });
 
     CMC_CREATE_TEST(PFX##_pop_front(), {

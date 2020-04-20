@@ -114,7 +114,14 @@ static inline int cmc_str_cmp(char *ch1, char *ch2)
 
 static inline char *cmc_str_cpy(char *str)
 {
-    return strdup(str);
+    size_t len = strlen(str) + 1;
+
+    char *result = malloc(len);
+
+    if (!result)
+        return NULL;
+
+    return memcpy(result, str, len);
 }
 
 /**
