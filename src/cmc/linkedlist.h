@@ -159,9 +159,9 @@ static const char *cmc_string_fmt_linkedlist = "struct %s<%s> "
     void PFX##_customize(struct SNAME *_list_, struct cmc_alloc_node *alloc, \
                          struct cmc_callbacks *callbacks);                   \
     /* Collection Input and Output */                                        \
-    bool PFX##_push_front(struct SNAME *_list_, V element);                  \
-    bool PFX##_push_at(struct SNAME *_list_, V element, size_t index);       \
-    bool PFX##_push_back(struct SNAME *_list_, V element);                   \
+    bool PFX##_push_front(struct SNAME *_list_, V value);                    \
+    bool PFX##_push_at(struct SNAME *_list_, V value, size_t index);         \
+    bool PFX##_push_back(struct SNAME *_list_, V value);                     \
     bool PFX##_pop_front(struct SNAME *_list_);                              \
     bool PFX##_pop_at(struct SNAME *_list_, size_t index);                   \
     bool PFX##_pop_back(struct SNAME *_list_);                               \
@@ -171,7 +171,7 @@ static const char *cmc_string_fmt_linkedlist = "struct %s<%s> "
     V *PFX##_get_ref(struct SNAME *_list_, size_t index);                    \
     V PFX##_back(struct SNAME *_list_);                                      \
     /* Collection State */                                                   \
-    bool PFX##_contains(struct SNAME *_list_, V element);                    \
+    bool PFX##_contains(struct SNAME *_list_, V value);                      \
     bool PFX##_empty(struct SNAME *_list_);                                  \
     size_t PFX##_count(struct SNAME *_list_);                                \
     int PFX##_flag(struct SNAME *_list_);                                    \
@@ -183,7 +183,7 @@ static const char *cmc_string_fmt_linkedlist = "struct %s<%s> "
                                                                              \
     /* Node Related Functions */                                             \
     /* Node Allocation and Deallocation */                                   \
-    struct SNAME##_node *PFX##_new_node(struct SNAME *_list_, V element);    \
+    struct SNAME##_node *PFX##_new_node(struct SNAME *_list_, V value);      \
     void PFX##_free_node(struct SNAME *_list_, struct SNAME##_node *_node_); \
     /* Node Access Relative to a Linked List */                              \
     struct SNAME##_node *PFX##_head(struct SNAME *_list_);                   \
@@ -191,9 +191,9 @@ static const char *cmc_string_fmt_linkedlist = "struct %s<%s> "
     struct SNAME##_node *PFX##_tail(struct SNAME *_list_);                   \
     /* Input and Output Relative to a Node */                                \
     bool PFX##_add_next(struct SNAME *_owner_, struct SNAME##_node *_node_,  \
-                        V element);                                          \
+                        V value);                                            \
     bool PFX##_add_prev(struct SNAME *_owner_, struct SNAME##_node *_node_,  \
-                        V element);                                          \
+                        V value);                                            \
     bool PFX##_del_next(struct SNAME *_owner_, struct SNAME##_node *_node_); \
     bool PFX##_del_curr(struct SNAME *_owner_, struct SNAME##_node *_node_); \
     bool PFX##_del_prev(struct SNAME *_owner_, struct SNAME##_node *_node_); \
@@ -330,9 +330,9 @@ static const char *cmc_string_fmt_linkedlist = "struct %s<%s> "
         _list_->flag = cmc_flags.OK;                                           \
     }                                                                          \
                                                                                \
-    bool PFX##_push_front(struct SNAME *_list_, V element)                     \
+    bool PFX##_push_front(struct SNAME *_list_, V value)                       \
     {                                                                          \
-        struct SNAME##_node *_node_ = PFX##_new_node(_list_, element);         \
+        struct SNAME##_node *_node_ = PFX##_new_node(_list_, value);           \
                                                                                \
         if (!_node_)                                                           \
             return false;                                                      \
@@ -358,7 +358,7 @@ static const char *cmc_string_fmt_linkedlist = "struct %s<%s> "
         return true;                                                           \
     }                                                                          \
                                                                                \
-    bool PFX##_push_at(struct SNAME *_list_, V element, size_t index)          \
+    bool PFX##_push_at(struct SNAME *_list_, V value, size_t index)            \
     {                                                                          \
         if (index > _list_->count)                                             \
         {                                                                      \
@@ -368,14 +368,14 @@ static const char *cmc_string_fmt_linkedlist = "struct %s<%s> "
                                                                                \
         if (index == 0)                                                        \
         {                                                                      \
-            return PFX##_push_front(_list_, element);                          \
+            return PFX##_push_front(_list_, value);                            \
         }                                                                      \
         else if (index == _list_->count)                                       \
         {                                                                      \
-            return PFX##_push_back(_list_, element);                           \
+            return PFX##_push_back(_list_, value);                             \
         }                                                                      \
                                                                                \
-        struct SNAME##_node *_node_ = PFX##_new_node(_list_, element);         \
+        struct SNAME##_node *_node_ = PFX##_new_node(_list_, value);           \
                                                                                \
         if (!_node_)                                                           \
             return false;                                                      \
@@ -396,9 +396,9 @@ static const char *cmc_string_fmt_linkedlist = "struct %s<%s> "
         return true;                                                           \
     }                                                                          \
                                                                                \
-    bool PFX##_push_back(struct SNAME *_list_, V element)                      \
+    bool PFX##_push_back(struct SNAME *_list_, V value)                        \
     {                                                                          \
-        struct SNAME##_node *_node_ = PFX##_new_node(_list_, element);         \
+        struct SNAME##_node *_node_ = PFX##_new_node(_list_, value);           \
                                                                                \
         if (!_node_)                                                           \
             return false;                                                      \
@@ -602,7 +602,7 @@ static const char *cmc_string_fmt_linkedlist = "struct %s<%s> "
         return _list_->tail->value;                                            \
     }                                                                          \
                                                                                \
-    bool PFX##_contains(struct SNAME *_list_, V element)                       \
+    bool PFX##_contains(struct SNAME *_list_, V value)                         \
     {                                                                          \
         _list_->flag = cmc_flags.OK;                                           \
                                                                                \
@@ -612,7 +612,7 @@ static const char *cmc_string_fmt_linkedlist = "struct %s<%s> "
                                                                                \
         while (scan != NULL)                                                   \
         {                                                                      \
-            if (_list_->f_val->cmp(scan->value, element) == 0)                 \
+            if (_list_->f_val->cmp(scan->value, value) == 0)                   \
             {                                                                  \
                 result = true;                                                 \
                 break;                                                         \
@@ -736,7 +736,7 @@ static const char *cmc_string_fmt_linkedlist = "struct %s<%s> "
         return true;                                                           \
     }                                                                          \
                                                                                \
-    struct SNAME##_node *PFX##_new_node(struct SNAME *_list_, V element)       \
+    struct SNAME##_node *PFX##_new_node(struct SNAME *_list_, V value)         \
     {                                                                          \
         struct SNAME##_node *_node_ =                                          \
             _list_->alloc->malloc(sizeof(struct SNAME##_node));                \
@@ -747,7 +747,7 @@ static const char *cmc_string_fmt_linkedlist = "struct %s<%s> "
             return NULL;                                                       \
         }                                                                      \
                                                                                \
-        _node_->value = element;                                               \
+        _node_->value = value;                                                 \
         _node_->next = NULL;                                                   \
         _node_->prev = NULL;                                                   \
                                                                                \
@@ -808,9 +808,9 @@ static const char *cmc_string_fmt_linkedlist = "struct %s<%s> "
     }                                                                          \
                                                                                \
     bool PFX##_add_next(struct SNAME *_owner_, struct SNAME##_node *_node_,    \
-                        V element)                                             \
+                        V value)                                               \
     {                                                                          \
-        struct SNAME##_node *new_node = PFX##_new_node(_owner_, element);      \
+        struct SNAME##_node *new_node = PFX##_new_node(_owner_, value);        \
                                                                                \
         if (!new_node)                                                         \
             return false;                                                      \
@@ -832,9 +832,9 @@ static const char *cmc_string_fmt_linkedlist = "struct %s<%s> "
     }                                                                          \
                                                                                \
     bool PFX##_add_prev(struct SNAME *_owner_, struct SNAME##_node *_node_,    \
-                        V element)                                             \
+                        V value)                                               \
     {                                                                          \
-        struct SNAME##_node *new_node = PFX##_new_node(_owner_, element);      \
+        struct SNAME##_node *new_node = PFX##_new_node(_owner_, value);        \
                                                                                \
         if (!new_node)                                                         \
             return false;                                                      \

@@ -37,13 +37,13 @@ void sl_clear(struct sortedlist *_list_);
 void sl_free(struct sortedlist *_list_);
 void sl_customize(struct sortedlist *_list_, struct cmc_alloc_node *alloc,
                   struct cmc_callbacks *callbacks);
-_Bool sl_insert(struct sortedlist *_list_, size_t element);
+_Bool sl_insert(struct sortedlist *_list_, size_t value);
 _Bool sl_remove(struct sortedlist *_list_, size_t index);
 size_t sl_max(struct sortedlist *_list_);
 size_t sl_min(struct sortedlist *_list_);
 size_t sl_get(struct sortedlist *_list_, size_t index);
-size_t sl_index_of(struct sortedlist *_list_, size_t element, _Bool from_start);
-_Bool sl_contains(struct sortedlist *_list_, size_t element);
+size_t sl_index_of(struct sortedlist *_list_, size_t value, _Bool from_start);
+_Bool sl_contains(struct sortedlist *_list_, size_t value);
 _Bool sl_empty(struct sortedlist *_list_);
 _Bool sl_full(struct sortedlist *_list_);
 size_t sl_count(struct sortedlist *_list_);
@@ -165,14 +165,14 @@ void sl_customize(struct sortedlist *_list_, struct cmc_alloc_node *alloc,
     _list_->callbacks = callbacks;
     _list_->flag = cmc_flags.OK;
 }
-_Bool sl_insert(struct sortedlist *_list_, size_t element)
+_Bool sl_insert(struct sortedlist *_list_, size_t value)
 {
     if (sl_full(_list_))
     {
         if (!sl_resize(_list_, _list_->capacity * 2))
             return 0;
     }
-    _list_->buffer[_list_->count++] = element;
+    _list_->buffer[_list_->count++] = value;
     _list_->is_sorted = 0;
     _list_->flag = cmc_flags.OK;
     if (_list_->callbacks && _list_->callbacks->create)
@@ -243,7 +243,7 @@ size_t sl_get(struct sortedlist *_list_, size_t index)
         _list_->callbacks->read();
     return _list_->buffer[index];
 }
-size_t sl_index_of(struct sortedlist *_list_, size_t element, _Bool from_start)
+size_t sl_index_of(struct sortedlist *_list_, size_t value, _Bool from_start)
 {
     _list_->flag = cmc_flags.OK;
     sl_sort(_list_);
@@ -251,11 +251,11 @@ size_t sl_index_of(struct sortedlist *_list_, size_t element, _Bool from_start)
         _list_->callbacks->read();
     if (from_start)
     {
-        return sl_impl_binary_search_first(_list_, element);
+        return sl_impl_binary_search_first(_list_, value);
     }
-    return sl_impl_binary_search_last(_list_, element);
+    return sl_impl_binary_search_last(_list_, value);
 }
-_Bool sl_contains(struct sortedlist *_list_, size_t element)
+_Bool sl_contains(struct sortedlist *_list_, size_t value)
 {
     _list_->flag = cmc_flags.OK;
     if (sl_empty(_list_))
@@ -263,7 +263,7 @@ _Bool sl_contains(struct sortedlist *_list_, size_t element)
     sl_sort(_list_);
     if (_list_->callbacks && _list_->callbacks->read)
         _list_->callbacks->read();
-    return sl_impl_binary_search_first(_list_, element) < _list_->count;
+    return sl_impl_binary_search_first(_list_, value) < _list_->count;
 }
 _Bool sl_empty(struct sortedlist *_list_)
 {

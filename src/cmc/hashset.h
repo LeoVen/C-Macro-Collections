@@ -166,13 +166,13 @@ static const char *cmc_string_fmt_hashset = "struct %s<%s> "
     void PFX##_customize(struct SNAME *_set_, struct cmc_alloc_node *alloc,    \
                          struct cmc_callbacks *callbacks);                     \
     /* Collection Input and Output */                                          \
-    bool PFX##_insert(struct SNAME *_set_, V element);                         \
-    bool PFX##_remove(struct SNAME *_set_, V element);                         \
+    bool PFX##_insert(struct SNAME *_set_, V value);                           \
+    bool PFX##_remove(struct SNAME *_set_, V value);                           \
     /* Element Access */                                                       \
     bool PFX##_max(struct SNAME *_set_, V *value);                             \
     bool PFX##_min(struct SNAME *_set_, V *value);                             \
     /* Collection State */                                                     \
-    bool PFX##_contains(struct SNAME *_set_, V element);                       \
+    bool PFX##_contains(struct SNAME *_set_, V value);                         \
     bool PFX##_empty(struct SNAME *_set_);                                     \
     bool PFX##_full(struct SNAME *_set_);                                      \
     size_t PFX##_count(struct SNAME *_set_);                                   \
@@ -228,7 +228,7 @@ static const char *cmc_string_fmt_hashset = "struct %s<%s> "
                                                                                \
     /* Implementation Detail Functions */                                      \
     static struct SNAME##_entry *PFX##_impl_get_entry(struct SNAME *_set_,     \
-                                                      V element);              \
+                                                      V value);                \
     static size_t PFX##_impl_calculate_size(size_t required);                  \
     static struct SNAME##_iter PFX##_impl_it_start(struct SNAME *_set_);       \
     static struct SNAME##_iter PFX##_impl_it_end(struct SNAME *_set_);         \
@@ -377,7 +377,7 @@ static const char *cmc_string_fmt_hashset = "struct %s<%s> "
         _set_->flag = cmc_flags.OK;                                            \
     }                                                                          \
                                                                                \
-    bool PFX##_insert(struct SNAME *_set_, V element)                          \
+    bool PFX##_insert(struct SNAME *_set_, V value)                            \
     {                                                                          \
         if (PFX##_full(_set_))                                                 \
         {                                                                      \
@@ -385,13 +385,13 @@ static const char *cmc_string_fmt_hashset = "struct %s<%s> "
                 return false;                                                  \
         }                                                                      \
                                                                                \
-        if (PFX##_impl_get_entry(_set_, element) != NULL)                      \
+        if (PFX##_impl_get_entry(_set_, value) != NULL)                        \
         {                                                                      \
             _set_->flag = cmc_flags.DUPLICATE;                                 \
             return false;                                                      \
         }                                                                      \
                                                                                \
-        size_t hash = _set_->f_val->hash(element);                             \
+        size_t hash = _set_->f_val->hash(value);                               \
         size_t original_pos = hash % _set_->capacity;                          \
         size_t pos = original_pos;                                             \
                                                                                \
@@ -399,7 +399,7 @@ static const char *cmc_string_fmt_hashset = "struct %s<%s> "
                                                                                \
         if (target->state == CMC_ES_EMPTY || target->state == CMC_ES_DELETED)  \
         {                                                                      \
-            target->value = element;                                           \
+            target->value = value;                                             \
             target->dist = 0;                                                  \
             target->state = CMC_ES_FILLED;                                     \
         }                                                                      \
@@ -413,7 +413,7 @@ static const char *cmc_string_fmt_hashset = "struct %s<%s> "
                 if (target->state == CMC_ES_EMPTY ||                           \
                     target->state == CMC_ES_DELETED)                           \
                 {                                                              \
-                    target->value = element;                                   \
+                    target->value = value;                                     \
                     target->dist = pos - original_pos;                         \
                     target->state = CMC_ES_FILLED;                             \
                                                                                \
@@ -424,10 +424,10 @@ static const char *cmc_string_fmt_hashset = "struct %s<%s> "
                     V tmp = target->value;                                     \
                     size_t tmp_dist = target->dist;                            \
                                                                                \
-                    target->value = element;                                   \
+                    target->value = value;                                     \
                     target->dist = pos - original_pos;                         \
                                                                                \
-                    element = tmp;                                             \
+                    value = tmp;                                               \
                     original_pos = pos - tmp_dist;                             \
                 }                                                              \
             }                                                                  \
@@ -442,7 +442,7 @@ static const char *cmc_string_fmt_hashset = "struct %s<%s> "
         return true;                                                           \
     }                                                                          \
                                                                                \
-    bool PFX##_remove(struct SNAME *_set_, V element)                          \
+    bool PFX##_remove(struct SNAME *_set_, V value)                            \
     {                                                                          \
         if (PFX##_empty(_set_))                                                \
         {                                                                      \
@@ -450,7 +450,7 @@ static const char *cmc_string_fmt_hashset = "struct %s<%s> "
             return false;                                                      \
         }                                                                      \
                                                                                \
-        struct SNAME##_entry *result = PFX##_impl_get_entry(_set_, element);   \
+        struct SNAME##_entry *result = PFX##_impl_get_entry(_set_, value);     \
                                                                                \
         if (result == NULL)                                                    \
         {                                                                      \
@@ -541,11 +541,11 @@ static const char *cmc_string_fmt_hashset = "struct %s<%s> "
         return true;                                                           \
     }                                                                          \
                                                                                \
-    bool PFX##_contains(struct SNAME *_set_, V element)                        \
+    bool PFX##_contains(struct SNAME *_set_, V value)                          \
     {                                                                          \
         _set_->flag = cmc_flags.OK;                                            \
                                                                                \
-        bool result = PFX##_impl_get_entry(_set_, element) != NULL;            \
+        bool result = PFX##_impl_get_entry(_set_, value) != NULL;              \
                                                                                \
         if (_set_->callbacks && _set_->callbacks->read)                        \
             _set_->callbacks->read();                                          \
@@ -1234,9 +1234,9 @@ static const char *cmc_string_fmt_hashset = "struct %s<%s> "
     }                                                                          \
                                                                                \
     static struct SNAME##_entry *PFX##_impl_get_entry(struct SNAME *_set_,     \
-                                                      V element)               \
+                                                      V value)                 \
     {                                                                          \
-        size_t hash = _set_->f_val->hash(element);                             \
+        size_t hash = _set_->f_val->hash(value);                               \
         size_t pos = hash % _set_->capacity;                                   \
                                                                                \
         struct SNAME##_entry *target = &(_set_->buffer[pos]);                  \
@@ -1244,7 +1244,7 @@ static const char *cmc_string_fmt_hashset = "struct %s<%s> "
         while (target->state == CMC_ES_FILLED ||                               \
                target->state == CMC_ES_DELETED)                                \
         {                                                                      \
-            if (_set_->f_val->cmp(target->value, element) == 0)                \
+            if (_set_->f_val->cmp(target->value, value) == 0)                  \
                 return target;                                                 \
                                                                                \
             pos++;                                                             \

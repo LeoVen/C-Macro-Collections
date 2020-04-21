@@ -48,11 +48,11 @@ void hs_clear(struct hashset *_set_);
 void hs_free(struct hashset *_set_);
 void hs_customize(struct hashset *_set_, struct cmc_alloc_node *alloc,
                   struct cmc_callbacks *callbacks);
-_Bool hs_insert(struct hashset *_set_, size_t element);
-_Bool hs_remove(struct hashset *_set_, size_t element);
+_Bool hs_insert(struct hashset *_set_, size_t value);
+_Bool hs_remove(struct hashset *_set_, size_t value);
 _Bool hs_max(struct hashset *_set_, size_t *value);
 _Bool hs_min(struct hashset *_set_, size_t *value);
-_Bool hs_contains(struct hashset *_set_, size_t element);
+_Bool hs_contains(struct hashset *_set_, size_t value);
 _Bool hs_empty(struct hashset *_set_);
 _Bool hs_full(struct hashset *_set_);
 size_t hs_count(struct hashset *_set_);
@@ -89,7 +89,7 @@ _Bool hs_iter_go_to(struct hashset_iter *iter, size_t index);
 size_t hs_iter_value(struct hashset_iter *iter);
 size_t hs_iter_index(struct hashset_iter *iter);
 static struct hashset_entry *hs_impl_get_entry(struct hashset *_set_,
-                                               size_t element);
+                                               size_t value);
 static size_t hs_impl_calculate_size(size_t required);
 static struct hashset_iter hs_impl_it_start(struct hashset *_set_);
 static struct hashset_iter hs_impl_it_end(struct hashset *_set_);
@@ -200,25 +200,25 @@ void hs_customize(struct hashset *_set_, struct cmc_alloc_node *alloc,
     _set_->callbacks = callbacks;
     _set_->flag = cmc_flags.OK;
 }
-_Bool hs_insert(struct hashset *_set_, size_t element)
+_Bool hs_insert(struct hashset *_set_, size_t value)
 {
     if (hs_full(_set_))
     {
         if (!hs_resize(_set_, _set_->capacity + 1))
             return 0;
     }
-    if (hs_impl_get_entry(_set_, element) != ((void *)0))
+    if (hs_impl_get_entry(_set_, value) != ((void *)0))
     {
         _set_->flag = cmc_flags.DUPLICATE;
         return 0;
     }
-    size_t hash = _set_->f_val->hash(element);
+    size_t hash = _set_->f_val->hash(value);
     size_t original_pos = hash % _set_->capacity;
     size_t pos = original_pos;
     struct hashset_entry *target = &(_set_->buffer[pos]);
     if (target->state == CMC_ES_EMPTY || target->state == CMC_ES_DELETED)
     {
-        target->value = element;
+        target->value = value;
         target->dist = 0;
         target->state = CMC_ES_FILLED;
     }
@@ -231,7 +231,7 @@ _Bool hs_insert(struct hashset *_set_, size_t element)
             if (target->state == CMC_ES_EMPTY ||
                 target->state == CMC_ES_DELETED)
             {
-                target->value = element;
+                target->value = value;
                 target->dist = pos - original_pos;
                 target->state = CMC_ES_FILLED;
                 break;
@@ -240,9 +240,9 @@ _Bool hs_insert(struct hashset *_set_, size_t element)
             {
                 size_t tmp = target->value;
                 size_t tmp_dist = target->dist;
-                target->value = element;
+                target->value = value;
                 target->dist = pos - original_pos;
-                element = tmp;
+                value = tmp;
                 original_pos = pos - tmp_dist;
             }
         }
@@ -253,14 +253,14 @@ _Bool hs_insert(struct hashset *_set_, size_t element)
         _set_->callbacks->create();
     return 1;
 }
-_Bool hs_remove(struct hashset *_set_, size_t element)
+_Bool hs_remove(struct hashset *_set_, size_t value)
 {
     if (hs_empty(_set_))
     {
         _set_->flag = cmc_flags.EMPTY;
         return 0;
     }
-    struct hashset_entry *result = hs_impl_get_entry(_set_, element);
+    struct hashset_entry *result = hs_impl_get_entry(_set_, value);
     if (result == ((void *)0))
     {
         _set_->flag = cmc_flags.NOT_FOUND;
@@ -325,10 +325,10 @@ _Bool hs_min(struct hashset *_set_, size_t *value)
         _set_->callbacks->read();
     return 1;
 }
-_Bool hs_contains(struct hashset *_set_, size_t element)
+_Bool hs_contains(struct hashset *_set_, size_t value)
 {
     _set_->flag = cmc_flags.OK;
-    _Bool result = hs_impl_get_entry(_set_, element) != ((void *)0);
+    _Bool result = hs_impl_get_entry(_set_, value) != ((void *)0);
     if (_set_->callbacks && _set_->callbacks->read)
         _set_->callbacks->read();
     return result;
@@ -808,14 +808,14 @@ size_t hs_iter_index(struct hashset_iter *iter)
     return iter->index;
 }
 static struct hashset_entry *hs_impl_get_entry(struct hashset *_set_,
-                                               size_t element)
+                                               size_t value)
 {
-    size_t hash = _set_->f_val->hash(element);
+    size_t hash = _set_->f_val->hash(value);
     size_t pos = hash % _set_->capacity;
     struct hashset_entry *target = &(_set_->buffer[pos]);
     while (target->state == CMC_ES_FILLED || target->state == CMC_ES_DELETED)
     {
-        if (_set_->f_val->cmp(target->value, element) == 0)
+        if (_set_->f_val->cmp(target->value, value) == 0)
             return target;
         pos++;
         target = &(_set_->buffer[pos % _set_->capacity]);

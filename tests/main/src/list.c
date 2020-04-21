@@ -36,24 +36,24 @@ void l_clear(struct list *_list_);
 void l_free(struct list *_list_);
 void l_customize(struct list *_list_, struct cmc_alloc_node *alloc,
                  struct cmc_callbacks *callbacks);
-_Bool l_push_front(struct list *_list_, size_t element);
-_Bool l_push_at(struct list *_list_, size_t element, size_t index);
-_Bool l_push_back(struct list *_list_, size_t element);
+_Bool l_push_front(struct list *_list_, size_t value);
+_Bool l_push_at(struct list *_list_, size_t value, size_t index);
+_Bool l_push_back(struct list *_list_, size_t value);
 _Bool l_pop_front(struct list *_list_);
 _Bool l_pop_at(struct list *_list_, size_t index);
 _Bool l_pop_back(struct list *_list_);
-_Bool l_seq_push_front(struct list *_list_, size_t *elements, size_t size);
-_Bool l_seq_push_at(struct list *_list_, size_t *elements, size_t size,
+_Bool l_seq_push_front(struct list *_list_, size_t *values, size_t size);
+_Bool l_seq_push_at(struct list *_list_, size_t *values, size_t size,
                     size_t index);
-_Bool l_seq_push_back(struct list *_list_, size_t *elements, size_t size);
+_Bool l_seq_push_back(struct list *_list_, size_t *values, size_t size);
 _Bool l_seq_pop_at(struct list *_list_, size_t from, size_t to);
 struct list *l_seq_sublist(struct list *_list_, size_t from, size_t to);
 size_t l_front(struct list *_list_);
 size_t l_get(struct list *_list_, size_t index);
 size_t *l_get_ref(struct list *_list_, size_t index);
 size_t l_back(struct list *_list_);
-size_t l_index_of(struct list *_list_, size_t element, _Bool from_start);
-_Bool l_contains(struct list *_list_, size_t element);
+size_t l_index_of(struct list *_list_, size_t value, _Bool from_start);
+_Bool l_contains(struct list *_list_, size_t value);
 _Bool l_empty(struct list *_list_);
 _Bool l_full(struct list *_list_);
 size_t l_count(struct list *_list_);
@@ -166,7 +166,7 @@ void l_customize(struct list *_list_, struct cmc_alloc_node *alloc,
     _list_->callbacks = callbacks;
     _list_->flag = cmc_flags.OK;
 }
-_Bool l_push_front(struct list *_list_, size_t element)
+_Bool l_push_front(struct list *_list_, size_t value)
 {
     if (l_full(_list_))
     {
@@ -178,14 +178,14 @@ _Bool l_push_front(struct list *_list_, size_t element)
         memmove(_list_->buffer + 1, _list_->buffer,
                 _list_->count * sizeof(size_t));
     }
-    _list_->buffer[0] = element;
+    _list_->buffer[0] = value;
     _list_->count++;
     _list_->flag = cmc_flags.OK;
     if (_list_->callbacks && _list_->callbacks->create)
         _list_->callbacks->create();
     return 1;
 }
-_Bool l_push_at(struct list *_list_, size_t element, size_t index)
+_Bool l_push_at(struct list *_list_, size_t value, size_t index)
 {
     if (index > _list_->count)
     {
@@ -199,21 +199,21 @@ _Bool l_push_at(struct list *_list_, size_t element, size_t index)
     }
     memmove(_list_->buffer + index + 1, _list_->buffer + index,
             (_list_->count - index) * sizeof(size_t));
-    _list_->buffer[index] = element;
+    _list_->buffer[index] = value;
     _list_->count++;
     _list_->flag = cmc_flags.OK;
     if (_list_->callbacks && _list_->callbacks->create)
         _list_->callbacks->create();
     return 1;
 }
-_Bool l_push_back(struct list *_list_, size_t element)
+_Bool l_push_back(struct list *_list_, size_t value)
 {
     if (l_full(_list_))
     {
         if (!l_resize(_list_, _list_->count * 2))
             return 0;
     }
-    _list_->buffer[_list_->count++] = element;
+    _list_->buffer[_list_->count++] = value;
     _list_->flag = cmc_flags.OK;
     if (_list_->callbacks && _list_->callbacks->create)
         _list_->callbacks->create();
@@ -264,7 +264,7 @@ _Bool l_pop_back(struct list *_list_)
         _list_->callbacks->delete ();
     return 1;
 }
-_Bool l_seq_push_front(struct list *_list_, size_t *elements, size_t size)
+_Bool l_seq_push_front(struct list *_list_, size_t *values, size_t size)
 {
     if (size == 0)
     {
@@ -278,14 +278,14 @@ _Bool l_seq_push_front(struct list *_list_, size_t *elements, size_t size)
     }
     memmove(_list_->buffer + size, _list_->buffer,
             _list_->count * sizeof(size_t));
-    memcpy(_list_->buffer, elements, size * sizeof(size_t));
+    memcpy(_list_->buffer, values, size * sizeof(size_t));
     _list_->count += size;
     _list_->flag = cmc_flags.OK;
     if (_list_->callbacks && _list_->callbacks->create)
         _list_->callbacks->create();
     return 1;
 }
-_Bool l_seq_push_at(struct list *_list_, size_t *elements, size_t size,
+_Bool l_seq_push_at(struct list *_list_, size_t *values, size_t size,
                     size_t index)
 {
     if (size == 0)
@@ -299,9 +299,9 @@ _Bool l_seq_push_at(struct list *_list_, size_t *elements, size_t size,
         return 0;
     }
     if (index == 0)
-        return l_seq_push_front(_list_, elements, size);
+        return l_seq_push_front(_list_, values, size);
     else if (index == _list_->count)
-        return l_seq_push_back(_list_, elements, size);
+        return l_seq_push_back(_list_, values, size);
     if (!l_fits(_list_, size))
     {
         if (!l_resize(_list_, _list_->count + size))
@@ -309,14 +309,14 @@ _Bool l_seq_push_at(struct list *_list_, size_t *elements, size_t size,
     }
     memmove(_list_->buffer + index + size, _list_->buffer + index,
             (_list_->count - index) * sizeof(size_t));
-    memcpy(_list_->buffer + index, elements, size * sizeof(size_t));
+    memcpy(_list_->buffer + index, values, size * sizeof(size_t));
     _list_->count += size;
     _list_->flag = cmc_flags.OK;
     if (_list_->callbacks && _list_->callbacks->create)
         _list_->callbacks->create();
     return 1;
 }
-_Bool l_seq_push_back(struct list *_list_, size_t *elements, size_t size)
+_Bool l_seq_push_back(struct list *_list_, size_t *values, size_t size)
 {
     if (size == 0)
     {
@@ -328,7 +328,7 @@ _Bool l_seq_push_back(struct list *_list_, size_t *elements, size_t size)
         if (!l_resize(_list_, _list_->count + size))
             return 0;
     }
-    memcpy(_list_->buffer + _list_->count, elements, size * sizeof(size_t));
+    memcpy(_list_->buffer + _list_->count, values, size * sizeof(size_t));
     _list_->count += size;
     _list_->flag = cmc_flags.OK;
     if (_list_->callbacks && _list_->callbacks->create)
@@ -446,7 +446,7 @@ size_t l_back(struct list *_list_)
         _list_->callbacks->read();
     return _list_->buffer[_list_->count - 1];
 }
-size_t l_index_of(struct list *_list_, size_t element, _Bool from_start)
+size_t l_index_of(struct list *_list_, size_t value, _Bool from_start)
 {
     _list_->flag = cmc_flags.OK;
     size_t result = _list_->count;
@@ -454,7 +454,7 @@ size_t l_index_of(struct list *_list_, size_t element, _Bool from_start)
     {
         for (size_t i = 0; i < _list_->count; i++)
         {
-            if (_list_->f_val->cmp(_list_->buffer[i], element) == 0)
+            if (_list_->f_val->cmp(_list_->buffer[i], value) == 0)
             {
                 result = i;
                 break;
@@ -465,7 +465,7 @@ size_t l_index_of(struct list *_list_, size_t element, _Bool from_start)
     {
         for (size_t i = _list_->count; i > 0; i--)
         {
-            if (_list_->f_val->cmp(_list_->buffer[i - 1], element) == 0)
+            if (_list_->f_val->cmp(_list_->buffer[i - 1], value) == 0)
             {
                 result = i - 1;
                 break;
@@ -476,13 +476,13 @@ size_t l_index_of(struct list *_list_, size_t element, _Bool from_start)
         _list_->callbacks->read();
     return result;
 }
-_Bool l_contains(struct list *_list_, size_t element)
+_Bool l_contains(struct list *_list_, size_t value)
 {
     _list_->flag = cmc_flags.OK;
     _Bool result = 0;
     for (size_t i = 0; i < _list_->count; i++)
     {
-        if (_list_->f_val->cmp(_list_->buffer[i], element) == 0)
+        if (_list_->f_val->cmp(_list_->buffer[i], value) == 0)
         {
             result = 1;
             break;

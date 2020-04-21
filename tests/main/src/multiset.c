@@ -50,15 +50,15 @@ void ms_clear(struct multiset *_set_);
 void ms_free(struct multiset *_set_);
 void ms_customize(struct multiset *_set_, struct cmc_alloc_node *alloc,
                   struct cmc_callbacks *callbacks);
-_Bool ms_insert(struct multiset *_set_, size_t element);
-_Bool ms_insert_many(struct multiset *_set_, size_t element, size_t count);
-_Bool ms_update(struct multiset *_set_, size_t element, size_t multiplicity);
-_Bool ms_remove(struct multiset *_set_, size_t element);
-size_t ms_remove_all(struct multiset *_set_, size_t element);
+_Bool ms_insert(struct multiset *_set_, size_t value);
+_Bool ms_insert_many(struct multiset *_set_, size_t value, size_t count);
+_Bool ms_update(struct multiset *_set_, size_t value, size_t multiplicity);
+_Bool ms_remove(struct multiset *_set_, size_t value);
+size_t ms_remove_all(struct multiset *_set_, size_t value);
 _Bool ms_max(struct multiset *_set_, size_t *value);
 _Bool ms_min(struct multiset *_set_, size_t *value);
-size_t ms_multiplicity_of(struct multiset *_set_, size_t element);
-_Bool ms_contains(struct multiset *_set_, size_t element);
+size_t ms_multiplicity_of(struct multiset *_set_, size_t value);
+_Bool ms_contains(struct multiset *_set_, size_t value);
 _Bool ms_empty(struct multiset *_set_);
 _Bool ms_full(struct multiset *_set_);
 size_t ms_count(struct multiset *_set_);
@@ -99,12 +99,12 @@ _Bool ms_iter_go_to(struct multiset_iter *iter, size_t index);
 size_t ms_iter_value(struct multiset_iter *iter);
 size_t ms_iter_multiplicity(struct multiset_iter *iter);
 size_t ms_iter_index(struct multiset_iter *iter);
-static size_t ms_impl_multiplicity_of(struct multiset *_set_, size_t element);
+static size_t ms_impl_multiplicity_of(struct multiset *_set_, size_t value);
 static struct multiset_entry *ms_impl_insert_and_return(struct multiset *_set_,
-                                                        size_t element,
+                                                        size_t value,
                                                         _Bool *new_node);
 static struct multiset_entry *ms_impl_get_entry(struct multiset *_set_,
-                                                size_t element);
+                                                size_t value);
 static size_t ms_impl_calculate_size(size_t required);
 static struct multiset_iter ms_impl_it_start(struct multiset *_set_);
 static struct multiset_iter ms_impl_it_end(struct multiset *_set_);
@@ -218,11 +218,11 @@ void ms_customize(struct multiset *_set_, struct cmc_alloc_node *alloc,
     _set_->callbacks = callbacks;
     _set_->flag = cmc_flags.OK;
 }
-_Bool ms_insert(struct multiset *_set_, size_t element)
+_Bool ms_insert(struct multiset *_set_, size_t value)
 {
     _Bool new_node;
     struct multiset_entry *entry =
-        ms_impl_insert_and_return(_set_, element, &new_node);
+        ms_impl_insert_and_return(_set_, value, &new_node);
     if (!entry)
     {
         _set_->flag = cmc_flags.ERROR;
@@ -236,13 +236,13 @@ _Bool ms_insert(struct multiset *_set_, size_t element)
         _set_->callbacks->create();
     return 1;
 }
-_Bool ms_insert_many(struct multiset *_set_, size_t element, size_t count)
+_Bool ms_insert_many(struct multiset *_set_, size_t value, size_t count)
 {
     if (count == 0)
         goto success;
     _Bool new_node;
     struct multiset_entry *entry =
-        ms_impl_insert_and_return(_set_, element, &new_node);
+        ms_impl_insert_and_return(_set_, value, &new_node);
     if (!entry)
     {
         _set_->flag = cmc_flags.ERROR;
@@ -259,11 +259,11 @@ success:
         _set_->callbacks->create();
     return 1;
 }
-_Bool ms_update(struct multiset *_set_, size_t element, size_t multiplicity)
+_Bool ms_update(struct multiset *_set_, size_t value, size_t multiplicity)
 {
     if (multiplicity == 0)
     {
-        struct multiset_entry *result = ms_impl_get_entry(_set_, element);
+        struct multiset_entry *result = ms_impl_get_entry(_set_, value);
         if (!result)
             goto success;
         _set_->count--;
@@ -276,7 +276,7 @@ _Bool ms_update(struct multiset *_set_, size_t element, size_t multiplicity)
     }
     _Bool new_node;
     struct multiset_entry *entry =
-        ms_impl_insert_and_return(_set_, element, &new_node);
+        ms_impl_insert_and_return(_set_, value, &new_node);
     if (!entry)
         return 0;
     if (new_node)
@@ -290,14 +290,14 @@ success:
         _set_->callbacks->update();
     return 1;
 }
-_Bool ms_remove(struct multiset *_set_, size_t element)
+_Bool ms_remove(struct multiset *_set_, size_t value)
 {
     if (ms_empty(_set_))
     {
         _set_->flag = cmc_flags.EMPTY;
         return 0;
     }
-    struct multiset_entry *result = ms_impl_get_entry(_set_, element);
+    struct multiset_entry *result = ms_impl_get_entry(_set_, value);
     if (!result)
     {
         _set_->flag = cmc_flags.NOT_FOUND;
@@ -319,14 +319,14 @@ _Bool ms_remove(struct multiset *_set_, size_t element)
         _set_->callbacks->delete ();
     return 1;
 }
-size_t ms_remove_all(struct multiset *_set_, size_t element)
+size_t ms_remove_all(struct multiset *_set_, size_t value)
 {
     if (ms_empty(_set_))
     {
         _set_->flag = cmc_flags.EMPTY;
         return 0;
     }
-    struct multiset_entry *result = ms_impl_get_entry(_set_, element);
+    struct multiset_entry *result = ms_impl_get_entry(_set_, value);
     if (!result)
     {
         _set_->flag = cmc_flags.NOT_FOUND;
@@ -394,9 +394,9 @@ _Bool ms_min(struct multiset *_set_, size_t *value)
         _set_->callbacks->read();
     return 1;
 }
-size_t ms_multiplicity_of(struct multiset *_set_, size_t element)
+size_t ms_multiplicity_of(struct multiset *_set_, size_t value)
 {
-    struct multiset_entry *entry = ms_impl_get_entry(_set_, element);
+    struct multiset_entry *entry = ms_impl_get_entry(_set_, value);
     _set_->flag = cmc_flags.OK;
     if (_set_->callbacks && _set_->callbacks->read)
         _set_->callbacks->read();
@@ -404,10 +404,10 @@ size_t ms_multiplicity_of(struct multiset *_set_, size_t element)
         return 0;
     return entry->multiplicity;
 }
-_Bool ms_contains(struct multiset *_set_, size_t element)
+_Bool ms_contains(struct multiset *_set_, size_t value)
 {
     _set_->flag = cmc_flags.OK;
-    _Bool result = ms_impl_get_entry(_set_, element) != ((void *)0);
+    _Bool result = ms_impl_get_entry(_set_, value) != ((void *)0);
     if (_set_->callbacks && _set_->callbacks->read)
         _set_->callbacks->read();
     return result;
@@ -937,19 +937,18 @@ size_t ms_iter_index(struct multiset_iter *iter)
 {
     return iter->index;
 }
-static size_t ms_impl_multiplicity_of(struct multiset *_set_, size_t element)
+static size_t ms_impl_multiplicity_of(struct multiset *_set_, size_t value)
 {
-    struct multiset_entry *entry = ms_impl_get_entry(_set_, element);
+    struct multiset_entry *entry = ms_impl_get_entry(_set_, value);
     if (!entry)
         return 0;
     return entry->multiplicity;
 }
-static struct multiset_entry *ms_impl_insert_and_return(struct multiset *_set_,
-                                                        size_t element,
-                                                        _Bool *new_node)
+static struct multiset_entry *
+ms_impl_insert_and_return(struct multiset *_set_, size_t value, _Bool *new_node)
 {
     *new_node = 0;
-    struct multiset_entry *entry = ms_impl_get_entry(_set_, element);
+    struct multiset_entry *entry = ms_impl_get_entry(_set_, value);
     if (entry != ((void *)0))
         return entry;
     *new_node = 1;
@@ -958,14 +957,14 @@ static struct multiset_entry *ms_impl_insert_and_return(struct multiset *_set_,
         if (!ms_resize(_set_, _set_->capacity + 1))
             return ((void *)0);
     }
-    size_t hash = _set_->f_val->hash(element);
+    size_t hash = _set_->f_val->hash(value);
     size_t original_pos = hash % _set_->capacity;
     size_t pos = original_pos;
     size_t curr_mul = 1;
     struct multiset_entry *target = &(_set_->buffer[pos]);
     if (target->state == CMC_ES_EMPTY || target->state == CMC_ES_DELETED)
     {
-        target->value = element;
+        target->value = value;
         target->multiplicity = curr_mul;
         target->dist = pos - original_pos;
         target->state = CMC_ES_FILLED;
@@ -979,7 +978,7 @@ static struct multiset_entry *ms_impl_insert_and_return(struct multiset *_set_,
             if (target->state == CMC_ES_EMPTY ||
                 target->state == CMC_ES_DELETED)
             {
-                target->value = element;
+                target->value = value;
                 target->multiplicity = curr_mul;
                 target->dist = pos - original_pos;
                 target->state = CMC_ES_FILLED;
@@ -990,10 +989,10 @@ static struct multiset_entry *ms_impl_insert_and_return(struct multiset *_set_,
                 size_t tmp = target->value;
                 size_t tmp_dist = target->dist;
                 size_t tmp_mul = target->multiplicity;
-                target->value = element;
+                target->value = value;
                 target->dist = pos - original_pos;
                 target->multiplicity = curr_mul;
-                element = tmp;
+                value = tmp;
                 original_pos = pos - tmp_dist;
                 curr_mul = tmp_mul;
             }
@@ -1003,14 +1002,14 @@ static struct multiset_entry *ms_impl_insert_and_return(struct multiset *_set_,
     return target;
 }
 static struct multiset_entry *ms_impl_get_entry(struct multiset *_set_,
-                                                size_t element)
+                                                size_t value)
 {
-    size_t hash = _set_->f_val->hash(element);
+    size_t hash = _set_->f_val->hash(value);
     size_t pos = hash % _set_->capacity;
     struct multiset_entry *target = &(_set_->buffer[pos]);
     while (target->state == CMC_ES_FILLED || target->state == CMC_ES_DELETED)
     {
-        if (_set_->f_val->cmp(target->value, element) == 0)
+        if (_set_->f_val->cmp(target->value, value) == 0)
             return target;
         pos++;
         target = &(_set_->buffer[pos % _set_->capacity]);

@@ -158,13 +158,13 @@ static const char *cmc_string_fmt_treeset = "struct %s<%s> "
     void PFX##_customize(struct SNAME *_set_, struct cmc_alloc_node *alloc,    \
                          struct cmc_callbacks *callbacks);                     \
     /* Collection Input and Output */                                          \
-    bool PFX##_insert(struct SNAME *_set_, V element);                         \
-    bool PFX##_remove(struct SNAME *_set_, V element);                         \
+    bool PFX##_insert(struct SNAME *_set_, V value);                           \
+    bool PFX##_remove(struct SNAME *_set_, V value);                           \
     /* Element Access */                                                       \
     bool PFX##_max(struct SNAME *_set_, V *value);                             \
     bool PFX##_min(struct SNAME *_set_, V *value);                             \
     /* Collection State */                                                     \
-    bool PFX##_contains(struct SNAME *_set_, V element);                       \
+    bool PFX##_contains(struct SNAME *_set_, V value);                         \
     bool PFX##_empty(struct SNAME *_set_);                                     \
     size_t PFX##_count(struct SNAME *_set_);                                   \
     int PFX##_flag(struct SNAME *_set_);                                       \
@@ -226,9 +226,9 @@ static const char *cmc_string_fmt_treeset = "struct %s<%s> "
                                                                                \
     /* Implementation Detail Functions */                                      \
     static struct SNAME##_node *PFX##_impl_new_node(struct SNAME *_set_,       \
-                                                    V element);                \
+                                                    V value);                  \
     static struct SNAME##_node *PFX##_impl_get_node(struct SNAME *_set_,       \
-                                                    V element);                \
+                                                    V value);                  \
     static unsigned char PFX##_impl_h(struct SNAME##_node *node);              \
     static unsigned char PFX##_impl_hupdate(struct SNAME##_node *node);        \
     static void PFX##_impl_rotate_right(struct SNAME##_node **Z);              \
@@ -371,11 +371,11 @@ static const char *cmc_string_fmt_treeset = "struct %s<%s> "
         _set_->flag = cmc_flags.OK;                                            \
     }                                                                          \
                                                                                \
-    bool PFX##_insert(struct SNAME *_set_, V element)                          \
+    bool PFX##_insert(struct SNAME *_set_, V value)                            \
     {                                                                          \
         if (PFX##_empty(_set_))                                                \
         {                                                                      \
-            _set_->root = PFX##_impl_new_node(_set_, element);                 \
+            _set_->root = PFX##_impl_new_node(_set_, value);                   \
                                                                                \
             if (!_set_->root)                                                  \
             {                                                                  \
@@ -392,9 +392,9 @@ static const char *cmc_string_fmt_treeset = "struct %s<%s> "
             {                                                                  \
                 parent = scan;                                                 \
                                                                                \
-                if (_set_->f_val->cmp(scan->value, element) > 0)               \
+                if (_set_->f_val->cmp(scan->value, value) > 0)                 \
                     scan = scan->left;                                         \
-                else if (_set_->f_val->cmp(scan->value, element) < 0)          \
+                else if (_set_->f_val->cmp(scan->value, value) < 0)            \
                     scan = scan->right;                                        \
                 else                                                           \
                 {                                                              \
@@ -405,9 +405,9 @@ static const char *cmc_string_fmt_treeset = "struct %s<%s> "
                                                                                \
             struct SNAME##_node *node;                                         \
                                                                                \
-            if (_set_->f_val->cmp(parent->value, element) > 0)                 \
+            if (_set_->f_val->cmp(parent->value, value) > 0)                   \
             {                                                                  \
-                parent->left = PFX##_impl_new_node(_set_, element);            \
+                parent->left = PFX##_impl_new_node(_set_, value);              \
                                                                                \
                 if (!parent->left)                                             \
                 {                                                              \
@@ -420,7 +420,7 @@ static const char *cmc_string_fmt_treeset = "struct %s<%s> "
             }                                                                  \
             else                                                               \
             {                                                                  \
-                parent->right = PFX##_impl_new_node(_set_, element);           \
+                parent->right = PFX##_impl_new_node(_set_, value);             \
                                                                                \
                 if (!parent->right)                                            \
                 {                                                              \
@@ -444,7 +444,7 @@ static const char *cmc_string_fmt_treeset = "struct %s<%s> "
         return true;                                                           \
     }                                                                          \
                                                                                \
-    bool PFX##_remove(struct SNAME *_set_, V element)                          \
+    bool PFX##_remove(struct SNAME *_set_, V value)                            \
     {                                                                          \
         if (PFX##_empty(_set_))                                                \
         {                                                                      \
@@ -452,7 +452,7 @@ static const char *cmc_string_fmt_treeset = "struct %s<%s> "
             return false;                                                      \
         }                                                                      \
                                                                                \
-        struct SNAME##_node *node = PFX##_impl_get_node(_set_, element);       \
+        struct SNAME##_node *node = PFX##_impl_get_node(_set_, value);         \
                                                                                \
         if (!node)                                                             \
         {                                                                      \
@@ -626,9 +626,9 @@ static const char *cmc_string_fmt_treeset = "struct %s<%s> "
         return true;                                                           \
     }                                                                          \
                                                                                \
-    bool PFX##_contains(struct SNAME *_set_, V element)                        \
+    bool PFX##_contains(struct SNAME *_set_, V value)                          \
     {                                                                          \
-        bool result = PFX##_impl_get_node(_set_, element) != NULL;             \
+        bool result = PFX##_impl_get_node(_set_, value) != NULL;               \
                                                                                \
         if (_set_->callbacks && _set_->callbacks->read)                        \
             _set_->callbacks->read();                                          \
@@ -1208,7 +1208,7 @@ static const char *cmc_string_fmt_treeset = "struct %s<%s> "
     }                                                                          \
                                                                                \
     static struct SNAME##_node *PFX##_impl_new_node(struct SNAME *_set_,       \
-                                                    V element)                 \
+                                                    V value)                   \
     {                                                                          \
         struct SNAME##_node *node =                                            \
             _set_->alloc->malloc(sizeof(struct SNAME##_node));                 \
@@ -1216,7 +1216,7 @@ static const char *cmc_string_fmt_treeset = "struct %s<%s> "
         if (!node)                                                             \
             return NULL;                                                       \
                                                                                \
-        node->value = element;                                                 \
+        node->value = value;                                                   \
         node->right = NULL;                                                    \
         node->left = NULL;                                                     \
         node->parent = NULL;                                                   \
@@ -1226,15 +1226,15 @@ static const char *cmc_string_fmt_treeset = "struct %s<%s> "
     }                                                                          \
                                                                                \
     static struct SNAME##_node *PFX##_impl_get_node(struct SNAME *_set_,       \
-                                                    V element)                 \
+                                                    V value)                   \
     {                                                                          \
         struct SNAME##_node *scan = _set_->root;                               \
                                                                                \
         while (scan != NULL)                                                   \
         {                                                                      \
-            if (_set_->f_val->cmp(scan->value, element) > 0)                   \
+            if (_set_->f_val->cmp(scan->value, value) > 0)                     \
                 scan = scan->left;                                             \
-            else if (_set_->f_val->cmp(scan->value, element) < 0)              \
+            else if (_set_->f_val->cmp(scan->value, value) < 0)                \
                 scan = scan->right;                                            \
             else                                                               \
                 return scan;                                                   \

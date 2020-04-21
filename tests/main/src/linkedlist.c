@@ -43,9 +43,9 @@ void ll_clear(struct linkedlist *_list_);
 void ll_free(struct linkedlist *_list_);
 void ll_customize(struct linkedlist *_list_, struct cmc_alloc_node *alloc,
                   struct cmc_callbacks *callbacks);
-_Bool ll_push_front(struct linkedlist *_list_, size_t element);
-_Bool ll_push_at(struct linkedlist *_list_, size_t element, size_t index);
-_Bool ll_push_back(struct linkedlist *_list_, size_t element);
+_Bool ll_push_front(struct linkedlist *_list_, size_t value);
+_Bool ll_push_at(struct linkedlist *_list_, size_t value, size_t index);
+_Bool ll_push_back(struct linkedlist *_list_, size_t value);
 _Bool ll_pop_front(struct linkedlist *_list_);
 _Bool ll_pop_at(struct linkedlist *_list_, size_t index);
 _Bool ll_pop_back(struct linkedlist *_list_);
@@ -53,7 +53,7 @@ size_t ll_front(struct linkedlist *_list_);
 size_t ll_get(struct linkedlist *_list_, size_t index);
 size_t *ll_get_ref(struct linkedlist *_list_, size_t index);
 size_t ll_back(struct linkedlist *_list_);
-_Bool ll_contains(struct linkedlist *_list_, size_t element);
+_Bool ll_contains(struct linkedlist *_list_, size_t value);
 _Bool ll_empty(struct linkedlist *_list_);
 size_t ll_count(struct linkedlist *_list_);
 int ll_flag(struct linkedlist *_list_);
@@ -61,15 +61,15 @@ struct linkedlist *ll_copy_of(struct linkedlist *_list_);
 _Bool ll_equals(struct linkedlist *_list1_, struct linkedlist *_list2_);
 struct cmc_string ll_to_string(struct linkedlist *_list_);
 _Bool ll_print(struct linkedlist *_list_, FILE *fptr);
-struct linkedlist_node *ll_new_node(struct linkedlist *_list_, size_t element);
+struct linkedlist_node *ll_new_node(struct linkedlist *_list_, size_t value);
 void ll_free_node(struct linkedlist *_list_, struct linkedlist_node *_node_);
 struct linkedlist_node *ll_head(struct linkedlist *_list_);
 struct linkedlist_node *ll_get_node(struct linkedlist *_list_, size_t index);
 struct linkedlist_node *ll_tail(struct linkedlist *_list_);
 _Bool ll_add_next(struct linkedlist *_owner_, struct linkedlist_node *_node_,
-                  size_t element);
+                  size_t value);
 _Bool ll_add_prev(struct linkedlist *_owner_, struct linkedlist_node *_node_,
-                  size_t element);
+                  size_t value);
 _Bool ll_del_next(struct linkedlist *_owner_, struct linkedlist_node *_node_);
 _Bool ll_del_curr(struct linkedlist *_owner_, struct linkedlist_node *_node_);
 _Bool ll_del_prev(struct linkedlist *_owner_, struct linkedlist_node *_node_);
@@ -167,9 +167,9 @@ void ll_customize(struct linkedlist *_list_, struct cmc_alloc_node *alloc,
     _list_->callbacks = callbacks;
     _list_->flag = cmc_flags.OK;
 }
-_Bool ll_push_front(struct linkedlist *_list_, size_t element)
+_Bool ll_push_front(struct linkedlist *_list_, size_t value)
 {
-    struct linkedlist_node *_node_ = ll_new_node(_list_, element);
+    struct linkedlist_node *_node_ = ll_new_node(_list_, value);
     if (!_node_)
         return 0;
     if (ll_empty(_list_))
@@ -189,7 +189,7 @@ _Bool ll_push_front(struct linkedlist *_list_, size_t element)
         _list_->callbacks->create();
     return 1;
 }
-_Bool ll_push_at(struct linkedlist *_list_, size_t element, size_t index)
+_Bool ll_push_at(struct linkedlist *_list_, size_t value, size_t index)
 {
     if (index > _list_->count)
     {
@@ -198,13 +198,13 @@ _Bool ll_push_at(struct linkedlist *_list_, size_t element, size_t index)
     }
     if (index == 0)
     {
-        return ll_push_front(_list_, element);
+        return ll_push_front(_list_, value);
     }
     else if (index == _list_->count)
     {
-        return ll_push_back(_list_, element);
+        return ll_push_back(_list_, value);
     }
-    struct linkedlist_node *_node_ = ll_new_node(_list_, element);
+    struct linkedlist_node *_node_ = ll_new_node(_list_, value);
     if (!_node_)
         return 0;
     struct linkedlist_node *scan = ll_get_node(_list_, index - 1);
@@ -218,9 +218,9 @@ _Bool ll_push_at(struct linkedlist *_list_, size_t element, size_t index)
         _list_->callbacks->create();
     return 1;
 }
-_Bool ll_push_back(struct linkedlist *_list_, size_t element)
+_Bool ll_push_back(struct linkedlist *_list_, size_t value)
 {
-    struct linkedlist_node *_node_ = ll_new_node(_list_, element);
+    struct linkedlist_node *_node_ = ll_new_node(_list_, value);
     if (!_node_)
         return 0;
     if (ll_empty(_list_))
@@ -374,14 +374,14 @@ size_t ll_back(struct linkedlist *_list_)
         _list_->callbacks->read();
     return _list_->tail->value;
 }
-_Bool ll_contains(struct linkedlist *_list_, size_t element)
+_Bool ll_contains(struct linkedlist *_list_, size_t value)
 {
     _list_->flag = cmc_flags.OK;
     _Bool result = 0;
     struct linkedlist_node *scan = _list_->head;
     while (scan != ((void *)0))
     {
-        if (_list_->f_val->cmp(scan->value, element) == 0)
+        if (_list_->f_val->cmp(scan->value, value) == 0)
         {
             result = 1;
             break;
@@ -472,7 +472,7 @@ _Bool ll_print(struct linkedlist *_list_, FILE *fptr)
     }
     return 1;
 }
-struct linkedlist_node *ll_new_node(struct linkedlist *_list_, size_t element)
+struct linkedlist_node *ll_new_node(struct linkedlist *_list_, size_t value)
 {
     struct linkedlist_node *_node_ =
         _list_->alloc->malloc(sizeof(struct linkedlist_node));
@@ -481,7 +481,7 @@ struct linkedlist_node *ll_new_node(struct linkedlist *_list_, size_t element)
         _list_->flag = cmc_flags.ALLOC;
         return ((void *)0);
     }
-    _node_->value = element;
+    _node_->value = value;
     _node_->next = ((void *)0);
     _node_->prev = ((void *)0);
     return _node_;
@@ -531,9 +531,9 @@ struct linkedlist_node *ll_tail(struct linkedlist *_list_)
     return _list_->tail;
 }
 _Bool ll_add_next(struct linkedlist *_owner_, struct linkedlist_node *_node_,
-                  size_t element)
+                  size_t value)
 {
-    struct linkedlist_node *new_node = ll_new_node(_owner_, element);
+    struct linkedlist_node *new_node = ll_new_node(_owner_, value);
     if (!new_node)
         return 0;
     new_node->next = _node_->next;
@@ -548,9 +548,9 @@ _Bool ll_add_next(struct linkedlist *_owner_, struct linkedlist_node *_node_,
     return 1;
 }
 _Bool ll_add_prev(struct linkedlist *_owner_, struct linkedlist_node *_node_,
-                  size_t element)
+                  size_t value)
 {
-    struct linkedlist_node *new_node = ll_new_node(_owner_, element);
+    struct linkedlist_node *new_node = ll_new_node(_owner_, value);
     if (!new_node)
         return 0;
     new_node->prev = _node_->prev;

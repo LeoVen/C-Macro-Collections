@@ -143,12 +143,12 @@ static const char *cmc_string_fmt_stack = "struct %s<%s> "
     void PFX##_customize(struct SNAME *_stack_, struct cmc_alloc_node *alloc, \
                          struct cmc_callbacks *callbacks);                    \
     /* Collection Input and Output */                                         \
-    bool PFX##_push(struct SNAME *_stack_, V element);                        \
+    bool PFX##_push(struct SNAME *_stack_, V value);                          \
     bool PFX##_pop(struct SNAME *_stack_);                                    \
     /* Element Access */                                                      \
     V PFX##_top(struct SNAME *_stack_);                                       \
     /* Collection State */                                                    \
-    bool PFX##_contains(struct SNAME *_stack_, V element);                    \
+    bool PFX##_contains(struct SNAME *_stack_, V value);                      \
     bool PFX##_empty(struct SNAME *_stack_);                                  \
     bool PFX##_full(struct SNAME *_stack_);                                   \
     size_t PFX##_count(struct SNAME *_stack_);                                \
@@ -303,7 +303,7 @@ static const char *cmc_string_fmt_stack = "struct %s<%s> "
         _stack_->flag = cmc_flags.OK;                                         \
     }                                                                         \
                                                                               \
-    bool PFX##_push(struct SNAME *_stack_, V element)                         \
+    bool PFX##_push(struct SNAME *_stack_, V value)                           \
     {                                                                         \
         if (PFX##_full(_stack_))                                              \
         {                                                                     \
@@ -311,7 +311,7 @@ static const char *cmc_string_fmt_stack = "struct %s<%s> "
                 return false;                                                 \
         }                                                                     \
                                                                               \
-        _stack_->buffer[_stack_->count++] = element;                          \
+        _stack_->buffer[_stack_->count++] = value;                            \
                                                                               \
         _stack_->flag = cmc_flags.OK;                                         \
                                                                               \
@@ -355,7 +355,7 @@ static const char *cmc_string_fmt_stack = "struct %s<%s> "
         return _stack_->buffer[_stack_->count - 1];                           \
     }                                                                         \
                                                                               \
-    bool PFX##_contains(struct SNAME *_stack_, V element)                     \
+    bool PFX##_contains(struct SNAME *_stack_, V value)                       \
     {                                                                         \
         _stack_->flag = cmc_flags.OK;                                         \
                                                                               \
@@ -363,7 +363,7 @@ static const char *cmc_string_fmt_stack = "struct %s<%s> "
                                                                               \
         for (size_t i = 0; i < _stack_->count; i++)                           \
         {                                                                     \
-            if (_stack_->f_val->cmp(_stack_->buffer[i], element) == 0)        \
+            if (_stack_->f_val->cmp(_stack_->buffer[i], value) == 0)          \
             {                                                                 \
                 result = true;                                                \
                 break;                                                        \

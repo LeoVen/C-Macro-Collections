@@ -46,11 +46,11 @@ void ts_clear(struct treeset *_set_);
 void ts_free(struct treeset *_set_);
 void ts_customize(struct treeset *_set_, struct cmc_alloc_node *alloc,
                   struct cmc_callbacks *callbacks);
-_Bool ts_insert(struct treeset *_set_, size_t element);
-_Bool ts_remove(struct treeset *_set_, size_t element);
+_Bool ts_insert(struct treeset *_set_, size_t value);
+_Bool ts_remove(struct treeset *_set_, size_t value);
 _Bool ts_max(struct treeset *_set_, size_t *value);
 _Bool ts_min(struct treeset *_set_, size_t *value);
-_Bool ts_contains(struct treeset *_set_, size_t element);
+_Bool ts_contains(struct treeset *_set_, size_t value);
 _Bool ts_empty(struct treeset *_set_);
 size_t ts_count(struct treeset *_set_);
 int ts_flag(struct treeset *_set_);
@@ -89,9 +89,9 @@ static inline size_t ts_impl_default_value(void)
     return _empty_value_;
 }
 static struct treeset_node *ts_impl_new_node(struct treeset *_set_,
-                                             size_t element);
+                                             size_t value);
 static struct treeset_node *ts_impl_get_node(struct treeset *_set_,
-                                             size_t element);
+                                             size_t value);
 static unsigned char ts_impl_h(struct treeset_node *node);
 static unsigned char ts_impl_hupdate(struct treeset_node *node);
 static void ts_impl_rotate_right(struct treeset_node **Z);
@@ -206,11 +206,11 @@ void ts_customize(struct treeset *_set_, struct cmc_alloc_node *alloc,
     _set_->callbacks = callbacks;
     _set_->flag = cmc_flags.OK;
 }
-_Bool ts_insert(struct treeset *_set_, size_t element)
+_Bool ts_insert(struct treeset *_set_, size_t value)
 {
     if (ts_empty(_set_))
     {
-        _set_->root = ts_impl_new_node(_set_, element);
+        _set_->root = ts_impl_new_node(_set_, value);
         if (!_set_->root)
         {
             _set_->flag = cmc_flags.ALLOC;
@@ -224,9 +224,9 @@ _Bool ts_insert(struct treeset *_set_, size_t element)
         while (scan != ((void *)0))
         {
             parent = scan;
-            if (_set_->f_val->cmp(scan->value, element) > 0)
+            if (_set_->f_val->cmp(scan->value, value) > 0)
                 scan = scan->left;
-            else if (_set_->f_val->cmp(scan->value, element) < 0)
+            else if (_set_->f_val->cmp(scan->value, value) < 0)
                 scan = scan->right;
             else
             {
@@ -235,9 +235,9 @@ _Bool ts_insert(struct treeset *_set_, size_t element)
             }
         }
         struct treeset_node *node;
-        if (_set_->f_val->cmp(parent->value, element) > 0)
+        if (_set_->f_val->cmp(parent->value, value) > 0)
         {
-            parent->left = ts_impl_new_node(_set_, element);
+            parent->left = ts_impl_new_node(_set_, value);
             if (!parent->left)
             {
                 _set_->flag = cmc_flags.ALLOC;
@@ -248,7 +248,7 @@ _Bool ts_insert(struct treeset *_set_, size_t element)
         }
         else
         {
-            parent->right = ts_impl_new_node(_set_, element);
+            parent->right = ts_impl_new_node(_set_, value);
             if (!parent->right)
             {
                 _set_->flag = cmc_flags.ALLOC;
@@ -265,14 +265,14 @@ _Bool ts_insert(struct treeset *_set_, size_t element)
         _set_->callbacks->create();
     return 1;
 }
-_Bool ts_remove(struct treeset *_set_, size_t element)
+_Bool ts_remove(struct treeset *_set_, size_t value)
 {
     if (ts_empty(_set_))
     {
         _set_->flag = cmc_flags.EMPTY;
         return 0;
     }
-    struct treeset_node *node = ts_impl_get_node(_set_, element);
+    struct treeset_node *node = ts_impl_get_node(_set_, value);
     if (!node)
     {
         _set_->flag = cmc_flags.NOT_FOUND;
@@ -407,9 +407,9 @@ _Bool ts_min(struct treeset *_set_, size_t *value)
         _set_->callbacks->read();
     return 1;
 }
-_Bool ts_contains(struct treeset *_set_, size_t element)
+_Bool ts_contains(struct treeset *_set_, size_t value)
 {
-    _Bool result = ts_impl_get_node(_set_, element) != ((void *)0);
+    _Bool result = ts_impl_get_node(_set_, value) != ((void *)0);
     if (_set_->callbacks && _set_->callbacks->read)
         _set_->callbacks->read();
     return result;
@@ -811,13 +811,13 @@ size_t ts_iter_index(struct treeset_iter *iter)
     return iter->index;
 }
 static struct treeset_node *ts_impl_new_node(struct treeset *_set_,
-                                             size_t element)
+                                             size_t value)
 {
     struct treeset_node *node =
         _set_->alloc->malloc(sizeof(struct treeset_node));
     if (!node)
         return ((void *)0);
-    node->value = element;
+    node->value = value;
     node->right = ((void *)0);
     node->left = ((void *)0);
     node->parent = ((void *)0);
@@ -825,14 +825,14 @@ static struct treeset_node *ts_impl_new_node(struct treeset *_set_,
     return node;
 }
 static struct treeset_node *ts_impl_get_node(struct treeset *_set_,
-                                             size_t element)
+                                             size_t value)
 {
     struct treeset_node *scan = _set_->root;
     while (scan != ((void *)0))
     {
-        if (_set_->f_val->cmp(scan->value, element) > 0)
+        if (_set_->f_val->cmp(scan->value, value) > 0)
             scan = scan->left;
-        else if (_set_->f_val->cmp(scan->value, element) < 0)
+        else if (_set_->f_val->cmp(scan->value, value) < 0)
             scan = scan->right;
         else
             return scan;

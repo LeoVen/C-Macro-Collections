@@ -39,10 +39,10 @@ void q_clear(struct queue *_queue_);
 void q_free(struct queue *_queue_);
 void q_customize(struct queue *_queue_, struct cmc_alloc_node *alloc,
                  struct cmc_callbacks *callbacks);
-_Bool q_enqueue(struct queue *_queue_, size_t element);
+_Bool q_enqueue(struct queue *_queue_, size_t value);
 _Bool q_dequeue(struct queue *_queue_);
 size_t q_peek(struct queue *_queue_);
-_Bool q_contains(struct queue *_queue_, size_t element);
+_Bool q_contains(struct queue *_queue_, size_t value);
 _Bool q_empty(struct queue *_queue_);
 _Bool q_full(struct queue *_queue_);
 size_t q_count(struct queue *_queue_);
@@ -168,14 +168,14 @@ void q_customize(struct queue *_queue_, struct cmc_alloc_node *alloc,
     _queue_->callbacks = callbacks;
     _queue_->flag = cmc_flags.OK;
 }
-_Bool q_enqueue(struct queue *_queue_, size_t element)
+_Bool q_enqueue(struct queue *_queue_, size_t value)
 {
     if (q_full(_queue_))
     {
         if (!q_resize(_queue_, _queue_->capacity * 2))
             return 0;
     }
-    _queue_->buffer[_queue_->back] = element;
+    _queue_->buffer[_queue_->back] = value;
     _queue_->back =
         (_queue_->back == _queue_->capacity - 1) ? 0 : _queue_->back + 1;
     _queue_->count++;
@@ -212,13 +212,13 @@ size_t q_peek(struct queue *_queue_)
         _queue_->callbacks->read();
     return _queue_->buffer[_queue_->front];
 }
-_Bool q_contains(struct queue *_queue_, size_t element)
+_Bool q_contains(struct queue *_queue_, size_t value)
 {
     _queue_->flag = cmc_flags.OK;
     _Bool result = 0;
     for (size_t i = _queue_->front, j = 0; j < _queue_->count; j++)
     {
-        if (_queue_->f_val->cmp(_queue_->buffer[i], element) == 0)
+        if (_queue_->f_val->cmp(_queue_->buffer[i], value) == 0)
         {
             result = 1;
             break;

@@ -155,15 +155,15 @@ static const char *cmc_string_fmt_deque = "struct %s<%s> "
     void PFX##_customize(struct SNAME *_deque_, struct cmc_alloc_node *alloc, \
                          struct cmc_callbacks *callbacks);                    \
     /* Collection Input and Output */                                         \
-    bool PFX##_push_front(struct SNAME *_deque_, V element);                  \
-    bool PFX##_push_back(struct SNAME *_deque_, V element);                   \
+    bool PFX##_push_front(struct SNAME *_deque_, V value);                    \
+    bool PFX##_push_back(struct SNAME *_deque_, V value);                     \
     bool PFX##_pop_front(struct SNAME *_deque_);                              \
     bool PFX##_pop_back(struct SNAME *_deque_);                               \
     /* Element Access */                                                      \
     V PFX##_front(struct SNAME *_deque_);                                     \
     V PFX##_back(struct SNAME *_deque_);                                      \
     /* Collection State */                                                    \
-    bool PFX##_contains(struct SNAME *_deque_, V element);                    \
+    bool PFX##_contains(struct SNAME *_deque_, V value);                      \
     bool PFX##_empty(struct SNAME *_deque_);                                  \
     bool PFX##_full(struct SNAME *_deque_);                                   \
     size_t PFX##_count(struct SNAME *_deque_);                                \
@@ -334,7 +334,7 @@ static const char *cmc_string_fmt_deque = "struct %s<%s> "
         _deque_->flag = cmc_flags.OK;                                          \
     }                                                                          \
                                                                                \
-    bool PFX##_push_front(struct SNAME *_deque_, V element)                    \
+    bool PFX##_push_front(struct SNAME *_deque_, V value)                      \
     {                                                                          \
         if (PFX##_full(_deque_))                                               \
         {                                                                      \
@@ -345,7 +345,7 @@ static const char *cmc_string_fmt_deque = "struct %s<%s> "
         _deque_->front = (_deque_->front == 0) ? _deque_->capacity - 1         \
                                                : _deque_->front - 1;           \
                                                                                \
-        _deque_->buffer[_deque_->front] = element;                             \
+        _deque_->buffer[_deque_->front] = value;                               \
                                                                                \
         _deque_->count++;                                                      \
         _deque_->flag = cmc_flags.OK;                                          \
@@ -356,7 +356,7 @@ static const char *cmc_string_fmt_deque = "struct %s<%s> "
         return true;                                                           \
     }                                                                          \
                                                                                \
-    bool PFX##_push_back(struct SNAME *_deque_, V element)                     \
+    bool PFX##_push_back(struct SNAME *_deque_, V value)                       \
     {                                                                          \
         if (PFX##_full(_deque_))                                               \
         {                                                                      \
@@ -364,7 +364,7 @@ static const char *cmc_string_fmt_deque = "struct %s<%s> "
                 return false;                                                  \
         }                                                                      \
                                                                                \
-        _deque_->buffer[_deque_->back] = element;                              \
+        _deque_->buffer[_deque_->back] = value;                                \
                                                                                \
         _deque_->back =                                                        \
             (_deque_->back == _deque_->capacity - 1) ? 0 : _deque_->back + 1;  \
@@ -456,7 +456,7 @@ static const char *cmc_string_fmt_deque = "struct %s<%s> "
                                                     : _deque_->back - 1];      \
     }                                                                          \
                                                                                \
-    bool PFX##_contains(struct SNAME *_deque_, V element)                      \
+    bool PFX##_contains(struct SNAME *_deque_, V value)                        \
     {                                                                          \
         _deque_->flag = cmc_flags.OK;                                          \
                                                                                \
@@ -464,7 +464,7 @@ static const char *cmc_string_fmt_deque = "struct %s<%s> "
                                                                                \
         for (size_t i = _deque_->front, j = 0; j < _deque_->count; j++)        \
         {                                                                      \
-            if (_deque_->f_val->cmp(_deque_->buffer[i], element) == 0)         \
+            if (_deque_->f_val->cmp(_deque_->buffer[i], value) == 0)           \
             {                                                                  \
                 result = true;                                                 \
                 break;                                                         \

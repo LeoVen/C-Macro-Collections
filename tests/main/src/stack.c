@@ -36,10 +36,10 @@ void s_clear(struct stack *_stack_);
 void s_free(struct stack *_stack_);
 void s_customize(struct stack *_stack_, struct cmc_alloc_node *alloc,
                  struct cmc_callbacks *callbacks);
-_Bool s_push(struct stack *_stack_, size_t element);
+_Bool s_push(struct stack *_stack_, size_t value);
 _Bool s_pop(struct stack *_stack_);
 size_t s_top(struct stack *_stack_);
-_Bool s_contains(struct stack *_stack_, size_t element);
+_Bool s_contains(struct stack *_stack_, size_t value);
 _Bool s_empty(struct stack *_stack_);
 _Bool s_full(struct stack *_stack_);
 size_t s_count(struct stack *_stack_);
@@ -153,14 +153,14 @@ void s_customize(struct stack *_stack_, struct cmc_alloc_node *alloc,
     _stack_->callbacks = callbacks;
     _stack_->flag = cmc_flags.OK;
 }
-_Bool s_push(struct stack *_stack_, size_t element)
+_Bool s_push(struct stack *_stack_, size_t value)
 {
     if (s_full(_stack_))
     {
         if (!s_resize(_stack_, _stack_->capacity * 2))
             return 0;
     }
-    _stack_->buffer[_stack_->count++] = element;
+    _stack_->buffer[_stack_->count++] = value;
     _stack_->flag = cmc_flags.OK;
     if (_stack_->callbacks && _stack_->callbacks->create)
         _stack_->callbacks->create();
@@ -191,13 +191,13 @@ size_t s_top(struct stack *_stack_)
         _stack_->callbacks->read();
     return _stack_->buffer[_stack_->count - 1];
 }
-_Bool s_contains(struct stack *_stack_, size_t element)
+_Bool s_contains(struct stack *_stack_, size_t value)
 {
     _stack_->flag = cmc_flags.OK;
     _Bool result = 0;
     for (size_t i = 0; i < _stack_->count; i++)
     {
-        if (_stack_->f_val->cmp(_stack_->buffer[i], element) == 0)
+        if (_stack_->f_val->cmp(_stack_->buffer[i], value) == 0)
         {
             result = 1;
             break;

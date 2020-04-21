@@ -39,13 +39,13 @@ void d_clear(struct deque *_deque_);
 void d_free(struct deque *_deque_);
 void d_customize(struct deque *_deque_, struct cmc_alloc_node *alloc,
                  struct cmc_callbacks *callbacks);
-_Bool d_push_front(struct deque *_deque_, size_t element);
-_Bool d_push_back(struct deque *_deque_, size_t element);
+_Bool d_push_front(struct deque *_deque_, size_t value);
+_Bool d_push_back(struct deque *_deque_, size_t value);
 _Bool d_pop_front(struct deque *_deque_);
 _Bool d_pop_back(struct deque *_deque_);
 size_t d_front(struct deque *_deque_);
 size_t d_back(struct deque *_deque_);
-_Bool d_contains(struct deque *_deque_, size_t element);
+_Bool d_contains(struct deque *_deque_, size_t value);
 _Bool d_empty(struct deque *_deque_);
 _Bool d_full(struct deque *_deque_);
 size_t d_count(struct deque *_deque_);
@@ -171,7 +171,7 @@ void d_customize(struct deque *_deque_, struct cmc_alloc_node *alloc,
     _deque_->callbacks = callbacks;
     _deque_->flag = cmc_flags.OK;
 }
-_Bool d_push_front(struct deque *_deque_, size_t element)
+_Bool d_push_front(struct deque *_deque_, size_t value)
 {
     if (d_full(_deque_))
     {
@@ -180,21 +180,21 @@ _Bool d_push_front(struct deque *_deque_, size_t element)
     }
     _deque_->front =
         (_deque_->front == 0) ? _deque_->capacity - 1 : _deque_->front - 1;
-    _deque_->buffer[_deque_->front] = element;
+    _deque_->buffer[_deque_->front] = value;
     _deque_->count++;
     _deque_->flag = cmc_flags.OK;
     if (_deque_->callbacks && _deque_->callbacks->create)
         _deque_->callbacks->create();
     return 1;
 }
-_Bool d_push_back(struct deque *_deque_, size_t element)
+_Bool d_push_back(struct deque *_deque_, size_t value)
 {
     if (d_full(_deque_))
     {
         if (!d_resize(_deque_, _deque_->capacity * 2))
             return 0;
     }
-    _deque_->buffer[_deque_->back] = element;
+    _deque_->buffer[_deque_->back] = value;
     _deque_->back =
         (_deque_->back == _deque_->capacity - 1) ? 0 : _deque_->back + 1;
     _deque_->count++;
@@ -260,13 +260,13 @@ size_t d_back(struct deque *_deque_)
     return _deque_->buffer[(_deque_->back == 0) ? _deque_->capacity - 1
                                                 : _deque_->back - 1];
 }
-_Bool d_contains(struct deque *_deque_, size_t element)
+_Bool d_contains(struct deque *_deque_, size_t value)
 {
     _deque_->flag = cmc_flags.OK;
     _Bool result = 0;
     for (size_t i = _deque_->front, j = 0; j < _deque_->count; j++)
     {
-        if (_deque_->f_val->cmp(_deque_->buffer[i], element) == 0)
+        if (_deque_->f_val->cmp(_deque_->buffer[i], value) == 0)
         {
             result = 1;
             break;

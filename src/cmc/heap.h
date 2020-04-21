@@ -166,12 +166,12 @@ static const char *cmc_string_fmt_heap = "struct %s<%s> "
     void PFX##_customize(struct SNAME *_heap_, struct cmc_alloc_node *alloc, \
                          struct cmc_callbacks *callbacks);                   \
     /* Collection Input and Output */                                        \
-    bool PFX##_insert(struct SNAME *_heap_, V element);                      \
+    bool PFX##_insert(struct SNAME *_heap_, V value);                        \
     bool PFX##_remove(struct SNAME *_heap_);                                 \
     /* Element Access */                                                     \
     V PFX##_peek(struct SNAME *_heap_);                                      \
     /* Collection State */                                                   \
-    bool PFX##_contains(struct SNAME *_heap_, V element);                    \
+    bool PFX##_contains(struct SNAME *_heap_, V value);                      \
     bool PFX##_empty(struct SNAME *_heap_);                                  \
     bool PFX##_full(struct SNAME *_heap_);                                   \
     size_t PFX##_count(struct SNAME *_heap_);                                \
@@ -341,7 +341,7 @@ static const char *cmc_string_fmt_heap = "struct %s<%s> "
         _heap_->flag = cmc_flags.OK;                                           \
     }                                                                          \
                                                                                \
-    bool PFX##_insert(struct SNAME *_heap_, V element)                         \
+    bool PFX##_insert(struct SNAME *_heap_, V value)                           \
     {                                                                          \
         if (PFX##_full(_heap_))                                                \
         {                                                                      \
@@ -349,7 +349,7 @@ static const char *cmc_string_fmt_heap = "struct %s<%s> "
                 return false;                                                  \
         }                                                                      \
                                                                                \
-        _heap_->buffer[_heap_->count++] = element;                             \
+        _heap_->buffer[_heap_->count++] = value;                               \
                                                                                \
         if (!PFX##_empty(_heap_))                                              \
         {                                                                      \
@@ -403,7 +403,7 @@ static const char *cmc_string_fmt_heap = "struct %s<%s> "
         return _heap_->buffer[0];                                              \
     }                                                                          \
                                                                                \
-    bool PFX##_contains(struct SNAME *_heap_, V element)                       \
+    bool PFX##_contains(struct SNAME *_heap_, V value)                         \
     {                                                                          \
         _heap_->flag = cmc_flags.OK;                                           \
                                                                                \
@@ -411,7 +411,7 @@ static const char *cmc_string_fmt_heap = "struct %s<%s> "
                                                                                \
         for (size_t i = 0; i < _heap_->count; i++)                             \
         {                                                                      \
-            if (_heap_->f_val->cmp(_heap_->buffer[i], element) == 0)           \
+            if (_heap_->f_val->cmp(_heap_->buffer[i], value) == 0)             \
             {                                                                  \
                 result = true;                                                 \
                 break;                                                         \

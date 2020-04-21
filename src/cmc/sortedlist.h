@@ -141,15 +141,15 @@ static const char *cmc_string_fmt_sortedlist = "struct %s<%s> "
     void PFX##_customize(struct SNAME *_list_, struct cmc_alloc_node *alloc, \
                          struct cmc_callbacks *callbacks);                   \
     /* Collection Input and Output */                                        \
-    bool PFX##_insert(struct SNAME *_list_, V element);                      \
+    bool PFX##_insert(struct SNAME *_list_, V value);                        \
     bool PFX##_remove(struct SNAME *_list_, size_t index);                   \
     /* Element Access */                                                     \
     V PFX##_max(struct SNAME *_list_);                                       \
     V PFX##_min(struct SNAME *_list_);                                       \
     V PFX##_get(struct SNAME *_list_, size_t index);                         \
-    size_t PFX##_index_of(struct SNAME *_list_, V element, bool from_start); \
+    size_t PFX##_index_of(struct SNAME *_list_, V value, bool from_start);   \
     /* Collection State */                                                   \
-    bool PFX##_contains(struct SNAME *_list_, V element);                    \
+    bool PFX##_contains(struct SNAME *_list_, V value);                      \
     bool PFX##_empty(struct SNAME *_list_);                                  \
     bool PFX##_full(struct SNAME *_list_);                                   \
     size_t PFX##_count(struct SNAME *_list_);                                \
@@ -312,7 +312,7 @@ static const char *cmc_string_fmt_sortedlist = "struct %s<%s> "
         _list_->flag = cmc_flags.OK;                                           \
     }                                                                          \
                                                                                \
-    bool PFX##_insert(struct SNAME *_list_, V element)                         \
+    bool PFX##_insert(struct SNAME *_list_, V value)                           \
     {                                                                          \
         if (PFX##_full(_list_))                                                \
         {                                                                      \
@@ -320,7 +320,7 @@ static const char *cmc_string_fmt_sortedlist = "struct %s<%s> "
                 return false;                                                  \
         }                                                                      \
                                                                                \
-        _list_->buffer[_list_->count++] = element;                             \
+        _list_->buffer[_list_->count++] = value;                               \
                                                                                \
         _list_->is_sorted = false;                                             \
         _list_->flag = cmc_flags.OK;                                           \
@@ -418,7 +418,7 @@ static const char *cmc_string_fmt_sortedlist = "struct %s<%s> "
         return _list_->buffer[index];                                          \
     }                                                                          \
                                                                                \
-    size_t PFX##_index_of(struct SNAME *_list_, V element, bool from_start)    \
+    size_t PFX##_index_of(struct SNAME *_list_, V value, bool from_start)      \
     {                                                                          \
         _list_->flag = cmc_flags.OK;                                           \
                                                                                \
@@ -429,13 +429,13 @@ static const char *cmc_string_fmt_sortedlist = "struct %s<%s> "
                                                                                \
         if (from_start)                                                        \
         {                                                                      \
-            return PFX##_impl_binary_search_first(_list_, element);            \
+            return PFX##_impl_binary_search_first(_list_, value);              \
         }                                                                      \
                                                                                \
-        return PFX##_impl_binary_search_last(_list_, element);                 \
+        return PFX##_impl_binary_search_last(_list_, value);                   \
     }                                                                          \
                                                                                \
-    bool PFX##_contains(struct SNAME *_list_, V element)                       \
+    bool PFX##_contains(struct SNAME *_list_, V value)                         \
     {                                                                          \
         _list_->flag = cmc_flags.OK;                                           \
                                                                                \
@@ -447,8 +447,7 @@ static const char *cmc_string_fmt_sortedlist = "struct %s<%s> "
         if (_list_->callbacks && _list_->callbacks->read)                      \
             _list_->callbacks->read();                                         \
                                                                                \
-        return PFX##_impl_binary_search_first(_list_, element) <               \
-               _list_->count;                                                  \
+        return PFX##_impl_binary_search_first(_list_, value) < _list_->count;  \
     }                                                                          \
                                                                                \
     bool PFX##_empty(struct SNAME *_list_)                                     \

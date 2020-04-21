@@ -38,10 +38,10 @@ void h_clear(struct heap *_heap_);
 void h_free(struct heap *_heap_);
 void h_customize(struct heap *_heap_, struct cmc_alloc_node *alloc,
                  struct cmc_callbacks *callbacks);
-_Bool h_insert(struct heap *_heap_, size_t element);
+_Bool h_insert(struct heap *_heap_, size_t value);
 _Bool h_remove(struct heap *_heap_);
 size_t h_peek(struct heap *_heap_);
-_Bool h_contains(struct heap *_heap_, size_t element);
+_Bool h_contains(struct heap *_heap_, size_t value);
 _Bool h_empty(struct heap *_heap_);
 _Bool h_full(struct heap *_heap_);
 size_t h_count(struct heap *_heap_);
@@ -167,14 +167,14 @@ void h_customize(struct heap *_heap_, struct cmc_alloc_node *alloc,
     _heap_->callbacks = callbacks;
     _heap_->flag = cmc_flags.OK;
 }
-_Bool h_insert(struct heap *_heap_, size_t element)
+_Bool h_insert(struct heap *_heap_, size_t value)
 {
     if (h_full(_heap_))
     {
         if (!h_resize(_heap_, _heap_->count * 2))
             return 0;
     }
-    _heap_->buffer[_heap_->count++] = element;
+    _heap_->buffer[_heap_->count++] = value;
     if (!h_empty(_heap_))
     {
         h_impl_float_up(_heap_, _heap_->count - 1);
@@ -212,13 +212,13 @@ size_t h_peek(struct heap *_heap_)
         _heap_->callbacks->read();
     return _heap_->buffer[0];
 }
-_Bool h_contains(struct heap *_heap_, size_t element)
+_Bool h_contains(struct heap *_heap_, size_t value)
 {
     _heap_->flag = cmc_flags.OK;
     _Bool result = 0;
     for (size_t i = 0; i < _heap_->count; i++)
     {
-        if (_heap_->f_val->cmp(_heap_->buffer[i], element) == 0)
+        if (_heap_->f_val->cmp(_heap_->buffer[i], value) == 0)
         {
             result = 1;
             break;

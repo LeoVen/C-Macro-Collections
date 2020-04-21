@@ -42,14 +42,14 @@ void ih_clear(struct intervalheap *_heap_);
 void ih_free(struct intervalheap *_heap_);
 void ih_customize(struct intervalheap *_heap_, struct cmc_alloc_node *alloc,
                   struct cmc_callbacks *callbacks);
-_Bool ih_insert(struct intervalheap *_heap_, size_t element);
+_Bool ih_insert(struct intervalheap *_heap_, size_t value);
 _Bool ih_remove_max(struct intervalheap *_heap_);
 _Bool ih_remove_min(struct intervalheap *_heap_);
-_Bool ih_update_max(struct intervalheap *_heap_, size_t element);
-_Bool ih_update_min(struct intervalheap *_heap_, size_t element);
+_Bool ih_update_max(struct intervalheap *_heap_, size_t value);
+_Bool ih_update_min(struct intervalheap *_heap_, size_t value);
 size_t ih_max(struct intervalheap *_heap_);
 size_t ih_min(struct intervalheap *_heap_);
-_Bool ih_contains(struct intervalheap *_heap_, size_t element);
+_Bool ih_contains(struct intervalheap *_heap_, size_t value);
 _Bool ih_empty(struct intervalheap *_heap_);
 _Bool ih_full(struct intervalheap *_heap_);
 size_t ih_count(struct intervalheap *_heap_);
@@ -176,7 +176,7 @@ void ih_customize(struct intervalheap *_heap_, struct cmc_alloc_node *alloc,
     _heap_->callbacks = callbacks;
     _heap_->flag = cmc_flags.OK;
 }
-_Bool ih_insert(struct intervalheap *_heap_, size_t element)
+_Bool ih_insert(struct intervalheap *_heap_, size_t value)
 {
     if (ih_full(_heap_))
     {
@@ -185,21 +185,21 @@ _Bool ih_insert(struct intervalheap *_heap_, size_t element)
     }
     if (_heap_->count % 2 == 0)
     {
-        _heap_->buffer[_heap_->size].data[0] = element;
+        _heap_->buffer[_heap_->size].data[0] = value;
         _heap_->buffer[_heap_->size].data[1] = (size_t){ 0 };
         _heap_->size++;
     }
     else
     {
         struct intervalheap_node *node = &(_heap_->buffer[_heap_->size - 1]);
-        if (_heap_->f_val->cmp(node->data[0], element) > 0)
+        if (_heap_->f_val->cmp(node->data[0], value) > 0)
         {
             node->data[1] = node->data[0];
-            node->data[0] = element;
+            node->data[0] = value;
         }
         else
         {
-            node->data[1] = element;
+            node->data[1] = value;
         }
     }
     _heap_->count++;
@@ -208,9 +208,9 @@ _Bool ih_insert(struct intervalheap *_heap_, size_t element)
     {
         struct intervalheap_node *parent =
             &(_heap_->buffer[(_heap_->size - 1) / 2]);
-        if (_heap_->f_val->cmp(parent->data[0], element) > 0)
+        if (_heap_->f_val->cmp(parent->data[0], value) > 0)
             ih_impl_float_up_min(_heap_);
-        else if (_heap_->f_val->cmp(parent->data[1], element) < 0)
+        else if (_heap_->f_val->cmp(parent->data[1], value) < 0)
             ih_impl_float_up_max(_heap_);
     }
     if (_heap_->callbacks && _heap_->callbacks->create)
@@ -285,7 +285,7 @@ success:
         _heap_->callbacks->delete ();
     return 1;
 }
-_Bool ih_update_max(struct intervalheap *_heap_, size_t element)
+_Bool ih_update_max(struct intervalheap *_heap_, size_t value)
 {
     if (ih_empty(_heap_))
     {
@@ -294,17 +294,17 @@ _Bool ih_update_max(struct intervalheap *_heap_, size_t element)
     }
     if (_heap_->count == 1)
     {
-        _heap_->buffer[0].data[0] = element;
+        _heap_->buffer[0].data[0] = value;
     }
-    else if (_heap_->f_val->cmp(element, _heap_->buffer[0].data[0]) < 0)
+    else if (_heap_->f_val->cmp(value, _heap_->buffer[0].data[0]) < 0)
     {
         _heap_->buffer[0].data[1] = _heap_->buffer[0].data[0];
-        _heap_->buffer[0].data[0] = element;
+        _heap_->buffer[0].data[0] = value;
         ih_impl_float_down_max(_heap_);
     }
     else
     {
-        _heap_->buffer[0].data[1] = element;
+        _heap_->buffer[0].data[1] = value;
         ih_impl_float_down_max(_heap_);
     }
     _heap_->flag = cmc_flags.OK;
@@ -312,7 +312,7 @@ _Bool ih_update_max(struct intervalheap *_heap_, size_t element)
         _heap_->callbacks->update();
     return 1;
 }
-_Bool ih_update_min(struct intervalheap *_heap_, size_t element)
+_Bool ih_update_min(struct intervalheap *_heap_, size_t value)
 {
     if (ih_empty(_heap_))
     {
@@ -321,17 +321,17 @@ _Bool ih_update_min(struct intervalheap *_heap_, size_t element)
     }
     if (_heap_->count == 1)
     {
-        _heap_->buffer[0].data[0] = element;
+        _heap_->buffer[0].data[0] = value;
     }
-    else if (_heap_->f_val->cmp(element, _heap_->buffer[0].data[1]) > 0)
+    else if (_heap_->f_val->cmp(value, _heap_->buffer[0].data[1]) > 0)
     {
         _heap_->buffer[0].data[0] = _heap_->buffer[0].data[1];
-        _heap_->buffer[0].data[1] = element;
+        _heap_->buffer[0].data[1] = value;
         ih_impl_float_down_min(_heap_);
     }
     else
     {
-        _heap_->buffer[0].data[0] = element;
+        _heap_->buffer[0].data[0] = value;
         ih_impl_float_down_min(_heap_);
     }
     _heap_->flag = cmc_flags.OK;
@@ -365,13 +365,13 @@ size_t ih_min(struct intervalheap *_heap_)
         _heap_->callbacks->read();
     return _heap_->buffer[0].data[0];
 }
-_Bool ih_contains(struct intervalheap *_heap_, size_t element)
+_Bool ih_contains(struct intervalheap *_heap_, size_t value)
 {
     _heap_->flag = cmc_flags.OK;
     _Bool result = 0;
     for (size_t i = 0; i < _heap_->count; i++)
     {
-        if (_heap_->f_val->cmp(_heap_->buffer[i / 2].data[i % 2], element) == 0)
+        if (_heap_->f_val->cmp(_heap_->buffer[i / 2].data[i % 2], value) == 0)
         {
             result = 1;
             break;
@@ -484,9 +484,9 @@ _Bool ih_equals(struct intervalheap *_heap1_, struct intervalheap *_heap2_)
         return 0;
     for (size_t i = 0; i < _heap1_->count; i++)
     {
-        size_t element1 = _heap1_->buffer[i / 2].data[i % 2];
-        size_t element2 = _heap2_->buffer[i / 2].data[i % 2];
-        if (_heap1_->f_val->cmp(element1, element2) != 0)
+        size_t value1 = _heap1_->buffer[i / 2].data[i % 2];
+        size_t value2 = _heap2_->buffer[i / 2].data[i % 2];
+        if (_heap1_->f_val->cmp(value1, value2) != 0)
             return 0;
     }
     return 1;

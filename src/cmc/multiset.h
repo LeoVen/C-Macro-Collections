@@ -175,17 +175,17 @@ static const char *cmc_string_fmt_multiset = "struct %s<%s> "
     void PFX##_customize(struct SNAME *_set_, struct cmc_alloc_node *alloc,    \
                          struct cmc_callbacks *callbacks);                     \
     /* Collection Input and Output */                                          \
-    bool PFX##_insert(struct SNAME *_set_, V element);                         \
-    bool PFX##_insert_many(struct SNAME *_set_, V element, size_t count);      \
-    bool PFX##_update(struct SNAME *_set_, V element, size_t multiplicity);    \
-    bool PFX##_remove(struct SNAME *_set_, V element);                         \
-    size_t PFX##_remove_all(struct SNAME *_set_, V element);                   \
+    bool PFX##_insert(struct SNAME *_set_, V value);                           \
+    bool PFX##_insert_many(struct SNAME *_set_, V value, size_t count);        \
+    bool PFX##_update(struct SNAME *_set_, V value, size_t multiplicity);      \
+    bool PFX##_remove(struct SNAME *_set_, V value);                           \
+    size_t PFX##_remove_all(struct SNAME *_set_, V value);                     \
     /* Element Access */                                                       \
     bool PFX##_max(struct SNAME *_set_, V *value);                             \
     bool PFX##_min(struct SNAME *_set_, V *value);                             \
-    size_t PFX##_multiplicity_of(struct SNAME *_set_, V element);              \
+    size_t PFX##_multiplicity_of(struct SNAME *_set_, V value);                \
     /* Collection State */                                                     \
-    bool PFX##_contains(struct SNAME *_set_, V element);                       \
+    bool PFX##_contains(struct SNAME *_set_, V value);                         \
     bool PFX##_empty(struct SNAME *_set_);                                     \
     bool PFX##_full(struct SNAME *_set_);                                      \
     size_t PFX##_count(struct SNAME *_set_);                                   \
@@ -243,11 +243,11 @@ static const char *cmc_string_fmt_multiset = "struct %s<%s> "
 #define CMC_GENERATE_MULTISET_SOURCE(PFX, SNAME, V)                            \
                                                                                \
     /* Implementation Detail Functions */                                      \
-    static size_t PFX##_impl_multiplicity_of(struct SNAME *_set_, V element);  \
+    static size_t PFX##_impl_multiplicity_of(struct SNAME *_set_, V value);    \
     static struct SNAME##_entry *PFX##_impl_insert_and_return(                 \
-        struct SNAME *_set_, V element, bool *new_node);                       \
+        struct SNAME *_set_, V value, bool *new_node);                         \
     static struct SNAME##_entry *PFX##_impl_get_entry(struct SNAME *_set_,     \
-                                                      V element);              \
+                                                      V value);                \
     static size_t PFX##_impl_calculate_size(size_t required);                  \
     static struct SNAME##_iter PFX##_impl_it_start(struct SNAME *_set_);       \
     static struct SNAME##_iter PFX##_impl_it_end(struct SNAME *_set_);         \
@@ -398,12 +398,12 @@ static const char *cmc_string_fmt_multiset = "struct %s<%s> "
         _set_->flag = cmc_flags.OK;                                            \
     }                                                                          \
                                                                                \
-    bool PFX##_insert(struct SNAME *_set_, V element)                          \
+    bool PFX##_insert(struct SNAME *_set_, V value)                            \
     {                                                                          \
         bool new_node;                                                         \
                                                                                \
         struct SNAME##_entry *entry =                                          \
-            PFX##_impl_insert_and_return(_set_, element, &new_node);           \
+            PFX##_impl_insert_and_return(_set_, value, &new_node);             \
                                                                                \
         if (!entry)                                                            \
         {                                                                      \
@@ -423,7 +423,7 @@ static const char *cmc_string_fmt_multiset = "struct %s<%s> "
         return true;                                                           \
     }                                                                          \
                                                                                \
-    bool PFX##_insert_many(struct SNAME *_set_, V element, size_t count)       \
+    bool PFX##_insert_many(struct SNAME *_set_, V value, size_t count)         \
     {                                                                          \
         if (count == 0)                                                        \
             goto success;                                                      \
@@ -431,7 +431,7 @@ static const char *cmc_string_fmt_multiset = "struct %s<%s> "
         bool new_node;                                                         \
                                                                                \
         struct SNAME##_entry *entry =                                          \
-            PFX##_impl_insert_and_return(_set_, element, &new_node);           \
+            PFX##_impl_insert_and_return(_set_, value, &new_node);             \
                                                                                \
         if (!entry)                                                            \
         {                                                                      \
@@ -456,13 +456,12 @@ static const char *cmc_string_fmt_multiset = "struct %s<%s> "
         return true;                                                           \
     }                                                                          \
                                                                                \
-    bool PFX##_update(struct SNAME *_set_, V element, size_t multiplicity)     \
+    bool PFX##_update(struct SNAME *_set_, V value, size_t multiplicity)       \
     {                                                                          \
         if (multiplicity == 0)                                                 \
         {                                                                      \
             /* Effectively delete the entry */                                 \
-            struct SNAME##_entry *result =                                     \
-                PFX##_impl_get_entry(_set_, element);                          \
+            struct SNAME##_entry *result = PFX##_impl_get_entry(_set_, value); \
                                                                                \
             if (!result)                                                       \
                 /* If no entry was found then its multiplicity is already 0 */ \
@@ -482,7 +481,7 @@ static const char *cmc_string_fmt_multiset = "struct %s<%s> "
         bool new_node;                                                         \
                                                                                \
         struct SNAME##_entry *entry =                                          \
-            PFX##_impl_insert_and_return(_set_, element, &new_node);           \
+            PFX##_impl_insert_and_return(_set_, value, &new_node);             \
                                                                                \
         if (!entry)                                                            \
             return false;                                                      \
@@ -505,7 +504,7 @@ static const char *cmc_string_fmt_multiset = "struct %s<%s> "
         return true;                                                           \
     }                                                                          \
                                                                                \
-    bool PFX##_remove(struct SNAME *_set_, V element)                          \
+    bool PFX##_remove(struct SNAME *_set_, V value)                            \
     {                                                                          \
         if (PFX##_empty(_set_))                                                \
         {                                                                      \
@@ -513,7 +512,7 @@ static const char *cmc_string_fmt_multiset = "struct %s<%s> "
             return false;                                                      \
         }                                                                      \
                                                                                \
-        struct SNAME##_entry *result = PFX##_impl_get_entry(_set_, element);   \
+        struct SNAME##_entry *result = PFX##_impl_get_entry(_set_, value);     \
                                                                                \
         if (!result)                                                           \
         {                                                                      \
@@ -542,7 +541,7 @@ static const char *cmc_string_fmt_multiset = "struct %s<%s> "
         return true;                                                           \
     }                                                                          \
                                                                                \
-    size_t PFX##_remove_all(struct SNAME *_set_, V element)                    \
+    size_t PFX##_remove_all(struct SNAME *_set_, V value)                      \
     {                                                                          \
         if (PFX##_empty(_set_))                                                \
         {                                                                      \
@@ -550,7 +549,7 @@ static const char *cmc_string_fmt_multiset = "struct %s<%s> "
             return false;                                                      \
         }                                                                      \
                                                                                \
-        struct SNAME##_entry *result = PFX##_impl_get_entry(_set_, element);   \
+        struct SNAME##_entry *result = PFX##_impl_get_entry(_set_, value);     \
                                                                                \
         if (!result)                                                           \
         {                                                                      \
@@ -645,9 +644,9 @@ static const char *cmc_string_fmt_multiset = "struct %s<%s> "
         return true;                                                           \
     }                                                                          \
                                                                                \
-    size_t PFX##_multiplicity_of(struct SNAME *_set_, V element)               \
+    size_t PFX##_multiplicity_of(struct SNAME *_set_, V value)                 \
     {                                                                          \
-        struct SNAME##_entry *entry = PFX##_impl_get_entry(_set_, element);    \
+        struct SNAME##_entry *entry = PFX##_impl_get_entry(_set_, value);      \
                                                                                \
         _set_->flag = cmc_flags.OK;                                            \
                                                                                \
@@ -660,11 +659,11 @@ static const char *cmc_string_fmt_multiset = "struct %s<%s> "
         return entry->multiplicity;                                            \
     }                                                                          \
                                                                                \
-    bool PFX##_contains(struct SNAME *_set_, V element)                        \
+    bool PFX##_contains(struct SNAME *_set_, V value)                          \
     {                                                                          \
         _set_->flag = cmc_flags.OK;                                            \
                                                                                \
-        bool result = PFX##_impl_get_entry(_set_, element) != NULL;            \
+        bool result = PFX##_impl_get_entry(_set_, value) != NULL;              \
                                                                                \
         if (_set_->callbacks && _set_->callbacks->read)                        \
             _set_->callbacks->read();                                          \
@@ -1393,9 +1392,9 @@ static const char *cmc_string_fmt_multiset = "struct %s<%s> "
         return iter->index;                                                    \
     }                                                                          \
                                                                                \
-    static size_t PFX##_impl_multiplicity_of(struct SNAME *_set_, V element)   \
+    static size_t PFX##_impl_multiplicity_of(struct SNAME *_set_, V value)     \
     {                                                                          \
-        struct SNAME##_entry *entry = PFX##_impl_get_entry(_set_, element);    \
+        struct SNAME##_entry *entry = PFX##_impl_get_entry(_set_, value);      \
                                                                                \
         if (!entry)                                                            \
             return 0;                                                          \
@@ -1404,15 +1403,15 @@ static const char *cmc_string_fmt_multiset = "struct %s<%s> "
     }                                                                          \
                                                                                \
     static struct SNAME##_entry *PFX##_impl_insert_and_return(                 \
-        struct SNAME *_set_, V element, bool *new_node)                        \
+        struct SNAME *_set_, V value, bool *new_node)                          \
     {                                                                          \
         /* If the entry already exists simply return it as we might do */      \
         /* something with it. This function only guarantees that there is */   \
-        /* a valid entry for a given element */                                \
+        /* a valid entry for a given value */                                  \
                                                                                \
         *new_node = false;                                                     \
                                                                                \
-        struct SNAME##_entry *entry = PFX##_impl_get_entry(_set_, element);    \
+        struct SNAME##_entry *entry = PFX##_impl_get_entry(_set_, value);      \
                                                                                \
         if (entry != NULL)                                                     \
             return entry;                                                      \
@@ -1425,7 +1424,7 @@ static const char *cmc_string_fmt_multiset = "struct %s<%s> "
                 return NULL;                                                   \
         }                                                                      \
                                                                                \
-        size_t hash = _set_->f_val->hash(element);                             \
+        size_t hash = _set_->f_val->hash(value);                               \
         size_t original_pos = hash % _set_->capacity;                          \
         size_t pos = original_pos;                                             \
         /* Current multiplicity. Might change due to robin hood hashing */     \
@@ -1435,7 +1434,7 @@ static const char *cmc_string_fmt_multiset = "struct %s<%s> "
                                                                                \
         if (target->state == CMC_ES_EMPTY || target->state == CMC_ES_DELETED)  \
         {                                                                      \
-            target->value = element;                                           \
+            target->value = value;                                             \
             target->multiplicity = curr_mul;                                   \
             target->dist = pos - original_pos;                                 \
             target->state = CMC_ES_FILLED;                                     \
@@ -1450,7 +1449,7 @@ static const char *cmc_string_fmt_multiset = "struct %s<%s> "
                 if (target->state == CMC_ES_EMPTY ||                           \
                     target->state == CMC_ES_DELETED)                           \
                 {                                                              \
-                    target->value = element;                                   \
+                    target->value = value;                                     \
                     target->multiplicity = curr_mul;                           \
                     target->dist = pos - original_pos;                         \
                     target->state = CMC_ES_FILLED;                             \
@@ -1464,11 +1463,11 @@ static const char *cmc_string_fmt_multiset = "struct %s<%s> "
                     size_t tmp_dist = target->dist;                            \
                     size_t tmp_mul = target->multiplicity;                     \
                                                                                \
-                    target->value = element;                                   \
+                    target->value = value;                                     \
                     target->dist = pos - original_pos;                         \
                     target->multiplicity = curr_mul;                           \
                                                                                \
-                    element = tmp;                                             \
+                    value = tmp;                                               \
                     original_pos = pos - tmp_dist;                             \
                     curr_mul = tmp_mul;                                        \
                 }                                                              \
@@ -1481,9 +1480,9 @@ static const char *cmc_string_fmt_multiset = "struct %s<%s> "
     }                                                                          \
                                                                                \
     static struct SNAME##_entry *PFX##_impl_get_entry(struct SNAME *_set_,     \
-                                                      V element)               \
+                                                      V value)                 \
     {                                                                          \
-        size_t hash = _set_->f_val->hash(element);                             \
+        size_t hash = _set_->f_val->hash(value);                               \
         size_t pos = hash % _set_->capacity;                                   \
                                                                                \
         struct SNAME##_entry *target = &(_set_->buffer[pos]);                  \
@@ -1491,7 +1490,7 @@ static const char *cmc_string_fmt_multiset = "struct %s<%s> "
         while (target->state == CMC_ES_FILLED ||                               \
                target->state == CMC_ES_DELETED)                                \
         {                                                                      \
-            if (_set_->f_val->cmp(target->value, element) == 0)                \
+            if (_set_->f_val->cmp(target->value, value) == 0)                  \
                 return target;                                                 \
                                                                                \
             pos++;                                                             \

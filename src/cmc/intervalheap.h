@@ -148,17 +148,17 @@ static const char *cmc_string_fmt_intervalheap = "struct %s<%s> "
     void PFX##_customize(struct SNAME *_heap_, struct cmc_alloc_node *alloc, \
                          struct cmc_callbacks *callbacks);                   \
     /* Collection Input and Output */                                        \
-    bool PFX##_insert(struct SNAME *_heap_, V element);                      \
+    bool PFX##_insert(struct SNAME *_heap_, V value);                        \
     bool PFX##_remove_max(struct SNAME *_heap_);                             \
     bool PFX##_remove_min(struct SNAME *_heap_);                             \
     /* Collection Update */                                                  \
-    bool PFX##_update_max(struct SNAME *_heap_, V element);                  \
-    bool PFX##_update_min(struct SNAME *_heap_, V element);                  \
+    bool PFX##_update_max(struct SNAME *_heap_, V value);                    \
+    bool PFX##_update_min(struct SNAME *_heap_, V value);                    \
     /* Element Access */                                                     \
     V PFX##_max(struct SNAME *_heap_);                                       \
     V PFX##_min(struct SNAME *_heap_);                                       \
     /* Collection State */                                                   \
-    bool PFX##_contains(struct SNAME *_heap_, V element);                    \
+    bool PFX##_contains(struct SNAME *_heap_, V value);                      \
     bool PFX##_empty(struct SNAME *_heap_);                                  \
     bool PFX##_full(struct SNAME *_heap_);                                   \
     size_t PFX##_count(struct SNAME *_heap_);                                \
@@ -335,7 +335,7 @@ static const char *cmc_string_fmt_intervalheap = "struct %s<%s> "
         _heap_->flag = cmc_flags.OK;                                           \
     }                                                                          \
                                                                                \
-    bool PFX##_insert(struct SNAME *_heap_, V element)                         \
+    bool PFX##_insert(struct SNAME *_heap_, V value)                           \
     {                                                                          \
         if (PFX##_full(_heap_))                                                \
         {                                                                      \
@@ -346,7 +346,7 @@ static const char *cmc_string_fmt_intervalheap = "struct %s<%s> "
         if (_heap_->count % 2 == 0)                                            \
         {                                                                      \
             /* Occupying a new node */                                         \
-            _heap_->buffer[_heap_->size].data[0] = element;                    \
+            _heap_->buffer[_heap_->size].data[0] = value;                      \
             _heap_->buffer[_heap_->size].data[1] = (V){ 0 };                   \
                                                                                \
             _heap_->size++;                                                    \
@@ -356,16 +356,16 @@ static const char *cmc_string_fmt_intervalheap = "struct %s<%s> "
             struct SNAME##_node *node = &(_heap_->buffer[_heap_->size - 1]);   \
                                                                                \
             /* Decide if the new element goes into the MinHeap or MaxHeap */   \
-            if (_heap_->f_val->cmp(node->data[0], element) > 0)                \
+            if (_heap_->f_val->cmp(node->data[0], value) > 0)                  \
             {                                                                  \
                 /* Swap current value and add new element to the MinHeap */    \
                 node->data[1] = node->data[0];                                 \
-                node->data[0] = element;                                       \
+                node->data[0] = value;                                         \
             }                                                                  \
             else                                                               \
             {                                                                  \
                 /* No need to swap and add the new element to the MaxHeap */   \
-                node->data[1] = element;                                       \
+                node->data[1] = value;                                         \
             }                                                                  \
         }                                                                      \
                                                                                \
@@ -379,9 +379,9 @@ static const char *cmc_string_fmt_intervalheap = "struct %s<%s> "
             struct SNAME##_node *parent =                                      \
                 &(_heap_->buffer[(_heap_->size - 1) / 2]);                     \
                                                                                \
-            if (_heap_->f_val->cmp(parent->data[0], element) > 0)              \
+            if (_heap_->f_val->cmp(parent->data[0], value) > 0)                \
                 PFX##_impl_float_up_min(_heap_);                               \
-            else if (_heap_->f_val->cmp(parent->data[1], element) < 0)         \
+            else if (_heap_->f_val->cmp(parent->data[1], value) < 0)           \
                 PFX##_impl_float_up_max(_heap_);                               \
             /* else no float up required */                                    \
         }                                                                      \
@@ -498,7 +498,7 @@ static const char *cmc_string_fmt_intervalheap = "struct %s<%s> "
         return true;                                                           \
     }                                                                          \
                                                                                \
-    bool PFX##_update_max(struct SNAME *_heap_, V element)                     \
+    bool PFX##_update_max(struct SNAME *_heap_, V value)                       \
     {                                                                          \
         if (PFX##_empty(_heap_))                                               \
         {                                                                      \
@@ -508,21 +508,21 @@ static const char *cmc_string_fmt_intervalheap = "struct %s<%s> "
                                                                                \
         if (_heap_->count == 1)                                                \
         {                                                                      \
-            _heap_->buffer[0].data[0] = element;                               \
+            _heap_->buffer[0].data[0] = value;                                 \
         }                                                                      \
-        else if (_heap_->f_val->cmp(element, _heap_->buffer[0].data[0]) < 0)   \
+        else if (_heap_->f_val->cmp(value, _heap_->buffer[0].data[0]) < 0)     \
         {                                                                      \
             /* Corner case: we are updating the Max value but it is less */    \
             /* than the Min value */                                           \
             _heap_->buffer[0].data[1] = _heap_->buffer[0].data[0];             \
-            _heap_->buffer[0].data[0] = element;                               \
+            _heap_->buffer[0].data[0] = value;                                 \
                                                                                \
             PFX##_impl_float_down_max(_heap_);                                 \
         }                                                                      \
         else                                                                   \
         {                                                                      \
             /* Update Max element and float it down */                         \
-            _heap_->buffer[0].data[1] = element;                               \
+            _heap_->buffer[0].data[1] = value;                                 \
                                                                                \
             PFX##_impl_float_down_max(_heap_);                                 \
         }                                                                      \
@@ -535,7 +535,7 @@ static const char *cmc_string_fmt_intervalheap = "struct %s<%s> "
         return true;                                                           \
     }                                                                          \
                                                                                \
-    bool PFX##_update_min(struct SNAME *_heap_, V element)                     \
+    bool PFX##_update_min(struct SNAME *_heap_, V value)                       \
     {                                                                          \
         if (PFX##_empty(_heap_))                                               \
         {                                                                      \
@@ -545,21 +545,21 @@ static const char *cmc_string_fmt_intervalheap = "struct %s<%s> "
                                                                                \
         if (_heap_->count == 1)                                                \
         {                                                                      \
-            _heap_->buffer[0].data[0] = element;                               \
+            _heap_->buffer[0].data[0] = value;                                 \
         }                                                                      \
-        else if (_heap_->f_val->cmp(element, _heap_->buffer[0].data[1]) > 0)   \
+        else if (_heap_->f_val->cmp(value, _heap_->buffer[0].data[1]) > 0)     \
         {                                                                      \
             /* Corner case: we are updating the Min value but it is greater */ \
             /* than the Max value. */                                          \
             _heap_->buffer[0].data[0] = _heap_->buffer[0].data[1];             \
-            _heap_->buffer[0].data[1] = element;                               \
+            _heap_->buffer[0].data[1] = value;                                 \
                                                                                \
             PFX##_impl_float_down_min(_heap_);                                 \
         }                                                                      \
         else                                                                   \
         {                                                                      \
             /* Update Min element and float it down */                         \
-            _heap_->buffer[0].data[0] = element;                               \
+            _heap_->buffer[0].data[0] = value;                                 \
                                                                                \
             PFX##_impl_float_down_min(_heap_);                                 \
         }                                                                      \
@@ -609,7 +609,7 @@ static const char *cmc_string_fmt_intervalheap = "struct %s<%s> "
         return _heap_->buffer[0].data[0];                                      \
     }                                                                          \
                                                                                \
-    bool PFX##_contains(struct SNAME *_heap_, V element)                       \
+    bool PFX##_contains(struct SNAME *_heap_, V value)                         \
     {                                                                          \
         _heap_->flag = cmc_flags.OK;                                           \
                                                                                \
@@ -618,7 +618,7 @@ static const char *cmc_string_fmt_intervalheap = "struct %s<%s> "
         for (size_t i = 0; i < _heap_->count; i++)                             \
         {                                                                      \
             if (_heap_->f_val->cmp(_heap_->buffer[i / 2].data[i % 2],          \
-                                   element) == 0)                              \
+                                   value) == 0)                                \
             {                                                                  \
                 result = true;                                                 \
                 break;                                                         \
@@ -763,10 +763,10 @@ static const char *cmc_string_fmt_intervalheap = "struct %s<%s> "
                                                                                \
         for (size_t i = 0; i < _heap1_->count; i++)                            \
         {                                                                      \
-            V element1 = _heap1_->buffer[i / 2].data[i % 2];                   \
-            V element2 = _heap2_->buffer[i / 2].data[i % 2];                   \
+            V value1 = _heap1_->buffer[i / 2].data[i % 2];                     \
+            V value2 = _heap2_->buffer[i / 2].data[i % 2];                     \
                                                                                \
-            if (_heap1_->f_val->cmp(element1, element2) != 0)                  \
+            if (_heap1_->f_val->cmp(value1, value2) != 0)                      \
                 return false;                                                  \
         }                                                                      \
                                                                                \
