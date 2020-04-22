@@ -207,7 +207,7 @@ _Bool ih_insert(struct intervalheap *_heap_, size_t value)
     if (_heap_->count > 2)
     {
         struct intervalheap_node *parent =
-            &(_heap_->buffer[(_heap_->size - 1) / 2]);
+            &(_heap_->buffer[(_heap_->size - 2) / 2]);
         if (_heap_->f_val->cmp(parent->data[0], value) > 0)
             ih_impl_float_up_min(_heap_);
         else if (_heap_->f_val->cmp(parent->data[1], value) < 0)

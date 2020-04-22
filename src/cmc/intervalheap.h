@@ -374,10 +374,11 @@ static const char *cmc_string_fmt_intervalheap = "struct %s<%s> "
                                                                                \
         if (_heap_->count > 2)                                                 \
         {                                                                      \
-            /* Determine wheather to do a MaxHeap insert or a MinHeap insert   \
-             */                                                                \
+            /* Determine wheather to do a MaxHeap insert or a MinHeap */       \
+            /* insert. For any integer this index calculation results in */    \
+            /* an even number representing the parent of the last value */     \
             struct SNAME##_node *parent =                                      \
-                &(_heap_->buffer[(_heap_->size - 1) / 2]);                     \
+                &(_heap_->buffer[(_heap_->size - 2) / 2]);                     \
                                                                                \
             if (_heap_->f_val->cmp(parent->data[0], value) > 0)                \
                 PFX##_impl_float_up_min(_heap_);                               \
