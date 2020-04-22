@@ -26,7 +26,6 @@ TODO
 
 [ ] Use binary search to find optimum hashtable prime size inside impl_calculate_size
 [ ] Optimize certain loops that use iterators that can simply use a normal loop
-[ ] Replace IntervalHeap node by a simple buffer of two pointers (V (*buffer)[2])
 
 #!! Done -------------------------------------------------------------------------------------------
 
@@ -62,3 +61,4 @@ TODO
 [X] Merge bidirectional map key_buffer and val_buffer to a single buffer and make key_dist and val_dist into dist[2]
 [X] Callback utility
     on_create, on_read, on_update, on_delete, on_resize
+[X] Replace IntervalHeap node by a simple buffer of two pointers (V (*buffer)[2])

@@ -157,6 +157,12 @@ CMC_CREATE_UNIT(IntervalHeap, true, {
 
         cmc_assert_equals(int32_t, 10001, v_total_free);
 
+        size_t sum = 0;
+        for (size_t i = 0; i < ih->capacity; i++)
+            sum += ih->buffer[i / 2][i % 2];
+
+        cmc_assert_equals(size_t, 0, sum);
+
         ih_free(ih);
 
         cmc_assert_equals(int32_t, 10001, v_total_free);
@@ -264,21 +270,21 @@ CMC_CREATE_UNIT(IntervalHeap, true, {
         cmc_assert_not_equals(ptr, NULL, ih);
 
         cmc_assert(ih_insert(ih, 2));
-        cmc_assert_equals(size_t, 2, ih->buffer[0].data[0]);
+        cmc_assert_equals(size_t, 2, ih->buffer[0][0]);
 
         cmc_assert(ih_insert(ih, 1));
-        cmc_assert_equals(size_t, 1, ih->buffer[0].data[0]);
-        cmc_assert_equals(size_t, 2, ih->buffer[0].data[1]);
+        cmc_assert_equals(size_t, 1, ih->buffer[0][0]);
+        cmc_assert_equals(size_t, 2, ih->buffer[0][1]);
 
         cmc_assert(ih_remove_min(ih));
-        cmc_assert_equals(size_t, 2, ih->buffer[0].data[0]);
+        cmc_assert_equals(size_t, 2, ih->buffer[0][0]);
 
         cmc_assert(ih_insert(ih, 1));
-        cmc_assert_equals(size_t, 1, ih->buffer[0].data[0]);
-        cmc_assert_equals(size_t, 2, ih->buffer[0].data[1]);
+        cmc_assert_equals(size_t, 1, ih->buffer[0][0]);
+        cmc_assert_equals(size_t, 2, ih->buffer[0][1]);
 
         cmc_assert(ih_remove_max(ih));
-        cmc_assert_equals(size_t, 1, ih->buffer[0].data[0]);
+        cmc_assert_equals(size_t, 1, ih->buffer[0][0]);
 
         ih_free(ih);
         total_create = 0;

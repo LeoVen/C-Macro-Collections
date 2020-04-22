@@ -59,13 +59,14 @@ static const char *cmc_string_fmt_intervalheap = "struct %s<%s> "
     /* Heap Structure */                                                     \
     struct SNAME                                                             \
     {                                                                        \
-        /* Dynamic array of nodes */                                         \
-        struct SNAME##_node *buffer;                                         \
+        /* Dynamic array of elements */                                      \
+        /* buffer[n][0] is MinHeap and buffer[n][1] is MaxHeap */            \
+        V (*buffer)[2];                                                      \
                                                                              \
-        /* Current array capacity (how many nodes can be stored) */          \
+        /* Current array capacity  */                                        \
         size_t capacity;                                                     \
                                                                              \
-        /* Current amount of nodes in the dynamic array */                   \
+        /* Current amount of pairs of values in the array */                 \
         size_t size;                                                         \
                                                                              \
         /* Current amount of elements in the heap */                         \
@@ -88,14 +89,6 @@ static const char *cmc_string_fmt_intervalheap = "struct %s<%s> "
                                                                              \
         /* Custom callback functions */                                      \
         struct cmc_callbacks *callbacks;                                     \
-    };                                                                       \
-                                                                             \
-    /* Heap Node */                                                          \
-    struct SNAME##_node                                                      \
-    {                                                                        \
-        /* 0 - Value belonging to the MinHeap */                             \
-        /* 1 - Value belonging to the MaxHeap */                             \
-        V data[2];                                                           \
     };                                                                       \
                                                                              \
     /* Value struct function table */                                        \
@@ -220,12 +213,9 @@ static const char *cmc_string_fmt_intervalheap = "struct %s<%s> "
         if (!_heap_)                                                           \
             return NULL;                                                       \
                                                                                \
-        /* Since each node can store two elements, divide the actual */        \
-        /* capacity by 2 */                                                    \
-        /* Round the capacity of nodes up */                                   \
-        capacity = capacity % 2 == 0 ? capacity / 2 : (capacity + 1) / 2;      \
+        capacity = (capacity + capacity % 2) / 2;                              \
                                                                                \
-        _heap_->buffer = alloc->calloc(capacity, sizeof(struct SNAME##_node)); \
+        _heap_->buffer = alloc->calloc(capacity, sizeof(V[2]));                \
                                                                                \
         if (!_heap_->buffer)                                                   \
         {                                                                      \
@@ -264,12 +254,9 @@ static const char *cmc_string_fmt_intervalheap = "struct %s<%s> "
         if (!_heap_)                                                           \
             return NULL;                                                       \
                                                                                \
-        /* Since each node can store two elements, divide the actual */        \
-        /* capacity by 2 */                                                    \
-        /* Round the capacity of nodes up */                                   \
-        capacity = capacity % 2 == 0 ? capacity / 2 : (capacity + 1) / 2;      \
+        capacity = (capacity + capacity % 2) / 2;                              \
                                                                                \
-        _heap_->buffer = alloc->calloc(capacity, sizeof(struct SNAME##_node)); \
+        _heap_->buffer = alloc->calloc(capacity, sizeof(V[2]));                \
                                                                                \
         if (!_heap_->buffer)                                                   \
         {                                                                      \
@@ -296,11 +283,11 @@ static const char *cmc_string_fmt_intervalheap = "struct %s<%s> "
         {                                                                      \
             for (size_t i = 0; i < _heap_->count; i++)                         \
             {                                                                  \
-                _heap_->f_val->free(_heap_->buffer[i / 2].data[i % 2]);        \
+                _heap_->f_val->free(_heap_->buffer[i / 2][i % 2]);             \
             }                                                                  \
         }                                                                      \
                                                                                \
-        memset(_heap_->buffer, 0, sizeof(V) * _heap_->capacity);               \
+        memset(_heap_->buffer, 0, sizeof(V[2]) * _heap_->capacity);            \
                                                                                \
         _heap_->size = 0;                                                      \
         _heap_->count = 0;                                                     \
@@ -313,7 +300,7 @@ static const char *cmc_string_fmt_intervalheap = "struct %s<%s> "
         {                                                                      \
             for (size_t i = 0; i < _heap_->count; i++)                         \
             {                                                                  \
-                _heap_->f_val->free(_heap_->buffer[i / 2].data[i % 2]);        \
+                _heap_->f_val->free(_heap_->buffer[i / 2][i % 2]);             \
             }                                                                  \
         }                                                                      \
                                                                                \
@@ -346,26 +333,26 @@ static const char *cmc_string_fmt_intervalheap = "struct %s<%s> "
         if (_heap_->count % 2 == 0)                                            \
         {                                                                      \
             /* Occupying a new node */                                         \
-            _heap_->buffer[_heap_->size].data[0] = value;                      \
-            _heap_->buffer[_heap_->size].data[1] = (V){ 0 };                   \
+            _heap_->buffer[_heap_->size][0] = value;                           \
+            _heap_->buffer[_heap_->size][1] = (V){ 0 };                        \
                                                                                \
             _heap_->size++;                                                    \
         }                                                                      \
         else                                                                   \
         {                                                                      \
-            struct SNAME##_node *node = &(_heap_->buffer[_heap_->size - 1]);   \
+            V(*node)[2] = &(_heap_->buffer[_heap_->size - 1]);                 \
                                                                                \
             /* Decide if the new element goes into the MinHeap or MaxHeap */   \
-            if (_heap_->f_val->cmp(node->data[0], value) > 0)                  \
+            if (_heap_->f_val->cmp((*node)[0], value) > 0)                     \
             {                                                                  \
                 /* Swap current value and add new element to the MinHeap */    \
-                node->data[1] = node->data[0];                                 \
-                node->data[0] = value;                                         \
+                (*node)[1] = (*node)[0];                                       \
+                (*node)[0] = value;                                            \
             }                                                                  \
             else                                                               \
             {                                                                  \
                 /* No need to swap and add the new element to the MaxHeap */   \
-                node->data[1] = value;                                         \
+                (*node)[1] = value;                                            \
             }                                                                  \
         }                                                                      \
                                                                                \
@@ -377,12 +364,11 @@ static const char *cmc_string_fmt_intervalheap = "struct %s<%s> "
             /* Determine wheather to do a MaxHeap insert or a MinHeap */       \
             /* insert. For any integer this index calculation results in */    \
             /* an even number representing the parent of the last value */     \
-            struct SNAME##_node *parent =                                      \
-                &(_heap_->buffer[(_heap_->size - 2) / 2]);                     \
+            V(*parent)[2] = &(_heap_->buffer[(_heap_->size - 2) / 2]);         \
                                                                                \
-            if (_heap_->f_val->cmp(parent->data[0], value) > 0)                \
+            if (_heap_->f_val->cmp((*parent)[0], value) > 0)                   \
                 PFX##_impl_float_up_min(_heap_);                               \
-            else if (_heap_->f_val->cmp(parent->data[1], value) < 0)           \
+            else if (_heap_->f_val->cmp((*parent)[1], value) < 0)              \
                 PFX##_impl_float_up_max(_heap_);                               \
             /* else no float up required */                                    \
         }                                                                      \
@@ -403,7 +389,7 @@ static const char *cmc_string_fmt_intervalheap = "struct %s<%s> "
                                                                                \
         if (_heap_->count == 1)                                                \
         {                                                                      \
-            _heap_->buffer[0].data[0] = (V){ 0 };                              \
+            _heap_->buffer[0][0] = (V){ 0 };                                   \
                                                                                \
             _heap_->count--;                                                   \
             _heap_->size--;                                                    \
@@ -413,22 +399,22 @@ static const char *cmc_string_fmt_intervalheap = "struct %s<%s> "
                                                                                \
         /* Swap the result with the last element in the MaxHeap and float */   \
         /* it down */                                                          \
-        struct SNAME##_node *last_node = &(_heap_->buffer[_heap_->size - 1]);  \
+        V(*last_node)[2] = &(_heap_->buffer[_heap_->size - 1]);                \
                                                                                \
         if (_heap_->count % 2 == 1)                                            \
         {                                                                      \
             /* Grab from MinHeap and discard last node */                      \
-            _heap_->buffer[0].data[1] = last_node->data[0];                    \
+            _heap_->buffer[0][1] = (*last_node)[0];                            \
                                                                                \
-            last_node->data[0] = (V){ 0 };                                     \
+            (*last_node)[0] = (V){ 0 };                                        \
                                                                                \
             _heap_->size--;                                                    \
         }                                                                      \
         else                                                                   \
         {                                                                      \
-            _heap_->buffer[0].data[1] = last_node->data[1];                    \
+            _heap_->buffer[0][1] = (*last_node)[1];                            \
                                                                                \
-            last_node->data[1] = (V){ 0 };                                     \
+            (*last_node)[1] = (V){ 0 };                                        \
         }                                                                      \
                                                                                \
         _heap_->count--;                                                       \
@@ -456,7 +442,7 @@ static const char *cmc_string_fmt_intervalheap = "struct %s<%s> "
                                                                                \
         if (_heap_->count == 1)                                                \
         {                                                                      \
-            _heap_->buffer[0].data[0] = (V){ 0 };                              \
+            _heap_->buffer[0][0] = (V){ 0 };                                   \
                                                                                \
             _heap_->count--;                                                   \
             _heap_->size--;                                                    \
@@ -466,22 +452,22 @@ static const char *cmc_string_fmt_intervalheap = "struct %s<%s> "
                                                                                \
         /* Swap the result with the last element in the MinHeap and float */   \
         /* it down */                                                          \
-        struct SNAME##_node *last_node = &(_heap_->buffer[_heap_->size - 1]);  \
+        V(*last_node)[2] = &(_heap_->buffer[_heap_->size - 1]);                \
                                                                                \
-        _heap_->buffer[0].data[0] = last_node->data[0];                        \
+        _heap_->buffer[0][0] = (*last_node)[0];                                \
                                                                                \
         if (_heap_->count % 2 == 1)                                            \
         {                                                                      \
             /* Discard last node */                                            \
-            last_node->data[0] = (V){ 0 };                                     \
+            (*last_node)[0] = (V){ 0 };                                        \
                                                                                \
             _heap_->size--;                                                    \
         }                                                                      \
         else                                                                   \
         {                                                                      \
             /* Place the MaxHeap value in the MinHeap value spot */            \
-            last_node->data[0] = last_node->data[1];                           \
-            last_node->data[1] = (V){ 0 };                                     \
+            (*last_node)[0] = (*last_node)[1];                                 \
+            (*last_node)[1] = (V){ 0 };                                        \
         }                                                                      \
                                                                                \
         _heap_->count--;                                                       \
@@ -509,21 +495,21 @@ static const char *cmc_string_fmt_intervalheap = "struct %s<%s> "
                                                                                \
         if (_heap_->count == 1)                                                \
         {                                                                      \
-            _heap_->buffer[0].data[0] = value;                                 \
+            _heap_->buffer[0][0] = value;                                      \
         }                                                                      \
-        else if (_heap_->f_val->cmp(value, _heap_->buffer[0].data[0]) < 0)     \
+        else if (_heap_->f_val->cmp(value, _heap_->buffer[0][0]) < 0)          \
         {                                                                      \
             /* Corner case: we are updating the Max value but it is less */    \
             /* than the Min value */                                           \
-            _heap_->buffer[0].data[1] = _heap_->buffer[0].data[0];             \
-            _heap_->buffer[0].data[0] = value;                                 \
+            _heap_->buffer[0][1] = _heap_->buffer[0][0];                       \
+            _heap_->buffer[0][0] = value;                                      \
                                                                                \
             PFX##_impl_float_down_max(_heap_);                                 \
         }                                                                      \
         else                                                                   \
         {                                                                      \
             /* Update Max element and float it down */                         \
-            _heap_->buffer[0].data[1] = value;                                 \
+            _heap_->buffer[0][1] = value;                                      \
                                                                                \
             PFX##_impl_float_down_max(_heap_);                                 \
         }                                                                      \
@@ -546,21 +532,21 @@ static const char *cmc_string_fmt_intervalheap = "struct %s<%s> "
                                                                                \
         if (_heap_->count == 1)                                                \
         {                                                                      \
-            _heap_->buffer[0].data[0] = value;                                 \
+            _heap_->buffer[0][0] = value;                                      \
         }                                                                      \
-        else if (_heap_->f_val->cmp(value, _heap_->buffer[0].data[1]) > 0)     \
+        else if (_heap_->f_val->cmp(value, _heap_->buffer[0][1]) > 0)          \
         {                                                                      \
             /* Corner case: we are updating the Min value but it is greater */ \
             /* than the Max value. */                                          \
-            _heap_->buffer[0].data[0] = _heap_->buffer[0].data[1];             \
-            _heap_->buffer[0].data[1] = value;                                 \
+            _heap_->buffer[0][0] = _heap_->buffer[0][1];                       \
+            _heap_->buffer[0][1] = value;                                      \
                                                                                \
             PFX##_impl_float_down_min(_heap_);                                 \
         }                                                                      \
         else                                                                   \
         {                                                                      \
             /* Update Min element and float it down */                         \
-            _heap_->buffer[0].data[0] = value;                                 \
+            _heap_->buffer[0][0] = value;                                      \
                                                                                \
             PFX##_impl_float_down_min(_heap_);                                 \
         }                                                                      \
@@ -589,9 +575,9 @@ static const char *cmc_string_fmt_intervalheap = "struct %s<%s> "
         /* If there is only one element, then the maximum element is the */    \
         /* same as the one in the MinHeap */                                   \
         if (_heap_->count == 1)                                                \
-            return _heap_->buffer[0].data[0];                                  \
+            return _heap_->buffer[0][0];                                       \
                                                                                \
-        return _heap_->buffer[0].data[1];                                      \
+        return _heap_->buffer[0][1];                                           \
     }                                                                          \
                                                                                \
     V PFX##_min(struct SNAME *_heap_)                                          \
@@ -607,7 +593,7 @@ static const char *cmc_string_fmt_intervalheap = "struct %s<%s> "
         if (_heap_->callbacks && _heap_->callbacks->read)                      \
             _heap_->callbacks->read();                                         \
                                                                                \
-        return _heap_->buffer[0].data[0];                                      \
+        return _heap_->buffer[0][0];                                           \
     }                                                                          \
                                                                                \
     bool PFX##_contains(struct SNAME *_heap_, V value)                         \
@@ -618,8 +604,7 @@ static const char *cmc_string_fmt_intervalheap = "struct %s<%s> "
                                                                                \
         for (size_t i = 0; i < _heap_->count; i++)                             \
         {                                                                      \
-            if (_heap_->f_val->cmp(_heap_->buffer[i / 2].data[i % 2],          \
-                                   value) == 0)                                \
+            if (_heap_->f_val->cmp(_heap_->buffer[i / 2][i % 2], value) == 0)  \
             {                                                                  \
                 result = true;                                                 \
                 break;                                                         \
@@ -676,10 +661,10 @@ static const char *cmc_string_fmt_intervalheap = "struct %s<%s> "
             return false;                                                      \
         }                                                                      \
                                                                                \
-        capacity = capacity % 2 == 0 ? capacity / 2 : (capacity + 1) / 2;      \
+        capacity += capacity % 2;                                              \
                                                                                \
-        struct SNAME##_node *new_buffer = _heap_->alloc->realloc(              \
-            _heap_->buffer, sizeof(struct SNAME##_node) * capacity);           \
+        V(*new_buffer)                                                         \
+        [2] = _heap_->alloc->realloc(_heap_->buffer, sizeof(V[2]) * capacity); \
                                                                                \
         if (!new_buffer)                                                       \
         {                                                                      \
@@ -690,8 +675,7 @@ static const char *cmc_string_fmt_intervalheap = "struct %s<%s> "
         if (capacity > _heap_->capacity)                                       \
         {                                                                      \
             memset(new_buffer + _heap_->capacity, 0,                           \
-                   sizeof(struct SNAME##_node) *                               \
-                       (capacity - _heap_->capacity));                         \
+                   sizeof(V[2]) * (capacity - _heap_->capacity));              \
         }                                                                      \
                                                                                \
         _heap_->buffer = new_buffer;                                           \
@@ -719,8 +703,8 @@ static const char *cmc_string_fmt_intervalheap = "struct %s<%s> "
                                                                                \
         memcpy(result, _heap_, sizeof(struct SNAME));                          \
                                                                                \
-        result->buffer = _heap_->alloc->malloc(sizeof(struct SNAME##_node) *   \
-                                               _heap_->capacity);              \
+        result->buffer =                                                       \
+            _heap_->alloc->malloc(sizeof(V[2]) * _heap_->capacity);            \
                                                                                \
         if (!result->buffer)                                                   \
         {                                                                      \
@@ -732,12 +716,12 @@ static const char *cmc_string_fmt_intervalheap = "struct %s<%s> "
         if (_heap_->f_val->cpy)                                                \
         {                                                                      \
             for (size_t i = 0; i < _heap_->count; i++)                         \
-                result->buffer[i / 2].data[i % 2] =                            \
-                    _heap_->f_val->cpy(_heap_->buffer[i / 2].data[i % 2]);     \
+                result->buffer[i / 2][i % 2] =                                 \
+                    _heap_->f_val->cpy(_heap_->buffer[i / 2][i % 2]);          \
         }                                                                      \
         else                                                                   \
             memcpy(result->buffer, _heap_->buffer,                             \
-                   sizeof(struct SNAME##_node) * _heap_->capacity);            \
+                   sizeof(V[2]) * _heap_->capacity);                           \
                                                                                \
         result->capacity = _heap_->capacity;                                   \
         result->size = _heap_->size;                                           \
@@ -764,8 +748,8 @@ static const char *cmc_string_fmt_intervalheap = "struct %s<%s> "
                                                                                \
         for (size_t i = 0; i < _heap1_->count; i++)                            \
         {                                                                      \
-            V value1 = _heap1_->buffer[i / 2].data[i % 2];                     \
-            V value2 = _heap2_->buffer[i / 2].data[i % 2];                     \
+            V value1 = _heap1_->buffer[i / 2][i % 2];                          \
+            V value2 = _heap2_->buffer[i / 2][i % 2];                          \
                                                                                \
             if (_heap1_->f_val->cmp(value1, value2) != 0)                      \
                 return false;                                                  \
@@ -791,7 +775,7 @@ static const char *cmc_string_fmt_intervalheap = "struct %s<%s> "
     {                                                                          \
         for (size_t i = 0; i < _heap_->count; i++)                             \
         {                                                                      \
-            if (!_heap_->f_val->str(fptr, _heap_->buffer[i / 2].data[i % 2]))  \
+            if (!_heap_->f_val->str(fptr, _heap_->buffer[i / 2][i % 2]))       \
                 return false;                                                  \
         }                                                                      \
                                                                                \
@@ -954,7 +938,7 @@ static const char *cmc_string_fmt_intervalheap = "struct %s<%s> "
         if (PFX##_empty(iter->target))                                         \
             return (V){ 0 };                                                   \
                                                                                \
-        return iter->target->buffer[iter->cursor / 2].data[iter->cursor % 2];  \
+        return iter->target->buffer[iter->cursor / 2][iter->cursor % 2];       \
     }                                                                          \
                                                                                \
     size_t PFX##_iter_index(struct SNAME##_iter *iter)                         \
@@ -966,7 +950,7 @@ static const char *cmc_string_fmt_intervalheap = "struct %s<%s> "
     {                                                                          \
         size_t index = _heap_->size - 1;                                       \
                                                                                \
-        struct SNAME##_node *curr_node = &(_heap_->buffer[index]);             \
+        V(*curr_node)[2] = &(_heap_->buffer[index]);                           \
                                                                                \
         /* FLoat Up on the MaxHeap */                                          \
         while (index > 0)                                                      \
@@ -974,35 +958,33 @@ static const char *cmc_string_fmt_intervalheap = "struct %s<%s> "
             /* Parent index */                                                 \
             size_t P_index = (index - 1) / 2;                                  \
                                                                                \
-            struct SNAME##_node *parent = &(_heap_->buffer[P_index]);          \
+            V(*parent)[2] = &(_heap_->buffer[P_index]);                        \
                                                                                \
             if (index == _heap_->size - 1 && _heap_->count % 2 != 0)           \
             {                                                                  \
                 /* In this case, the current node has no MaxHeap value so */   \
                 /* we instead compare with the MinHeap value */                \
-                if (_heap_->f_val->cmp(curr_node->data[0], parent->data[1]) <  \
-                    0)                                                         \
+                if (_heap_->f_val->cmp((*curr_node)[0], (*parent)[1]) < 0)     \
                     break;                                                     \
                                                                                \
                 /* Since the comparison above passed now we need to swap   */  \
                 /* the current node with the parent but it will have to be */  \
                 /* done with the node's MinHeap value since the MaxHeap */     \
                 /* value doesn't exist */                                      \
-                V tmp = curr_node->data[0];                                    \
-                curr_node->data[0] = parent->data[1];                          \
-                parent->data[1] = tmp;                                         \
+                V tmp = (*curr_node)[0];                                       \
+                (*curr_node)[0] = (*parent)[1];                                \
+                (*parent)[1] = tmp;                                            \
             }                                                                  \
             else                                                               \
             {                                                                  \
                 /* Usual case, just compare both MaxHeap values */             \
-                if (_heap_->f_val->cmp(curr_node->data[1], parent->data[1]) <  \
-                    0)                                                         \
+                if (_heap_->f_val->cmp((*curr_node)[1], (*parent)[1]) < 0)     \
                     break;                                                     \
                                                                                \
                 /* Swap with parent and repeat */                              \
-                V tmp = curr_node->data[1];                                    \
-                curr_node->data[1] = parent->data[1];                          \
-                parent->data[1] = tmp;                                         \
+                V tmp = (*curr_node)[1];                                       \
+                (*curr_node)[1] = (*parent)[1];                                \
+                (*parent)[1] = tmp;                                            \
             }                                                                  \
                                                                                \
             /* Update indexe and node */                                       \
@@ -1015,7 +997,7 @@ static const char *cmc_string_fmt_intervalheap = "struct %s<%s> "
     {                                                                          \
         size_t index = _heap_->size - 1;                                       \
                                                                                \
-        struct SNAME##_node *curr_node = &(_heap_->buffer[index]);             \
+        V(*curr_node)[2] = &(_heap_->buffer[index]);                           \
                                                                                \
         /* FLoat Up on the MinHeap */                                          \
         while (index > 0)                                                      \
@@ -1023,15 +1005,15 @@ static const char *cmc_string_fmt_intervalheap = "struct %s<%s> "
             /* Parent index */                                                 \
             size_t P_index = (index - 1) / 2;                                  \
                                                                                \
-            struct SNAME##_node *parent = &(_heap_->buffer[P_index]);          \
+            V(*parent)[2] = &(_heap_->buffer[P_index]);                        \
                                                                                \
-            if (_heap_->f_val->cmp(curr_node->data[0], parent->data[0]) >= 0)  \
+            if (_heap_->f_val->cmp((*curr_node)[0], (*parent)[0]) >= 0)        \
                 break;                                                         \
                                                                                \
             /* Swap with parent and repeat */                                  \
-            V tmp = curr_node->data[0];                                        \
-            curr_node->data[0] = parent->data[0];                              \
-            parent->data[0] = tmp;                                             \
+            V tmp = (*curr_node)[0];                                           \
+            (*curr_node)[0] = (*parent)[0];                                    \
+            (*parent)[0] = tmp;                                                \
                                                                                \
             /* Update indexe and node */                                       \
             index = P_index;                                                   \
@@ -1044,7 +1026,7 @@ static const char *cmc_string_fmt_intervalheap = "struct %s<%s> "
         /* Floats Down from the MinHeap */                                     \
         size_t index = 0;                                                      \
                                                                                \
-        struct SNAME##_node *curr_node = &(_heap_->buffer[index]);             \
+        V(*curr_node)[2] = &(_heap_->buffer[index]);                           \
                                                                                \
         while (true)                                                           \
         {                                                                      \
@@ -1060,18 +1042,18 @@ static const char *cmc_string_fmt_intervalheap = "struct %s<%s> "
             /* If there are two children, pick the smallest one */             \
             if (R_index < _heap_->size)                                        \
             {                                                                  \
-                struct SNAME##_node *L = &(_heap_->buffer[L_index]);           \
-                struct SNAME##_node *R = &(_heap_->buffer[R_index]);           \
+                V(*L)[2] = &(_heap_->buffer[L_index]);                         \
+                V(*R)[2] = &(_heap_->buffer[R_index]);                         \
                                                                                \
                 /* If the right child is the last node and there is no */      \
                 /* MaxHeap value */                                            \
                 /* then do the comparison with the MinHeap value */            \
                 if (R_index == _heap_->size - 1 && _heap_->count % 2 != 0)     \
-                    child = _heap_->f_val->cmp(L->data[1], R->data[0]) > 0     \
+                    child = _heap_->f_val->cmp((*L)[1], (*R)[0]) > 0           \
                                 ? L_index                                      \
                                 : R_index;                                     \
                 else                                                           \
-                    child = _heap_->f_val->cmp(L->data[1], R->data[1]) > 0     \
+                    child = _heap_->f_val->cmp((*L)[1], (*R)[1]) > 0           \
                                 ? L_index                                      \
                                 : R_index;                                     \
             }                                                                  \
@@ -1079,7 +1061,7 @@ static const char *cmc_string_fmt_intervalheap = "struct %s<%s> "
             else                                                               \
                 child = L_index;                                               \
                                                                                \
-            struct SNAME##_node *child_node = &(_heap_->buffer[child]);        \
+            V(*child_node)[2] = &(_heap_->buffer[child]);                      \
                                                                                \
             /* Again, check if the child node is the last one and has no */    \
             /* MaxHeap value */                                                \
@@ -1088,38 +1070,38 @@ static const char *cmc_string_fmt_intervalheap = "struct %s<%s> "
                 /* Odd case, compare with MinHeap value */                     \
                 /* If current value is not less than the child node's */       \
                 /* value it is done */                                         \
-                if (_heap_->f_val->cmp(curr_node->data[1],                     \
-                                       child_node->data[0]) >= 0)              \
+                if (_heap_->f_val->cmp((*curr_node)[1], (*child_node)[0]) >=   \
+                    0)                                                         \
                     break;                                                     \
                                                                                \
                 /* Otherwise swap and continue */                              \
-                V tmp = child_node->data[0];                                   \
-                child_node->data[0] = curr_node->data[1];                      \
-                curr_node->data[1] = tmp;                                      \
+                V tmp = (*child_node)[0];                                      \
+                (*child_node)[0] = (*curr_node)[1];                            \
+                (*curr_node)[1] = tmp;                                         \
             }                                                                  \
             else                                                               \
             {                                                                  \
                 /* If current value is not less than the child node's   */     \
                 /* value it is done */                                         \
-                if (_heap_->f_val->cmp(curr_node->data[1],                     \
-                                       child_node->data[1]) >= 0)              \
+                if (_heap_->f_val->cmp((*curr_node)[1], (*child_node)[1]) >=   \
+                    0)                                                         \
                     break;                                                     \
                                                                                \
                 /* Otherwise swap and continue */                              \
-                V tmp = child_node->data[1];                                   \
-                child_node->data[1] = curr_node->data[1];                      \
-                curr_node->data[1] = tmp;                                      \
+                V tmp = (*child_node)[1];                                      \
+                (*child_node)[1] = (*curr_node)[1];                            \
+                (*curr_node)[1] = tmp;                                         \
                                                                                \
                 /* Check if the MinHeap and MaxHeap values need to be */       \
                 /* swapped                  */                                 \
-                if (_heap_->f_val->cmp(child_node->data[0],                    \
-                                       child_node->data[1]) > 0)               \
+                if (_heap_->f_val->cmp((*child_node)[0], (*child_node)[1]) >   \
+                    0)                                                         \
                 {                                                              \
                     /* Swap because the MinHeap value is greater than the */   \
                     /* MaxHeap value */                                        \
-                    tmp = child_node->data[0];                                 \
-                    child_node->data[0] = child_node->data[1];                 \
-                    child_node->data[1] = tmp;                                 \
+                    tmp = (*child_node)[0];                                    \
+                    (*child_node)[0] = (*child_node)[1];                       \
+                    (*child_node)[1] = tmp;                                    \
                 }                                                              \
             }                                                                  \
                                                                                \
@@ -1134,7 +1116,7 @@ static const char *cmc_string_fmt_intervalheap = "struct %s<%s> "
         /* Floats Down from the MinHeap */                                     \
         size_t index = 0;                                                      \
                                                                                \
-        struct SNAME##_node *curr_node = &(_heap_->buffer[index]);             \
+        V(*curr_node)[2] = &(_heap_->buffer[index]);                           \
                                                                                \
         while (true)                                                           \
         {                                                                      \
@@ -1150,42 +1132,40 @@ static const char *cmc_string_fmt_intervalheap = "struct %s<%s> "
             /* If there are two children, pick the smallest one */             \
             if (R_index < _heap_->size)                                        \
             {                                                                  \
-                struct SNAME##_node *L = &(_heap_->buffer[L_index]);           \
-                struct SNAME##_node *R = &(_heap_->buffer[R_index]);           \
+                V(*L)[2] = &(_heap_->buffer[L_index]);                         \
+                V(*R)[2] = &(_heap_->buffer[R_index]);                         \
                                                                                \
-                child = _heap_->f_val->cmp(L->data[0], R->data[0]) < 0         \
-                            ? L_index                                          \
-                            : R_index;                                         \
+                child = _heap_->f_val->cmp((*L)[0], (*R)[0]) < 0 ? L_index     \
+                                                                 : R_index;    \
             }                                                                  \
             /* Pick the only one available */                                  \
             else                                                               \
                 child = L_index;                                               \
                                                                                \
-            struct SNAME##_node *child_node = &(_heap_->buffer[child]);        \
+            V(*child_node)[2] = &(_heap_->buffer[child]);                      \
                                                                                \
             /* If current value is smaller than the child node's value, it */  \
             /* is done */                                                      \
-            if (_heap_->f_val->cmp(curr_node->data[0], child_node->data[0]) <  \
-                0)                                                             \
+            if (_heap_->f_val->cmp((*curr_node)[0], (*child_node)[0]) < 0)     \
                 break;                                                         \
                                                                                \
             /* Otherwise swap and continue */                                  \
-            V tmp = child_node->data[0];                                       \
-            child_node->data[0] = curr_node->data[0];                          \
-            curr_node->data[0] = tmp;                                          \
+            V tmp = (*child_node)[0];                                          \
+            (*child_node)[0] = (*curr_node)[0];                                \
+            (*curr_node)[0] = tmp;                                             \
                                                                                \
             /* If the child node is the last node check if the MinHeap and */  \
             /* MaxHeap values need to be swapped */                            \
             if (child != _heap_->size - 1 || _heap_->count % 2 == 0)           \
             {                                                                  \
-                if (_heap_->f_val->cmp(child_node->data[0],                    \
-                                       child_node->data[1]) > 0)               \
+                if (_heap_->f_val->cmp((*child_node)[0], (*child_node)[1]) >   \
+                    0)                                                         \
                 {                                                              \
                     /* Swap because the MinHeap value is greater than the */   \
                     /* MaxHeap value */                                        \
-                    tmp = child_node->data[0];                                 \
-                    child_node->data[0] = child_node->data[1];                 \
-                    child_node->data[1] = tmp;                                 \
+                    tmp = (*child_node)[0];                                    \
+                    (*child_node)[0] = (*child_node)[1];                       \
+                    (*child_node)[1] = tmp;                                    \
                 }                                                              \
             }                                                                  \
                                                                                \
