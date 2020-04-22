@@ -175,7 +175,7 @@ _Bool h_insert(struct heap *_heap_, size_t value)
             return 0;
     }
     _heap_->buffer[_heap_->count++] = value;
-    if (!h_empty(_heap_))
+    if (h_count(_heap_) > 1)
     {
         h_impl_float_up(_heap_, _heap_->count - 1);
     }
@@ -460,6 +460,8 @@ static void h_impl_float_up(struct heap *_heap_, size_t index)
         _heap_->buffer[C] = _heap_->buffer[(C - 1) / 2];
         _heap_->buffer[(C - 1) / 2] = tmp;
         C = (C - 1) / 2;
+        if (C == 0)
+            break;
         child = _heap_->buffer[C];
         parent = _heap_->buffer[(C - 1) / 2];
     }

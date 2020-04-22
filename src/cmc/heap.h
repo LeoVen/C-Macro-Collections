@@ -351,7 +351,7 @@ static const char *cmc_string_fmt_heap = "struct %s<%s> "
                                                                                \
         _heap_->buffer[_heap_->count++] = value;                               \
                                                                                \
-        if (!PFX##_empty(_heap_))                                              \
+        if (PFX##_count(_heap_) > 1)                                           \
         {                                                                      \
             PFX##_impl_float_up(_heap_, _heap_->count - 1);                    \
         }                                                                      \
@@ -738,6 +738,10 @@ static const char *cmc_string_fmt_heap = "struct %s<%s> "
                                                                                \
             /* Go to parent */                                                 \
             C = (C - 1) / 2;                                                   \
+                                                                               \
+            /* Prevent the two lines below from accessing a negative index */  \
+            if (C == 0)                                                        \
+                break;                                                         \
                                                                                \
             child = _heap_->buffer[C];                                         \
             parent = _heap_->buffer[(C - 1) / 2];                              \

@@ -529,7 +529,7 @@ static size_t sl_impl_binary_search_last(struct sortedlist *_list_,
         else
             L = M + 1;
     }
-    if (_list_->f_val->cmp(_list_->buffer[L - 1], value) == 0)
+    if (L > 0 && _list_->f_val->cmp(_list_->buffer[L - 1], value) == 0)
         return L - 1;
     return _list_->count;
 }

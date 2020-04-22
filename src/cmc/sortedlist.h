@@ -805,7 +805,7 @@ static const char *cmc_string_fmt_sortedlist = "struct %s<%s> "
                 L = M + 1;                                                     \
         }                                                                      \
                                                                                \
-        if (_list_->f_val->cmp(_list_->buffer[L - 1], value) == 0)             \
+        if (L > 0 && _list_->f_val->cmp(_list_->buffer[L - 1], value) == 0)    \
             return L - 1;                                                      \
                                                                                \
         /* Not found */                                                        \

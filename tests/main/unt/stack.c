@@ -667,6 +667,7 @@ CMC_CREATE_UNIT(Stack, true, {
         cmc_assert_equals(int32_t, cmc_flags.OK, s_flag(s2));
 
         s_free(s);
+        s_free(s2);
     });
 
     CMC_CREATE_TEST(callbacks, {

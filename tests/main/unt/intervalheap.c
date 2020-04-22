@@ -242,6 +242,8 @@ CMC_CREATE_UNIT(IntervalHeap, true, {
         cmc_assert_equals(size_t, 10000, ih_count(ih));
         cmc_assert_equals(int32_t, 10000, total_create);
 
+        ih_free(ih);
+
         // max
         ih = ih_new(1, ih_fval);
 
