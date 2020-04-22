@@ -18,7 +18,7 @@ FLAGS = '-E -P -C'
 UNIQUE_FLAG = '// C_MACRO_COLLECTIONS_CODE'
 
 # Temporary file used to expand the macros
-TMP_FILE = 'main.c'
+TMP_FILE = './main.c'
 
 # Output directory
 OUTPUT_DIR = './tests/main/src'
@@ -63,7 +63,7 @@ for data in collections:
     file.flush()
     file.close()
 
-    result = subprocess.run(f'{CC} {FLAGS} {INCLUDE} {TMP_FILE}', stdout=subprocess.PIPE).stdout.decode('utf-8')
+    result = subprocess.getoutput(f'{CC} {FLAGS} {INCLUDE} {TMP_FILE}')
 
     # (?s) makes '.' match anything, even '\n'
     match = re.search(fr'(?s){UNIQUE_FLAG}(?P<code>.+){UNIQUE_FLAG}', result)
@@ -86,13 +86,13 @@ for data in collections:
 # subprocess.run(f'clang-format --style=file -i {OUTPUT_DIR}/*.c')
 
 # So I guess... it will have to be called from a temp Makefile... ugh
-TMP_MAKE = 'temp_makefile'
+TMP_MAKE = './temp_makefile'
 
-data = '''
+data = f'''
 .PHONY: codecov FORCE
 
 codecov: FORCE
-\tclang-format --style=file -i $(OUTPUT_DIR)/*.c
+\tclang-format --style=file -i {OUTPUT_DIR}/*.c
 
 FORCE:
 
@@ -105,7 +105,7 @@ file.write(data)
 file.flush()
 file.close()
 
-subprocess.call(f'make -f {TMP_MAKE} codecov OUTPUT_DIR={OUTPUT_DIR} --always-make')
+subprocess.call(['make', '-f' , TMP_MAKE, 'codecov', '--always-make'])
 
 os.remove(TMP_FILE)
 os.remove(TMP_MAKE)
