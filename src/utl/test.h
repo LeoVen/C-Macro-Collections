@@ -118,15 +118,15 @@ static void cmc_test_log(const char *unit_name, const char *current_test,
         tinfo.assert_total = cmc_assert_total;                                          \
         tinfo.assert_failed = cmc_assert_failed;                                        \
                                                                                         \
-        printf("%s", cmc_test_color(3));                                                      \
+        printf("%s", cmc_test_color(3));                                                \
         printf(                                                                         \
             " +---------------------------------------------------------------+\n");    \
         printf(" | ");                                                                  \
-        printf("%s", cmc_test_color(0));                                                      \
+        printf("%s", cmc_test_color(0));                                                \
         printf("Unit ");                                                                \
-        printf("%s", cmc_test_color(4));                                                      \
+        printf("%s", cmc_test_color(4));                                                \
         printf("%-56s", unit_name);                                                     \
-        printf("%s", cmc_test_color(3));                                                      \
+        printf("%s", cmc_test_color(3));                                                \
         printf(                                                                         \
             " |\n +---------------------------------------------------------------+");  \
         printf("%s\n", cmc_test_color(0));                                              \
@@ -147,57 +147,57 @@ static void cmc_test_log(const char *unit_name, const char *current_test,
         tinfo.assert_total = cmc_assert_total - tinfo.assert_total;                     \
         tinfo.assert_failed = cmc_assert_failed - tinfo.assert_failed;                  \
                                                                                         \
-        printf("%s", cmc_test_color(3));                                                      \
+        printf("%s", cmc_test_color(3));                                                \
         printf(                                                                         \
             " +---------------------------------------------------------------+\n | "); \
-        printf("%s", cmc_test_color(0));                                                      \
+        printf("%s", cmc_test_color(0));                                                \
         printf("Summary : ");                                                           \
-        printf("%s", cmc_test_color(4));                                                      \
+        printf("%s", cmc_test_color(4));                                                \
         printf("%-52s", unit_name);                                                     \
         printf("%s|\n", cmc_test_color(3));                                             \
         printf(                                                                         \
             " +---------++----------------+-----------------+-----------------+\n | "); \
-        printf("%s", cmc_test_color(0));                                                      \
+        printf("%s", cmc_test_color(0));                                                \
         printf("Tests   ");                                                             \
-        printf("%s", cmc_test_color(3));                                                      \
+        printf("%s", cmc_test_color(3));                                                \
         printf("||");                                                                   \
-        printf("%s", cmc_test_color(5));                                                      \
+        printf("%s", cmc_test_color(5));                                                \
         printf(" Total %8" PRIuMAX "", tinfo.total);                                    \
-        printf("%s", cmc_test_color(3));                                                      \
+        printf("%s", cmc_test_color(3));                                                \
         printf(" | ");                                                                  \
-        printf("%s", cmc_test_color(2));                                                      \
+        printf("%s", cmc_test_color(2));                                                \
         printf("Passed %8" PRIuMAX "", tinfo.passed);                                   \
-        printf("%s", cmc_test_color(3));                                                      \
+        printf("%s", cmc_test_color(3));                                                \
         printf(" | ");                                                                  \
-        printf("%s", cmc_test_color(1));                                                      \
+        printf("%s", cmc_test_color(1));                                                \
         printf("Failed %8" PRIuMAX "", tinfo.failed);                                   \
-        printf("%s", cmc_test_color(3));                                                      \
+        printf("%s", cmc_test_color(3));                                                \
         printf(" |\n | ");                                                              \
-        printf("%s", cmc_test_color(0));                                                      \
+        printf("%s", cmc_test_color(0));                                                \
         printf("Asserts ");                                                             \
-        printf("%s", cmc_test_color(3));                                                      \
+        printf("%s", cmc_test_color(3));                                                \
         printf("||");                                                                   \
-        printf("%s", cmc_test_color(5));                                                      \
+        printf("%s", cmc_test_color(5));                                                \
         printf(" Total %8" PRIuMAX "", tinfo.assert_total);                             \
-        printf("%s", cmc_test_color(3));                                                      \
+        printf("%s", cmc_test_color(3));                                                \
         printf(" | ");                                                                  \
-        printf("%s", cmc_test_color(2));                                                      \
+        printf("%s", cmc_test_color(2));                                                \
         printf("Passed %8" PRIuMAX "",                                                  \
                tinfo.assert_total - tinfo.assert_failed);                               \
-        printf("%s", cmc_test_color(3));                                                      \
+        printf("%s", cmc_test_color(3));                                                \
         printf(" | ");                                                                  \
-        printf("%s", cmc_test_color(1));                                                      \
+        printf("%s", cmc_test_color(1));                                                \
         printf("Failed %8" PRIuMAX "", tinfo.assert_failed);                            \
-        printf("%s", cmc_test_color(3));                                                      \
+        printf("%s", cmc_test_color(3));                                                \
         printf(" |\n");                                                                 \
         printf(                                                                         \
             " +---------++----------------+-----------------+-----------------+\n | "); \
-        printf("%s", cmc_test_color(0));                                                      \
+        printf("%s", cmc_test_color(0));                                                \
         printf("Total Runtime : %32.0f milliseconds", timer.result);                    \
         printf(" %s|\n", cmc_test_color(3));                                            \
         printf(                                                                         \
             " +---------------------------------------------------------------+\n");    \
-        printf("%s", cmc_test_color(0));                                                      \
+        printf("%s", cmc_test_color(0));                                                \
         printf("\n\n");                                                                 \
                                                                                         \
         return tinfo.failed;                                                            \

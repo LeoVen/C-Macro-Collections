@@ -15,11 +15,11 @@ struct intervalheap_fval *ih_fval =
 
 struct intervalheap_fval *ih_fval_counter =
     &(struct intervalheap_fval){ .cmp = v_c_cmp,
-                                                          .cpy = v_c_cpy,
-                                                          .str = v_c_str,
-                                                          .free = v_c_free,
-                                                          .hash = v_c_hash,
-                                                          .pri = v_c_pri };
+                                 .cpy = v_c_cpy,
+                                 .str = v_c_str,
+                                 .free = v_c_free,
+                                 .hash = v_c_hash,
+                                 .pri = v_c_pri };
 
 struct cmc_alloc_node *ih_alloc_node = &(struct cmc_alloc_node){
     .malloc = malloc, .calloc = calloc, .realloc = realloc, .free = free
@@ -73,7 +73,8 @@ CMC_CREATE_UNIT(IntervalHeap, true, {
     });
 
     CMC_CREATE_TEST(PFX##_new_custom(), {
-        struct intervalheap *ih = ih_new_custom(1000000, ih_fval, ih_alloc_node, callbacks);
+        struct intervalheap *ih =
+            ih_new_custom(1000000, ih_fval, ih_alloc_node, callbacks);
 
         cmc_assert_not_equals(ptr, NULL, ih);
         cmc_assert_not_equals(ptr, NULL, ih->buffer);
