@@ -9,6 +9,7 @@
 - [Overview](./Overview/index.md)
     - [Collections Overview](./Overview/collections_overview.md)
     - [Features Overview](./Overview/features_overview.md)
+    - [Files Overview](./Overview/files_overview.md)
 - [cor](./cor/index.md)
     - [Callbacks](./cor/callbacks/index.md)
     - [Custom allocation](./cor/custom_allocation/index.md)
