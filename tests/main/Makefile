@@ -1,6 +1,7 @@
 CC = gcc
 CFLAGS = -std=c11 -Wall -Wextra
 CFLAGS += -Wno-unused -Wno-missing-braces
+DBFLAGS = -g3
 CVFLAGS = --coverage -O0
 INCLUDE = ../../src/
 
@@ -30,5 +31,11 @@ bare: FORCE
 	$(CC) main.c -o main.exe $(CFLAGS) -I $(INCLUDE)
 	./main.exe
 	rm *.exe
+
+debug: FORCE
+	$(CC) main.c -o main.exe $(CFLAGS) -I $(INCLUDE) -DCMC_TEST_COLOR $(DBFLAGS)
+
+valgrind: debug
+	valgrind --leak-check=full ./main.exe
 
 FORCE:

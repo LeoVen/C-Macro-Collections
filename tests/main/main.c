@@ -30,6 +30,17 @@
 
 int main(void)
 {
+    // clang-format off
+    printf(" +---------------------------------------------------------------+\n");
+    printf(" |                  C Macro Collections Library                  |\n");
+    printf(" |                                                               |\n");
+    printf(" |                          Test Suite                           |\n");
+    printf(" |                                                               |\n");
+    printf(" | https://github.com/LeoVen/C-Macro-Collections                 |\n");
+    printf(" | Leonardo Vencovsky (leonardo.vencovsky@gmail.com)             |\n");
+    printf(" +---------------------------------------------------------------+\n\n");
+    // clang-format on
+
     struct cmc_timer timer;
 
     cmc_timer_start(timer);
