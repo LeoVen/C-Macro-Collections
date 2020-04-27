@@ -30,7 +30,13 @@ CMC_CREATE_UNIT(Deque, true, {
         cmc_assert_not_equals(ptr, NULL, d);
         cmc_assert_not_equals(ptr, NULL, d->buffer);
         cmc_assert_equals(size_t, 1000000, d->capacity);
-        cmc_assert_equals(size_t, 0, d_count(d));
+        cmc_assert_equals(size_t, 0, d->count);
+        cmc_assert_equals(size_t, 0, d->front);
+        cmc_assert_equals(size_t, 0, d->back);
+        cmc_assert_equals(int32_t, cmc_flags.OK, d->flag);
+        cmc_assert_equals(ptr, d_fval, d->f_val);
+        cmc_assert_equals(ptr, &cmc_alloc_node_default, d->alloc);
+        cmc_assert_equals(ptr, NULL, d->callbacks);
 
         d_free(d);
 
@@ -51,9 +57,17 @@ CMC_CREATE_UNIT(Deque, true, {
     });
 
     CMC_CREATE_TEST(PFX##_new_custom(), {
-        struct deque *d = d_new_custom(100, d_fval, d_alloc_node, callbacks);
+        struct deque *d =
+            d_new_custom(1000000, d_fval, d_alloc_node, callbacks);
 
         cmc_assert_not_equals(ptr, NULL, d);
+        cmc_assert_not_equals(ptr, NULL, d->buffer);
+        cmc_assert_equals(size_t, 1000000, d->capacity);
+        cmc_assert_equals(size_t, 0, d->count);
+        cmc_assert_equals(size_t, 0, d->front);
+        cmc_assert_equals(size_t, 0, d->back);
+        cmc_assert_equals(int32_t, cmc_flags.OK, d->flag);
+        cmc_assert_equals(ptr, d_fval, d->f_val);
         cmc_assert_equals(ptr, d_alloc_node, d->alloc);
         cmc_assert_equals(ptr, callbacks, d->callbacks);
 
@@ -73,6 +87,75 @@ CMC_CREATE_UNIT(Deque, true, {
 
         if (d)
             d_free(d);
+    });
+
+    CMC_CREATE_TEST(PFX##_init(), {
+        struct deque d = d_init(1000000, d_fval);
+
+        cmc_assert_not_equals(ptr, NULL, d.buffer);
+        cmc_assert_equals(size_t, 1000000, d.capacity);
+        cmc_assert_equals(size_t, 0, d.count);
+        cmc_assert_equals(size_t, 0, d.front);
+        cmc_assert_equals(size_t, 0, d.back);
+        cmc_assert_equals(int32_t, cmc_flags.OK, d.flag);
+        cmc_assert_equals(ptr, d_fval, d.f_val);
+        cmc_assert_equals(ptr, &cmc_alloc_node_default, d.alloc);
+        cmc_assert_equals(ptr, NULL, d.callbacks);
+
+        d_release(d);
+
+        d = d_init(0, d_fval);
+
+        cmc_assert_equals(size_t, 0, d.capacity);
+        cmc_assert_equals(ptr, NULL, d.buffer);
+
+        d = d_init(1000, NULL);
+
+        cmc_assert_equals(size_t, 0, d.capacity);
+        cmc_assert_equals(ptr, NULL, d.buffer);
+
+        d = d_init(UINT64_MAX, d_fval);
+
+        cmc_assert_equals(size_t, 0, d.capacity);
+        cmc_assert_equals(ptr, NULL, d.buffer);
+
+        if (d.buffer)
+            d_release(d);
+    });
+
+    CMC_CREATE_TEST(PFX##_init_custom(), {
+        struct deque d =
+            d_init_custom(1000000, d_fval, d_alloc_node, callbacks);
+
+        cmc_assert_not_equals(ptr, NULL, d.buffer);
+        cmc_assert_equals(size_t, 1000000, d.capacity);
+        cmc_assert_equals(size_t, 0, d.count);
+        cmc_assert_equals(size_t, 0, d.front);
+        cmc_assert_equals(size_t, 0, d.back);
+        cmc_assert_equals(int32_t, cmc_flags.OK, d.flag);
+        cmc_assert_equals(ptr, d_fval, d.f_val);
+        cmc_assert_equals(ptr, d_alloc_node, d.alloc);
+        cmc_assert_equals(ptr, callbacks, d.callbacks);
+
+        d_release(d);
+
+        d = d_init_custom(0, d_fval, d_alloc_node, callbacks);
+
+        cmc_assert_equals(size_t, 0, d.capacity);
+        cmc_assert_equals(ptr, NULL, d.buffer);
+
+        d = d_init_custom(1000, NULL, d_alloc_node, callbacks);
+
+        cmc_assert_equals(size_t, 0, d.capacity);
+        cmc_assert_equals(ptr, NULL, d.buffer);
+
+        d = d_init_custom(UINT64_MAX, d_fval, d_alloc_node, callbacks);
+
+        cmc_assert_equals(size_t, 0, d.capacity);
+        cmc_assert_equals(ptr, NULL, d.buffer);
+
+        if (d.buffer)
+            d_release(d);
     });
 
     CMC_CREATE_TEST(PFX##_clear(), {
@@ -156,6 +239,37 @@ CMC_CREATE_UNIT(Deque, true, {
         cmc_assert_equals(size_t, 500500, sum);
 
         d_free(d);
+
+        cmc_assert_equals(size_t, 1000, v_total_free);
+
+        v_total_free = 0;
+    });
+
+    CMC_CREATE_TEST(PFX##_destroy(), {
+        v_total_free = 0;
+
+        struct deque d = d_init(100, d_fval_counter);
+
+        cmc_assert_not_equals(ptr, NULL, d.buffer);
+
+        for (size_t i = 1; i <= 1000; i++)
+        {
+            if (i % 2 == 0)
+                d_push_front(&d, i);
+            else
+                d_push_back(&d, i);
+        }
+
+        cmc_assert_equals(size_t, 1000, d_count(&d));
+
+        size_t sum = 0;
+        for (size_t i = d.front, j = 0; j < d.count;
+             i = (i + 1) % d.capacity, j++)
+            sum += d.buffer[i];
+
+        cmc_assert_equals(size_t, 500500, sum);
+
+        d_release(d);
 
         cmc_assert_equals(size_t, 1000, v_total_free);
 
@@ -1080,5 +1194,122 @@ CMC_CREATE_UNIT(Deque, true, {
         total_update = 0;
         total_delete = 0;
         total_resize = 0;
+    });
+});
+
+CMC_CREATE_UNIT(DequeIter, true, {
+    CMC_CREATE_TEST(PFX##_iter_start(), {
+        struct deque *d = d_new(100, d_fval);
+
+        cmc_assert_not_equals(ptr, NULL, d);
+
+        struct deque_iter it = d_iter_start(d);
+
+        cmc_assert_equals(ptr, d, it.target);
+        cmc_assert_equals(size_t, d->front, it.cursor);
+        cmc_assert_equals(size_t, 0, it.index);
+        cmc_assert_equals(bool, true, it.start);
+        cmc_assert_equals(bool, true, it.end);
+
+        cmc_assert(d_iter_at_start(&it));
+        cmc_assert(d_iter_at_end(&it));
+
+        cmc_assert(d_push_front(d, 1));
+        cmc_assert(d_push_front(d, 2));
+
+        it = d_iter_start(d);
+
+        cmc_assert_equals(size_t, 0, it.index);
+        cmc_assert_equals(size_t, d->front, it.cursor);
+
+        d_free(d);
+    });
+
+    CMC_CREATE_TEST(PFX##_iter_end(), {
+        struct deque *d = d_new(100, d_fval);
+
+        cmc_assert_not_equals(ptr, NULL, d);
+
+        struct deque_iter it = d_iter_end(d);
+
+        cmc_assert_equals(ptr, d, it.target);
+        cmc_assert_equals(size_t, d->back, it.cursor);
+        cmc_assert_equals(size_t, 0, it.index);
+        cmc_assert_equals(bool, true, it.start);
+        cmc_assert_equals(bool, true, it.end);
+
+        cmc_assert(d_iter_at_start(&it));
+        cmc_assert(d_iter_at_end(&it));
+
+        cmc_assert(d_push_back(d, 1));
+        cmc_assert(d_push_back(d, 2));
+        cmc_assert(d_push_back(d, 3));
+
+        it = d_iter_end(d);
+
+        cmc_assert_equals(size_t, d->count - 1, it.index);
+        cmc_assert_equals(size_t, d->back - 1, it.cursor);
+
+        d_free(d);
+    });
+
+    CMC_CREATE_TEST(PFX##_iter_at_start(), {
+        struct deque *d = d_new(100, d_fval);
+
+        cmc_assert_not_equals(ptr, NULL, d);
+
+        struct deque_iter it = d_iter_start(d);
+
+        // Empty checks
+        cmc_assert(d_iter_at_start(&it));
+        it = d_iter_end(d);
+        cmc_assert(d_iter_at_start(&it));
+
+        // Non-empty checks
+        cmc_assert(d_push_back(d, 1));
+        it = d_iter_end(d);
+        cmc_assert(!d_iter_at_start(&it));
+        it = d_iter_start(d);
+        cmc_assert(d_iter_at_start(&it));
+
+        d_clear(d);
+
+        cmc_assert(d_push_front(d, 1));
+        it = d_iter_end(d);
+        cmc_assert(!d_iter_at_start(&it));
+        it = d_iter_start(d);
+        cmc_assert(d_iter_at_start(&it));
+
+        d_free(d);
+    });
+
+    CMC_CREATE_TEST(PFX##_iter_at_end(), {
+        struct deque *d = d_new(100, d_fval);
+
+        cmc_assert_not_equals(ptr, NULL, d);
+
+        struct deque_iter it = d_iter_start(d);
+
+        // Empty check
+        cmc_assert(d_iter_at_end(&it));
+        it = d_iter_end(d);
+        cmc_assert(d_iter_at_end(&it));
+
+        // Non-empty checks
+        cmc_assert(d_push_back(d, 1));
+        it = d_iter_end(d);
+        cmc_assert(d_iter_at_end(&it));
+        it = d_iter_start(d);
+        cmc_assert(!d_iter_at_end(&it));
+
+        d_clear(d);
+
+        cmc_assert(d_push_front(d, 1));
+        it = d_iter_end(d);
+        cmc_assert(d_iter_at_end(&it));
+        it = d_iter_start(d);
+        cmc_assert(!d_iter_at_end(&it));
+
+        d_free(d);
     });
 });

@@ -95,12 +95,6 @@ static const char *cmc_string_fmt_deque = "struct %s<%s> "
                                                                               \
         /* Custom callback functions */                                       \
         struct cmc_callbacks *callbacks;                                      \
-                                                                              \
-        /* Function that returns an iterator to the start of the deque */     \
-        struct SNAME##_iter (*it_start)(struct SNAME *);                      \
-                                                                              \
-        /* Function that returns an iterator to the end of the deque */       \
-        struct SNAME##_iter (*it_end)(struct SNAME *);                        \
     };                                                                        \
                                                                               \
     struct SNAME##_fval                                                       \
@@ -149,8 +143,13 @@ static const char *cmc_string_fmt_deque = "struct %s<%s> "
     struct SNAME *PFX##_new_custom(                                           \
         size_t capacity, struct SNAME##_fval *f_val,                          \
         struct cmc_alloc_node *alloc, struct cmc_callbacks *callbacks);       \
+    struct SNAME PFX##_init(size_t capacity, struct SNAME##_fval *f_val);     \
+    struct SNAME PFX##_init_custom(                                           \
+        size_t capacity, struct SNAME##_fval *f_val,                          \
+        struct cmc_alloc_node *alloc, struct cmc_callbacks *callbacks);       \
     void PFX##_clear(struct SNAME *_deque_);                                  \
     void PFX##_free(struct SNAME *_deque_);                                   \
+    void PFX##_release(struct SNAME _deque_);                                 \
     /* Customization of Allocation and Callbacks */                           \
     void PFX##_customize(struct SNAME *_deque_, struct cmc_alloc_node *alloc, \
                          struct cmc_callbacks *callbacks);                    \
@@ -177,14 +176,12 @@ static const char *cmc_string_fmt_deque = "struct %s<%s> "
     bool PFX##_print(struct SNAME *_deque_, FILE *fptr);                      \
                                                                               \
     /* Iterator Functions */                                                  \
-    /* Iterator Allocation and Deallocation */                                \
-    struct SNAME##_iter *PFX##_iter_new(struct SNAME *target);                \
-    void PFX##_iter_free(struct SNAME##_iter *iter);                          \
     /* Iterator Initialization */                                             \
-    void PFX##_iter_init(struct SNAME##_iter *iter, struct SNAME *target);    \
+    struct SNAME##_iter PFX##_iter_start(struct SNAME *target);               \
+    struct SNAME##_iter PFX##_iter_end(struct SNAME *target);                 \
     /* Iterator State */                                                      \
-    bool PFX##_iter_start(struct SNAME##_iter *iter);                         \
-    bool PFX##_iter_end(struct SNAME##_iter *iter);                           \
+    bool PFX##_iter_at_start(struct SNAME##_iter *iter);                      \
+    bool PFX##_iter_at_end(struct SNAME##_iter *iter);                        \
     /* Iterator Movement */                                                   \
     void PFX##_iter_to_start(struct SNAME##_iter *iter);                      \
     void PFX##_iter_to_end(struct SNAME##_iter *iter);                        \
@@ -204,44 +201,11 @@ static const char *cmc_string_fmt_deque = "struct %s<%s> "
 #define CMC_GENERATE_DEQUE_SOURCE(PFX, SNAME, V)                               \
                                                                                \
     /* Implementation Detail Functions */                                      \
-    static struct SNAME##_iter PFX##_impl_it_start(struct SNAME *_deque_);     \
-    static struct SNAME##_iter PFX##_impl_it_end(struct SNAME *_deque_);       \
+    /* None */                                                                 \
                                                                                \
     struct SNAME *PFX##_new(size_t capacity, struct SNAME##_fval *f_val)       \
     {                                                                          \
-        struct cmc_alloc_node *alloc = &cmc_alloc_node_default;                \
-                                                                               \
-        if (capacity < 1)                                                      \
-            return NULL;                                                       \
-                                                                               \
-        if (!f_val)                                                            \
-            return NULL;                                                       \
-                                                                               \
-        struct SNAME *_deque_ = alloc->malloc(sizeof(struct SNAME));           \
-                                                                               \
-        if (!_deque_)                                                          \
-            return NULL;                                                       \
-                                                                               \
-        _deque_->buffer = alloc->calloc(capacity, sizeof(V));                  \
-                                                                               \
-        if (!_deque_->buffer)                                                  \
-        {                                                                      \
-            alloc->free(_deque_);                                              \
-            return NULL;                                                       \
-        }                                                                      \
-                                                                               \
-        _deque_->capacity = capacity;                                          \
-        _deque_->count = 0;                                                    \
-        _deque_->front = 0;                                                    \
-        _deque_->back = 0;                                                     \
-        _deque_->flag = cmc_flags.OK;                                          \
-        _deque_->f_val = f_val;                                                \
-        _deque_->alloc = alloc;                                                \
-        _deque_->callbacks = NULL;                                             \
-        _deque_->it_start = PFX##_impl_it_start;                               \
-        _deque_->it_end = PFX##_impl_it_end;                                   \
-                                                                               \
-        return _deque_;                                                        \
+        return PFX##_new_custom(capacity, f_val, NULL, NULL);                  \
     }                                                                          \
                                                                                \
     struct SNAME *PFX##_new_custom(                                            \
@@ -278,8 +242,43 @@ static const char *cmc_string_fmt_deque = "struct %s<%s> "
         _deque_->f_val = f_val;                                                \
         _deque_->alloc = alloc;                                                \
         _deque_->callbacks = callbacks;                                        \
-        _deque_->it_start = PFX##_impl_it_start;                               \
-        _deque_->it_end = PFX##_impl_it_end;                                   \
+                                                                               \
+        return _deque_;                                                        \
+    }                                                                          \
+                                                                               \
+    struct SNAME PFX##_init(size_t capacity, struct SNAME##_fval *f_val)       \
+    {                                                                          \
+        return PFX##_init_custom(capacity, f_val, NULL, NULL);                 \
+    }                                                                          \
+                                                                               \
+    struct SNAME PFX##_init_custom(                                            \
+        size_t capacity, struct SNAME##_fval *f_val,                           \
+        struct cmc_alloc_node *alloc, struct cmc_callbacks *callbacks)         \
+    {                                                                          \
+        struct SNAME _deque_ = { 0 };                                          \
+                                                                               \
+        if (capacity < 1)                                                      \
+            return _deque_;                                                    \
+                                                                               \
+        if (!f_val)                                                            \
+            return _deque_;                                                    \
+                                                                               \
+        if (!alloc)                                                            \
+            alloc = &cmc_alloc_node_default;                                   \
+                                                                               \
+        _deque_.buffer = alloc->calloc(capacity, sizeof(V));                   \
+                                                                               \
+        if (!_deque_.buffer)                                                   \
+            return _deque_;                                                    \
+                                                                               \
+        _deque_.capacity = capacity;                                           \
+        _deque_.count = 0;                                                     \
+        _deque_.front = 0;                                                     \
+        _deque_.back = 0;                                                      \
+        _deque_.flag = cmc_flags.OK;                                           \
+        _deque_.f_val = f_val;                                                 \
+        _deque_.alloc = alloc;                                                 \
+        _deque_.callbacks = callbacks;                                         \
                                                                                \
         return _deque_;                                                        \
     }                                                                          \
@@ -319,6 +318,21 @@ static const char *cmc_string_fmt_deque = "struct %s<%s> "
                                                                                \
         _deque_->alloc->free(_deque_->buffer);                                 \
         _deque_->alloc->free(_deque_);                                         \
+    }                                                                          \
+                                                                               \
+    void PFX##_release(struct SNAME _deque_)                                   \
+    {                                                                          \
+        if (_deque_.f_val->free)                                               \
+        {                                                                      \
+            for (size_t i = _deque_.front, j = 0; j < _deque_.count; j++)      \
+            {                                                                  \
+                _deque_.f_val->free(_deque_.buffer[i]);                        \
+                                                                               \
+                i = (i + 1) % _deque_.capacity;                                \
+            }                                                                  \
+        }                                                                      \
+                                                                               \
+        _deque_.alloc->free(_deque_.buffer);                                   \
     }                                                                          \
                                                                                \
     void PFX##_customize(struct SNAME *_deque_, struct cmc_alloc_node *alloc,  \
@@ -636,39 +650,52 @@ static const char *cmc_string_fmt_deque = "struct %s<%s> "
         return true;                                                           \
     }                                                                          \
                                                                                \
-    struct SNAME##_iter *PFX##_iter_new(struct SNAME *target)                  \
+    struct SNAME##_iter PFX##_iter_start(struct SNAME *target)                 \
     {                                                                          \
-        struct SNAME##_iter *iter =                                            \
-            target->alloc->malloc(sizeof(struct SNAME##_iter));                \
+        struct SNAME##_iter iter;                                              \
                                                                                \
-        if (!iter)                                                             \
-            return NULL;                                                       \
-                                                                               \
-        PFX##_iter_init(iter, target);                                         \
+        iter.target = target;                                                  \
+        iter.cursor = target->front;                                           \
+        iter.index = 0;                                                        \
+        iter.start = true;                                                     \
+        iter.end = PFX##_empty(target);                                        \
                                                                                \
         return iter;                                                           \
     }                                                                          \
                                                                                \
-    void PFX##_iter_free(struct SNAME##_iter *iter)                            \
+    struct SNAME##_iter PFX##_iter_end(struct SNAME *target)                   \
     {                                                                          \
-        iter->target->alloc->free(iter);                                       \
+        struct SNAME##_iter iter;                                              \
+                                                                               \
+        iter.target = target;                                                  \
+                                                                               \
+        if (!PFX##_empty(target))                                              \
+        {                                                                      \
+            if (iter.target->back == 0)                                        \
+                iter.cursor = iter.target->capacity - 1;                       \
+            else                                                               \
+                iter.cursor = iter.target->back - 1;                           \
+                                                                               \
+            iter.index = iter.target->count - 1;                               \
+        }                                                                      \
+        else                                                                   \
+        {                                                                      \
+            iter.cursor = 0;                                                   \
+            iter.index = 0;                                                    \
+        }                                                                      \
+                                                                               \
+        iter.start = PFX##_empty(target);                                      \
+        iter.end = true;                                                       \
+                                                                               \
+        return iter;                                                           \
     }                                                                          \
                                                                                \
-    void PFX##_iter_init(struct SNAME##_iter *iter, struct SNAME *target)      \
-    {                                                                          \
-        iter->target = target;                                                 \
-        iter->cursor = target->front;                                          \
-        iter->index = 0;                                                       \
-        iter->start = true;                                                    \
-        iter->end = PFX##_empty(target);                                       \
-    }                                                                          \
-                                                                               \
-    bool PFX##_iter_start(struct SNAME##_iter *iter)                           \
+    bool PFX##_iter_at_start(struct SNAME##_iter *iter)                        \
     {                                                                          \
         return PFX##_empty(iter->target) || iter->start;                       \
     }                                                                          \
                                                                                \
-    bool PFX##_iter_end(struct SNAME##_iter *iter)                             \
+    bool PFX##_iter_at_end(struct SNAME##_iter *iter)                          \
     {                                                                          \
         return PFX##_empty(iter->target) || iter->end;                         \
     }                                                                          \
@@ -824,25 +851,6 @@ static const char *cmc_string_fmt_deque = "struct %s<%s> "
     size_t PFX##_iter_index(struct SNAME##_iter *iter)                         \
     {                                                                          \
         return iter->index;                                                    \
-    }                                                                          \
-                                                                               \
-    static struct SNAME##_iter PFX##_impl_it_start(struct SNAME *_deque_)      \
-    {                                                                          \
-        struct SNAME##_iter iter;                                              \
-                                                                               \
-        PFX##_iter_init(&iter, _deque_);                                       \
-                                                                               \
-        return iter;                                                           \
-    }                                                                          \
-                                                                               \
-    static struct SNAME##_iter PFX##_impl_it_end(struct SNAME *_deque_)        \
-    {                                                                          \
-        struct SNAME##_iter iter;                                              \
-                                                                               \
-        PFX##_iter_init(&iter, _deque_);                                       \
-        PFX##_iter_to_end(&iter);                                              \
-                                                                               \
-        return iter;                                                           \
     }
 
 #endif /* CMC_DEQUE_H */

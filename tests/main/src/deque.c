@@ -11,8 +11,6 @@ struct deque
     struct deque_fval *f_val;
     struct cmc_alloc_node *alloc;
     struct cmc_callbacks *callbacks;
-    struct deque_iter (*it_start)(struct deque *);
-    struct deque_iter (*it_end)(struct deque *);
 };
 struct deque_fval
 {
@@ -35,8 +33,13 @@ struct deque *d_new(size_t capacity, struct deque_fval *f_val);
 struct deque *d_new_custom(size_t capacity, struct deque_fval *f_val,
                            struct cmc_alloc_node *alloc,
                            struct cmc_callbacks *callbacks);
+struct deque d_init(size_t capacity, struct deque_fval *f_val);
+struct deque d_init_custom(size_t capacity, struct deque_fval *f_val,
+                           struct cmc_alloc_node *alloc,
+                           struct cmc_callbacks *callbacks);
 void d_clear(struct deque *_deque_);
 void d_free(struct deque *_deque_);
+void d_release(struct deque _deque_);
 void d_customize(struct deque *_deque_, struct cmc_alloc_node *alloc,
                  struct cmc_callbacks *callbacks);
 _Bool d_push_front(struct deque *_deque_, size_t value);
@@ -56,11 +59,10 @@ struct deque *d_copy_of(struct deque *_deque_);
 _Bool d_equals(struct deque *_deque1_, struct deque *_deque2_);
 struct cmc_string d_to_string(struct deque *_deque_);
 _Bool d_print(struct deque *_deque_, FILE *fptr);
-struct deque_iter *d_iter_new(struct deque *target);
-void d_iter_free(struct deque_iter *iter);
-void d_iter_init(struct deque_iter *iter, struct deque *target);
-_Bool d_iter_start(struct deque_iter *iter);
-_Bool d_iter_end(struct deque_iter *iter);
+struct deque_iter d_iter_start(struct deque *target);
+struct deque_iter d_iter_end(struct deque *target);
+_Bool d_iter_at_start(struct deque_iter *iter);
+_Bool d_iter_at_end(struct deque_iter *iter);
 void d_iter_to_start(struct deque_iter *iter);
 void d_iter_to_end(struct deque_iter *iter);
 _Bool d_iter_next(struct deque_iter *iter);
@@ -71,35 +73,9 @@ _Bool d_iter_go_to(struct deque_iter *iter, size_t index);
 size_t d_iter_value(struct deque_iter *iter);
 size_t *d_iter_rvalue(struct deque_iter *iter);
 size_t d_iter_index(struct deque_iter *iter);
-static struct deque_iter d_impl_it_start(struct deque *_deque_);
-static struct deque_iter d_impl_it_end(struct deque *_deque_);
 struct deque *d_new(size_t capacity, struct deque_fval *f_val)
 {
-    struct cmc_alloc_node *alloc = &cmc_alloc_node_default;
-    if (capacity < 1)
-        return ((void *)0);
-    if (!f_val)
-        return ((void *)0);
-    struct deque *_deque_ = alloc->malloc(sizeof(struct deque));
-    if (!_deque_)
-        return ((void *)0);
-    _deque_->buffer = alloc->calloc(capacity, sizeof(size_t));
-    if (!_deque_->buffer)
-    {
-        alloc->free(_deque_);
-        return ((void *)0);
-    }
-    _deque_->capacity = capacity;
-    _deque_->count = 0;
-    _deque_->front = 0;
-    _deque_->back = 0;
-    _deque_->flag = cmc_flags.OK;
-    _deque_->f_val = f_val;
-    _deque_->alloc = alloc;
-    _deque_->callbacks = ((void *)0);
-    _deque_->it_start = d_impl_it_start;
-    _deque_->it_end = d_impl_it_end;
-    return _deque_;
+    return d_new_custom(capacity, f_val, ((void *)0), ((void *)0));
 }
 struct deque *d_new_custom(size_t capacity, struct deque_fval *f_val,
                            struct cmc_alloc_node *alloc,
@@ -128,8 +104,34 @@ struct deque *d_new_custom(size_t capacity, struct deque_fval *f_val,
     _deque_->f_val = f_val;
     _deque_->alloc = alloc;
     _deque_->callbacks = callbacks;
-    _deque_->it_start = d_impl_it_start;
-    _deque_->it_end = d_impl_it_end;
+    return _deque_;
+}
+struct deque d_init(size_t capacity, struct deque_fval *f_val)
+{
+    return d_init_custom(capacity, f_val, ((void *)0), ((void *)0));
+}
+struct deque d_init_custom(size_t capacity, struct deque_fval *f_val,
+                           struct cmc_alloc_node *alloc,
+                           struct cmc_callbacks *callbacks)
+{
+    struct deque _deque_ = { 0 };
+    if (capacity < 1)
+        return _deque_;
+    if (!f_val)
+        return _deque_;
+    if (!alloc)
+        alloc = &cmc_alloc_node_default;
+    _deque_.buffer = alloc->calloc(capacity, sizeof(size_t));
+    if (!_deque_.buffer)
+        return _deque_;
+    _deque_.capacity = capacity;
+    _deque_.count = 0;
+    _deque_.front = 0;
+    _deque_.back = 0;
+    _deque_.flag = cmc_flags.OK;
+    _deque_.f_val = f_val;
+    _deque_.alloc = alloc;
+    _deque_.callbacks = callbacks;
     return _deque_;
 }
 void d_clear(struct deque *_deque_)
@@ -160,6 +162,18 @@ void d_free(struct deque *_deque_)
     }
     _deque_->alloc->free(_deque_->buffer);
     _deque_->alloc->free(_deque_);
+}
+void d_release(struct deque _deque_)
+{
+    if (_deque_.f_val->free)
+    {
+        for (size_t i = _deque_.front, j = 0; j < _deque_.count; j++)
+        {
+            _deque_.f_val->free(_deque_.buffer[i]);
+            i = (i + 1) % _deque_.capacity;
+        }
+    }
+    _deque_.alloc->free(_deque_.buffer);
 }
 void d_customize(struct deque *_deque_, struct cmc_alloc_node *alloc,
                  struct cmc_callbacks *callbacks)
@@ -396,31 +410,42 @@ _Bool d_print(struct deque *_deque_, FILE *fptr)
     }
     return 1;
 }
-struct deque_iter *d_iter_new(struct deque *target)
+struct deque_iter d_iter_start(struct deque *target)
 {
-    struct deque_iter *iter = target->alloc->malloc(sizeof(struct deque_iter));
-    if (!iter)
-        return ((void *)0);
-    d_iter_init(iter, target);
+    struct deque_iter iter;
+    iter.target = target;
+    iter.cursor = target->front;
+    iter.index = 0;
+    iter.start = 1;
+    iter.end = d_empty(target);
     return iter;
 }
-void d_iter_free(struct deque_iter *iter)
+struct deque_iter d_iter_end(struct deque *target)
 {
-    iter->target->alloc->free(iter);
+    struct deque_iter iter;
+    iter.target = target;
+    if (!d_empty(target))
+    {
+        if (iter.target->back == 0)
+            iter.cursor = iter.target->capacity - 1;
+        else
+            iter.cursor = iter.target->back - 1;
+        iter.index = iter.target->count - 1;
+    }
+    else
+    {
+        iter.cursor = 0;
+        iter.index = 0;
+    }
+    iter.start = d_empty(target);
+    iter.end = 1;
+    return iter;
 }
-void d_iter_init(struct deque_iter *iter, struct deque *target)
-{
-    iter->target = target;
-    iter->cursor = target->front;
-    iter->index = 0;
-    iter->start = 1;
-    iter->end = d_empty(target);
-}
-_Bool d_iter_start(struct deque_iter *iter)
+_Bool d_iter_at_start(struct deque_iter *iter)
 {
     return d_empty(iter->target) || iter->start;
 }
-_Bool d_iter_end(struct deque_iter *iter)
+_Bool d_iter_at_end(struct deque_iter *iter)
 {
     return d_empty(iter->target) || iter->end;
 }
@@ -535,17 +560,4 @@ size_t *d_iter_rvalue(struct deque_iter *iter)
 size_t d_iter_index(struct deque_iter *iter)
 {
     return iter->index;
-}
-static struct deque_iter d_impl_it_start(struct deque *_deque_)
-{
-    struct deque_iter iter;
-    d_iter_init(&iter, _deque_);
-    return iter;
-}
-static struct deque_iter d_impl_it_end(struct deque *_deque_)
-{
-    struct deque_iter iter;
-    d_iter_init(&iter, _deque_);
-    d_iter_to_end(&iter);
-    return iter;
 }
