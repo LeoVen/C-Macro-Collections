@@ -6,7 +6,7 @@
 #include <stdbool.h>
 #include <stdlib.h>
 
-#include "cmc/hashmap.h"
+#include "cor/hashtable.h"
 #include "utl/futils.h"
 
 size_t numhash(size_t a)

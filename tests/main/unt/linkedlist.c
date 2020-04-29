@@ -1,6 +1,5 @@
 #include "utl.c"
 #include "utl/assert.h"
-#include "utl/log.h"
 #include "utl/test.h"
 
 #include "../src/linkedlist.c"
