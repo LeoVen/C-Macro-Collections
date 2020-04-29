@@ -183,8 +183,8 @@ static const char *cmc_string_fmt_deque = "struct %s<%s> "
     bool PFX##_iter_at_start(struct SNAME##_iter *iter);                      \
     bool PFX##_iter_at_end(struct SNAME##_iter *iter);                        \
     /* Iterator Movement */                                                   \
-    void PFX##_iter_to_start(struct SNAME##_iter *iter);                      \
-    void PFX##_iter_to_end(struct SNAME##_iter *iter);                        \
+    bool PFX##_iter_to_start(struct SNAME##_iter *iter);                      \
+    bool PFX##_iter_to_end(struct SNAME##_iter *iter);                        \
     bool PFX##_iter_next(struct SNAME##_iter *iter);                          \
     bool PFX##_iter_prev(struct SNAME##_iter *iter);                          \
     bool PFX##_iter_advance(struct SNAME##_iter *iter, size_t steps);         \
@@ -700,7 +700,7 @@ static const char *cmc_string_fmt_deque = "struct %s<%s> "
         return PFX##_empty(iter->target) || iter->end;                         \
     }                                                                          \
                                                                                \
-    void PFX##_iter_to_start(struct SNAME##_iter *iter)                        \
+    bool PFX##_iter_to_start(struct SNAME##_iter *iter)                        \
     {                                                                          \
         if (!PFX##_empty(iter->target))                                        \
         {                                                                      \
@@ -708,10 +708,14 @@ static const char *cmc_string_fmt_deque = "struct %s<%s> "
             iter->index = 0;                                                   \
             iter->start = true;                                                \
             iter->end = false;                                                 \
+                                                                               \
+            return true;                                                       \
         }                                                                      \
+                                                                               \
+        return false;                                                          \
     }                                                                          \
                                                                                \
-    void PFX##_iter_to_end(struct SNAME##_iter *iter)                          \
+    bool PFX##_iter_to_end(struct SNAME##_iter *iter)                          \
     {                                                                          \
         if (!PFX##_empty(iter->target))                                        \
         {                                                                      \
@@ -724,7 +728,11 @@ static const char *cmc_string_fmt_deque = "struct %s<%s> "
                                                                                \
             iter->start = false;                                               \
             iter->end = true;                                                  \
+                                                                               \
+            return true;                                                       \
         }                                                                      \
+                                                                               \
+        return false;                                                          \
     }                                                                          \
                                                                                \
     bool PFX##_iter_next(struct SNAME##_iter *iter)                            \

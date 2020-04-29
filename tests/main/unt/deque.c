@@ -828,6 +828,7 @@ CMC_CREATE_UNIT(Deque, true, {
     });
 
     CMC_CREATE_TEST(PFX##_copy_of(), {
+        v_total_cpy = 0;
         struct deque *d1 = d_new(100, d_fval);
 
         cmc_assert_not_equals(ptr, NULL, d1);
@@ -835,9 +836,9 @@ CMC_CREATE_UNIT(Deque, true, {
         for (size_t i = 1; i <= 150; i++)
         {
             if (i % 2 != 0)
-                cmc_assert(d_push_back(d1, i));
+                d_push_back(d1, i);
             else
-                cmc_assert(d_push_front(d1, i));
+                d_push_front(d1, i);
         }
 
         struct deque *d2 = d_copy_of(d1);
@@ -862,9 +863,41 @@ CMC_CREATE_UNIT(Deque, true, {
 
         d_free(d1);
         d_free(d2);
+
+        // v_total_cpy
+        d1 = d_new_custom(100, d_fval_counter, d_alloc_node, NULL);
+
+        cmc_assert_not_equals(ptr, NULL, d1);
+
+        d2 = d_copy_of(d1);
+
+        cmc_assert_not_equals(ptr, NULL, d1);
+
+        cmc_assert_equals(int32_t, 0, v_total_cpy);
+
+        d_free(d2);
+
+        for (size_t i = 0; i < 1000; i++)
+        {
+            if (i % 2 != 0)
+                d_push_back(d1, i);
+            else
+                d_push_front(d1, i);
+        }
+
+        cmc_assert_equals(size_t, 1000, d1->count);
+
+        d2 = d_copy_of(d1);
+
+        cmc_assert_equals(int32_t, 1000, v_total_cpy);
+
+        d_free(d1);
+        d_free(d2);
+        v_total_cpy = 0;
     });
 
     CMC_CREATE_TEST(PFX##_equals(), {
+        v_total_cmp = 0;
         struct deque *d1 = d_new(100, d_fval);
         struct deque *d2 = d_new(100, d_fval);
 
@@ -875,13 +908,13 @@ CMC_CREATE_UNIT(Deque, true, {
         {
             if (i % 2 != 0)
             {
-                cmc_assert(d_push_back(d1, i));
-                cmc_assert(d_push_back(d2, i));
+                d_push_back(d1, i);
+                d_push_back(d2, i);
             }
             else
             {
-                cmc_assert(d_push_front(d1, i));
-                cmc_assert(d_push_front(d2, i));
+                d_push_front(d1, i);
+                d_push_front(d2, i);
             }
         }
 
@@ -925,6 +958,60 @@ CMC_CREATE_UNIT(Deque, true, {
 
         d_free(d1);
         d_free(d2);
+
+        // false eq
+        d1 = d_new(100, d_fval);
+        d2 = d_new_custom(100, d_fval_counter, d_alloc_node, NULL);
+
+        cmc_assert(d_equals(d1, d2));
+
+        cmc_assert_equals(int32_t, 0, v_total_cmp);
+
+        d_push_back(d1, 100);
+
+        cmc_assert(!d_equals(d1, d2));
+
+        d_push_back(d2, 100);
+
+        cmc_assert(d_equals(d1, d2));
+
+        d_push_front(d1, 10);
+        d_push_front(d2, 10);
+
+        cmc_assert(d_equals(d1, d2));
+
+        d_push_back(d1, 40);
+        d_push_back(d2, 41);
+
+        cmc_assert(!d_equals(d1, d2));
+
+        v_total_cmp = 0;
+
+        d_clear(d1);
+        d_clear(d2);
+
+        for (size_t i = 0; i < 1000; i++)
+        {
+            if (i % 2 == 0)
+            {
+                d_push_back(d1, i);
+                d_push_back(d2, i);
+            }
+            else
+            {
+                d_push_front(d1, i);
+                d_push_front(d2, i);
+            }
+        }
+
+        // d2's cmp is used and v_total_cmp is incremented each time
+        cmc_assert(d_equals(d2, d1));
+
+        cmc_assert_equals(int32_t, 1000, v_total_cmp);
+
+        d_free(d1);
+        d_free(d2);
+        v_total_cmp = 0;
     });
 
     CMC_CREATE_TEST(Mixed IO, {
@@ -1309,6 +1396,343 @@ CMC_CREATE_UNIT(DequeIter, true, {
         cmc_assert(d_iter_at_end(&it));
         it = d_iter_start(d);
         cmc_assert(!d_iter_at_end(&it));
+
+        d_free(d);
+    });
+
+    CMC_CREATE_TEST(PFX##_iter_to_start(), {
+        struct deque *d = d_new(100, d_fval);
+
+        cmc_assert_not_equals(ptr, NULL, d);
+
+        struct deque_iter it = d_iter_start(d);
+
+        cmc_assert(!d_iter_to_start(&it));
+
+        for (size_t i = 1; i <= 100; i++)
+        {
+            if (i % 2 == 0)
+                d_push_back(d, i);
+            else
+                d_push_front(d, i);
+        }
+
+        cmc_assert_equals(size_t, 100, d->count);
+
+        it = d_iter_end(d);
+
+        cmc_assert(!d_iter_at_start(&it));
+        cmc_assert(d_iter_at_end(&it));
+
+        cmc_assert_equals(size_t, 100, d_iter_value(&it));
+
+        cmc_assert(d_iter_to_start(&it));
+
+        cmc_assert(d_iter_at_start(&it));
+        cmc_assert(!d_iter_at_end(&it));
+
+        cmc_assert_equals(size_t, 99, d_iter_value(&it));
+
+        d_free(d);
+    });
+
+    CMC_CREATE_TEST(PFX##_iter_to_end(), {
+        struct deque *d = d_new(100, d_fval);
+
+        cmc_assert_not_equals(ptr, NULL, d);
+
+        struct deque_iter it = d_iter_end(d);
+
+        cmc_assert(!d_iter_to_end(&it));
+
+        for (size_t i = 1; i <= 100; i++)
+        {
+            if (i % 2 == 0)
+                d_push_back(d, i);
+            else
+                d_push_front(d, i);
+        }
+
+        it = d_iter_start(d);
+
+        cmc_assert(d_iter_at_start(&it));
+        cmc_assert(!d_iter_at_end(&it));
+
+        cmc_assert_equals(size_t, 99, d_iter_value(&it));
+
+        cmc_assert(d_iter_to_end(&it));
+
+        cmc_assert(!d_iter_at_start(&it));
+        cmc_assert(d_iter_at_end(&it));
+
+        cmc_assert_equals(size_t, 100, d_iter_value(&it));
+
+        d_free(d);
+    });
+
+    CMC_CREATE_TEST(PFX##_iter_next(), {
+        struct deque *d = d_new(100, d_fval);
+
+        cmc_assert_not_equals(ptr, NULL, d);
+
+        struct deque_iter it = d_iter_start(d);
+
+        cmc_assert(!d_iter_next(&it));
+
+        for (size_t i = 1; i <= 1000; i++)
+        {
+            if (i % 2 == 0)
+                d_push_back(d, i);
+            else
+                d_push_front(d, i);
+        }
+
+        size_t sum = 0;
+        for (it = d_iter_start(d); !d_iter_at_end(&it); d_iter_next(&it))
+        {
+            sum += d_iter_value(&it);
+        }
+
+        cmc_assert_equals(size_t, 500500, sum);
+
+        sum = 0;
+
+        d_iter_to_start(&it);
+        do
+        {
+            sum += d_iter_value(&it);
+        } while (d_iter_next(&it));
+
+        cmc_assert_equals(size_t, 500500, sum);
+
+        d_free(d);
+    });
+
+    CMC_CREATE_TEST(PFX##_iter_prev(), {
+        struct deque *d = d_new(100, d_fval);
+
+        cmc_assert_not_equals(ptr, NULL, d);
+
+        struct deque_iter it = d_iter_end(d);
+
+        cmc_assert(!d_iter_prev(&it));
+
+        for (size_t i = 1; i <= 1000; i++)
+        {
+            if (i % 2 == 0)
+                d_push_back(d, i);
+            else
+                d_push_front(d, i);
+        }
+
+        size_t sum = 0;
+        for (it = d_iter_end(d); !d_iter_at_start(&it); d_iter_prev(&it))
+        {
+            sum += d_iter_value(&it);
+        }
+
+        cmc_assert_equals(size_t, 500500, sum);
+
+        sum = 0;
+
+        d_iter_to_end(&it);
+        do
+        {
+            sum += d_iter_value(&it);
+        } while (d_iter_prev(&it));
+
+        cmc_assert_equals(size_t, 500500, sum);
+
+        d_free(d);
+    });
+
+    CMC_CREATE_TEST(PFX##_iter_advance(), {
+        struct deque *d = d_new(100, d_fval);
+
+        cmc_assert_not_equals(ptr, NULL, d);
+
+        struct deque_iter it = d_iter_start(d);
+
+        cmc_assert(!d_iter_advance(&it, 1));
+
+        for (size_t i = 1; i <= 1000; i++)
+        {
+            if (i % 2 != 0)
+                d_push_back(d, i);
+            else
+                d_push_back(d, 0); // will sum all odd numbers
+        }
+
+        it = d_iter_start(d);
+
+        cmc_assert(!d_iter_advance(&it, 0));
+        cmc_assert(!d_iter_advance(&it, d->count));
+
+        size_t sum = 0;
+        for (it = d_iter_start(d);;)
+        {
+            sum += d_iter_value(&it);
+
+            if (!d_iter_advance(&it, 2))
+                break;
+        }
+
+        cmc_assert_equals(size_t, 250000, sum);
+
+        d_iter_to_start(&it);
+        cmc_assert(d_iter_advance(&it, d->count - 1));
+
+        d_free(d);
+    });
+
+    CMC_CREATE_TEST(PFX##_iter_rewind(), {
+        struct deque *d = d_new(100, d_fval);
+
+        cmc_assert_not_equals(ptr, NULL, d);
+
+        struct deque_iter it = d_iter_end(d);
+
+        cmc_assert(!d_iter_rewind(&it, 1));
+
+        for (size_t i = 1; i <= 1000; i++)
+        {
+            if (i % 2 != 0)
+                d_push_front(d, i);
+            else
+                d_push_front(d, 0); // will sum all odd numbers
+        }
+
+        it = d_iter_end(d);
+
+        cmc_assert(!d_iter_rewind(&it, 0));
+        cmc_assert(!d_iter_rewind(&it, d->count));
+
+        size_t sum = 0;
+        for (it = d_iter_end(d);;)
+        {
+            sum += d_iter_value(&it);
+
+            if (!d_iter_rewind(&it, 2))
+                break;
+        }
+
+        cmc_assert_equals(size_t, 250000, sum);
+
+        d_iter_to_end(&it);
+        cmc_assert(d_iter_rewind(&it, d->count - 1));
+
+        d_free(d);
+    });
+
+    CMC_CREATE_TEST(PFX##_iter_go_to(), {
+        struct deque *d = d_new(100, d_fval);
+
+        cmc_assert_not_equals(ptr, NULL, d);
+
+        struct deque_iter it = d_iter_end(d);
+        cmc_assert(!d_iter_go_to(&it, 0));
+
+        it = d_iter_start(d);
+        cmc_assert(!d_iter_go_to(&it, 0));
+
+        for (size_t i = 0; i <= 1000; i++)
+            d_push_back(d, i);
+
+        it = d_iter_start(d);
+
+        size_t sum = 0;
+        for (size_t i = 0; i < 1001; i++)
+        {
+            d_iter_go_to(&it, i);
+
+            sum += d_iter_value(&it);
+        }
+
+        cmc_assert_equals(size_t, 500500, sum);
+
+        sum = 0;
+        for (size_t i = 1001; i > 0; i--)
+        {
+            cmc_assert(d_iter_go_to(&it, i - 1));
+
+            sum += d_iter_value(&it);
+        }
+
+        cmc_assert_equals(size_t, 500500, sum);
+
+        sum = 0;
+        for (size_t i = 0; i < 1001; i += 100)
+        {
+            cmc_assert(d_iter_go_to(&it, i));
+            cmc_assert_equals(size_t, i, d_iter_index(&it));
+
+            sum += d_iter_value(&it);
+        }
+
+        cmc_assert_equals(size_t, 5500, sum);
+
+        d_free(d);
+    });
+
+    CMC_CREATE_TEST(PFX##_iter_value(), {
+        struct deque *d = d_new(100, d_fval);
+
+        cmc_assert_not_equals(ptr, NULL, d);
+
+        struct deque_iter it = d_iter_end(d);
+
+        cmc_assert_equals(size_t, (size_t){ 0 }, d_iter_value(&it));
+
+        cmc_assert(d_push_back(d, 10));
+
+        it = d_iter_start(d);
+
+        cmc_assert_equals(size_t, 10, d_iter_value(&it));
+
+        d_free(d);
+    });
+
+    CMC_CREATE_TEST(PFX##_iter_rvalue(), {
+        struct deque *d = d_new(100, d_fval);
+
+        cmc_assert_not_equals(ptr, NULL, d);
+
+        struct deque_iter it = d_iter_end(d);
+
+        cmc_assert_equals(ptr, NULL, d_iter_rvalue(&it));
+
+        cmc_assert(d_push_back(d, 10));
+
+        it = d_iter_start(d);
+
+        cmc_assert_not_equals(ptr, NULL, d_iter_rvalue(&it));
+        cmc_assert_equals(size_t, 10, *d_iter_rvalue(&it));
+
+        d_free(d);
+    });
+
+    CMC_CREATE_TEST(PFX##_iter_index(), {
+        struct deque *d = d_new(100, d_fval);
+
+        cmc_assert_not_equals(ptr, NULL, d);
+
+        for (size_t i = 0; i <= 1000; i++)
+            d_push_back(d, i);
+
+        struct deque_iter it = d_iter_start(d);
+
+        for (size_t i = 0; i < 1001; i++)
+        {
+            cmc_assert_equals(size_t, i, d_iter_index(&it));
+            d_iter_next(&it);
+        }
+
+        it = d_iter_end(d);
+        for (size_t i = 1001; i > 0; i--)
+        {
+            cmc_assert_equals(size_t, i - 1, d_iter_index(&it));
+            d_iter_prev(&it);
+        }
 
         d_free(d);
     });

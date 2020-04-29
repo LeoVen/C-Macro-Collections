@@ -63,8 +63,8 @@ struct deque_iter d_iter_start(struct deque *target);
 struct deque_iter d_iter_end(struct deque *target);
 _Bool d_iter_at_start(struct deque_iter *iter);
 _Bool d_iter_at_end(struct deque_iter *iter);
-void d_iter_to_start(struct deque_iter *iter);
-void d_iter_to_end(struct deque_iter *iter);
+_Bool d_iter_to_start(struct deque_iter *iter);
+_Bool d_iter_to_end(struct deque_iter *iter);
 _Bool d_iter_next(struct deque_iter *iter);
 _Bool d_iter_prev(struct deque_iter *iter);
 _Bool d_iter_advance(struct deque_iter *iter, size_t steps);
@@ -449,7 +449,7 @@ _Bool d_iter_at_end(struct deque_iter *iter)
 {
     return d_empty(iter->target) || iter->end;
 }
-void d_iter_to_start(struct deque_iter *iter)
+_Bool d_iter_to_start(struct deque_iter *iter)
 {
     if (!d_empty(iter->target))
     {
@@ -457,9 +457,11 @@ void d_iter_to_start(struct deque_iter *iter)
         iter->index = 0;
         iter->start = 1;
         iter->end = 0;
+        return 1;
     }
+    return 0;
 }
-void d_iter_to_end(struct deque_iter *iter)
+_Bool d_iter_to_end(struct deque_iter *iter)
 {
     if (!d_empty(iter->target))
     {
@@ -470,7 +472,9 @@ void d_iter_to_end(struct deque_iter *iter)
         iter->index = iter->target->count - 1;
         iter->start = 0;
         iter->end = 1;
+        return 1;
     }
+    return 0;
 }
 _Bool d_iter_next(struct deque_iter *iter)
 {
