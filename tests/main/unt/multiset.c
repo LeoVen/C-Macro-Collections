@@ -11,46 +11,121 @@ struct multiset_fval *ms_fval = &(struct multiset_fval){ .cmp = cmc_size_cmp,
                                                          .hash = cmc_size_hash,
                                                          .pri = cmc_size_cmp };
 
+struct multiset_fval *ms_fval_counter =
+    &(struct multiset_fval){ .cmp = v_c_cmp,
+                             .cpy = v_c_cpy,
+                             .str = v_c_str,
+                             .free = v_c_free,
+                             .hash = v_c_hash,
+                             .pri = v_c_pri };
+
+struct cmc_alloc_node *ms_alloc_node = &(struct cmc_alloc_node){
+    .malloc = malloc, .calloc = calloc, .realloc = realloc, .free = free
+};
+
 CMC_CREATE_UNIT(MultiSet, true, {
-    CMC_CREATE_TEST(new, {
+    CMC_CREATE_TEST(PFX##_new(), {
         struct multiset *set = ms_new(943722, 0.6, ms_fval);
 
         cmc_assert_not_equals(ptr, NULL, set);
         cmc_assert_not_equals(ptr, NULL, set->buffer);
-        cmc_assert_equals(size_t, 0, ms_count(set));
-        cmc_assert_greater_equals(size_t, ((size_t)(943722 / 0.6)),
-                                  ms_capacity(set));
+        cmc_assert_equals(size_t, 0, set->count);
+        cmc_assert_equals(double, 0.6, set->load);
+        cmc_assert_equals(int32_t, cmc_flags.OK, set->flag);
+        cmc_assert_equals(ptr, ms_fval, set->f_val);
+        cmc_assert_equals(ptr, &cmc_alloc_node_default, set->alloc);
+        cmc_assert_equals(ptr, NULL, set->callbacks);
+
+        cmc_assert_greater_equals(size_t, (943722 / 0.6), ms_capacity(set));
 
         ms_free(set);
-    });
 
-    CMC_CREATE_TEST(new[capacity = 0], {
-        struct multiset *set = ms_new(0, 0.6, ms_fval);
+        set = ms_new(0, 0.6, ms_fval);
+        cmc_assert_equals(ptr, NULL, set);
 
+        set = ms_new(UINT64_MAX, 0.99, ms_fval);
+        cmc_assert_equals(ptr, NULL, set);
+
+        set = ms_new(1000, 0.6, NULL);
+        cmc_assert_equals(ptr, NULL, set);
+
+        set = ms_new(1000, 0.6, NULL);
         cmc_assert_equals(ptr, NULL, set);
     });
 
-    CMC_CREATE_TEST(new[capacity = UINT64_MAX], {
-        struct multiset *set = ms_new(UINT64_MAX, 0.99, ms_fval);
+    CMC_CREATE_TEST(PFX##_new_custom(), {
+        struct multiset *set =
+            ms_new_custom(943722, 0.6, ms_fval, ms_alloc_node, callbacks);
 
+        cmc_assert_not_equals(ptr, NULL, set);
+        cmc_assert_not_equals(ptr, NULL, set->buffer);
+        cmc_assert_equals(size_t, 0, set->count);
+        cmc_assert_equals(double, 0.6, set->load);
+        cmc_assert_equals(int32_t, cmc_flags.OK, set->flag);
+        cmc_assert_equals(ptr, ms_fval, set->f_val);
+        cmc_assert_equals(ptr, ms_alloc_node, set->alloc);
+        cmc_assert_equals(ptr, callbacks, set->callbacks);
+
+        cmc_assert_greater_equals(size_t, (943722 / 0.6), ms_capacity(set));
+
+        ms_free(set);
+
+        set = ms_new_custom(0, 0.6, ms_fval, NULL, NULL);
+        cmc_assert_equals(ptr, NULL, set);
+
+        set = ms_new_custom(UINT64_MAX, 0.99, ms_fval, NULL, NULL);
+        cmc_assert_equals(ptr, NULL, set);
+
+        set = ms_new_custom(1000, 0.6, NULL, NULL, NULL);
         cmc_assert_equals(ptr, NULL, set);
     });
 
-    CMC_CREATE_TEST(clear[count capacity], {
-        struct multiset *set = ms_new(100, 0.6, ms_fval);
+    CMC_CREATE_TEST(PFX##_clear(), {
+        v_total_free = 0;
+        struct multiset *set = ms_new(100, 0.6, ms_fval_counter);
 
         cmc_assert_not_equals(ptr, NULL, set);
 
-        for (size_t i = 0; i < 50; i++)
-            cmc_assert(ms_insert(set, i));
+        for (size_t i = 1; i <= 1000; i++)
+            ms_insert(set, i);
 
-        cmc_assert_equals(size_t, 50, ms_count(set));
+        cmc_assert_equals(size_t, 1000, set->count);
 
+        set->flag = cmc_flags.ERROR;
         ms_clear(set);
 
-        cmc_assert_equals(size_t, 0, ms_count(set));
+        cmc_assert_equals(size_t, 0, set->count);
+        cmc_assert_equals(int32_t, cmc_flags.OK, set->flag);
+        cmc_assert_equals(int32_t, 1000, v_total_free);
 
         ms_free(set);
+        v_total_free = 0;
+    });
+
+    CMC_CREATE_TEST(PFX##_free(), {
+        v_total_free = 0;
+        struct multiset *set = ms_new(100, 0.6, ms_fval_counter);
+
+        cmc_assert_not_equals(ptr, NULL, set);
+
+        for (size_t i = 1; i <= 1000; i++)
+            ms_insert(set, i);
+
+        cmc_assert_equals(size_t, 1000, set->count);
+
+        ms_free(set);
+
+        cmc_assert_equals(int32_t, 1000, v_total_free);
+
+        set = ms_new(1000, 0.6, ms_fval_counter);
+
+        cmc_assert_not_equals(ptr, NULL, set);
+        cmc_assert_not_equals(ptr, NULL, set->buffer);
+
+        ms_free(set);
+
+        cmc_assert_equals(int32_t, 1000, v_total_free);
+        v_total_free = 0;
     });
 
     CMC_CREATE_TEST(insert[count cardinality multiplicity], {

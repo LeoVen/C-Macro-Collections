@@ -668,6 +668,8 @@ _Bool mm_resize(struct multimap *_map_, size_t capacity)
     size_t tmp_c = _map_->capacity;
     _map_->capacity = _new_map_->capacity;
     _new_map_->capacity = tmp_c;
+    _new_map_->f_key = &(struct multimap_fkey){ ((void *)0) };
+    _new_map_->f_val = &(struct multimap_fval){ ((void *)0) };
     mm_free(_new_map_);
 success:
     if (_map_->callbacks && _map_->callbacks->resize)

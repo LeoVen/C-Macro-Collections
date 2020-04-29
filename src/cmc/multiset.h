@@ -769,6 +769,9 @@ static const char *cmc_string_fmt_multiset = "struct %s<%s> "
         _set_->capacity = _new_set_->capacity;                                 \
         _new_set_->capacity = tmp_c;                                           \
                                                                                \
+        /* Prevent the set from freeing the data */                            \
+        _new_set_->f_val = &(struct SNAME##_fval){ NULL };                     \
+                                                                               \
         PFX##_free(_new_set_);                                                 \
                                                                                \
     success:                                                                   \

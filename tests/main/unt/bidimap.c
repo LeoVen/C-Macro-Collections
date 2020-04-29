@@ -32,19 +32,29 @@ struct bidimap_fval *bm_fval_counter = &(struct bidimap_fval){ .cmp = v_c_cmp,
                                                                .hash = v_c_hash,
                                                                .pri = v_c_pri };
 
+struct cmc_alloc_node *bm_alloc_node = &(struct cmc_alloc_node){
+    .malloc = malloc, .calloc = calloc, .realloc = realloc, .free = free
+};
+
 CMC_CREATE_UNIT(BidiMap, true, {
-    CMC_CREATE_TEST(new, {
-        struct bidimap *map = bm_new(100, 0.6, bm_fkey, bm_fval);
+    CMC_CREATE_TEST(PFX##_new(), {
+        struct bidimap *map = bm_new(943722, 0.6, bm_fkey, bm_fval);
 
         cmc_assert_not_equals(ptr, NULL, map);
-
+        cmc_assert_not_equals(ptr, NULL, map->buffer);
+        cmc_assert_equals(size_t, 0, map->count);
+        cmc_assert_equals(double, 0.6, map->load);
         cmc_assert_equals(int32_t, cmc_flags.OK, map->flag);
+        cmc_assert_equals(ptr, bm_fkey, map->f_key);
+        cmc_assert_equals(ptr, bm_fval, map->f_val);
+        cmc_assert_equals(ptr, &cmc_alloc_node_default, map->alloc);
+        cmc_assert_equals(ptr, NULL, map->callbacks);
+
+        cmc_assert_greater_equals(size_t, (943722 / 0.6), bm_capacity(map));
 
         bm_free(map);
-    });
 
-    CMC_CREATE_TEST(new[null buffer], {
-        struct bidimap *map = bm_new(100, 0.6, bm_fkey, bm_fval);
+        map = bm_new(100, 0.6, bm_fkey, bm_fval);
 
         cmc_assert_not_equals(ptr, NULL, map);
 
@@ -55,121 +65,112 @@ CMC_CREATE_UNIT(BidiMap, true, {
         }
 
         bm_free(map);
+
+        map = bm_new(0, 0.6, bm_fkey, bm_fval);
+        cmc_assert_equals(ptr, NULL, map);
+
+        map = bm_new(UINT64_MAX, 0.99, bm_fkey, bm_fval);
+        cmc_assert_equals(ptr, NULL, map);
+
+        map = bm_new(1000, 0.6, bm_fkey, NULL);
+        cmc_assert_equals(ptr, NULL, map);
+
+        map = bm_new(1000, 0.6, NULL, bm_fval);
+        cmc_assert_equals(ptr, NULL, map);
+
+        map = bm_new(1000, 0.6, NULL, NULL);
+        cmc_assert_equals(ptr, NULL, map);
     });
 
-    CMC_CREATE_TEST(new_custom, {
-        struct bidimap *map =
-            bm_new_custom(100, 0.6, bm_fkey, bm_fval,
-                          &(struct cmc_alloc_node){ .malloc = malloc,
-                                                    .calloc = calloc,
-                                                    .realloc = realloc,
-                                                    .free = free },
-                          &(struct cmc_callbacks){ 0 });
+    CMC_CREATE_TEST(PFX##_new_custom(), {
+        struct bidimap *map = bm_new_custom(943722, 0.6, bm_fkey, bm_fval,
+                                            bm_alloc_node, callbacks);
 
         cmc_assert_not_equals(ptr, NULL, map);
+        cmc_assert_not_equals(ptr, NULL, map->buffer);
+        cmc_assert_equals(size_t, 0, map->count);
+        cmc_assert_equals(double, 0.6, map->load);
+        cmc_assert_equals(int32_t, cmc_flags.OK, map->flag);
+        cmc_assert_equals(ptr, bm_fkey, map->f_key);
+        cmc_assert_equals(ptr, bm_fval, map->f_val);
+        cmc_assert_equals(ptr, bm_alloc_node, map->alloc);
+        cmc_assert_equals(ptr, callbacks, map->callbacks);
+
+        cmc_assert_greater_equals(size_t, (943722 / 0.6), bm_capacity(map));
 
         bm_free(map);
+
+        map = bm_new_custom(0, 0.6, bm_fkey, bm_fval, NULL, NULL);
+        cmc_assert_equals(ptr, NULL, map);
+
+        map = bm_new_custom(UINT64_MAX, 0.99, bm_fkey, bm_fval, NULL, NULL);
+        cmc_assert_equals(ptr, NULL, map);
+
+        map = bm_new_custom(1000, 0.6, bm_fkey, NULL, NULL, NULL);
+        cmc_assert_equals(ptr, NULL, map);
+
+        map = bm_new_custom(1000, 0.6, NULL, bm_fval, NULL, NULL);
+        cmc_assert_equals(ptr, NULL, map);
+
+        map = bm_new_custom(1000, 0.6, NULL, NULL, NULL, NULL);
+        cmc_assert_equals(ptr, NULL, map);
     });
 
-    CMC_CREATE_TEST(new_custom[insert remove], {
-        struct bidimap *map =
-            bm_new_custom(500, 0.6, bm_fkey, bm_fval,
-                          &(struct cmc_alloc_node){ .malloc = malloc,
-                                                    .calloc = calloc,
-                                                    .realloc = realloc,
-                                                    .free = free },
-                          &(struct cmc_callbacks){ 0 });
-
-        cmc_assert_not_equals(ptr, NULL, map);
-
-        for (size_t i = 0; i < 500; i++)
-            cmc_assert(bm_insert(map, i, i));
-
-        cmc_assert_equals(size_t, 500, bm_count(map));
-
-        for (size_t i = 0; i < 500; i++)
-        {
-            if (i % 2 == 0)
-            {
-                cmc_assert(bm_remove_by_key(map, i, NULL, NULL));
-            }
-            else
-            {
-                cmc_assert(bm_remove_by_val(map, i, NULL, NULL));
-            }
-        }
-
-        cmc_assert_equals(size_t, 0, bm_count(map));
-
-        bm_free(map);
-    });
-
-    CMC_CREATE_TEST(clear[ftab free calls], {
-        struct bidimap *map =
-            bm_new(1000, 0.6, bm_fkey_counter, bm_fval_counter);
-
-        cmc_assert_not_equals(ptr, NULL, map);
-
+    CMC_CREATE_TEST(PFX##_clear(), {
         k_total_free = 0;
         v_total_free = 0;
+        struct bidimap *map =
+            bm_new(100, 0.6, bm_fkey_counter, bm_fval_counter);
 
+        cmc_assert_not_equals(ptr, NULL, map);
+
+        for (size_t i = 1; i <= 1000; i++)
+            bm_insert(map, i, i);
+
+        cmc_assert_equals(size_t, 1000, map->count);
+
+        map->flag = cmc_flags.ERROR;
         bm_clear(map);
 
-        cmc_assert_equals(int32_t, 0, k_total_free);
-        cmc_assert_equals(int32_t, 0, v_total_free);
+        cmc_assert_equals(size_t, 0, map->count);
+        cmc_assert_equals(int32_t, cmc_flags.OK, map->flag);
+        cmc_assert_equals(int32_t, 1000, k_total_free);
+        cmc_assert_equals(int32_t, 1000, v_total_free);
 
-        for (size_t i = 0; i < 1000; i++)
-            cmc_assert(bm_insert(map, i, i));
+        bm_free(map);
+        k_total_free = 0;
+        v_total_free = 0;
+    });
 
-        bm_clear(map);
+    CMC_CREATE_TEST(PFX##_free(), {
+        k_total_free = 0;
+        v_total_free = 0;
+        struct bidimap *map =
+            bm_new(100, 0.6, bm_fkey_counter, bm_fval_counter);
+
+        cmc_assert_not_equals(ptr, NULL, map);
+
+        for (size_t i = 1; i <= 1000; i++)
+            bm_insert(map, i, i);
+
+        cmc_assert_equals(size_t, 1000, map->count);
+
+        bm_free(map);
 
         cmc_assert_equals(int32_t, 1000, k_total_free);
         cmc_assert_equals(int32_t, 1000, v_total_free);
 
-        bm_fval_counter->free = NULL;
-
-        for (size_t i = 0; i < 1000; i++)
-            cmc_assert(bm_insert(map, i, i));
-
-        bm_clear(map);
-
-        cmc_assert_equals(int32_t, 2000, k_total_free);
-        cmc_assert_equals(int32_t, 1000, v_total_free);
-
-        bm_fval_counter->free = v_c_free;
-        bm_fkey_counter->free = NULL;
-
-        for (size_t i = 0; i < 1000; i++)
-            cmc_assert(bm_insert(map, i, i));
-
-        bm_clear(map);
-
-        cmc_assert_equals(int32_t, 2000, k_total_free);
-        cmc_assert_equals(int32_t, 2000, v_total_free);
-
-        bm_fkey_counter->free = k_c_free;
-
-        bm_free(map);
-
-        k_total_free = 0;
-        v_total_free = 0;
-    });
-
-    CMC_CREATE_TEST(clear[count], {
-        struct bidimap *map = bm_new(100, 0.6, bm_fkey, bm_fval);
+        map = bm_new(1000, 0.6, bm_fkey_counter, bm_fval_counter);
 
         cmc_assert_not_equals(ptr, NULL, map);
-
-        for (size_t i = 0; i < 500; i++)
-            cmc_assert(bm_insert(map, i, i));
-
-        cmc_assert_equals(size_t, 500, bm_count(map));
-
-        bm_clear(map);
-
-        cmc_assert_equals(size_t, 0, bm_count(map));
+        cmc_assert_not_equals(ptr, NULL, map->buffer);
 
         bm_free(map);
+
+        cmc_assert_equals(int32_t, 1000, k_total_free);
+        cmc_assert_equals(int32_t, 1000, v_total_free);
+        k_total_free = 0;
+        v_total_free = 0;
     });
 
     CMC_CREATE_TEST(customize, {

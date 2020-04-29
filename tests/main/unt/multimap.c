@@ -18,45 +18,161 @@ struct multimap_fval *mm_fval = &(struct multimap_fval){ .cmp = cmc_size_cmp,
                                                          .hash = cmc_size_hash,
                                                          .pri = cmc_size_cmp };
 
+struct multimap_fkey *mm_fkey_counter =
+    &(struct multimap_fkey){ .cmp = k_c_cmp,
+                             .cpy = k_c_cpy,
+                             .str = k_c_str,
+                             .free = k_c_free,
+                             .hash = k_c_hash,
+                             .pri = k_c_pri };
+
+struct multimap_fval *mm_fval_counter =
+    &(struct multimap_fval){ .cmp = v_c_cmp,
+                             .cpy = v_c_cpy,
+                             .str = v_c_str,
+                             .free = v_c_free,
+                             .hash = v_c_hash,
+                             .pri = v_c_pri };
+
+struct cmc_alloc_node *mm_alloc_node = &(struct cmc_alloc_node){
+    .malloc = malloc, .calloc = calloc, .realloc = realloc, .free = free
+};
+
 CMC_CREATE_UNIT(MultiMap, true, {
-    CMC_CREATE_TEST(new, {
-        struct multimap *map = mm_new(943722, 0.8, mm_fkey, mm_fval);
+    CMC_CREATE_TEST(PFX##_new(), {
+        struct multimap *map = mm_new(943722, 0.6, mm_fkey, mm_fval);
 
         cmc_assert_not_equals(ptr, NULL, map);
         cmc_assert_not_equals(ptr, NULL, map->buffer);
-        cmc_assert_equals(size_t, 0, mm_count(map));
-        cmc_assert_greater_equals(size_t, (943722 / 0.8), mm_capacity(map));
+        cmc_assert_equals(size_t, 0, map->count);
+        cmc_assert_equals(double, 0.6, map->load);
+        cmc_assert_equals(int32_t, cmc_flags.OK, map->flag);
+        cmc_assert_equals(ptr, mm_fkey, map->f_key);
+        cmc_assert_equals(ptr, mm_fval, map->f_val);
+        cmc_assert_equals(ptr, &cmc_alloc_node_default, map->alloc);
+        cmc_assert_equals(ptr, NULL, map->callbacks);
+
+        cmc_assert_greater_equals(size_t, (943722 / 0.6), mm_capacity(map));
 
         mm_free(map);
-    });
 
-    CMC_CREATE_TEST(new[capacity = 0], {
-        struct multimap *map = mm_new(0, 0.8, mm_fkey, mm_fval);
-
-        cmc_assert_equals(ptr, NULL, map);
-    });
-
-    CMC_CREATE_TEST(new[capacity = UINT64_MAX], {
-        struct multimap *map = mm_new(UINT64_MAX, 0.99, mm_fkey, mm_fval);
-
-        cmc_assert_equals(ptr, NULL, map);
-    });
-
-    CMC_CREATE_TEST(clear[count capacity], {
-        struct multimap *map = mm_new(100, 0.8, mm_fkey, mm_fval);
+        map = mm_new(100, 0.6, mm_fkey, mm_fval);
 
         cmc_assert_not_equals(ptr, NULL, map);
 
-        for (size_t i = 0; i < 50; i++)
-            cmc_assert(mm_insert(map, i, i));
-
-        cmc_assert_equals(size_t, 50, mm_count(map));
-
-        mm_clear(map);
-
-        cmc_assert_equals(size_t, 0, mm_count(map));
+        for (size_t i = 0; i < map->capacity; i++)
+        {
+            cmc_assert_equals(ptr, NULL, map->buffer[i][0]);
+            cmc_assert_equals(ptr, NULL, map->buffer[i][1]);
+        }
 
         mm_free(map);
+
+        map = mm_new(0, 0.6, mm_fkey, mm_fval);
+        cmc_assert_equals(ptr, NULL, map);
+
+        map = mm_new(UINT64_MAX, 0.99, mm_fkey, mm_fval);
+        cmc_assert_equals(ptr, NULL, map);
+
+        map = mm_new(1000, 0.6, mm_fkey, NULL);
+        cmc_assert_equals(ptr, NULL, map);
+
+        map = mm_new(1000, 0.6, NULL, mm_fval);
+        cmc_assert_equals(ptr, NULL, map);
+
+        map = mm_new(1000, 0.6, NULL, NULL);
+        cmc_assert_equals(ptr, NULL, map);
+    });
+
+    CMC_CREATE_TEST(PFX##_new_custom(), {
+        struct multimap *map = mm_new_custom(943722, 0.6, mm_fkey, mm_fval,
+                                             mm_alloc_node, callbacks);
+
+        cmc_assert_not_equals(ptr, NULL, map);
+        cmc_assert_not_equals(ptr, NULL, map->buffer);
+        cmc_assert_equals(size_t, 0, map->count);
+        cmc_assert_equals(double, 0.6, map->load);
+        cmc_assert_equals(int32_t, cmc_flags.OK, map->flag);
+        cmc_assert_equals(ptr, mm_fkey, map->f_key);
+        cmc_assert_equals(ptr, mm_fval, map->f_val);
+        cmc_assert_equals(ptr, mm_alloc_node, map->alloc);
+        cmc_assert_equals(ptr, callbacks, map->callbacks);
+
+        cmc_assert_greater_equals(size_t, (943722 / 0.6), mm_capacity(map));
+
+        mm_free(map);
+
+        map = mm_new_custom(0, 0.6, mm_fkey, mm_fval, NULL, NULL);
+        cmc_assert_equals(ptr, NULL, map);
+
+        map = mm_new_custom(UINT64_MAX, 0.99, mm_fkey, mm_fval, NULL, NULL);
+        cmc_assert_equals(ptr, NULL, map);
+
+        map = mm_new_custom(1000, 0.6, mm_fkey, NULL, NULL, NULL);
+        cmc_assert_equals(ptr, NULL, map);
+
+        map = mm_new_custom(1000, 0.6, NULL, mm_fval, NULL, NULL);
+        cmc_assert_equals(ptr, NULL, map);
+
+        map = mm_new_custom(1000, 0.6, NULL, NULL, NULL, NULL);
+        cmc_assert_equals(ptr, NULL, map);
+    });
+
+    CMC_CREATE_TEST(PFX##_clear(), {
+        k_total_free = 0;
+        v_total_free = 0;
+        struct multimap *map =
+            mm_new(100, 0.6, mm_fkey_counter, mm_fval_counter);
+
+        cmc_assert_not_equals(ptr, NULL, map);
+
+        for (size_t i = 1; i <= 1000; i++)
+            mm_insert(map, i, i);
+
+        cmc_assert_equals(size_t, 1000, map->count);
+
+        map->flag = cmc_flags.ERROR;
+        mm_clear(map);
+
+        cmc_assert_equals(size_t, 0, map->count);
+        cmc_assert_equals(int32_t, cmc_flags.OK, map->flag);
+        cmc_assert_equals(int32_t, 1000, k_total_free);
+        cmc_assert_equals(int32_t, 1000, v_total_free);
+
+        mm_free(map);
+        k_total_free = 0;
+        v_total_free = 0;
+    });
+
+    CMC_CREATE_TEST(PFX##_free(), {
+        k_total_free = 0;
+        v_total_free = 0;
+        struct multimap *map =
+            mm_new(100, 0.6, mm_fkey_counter, mm_fval_counter);
+
+        cmc_assert_not_equals(ptr, NULL, map);
+
+        for (size_t i = 1; i <= 1000; i++)
+            mm_insert(map, i, i);
+
+        cmc_assert_equals(size_t, 1000, map->count);
+
+        mm_free(map);
+
+        cmc_assert_equals(int32_t, 1000, k_total_free);
+        cmc_assert_equals(int32_t, 1000, v_total_free);
+
+        map = mm_new(1000, 0.6, mm_fkey_counter, mm_fval_counter);
+
+        cmc_assert_not_equals(ptr, NULL, map);
+        cmc_assert_not_equals(ptr, NULL, map->buffer);
+
+        mm_free(map);
+
+        cmc_assert_equals(int32_t, 1000, k_total_free);
+        cmc_assert_equals(int32_t, 1000, v_total_free);
+        k_total_free = 0;
+        v_total_free = 0;
     });
 
     CMC_CREATE_TEST(insert[count], {

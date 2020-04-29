@@ -483,6 +483,7 @@ _Bool ms_resize(struct multiset *_set_, size_t capacity)
     size_t tmp_c = _set_->capacity;
     _set_->capacity = _new_set_->capacity;
     _new_set_->capacity = tmp_c;
+    _new_set_->f_val = &(struct multiset_fval){ ((void *)0) };
     ms_free(_new_set_);
 success:
     if (_set_->callbacks && _set_->callbacks->resize)

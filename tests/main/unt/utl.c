@@ -80,7 +80,7 @@ size_t k_c_hash(size_t x)
 int k_c_pri(size_t a, size_t b)
 {
     k_total_pri++;
-    return cmc_size_cmp(a, b);
+    return (a > b) - (a < b);
 }
 
 int v_c_cmp(size_t a, size_t b)
@@ -118,7 +118,7 @@ size_t v_c_hash(size_t x)
 int v_c_pri(size_t a, size_t b)
 {
     v_total_pri++;
-    return cmc_size_cmp(a, b);
+    return (a > b) - (a < b);
 }
 
 // callbacks

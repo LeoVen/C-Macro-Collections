@@ -26,6 +26,7 @@ OUTPUT_DIR = './tests/main/src'
 collections = [
     # type, header, pfx, sname, key, val
     {'t': 'BIDIMAP',      'h': '"cmc/bidimap.h"',      'pfx': 'bm', 'sname': 'bidimap',      'key': 'size_t', 'val': 'size_t'},
+    {'t': 'BITSET',       'h': '"cmc/bitset.h"',       'pfx': 'bs', 'sname': 'bitset',       'key': '',       'val': ''      },
     {'t': 'DEQUE',        'h': '"cmc/deque.h"',        'pfx': 'd',  'sname': 'deque',        'key': '',       'val': 'size_t'},
     {'t': 'HASHMAP',      'h': '"cmc/hashmap.h"',      'pfx': 'hm', 'sname': 'hashmap',      'key': 'size_t', 'val': 'size_t'},
     {'t': 'HASHSET',      'h': '"cmc/hashset.h"',      'pfx': 'hs', 'sname': 'hashset',      'key': '',       'val': 'size_t'},
@@ -49,13 +50,23 @@ if not os.path.exists(OUTPUT_DIR):
 for data in collections:
     file = open(TMP_FILE, 'w')
 
+    if data['key'] == '' and data['val'] == '':
+        # bitset, no K and no V
+        type_params = ''
+    elif data['key'] != '':
+        # maps, K and V
+        type_params = f', {data["key"]}, {data["val"]}'
+    else:
+        # only V
+        type_params = f', {data["val"]}'
+
     file.write(
     f'''
     #include {data['h']}
 
     {UNIQUE_FLAG}
 
-    CMC_GENERATE_{data['t']}({data['pfx']}, {data['sname']}, {f'{data["key"]}, {data["val"]}' if data['key'] != '' else data['val']})
+    CMC_GENERATE_{data['t']}({data['pfx']}, {data['sname']}{type_params})
 
     {UNIQUE_FLAG}
     ''')

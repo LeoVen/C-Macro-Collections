@@ -400,6 +400,7 @@ _Bool hs_resize(struct hashset *_set_, size_t capacity)
     size_t tmp_c = _set_->capacity;
     _set_->capacity = _new_set_->capacity;
     _new_set_->capacity = tmp_c;
+    _new_set_->f_val = &(struct hashset_fval){ ((void *)0) };
     hs_free(_new_set_);
 success:
     if (_set_->callbacks && _set_->callbacks->resize)

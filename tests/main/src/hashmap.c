@@ -11,8 +11,6 @@ struct hashmap
     struct hashmap_fval *f_val;
     struct cmc_alloc_node *alloc;
     struct cmc_callbacks *callbacks;
-    struct hashmap_iter (*it_start)(struct hashmap *);
-    struct hashmap_iter (*it_end)(struct hashmap *);
 };
 struct hashmap_entry
 {
@@ -56,8 +54,16 @@ struct hashmap *hm_new_custom(size_t capacity, double load,
                               struct hashmap_fval *f_val,
                               struct cmc_alloc_node *alloc,
                               struct cmc_callbacks *callbacks);
+struct hashmap hm_init(size_t capacity, double load, struct hashmap_fkey *f_key,
+                       struct hashmap_fval *f_val);
+struct hashmap hm_init_custom(size_t capacity, double load,
+                              struct hashmap_fkey *f_key,
+                              struct hashmap_fval *f_val,
+                              struct cmc_alloc_node *alloc,
+                              struct cmc_callbacks *callbacks);
 void hm_clear(struct hashmap *_map_);
 void hm_free(struct hashmap *_map_);
+void hm_release(struct hashmap _map_);
 void hm_customize(struct hashmap *_map_, struct cmc_alloc_node *alloc,
                   struct cmc_callbacks *callbacks);
 _Bool hm_insert(struct hashmap *_map_, size_t key, size_t value);
@@ -99,39 +105,11 @@ size_t hm_iter_index(struct hashmap_iter *iter);
 static struct hashmap_entry *hm_impl_get_entry(struct hashmap *_map_,
                                                size_t key);
 static size_t hm_impl_calculate_size(size_t required);
-static struct hashmap_iter hm_impl_it_start(struct hashmap *_map_);
-static struct hashmap_iter hm_impl_it_end(struct hashmap *_map_);
 struct hashmap *hm_new(size_t capacity, double load, struct hashmap_fkey *f_key,
                        struct hashmap_fval *f_val)
 {
-    struct cmc_alloc_node *alloc = &cmc_alloc_node_default;
-    if (capacity == 0 || load <= 0 || load >= 1)
-        return ((void *)0);
-    if (capacity >= 0xffffffffffffffffULL * load)
-        return ((void *)0);
-    if (!f_key || !f_val)
-        return ((void *)0);
-    size_t real_capacity = hm_impl_calculate_size(capacity / load);
-    struct hashmap *_map_ = alloc->malloc(sizeof(struct hashmap));
-    if (!_map_)
-        return ((void *)0);
-    _map_->buffer = alloc->calloc(real_capacity, sizeof(struct hashmap_entry));
-    if (!_map_->buffer)
-    {
-        alloc->free(_map_);
-        return ((void *)0);
-    }
-    _map_->count = 0;
-    _map_->capacity = real_capacity;
-    _map_->load = load;
-    _map_->flag = cmc_flags.OK;
-    _map_->f_key = f_key;
-    _map_->f_val = f_val;
-    _map_->alloc = alloc;
-    _map_->callbacks = ((void *)0);
-    _map_->it_start = hm_impl_it_start;
-    _map_->it_end = hm_impl_it_end;
-    return _map_;
+    return hm_new_custom(capacity, load, f_key, f_val, ((void *)0),
+                         ((void *)0));
 }
 struct hashmap *hm_new_custom(size_t capacity, double load,
                               struct hashmap_fkey *f_key,
@@ -165,8 +143,41 @@ struct hashmap *hm_new_custom(size_t capacity, double load,
     _map_->f_val = f_val;
     _map_->alloc = alloc;
     _map_->callbacks = callbacks;
-    _map_->it_start = hm_impl_it_start;
-    _map_->it_end = hm_impl_it_end;
+    return _map_;
+}
+struct hashmap hm_init(size_t capacity, double load, struct hashmap_fkey *f_key,
+                       struct hashmap_fval *f_val)
+{
+    return hm_init_custom(capacity, load, f_key, f_val, ((void *)0),
+                          ((void *)0));
+}
+struct hashmap hm_init_custom(size_t capacity, double load,
+                              struct hashmap_fkey *f_key,
+                              struct hashmap_fval *f_val,
+                              struct cmc_alloc_node *alloc,
+                              struct cmc_callbacks *callbacks)
+{
+    struct hashmap _map_ = { 0 };
+    if (capacity == 0 || load <= 0 || load >= 1)
+        return _map_;
+    if (capacity >= 0xffffffffffffffffULL * load)
+        return _map_;
+    if (!f_key || !f_val)
+        return _map_;
+    size_t real_capacity = hm_impl_calculate_size(capacity / load);
+    if (!alloc)
+        alloc = &cmc_alloc_node_default;
+    _map_.buffer = alloc->calloc(real_capacity, sizeof(struct hashmap_entry));
+    if (!_map_.buffer)
+        return _map_;
+    _map_.count = 0;
+    _map_.capacity = real_capacity;
+    _map_.load = load;
+    _map_.flag = cmc_flags.OK;
+    _map_.f_key = f_key;
+    _map_.f_val = f_val;
+    _map_.alloc = alloc;
+    _map_.callbacks = callbacks;
     return _map_;
 }
 void hm_clear(struct hashmap *_map_)
@@ -207,6 +218,24 @@ void hm_free(struct hashmap *_map_)
     }
     _map_->alloc->free(_map_->buffer);
     _map_->alloc->free(_map_);
+}
+void hm_release(struct hashmap _map_)
+{
+    if (_map_.f_key->free || _map_.f_val->free)
+    {
+        for (size_t i = 0; i < _map_.capacity; i++)
+        {
+            struct hashmap_entry *entry = &(_map_.buffer[i]);
+            if (entry->state == CMC_ES_FILLED)
+            {
+                if (_map_.f_key->free)
+                    _map_.f_key->free(entry->key);
+                if (_map_.f_val->free)
+                    _map_.f_val->free(entry->value);
+            }
+        }
+    }
+    _map_.alloc->free(_map_.buffer);
 }
 void hm_customize(struct hashmap *_map_, struct cmc_alloc_node *alloc,
                   struct cmc_callbacks *callbacks)
@@ -496,6 +525,8 @@ _Bool hm_resize(struct hashmap *_map_, size_t capacity)
     size_t tmp_c = _map_->capacity;
     _map_->capacity = _new_map_->capacity;
     _new_map_->capacity = tmp_c;
+    _new_map_->f_key = &(struct hashmap_fkey){ ((void *)0) };
+    _new_map_->f_val = &(struct hashmap_fval){ ((void *)0) };
     hm_free(_new_map_);
 success:
     if (_map_->callbacks && _map_->callbacks->resize)
@@ -785,17 +816,4 @@ static size_t hm_impl_calculate_size(size_t required)
     while (cmc_hashtable_primes[i] < required)
         i++;
     return cmc_hashtable_primes[i];
-}
-static struct hashmap_iter hm_impl_it_start(struct hashmap *_map_)
-{
-    struct hashmap_iter iter;
-    hm_iter_init(&iter, _map_);
-    return iter;
-}
-static struct hashmap_iter hm_impl_it_end(struct hashmap *_map_)
-{
-    struct hashmap_iter iter;
-    hm_iter_init(&iter, _map_);
-    hm_iter_to_end(&iter);
-    return iter;
 }

@@ -509,6 +509,8 @@ _Bool bm_resize(struct bidimap *_map_, size_t capacity)
                 bm_impl_add_entry_to_val(_new_map_, scan);
             if (!e1 || !e2)
             {
+                _new_map_->f_key = &(struct bidimap_fkey){ ((void *)0) };
+                _new_map_->f_val = &(struct bidimap_fval){ ((void *)0) };
                 _map_->alloc->free(_new_map_->buffer);
                 _map_->alloc->free(_new_map_);
                 _map_->flag = cmc_flags.ERROR;
@@ -519,6 +521,8 @@ _Bool bm_resize(struct bidimap *_map_, size_t capacity)
     }
     if (_map_->count != _new_map_->count)
     {
+        _new_map_->f_key = &(struct bidimap_fkey){ ((void *)0) };
+        _new_map_->f_val = &(struct bidimap_fval){ ((void *)0) };
         _map_->alloc->free(_new_map_->buffer);
         _map_->alloc->free(_new_map_);
         _map_->flag = cmc_flags.ERROR;

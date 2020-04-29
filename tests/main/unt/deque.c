@@ -40,19 +40,13 @@ CMC_CREATE_UNIT(Deque, true, {
         d_free(d);
 
         d = d_new(0, d_fval);
-
         cmc_assert_equals(ptr, NULL, d);
 
         d = d_new(1000, NULL);
-
         cmc_assert_equals(ptr, NULL, d);
 
         d = d_new(UINT64_MAX, d_fval);
-
         cmc_assert_equals(ptr, NULL, d);
-
-        if (d)
-            d_free(d);
     });
 
     CMC_CREATE_TEST(PFX##_new_custom(), {
@@ -73,19 +67,13 @@ CMC_CREATE_UNIT(Deque, true, {
         d_free(d);
 
         d = d_new_custom(0, d_fval, d_alloc_node, callbacks);
-
         cmc_assert_equals(ptr, NULL, d);
 
         d = d_new_custom(1000, NULL, d_alloc_node, callbacks);
-
         cmc_assert_equals(ptr, NULL, d);
 
         d = d_new_custom(UINT64_MAX, d_fval, d_alloc_node, callbacks);
-
         cmc_assert_equals(ptr, NULL, d);
-
-        if (d)
-            d_free(d);
     });
 
     CMC_CREATE_TEST(PFX##_init(), {
@@ -244,7 +232,7 @@ CMC_CREATE_UNIT(Deque, true, {
         v_total_free = 0;
     });
 
-    CMC_CREATE_TEST(PFX##_destroy(), {
+    CMC_CREATE_TEST(PFX##_release(), {
         v_total_free = 0;
 
         struct deque d = d_init(100, d_fval_counter);

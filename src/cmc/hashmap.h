@@ -89,12 +89,6 @@ static const char *cmc_string_fmt_hashmap = "struct %s<%s, %s> "
                                                                               \
         /* Custom callback functions */                                       \
         struct cmc_callbacks *callbacks;                                      \
-                                                                              \
-        /* Function that returns an iterator to the start of the hashmap */   \
-        struct SNAME##_iter (*it_start)(struct SNAME *);                      \
-                                                                              \
-        /* Function that returns an iterator to the end of the hashmap */     \
-        struct SNAME##_iter (*it_end)(struct SNAME *);                        \
     };                                                                        \
                                                                               \
     /* Hashmap Entry */                                                       \
@@ -192,8 +186,16 @@ static const char *cmc_string_fmt_hashmap = "struct %s<%s, %s> "
         size_t capacity, double load, struct SNAME##_fkey *f_key,             \
         struct SNAME##_fval *f_val, struct cmc_alloc_node *alloc,             \
         struct cmc_callbacks *callbacks);                                     \
+    struct SNAME PFX##_init(size_t capacity, double load,                     \
+                            struct SNAME##_fkey *f_key,                       \
+                            struct SNAME##_fval *f_val);                      \
+    struct SNAME PFX##_init_custom(                                           \
+        size_t capacity, double load, struct SNAME##_fkey *f_key,             \
+        struct SNAME##_fval *f_val, struct cmc_alloc_node *alloc,             \
+        struct cmc_callbacks *callbacks);                                     \
     void PFX##_clear(struct SNAME *_map_);                                    \
     void PFX##_free(struct SNAME *_map_);                                     \
+    void PFX##_release(struct SNAME _map_);                                   \
     /* Customization of Allocation and Callbacks */                           \
     void PFX##_customize(struct SNAME *_map_, struct cmc_alloc_node *alloc,   \
                          struct cmc_callbacks *callbacks);                    \
@@ -253,53 +255,12 @@ static const char *cmc_string_fmt_hashmap = "struct %s<%s, %s> "
     static struct SNAME##_entry *PFX##_impl_get_entry(struct SNAME *_map_,    \
                                                       K key);                 \
     static size_t PFX##_impl_calculate_size(size_t required);                 \
-    static struct SNAME##_iter PFX##_impl_it_start(struct SNAME *_map_);      \
-    static struct SNAME##_iter PFX##_impl_it_end(struct SNAME *_map_);        \
                                                                               \
     struct SNAME *PFX##_new(size_t capacity, double load,                     \
                             struct SNAME##_fkey *f_key,                       \
                             struct SNAME##_fval *f_val)                       \
     {                                                                         \
-        struct cmc_alloc_node *alloc = &cmc_alloc_node_default;               \
-                                                                              \
-        if (capacity == 0 || load <= 0 || load >= 1)                          \
-            return NULL;                                                      \
-                                                                              \
-        /* Prevent integer overflow */                                        \
-        if (capacity >= UINTMAX_MAX * load)                                   \
-            return NULL;                                                      \
-                                                                              \
-        if (!f_key || !f_val)                                                 \
-            return NULL;                                                      \
-                                                                              \
-        size_t real_capacity = PFX##_impl_calculate_size(capacity / load);    \
-                                                                              \
-        struct SNAME *_map_ = alloc->malloc(sizeof(struct SNAME));            \
-                                                                              \
-        if (!_map_)                                                           \
-            return NULL;                                                      \
-                                                                              \
-        _map_->buffer =                                                       \
-            alloc->calloc(real_capacity, sizeof(struct SNAME##_entry));       \
-                                                                              \
-        if (!_map_->buffer)                                                   \
-        {                                                                     \
-            alloc->free(_map_);                                               \
-            return NULL;                                                      \
-        }                                                                     \
-                                                                              \
-        _map_->count = 0;                                                     \
-        _map_->capacity = real_capacity;                                      \
-        _map_->load = load;                                                   \
-        _map_->flag = cmc_flags.OK;                                           \
-        _map_->f_key = f_key;                                                 \
-        _map_->f_val = f_val;                                                 \
-        _map_->alloc = alloc;                                                 \
-        _map_->callbacks = NULL;                                              \
-        _map_->it_start = PFX##_impl_it_start;                                \
-        _map_->it_end = PFX##_impl_it_end;                                    \
-                                                                              \
-        return _map_;                                                         \
+        return PFX##_new_custom(capacity, load, f_key, f_val, NULL, NULL);    \
     }                                                                         \
                                                                               \
     struct SNAME *PFX##_new_custom(                                           \
@@ -344,8 +305,52 @@ static const char *cmc_string_fmt_hashmap = "struct %s<%s, %s> "
         _map_->f_val = f_val;                                                 \
         _map_->alloc = alloc;                                                 \
         _map_->callbacks = callbacks;                                         \
-        _map_->it_start = PFX##_impl_it_start;                                \
-        _map_->it_end = PFX##_impl_it_end;                                    \
+                                                                              \
+        return _map_;                                                         \
+    }                                                                         \
+    struct SNAME PFX##_init(size_t capacity, double load,                     \
+                            struct SNAME##_fkey *f_key,                       \
+                            struct SNAME##_fval *f_val)                       \
+    {                                                                         \
+        return PFX##_init_custom(capacity, load, f_key, f_val, NULL, NULL);   \
+    }                                                                         \
+                                                                              \
+    struct SNAME PFX##_init_custom(                                           \
+        size_t capacity, double load, struct SNAME##_fkey *f_key,             \
+        struct SNAME##_fval *f_val, struct cmc_alloc_node *alloc,             \
+        struct cmc_callbacks *callbacks)                                      \
+    {                                                                         \
+        struct SNAME _map_ = { 0 };                                           \
+                                                                              \
+        if (capacity == 0 || load <= 0 || load >= 1)                          \
+            return _map_;                                                     \
+                                                                              \
+        /* Prevent integer overflow */                                        \
+        if (capacity >= UINTMAX_MAX * load)                                   \
+            return _map_;                                                     \
+                                                                              \
+        if (!f_key || !f_val)                                                 \
+            return _map_;                                                     \
+                                                                              \
+        size_t real_capacity = PFX##_impl_calculate_size(capacity / load);    \
+                                                                              \
+        if (!alloc)                                                           \
+            alloc = &cmc_alloc_node_default;                                  \
+                                                                              \
+        _map_.buffer =                                                        \
+            alloc->calloc(real_capacity, sizeof(struct SNAME##_entry));       \
+                                                                              \
+        if (!_map_.buffer)                                                    \
+            return _map_;                                                     \
+                                                                              \
+        _map_.count = 0;                                                      \
+        _map_.capacity = real_capacity;                                       \
+        _map_.load = load;                                                    \
+        _map_.flag = cmc_flags.OK;                                            \
+        _map_.f_key = f_key;                                                  \
+        _map_.f_val = f_val;                                                  \
+        _map_.alloc = alloc;                                                  \
+        _map_.callbacks = callbacks;                                          \
                                                                               \
         return _map_;                                                         \
     }                                                                         \
@@ -395,6 +400,27 @@ static const char *cmc_string_fmt_hashmap = "struct %s<%s, %s> "
                                                                               \
         _map_->alloc->free(_map_->buffer);                                    \
         _map_->alloc->free(_map_);                                            \
+    }                                                                         \
+                                                                              \
+    void PFX##_release(struct SNAME _map_)                                    \
+    {                                                                         \
+        if (_map_.f_key->free || _map_.f_val->free)                           \
+        {                                                                     \
+            for (size_t i = 0; i < _map_.capacity; i++)                       \
+            {                                                                 \
+                struct SNAME##_entry *entry = &(_map_.buffer[i]);             \
+                                                                              \
+                if (entry->state == CMC_ES_FILLED)                            \
+                {                                                             \
+                    if (_map_.f_key->free)                                    \
+                        _map_.f_key->free(entry->key);                        \
+                    if (_map_.f_val->free)                                    \
+                        _map_.f_val->free(entry->value);                      \
+                }                                                             \
+            }                                                                 \
+        }                                                                     \
+                                                                              \
+        _map_.alloc->free(_map_.buffer);                                      \
     }                                                                         \
                                                                               \
     void PFX##_customize(struct SNAME *_map_, struct cmc_alloc_node *alloc,   \
@@ -779,6 +805,10 @@ static const char *cmc_string_fmt_hashmap = "struct %s<%s, %s> "
         _map_->capacity = _new_map_->capacity;                                \
         _new_map_->capacity = tmp_c;                                          \
                                                                               \
+        /* Prevent the map from freeing the data */                           \
+        _new_map_->f_key = &(struct SNAME##_fkey){ NULL };                    \
+        _new_map_->f_val = &(struct SNAME##_fval){ NULL };                    \
+                                                                              \
         PFX##_free(_new_map_);                                                \
                                                                               \
     success:                                                                  \
@@ -1161,25 +1191,6 @@ static const char *cmc_string_fmt_hashmap = "struct %s<%s, %s> "
             i++;                                                              \
                                                                               \
         return cmc_hashtable_primes[i];                                       \
-    }                                                                         \
-                                                                              \
-    static struct SNAME##_iter PFX##_impl_it_start(struct SNAME *_map_)       \
-    {                                                                         \
-        struct SNAME##_iter iter;                                             \
-                                                                              \
-        PFX##_iter_init(&iter, _map_);                                        \
-                                                                              \
-        return iter;                                                          \
-    }                                                                         \
-                                                                              \
-    static struct SNAME##_iter PFX##_impl_it_end(struct SNAME *_map_)         \
-    {                                                                         \
-        struct SNAME##_iter iter;                                             \
-                                                                              \
-        PFX##_iter_init(&iter, _map_);                                        \
-        PFX##_iter_to_end(&iter);                                             \
-                                                                              \
-        return iter;                                                          \
     }
 
 #endif /* CMC_HASHMAP_H */

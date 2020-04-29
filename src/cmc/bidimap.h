@@ -832,6 +832,10 @@ static const char *cmc_string_fmt_bidimap = "struct %s<%s, %s> "
                                                                                \
                 if (!e1 || !e2)                                                \
                 {                                                              \
+                    /* Prevent the map from freeing the data */                \
+                    _new_map_->f_key = &(struct SNAME##_fkey){ NULL };         \
+                    _new_map_->f_val = &(struct SNAME##_fval){ NULL };         \
+                                                                               \
                     _map_->alloc->free(_new_map_->buffer);                     \
                     _map_->alloc->free(_new_map_);                             \
                                                                                \
@@ -846,6 +850,10 @@ static const char *cmc_string_fmt_bidimap = "struct %s<%s, %s> "
                                                                                \
         if (_map_->count != _new_map_->count)                                  \
         {                                                                      \
+            /* Prevent the map from freeing the data */                        \
+            _new_map_->f_key = &(struct SNAME##_fkey){ NULL };                 \
+            _new_map_->f_val = &(struct SNAME##_fval){ NULL };                 \
+                                                                               \
             _map_->alloc->free(_new_map_->buffer);                             \
             _map_->alloc->free(_new_map_);                                     \
                                                                                \

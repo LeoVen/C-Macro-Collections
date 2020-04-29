@@ -11,45 +11,120 @@ struct hashset_fval *hs_fval = &(struct hashset_fval){ .cmp = cmc_size_cmp,
                                                        .hash = cmc_size_hash,
                                                        .pri = cmc_size_cmp };
 
+struct hashset_fval *hs_fval_counter = &(struct hashset_fval){ .cmp = v_c_cmp,
+                                                               .cpy = v_c_cpy,
+                                                               .str = v_c_str,
+                                                               .free = v_c_free,
+                                                               .hash = v_c_hash,
+                                                               .pri = v_c_pri };
+
+struct cmc_alloc_node *hs_alloc_node = &(struct cmc_alloc_node){
+    .malloc = malloc, .calloc = calloc, .realloc = realloc, .free = free
+};
+
 CMC_CREATE_UNIT(HashSet, true, {
-    CMC_CREATE_TEST(new, {
+    CMC_CREATE_TEST(PFX##_new(), {
         struct hashset *set = hs_new(943722, 0.6, hs_fval);
 
         cmc_assert_not_equals(ptr, NULL, set);
         cmc_assert_not_equals(ptr, NULL, set->buffer);
-        cmc_assert_equals(size_t, 0, hs_count(set));
+        cmc_assert_equals(size_t, 0, set->count);
+        cmc_assert_equals(double, 0.6, set->load);
+        cmc_assert_equals(int32_t, cmc_flags.OK, set->flag);
+        cmc_assert_equals(ptr, hs_fval, set->f_val);
+        cmc_assert_equals(ptr, &cmc_alloc_node_default, set->alloc);
+        cmc_assert_equals(ptr, NULL, set->callbacks);
+
         cmc_assert_greater_equals(size_t, (943722 / 0.6), hs_capacity(set));
 
         hs_free(set);
-    });
 
-    CMC_CREATE_TEST(new[capacity = 0], {
-        struct hashset *set = hs_new(0, 0.6, hs_fval);
+        set = hs_new(0, 0.6, hs_fval);
+        cmc_assert_equals(ptr, NULL, set);
 
+        set = hs_new(UINT64_MAX, 0.99, hs_fval);
+        cmc_assert_equals(ptr, NULL, set);
+
+        set = hs_new(1000, 0.6, NULL);
+        cmc_assert_equals(ptr, NULL, set);
+
+        set = hs_new(1000, 0.6, NULL);
         cmc_assert_equals(ptr, NULL, set);
     });
 
-    CMC_CREATE_TEST(new[capacity = UINT64_MAX], {
-        struct hashset *set = hs_new(UINT64_MAX, 0.99, hs_fval);
+    CMC_CREATE_TEST(PFX##_new_custom(), {
+        struct hashset *set =
+            hs_new_custom(943722, 0.6, hs_fval, hs_alloc_node, callbacks);
 
+        cmc_assert_not_equals(ptr, NULL, set);
+        cmc_assert_not_equals(ptr, NULL, set->buffer);
+        cmc_assert_equals(size_t, 0, set->count);
+        cmc_assert_equals(double, 0.6, set->load);
+        cmc_assert_equals(int32_t, cmc_flags.OK, set->flag);
+        cmc_assert_equals(ptr, hs_fval, set->f_val);
+        cmc_assert_equals(ptr, hs_alloc_node, set->alloc);
+        cmc_assert_equals(ptr, callbacks, set->callbacks);
+
+        cmc_assert_greater_equals(size_t, (943722 / 0.6), hs_capacity(set));
+
+        hs_free(set);
+
+        set = hs_new_custom(0, 0.6, hs_fval, NULL, NULL);
+        cmc_assert_equals(ptr, NULL, set);
+
+        set = hs_new_custom(UINT64_MAX, 0.99, hs_fval, NULL, NULL);
+        cmc_assert_equals(ptr, NULL, set);
+
+        set = hs_new_custom(1000, 0.6, NULL, NULL, NULL);
         cmc_assert_equals(ptr, NULL, set);
     });
 
-    CMC_CREATE_TEST(clear[count capacity], {
-        struct hashset *set = hs_new(100, 0.6, hs_fval);
+    CMC_CREATE_TEST(PFX##_clear(), {
+        v_total_free = 0;
+        struct hashset *set = hs_new(100, 0.6, hs_fval_counter);
 
         cmc_assert_not_equals(ptr, NULL, set);
 
-        for (size_t i = 0; i < 50; i++)
+        for (size_t i = 1; i <= 1000; i++)
             hs_insert(set, i);
 
-        cmc_assert_equals(size_t, 50, hs_count(set));
+        cmc_assert_equals(size_t, 1000, set->count);
 
+        set->flag = cmc_flags.ERROR;
         hs_clear(set);
 
-        cmc_assert_equals(size_t, 0, hs_count(set));
+        cmc_assert_equals(size_t, 0, set->count);
+        cmc_assert_equals(int32_t, cmc_flags.OK, set->flag);
+        cmc_assert_equals(int32_t, 1000, v_total_free);
 
         hs_free(set);
+        v_total_free = 0;
+    });
+
+    CMC_CREATE_TEST(PFX##_free(), {
+        v_total_free = 0;
+        struct hashset *set = hs_new(100, 0.6, hs_fval_counter);
+
+        cmc_assert_not_equals(ptr, NULL, set);
+
+        for (size_t i = 1; i <= 1000; i++)
+            hs_insert(set, i);
+
+        cmc_assert_equals(size_t, 1000, set->count);
+
+        hs_free(set);
+
+        cmc_assert_equals(int32_t, 1000, v_total_free);
+
+        set = hs_new(1000, 0.6, hs_fval_counter);
+
+        cmc_assert_not_equals(ptr, NULL, set);
+        cmc_assert_not_equals(ptr, NULL, set->buffer);
+
+        hs_free(set);
+
+        cmc_assert_equals(int32_t, 1000, v_total_free);
+        v_total_free = 0;
     });
 
     CMC_CREATE_TEST(insert, {

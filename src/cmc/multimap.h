@@ -1027,6 +1027,10 @@ static const char *cmc_string_fmt_multimap = "struct %s<%s, %s> "
         _map_->capacity = _new_map_->capacity;                                 \
         _new_map_->capacity = tmp_c;                                           \
                                                                                \
+        /* Prevent the map from freeing the data */                            \
+        _new_map_->f_key = &(struct SNAME##_fkey){ NULL };                     \
+        _new_map_->f_val = &(struct SNAME##_fval){ NULL };                     \
+                                                                               \
         PFX##_free(_new_map_);                                                 \
                                                                                \
     success:                                                                   \

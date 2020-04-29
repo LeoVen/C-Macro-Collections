@@ -18,45 +18,249 @@ struct hashmap_fval *hm_fval = &(struct hashmap_fval){ .cmp = cmc_size_cmp,
                                                        .hash = cmc_size_hash,
                                                        .pri = cmc_size_cmp };
 
+struct hashmap_fkey *hm_fkey_counter = &(struct hashmap_fkey){ .cmp = k_c_cmp,
+                                                               .cpy = k_c_cpy,
+                                                               .str = k_c_str,
+                                                               .free = k_c_free,
+                                                               .hash = k_c_hash,
+                                                               .pri = k_c_pri };
+
+struct hashmap_fval *hm_fval_counter = &(struct hashmap_fval){ .cmp = v_c_cmp,
+                                                               .cpy = v_c_cpy,
+                                                               .str = v_c_str,
+                                                               .free = v_c_free,
+                                                               .hash = v_c_hash,
+                                                               .pri = v_c_pri };
+
+struct cmc_alloc_node *hm_alloc_node = &(struct cmc_alloc_node){
+    .malloc = malloc, .calloc = calloc, .realloc = realloc, .free = free
+};
+
 CMC_CREATE_UNIT(HashMap, true, {
-    CMC_CREATE_TEST(new, {
+    CMC_CREATE_TEST(PFX##_new(), {
         struct hashmap *map = hm_new(943722, 0.6, hm_fkey, hm_fval);
 
         cmc_assert_not_equals(ptr, NULL, map);
         cmc_assert_not_equals(ptr, NULL, map->buffer);
-        cmc_assert_equals(size_t, 0, hm_count(map));
+        cmc_assert_equals(size_t, 0, map->count);
+        cmc_assert_equals(double, 0.6, map->load);
+        cmc_assert_equals(int32_t, cmc_flags.OK, map->flag);
+        cmc_assert_equals(ptr, hm_fkey, map->f_key);
+        cmc_assert_equals(ptr, hm_fval, map->f_val);
+        cmc_assert_equals(ptr, &cmc_alloc_node_default, map->alloc);
+        cmc_assert_equals(ptr, NULL, map->callbacks);
+
         cmc_assert_greater_equals(size_t, (943722 / 0.6), hm_capacity(map));
 
         hm_free(map);
-    });
 
-    CMC_CREATE_TEST(new[capacity = 0], {
-        struct hashmap *map = hm_new(0, 0.6, hm_fkey, hm_fval);
+        map = hm_new(0, 0.6, hm_fkey, hm_fval);
+        cmc_assert_equals(ptr, NULL, map);
 
+        map = hm_new(UINT64_MAX, 0.99, hm_fkey, hm_fval);
+        cmc_assert_equals(ptr, NULL, map);
+
+        map = hm_new(1000, 0.6, hm_fkey, NULL);
+        cmc_assert_equals(ptr, NULL, map);
+
+        map = hm_new(1000, 0.6, NULL, hm_fval);
+        cmc_assert_equals(ptr, NULL, map);
+
+        map = hm_new(1000, 0.6, NULL, NULL);
         cmc_assert_equals(ptr, NULL, map);
     });
 
-    CMC_CREATE_TEST(new[capacity = UINT64_MAX], {
-        struct hashmap *map = hm_new(UINT64_MAX, 0.99, hm_fkey, hm_fval);
+    CMC_CREATE_TEST(PFX##_new_custom(), {
+        struct hashmap *map = hm_new_custom(943722, 0.6, hm_fkey, hm_fval,
+                                            hm_alloc_node, callbacks);
 
+        cmc_assert_not_equals(ptr, NULL, map);
+        cmc_assert_not_equals(ptr, NULL, map->buffer);
+        cmc_assert_equals(size_t, 0, map->count);
+        cmc_assert_equals(double, 0.6, map->load);
+        cmc_assert_equals(int32_t, cmc_flags.OK, map->flag);
+        cmc_assert_equals(ptr, hm_fkey, map->f_key);
+        cmc_assert_equals(ptr, hm_fval, map->f_val);
+        cmc_assert_equals(ptr, hm_alloc_node, map->alloc);
+        cmc_assert_equals(ptr, callbacks, map->callbacks);
+
+        cmc_assert_greater_equals(size_t, (943722 / 0.6), hm_capacity(map));
+
+        hm_free(map);
+
+        map = hm_new_custom(0, 0.6, hm_fkey, hm_fval, NULL, NULL);
+        cmc_assert_equals(ptr, NULL, map);
+
+        map = hm_new_custom(UINT64_MAX, 0.99, hm_fkey, hm_fval, NULL, NULL);
+        cmc_assert_equals(ptr, NULL, map);
+
+        map = hm_new_custom(1000, 0.6, hm_fkey, NULL, NULL, NULL);
+        cmc_assert_equals(ptr, NULL, map);
+
+        map = hm_new_custom(1000, 0.6, NULL, hm_fval, NULL, NULL);
+        cmc_assert_equals(ptr, NULL, map);
+
+        map = hm_new_custom(1000, 0.6, NULL, NULL, NULL, NULL);
         cmc_assert_equals(ptr, NULL, map);
     });
 
-    CMC_CREATE_TEST(clear[count capacity], {
-        struct hashmap *map = hm_new(100, 0.6, hm_fkey, hm_fval);
+    CMC_CREATE_TEST(PFX##_init(), {
+        struct hashmap map = hm_init(943722, 0.6, hm_fkey, hm_fval);
+
+        cmc_assert_not_equals(ptr, NULL, map.buffer);
+        cmc_assert_equals(size_t, 0, map.count);
+        cmc_assert_equals(double, 0.6, map.load);
+        cmc_assert_equals(int32_t, cmc_flags.OK, map.flag);
+        cmc_assert_equals(ptr, hm_fkey, map.f_key);
+        cmc_assert_equals(ptr, hm_fval, map.f_val);
+        cmc_assert_equals(ptr, &cmc_alloc_node_default, map.alloc);
+        cmc_assert_equals(ptr, NULL, map.callbacks);
+
+        cmc_assert_greater_equals(size_t, (943722 / 0.6), hm_capacity(&map));
+
+        hm_release(map);
+
+        map = hm_init(0, 0.6, hm_fkey, hm_fval);
+        cmc_assert_equals(ptr, NULL, map.buffer);
+
+        map = hm_init(UINT64_MAX, 0.99, hm_fkey, hm_fval);
+        cmc_assert_equals(ptr, NULL, map.buffer);
+
+        map = hm_init(1000, 0.6, hm_fkey, NULL);
+        cmc_assert_equals(ptr, NULL, map.buffer);
+
+        map = hm_init(1000, 0.6, NULL, hm_fval);
+        cmc_assert_equals(ptr, NULL, map.buffer);
+
+        map = hm_init(1000, 0.6, NULL, NULL);
+        cmc_assert_equals(ptr, NULL, map.buffer);
+    });
+
+    CMC_CREATE_TEST(PFX##_init_custom(), {
+        struct hashmap map = hm_init_custom(943722, 0.6, hm_fkey, hm_fval,
+                                            hm_alloc_node, callbacks);
+
+        cmc_assert_not_equals(ptr, NULL, map.buffer);
+        cmc_assert_equals(size_t, 0, map.count);
+        cmc_assert_equals(double, 0.6, map.load);
+        cmc_assert_equals(int32_t, cmc_flags.OK, map.flag);
+        cmc_assert_equals(ptr, hm_fkey, map.f_key);
+        cmc_assert_equals(ptr, hm_fval, map.f_val);
+        cmc_assert_equals(ptr, hm_alloc_node, map.alloc);
+        cmc_assert_equals(ptr, callbacks, map.callbacks);
+
+        cmc_assert_greater_equals(size_t, (943722 / 0.6), hm_capacity(&map));
+
+        hm_release(map);
+
+        map = hm_init_custom(0, 0.6, hm_fkey, hm_fval, NULL, NULL);
+        cmc_assert_equals(ptr, NULL, map.buffer);
+
+        map = hm_init_custom(UINT64_MAX, 0.99, hm_fkey, hm_fval, NULL, NULL);
+        cmc_assert_equals(ptr, NULL, map.buffer);
+
+        map = hm_init_custom(1000, 0.6, hm_fkey, NULL, NULL, NULL);
+        cmc_assert_equals(ptr, NULL, map.buffer);
+
+        map = hm_init_custom(1000, 0.6, NULL, hm_fval, NULL, NULL);
+        cmc_assert_equals(ptr, NULL, map.buffer);
+
+        map = hm_init_custom(1000, 0.6, NULL, NULL, NULL, NULL);
+        cmc_assert_equals(ptr, NULL, map.buffer);
+    });
+
+    CMC_CREATE_TEST(PFX##_clear(), {
+        k_total_free = 0;
+        v_total_free = 0;
+        struct hashmap *map =
+            hm_new(100, 0.6, hm_fkey_counter, hm_fval_counter);
 
         cmc_assert_not_equals(ptr, NULL, map);
 
-        for (size_t i = 0; i < 50; i++)
+        for (size_t i = 1; i <= 1000; i++)
             hm_insert(map, i, i);
 
-        cmc_assert_equals(size_t, 50, hm_count(map));
+        cmc_assert_equals(size_t, 1000, map->count);
 
+        size_t *r = hm_get_ref(map, 100);
+
+        cmc_assert_equals(size_t, 100, *r);
+
+        map->flag = cmc_flags.ERROR;
         hm_clear(map);
 
-        cmc_assert_equals(size_t, 0, hm_count(map));
+        cmc_assert_equals(size_t, 0, map->count);
+        cmc_assert_equals(int32_t, cmc_flags.OK, map->flag);
+        cmc_assert_equals(int32_t, 1000, k_total_free);
+        cmc_assert_equals(int32_t, 1000, v_total_free);
+
+        // The buffer is still valid and all zeroes
+        cmc_assert_equals(size_t, 0, *r);
 
         hm_free(map);
+        k_total_free = 0;
+        v_total_free = 0;
+    });
+
+    CMC_CREATE_TEST(PFX##_free(), {
+        k_total_free = 0;
+        v_total_free = 0;
+        struct hashmap *map =
+            hm_new(100, 0.6, hm_fkey_counter, hm_fval_counter);
+
+        cmc_assert_not_equals(ptr, NULL, map);
+
+        for (size_t i = 1; i <= 1000; i++)
+            hm_insert(map, i, i);
+
+        cmc_assert_equals(size_t, 1000, map->count);
+
+        hm_free(map);
+
+        cmc_assert_equals(int32_t, 1000, k_total_free);
+        cmc_assert_equals(int32_t, 1000, v_total_free);
+
+        map = hm_new(1000, 0.6, hm_fkey_counter, hm_fval_counter);
+
+        cmc_assert_not_equals(ptr, NULL, map);
+        cmc_assert_not_equals(ptr, NULL, map->buffer);
+
+        hm_free(map);
+
+        cmc_assert_equals(int32_t, 1000, k_total_free);
+        cmc_assert_equals(int32_t, 1000, v_total_free);
+        k_total_free = 0;
+        v_total_free = 0;
+    });
+
+    CMC_CREATE_TEST(PFX##_release(), {
+        k_total_free = 0;
+        v_total_free = 0;
+        struct hashmap map =
+            hm_init(100, 0.6, hm_fkey_counter, hm_fval_counter);
+
+        cmc_assert_not_equals(ptr, NULL, map.buffer);
+
+        for (size_t i = 1; i <= 1000; i++)
+            hm_insert(&map, i, i);
+
+        cmc_assert_equals(size_t, 1000, map.count);
+
+        hm_release(map);
+
+        cmc_assert_equals(int32_t, 1000, k_total_free);
+        cmc_assert_equals(int32_t, 1000, v_total_free);
+
+        map = hm_init(1000, 0.6, hm_fkey_counter, hm_fval_counter);
+
+        cmc_assert_not_equals(ptr, NULL, map.buffer);
+
+        hm_release(map);
+
+        cmc_assert_equals(int32_t, 1000, k_total_free);
+        cmc_assert_equals(int32_t, 1000, v_total_free);
+        k_total_free = 0;
+        v_total_free = 0;
     });
 
     CMC_CREATE_TEST(insert, {
