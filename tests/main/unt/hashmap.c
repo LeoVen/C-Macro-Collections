@@ -263,19 +263,41 @@ CMC_CREATE_UNIT(HashMap, true, {
         v_total_free = 0;
     });
 
-    CMC_CREATE_TEST(insert, {
+    CMC_CREATE_TEST(PFX##_customize(), {
         struct hashmap *map = hm_new(100, 0.6, hm_fkey, hm_fval);
 
         cmc_assert_not_equals(ptr, NULL, map);
 
-        cmc_assert(hm_insert(map, 1, 1));
-        cmc_assert_equals(size_t, 1, hm_count(map));
+        map->flag = cmc_flags.ERROR;
+        hm_customize(map, hm_alloc_node, callbacks);
+
+        cmc_assert_equals(ptr, hm_alloc_node, map->alloc);
+        cmc_assert_equals(ptr, callbacks, map->callbacks);
+        cmc_assert_equals(int32_t, cmc_flags.OK, map->flag);
+
+        map->flag = cmc_flags.ERROR;
+        hm_customize(map, NULL, NULL);
+
+        cmc_assert_equals(ptr, &cmc_alloc_node_default, map->alloc);
+        cmc_assert_equals(ptr, NULL, map->callbacks);
+        cmc_assert_equals(int32_t, cmc_flags.OK, map->flag);
 
         hm_free(map);
     });
 
-    CMC_CREATE_TEST(insert[smallest capacity], {
-        struct hashmap *map = hm_new(1, 0.99, hm_fkey, hm_fval);
+    CMC_CREATE_TEST(PFX##_insert(), {
+        struct hashmap *map = hm_new(100, 0.6, hm_fkey, hm_fval);
+
+        cmc_assert_not_equals(ptr, NULL, map);
+
+        map->flag = cmc_flags.ERROR;
+        cmc_assert(hm_insert(map, 1, 1));
+        cmc_assert_equals(int32_t, cmc_flags.OK, map->flag);
+        cmc_assert_equals(size_t, 1, hm_count(map));
+
+        hm_free(map);
+
+        map = hm_new(1, 0.99, hm_fkey, hm_fval);
 
         cmc_assert_not_equals(ptr, NULL, map);
 
@@ -283,10 +305,9 @@ CMC_CREATE_UNIT(HashMap, true, {
         cmc_assert(hm_insert(map, 1, 1));
 
         hm_free(map);
-    });
 
-    CMC_CREATE_TEST(insert[element position], {
-        struct hashmap *map = hm_new(1, 0.99, hm_fkey, hm_fval);
+        // element position
+        map = hm_new(1, 0.99, hm_fkey, hm_fval);
 
         // Temporary change
         // Using the numhash the key is the hash itself
@@ -307,10 +328,9 @@ CMC_CREATE_UNIT(HashMap, true, {
         hm_fkey->hash = cmc_size_hash;
 
         hm_free(map);
-    });
 
-    CMC_CREATE_TEST(insert[distance], {
-        struct hashmap *map = hm_new(500, 0.6, hm_fkey, hm_fval);
+        // distance
+        map = hm_new(500, 0.6, hm_fkey, hm_fval);
 
         // Temporary change
         hm_fkey->hash = hash0;
@@ -328,17 +348,16 @@ CMC_CREATE_UNIT(HashMap, true, {
         hm_fkey->hash = cmc_size_hash;
 
         hm_free(map);
-    });
 
-    CMC_CREATE_TEST(insert[distance wrap], {
-        struct hashmap *map = hm_new(1, 0.99, hm_fkey, hm_fval);
+        // distance wrap
+        map = hm_new(1, 0.99, hm_fkey, hm_fval);
 
         // Temporary change
         hm_fkey->hash = hashcapminus1;
 
         cmc_assert_not_equals(ptr, NULL, map);
 
-        size_t capacity = hm_capacity(map);
+        capacity = hm_capacity(map);
 
         // Just to be sure, not part of the test
         cmc_assert_equals(size_t, cmc_hashtable_primes[0] - 1,
@@ -354,10 +373,9 @@ CMC_CREATE_UNIT(HashMap, true, {
         hm_fkey->hash = cmc_size_hash;
 
         hm_free(map);
-    });
 
-    CMC_CREATE_TEST(insert[distances], {
-        struct hashmap *map = hm_new(1, 0.99, hm_fkey, hm_fval);
+        // distances
+        map = hm_new(1, 0.99, hm_fkey, hm_fval);
 
         // Temporary change
         hm_fkey->hash = hashcapminus4;
@@ -375,10 +393,9 @@ CMC_CREATE_UNIT(HashMap, true, {
         hm_fkey->hash = cmc_size_hash;
 
         hm_free(map);
-    });
 
-    CMC_CREATE_TEST(insert[buffer growth and item preservation], {
-        struct hashmap *map = hm_new(1, 0.99, hm_fkey, hm_fval);
+        // buffer growth and item preservation
+        map = hm_new(1, 0.99, hm_fkey, hm_fval);
 
         cmc_assert_not_equals(ptr, NULL, map);
 
@@ -401,7 +418,7 @@ CMC_CREATE_UNIT(HashMap, true, {
         hm_free(map);
     });
 
-    CMC_CREATE_TEST(update, {
+    CMC_CREATE_TEST(PFX##_update(), {
         struct hashmap *map = hm_new(100, 0.6, hm_fkey, hm_fval);
 
         cmc_assert_not_equals(ptr, NULL, map);
@@ -414,37 +431,35 @@ CMC_CREATE_UNIT(HashMap, true, {
         cmc_assert_equals(size_t, 1, old);
 
         hm_free(map);
-    });
 
-    CMC_CREATE_TEST(update[key not found], {
-        struct hashmap *map = hm_new(100, 0.6, hm_fkey, hm_fval);
+        // key not found
+        map = hm_new(100, 0.6, hm_fkey, hm_fval);
 
         cmc_assert_not_equals(ptr, NULL, map);
 
         for (size_t i = 0; i < 100; i++)
-            cmc_assert(hm_insert(map, i, i));
+            hm_insert(map, i, i);
 
         cmc_assert(!hm_update(map, 120, 120, NULL));
 
         hm_free(map);
     });
 
-    CMC_CREATE_TEST(remove, {
+    CMC_CREATE_TEST(PFX##_remove(), {
         struct hashmap *map = hm_new(100, 0.6, hm_fkey, hm_fval);
 
         cmc_assert_not_equals(ptr, NULL, map);
 
         for (size_t i = 0; i < 100; i++)
-            cmc_assert(hm_insert(map, i, i));
+            hm_insert(map, i, i);
 
         for (size_t i = 0; i < 100; i++)
             cmc_assert(hm_remove(map, i, NULL));
 
         hm_free(map);
-    });
 
-    CMC_CREATE_TEST(remove[count = 0], {
-        struct hashmap *map = hm_new(100, 0.6, hm_fkey, hm_fval);
+        // count = 0
+        map = hm_new(100, 0.6, hm_fkey, hm_fval);
 
         cmc_assert_not_equals(ptr, NULL, map);
 
@@ -452,15 +467,16 @@ CMC_CREATE_UNIT(HashMap, true, {
             cmc_assert(!hm_remove(map, i, NULL));
 
         hm_free(map);
-    });
 
-    CMC_CREATE_TEST(remove[key not found], {
-        struct hashmap *map = hm_new(100, 0.6, hm_fkey, hm_fval);
+        // key not found
+        map = hm_new(100, 0.6, hm_fkey, hm_fval);
 
         cmc_assert_not_equals(ptr, NULL, map);
 
         for (size_t i = 0; i < 100; i++)
-            cmc_assert(hm_insert(map, i, i));
+            hm_insert(map, i, i);
+
+        cmc_assert_equals(size_t, 100, map->count);
 
         for (size_t i = 100; i < 200; i++)
             cmc_assert(!hm_remove(map, i, NULL));
@@ -468,7 +484,7 @@ CMC_CREATE_UNIT(HashMap, true, {
         hm_free(map);
     });
 
-    CMC_CREATE_TEST(max, {
+    CMC_CREATE_TEST(PFX##_max(), {
         struct hashmap *map = hm_new(100, 0.6, hm_fkey, hm_fval);
 
         cmc_assert_not_equals(ptr, NULL, map);
@@ -484,10 +500,9 @@ CMC_CREATE_UNIT(HashMap, true, {
         cmc_assert_equals(size_t, 100, val);
 
         hm_free(map);
-    });
 
-    CMC_CREATE_TEST(max[count = 0], {
-        struct hashmap *map = hm_new(100, 0.6, hm_fkey, hm_fval);
+        // count = 0
+        map = hm_new(100, 0.6, hm_fkey, hm_fval);
 
         cmc_assert_not_equals(ptr, NULL, map);
 
@@ -496,7 +511,7 @@ CMC_CREATE_UNIT(HashMap, true, {
         hm_free(map);
     });
 
-    CMC_CREATE_TEST(min, {
+    CMC_CREATE_TEST(PFX##_min(), {
         struct hashmap *map = hm_new(100, 0.6, hm_fkey, hm_fval);
 
         cmc_assert_not_equals(ptr, NULL, map);
@@ -512,10 +527,9 @@ CMC_CREATE_UNIT(HashMap, true, {
         cmc_assert_equals(size_t, 1, val);
 
         hm_free(map);
-    });
 
-    CMC_CREATE_TEST(min[count = 0], {
-        struct hashmap *map = hm_new(100, 0.6, hm_fkey, hm_fval);
+        // count = 0
+        map = hm_new(100, 0.6, hm_fkey, hm_fval);
 
         cmc_assert_not_equals(ptr, NULL, map);
 
@@ -524,7 +538,7 @@ CMC_CREATE_UNIT(HashMap, true, {
         hm_free(map);
     });
 
-    CMC_CREATE_TEST(get, {
+    CMC_CREATE_TEST(PFX##_get(), {
         struct hashmap *map = hm_new(100, 0.6, hm_fkey, hm_fval);
 
         cmc_assert_not_equals(ptr, NULL, map);
@@ -534,10 +548,9 @@ CMC_CREATE_UNIT(HashMap, true, {
         cmc_assert_equals(size_t, 1234, hm_get(map, 4321));
 
         hm_free(map);
-    });
 
-    CMC_CREATE_TEST(get[count = 0], {
-        struct hashmap *map = hm_new(100, 0.6, hm_fkey, hm_fval);
+        // count = 0
+        map = hm_new(100, 0.6, hm_fkey, hm_fval);
 
         cmc_assert_not_equals(ptr, NULL, map);
 
@@ -546,7 +559,7 @@ CMC_CREATE_UNIT(HashMap, true, {
         hm_free(map);
     });
 
-    CMC_CREATE_TEST(get_ref, {
+    CMC_CREATE_TEST(PFX##_get_ref(), {
         struct hashmap *map = hm_new(100, 0.6, hm_fkey, hm_fval);
 
         cmc_assert_not_equals(ptr, NULL, map);
@@ -559,10 +572,9 @@ CMC_CREATE_UNIT(HashMap, true, {
         cmc_assert_equals(size_t, 1234, *result);
 
         hm_free(map);
-    });
 
-    CMC_CREATE_TEST(get_ref[count = 0], {
-        struct hashmap *map = hm_new(100, 0.6, hm_fkey, hm_fval);
+        // count = 0
+        map = hm_new(100, 0.6, hm_fkey, hm_fval);
 
         cmc_assert_not_equals(ptr, NULL, map);
 
@@ -571,7 +583,7 @@ CMC_CREATE_UNIT(HashMap, true, {
         hm_free(map);
     });
 
-    CMC_CREATE_TEST(contains, {
+    CMC_CREATE_TEST(PFX##_contains(), {
         struct hashmap *map = hm_new(100, 0.6, hm_fkey, hm_fval);
 
         cmc_assert_not_equals(ptr, NULL, map);
@@ -581,20 +593,18 @@ CMC_CREATE_UNIT(HashMap, true, {
         cmc_assert(hm_contains(map, 987654321));
 
         hm_free(map);
-    });
 
-    CMC_CREATE_TEST(contains[count = 0], {
-        struct hashmap *map = hm_new(100, 0.6, hm_fkey, hm_fval);
+        // count = 0
+        map = hm_new(100, 0.6, hm_fkey, hm_fval);
 
         cmc_assert_not_equals(ptr, NULL, map);
 
         cmc_assert(!hm_contains(map, 987654321));
 
         hm_free(map);
-    });
 
-    CMC_CREATE_TEST(contains[sum], {
-        struct hashmap *map = hm_new(100, 0.6, hm_fkey, hm_fval);
+        // sum
+        map = hm_new(100, 0.6, hm_fkey, hm_fval);
 
         cmc_assert_not_equals(ptr, NULL, map);
 
@@ -611,7 +621,7 @@ CMC_CREATE_UNIT(HashMap, true, {
         hm_free(map);
     });
 
-    CMC_CREATE_TEST(empty, {
+    CMC_CREATE_TEST(PFX##_empty(), {
         struct hashmap *map = hm_new(100, 0.6, hm_fkey, hm_fval);
 
         cmc_assert_not_equals(ptr, NULL, map);
@@ -625,7 +635,7 @@ CMC_CREATE_UNIT(HashMap, true, {
         hm_free(map);
     });
 
-    CMC_CREATE_TEST(full, {
+    CMC_CREATE_TEST(PFX##_full(), {
         struct hashmap *map =
             hm_new(cmc_hashtable_primes[0], 0.99999, hm_fkey, hm_fval);
 
@@ -647,7 +657,7 @@ CMC_CREATE_UNIT(HashMap, true, {
         hm_free(map);
     });
 
-    CMC_CREATE_TEST(count, {
+    CMC_CREATE_TEST(PFX##_count(), {
         struct hashmap *map = hm_new(100, 0.6, hm_fkey, hm_fval);
 
         cmc_assert_not_equals(ptr, NULL, map);
@@ -661,7 +671,7 @@ CMC_CREATE_UNIT(HashMap, true, {
         hm_free(map);
     });
 
-    CMC_CREATE_TEST(capacity, {
+    CMC_CREATE_TEST(PFX##_capacity(), {
         struct hashmap *map = hm_new(2500, 0.6, hm_fkey, hm_fval);
 
         cmc_assert_not_equals(ptr, NULL, map);
@@ -670,10 +680,9 @@ CMC_CREATE_UNIT(HashMap, true, {
                                   hm_capacity(map));
 
         hm_free(map);
-    });
 
-    CMC_CREATE_TEST(capacity[small], {
-        struct hashmap *map = hm_new(1, 0.99, hm_fkey, hm_fval);
+        // small capacity
+        map = hm_new(1, 0.99, hm_fkey, hm_fval);
 
         cmc_assert_not_equals(ptr, NULL, map);
 
@@ -682,7 +691,7 @@ CMC_CREATE_UNIT(HashMap, true, {
         hm_free(map);
     });
 
-    CMC_CREATE_TEST(load, {
+    CMC_CREATE_TEST(PFX##_load(), {
         struct hashmap *map = hm_new(1, 0.99, hm_fkey, hm_fval);
 
         cmc_assert_not_equals(ptr, NULL, map);
@@ -878,5 +887,452 @@ CMC_CREATE_UNIT(HashMap, true, {
         total_update = 0;
         total_delete = 0;
         total_resize = 0;
+    });
+});
+
+struct hashmap_fkey *hm_fkey_numhash =
+    &(struct hashmap_fkey){ .cmp = cmc_size_cmp,
+                            .cpy = NULL,
+                            .str = cmc_size_str,
+                            .free = NULL,
+                            .hash = numhash,
+                            .pri = cmc_size_cmp };
+
+CMC_CREATE_UNIT(HashMapIter, true, {
+    CMC_CREATE_TEST(PFX##_iter_start(), {
+        struct hashmap *map = hm_new(100, 0.6, hm_fkey_numhash, hm_fval);
+
+        cmc_assert_not_equals(ptr, NULL, map);
+
+        struct hashmap_iter it = hm_iter_start(map);
+
+        cmc_assert_equals(ptr, map, it.target);
+        cmc_assert_equals(size_t, 0, it.cursor);
+        cmc_assert_equals(size_t, 0, it.index);
+        cmc_assert_equals(size_t, 0, it.first);
+        cmc_assert_equals(size_t, 0, it.last);
+        cmc_assert_equals(bool, true, it.start);
+        cmc_assert_equals(bool, true, it.end);
+
+        cmc_assert(hm_iter_at_start(&it));
+        cmc_assert(hm_iter_at_end(&it));
+
+        cmc_assert(hm_insert(map, 1, 1));
+        cmc_assert(hm_insert(map, 2, 2));
+        cmc_assert(hm_insert(map, 3, 3));
+
+        it = hm_iter_start(map);
+
+        cmc_assert_equals(size_t, 0, it.index);
+
+        cmc_assert_equals(size_t, 1, it.cursor);
+        cmc_assert_equals(size_t, 1, it.first);
+        cmc_assert_equals(size_t, 3, it.last);
+
+        hm_free(map);
+    });
+
+    CMC_CREATE_TEST(PFX##_iter_end(), {
+        struct hashmap *map = hm_new(100, 0.6, hm_fkey_numhash, hm_fval);
+
+        cmc_assert_not_equals(ptr, NULL, map);
+
+        struct hashmap_iter it = hm_iter_end(map);
+
+        cmc_assert_equals(ptr, map, it.target);
+        cmc_assert_equals(size_t, 0, it.cursor);
+        cmc_assert_equals(size_t, 0, it.index);
+        cmc_assert_equals(size_t, 0, it.first);
+        cmc_assert_equals(size_t, 0, it.last);
+        cmc_assert_equals(bool, true, it.start);
+        cmc_assert_equals(bool, true, it.end);
+
+        cmc_assert(hm_iter_at_start(&it));
+        cmc_assert(hm_iter_at_end(&it));
+
+        cmc_assert(hm_insert(map, 1, 1));
+        cmc_assert(hm_insert(map, 2, 2));
+        cmc_assert(hm_insert(map, 3, 3));
+
+        it = hm_iter_end(map);
+
+        cmc_assert_equals(size_t, map->count - 1, it.index);
+
+        cmc_assert_equals(size_t, 3, it.cursor);
+        cmc_assert_equals(size_t, 1, it.first);
+        cmc_assert_equals(size_t, 3, it.last);
+
+        hm_free(map);
+    });
+
+    CMC_CREATE_TEST(PFX##_iter_at_start(), {
+        struct hashmap *map = hm_new(100, 0.6, hm_fkey, hm_fval);
+
+        cmc_assert_not_equals(ptr, NULL, map);
+
+        struct hashmap_iter it = hm_iter_start(map);
+
+        // Empty checks
+        cmc_assert(hm_iter_at_start(&it));
+        it = hm_iter_end(map);
+        cmc_assert(hm_iter_at_start(&it));
+
+        // Non-empty checks
+        cmc_assert(hm_insert(map, 1, 1));
+        cmc_assert(hm_insert(map, 2, 2));
+        it = hm_iter_end(map);
+        cmc_assert(!hm_iter_at_start(&it));
+        it = hm_iter_start(map);
+        cmc_assert(hm_iter_at_start(&it));
+
+        hm_free(map);
+    });
+
+    CMC_CREATE_TEST(PFX##_iter_at_end(), {
+        struct hashmap *map = hm_new(100, 0.6, hm_fkey, hm_fval);
+
+        cmc_assert_not_equals(ptr, NULL, map);
+
+        struct hashmap_iter it = hm_iter_start(map);
+
+        // Empty check
+        cmc_assert(hm_iter_at_end(&it));
+        it = hm_iter_end(map);
+        cmc_assert(hm_iter_at_end(&it));
+
+        // Non-empty checks
+        cmc_assert(hm_insert(map, 1, 1));
+        cmc_assert(hm_insert(map, 2, 2));
+        it = hm_iter_end(map);
+        cmc_assert(hm_iter_at_end(&it));
+        it = hm_iter_start(map);
+        cmc_assert(!hm_iter_at_end(&it));
+
+        hm_free(map);
+    });
+
+    CMC_CREATE_TEST(PFX##_iter_to_start(), {
+        struct hashmap *map = hm_new(100, 0.6, hm_fkey_numhash, hm_fval);
+
+        cmc_assert_not_equals(ptr, NULL, map);
+
+        struct hashmap_iter it = hm_iter_start(map);
+
+        cmc_assert(!hm_iter_to_start(&it));
+
+        for (size_t i = 1; i <= 100; i++)
+            hm_insert(map, i, i);
+
+        cmc_assert_equals(size_t, 100, map->count);
+
+        it = hm_iter_end(map);
+
+        cmc_assert(!hm_iter_at_start(&it));
+        cmc_assert(hm_iter_at_end(&it));
+
+        cmc_assert_equals(size_t, 100, hm_iter_value(&it));
+
+        cmc_assert(hm_iter_to_start(&it));
+
+        cmc_assert(hm_iter_at_start(&it));
+        cmc_assert(!hm_iter_at_end(&it));
+
+        cmc_assert_equals(size_t, 1, hm_iter_value(&it));
+
+        hm_free(map);
+    });
+
+    CMC_CREATE_TEST(PFX##_iter_to_end(), {
+        struct hashmap *map = hm_new(100, 0.6, hm_fkey_numhash, hm_fval);
+
+        cmc_assert_not_equals(ptr, NULL, map);
+
+        struct hashmap_iter it = hm_iter_end(map);
+
+        cmc_assert(!hm_iter_to_end(&it));
+
+        for (size_t i = 1; i <= 100; i++)
+            hm_insert(map, i, i);
+
+        it = hm_iter_start(map);
+
+        cmc_assert(hm_iter_at_start(&it));
+        cmc_assert(!hm_iter_at_end(&it));
+
+        cmc_assert_equals(size_t, 1, hm_iter_value(&it));
+
+        cmc_assert(hm_iter_to_end(&it));
+
+        cmc_assert(!hm_iter_at_start(&it));
+        cmc_assert(hm_iter_at_end(&it));
+
+        cmc_assert_equals(size_t, 100, hm_iter_value(&it));
+
+        hm_free(map);
+    });
+
+    CMC_CREATE_TEST(PFX##_iter_next(), {
+        struct hashmap *map = hm_new(100, 0.6, hm_fkey, hm_fval);
+
+        cmc_assert_not_equals(ptr, NULL, map);
+
+        struct hashmap_iter it = hm_iter_start(map);
+
+        cmc_assert(!hm_iter_next(&it));
+
+        for (size_t i = 1; i <= 1000; i++)
+            hm_insert(map, i, i);
+
+        size_t sum = 0;
+        for (it = hm_iter_start(map); !hm_iter_at_end(&it); hm_iter_next(&it))
+        {
+            sum += hm_iter_value(&it);
+        }
+
+        cmc_assert_equals(size_t, 500500, sum);
+
+        sum = 0;
+
+        hm_iter_to_start(&it);
+        do
+        {
+            sum += hm_iter_value(&it);
+        } while (hm_iter_next(&it));
+
+        cmc_assert_equals(size_t, 500500, sum);
+
+        hm_free(map);
+    });
+
+    CMC_CREATE_TEST(PFX##_iter_prev(), {
+        struct hashmap *map = hm_new(100, 0.6, hm_fkey, hm_fval);
+
+        cmc_assert_not_equals(ptr, NULL, map);
+
+        struct hashmap_iter it = hm_iter_end(map);
+
+        cmc_assert(!hm_iter_prev(&it));
+
+        for (size_t i = 1; i <= 1000; i++)
+            hm_insert(map, i, i);
+
+        size_t sum = 0;
+        for (it = hm_iter_end(map); !hm_iter_at_start(&it); hm_iter_prev(&it))
+        {
+            sum += hm_iter_value(&it);
+        }
+
+        cmc_assert_equals(size_t, 500500, sum);
+
+        sum = 0;
+
+        hm_iter_to_end(&it);
+        do
+        {
+            sum += hm_iter_value(&it);
+        } while (hm_iter_prev(&it));
+
+        cmc_assert_equals(size_t, 500500, sum);
+
+        hm_free(map);
+    });
+
+    CMC_CREATE_TEST(PFX##_iter_advance(), {
+        struct hashmap *map = hm_new(100, 0.6, hm_fkey_numhash, hm_fval);
+
+        cmc_assert_not_equals(ptr, NULL, map);
+
+        struct hashmap_iter it = hm_iter_start(map);
+
+        cmc_assert(!hm_iter_advance(&it, 1));
+
+        for (size_t i = 0; i <= 1000; i++)
+            hm_insert(map, i, i);
+
+        it = hm_iter_start(map);
+
+        cmc_assert(!hm_iter_advance(&it, 0));
+        cmc_assert(!hm_iter_advance(&it, map->count));
+
+        size_t sum = 0;
+        for (it = hm_iter_start(map);;)
+        {
+            sum += hm_iter_value(&it);
+
+            if (!hm_iter_advance(&it, 2))
+                break;
+        }
+
+        cmc_assert_equals(size_t, 250500, sum);
+
+        hm_iter_to_start(&it);
+        cmc_assert(hm_iter_advance(&it, map->count - 1));
+
+        hm_free(map);
+    });
+
+    CMC_CREATE_TEST(PFX##_iter_rewind(), {
+        struct hashmap *map = hm_new(100, 0.6, hm_fkey_numhash, hm_fval);
+
+        cmc_assert_not_equals(ptr, NULL, map);
+
+        struct hashmap_iter it = hm_iter_end(map);
+
+        cmc_assert(!hm_iter_rewind(&it, 1));
+
+        for (size_t i = 0; i <= 1000; i++)
+            hm_insert(map, i, i);
+
+        it = hm_iter_end(map);
+
+        cmc_assert(!hm_iter_rewind(&it, 0));
+        cmc_assert(!hm_iter_rewind(&it, map->count));
+
+        size_t sum = 0;
+        for (it = hm_iter_end(map);;)
+        {
+            sum += hm_iter_value(&it);
+
+            if (!hm_iter_rewind(&it, 2))
+                break;
+        }
+
+        cmc_assert_equals(size_t, 250500, sum);
+
+        hm_iter_to_end(&it);
+        cmc_assert(hm_iter_rewind(&it, map->count - 1));
+
+        hm_free(map);
+    });
+
+    CMC_CREATE_TEST(PFX##_iter_go_to(), {
+        struct hashmap *map = hm_new(100, 0.6, hm_fkey_numhash, hm_fval);
+
+        cmc_assert_not_equals(ptr, NULL, map);
+
+        struct hashmap_iter it = hm_iter_end(map);
+        cmc_assert(!hm_iter_go_to(&it, 0));
+
+        it = hm_iter_start(map);
+        cmc_assert(!hm_iter_go_to(&it, 0));
+
+        for (size_t i = 0; i <= 1000; i++)
+            hm_insert(map, i, i);
+
+        it = hm_iter_start(map);
+
+        size_t sum = 0;
+        for (size_t i = 0; i < 1001; i++)
+        {
+            hm_iter_go_to(&it, i);
+
+            sum += hm_iter_value(&it);
+        }
+
+        cmc_assert_equals(size_t, 500500, sum);
+
+        sum = 0;
+        for (size_t i = 1001; i > 0; i--)
+        {
+            cmc_assert(hm_iter_go_to(&it, i - 1));
+
+            sum += hm_iter_value(&it);
+        }
+
+        cmc_assert_equals(size_t, 500500, sum);
+
+        sum = 0;
+        for (size_t i = 0; i < 1001; i += 100)
+        {
+            cmc_assert(hm_iter_go_to(&it, i));
+            cmc_assert_equals(size_t, i, hm_iter_index(&it));
+
+            sum += hm_iter_value(&it);
+        }
+
+        cmc_assert_equals(size_t, 5500, sum);
+
+        hm_free(map);
+    });
+
+    CMC_CREATE_TEST(PFX##_iter_key(), {
+        struct hashmap *map = hm_new(100, 0.6, hm_fkey, hm_fval);
+
+        cmc_assert_not_equals(ptr, NULL, map);
+
+        struct hashmap_iter it = hm_iter_end(map);
+
+        cmc_assert_equals(size_t, (size_t){ 0 }, hm_iter_key(&it));
+
+        cmc_assert(hm_insert(map, 10, 10));
+
+        it = hm_iter_start(map);
+
+        cmc_assert_equals(size_t, 10, hm_iter_key(&it));
+
+        hm_free(map);
+    });
+
+    CMC_CREATE_TEST(PFX##_iter_value(), {
+        struct hashmap *map = hm_new(100, 0.6, hm_fkey, hm_fval);
+
+        cmc_assert_not_equals(ptr, NULL, map);
+
+        struct hashmap_iter it = hm_iter_end(map);
+
+        cmc_assert_equals(size_t, (size_t){ 0 }, hm_iter_value(&it));
+
+        cmc_assert(hm_insert(map, 10, 10));
+
+        it = hm_iter_start(map);
+
+        cmc_assert_equals(size_t, 10, hm_iter_value(&it));
+
+        hm_free(map);
+    });
+
+    CMC_CREATE_TEST(PFX##_iter_rvalue(), {
+        struct hashmap *map = hm_new(100, 0.6, hm_fkey, hm_fval);
+
+        cmc_assert_not_equals(ptr, NULL, map);
+
+        struct hashmap_iter it = hm_iter_end(map);
+
+        cmc_assert_equals(ptr, NULL, hm_iter_rvalue(&it));
+
+        cmc_assert(hm_insert(map, 10, 10));
+
+        it = hm_iter_start(map);
+
+        cmc_assert_not_equals(ptr, NULL, hm_iter_rvalue(&it));
+        cmc_assert_equals(size_t, 10, *hm_iter_rvalue(&it));
+
+        hm_free(map);
+    });
+
+    CMC_CREATE_TEST(PFX##_iter_index(), {
+        struct hashmap *map = hm_new(100, 0.6, hm_fkey, hm_fval);
+
+        cmc_assert_not_equals(ptr, NULL, map);
+
+        for (size_t i = 0; i <= 1000; i++)
+            hm_insert(map, i, i);
+
+        struct hashmap_iter it = hm_iter_start(map);
+
+        for (size_t i = 0; i < 1001; i++)
+        {
+            cmc_assert_equals(size_t, i, hm_iter_index(&it));
+            hm_iter_next(&it);
+        }
+
+        it = hm_iter_end(map);
+        for (size_t i = 1001; i > 0; i--)
+        {
+            cmc_assert_equals(size_t, i - 1, hm_iter_index(&it));
+            hm_iter_prev(&it);
+        }
+
+        hm_free(map);
     });
 });

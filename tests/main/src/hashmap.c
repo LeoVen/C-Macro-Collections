@@ -86,13 +86,12 @@ struct hashmap *hm_copy_of(struct hashmap *_map_);
 _Bool hm_equals(struct hashmap *_map1_, struct hashmap *_map2_);
 struct cmc_string hm_to_string(struct hashmap *_map_);
 _Bool hm_print(struct hashmap *_map_, FILE *fptr);
-struct hashmap_iter *hm_iter_new(struct hashmap *target);
-void hm_iter_free(struct hashmap_iter *iter);
-void hm_iter_init(struct hashmap_iter *iter, struct hashmap *target);
-_Bool hm_iter_start(struct hashmap_iter *iter);
-_Bool hm_iter_end(struct hashmap_iter *iter);
-void hm_iter_to_start(struct hashmap_iter *iter);
-void hm_iter_to_end(struct hashmap_iter *iter);
+struct hashmap_iter hm_iter_start(struct hashmap *target);
+struct hashmap_iter hm_iter_end(struct hashmap *target);
+_Bool hm_iter_at_start(struct hashmap_iter *iter);
+_Bool hm_iter_at_end(struct hashmap_iter *iter);
+_Bool hm_iter_to_start(struct hashmap_iter *iter);
+_Bool hm_iter_to_end(struct hashmap_iter *iter);
 _Bool hm_iter_next(struct hashmap_iter *iter);
 _Bool hm_iter_prev(struct hashmap_iter *iter);
 _Bool hm_iter_advance(struct hashmap_iter *iter, size_t steps);
@@ -359,12 +358,11 @@ _Bool hm_max(struct hashmap *_map_, size_t *key, size_t *value)
         _map_->flag = cmc_flags.EMPTY;
         return 0;
     }
-    struct hashmap_iter iter;
-    hm_iter_init(&iter, _map_);
+    struct hashmap_iter iter = hm_iter_start(_map_);
     size_t max_key = hm_iter_key(&iter);
     size_t max_val = hm_iter_value(&iter);
     hm_iter_next(&iter);
-    for (; !hm_iter_end(&iter); hm_iter_next(&iter))
+    for (; !hm_iter_at_end(&iter); hm_iter_next(&iter))
     {
         size_t iter_key = hm_iter_key(&iter);
         size_t iter_val = hm_iter_value(&iter);
@@ -389,12 +387,11 @@ _Bool hm_min(struct hashmap *_map_, size_t *key, size_t *value)
         _map_->flag = cmc_flags.EMPTY;
         return 0;
     }
-    struct hashmap_iter iter;
-    hm_iter_init(&iter, _map_);
+    struct hashmap_iter iter = hm_iter_start(_map_);
     size_t min_key = hm_iter_key(&iter);
     size_t min_val = hm_iter_value(&iter);
     hm_iter_next(&iter);
-    for (; !hm_iter_end(&iter); hm_iter_next(&iter))
+    for (; !hm_iter_at_end(&iter); hm_iter_next(&iter))
     {
         size_t iter_key = hm_iter_key(&iter);
         size_t iter_val = hm_iter_value(&iter);
@@ -506,8 +503,8 @@ _Bool hm_resize(struct hashmap *_map_, size_t capacity)
         _map_->flag = cmc_flags.ALLOC;
         return 0;
     }
-    struct hashmap_iter iter;
-    for (hm_iter_init(&iter, _map_); !hm_iter_end(&iter); hm_iter_next(&iter))
+    struct hashmap_iter iter = hm_iter_start(_map_);
+    for (; !hm_iter_at_end(&iter); hm_iter_next(&iter))
     {
         size_t key = hm_iter_key(&iter);
         size_t value = hm_iter_value(&iter);
@@ -582,9 +579,8 @@ _Bool hm_equals(struct hashmap *_map1_, struct hashmap *_map2_)
     _map2_->flag = cmc_flags.OK;
     if (_map1_->count != _map2_->count)
         return 0;
-    struct hashmap_iter iter;
-    hm_iter_init(&iter, _map1_);
-    for (hm_iter_to_start(&iter); !hm_iter_end(&iter); hm_iter_next(&iter))
+    struct hashmap_iter iter = hm_iter_start(_map1_);
+    for (; !hm_iter_at_end(&iter); hm_iter_next(&iter))
     {
         struct hashmap_entry *entry =
             hm_impl_get_entry(_map2_, hm_iter_key(&iter));
@@ -619,55 +615,80 @@ _Bool hm_print(struct hashmap *_map_, FILE *fptr)
     }
     return 1;
 }
-struct hashmap_iter *hm_iter_new(struct hashmap *target)
+struct hashmap_iter hm_iter_start(struct hashmap *target)
 {
-    struct hashmap_iter *iter =
-        target->alloc->malloc(sizeof(struct hashmap_iter));
-    if (!iter)
-        return ((void *)0);
-    hm_iter_init(iter, target);
-    return iter;
-}
-void hm_iter_free(struct hashmap_iter *iter)
-{
-    iter->target->alloc->free(iter);
-}
-void hm_iter_init(struct hashmap_iter *iter, struct hashmap *target)
-{
-    memset(iter, 0, sizeof(struct hashmap_iter));
-    iter->target = target;
-    iter->start = 1;
-    iter->end = hm_empty(target);
+    struct hashmap_iter iter;
+    iter.target = target;
+    iter.cursor = 0;
+    iter.index = 0;
+    iter.first = 0;
+    iter.last = 0;
+    iter.start = 1;
+    iter.end = hm_empty(target);
     if (!hm_empty(target))
     {
         for (size_t i = 0; i < target->capacity; i++)
         {
             if (target->buffer[i].state == CMC_ES_FILLED)
             {
-                iter->first = i;
+                iter.first = i;
                 break;
             }
         }
-        iter->cursor = iter->first;
+        iter.cursor = iter.first;
         for (size_t i = target->capacity; i > 0; i--)
         {
             if (target->buffer[i - 1].state == CMC_ES_FILLED)
             {
-                iter->last = i - 1;
+                iter.last = i - 1;
                 break;
             }
         }
     }
+    return iter;
 }
-_Bool hm_iter_start(struct hashmap_iter *iter)
+struct hashmap_iter hm_iter_end(struct hashmap *target)
+{
+    struct hashmap_iter iter;
+    iter.target = target;
+    iter.cursor = 0;
+    iter.index = 0;
+    iter.first = 0;
+    iter.last = 0;
+    iter.start = hm_empty(target);
+    iter.end = 1;
+    if (!hm_empty(target))
+    {
+        for (size_t i = 0; i < target->capacity; i++)
+        {
+            if (target->buffer[i].state == CMC_ES_FILLED)
+            {
+                iter.first = i;
+                break;
+            }
+        }
+        for (size_t i = target->capacity; i > 0; i--)
+        {
+            if (target->buffer[i - 1].state == CMC_ES_FILLED)
+            {
+                iter.last = i - 1;
+                break;
+            }
+        }
+        iter.cursor = iter.last;
+        iter.index = target->count - 1;
+    }
+    return iter;
+}
+_Bool hm_iter_at_start(struct hashmap_iter *iter)
 {
     return hm_empty(iter->target) || iter->start;
 }
-_Bool hm_iter_end(struct hashmap_iter *iter)
+_Bool hm_iter_at_end(struct hashmap_iter *iter)
 {
     return hm_empty(iter->target) || iter->end;
 }
-void hm_iter_to_start(struct hashmap_iter *iter)
+_Bool hm_iter_to_start(struct hashmap_iter *iter)
 {
     if (!hm_empty(iter->target))
     {
@@ -675,9 +696,11 @@ void hm_iter_to_start(struct hashmap_iter *iter)
         iter->index = 0;
         iter->start = 1;
         iter->end = hm_empty(iter->target);
+        return 1;
     }
+    return 0;
 }
-void hm_iter_to_end(struct hashmap_iter *iter)
+_Bool hm_iter_to_end(struct hashmap_iter *iter)
 {
     if (!hm_empty(iter->target))
     {
@@ -685,7 +708,9 @@ void hm_iter_to_end(struct hashmap_iter *iter)
         iter->index = iter->target->count - 1;
         iter->start = hm_empty(iter->target);
         iter->end = 1;
+        return 1;
     }
+    return 0;
 }
 _Bool hm_iter_next(struct hashmap_iter *iter)
 {

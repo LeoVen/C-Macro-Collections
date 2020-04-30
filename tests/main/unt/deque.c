@@ -1542,12 +1542,12 @@ CMC_CREATE_UNIT(DequeIter, true, {
 
         cmc_assert(!d_iter_advance(&it, 1));
 
-        for (size_t i = 1; i <= 1000; i++)
+        for (size_t i = 0; i <= 1000; i++)
         {
-            if (i % 2 != 0)
-                d_push_back(d, i);
+            if (i % 2 == 0)
+                d_push_back(d, i); // will sum all even numbers
             else
-                d_push_back(d, 0); // will sum all odd numbers
+                d_push_back(d, 0);
         }
 
         it = d_iter_start(d);
@@ -1564,7 +1564,7 @@ CMC_CREATE_UNIT(DequeIter, true, {
                 break;
         }
 
-        cmc_assert_equals(size_t, 250000, sum);
+        cmc_assert_equals(size_t, 250500, sum);
 
         d_iter_to_start(&it);
         cmc_assert(d_iter_advance(&it, d->count - 1));
@@ -1581,12 +1581,12 @@ CMC_CREATE_UNIT(DequeIter, true, {
 
         cmc_assert(!d_iter_rewind(&it, 1));
 
-        for (size_t i = 1; i <= 1000; i++)
+        for (size_t i = 0; i <= 1000; i++)
         {
-            if (i % 2 != 0)
-                d_push_front(d, i);
+            if (i % 2 == 0)
+                d_push_front(d, i); // will sum all even numbers
             else
-                d_push_front(d, 0); // will sum all odd numbers
+                d_push_front(d, 0);
         }
 
         it = d_iter_end(d);
@@ -1603,7 +1603,7 @@ CMC_CREATE_UNIT(DequeIter, true, {
                 break;
         }
 
-        cmc_assert_equals(size_t, 250000, sum);
+        cmc_assert_equals(size_t, 250500, sum);
 
         d_iter_to_end(&it);
         cmc_assert(d_iter_rewind(&it, d->count - 1));

@@ -44,12 +44,13 @@ int main(void)
     struct cmc_timer timer;
 
     cmc_timer_start(timer);
-    uintmax_t tests = 0, units = 0, f;
+    uintmax_t tests = 0, units = 0;
 
     cmc_run(BidiMap, units, tests);
     cmc_run(Deque, units, tests);
     cmc_run(DequeIter, units, tests);
     cmc_run(HashMap, units, tests);
+    cmc_run(HashMapIter, units, tests);
     cmc_run(HashSet, units, tests);
     cmc_run(Heap, units, tests);
     cmc_run(IntervalHeap, units, tests);
@@ -71,7 +72,7 @@ int main(void)
         " |                            SUMMARY                            |\n");
     printf(
         " +---------------------------------------------------------------+\n");
-    printf(" | Total Units Failed   : %25" PRIuMAX " units        |\n", tests);
+    printf(" | Total Units Failed   : %25" PRIuMAX " units        |\n", units);
     printf(" | Total Tests Failed   : %25" PRIuMAX " tests        |\n", tests);
     printf(" | Total Asserts Failed : %25" PRIuMAX " asserts      |\n",
            cmc_assert_failed);
