@@ -41,11 +41,6 @@ Two indices are kept track of. The `front` index and the `rear` index. These rep
 | `struct SNAME##_fval *f_val`      | Functions table for the Value type.                          |
 | `struct cmc_alloc_node *alloc`    | Custom allocation functions.                                 |
 | `struct cmc_callbacks *callbacks` | Callback functions.                                          |
-| `it_start` <sup>\[1\]</sup>       | Returns an iterator to the start of the Deque.               |
-| `it_end` <sup>\[2\]</sup>         | Returns an iterator to the end of the Deque.                 |
-
-1. Full definition: `struct SNAME##_iter (*it_start)(struct SNAME *);`.
-2. Full definition: `struct SNAME##_iter (*it_end)(struct SNAME *);`.
 
 ## struct SNAME##_fval
 

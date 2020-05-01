@@ -18,6 +18,7 @@
     - [Iterators](./cor/iterators/index.md)
 - [cmc](./cmc/index.md)
     - [deque.h](./cmc/deque.h/index.md)
+        - [Functions.h](./cmc/deque.h/functions.md)
 - [dev](./dev/index.md)
 - [sac](./sac/index.md)
 - [utl](./utl/index.md)
