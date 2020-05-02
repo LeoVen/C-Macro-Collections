@@ -22,6 +22,7 @@
 #define CMC_CORE_H
 
 #include <inttypes.h>
+#include <limits.h>
 #include <stdbool.h>
 #include <stdio.h>
 #include <stdlib.h>
