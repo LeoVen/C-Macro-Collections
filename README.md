@@ -31,8 +31,8 @@
 ## Project Structure
 
 * __benchmarks__ - Where all benchmarks are hosted
-* __docs__ - A folder hosting the generated documentation by [Slate](https://github.com/slatedocs/slate)
-* __documentation__ - Backup folder of the markdowns and custom styles used in [Slate](https://github.com/slatedocs/slate)
+* __docs__ - A folder hosting the generated documentation by [mdBook](https://github.com/rust-lang/mdBook)
+* __documentation__ - The markdowns used by [mdBook](https://github.com/rust-lang/mdBook) to generate the website
 * __examples__ - Examples using the C Macro Collections Library
 * __src__ - All headers part of the C Macro Collections Library
     * __cmc__ - The main C Macro Collections Library
