@@ -183,9 +183,39 @@ CMC_CREATE_UNIT(BitSet, true, {
     });
 
     CMC_CREATE_TEST(PFX##_clear(), {
-        struct bitset *bs = bs_new(64);
+        struct bitset *bs = bs_new(word_bits * 10 - 1);
 
-        // WIP
+        cmc_assert_not_equals(ptr, NULL, bs);
+        cmc_assert(0 == bs->buffer[0]);
+
+        bs->buffer[0] = 1; // 0001
+        cmc_assert(bs_clear(bs, 0));
+        cmc_assert(0 == bs->buffer[0]);
+
+        bs->buffer[0] = 10; // 1010
+        cmc_assert(bs_clear(bs, 1));
+        cmc_assert(bs_clear(bs, 3));
+        cmc_assert(0 == bs->buffer[0]);
+
+        cmc_assert(bs_clear(bs, word_bits * 100 - 1));
+        cmc_assert_equals(size_t, 100, bs->capacity);
+
+        bs_free(bs);
+    });
+
+    CMC_CREATE_TEST(PFX##_clear_range(), {
+        struct bitset *bs = bs_new(word_bits * 10 - 1);
+
+        cmc_assert_not_equals(ptr, NULL, bs);
+        cmc_assert(0 == bs->buffer[0]);
+
+        cmc_assert(bs_clear(bs, word_bits * 100 - 1));
+        cmc_assert_equals(size_t, 100, bs->capacity);
+
+        cmc_assert(bs_set_range(bs, word_bits * 20, word_bits * 21 - 1));
+        cmc_assert(bs_clear_range(bs, word_bits * 20, word_bits * 21 - 1));
+
+        cmc_assert_equals(uint32_t, 0, bs->buffer[bs_bit_to_index(word_bits * 20)]);
 
         bs_free(bs);
     });

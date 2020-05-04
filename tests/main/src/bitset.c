@@ -37,9 +37,9 @@ _Bool bs_fill(struct bitset *_bitset_);
 _Bool bs_empty(struct bitset *_bitset_);
 _Bool bs_get(struct bitset *_bitset_, size_t bit_index);
 _Bool bs_resize(struct bitset *_bitset_, size_t n_bits);
-static inline cmc_bitset_word bs_bit_to_index(cmc_bitset_word idx)
+static inline size_t bs_bit_to_index(size_t idx)
 {
-    static const cmc_bitset_word shift =
+    static const size_t shift =
         ((sizeof(cmc_bitset_word) * 8) >> 6) > 0
             ? 6
             : ((sizeof(cmc_bitset_word) * 8) >> 5) > 0
@@ -163,10 +163,47 @@ _Bool bs_set_range(struct bitset *_bitset_, size_t from, size_t to)
 }
 _Bool bs_clear(struct bitset *_bitset_, size_t bit_index)
 {
+    if (!bs_impl_resize(_bitset_, bit_index + 1, 0))
+        return 0;
+    const cmc_bitset_word bits = sizeof(cmc_bitset_word) * 8;
+    size_t i = bs_bit_to_index(bit_index);
+    _bitset_->buffer[i] &= ~(((cmc_bitset_word)1) << (bit_index % bits));
+    _bitset_->flag = cmc_flags.OK;
+    if (_bitset_->callbacks && _bitset_->callbacks->delete)
+        _bitset_->callbacks->delete ();
     return 1;
 }
 _Bool bs_clear_range(struct bitset *_bitset_, size_t from, size_t to)
 {
+    if (to < from)
+    {
+        _bitset_->flag = cmc_flags.INVALID;
+        return 0;
+    }
+    if (!bs_impl_resize(_bitset_, to + 1, 0))
+        return 0;
+    size_t start_index = bs_bit_to_index(from);
+    size_t end_index = bs_bit_to_index(to);
+    const cmc_bitset_word bits = sizeof(cmc_bitset_word) * 8;
+    const cmc_bitset_word ones = ~((cmc_bitset_word)0);
+    cmc_bitset_word shift_start = from % bits;
+    cmc_bitset_word shift_end = (cmc_bitset_word)(-(to + 1)) % bits;
+    cmc_bitset_word start_mask = ones << shift_start;
+    cmc_bitset_word end_mask = ones >> shift_end;
+    if (start_index == end_index)
+    {
+        _bitset_->buffer[end_index] &= ~(start_mask & end_mask);
+    }
+    else
+    {
+        _bitset_->buffer[start_index] &= ~start_mask;
+        for (size_t i = start_index; i < end_index; i++)
+            _bitset_->buffer[i] = 0;
+        _bitset_->buffer[end_index] &= ~end_mask;
+    }
+    _bitset_->flag = cmc_flags.OK;
+    if (_bitset_->callbacks && _bitset_->callbacks->delete)
+        _bitset_->callbacks->delete ();
     return 1;
 }
 _Bool bs_flip(struct bitset *_bitset_, size_t bit_index)
