@@ -17,6 +17,7 @@
     - [Functions Table](./cor/functions_table/index.md)
     - [Iterators](./cor/iterators/index.md)
 - [cmc](./cmc/index.md)
+    - [bitset.h](./cmc/bitset.h/index.md)
     - [deque.h](./cmc/deque.h/index.md)
         - [Functions.h](./cmc/deque.h/functions.md)
 - [dev](./dev/index.md)

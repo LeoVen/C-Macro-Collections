@@ -30,17 +30,17 @@ Two indices are kept track of. The `front` index and the `rear` index. These rep
 
 ## struct SNAME
 
-| `struct SNAME`                    | Description                                                  |
-| --------------------------------- | ------------------------------------------------------------ |
-| `V *buffer`                       | Dynamic circular array of elements.                          |
-| `size_t capacity`                 | Current circular array capacity.                             |
-| `size_t count`                    | Current amount of elements.                                  |
-| `size_t front`                    | Index representing the front of the Deque.                   |
-| `size_t rear`                     | Index representing the back of the Deque.                    |
-| `int flag`                        | Flag indicating errors or success.                           |
-| `struct SNAME##_fval *f_val`      | Functions table for the Value type.                          |
-| `struct cmc_alloc_node *alloc`    | Custom allocation functions.                                 |
-| `struct cmc_callbacks *callbacks` | Callback functions.                                          |
+| `struct SNAME`                    | Description                                |
+| --------------------------------- | ------------------------------------------ |
+| `V *buffer`                       | Dynamic circular array of elements.        |
+| `size_t capacity`                 | Current circular array capacity.           |
+| `size_t count`                    | Current amount of elements.                |
+| `size_t front`                    | Index representing the front of the Deque. |
+| `size_t rear`                     | Index representing the back of the Deque.  |
+| `int flag`                        | Flag indicating errors or success.         |
+| `struct SNAME##_fval *f_val`      | Functions table for the Value type.        |
+| `struct cmc_alloc_node *alloc`    | Custom allocation functions.               |
+| `struct cmc_callbacks *callbacks` | Callback functions.                        |
 
 ## struct SNAME##_fval
 

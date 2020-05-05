@@ -11,8 +11,21 @@
 /**
  * BitSet
  *
- * A BitSet is a dynamic array that stores bits. Each bit can be individually
- * handled and perform all CRUD operations.
+ * A Bit Set is an array where each bit can be individually modified and queried
+ * by using bitwise operators such as |, &, ^, ~, >> and << (or, and, xor, not,
+ * right shift, left shift respectively).
+ *
+ * Implementation
+ *
+ * This BitSet implementation uses an array of type cmc_bitset_word which can be
+ * typedefed to any unsigned type such as uint8_t, uint16_t, uint32_t, uint64_t,
+ * size_t, etc. The BitSet does not make use of K or V. Because of that, it also
+ * doesn't have Functions Tables.
+ *
+ * The BitSet is initialized with a custom capacity but, if a bit index accessed
+ * is greater than the total capacity, the BitSet will resize. This means that
+ * the BitSet will try to guarantee that every bit index is accessible, as long
+ * as there is enough memory.
  */
 
 #ifndef CMC_BITSET_H
@@ -31,7 +44,7 @@
 typedef uint32_t cmc_bitset_word;
 
 /* to_string format */
-static const char *cmc_string_fmt_bitset = "struct %s<%s> "
+static const char *cmc_string_fmt_bitset = "struct %s "
                                            "at %p { "
                                            "buffer:%p, "
                                            "capacity:%" PRIuMAX ", "
