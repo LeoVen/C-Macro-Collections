@@ -1,6 +1,6 @@
 #include "utl/timer.h"
 
-#include "unt/bidimap.c"
+#include "unt/hashbidimap.c"
 #include "unt/bitset.c"
 #include "unt/deque.c"
 #include "unt/hashmap.c"
@@ -47,10 +47,10 @@ int main(void)
     cmc_timer_start(timer);
     uintmax_t tests = 0, units = 0;
 
-    cmc_run(BidiMap, units, tests);
     cmc_run(BitSet, units, tests);
     cmc_run(BitSetIter, units, tests);
     cmc_run(Deque, units, tests);
+    cmc_run(HashBidiMap, units, tests);
     cmc_run(DequeIter, units, tests);
     cmc_run(HashMap, units, tests);
     cmc_run(HashMapIter, units, tests);

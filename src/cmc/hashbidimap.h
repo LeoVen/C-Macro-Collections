@@ -1,5 +1,5 @@
 /**
- * bidimap.h
+ * hashbidimap.h
  *
  * Creation Date: 26/09/2019
  *
@@ -9,7 +9,7 @@
  */
 
 /**
- * BidiMap
+ * HashBidiMap
  *
  * A bidirectional map is a map that allows you to create a bijection in both
  * directions between two sets of elements (K <-> V). It is possible to retrieve
@@ -23,8 +23,8 @@
  * the key and the value.
  */
 
-#ifndef CMC_BIDIMAP_H
-#define CMC_BIDIMAP_H
+#ifndef CMC_HASHBIDIMAP_H
+#define CMC_HASHBIDIMAP_H
 
 /* -------------------------------------------------------------------------
  * Core functionalities of the C Macro Collections Library
@@ -37,37 +37,37 @@
 #include "../cor/hashtable.h"
 
 /* -------------------------------------------------------------------------
- * Bidimap Specific
+ * HashBidimap Specific
  * ------------------------------------------------------------------------- */
 /* to_string format */
-static const char *cmc_string_fmt_bidimap = "struct %s<%s, %s> "
-                                            "at %p { "
-                                            "buffer:%p, "
-                                            "capacity:%" PRIuMAX ", "
-                                            "count:%" PRIuMAX ", "
-                                            "load:%lf, "
-                                            "flag:%d, "
-                                            "f_key:%p, "
-                                            "f_val:%p, "
-                                            "alloc:%p, "
-                                            "callbacks:%p }";
+static const char *cmc_string_fmt_hashbidimap = "struct %s<%s, %s> "
+                                                "at %p { "
+                                                "buffer:%p, "
+                                                "capacity:%" PRIuMAX ", "
+                                                "count:%" PRIuMAX ", "
+                                                "load:%lf, "
+                                                "flag:%d, "
+                                                "f_key:%p, "
+                                                "f_val:%p, "
+                                                "alloc:%p, "
+                                                "callbacks:%p }";
 
-#define CMC_GENERATE_BIDIMAP(PFX, SNAME, K, V)    \
-    CMC_GENERATE_BIDIMAP_HEADER(PFX, SNAME, K, V) \
-    CMC_GENERATE_BIDIMAP_SOURCE(PFX, SNAME, K, V)
+#define CMC_GENERATE_HASHBIDIMAP(PFX, SNAME, K, V)    \
+    CMC_GENERATE_HASHBIDIMAP_HEADER(PFX, SNAME, K, V) \
+    CMC_GENERATE_HASHBIDIMAP_SOURCE(PFX, SNAME, K, V)
 
-#define CMC_WRAPGEN_BIDIMAP_HEADER(PFX, SNAME, K, V) \
-    CMC_GENERATE_BIDIMAP_HEADER(PFX, SNAME, K, V)
+#define CMC_WRAPGEN_HASHBIDIMAP_HEADER(PFX, SNAME, K, V) \
+    CMC_GENERATE_HASHBIDIMAP_HEADER(PFX, SNAME, K, V)
 
-#define CMC_WRAPGEN_BIDIMAP_SOURCE(PFX, SNAME, K, V) \
-    CMC_GENERATE_BIDIMAP_SOURCE(PFX, SNAME, K, V)
+#define CMC_WRAPGEN_HASHBIDIMAP_SOURCE(PFX, SNAME, K, V) \
+    CMC_GENERATE_HASHBIDIMAP_SOURCE(PFX, SNAME, K, V)
 
 /* -------------------------------------------------------------------------
  * Header
  * ------------------------------------------------------------------------- */
-#define CMC_GENERATE_BIDIMAP_HEADER(PFX, SNAME, K, V)                        \
+#define CMC_GENERATE_HASHBIDIMAP_HEADER(PFX, SNAME, K, V)                    \
                                                                              \
-    /* BidiMap Structure */                                                  \
+    /* HashBidiMap Structure */                                              \
     struct SNAME                                                             \
     {                                                                        \
         /* Array 0 is K -> V and array 1 is V -> K */                        \
@@ -98,14 +98,14 @@ static const char *cmc_string_fmt_bidimap = "struct %s<%s, %s> "
         struct cmc_callbacks *callbacks;                                     \
                                                                              \
         /* Methods */                                                        \
-        /* Function that returns an iterator to the start of the bidimap */  \
+        /* Returns an iterator to the start of the hashbidimap */            \
         struct SNAME##_iter (*it_start)(struct SNAME *);                     \
                                                                              \
-        /* Function that returns an iterator to the end of the bidimap */    \
+        /* Returns an iterator to the end of the hashbidimap */              \
         struct SNAME##_iter (*it_end)(struct SNAME *);                       \
     };                                                                       \
                                                                              \
-    /* BidiMap Entry */                                                      \
+    /* HashBidiMap Entry */                                                  \
     struct SNAME##_entry                                                     \
     {                                                                        \
         /* Entry Key */                                                      \
@@ -119,7 +119,7 @@ static const char *cmc_string_fmt_bidimap = "struct %s<%s, %s> "
         /* dist[1] is relative to V -> K */                                  \
         size_t dist[2];                                                      \
                                                                              \
-        /* References to this node in the bidimap buffer. Used to */         \
+        /* References to this node in the hashbidimap buffer. Used to */     \
         /* prevent searching for this node twice for update() and */         \
         /* remove(). Increases memory overhead but reduces execution time */ \
         /* ref[0] is relative to K -> V */                                   \
@@ -171,10 +171,10 @@ static const char *cmc_string_fmt_bidimap = "struct %s<%s, %s> "
         int (*pri)(V, V);                                                    \
     };                                                                       \
                                                                              \
-    /* BidiMap Iterator */                                                   \
+    /* HashBidiMap Iterator */                                               \
     struct SNAME##_iter                                                      \
     {                                                                        \
-        /* Target bidimap */                                                 \
+        /* Target hashbidimap */                                             \
         struct SNAME *target;                                                \
                                                                              \
         /* Cursor's position (index) */                                      \
@@ -262,7 +262,7 @@ static const char *cmc_string_fmt_bidimap = "struct %s<%s, %s> "
 /* -------------------------------------------------------------------------
  * Source
  * ------------------------------------------------------------------------- */
-#define CMC_GENERATE_BIDIMAP_SOURCE(PFX, SNAME, K, V)                          \
+#define CMC_GENERATE_HASHBIDIMAP_SOURCE(PFX, SNAME, K, V)                      \
                                                                                \
     /* Implementation Detail Functions */                                      \
     static struct SNAME##_entry *PFX##_impl_new_entry(struct SNAME *_map_,     \
@@ -973,7 +973,7 @@ static const char *cmc_string_fmt_bidimap = "struct %s<%s, %s> "
         struct cmc_string str;                                                 \
         struct SNAME *m_ = _map_;                                              \
                                                                                \
-        int n = snprintf(str.s, cmc_string_len, cmc_string_fmt_bidimap,        \
+        int n = snprintf(str.s, cmc_string_len, cmc_string_fmt_hashbidimap,    \
                          #SNAME, #K, #V, m_, m_->buffer, m_->capacity,         \
                          m_->count, m_->load, m_->flag, m_->f_key, m_->f_val,  \
                          m_->alloc, m_->callbacks);                            \
@@ -1439,4 +1439,4 @@ static const char *cmc_string_fmt_bidimap = "struct %s<%s, %s> "
         return iter;                                                           \
     }
 
-#endif /* CMC_BIDIMAP_H */
+#endif /* CMC_HASHBIDIMAP_H */
