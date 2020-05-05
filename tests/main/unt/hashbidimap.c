@@ -4,33 +4,37 @@
 
 #include "../src/hashbidimap.c"
 
-struct hashbidimap_fkey *hbm_fkey = &(struct hashbidimap_fkey){ .cmp = cmc_size_cmp,
-                                                       .cpy = NULL,
-                                                       .str = cmc_size_str,
-                                                       .free = NULL,
-                                                       .hash = cmc_size_hash,
-                                                       .pri = cmc_size_cmp };
+struct hashbidimap_fkey *hbm_fkey =
+    &(struct hashbidimap_fkey){ .cmp = cmc_size_cmp,
+                                .cpy = NULL,
+                                .str = cmc_size_str,
+                                .free = NULL,
+                                .hash = cmc_size_hash,
+                                .pri = cmc_size_cmp };
 
-struct hashbidimap_fval *hbm_fval = &(struct hashbidimap_fval){ .cmp = cmc_size_cmp,
-                                                       .cpy = NULL,
-                                                       .str = cmc_size_str,
-                                                       .free = NULL,
-                                                       .hash = cmc_size_hash,
-                                                       .pri = cmc_size_cmp };
+struct hashbidimap_fval *hbm_fval =
+    &(struct hashbidimap_fval){ .cmp = cmc_size_cmp,
+                                .cpy = NULL,
+                                .str = cmc_size_str,
+                                .free = NULL,
+                                .hash = cmc_size_hash,
+                                .pri = cmc_size_cmp };
 
-struct hashbidimap_fkey *hbm_fkey_counter = &(struct hashbidimap_fkey){ .cmp = k_c_cmp,
-                                                               .cpy = k_c_cpy,
-                                                               .str = k_c_str,
-                                                               .free = k_c_free,
-                                                               .hash = k_c_hash,
-                                                               .pri = k_c_pri };
+struct hashbidimap_fkey *hbm_fkey_counter =
+    &(struct hashbidimap_fkey){ .cmp = k_c_cmp,
+                                .cpy = k_c_cpy,
+                                .str = k_c_str,
+                                .free = k_c_free,
+                                .hash = k_c_hash,
+                                .pri = k_c_pri };
 
-struct hashbidimap_fval *hbm_fval_counter = &(struct hashbidimap_fval){ .cmp = v_c_cmp,
-                                                               .cpy = v_c_cpy,
-                                                               .str = v_c_str,
-                                                               .free = v_c_free,
-                                                               .hash = v_c_hash,
-                                                               .pri = v_c_pri };
+struct hashbidimap_fval *hbm_fval_counter =
+    &(struct hashbidimap_fval){ .cmp = v_c_cmp,
+                                .cpy = v_c_cpy,
+                                .str = v_c_str,
+                                .free = v_c_free,
+                                .hash = v_c_hash,
+                                .pri = v_c_pri };
 
 struct cmc_alloc_node *hbm_alloc_node = &(struct cmc_alloc_node){
     .malloc = malloc, .calloc = calloc, .realloc = realloc, .free = free
@@ -83,8 +87,8 @@ CMC_CREATE_UNIT(HashBidiMap, true, {
     });
 
     CMC_CREATE_TEST(PFX##_new_custom(), {
-        struct hashbidimap *map = hbm_new_custom(943722, 0.6, hbm_fkey, hbm_fval,
-                                            hbm_alloc_node, callbacks);
+        struct hashbidimap *map = hbm_new_custom(
+            943722, 0.6, hbm_fkey, hbm_fval, hbm_alloc_node, callbacks);
 
         cmc_assert_not_equals(ptr, NULL, map);
         cmc_assert_not_equals(ptr, NULL, map->buffer);
@@ -466,11 +470,11 @@ CMC_CREATE_UNIT(HashBidiMap, true, {
     CMC_CREATE_TEST(remove_by_key[cleanup custom], {
         struct hashbidimap *map =
             hbm_new_custom(10000, 0.6, hbm_fkey, hbm_fval,
-                          &(struct cmc_alloc_node){ .malloc = malloc,
-                                                    .calloc = calloc,
-                                                    .realloc = realloc,
-                                                    .free = free },
-                          &(struct cmc_callbacks){ 0 });
+                           &(struct cmc_alloc_node){ .malloc = malloc,
+                                                     .calloc = calloc,
+                                                     .realloc = realloc,
+                                                     .free = free },
+                           &(struct cmc_callbacks){ 0 });
 
         cmc_assert_not_equals(ptr, NULL, map);
 
@@ -499,11 +503,11 @@ CMC_CREATE_UNIT(HashBidiMap, true, {
     CMC_CREATE_TEST(remove_by_val[cleanup custom], {
         struct hashbidimap *map =
             hbm_new_custom(10000, 0.6, hbm_fkey, hbm_fval,
-                          &(struct cmc_alloc_node){ .malloc = malloc,
-                                                    .calloc = calloc,
-                                                    .realloc = realloc,
-                                                    .free = free },
-                          &(struct cmc_callbacks){ 0 });
+                           &(struct cmc_alloc_node){ .malloc = malloc,
+                                                     .calloc = calloc,
+                                                     .realloc = realloc,
+                                                     .free = free },
+                           &(struct cmc_callbacks){ 0 });
 
         cmc_assert_not_equals(ptr, NULL, map);
 
@@ -598,7 +602,7 @@ CMC_CREATE_UNIT(HashBidiMap, true, {
 
         // customize
         hbm_customize(map, &cmc_alloc_node_default,
-                     &(struct cmc_callbacks){ 0 });
+                      &(struct cmc_callbacks){ 0 });
         cmc_assert_equals(int32_t, cmc_flags.OK, hbm_flag(map));
 
         // Insert

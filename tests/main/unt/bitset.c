@@ -215,7 +215,8 @@ CMC_CREATE_UNIT(BitSet, true, {
         cmc_assert(bs_set_range(bs, word_bits * 20, word_bits * 21 - 1));
         cmc_assert(bs_clear_range(bs, word_bits * 20, word_bits * 21 - 1));
 
-        cmc_assert_equals(uint32_t, 0, bs->buffer[bs_bit_to_index(word_bits * 20)]);
+        cmc_assert_equals(uint32_t, 0,
+                          bs->buffer[bs_bit_to_index(word_bits * 20)]);
 
         bs_free(bs);
     });

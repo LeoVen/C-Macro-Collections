@@ -1,5 +1,5 @@
 /**
- * multiset.h
+ * hashmultiset.h
  *
  * Creation Date: 10/04/2019
  *
@@ -9,17 +9,22 @@
  */
 
 /**
- * MultiSet
+ * HashMultiSet
  *
  * In mathematics, a multiset is a modification of the concept of a set that,
  * unlike a set, allows for multiple instances for each of its elements. The
  * positive integer number of instances, given for each element is called the
- * multiplicity of this element in the multiset. A MultiSet also has a
+ * multiplicity of this element in the multiset. A multiSet also has a
  * cardinality which equals the sum of the multiplicities of its elements.
+ *
+ * Implementation
+ *
+ * In this implementation, the values are stored in a flat hashtable and are
+ * mapped to their multiplicity.
  */
 
-#ifndef CMC_MULTISET_H
-#define CMC_MULTISET_H
+#ifndef CMC_HASHMULTISET_H
+#define CMC_HASHMULTISET_H
 
 /* -------------------------------------------------------------------------
  * Core functionalities of the C Macro Collections Library
@@ -32,37 +37,37 @@
 #include "../cor/hashtable.h"
 
 /* -------------------------------------------------------------------------
- * MultiSet specific
+ * HashMultiSet specific
  * ------------------------------------------------------------------------- */
 /* to_string format */
-static const char *cmc_string_fmt_multiset = "struct %s<%s> "
-                                             "at %p { "
-                                             "buffer:%p, "
-                                             "capacity:%" PRIuMAX ", "
-                                             "count:%" PRIuMAX ", "
-                                             "cardinality:%" PRIuMAX ", "
-                                             "load:%lf, "
-                                             "flag:%d, "
-                                             "f_val:%p, "
-                                             "alloc:%p, "
-                                             "callbacks:%p }";
+static const char *cmc_string_fmt_hashmultiset = "struct %s<%s> "
+                                                 "at %p { "
+                                                 "buffer:%p, "
+                                                 "capacity:%" PRIuMAX ", "
+                                                 "count:%" PRIuMAX ", "
+                                                 "cardinality:%" PRIuMAX ", "
+                                                 "load:%lf, "
+                                                 "flag:%d, "
+                                                 "f_val:%p, "
+                                                 "alloc:%p, "
+                                                 "callbacks:%p }";
 
-#define CMC_GENERATE_MULTISET(PFX, SNAME, V)    \
-    CMC_GENERATE_MULTISET_HEADER(PFX, SNAME, V) \
-    CMC_GENERATE_MULTISET_SOURCE(PFX, SNAME, V)
+#define CMC_GENERATE_HASHMULTISET(PFX, SNAME, V)    \
+    CMC_GENERATE_HASHMULTISET_HEADER(PFX, SNAME, V) \
+    CMC_GENERATE_HASHMULTISET_SOURCE(PFX, SNAME, V)
 
-#define CMC_WRAPGEN_MULTISET_HEADER(PFX, SNAME, K, V) \
-    CMC_GENERATE_MULTISET_HEADER(PFX, SNAME, V)
+#define CMC_WRAPGEN_HASHMULTISET_HEADER(PFX, SNAME, K, V) \
+    CMC_GENERATE_HASHMULTISET_HEADER(PFX, SNAME, V)
 
-#define CMC_WRAPGEN_MULTISET_SOURCE(PFX, SNAME, K, V) \
-    CMC_GENERATE_MULTISET_SOURCE(PFX, SNAME, V)
+#define CMC_WRAPGEN_HASHMULTISET_SOURCE(PFX, SNAME, K, V) \
+    CMC_GENERATE_HASHMULTISET_SOURCE(PFX, SNAME, V)
 
 /* -------------------------------------------------------------------------
  * Header
  * ------------------------------------------------------------------------- */
-#define CMC_GENERATE_MULTISET_HEADER(PFX, SNAME, V)                            \
+#define CMC_GENERATE_HASHMULTISET_HEADER(PFX, SNAME, V)                        \
                                                                                \
-    /* Hashset Structure */                                                    \
+    /* HashMultiset Structure */                                               \
     struct SNAME                                                               \
     {                                                                          \
         /* Array of Entries */                                                 \
@@ -92,10 +97,10 @@ static const char *cmc_string_fmt_multiset = "struct %s<%s> "
         /* Custom callback functions */                                        \
         struct cmc_callbacks *callbacks;                                       \
                                                                                \
-        /* Function that returns an iterator to the start of the hashset */    \
+        /* Returns an iterator to the start of the hashmultiset */             \
         struct SNAME##_iter (*it_start)(struct SNAME *);                       \
                                                                                \
-        /* Function that returns an iterator to the end of the hashset */      \
+        /* Returns an iterator to the end of the hashmultiset */               \
         struct SNAME##_iter (*it_end)(struct SNAME *);                         \
     };                                                                         \
                                                                                \
@@ -107,8 +112,8 @@ static const char *cmc_string_fmt_multiset = "struct %s<%s> "
         /* The element's multiplicity */                                       \
         size_t multiplicity;                                                   \
                                                                                \
-        /* The distance of this node to its original position, used by         \
-         * robin-hood hashing */                                               \
+        /* The distance of this node to its original position, used by */      \
+        /* robin-hood hashing */                                               \
         size_t dist;                                                           \
                                                                                \
         /* The sate of this node (DELETED, EMPTY, FILLED) */                   \
@@ -137,10 +142,10 @@ static const char *cmc_string_fmt_multiset = "struct %s<%s> "
         int (*pri)(V, V);                                                      \
     };                                                                         \
                                                                                \
-    /* Hashset Iterator */                                                     \
+    /* HashMultiset Iterator */                                                \
     struct SNAME##_iter                                                        \
     {                                                                          \
-        /* Target Hashset */                                                   \
+        /* Target HashMultiset */                                              \
         struct SNAME *target;                                                  \
                                                                                \
         /* Cursor's position (index) */                                        \
@@ -240,7 +245,7 @@ static const char *cmc_string_fmt_multiset = "struct %s<%s> "
 /* -------------------------------------------------------------------------
  * Source
  * ------------------------------------------------------------------------- */
-#define CMC_GENERATE_MULTISET_SOURCE(PFX, SNAME, V)                            \
+#define CMC_GENERATE_HASHMULTISET_SOURCE(PFX, SNAME, V)                        \
                                                                                \
     /* Implementation Detail Functions */                                      \
     static size_t PFX##_impl_multiplicity_of(struct SNAME *_set_, V value);    \
@@ -867,7 +872,7 @@ static const char *cmc_string_fmt_multiset = "struct %s<%s> "
         struct cmc_string str;                                                 \
         struct SNAME *s_ = _set_;                                              \
                                                                                \
-        int n = snprintf(str.s, cmc_string_len, cmc_string_fmt_multiset,       \
+        int n = snprintf(str.s, cmc_string_len, cmc_string_fmt_hashmultiset,   \
                          #SNAME, #V, s_, s_->buffer, s_->capacity, s_->count,  \
                          s_->cardinality, s_->load, s_->flag, s_->f_val,       \
                          s_->alloc, s_->callbacks);                            \
@@ -1537,4 +1542,4 @@ static const char *cmc_string_fmt_multiset = "struct %s<%s> "
         return iter;                                                           \
     }
 
-#endif /* CMC_MULTISET_H */
+#endif /* CMC_HASHMULTISET_H */
