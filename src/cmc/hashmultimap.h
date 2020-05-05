@@ -1,5 +1,5 @@
 /**
- * multimap.h
+ * hashmultimap.h
  *
  * Creation Date: 26/04/2019
  *
@@ -9,19 +9,20 @@
  */
 
 /**
- * MultiMap
+ * HashMultiMap
  *
- * The MultiMap is a Map that allows for multiple keys. This is a data structure
- * that has a very narrow usage. A Map (either TreeMap or HashMap) can also work
- * like a MultiMap if a certain key is mapped to another collection.
+ * The HashMultiMap is a Map that allows for multiple keys. This is a data
+ * structure that has a very narrow usage. A Map (either TreeMap or HashMap) can
+ * also work like a HashMultiMap if a certain key is mapped to another
+ * collection.
  *
  * Map<K = int, V = List<int>> maps an integer to a list of integer.
- * MultiMap<K = int, V = int> maps many integer keys to integer values.
+ * HashMultiMap<K = int, V = int> maps many integer keys to integer values.
  *
- * The difference is that in a MultiMap you can store keys that are the same but
- * might be different instances of the same value. This is also relevant if your
- * data type is more complex like a struct where its ID is the same but some
- * other members of this data type are different.
+ * The difference is that in a HashMultiMap you can store keys that are the same
+ * but might be different instances of the same value. This is also relevant if
+ * your data type is more complex like a struct where its ID is the same but
+ * some other members of this data type are different.
  *
  * Implementation
  *
@@ -40,8 +41,8 @@
  * the first key added will be the first to be removed.
  */
 
-#ifndef CMC_MULTIMAP_H
-#define CMC_MULTIMAP_H
+#ifndef CMC_HASHMULTIMAP_H
+#define CMC_HASHMULTIMAP_H
 
 /* -------------------------------------------------------------------------
  * Core functionalities of the C Macro Collections Library
@@ -54,37 +55,37 @@
 #include "../cor/hashtable.h"
 
 /* -------------------------------------------------------------------------
- * MultiMap specific
+ * HashMultiMap specific
  * ------------------------------------------------------------------------- */
 /* to_string format */
-static const char *cmc_string_fmt_multimap = "struct %s<%s, %s> "
-                                             "at %p { "
-                                             "buffer:%p, "
-                                             "capacity:%" PRIuMAX ", "
-                                             "count:%" PRIuMAX ", "
-                                             "load:%lf, "
-                                             "flag:%d, "
-                                             "f_key:%p, "
-                                             "f_val:%p, "
-                                             "alloc:%p, "
-                                             "callbacks:%p }";
+static const char *cmc_string_fmt_hashmultimap = "struct %s<%s, %s> "
+                                                 "at %p { "
+                                                 "buffer:%p, "
+                                                 "capacity:%" PRIuMAX ", "
+                                                 "count:%" PRIuMAX ", "
+                                                 "load:%lf, "
+                                                 "flag:%d, "
+                                                 "f_key:%p, "
+                                                 "f_val:%p, "
+                                                 "alloc:%p, "
+                                                 "callbacks:%p }";
 
-#define CMC_GENERATE_MULTIMAP(PFX, SNAME, K, V)    \
-    CMC_GENERATE_MULTIMAP_HEADER(PFX, SNAME, K, V) \
-    CMC_GENERATE_MULTIMAP_SOURCE(PFX, SNAME, K, V)
+#define CMC_GENERATE_HASHMULTIMAP(PFX, SNAME, K, V)    \
+    CMC_GENERATE_HASHMULTIMAP_HEADER(PFX, SNAME, K, V) \
+    CMC_GENERATE_HASHMULTIMAP_SOURCE(PFX, SNAME, K, V)
 
-#define CMC_WRAPGEN_MULTIMAP_HEADER(PFX, SNAME, K, V) \
-    CMC_GENERATE_MULTIMAP_HEADER(PFX, SNAME, K, V)
+#define CMC_WRAPGEN_HASHMULTIMAP_HEADER(PFX, SNAME, K, V) \
+    CMC_GENERATE_HASHMULTIMAP_HEADER(PFX, SNAME, K, V)
 
-#define CMC_WRAPGEN_MULTIMAP_SOURCE(PFX, SNAME, K, V) \
-    CMC_GENERATE_MULTIMAP_SOURCE(PFX, SNAME, K, V)
+#define CMC_WRAPGEN_HASHMULTIMAP_SOURCE(PFX, SNAME, K, V) \
+    CMC_GENERATE_HASHMULTIMAP_SOURCE(PFX, SNAME, K, V)
 
 /* -------------------------------------------------------------------------
  * Header
  * ------------------------------------------------------------------------- */
-#define CMC_GENERATE_MULTIMAP_HEADER(PFX, SNAME, K, V)                        \
+#define CMC_GENERATE_HASHMULTIMAP_HEADER(PFX, SNAME, K, V)                    \
                                                                               \
-    /* Multimap Structure */                                                  \
+    /* HashMultimap Structure */                                              \
     struct SNAME                                                              \
     {                                                                         \
         /* Array of linked list to entries */                                 \
@@ -114,14 +115,14 @@ static const char *cmc_string_fmt_multimap = "struct %s<%s, %s> "
         /* Custom callback functions */                                       \
         struct cmc_callbacks *callbacks;                                      \
                                                                               \
-        /* Function that returns an iterator to the start of the multimap */  \
+        /* Returns an iterator to the start of the hashmultimap */            \
         struct SNAME##_iter (*it_start)(struct SNAME *);                      \
                                                                               \
-        /* Function that returns an iterator to the end of the multimap */    \
+        /* Returns an iterator to the end of the hashmultimap */              \
         struct SNAME##_iter (*it_end)(struct SNAME *);                        \
     };                                                                        \
                                                                               \
-    /* Multimap Entry */                                                      \
+    /* HashMultimap Entry */                                                  \
     struct SNAME##_entry                                                      \
     {                                                                         \
         /* Entry Key */                                                       \
@@ -183,7 +184,7 @@ static const char *cmc_string_fmt_multimap = "struct %s<%s, %s> "
                                                                               \
     struct SNAME##_iter                                                       \
     {                                                                         \
-        /* Target multimap */                                                 \
+        /* Target hashmultimap */                                             \
         struct SNAME *target;                                                 \
                                                                               \
         /* Current entry */                                                   \
@@ -276,7 +277,7 @@ static const char *cmc_string_fmt_multimap = "struct %s<%s, %s> "
 /* -------------------------------------------------------------------------
  * Source
  * ------------------------------------------------------------------------- */
-#define CMC_GENERATE_MULTIMAP_SOURCE(PFX, SNAME, K, V)                         \
+#define CMC_GENERATE_HASHMULTIMAP_SOURCE(PFX, SNAME, K, V)                     \
                                                                                \
     /* Implementation Detail Functions */                                      \
     struct SNAME##_entry *PFX##_impl_new_entry(struct SNAME *_map_, K key,     \
@@ -1112,7 +1113,7 @@ static const char *cmc_string_fmt_multimap = "struct %s<%s, %s> "
         struct cmc_string str;                                                 \
         struct SNAME *m_ = _map_;                                              \
                                                                                \
-        int n = snprintf(str.s, cmc_string_len, cmc_string_fmt_multimap,       \
+        int n = snprintf(str.s, cmc_string_len, cmc_string_fmt_hashmultimap,   \
                          #SNAME, #K, #V, m_, m_->buffer, m_->capacity,         \
                          m_->count, m_->load, m_->flag, m_->f_key, m_->f_val,  \
                          m_->alloc, m_->callbacks);                            \
@@ -1468,4 +1469,4 @@ static const char *cmc_string_fmt_multimap = "struct %s<%s, %s> "
         return iter;                                                           \
     }
 
-#endif /* CMC_MULTIMAP_H */
+#endif /* CMC_HASHMULTIMAP_H */

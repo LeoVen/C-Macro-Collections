@@ -1,15 +1,15 @@
 #include "utl/timer.h"
 
-#include "unt/hashbidimap.c"
 #include "unt/bitset.c"
 #include "unt/deque.c"
+#include "unt/hashbidimap.c"
 #include "unt/hashmap.c"
+#include "unt/hashmultimap.c"
 #include "unt/hashset.c"
 #include "unt/heap.c"
 #include "unt/intervalheap.c"
 #include "unt/linkedlist.c"
 #include "unt/list.c"
-#include "unt/multimap.c"
 #include "unt/multiset.c"
 #include "unt/queue.c"
 #include "unt/sortedlist.c"
@@ -50,16 +50,16 @@ int main(void)
     cmc_run(BitSet, units, tests);
     cmc_run(BitSetIter, units, tests);
     cmc_run(Deque, units, tests);
-    cmc_run(HashBidiMap, units, tests);
     cmc_run(DequeIter, units, tests);
+    cmc_run(HashBidiMap, units, tests);
     cmc_run(HashMap, units, tests);
     cmc_run(HashMapIter, units, tests);
+    cmc_run(HashMultiMap, units, tests);
     cmc_run(HashSet, units, tests);
     cmc_run(Heap, units, tests);
     cmc_run(IntervalHeap, units, tests);
     cmc_run(LinkedList, units, tests);
     cmc_run(List, units, tests);
-    cmc_run(MultiMap, units, tests);
     cmc_run(MultiSet, units, tests);
     cmc_run(Queue, units, tests);
     cmc_run(SortedList, units, tests);

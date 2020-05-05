@@ -25,16 +25,16 @@ OUTPUT_DIR = './tests/main/src'
 
 collections = [
     # type, header, pfx, sname, key, val
-    {'t': 'HASHBIDIMAP',  'h': '"cmc/hashbidimap.h"',  'pfx': 'hbm', 'sname': 'hashbidimap',  'key': 'size_t', 'val': 'size_t'},
     {'t': 'BITSET',       'h': '"cmc/bitset.h"',       'pfx': 'bs',  'sname': 'bitset',       'key': '',       'val': ''      },
     {'t': 'DEQUE',        'h': '"cmc/deque.h"',        'pfx': 'd',   'sname': 'deque',        'key': '',       'val': 'size_t'},
+    {'t': 'HASHBIDIMAP',  'h': '"cmc/hashbidimap.h"',  'pfx': 'hbm', 'sname': 'hashbidimap',  'key': 'size_t', 'val': 'size_t'},
     {'t': 'HASHMAP',      'h': '"cmc/hashmap.h"',      'pfx': 'hm',  'sname': 'hashmap',      'key': 'size_t', 'val': 'size_t'},
+    {'t': 'HASHMULTIMAP', 'h': '"cmc/hashmultimap.h"', 'pfx': 'hmm', 'sname': 'hashmultimap', 'key': 'size_t', 'val': 'size_t'},
     {'t': 'HASHSET',      'h': '"cmc/hashset.h"',      'pfx': 'hs',  'sname': 'hashset',      'key': '',       'val': 'size_t'},
     {'t': 'HEAP',         'h': '"cmc/heap.h"',         'pfx': 'h',   'sname': 'heap',         'key': '',       'val': 'size_t'},
     {'t': 'INTERVALHEAP', 'h': '"cmc/intervalheap.h"', 'pfx': 'ih',  'sname': 'intervalheap', 'key': '',       'val': 'size_t'},
     {'t': 'LINKEDLIST',   'h': '"cmc/linkedlist.h"',   'pfx': 'll',  'sname': 'linkedlist',   'key': '',       'val': 'size_t'},
     {'t': 'LIST',         'h': '"cmc/list.h"',         'pfx': 'l',   'sname': 'list',         'key': '',       'val': 'size_t'},
-    {'t': 'MULTIMAP',     'h': '"cmc/multimap.h"',     'pfx': 'mm',  'sname': 'multimap',     'key': 'size_t', 'val': 'size_t'},
     {'t': 'MULTISET',     'h': '"cmc/multiset.h"',     'pfx': 'ms',  'sname': 'multiset',     'key': '',       'val': 'size_t'},
     {'t': 'QUEUE',        'h': '"cmc/queue.h"',        'pfx': 'q',   'sname': 'queue',        'key': '',       'val': 'size_t'},
     {'t': 'SORTEDLIST',   'h': '"cmc/sortedlist.h"',   'pfx': 'sl',  'sname': 'sortedlist',   'key': '',       'val': 'size_t'},

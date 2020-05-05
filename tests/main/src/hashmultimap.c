@@ -1,27 +1,27 @@
-#include "cmc/multimap.h"
+#include "cmc/hashmultimap.h"
 
-struct multimap
+struct hashmultimap
 {
-    struct multimap_entry *(*buffer)[2];
+    struct hashmultimap_entry *(*buffer)[2];
     size_t capacity;
     size_t count;
     double load;
     int flag;
-    struct multimap_fkey *f_key;
-    struct multimap_fval *f_val;
+    struct hashmultimap_fkey *f_key;
+    struct hashmultimap_fval *f_val;
     struct cmc_alloc_node *alloc;
     struct cmc_callbacks *callbacks;
-    struct multimap_iter (*it_start)(struct multimap *);
-    struct multimap_iter (*it_end)(struct multimap *);
+    struct hashmultimap_iter (*it_start)(struct hashmultimap *);
+    struct hashmultimap_iter (*it_end)(struct hashmultimap *);
 };
-struct multimap_entry
+struct hashmultimap_entry
 {
     size_t key;
     size_t value;
-    struct multimap_entry *next;
-    struct multimap_entry *prev;
+    struct hashmultimap_entry *next;
+    struct hashmultimap_entry *prev;
 };
-struct multimap_fkey
+struct hashmultimap_fkey
 {
     int (*cmp)(size_t, size_t);
     size_t (*cpy)(size_t);
@@ -30,7 +30,7 @@ struct multimap_fkey
     size_t (*hash)(size_t);
     int (*pri)(size_t, size_t);
 };
-struct multimap_fval
+struct hashmultimap_fval
 {
     int (*cmp)(size_t, size_t);
     size_t (*cpy)(size_t);
@@ -39,10 +39,10 @@ struct multimap_fval
     size_t (*hash)(size_t);
     int (*pri)(size_t, size_t);
 };
-struct multimap_iter
+struct hashmultimap_iter
 {
-    struct multimap *target;
-    struct multimap_entry *curr_entry;
+    struct hashmultimap *target;
+    struct hashmultimap_entry *curr_entry;
     size_t cursor;
     size_t index;
     size_t first;
@@ -50,68 +50,70 @@ struct multimap_iter
     _Bool start;
     _Bool end;
 };
-struct multimap *mm_new(size_t capacity, double load,
-                        struct multimap_fkey *f_key,
-                        struct multimap_fval *f_val);
-struct multimap *mm_new_custom(size_t capacity, double load,
-                               struct multimap_fkey *f_key,
-                               struct multimap_fval *f_val,
-                               struct cmc_alloc_node *alloc,
-                               struct cmc_callbacks *callbacks);
-void mm_clear(struct multimap *_map_);
-void mm_free(struct multimap *_map_);
-void mm_customize(struct multimap *_map_, struct cmc_alloc_node *alloc,
-                  struct cmc_callbacks *callbacks);
-_Bool mm_insert(struct multimap *_map_, size_t key, size_t value);
-_Bool mm_update(struct multimap *_map_, size_t key, size_t new_value,
-                size_t *old_value);
-size_t mm_update_all(struct multimap *_map_, size_t key, size_t new_value,
-                     size_t **old_values);
-_Bool mm_remove(struct multimap *_map_, size_t key, size_t *out_value);
-size_t mm_remove_all(struct multimap *_map_, size_t key, size_t **out_values);
-_Bool mm_max(struct multimap *_map_, size_t *key, size_t *value);
-_Bool mm_min(struct multimap *_map_, size_t *key, size_t *value);
-size_t mm_get(struct multimap *_map_, size_t key);
-size_t *mm_get_ref(struct multimap *_map_, size_t key);
-_Bool mm_contains(struct multimap *_map_, size_t key);
-_Bool mm_empty(struct multimap *_map_);
-_Bool mm_full(struct multimap *_map_);
-size_t mm_count(struct multimap *_map_);
-size_t mm_key_count(struct multimap *_map_, size_t key);
-size_t mm_capacity(struct multimap *_map_);
-double mm_load(struct multimap *_map_);
-int mm_flag(struct multimap *_map_);
-_Bool mm_resize(struct multimap *_map_, size_t capacity);
-struct multimap *mm_copy_of(struct multimap *_map_);
-_Bool mm_equals(struct multimap *_map1_, struct multimap *_map2_);
-struct cmc_string mm_to_string(struct multimap *_map_);
-_Bool mm_print(struct multimap *_map_, FILE *fptr);
-struct multimap_iter *mm_iter_new(struct multimap *target);
-void mm_iter_free(struct multimap_iter *iter);
-void mm_iter_init(struct multimap_iter *iter, struct multimap *target);
-_Bool mm_iter_start(struct multimap_iter *iter);
-_Bool mm_iter_end(struct multimap_iter *iter);
-void mm_iter_to_start(struct multimap_iter *iter);
-void mm_iter_to_end(struct multimap_iter *iter);
-_Bool mm_iter_next(struct multimap_iter *iter);
-_Bool mm_iter_prev(struct multimap_iter *iter);
-_Bool mm_iter_advance(struct multimap_iter *iter, size_t steps);
-_Bool mm_iter_rewind(struct multimap_iter *iter, size_t steps);
-_Bool mm_iter_go_to(struct multimap_iter *iter, size_t index);
-size_t mm_iter_key(struct multimap_iter *iter);
-size_t mm_iter_value(struct multimap_iter *iter);
-size_t *mm_iter_rvalue(struct multimap_iter *iter);
-size_t mm_iter_index(struct multimap_iter *iter);
-struct multimap_entry *mm_impl_new_entry(struct multimap *_map_, size_t key,
-                                         size_t value);
-struct multimap_entry *mm_impl_get_entry(struct multimap *_map_, size_t key);
-size_t mm_impl_key_count(struct multimap *_map_, size_t key);
-size_t mm_impl_calculate_size(size_t required);
-static struct multimap_iter mm_impl_it_start(struct multimap *_map_);
-static struct multimap_iter mm_impl_it_end(struct multimap *_map_);
-struct multimap *mm_new(size_t capacity, double load,
-                        struct multimap_fkey *f_key,
-                        struct multimap_fval *f_val)
+struct hashmultimap *hmm_new(size_t capacity, double load,
+                             struct hashmultimap_fkey *f_key,
+                             struct hashmultimap_fval *f_val);
+struct hashmultimap *hmm_new_custom(size_t capacity, double load,
+                                    struct hashmultimap_fkey *f_key,
+                                    struct hashmultimap_fval *f_val,
+                                    struct cmc_alloc_node *alloc,
+                                    struct cmc_callbacks *callbacks);
+void hmm_clear(struct hashmultimap *_map_);
+void hmm_free(struct hashmultimap *_map_);
+void hmm_customize(struct hashmultimap *_map_, struct cmc_alloc_node *alloc,
+                   struct cmc_callbacks *callbacks);
+_Bool hmm_insert(struct hashmultimap *_map_, size_t key, size_t value);
+_Bool hmm_update(struct hashmultimap *_map_, size_t key, size_t new_value,
+                 size_t *old_value);
+size_t hmm_update_all(struct hashmultimap *_map_, size_t key, size_t new_value,
+                      size_t **old_values);
+_Bool hmm_remove(struct hashmultimap *_map_, size_t key, size_t *out_value);
+size_t hmm_remove_all(struct hashmultimap *_map_, size_t key,
+                      size_t **out_values);
+_Bool hmm_max(struct hashmultimap *_map_, size_t *key, size_t *value);
+_Bool hmm_min(struct hashmultimap *_map_, size_t *key, size_t *value);
+size_t hmm_get(struct hashmultimap *_map_, size_t key);
+size_t *hmm_get_ref(struct hashmultimap *_map_, size_t key);
+_Bool hmm_contains(struct hashmultimap *_map_, size_t key);
+_Bool hmm_empty(struct hashmultimap *_map_);
+_Bool hmm_full(struct hashmultimap *_map_);
+size_t hmm_count(struct hashmultimap *_map_);
+size_t hmm_key_count(struct hashmultimap *_map_, size_t key);
+size_t hmm_capacity(struct hashmultimap *_map_);
+double hmm_load(struct hashmultimap *_map_);
+int hmm_flag(struct hashmultimap *_map_);
+_Bool hmm_resize(struct hashmultimap *_map_, size_t capacity);
+struct hashmultimap *hmm_copy_of(struct hashmultimap *_map_);
+_Bool hmm_equals(struct hashmultimap *_map1_, struct hashmultimap *_map2_);
+struct cmc_string hmm_to_string(struct hashmultimap *_map_);
+_Bool hmm_print(struct hashmultimap *_map_, FILE *fptr);
+struct hashmultimap_iter *hmm_iter_new(struct hashmultimap *target);
+void hmm_iter_free(struct hashmultimap_iter *iter);
+void hmm_iter_init(struct hashmultimap_iter *iter, struct hashmultimap *target);
+_Bool hmm_iter_start(struct hashmultimap_iter *iter);
+_Bool hmm_iter_end(struct hashmultimap_iter *iter);
+void hmm_iter_to_start(struct hashmultimap_iter *iter);
+void hmm_iter_to_end(struct hashmultimap_iter *iter);
+_Bool hmm_iter_next(struct hashmultimap_iter *iter);
+_Bool hmm_iter_prev(struct hashmultimap_iter *iter);
+_Bool hmm_iter_advance(struct hashmultimap_iter *iter, size_t steps);
+_Bool hmm_iter_rewind(struct hashmultimap_iter *iter, size_t steps);
+_Bool hmm_iter_go_to(struct hashmultimap_iter *iter, size_t index);
+size_t hmm_iter_key(struct hashmultimap_iter *iter);
+size_t hmm_iter_value(struct hashmultimap_iter *iter);
+size_t *hmm_iter_rvalue(struct hashmultimap_iter *iter);
+size_t hmm_iter_index(struct hashmultimap_iter *iter);
+struct hashmultimap_entry *hmm_impl_new_entry(struct hashmultimap *_map_,
+                                              size_t key, size_t value);
+struct hashmultimap_entry *hmm_impl_get_entry(struct hashmultimap *_map_,
+                                              size_t key);
+size_t hmm_impl_key_count(struct hashmultimap *_map_, size_t key);
+size_t hmm_impl_calculate_size(size_t required);
+static struct hashmultimap_iter hmm_impl_it_start(struct hashmultimap *_map_);
+static struct hashmultimap_iter hmm_impl_it_end(struct hashmultimap *_map_);
+struct hashmultimap *hmm_new(size_t capacity, double load,
+                             struct hashmultimap_fkey *f_key,
+                             struct hashmultimap_fval *f_val)
 {
     struct cmc_alloc_node *alloc = &cmc_alloc_node_default;
     if (capacity == 0 || load <= 0)
@@ -120,12 +122,12 @@ struct multimap *mm_new(size_t capacity, double load,
         return ((void *)0);
     if (!f_key || !f_val)
         return ((void *)0);
-    size_t real_capacity = mm_impl_calculate_size(capacity / load);
-    struct multimap *_map_ = alloc->malloc(sizeof(struct multimap));
+    size_t real_capacity = hmm_impl_calculate_size(capacity / load);
+    struct hashmultimap *_map_ = alloc->malloc(sizeof(struct hashmultimap));
     if (!_map_)
         return ((void *)0);
     _map_->buffer =
-        alloc->calloc(real_capacity, sizeof(struct multimap_entry *[2]));
+        alloc->calloc(real_capacity, sizeof(struct hashmultimap_entry *[2]));
     if (!_map_->buffer)
     {
         alloc->free(_map_);
@@ -139,15 +141,15 @@ struct multimap *mm_new(size_t capacity, double load,
     _map_->f_val = f_val;
     _map_->alloc = alloc;
     _map_->callbacks = ((void *)0);
-    _map_->it_end = mm_impl_it_end;
-    _map_->it_start = mm_impl_it_start;
+    _map_->it_end = hmm_impl_it_end;
+    _map_->it_start = hmm_impl_it_start;
     return _map_;
 }
-struct multimap *mm_new_custom(size_t capacity, double load,
-                               struct multimap_fkey *f_key,
-                               struct multimap_fval *f_val,
-                               struct cmc_alloc_node *alloc,
-                               struct cmc_callbacks *callbacks)
+struct hashmultimap *hmm_new_custom(size_t capacity, double load,
+                                    struct hashmultimap_fkey *f_key,
+                                    struct hashmultimap_fval *f_val,
+                                    struct cmc_alloc_node *alloc,
+                                    struct cmc_callbacks *callbacks)
 {
     if (capacity == 0 || load <= 0)
         return ((void *)0);
@@ -157,12 +159,12 @@ struct multimap *mm_new_custom(size_t capacity, double load,
         return ((void *)0);
     if (!alloc)
         alloc = &cmc_alloc_node_default;
-    size_t real_capacity = mm_impl_calculate_size(capacity / load);
-    struct multimap *_map_ = alloc->malloc(sizeof(struct multimap));
+    size_t real_capacity = hmm_impl_calculate_size(capacity / load);
+    struct hashmultimap *_map_ = alloc->malloc(sizeof(struct hashmultimap));
     if (!_map_)
         return ((void *)0);
     _map_->buffer =
-        alloc->calloc(real_capacity, sizeof(struct multimap_entry *[2]));
+        alloc->calloc(real_capacity, sizeof(struct hashmultimap_entry *[2]));
     if (!_map_->buffer)
     {
         alloc->free(_map_);
@@ -176,18 +178,18 @@ struct multimap *mm_new_custom(size_t capacity, double load,
     _map_->f_val = f_val;
     _map_->alloc = alloc;
     _map_->callbacks = callbacks;
-    _map_->it_start = mm_impl_it_start;
-    _map_->it_end = mm_impl_it_end;
+    _map_->it_start = hmm_impl_it_start;
+    _map_->it_end = hmm_impl_it_end;
     return _map_;
 }
-void mm_clear(struct multimap *_map_)
+void hmm_clear(struct hashmultimap *_map_)
 {
     for (size_t i = 0; i < _map_->capacity; i++)
     {
-        struct multimap_entry *scan = _map_->buffer[i][0];
+        struct hashmultimap_entry *scan = _map_->buffer[i][0];
         while (scan != ((void *)0))
         {
-            struct multimap_entry *next = scan->next;
+            struct hashmultimap_entry *next = scan->next;
             if (_map_->f_key->free)
                 _map_->f_key->free(scan->key);
             if (_map_->f_val->free)
@@ -197,16 +199,16 @@ void mm_clear(struct multimap *_map_)
         }
     }
     memset(_map_->buffer, 0,
-           sizeof(struct multimap_entry *[2]) * _map_->capacity);
+           sizeof(struct hashmultimap_entry *[2]) * _map_->capacity);
     _map_->count = 0;
     _map_->flag = cmc_flags.OK;
 }
-void mm_free(struct multimap *_map_)
+void hmm_free(struct hashmultimap *_map_)
 {
     size_t index = 0;
     while (index < _map_->capacity)
     {
-        struct multimap_entry *scan = _map_->buffer[index][0];
+        struct hashmultimap_entry *scan = _map_->buffer[index][0];
         if (scan != ((void *)0))
         {
             if (scan->next == ((void *)0) && scan->prev == ((void *)0))
@@ -221,7 +223,7 @@ void mm_free(struct multimap *_map_)
             {
                 while (scan != ((void *)0))
                 {
-                    struct multimap_entry *tmp = scan;
+                    struct hashmultimap_entry *tmp = scan;
                     scan = scan->next;
                     if (_map_->f_key->free)
                         _map_->f_key->free(tmp->key);
@@ -236,8 +238,8 @@ void mm_free(struct multimap *_map_)
     _map_->alloc->free(_map_->buffer);
     _map_->alloc->free(_map_);
 }
-void mm_customize(struct multimap *_map_, struct cmc_alloc_node *alloc,
-                  struct cmc_callbacks *callbacks)
+void hmm_customize(struct hashmultimap *_map_, struct cmc_alloc_node *alloc,
+                   struct cmc_callbacks *callbacks)
 {
     if (!alloc)
         _map_->alloc = &cmc_alloc_node_default;
@@ -246,16 +248,16 @@ void mm_customize(struct multimap *_map_, struct cmc_alloc_node *alloc,
     _map_->callbacks = callbacks;
     _map_->flag = cmc_flags.OK;
 }
-_Bool mm_insert(struct multimap *_map_, size_t key, size_t value)
+_Bool hmm_insert(struct hashmultimap *_map_, size_t key, size_t value)
 {
-    if (mm_full(_map_))
+    if (hmm_full(_map_))
     {
-        if (!mm_resize(_map_, _map_->capacity + 1))
+        if (!hmm_resize(_map_, _map_->capacity + 1))
             return 0;
     }
     size_t hash = _map_->f_key->hash(key);
     size_t pos = hash % _map_->capacity;
-    struct multimap_entry *entry = mm_impl_new_entry(_map_, key, value);
+    struct hashmultimap_entry *entry = hmm_impl_new_entry(_map_, key, value);
     if (_map_->buffer[pos][0] == ((void *)0))
     {
         _map_->buffer[pos][0] = entry;
@@ -273,15 +275,15 @@ _Bool mm_insert(struct multimap *_map_, size_t key, size_t value)
         _map_->callbacks->create();
     return 1;
 }
-_Bool mm_update(struct multimap *_map_, size_t key, size_t new_value,
-                size_t *old_value)
+_Bool hmm_update(struct hashmultimap *_map_, size_t key, size_t new_value,
+                 size_t *old_value)
 {
-    if (mm_empty(_map_))
+    if (hmm_empty(_map_))
     {
         _map_->flag = cmc_flags.EMPTY;
         return 0;
     }
-    struct multimap_entry *entry = mm_impl_get_entry(_map_, key);
+    struct hashmultimap_entry *entry = hmm_impl_get_entry(_map_, key);
     if (!entry)
     {
         _map_->flag = cmc_flags.NOT_FOUND;
@@ -295,16 +297,16 @@ _Bool mm_update(struct multimap *_map_, size_t key, size_t new_value,
         _map_->callbacks->update();
     return 1;
 }
-size_t mm_update_all(struct multimap *_map_, size_t key, size_t new_value,
-                     size_t **old_values)
+size_t hmm_update_all(struct hashmultimap *_map_, size_t key, size_t new_value,
+                      size_t **old_values)
 {
-    if (mm_empty(_map_))
+    if (hmm_empty(_map_))
     {
         _map_->flag = cmc_flags.EMPTY;
         return 0;
     }
     size_t hash = _map_->f_key->hash(key);
-    struct multimap_entry *entry = _map_->buffer[hash % _map_->capacity][0];
+    struct hashmultimap_entry *entry = _map_->buffer[hash % _map_->capacity][0];
     if (entry == ((void *)0))
     {
         _map_->flag = cmc_flags.NOT_FOUND;
@@ -312,7 +314,7 @@ size_t mm_update_all(struct multimap *_map_, size_t key, size_t new_value,
     }
     if (old_values)
     {
-        size_t total = mm_impl_key_count(_map_, key);
+        size_t total = hmm_impl_key_count(_map_, key);
         if (total == 0)
         {
             _map_->flag = cmc_flags.NOT_FOUND;
@@ -342,22 +344,24 @@ size_t mm_update_all(struct multimap *_map_, size_t key, size_t new_value,
         _map_->callbacks->update();
     return index;
 }
-_Bool mm_remove(struct multimap *_map_, size_t key, size_t *out_value)
+_Bool hmm_remove(struct hashmultimap *_map_, size_t key, size_t *out_value)
 {
-    if (mm_empty(_map_))
+    if (hmm_empty(_map_))
     {
         _map_->flag = cmc_flags.EMPTY;
         return 0;
     }
     size_t hash = _map_->f_key->hash(key);
-    struct multimap_entry **head = &(_map_->buffer[hash % _map_->capacity][0]);
-    struct multimap_entry **tail = &(_map_->buffer[hash % _map_->capacity][1]);
+    struct hashmultimap_entry **head =
+        &(_map_->buffer[hash % _map_->capacity][0]);
+    struct hashmultimap_entry **tail =
+        &(_map_->buffer[hash % _map_->capacity][1]);
     if (*head == ((void *)0))
     {
         _map_->flag = cmc_flags.NOT_FOUND;
         return 0;
     }
-    struct multimap_entry *entry = *head;
+    struct hashmultimap_entry *entry = *head;
     if (entry->next == ((void *)0) && entry->prev == ((void *)0))
     {
         if (_map_->f_key->cmp(entry->key, key) == 0)
@@ -409,16 +413,19 @@ _Bool mm_remove(struct multimap *_map_, size_t key, size_t *out_value)
         _map_->callbacks->delete ();
     return 1;
 }
-size_t mm_remove_all(struct multimap *_map_, size_t key, size_t **out_values)
+size_t hmm_remove_all(struct hashmultimap *_map_, size_t key,
+                      size_t **out_values)
 {
-    if (mm_empty(_map_))
+    if (hmm_empty(_map_))
     {
         _map_->flag = cmc_flags.EMPTY;
         return 0;
     }
     size_t hash = _map_->f_key->hash(key);
-    struct multimap_entry **head = &(_map_->buffer[hash % _map_->capacity][0]);
-    struct multimap_entry **tail = &(_map_->buffer[hash % _map_->capacity][1]);
+    struct hashmultimap_entry **head =
+        &(_map_->buffer[hash % _map_->capacity][0]);
+    struct hashmultimap_entry **tail =
+        &(_map_->buffer[hash % _map_->capacity][1]);
     if (*head == ((void *)0))
     {
         _map_->flag = cmc_flags.NOT_FOUND;
@@ -426,7 +433,7 @@ size_t mm_remove_all(struct multimap *_map_, size_t key, size_t **out_values)
     }
     if (out_values)
     {
-        size_t total = mm_impl_key_count(_map_, key);
+        size_t total = hmm_impl_key_count(_map_, key);
         if (total == 0)
         {
             _map_->flag = cmc_flags.NOT_FOUND;
@@ -440,7 +447,7 @@ size_t mm_remove_all(struct multimap *_map_, size_t key, size_t **out_values)
         }
     }
     size_t index = 0;
-    struct multimap_entry *entry = *head;
+    struct hashmultimap_entry *entry = *head;
     if (entry->next == ((void *)0))
     {
         *head = ((void *)0);
@@ -460,7 +467,7 @@ size_t mm_remove_all(struct multimap *_map_, size_t key, size_t **out_values)
                     *head = entry->next;
                 if (*tail == entry)
                     *tail = entry->prev;
-                struct multimap_entry *next = entry->next;
+                struct hashmultimap_entry *next = entry->next;
                 if (entry->prev != ((void *)0))
                     entry->prev->next = entry->next;
                 if (entry->next != ((void *)0))
@@ -481,21 +488,22 @@ size_t mm_remove_all(struct multimap *_map_, size_t key, size_t **out_values)
         _map_->callbacks->delete ();
     return index;
 }
-_Bool mm_max(struct multimap *_map_, size_t *key, size_t *value)
+_Bool hmm_max(struct hashmultimap *_map_, size_t *key, size_t *value)
 {
-    if (mm_empty(_map_))
+    if (hmm_empty(_map_))
     {
         _map_->flag = cmc_flags.EMPTY;
         return 0;
     }
     size_t max_key;
     size_t max_val;
-    struct multimap_iter iter;
-    for (mm_iter_init(&iter, _map_); !mm_iter_end(&iter); mm_iter_next(&iter))
+    struct hashmultimap_iter iter;
+    for (hmm_iter_init(&iter, _map_); !hmm_iter_end(&iter);
+         hmm_iter_next(&iter))
     {
-        size_t result_key = mm_iter_key(&iter);
-        size_t result_value = mm_iter_value(&iter);
-        size_t index = mm_iter_index(&iter);
+        size_t result_key = hmm_iter_key(&iter);
+        size_t result_value = hmm_iter_value(&iter);
+        size_t index = hmm_iter_index(&iter);
         if (index == 0)
         {
             max_key = result_key;
@@ -516,21 +524,22 @@ _Bool mm_max(struct multimap *_map_, size_t *key, size_t *value)
         _map_->callbacks->read();
     return 1;
 }
-_Bool mm_min(struct multimap *_map_, size_t *key, size_t *value)
+_Bool hmm_min(struct hashmultimap *_map_, size_t *key, size_t *value)
 {
-    if (mm_empty(_map_))
+    if (hmm_empty(_map_))
     {
         _map_->flag = cmc_flags.EMPTY;
         return 0;
     }
     size_t min_key;
     size_t min_val;
-    struct multimap_iter iter;
-    for (mm_iter_init(&iter, _map_); !mm_iter_end(&iter); mm_iter_next(&iter))
+    struct hashmultimap_iter iter;
+    for (hmm_iter_init(&iter, _map_); !hmm_iter_end(&iter);
+         hmm_iter_next(&iter))
     {
-        size_t result_key = mm_iter_key(&iter);
-        size_t result_value = mm_iter_value(&iter);
-        size_t index = mm_iter_index(&iter);
+        size_t result_key = hmm_iter_key(&iter);
+        size_t result_value = hmm_iter_value(&iter);
+        size_t index = hmm_iter_index(&iter);
         if (index == 0)
         {
             min_key = result_key;
@@ -551,14 +560,14 @@ _Bool mm_min(struct multimap *_map_, size_t *key, size_t *value)
         _map_->callbacks->read();
     return 1;
 }
-size_t mm_get(struct multimap *_map_, size_t key)
+size_t hmm_get(struct hashmultimap *_map_, size_t key)
 {
-    if (mm_empty(_map_))
+    if (hmm_empty(_map_))
     {
         _map_->flag = cmc_flags.EMPTY;
         return 0;
     }
-    struct multimap_entry *entry = mm_impl_get_entry(_map_, key);
+    struct hashmultimap_entry *entry = hmm_impl_get_entry(_map_, key);
     if (!entry)
     {
         _map_->flag = cmc_flags.NOT_FOUND;
@@ -569,14 +578,14 @@ size_t mm_get(struct multimap *_map_, size_t key)
         _map_->callbacks->read();
     return entry->value;
 }
-size_t *mm_get_ref(struct multimap *_map_, size_t key)
+size_t *hmm_get_ref(struct hashmultimap *_map_, size_t key)
 {
-    if (mm_empty(_map_))
+    if (hmm_empty(_map_))
     {
         _map_->flag = cmc_flags.EMPTY;
         return 0;
     }
-    struct multimap_entry *entry = mm_impl_get_entry(_map_, key);
+    struct hashmultimap_entry *entry = hmm_impl_get_entry(_map_, key);
     if (!entry)
     {
         _map_->flag = cmc_flags.NOT_FOUND;
@@ -587,43 +596,43 @@ size_t *mm_get_ref(struct multimap *_map_, size_t key)
         _map_->callbacks->read();
     return &(entry->value);
 }
-_Bool mm_contains(struct multimap *_map_, size_t key)
+_Bool hmm_contains(struct hashmultimap *_map_, size_t key)
 {
     _map_->flag = cmc_flags.OK;
-    _Bool result = mm_impl_get_entry(_map_, key) != ((void *)0);
+    _Bool result = hmm_impl_get_entry(_map_, key) != ((void *)0);
     if (_map_->callbacks && _map_->callbacks->read)
         _map_->callbacks->read();
     return result;
 }
-_Bool mm_empty(struct multimap *_map_)
+_Bool hmm_empty(struct hashmultimap *_map_)
 {
     return _map_->count == 0;
 }
-_Bool mm_full(struct multimap *_map_)
+_Bool hmm_full(struct hashmultimap *_map_)
 {
     return (double)_map_->capacity * _map_->load <= (double)_map_->count;
 }
-size_t mm_count(struct multimap *_map_)
+size_t hmm_count(struct hashmultimap *_map_)
 {
     return _map_->count;
 }
-size_t mm_key_count(struct multimap *_map_, size_t key)
+size_t hmm_key_count(struct hashmultimap *_map_, size_t key)
 {
-    return mm_impl_key_count(_map_, key);
+    return hmm_impl_key_count(_map_, key);
 }
-size_t mm_capacity(struct multimap *_map_)
+size_t hmm_capacity(struct hashmultimap *_map_)
 {
     return _map_->capacity;
 }
-double mm_load(struct multimap *_map_)
+double hmm_load(struct hashmultimap *_map_)
 {
     return _map_->load;
 }
-int mm_flag(struct multimap *_map_)
+int hmm_flag(struct hashmultimap *_map_)
 {
     return _map_->flag;
 }
-_Bool mm_resize(struct multimap *_map_, size_t capacity)
+_Bool hmm_resize(struct hashmultimap *_map_, size_t capacity)
 {
     _map_->flag = cmc_flags.OK;
     if (_map_->capacity == capacity)
@@ -635,107 +644,109 @@ _Bool mm_resize(struct multimap *_map_, size_t capacity)
         _map_->flag = cmc_flags.ERROR;
         return 0;
     }
-    size_t theoretical_size = mm_impl_calculate_size(capacity);
+    size_t theoretical_size = hmm_impl_calculate_size(capacity);
     if (theoretical_size < _map_->count / _map_->load)
     {
         _map_->flag = cmc_flags.INVALID;
         return 0;
     }
-    struct multimap *_new_map_ =
-        mm_new_custom(capacity, _map_->load, _map_->f_key, _map_->f_val,
-                      _map_->alloc, ((void *)0));
+    struct hashmultimap *_new_map_ =
+        hmm_new_custom(capacity, _map_->load, _map_->f_key, _map_->f_val,
+                       _map_->alloc, ((void *)0));
     if (!_new_map_)
     {
         _map_->flag = cmc_flags.ALLOC;
         return 0;
     }
-    struct multimap_iter iter;
-    for (mm_iter_init(&iter, _map_); !mm_iter_end(&iter); mm_iter_next(&iter))
+    struct hashmultimap_iter iter;
+    for (hmm_iter_init(&iter, _map_); !hmm_iter_end(&iter);
+         hmm_iter_next(&iter))
     {
-        size_t key = mm_iter_key(&iter);
-        size_t value = mm_iter_value(&iter);
-        mm_insert(_new_map_, key, value);
+        size_t key = hmm_iter_key(&iter);
+        size_t value = hmm_iter_value(&iter);
+        hmm_insert(_new_map_, key, value);
     }
     if (_map_->count != _new_map_->count)
     {
-        mm_free(_new_map_);
+        hmm_free(_new_map_);
         _map_->flag = cmc_flags.ERROR;
         return 0;
     }
-    struct multimap_entry *(*tmp_b)[2] = _map_->buffer;
+    struct hashmultimap_entry *(*tmp_b)[2] = _map_->buffer;
     _map_->buffer = _new_map_->buffer;
     _new_map_->buffer = tmp_b;
     size_t tmp_c = _map_->capacity;
     _map_->capacity = _new_map_->capacity;
     _new_map_->capacity = tmp_c;
-    _new_map_->f_key = &(struct multimap_fkey){ ((void *)0) };
-    _new_map_->f_val = &(struct multimap_fval){ ((void *)0) };
-    mm_free(_new_map_);
+    _new_map_->f_key = &(struct hashmultimap_fkey){ ((void *)0) };
+    _new_map_->f_val = &(struct hashmultimap_fval){ ((void *)0) };
+    hmm_free(_new_map_);
 success:
     if (_map_->callbacks && _map_->callbacks->resize)
         _map_->callbacks->resize();
     return 1;
 }
-struct multimap *mm_copy_of(struct multimap *_map_)
+struct hashmultimap *hmm_copy_of(struct hashmultimap *_map_)
 {
-    struct multimap *result =
-        mm_new_custom(_map_->capacity * _map_->load, _map_->load, _map_->f_key,
-                      _map_->f_val, _map_->alloc, ((void *)0));
+    struct hashmultimap *result =
+        hmm_new_custom(_map_->capacity * _map_->load, _map_->load, _map_->f_key,
+                       _map_->f_val, _map_->alloc, ((void *)0));
     if (!result)
     {
         _map_->flag = cmc_flags.ERROR;
         return ((void *)0);
     }
-    struct multimap_iter iter;
-    mm_iter_init(&iter, _map_);
-    if (!mm_empty(_map_))
+    struct hashmultimap_iter iter;
+    hmm_iter_init(&iter, _map_);
+    if (!hmm_empty(_map_))
     {
-        for (mm_iter_to_start(&iter); !mm_iter_end(&iter); mm_iter_next(&iter))
+        for (hmm_iter_to_start(&iter); !hmm_iter_end(&iter);
+             hmm_iter_next(&iter))
         {
-            size_t key = mm_iter_key(&iter);
-            size_t value = mm_iter_value(&iter);
+            size_t key = hmm_iter_key(&iter);
+            size_t value = hmm_iter_value(&iter);
             if (_map_->f_key->cpy)
                 key = _map_->f_key->cpy(key);
             if (_map_->f_val->cpy)
                 value = _map_->f_val->cpy(value);
-            mm_insert(result, key, value);
+            hmm_insert(result, key, value);
         }
     }
     result->callbacks = _map_->callbacks;
     _map_->flag = cmc_flags.OK;
     return result;
 }
-_Bool mm_equals(struct multimap *_map1_, struct multimap *_map2_)
+_Bool hmm_equals(struct hashmultimap *_map1_, struct hashmultimap *_map2_)
 {
     _map1_->flag = cmc_flags.OK;
     _map2_->flag = cmc_flags.OK;
     if (_map1_->count != _map2_->count)
         return 0;
-    struct multimap_iter iter;
-    mm_iter_init(&iter, _map1_);
-    for (mm_iter_to_start(&iter); !mm_iter_end(&iter); mm_iter_next(&iter))
+    struct hashmultimap_iter iter;
+    hmm_iter_init(&iter, _map1_);
+    for (hmm_iter_to_start(&iter); !hmm_iter_end(&iter); hmm_iter_next(&iter))
     {
-        size_t key = mm_iter_key(&iter);
-        if (mm_impl_key_count(_map1_, key) != mm_impl_key_count(_map2_, key))
+        size_t key = hmm_iter_key(&iter);
+        if (hmm_impl_key_count(_map1_, key) != hmm_impl_key_count(_map2_, key))
             return 0;
     }
     return 1;
 }
-struct cmc_string mm_to_string(struct multimap *_map_)
+struct cmc_string hmm_to_string(struct hashmultimap *_map_)
 {
     struct cmc_string str;
-    struct multimap *m_ = _map_;
-    int n = snprintf(str.s, cmc_string_len, cmc_string_fmt_multimap, "multimap",
-                     "size_t", "size_t", m_, m_->buffer, m_->capacity,
-                     m_->count, m_->load, m_->flag, m_->f_key, m_->f_val,
-                     m_->alloc, m_->callbacks);
+    struct hashmultimap *m_ = _map_;
+    int n = snprintf(str.s, cmc_string_len, cmc_string_fmt_hashmultimap,
+                     "hashmultimap", "size_t", "size_t", m_, m_->buffer,
+                     m_->capacity, m_->count, m_->load, m_->flag, m_->f_key,
+                     m_->f_val, m_->alloc, m_->callbacks);
     return n >= 0 ? str : (struct cmc_string){ 0 };
 }
-_Bool mm_print(struct multimap *_map_, FILE *fptr)
+_Bool hmm_print(struct hashmultimap *_map_, FILE *fptr)
 {
     for (size_t i = 0; i < _map_->capacity; i++)
     {
-        struct multimap_entry *scan = _map_->buffer[i][0];
+        struct hashmultimap_entry *scan = _map_->buffer[i][0];
         while (scan != ((void *)0))
         {
             if (!_map_->f_key->str(fptr, scan->key) ||
@@ -746,26 +757,26 @@ _Bool mm_print(struct multimap *_map_, FILE *fptr)
     }
     return 1;
 }
-struct multimap_iter *mm_iter_new(struct multimap *target)
+struct hashmultimap_iter *hmm_iter_new(struct hashmultimap *target)
 {
-    struct multimap_iter *iter =
-        target->alloc->malloc(sizeof(struct multimap_iter));
+    struct hashmultimap_iter *iter =
+        target->alloc->malloc(sizeof(struct hashmultimap_iter));
     if (!iter)
         return ((void *)0);
-    mm_iter_init(iter, target);
+    hmm_iter_init(iter, target);
     return iter;
 }
-void mm_iter_free(struct multimap_iter *iter)
+void hmm_iter_free(struct hashmultimap_iter *iter)
 {
     iter->target->alloc->free(iter);
 }
-void mm_iter_init(struct multimap_iter *iter, struct multimap *target)
+void hmm_iter_init(struct hashmultimap_iter *iter, struct hashmultimap *target)
 {
-    memset(iter, 0, sizeof(struct multimap_iter));
+    memset(iter, 0, sizeof(struct hashmultimap_iter));
     iter->target = target;
     iter->start = 1;
-    iter->end = mm_empty(target);
-    if (!mm_empty(target))
+    iter->end = hmm_empty(target);
+    if (!hmm_empty(target))
     {
         for (size_t i = 0; i < target->capacity; i++)
         {
@@ -787,37 +798,37 @@ void mm_iter_init(struct multimap_iter *iter, struct multimap *target)
         }
     }
 }
-_Bool mm_iter_start(struct multimap_iter *iter)
+_Bool hmm_iter_start(struct hashmultimap_iter *iter)
 {
-    return mm_empty(iter->target) || iter->start;
+    return hmm_empty(iter->target) || iter->start;
 }
-_Bool mm_iter_end(struct multimap_iter *iter)
+_Bool hmm_iter_end(struct hashmultimap_iter *iter)
 {
-    return mm_empty(iter->target) || iter->end;
+    return hmm_empty(iter->target) || iter->end;
 }
-void mm_iter_to_start(struct multimap_iter *iter)
+void hmm_iter_to_start(struct hashmultimap_iter *iter)
 {
-    if (!mm_empty(iter->target))
+    if (!hmm_empty(iter->target))
     {
         iter->cursor = iter->first;
         iter->index = 0;
         iter->start = 1;
-        iter->end = mm_empty(iter->target);
+        iter->end = hmm_empty(iter->target);
         iter->curr_entry = iter->target->buffer[iter->first][0];
     }
 }
-void mm_iter_to_end(struct multimap_iter *iter)
+void hmm_iter_to_end(struct hashmultimap_iter *iter)
 {
-    if (!mm_empty(iter->target))
+    if (!hmm_empty(iter->target))
     {
         iter->cursor = iter->last;
         iter->index = iter->target->count - 1;
-        iter->start = mm_empty(iter->target);
+        iter->start = hmm_empty(iter->target);
         iter->end = 1;
         iter->curr_entry = iter->target->buffer[iter->last][1];
     }
 }
-_Bool mm_iter_next(struct multimap_iter *iter)
+_Bool hmm_iter_next(struct hashmultimap_iter *iter)
 {
     if (iter->end)
         return 0;
@@ -839,10 +850,10 @@ _Bool mm_iter_next(struct multimap_iter *iter)
         iter->curr_entry = iter->target->buffer[iter->cursor][0];
         iter->index++;
     }
-    iter->start = mm_empty(iter->target);
+    iter->start = hmm_empty(iter->target);
     return 1;
 }
-_Bool mm_iter_prev(struct multimap_iter *iter)
+_Bool hmm_iter_prev(struct hashmultimap_iter *iter)
 {
     if (iter->start)
         return 0;
@@ -864,10 +875,10 @@ _Bool mm_iter_prev(struct multimap_iter *iter)
         iter->curr_entry = iter->target->buffer[iter->cursor][1];
         iter->index--;
     }
-    iter->end = mm_empty(iter->target);
+    iter->end = hmm_empty(iter->target);
     return 1;
 }
-_Bool mm_iter_advance(struct multimap_iter *iter, size_t steps)
+_Bool hmm_iter_advance(struct hashmultimap_iter *iter, size_t steps)
 {
     if (iter->end)
         return 0;
@@ -879,10 +890,10 @@ _Bool mm_iter_advance(struct multimap_iter *iter, size_t steps)
     if (steps == 0 || iter->index + steps >= iter->target->count)
         return 0;
     for (size_t i = 0; i < steps; i++)
-        mm_iter_next(iter);
+        hmm_iter_next(iter);
     return 1;
 }
-_Bool mm_iter_rewind(struct multimap_iter *iter, size_t steps)
+_Bool hmm_iter_rewind(struct hashmultimap_iter *iter, size_t steps)
 {
     if (iter->start)
         return 0;
@@ -894,46 +905,46 @@ _Bool mm_iter_rewind(struct multimap_iter *iter, size_t steps)
     if (steps == 0 || iter->index < steps)
         return 0;
     for (size_t i = 0; i < steps; i++)
-        mm_iter_prev(iter);
+        hmm_iter_prev(iter);
     return 1;
 }
-_Bool mm_iter_go_to(struct multimap_iter *iter, size_t index)
+_Bool hmm_iter_go_to(struct hashmultimap_iter *iter, size_t index)
 {
     if (index >= iter->target->count)
         return 0;
     if (iter->index > index)
-        return mm_iter_rewind(iter, iter->index - index);
+        return hmm_iter_rewind(iter, iter->index - index);
     else if (iter->index < index)
-        return mm_iter_advance(iter, index - iter->index);
+        return hmm_iter_advance(iter, index - iter->index);
     return 1;
 }
-size_t mm_iter_key(struct multimap_iter *iter)
+size_t hmm_iter_key(struct hashmultimap_iter *iter)
 {
-    if (mm_empty(iter->target))
+    if (hmm_empty(iter->target))
         return (size_t){ 0 };
     return iter->curr_entry->key;
 }
-size_t mm_iter_value(struct multimap_iter *iter)
+size_t hmm_iter_value(struct hashmultimap_iter *iter)
 {
-    if (mm_empty(iter->target))
+    if (hmm_empty(iter->target))
         return (size_t){ 0 };
     return iter->curr_entry->value;
 }
-size_t *mm_iter_rvalue(struct multimap_iter *iter)
+size_t *hmm_iter_rvalue(struct hashmultimap_iter *iter)
 {
-    if (mm_empty(iter->target))
+    if (hmm_empty(iter->target))
         return ((void *)0);
     return &(iter->curr_entry->value);
 }
-size_t mm_iter_index(struct multimap_iter *iter)
+size_t hmm_iter_index(struct hashmultimap_iter *iter)
 {
     return iter->index;
 }
-struct multimap_entry *mm_impl_new_entry(struct multimap *_map_, size_t key,
-                                         size_t value)
+struct hashmultimap_entry *hmm_impl_new_entry(struct hashmultimap *_map_,
+                                              size_t key, size_t value)
 {
-    struct multimap_entry *entry =
-        _map_->alloc->malloc(sizeof(struct multimap_entry));
+    struct hashmultimap_entry *entry =
+        _map_->alloc->malloc(sizeof(struct hashmultimap_entry));
     if (!entry)
         return ((void *)0);
     entry->key = key;
@@ -942,10 +953,11 @@ struct multimap_entry *mm_impl_new_entry(struct multimap *_map_, size_t key,
     entry->prev = ((void *)0);
     return entry;
 }
-struct multimap_entry *mm_impl_get_entry(struct multimap *_map_, size_t key)
+struct hashmultimap_entry *hmm_impl_get_entry(struct hashmultimap *_map_,
+                                              size_t key)
 {
     size_t hash = _map_->f_key->hash(key);
-    struct multimap_entry *entry = _map_->buffer[hash % _map_->capacity][0];
+    struct hashmultimap_entry *entry = _map_->buffer[hash % _map_->capacity][0];
     while (entry != ((void *)0))
     {
         if (_map_->f_key->cmp(entry->key, key) == 0)
@@ -954,10 +966,10 @@ struct multimap_entry *mm_impl_get_entry(struct multimap *_map_, size_t key)
     }
     return ((void *)0);
 }
-size_t mm_impl_key_count(struct multimap *_map_, size_t key)
+size_t hmm_impl_key_count(struct hashmultimap *_map_, size_t key)
 {
     size_t hash = _map_->f_key->hash(key);
-    struct multimap_entry *entry = _map_->buffer[hash % _map_->capacity][0];
+    struct hashmultimap_entry *entry = _map_->buffer[hash % _map_->capacity][0];
     size_t total_count = 0;
     if (!entry)
         return total_count;
@@ -969,7 +981,7 @@ size_t mm_impl_key_count(struct multimap *_map_, size_t key)
     }
     return total_count;
 }
-size_t mm_impl_calculate_size(size_t required)
+size_t hmm_impl_calculate_size(size_t required)
 {
     const size_t count =
         sizeof(cmc_hashtable_primes) / sizeof(cmc_hashtable_primes[0]);
@@ -980,16 +992,16 @@ size_t mm_impl_calculate_size(size_t required)
         i++;
     return cmc_hashtable_primes[i];
 }
-static struct multimap_iter mm_impl_it_start(struct multimap *_map_)
+static struct hashmultimap_iter hmm_impl_it_start(struct hashmultimap *_map_)
 {
-    struct multimap_iter iter;
-    mm_iter_init(&iter, _map_);
+    struct hashmultimap_iter iter;
+    hmm_iter_init(&iter, _map_);
     return iter;
 }
-static struct multimap_iter mm_impl_it_end(struct multimap *_map_)
+static struct hashmultimap_iter hmm_impl_it_end(struct hashmultimap *_map_)
 {
-    struct multimap_iter iter;
-    mm_iter_init(&iter, _map_);
-    mm_iter_to_end(&iter);
+    struct hashmultimap_iter iter;
+    hmm_iter_init(&iter, _map_);
+    hmm_iter_to_end(&iter);
     return iter;
 }
