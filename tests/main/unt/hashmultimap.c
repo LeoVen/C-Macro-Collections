@@ -190,7 +190,7 @@ CMC_CREATE_UNIT(HashMultiMap, true, {
         hmm_free(map);
     });
 
-    CMC_CREATE_TEST(remove[count], {
+    CMC_CREATE_TEST(PFX##_remove(), {
         struct hashmultimap *map = hmm_new(100, 0.8, hmm_fkey, hmm_fval);
 
         cmc_assert_not_equals(ptr, NULL, map);
@@ -206,26 +206,20 @@ CMC_CREATE_UNIT(HashMultiMap, true, {
         cmc_assert_equals(size_t, 140, hmm_count(map));
 
         hmm_free(map);
-    });
 
-    CMC_CREATE_TEST(remove[count = 0], {
-        struct hashmultimap *map = hmm_new(100, 0.8, hmm_fkey, hmm_fval);
+        // count = 0
+        map = hmm_new(100, 0.8, hmm_fkey, hmm_fval);
 
         cmc_assert_not_equals(ptr, NULL, map);
-
-        size_t r;
 
         cmc_assert(!hmm_remove(map, 10, &r));
 
         hmm_free(map);
-    });
 
-    CMC_CREATE_TEST(remove[count = 1], {
-        struct hashmultimap *map = hmm_new(100, 0.8, hmm_fkey, hmm_fval);
+        // count = 1
+        map = hmm_new(100, 0.8, hmm_fkey, hmm_fval);
 
         cmc_assert_not_equals(ptr, NULL, map);
-
-        size_t r;
 
         cmc_assert(hmm_insert(map, 10, 11));
         cmc_assert(hmm_remove(map, 10, &r));
@@ -484,5 +478,461 @@ CMC_CREATE_UNIT(HashMultiMap, true, {
         total_update = 0;
         total_delete = 0;
         total_resize = 0;
+    });
+});
+
+struct hashmultimap_fkey *hmm_fkey_numhash =
+    &(struct hashmultimap_fkey){ .cmp = cmc_size_cmp,
+                                 .cpy = NULL,
+                                 .str = cmc_size_str,
+                                 .free = NULL,
+                                 .hash = numhash,
+                                 .pri = cmc_size_cmp };
+
+CMC_CREATE_UNIT(HashMultiMapIter, true, {
+    CMC_CREATE_TEST(PFX##_iter_start(), {
+        struct hashmultimap *map =
+            hmm_new(100, 0.6, hmm_fkey_numhash, hmm_fval);
+
+        cmc_assert_not_equals(ptr, NULL, map);
+
+        struct hashmultimap_iter it = hmm_iter_start(map);
+
+        cmc_assert_equals(ptr, map, it.target);
+        cmc_assert_equals(size_t, 0, it.cursor);
+        cmc_assert_equals(size_t, 0, it.index);
+        cmc_assert_equals(size_t, 0, it.first);
+        cmc_assert_equals(size_t, 0, it.last);
+        cmc_assert_equals(bool, true, it.start);
+        cmc_assert_equals(bool, true, it.end);
+
+        cmc_assert(hmm_iter_at_start(&it));
+        cmc_assert(hmm_iter_at_end(&it));
+
+        cmc_assert(hmm_insert(map, 1, 1));
+        cmc_assert(hmm_insert(map, 2, 2));
+        cmc_assert(hmm_insert(map, 3, 3));
+
+        it = hmm_iter_start(map);
+
+        cmc_assert_equals(size_t, 0, it.index);
+
+        cmc_assert_equals(size_t, 1, it.cursor);
+        cmc_assert_equals(size_t, 1, it.first);
+        cmc_assert_equals(size_t, 3, it.last);
+
+        hmm_free(map);
+    });
+
+    CMC_CREATE_TEST(PFX##_iter_end(), {
+        struct hashmultimap *map =
+            hmm_new(100, 0.6, hmm_fkey_numhash, hmm_fval);
+
+        cmc_assert_not_equals(ptr, NULL, map);
+
+        struct hashmultimap_iter it = hmm_iter_end(map);
+
+        cmc_assert_equals(ptr, map, it.target);
+        cmc_assert_equals(size_t, 0, it.cursor);
+        cmc_assert_equals(size_t, 0, it.index);
+        cmc_assert_equals(size_t, 0, it.first);
+        cmc_assert_equals(size_t, 0, it.last);
+        cmc_assert_equals(bool, true, it.start);
+        cmc_assert_equals(bool, true, it.end);
+
+        cmc_assert(hmm_iter_at_start(&it));
+        cmc_assert(hmm_iter_at_end(&it));
+
+        cmc_assert(hmm_insert(map, 1, 1));
+        cmc_assert(hmm_insert(map, 2, 2));
+        cmc_assert(hmm_insert(map, 3, 3));
+
+        it = hmm_iter_end(map);
+
+        cmc_assert_equals(size_t, map->count - 1, it.index);
+
+        cmc_assert_equals(size_t, 3, it.cursor);
+        cmc_assert_equals(size_t, 1, it.first);
+        cmc_assert_equals(size_t, 3, it.last);
+
+        hmm_free(map);
+    });
+
+    CMC_CREATE_TEST(PFX##_iter_at_start(), {
+        struct hashmultimap *map = hmm_new(100, 0.6, hmm_fkey, hmm_fval);
+
+        cmc_assert_not_equals(ptr, NULL, map);
+
+        struct hashmultimap_iter it = hmm_iter_start(map);
+
+        // Empty checks
+        cmc_assert(hmm_iter_at_start(&it));
+        it = hmm_iter_end(map);
+        cmc_assert(hmm_iter_at_start(&it));
+
+        // Non-empty checks
+        cmc_assert(hmm_insert(map, 1, 1));
+        cmc_assert(hmm_insert(map, 2, 2));
+        it = hmm_iter_end(map);
+        cmc_assert(!hmm_iter_at_start(&it));
+        it = hmm_iter_start(map);
+        cmc_assert(hmm_iter_at_start(&it));
+
+        hmm_free(map);
+    });
+
+    CMC_CREATE_TEST(PFX##_iter_at_end(), {
+        struct hashmultimap *map = hmm_new(100, 0.6, hmm_fkey, hmm_fval);
+
+        cmc_assert_not_equals(ptr, NULL, map);
+
+        struct hashmultimap_iter it = hmm_iter_start(map);
+
+        // Empty check
+        cmc_assert(hmm_iter_at_end(&it));
+        it = hmm_iter_end(map);
+        cmc_assert(hmm_iter_at_end(&it));
+
+        // Non-empty checks
+        cmc_assert(hmm_insert(map, 1, 1));
+        cmc_assert(hmm_insert(map, 2, 2));
+        it = hmm_iter_end(map);
+        cmc_assert(hmm_iter_at_end(&it));
+        it = hmm_iter_start(map);
+        cmc_assert(!hmm_iter_at_end(&it));
+
+        hmm_free(map);
+    });
+
+    CMC_CREATE_TEST(PFX##_iter_to_start(), {
+        struct hashmultimap *map =
+            hmm_new(100, 0.6, hmm_fkey_numhash, hmm_fval);
+
+        cmc_assert_not_equals(ptr, NULL, map);
+
+        struct hashmultimap_iter it = hmm_iter_start(map);
+
+        cmc_assert(!hmm_iter_to_start(&it));
+
+        for (size_t i = 1; i <= 100; i++)
+            hmm_insert(map, i, i);
+
+        cmc_assert_equals(size_t, 100, map->count);
+
+        it = hmm_iter_end(map);
+
+        cmc_assert(!hmm_iter_at_start(&it));
+        cmc_assert(hmm_iter_at_end(&it));
+
+        cmc_assert_equals(size_t, 100, hmm_iter_value(&it));
+
+        cmc_assert(hmm_iter_to_start(&it));
+
+        cmc_assert(hmm_iter_at_start(&it));
+        cmc_assert(!hmm_iter_at_end(&it));
+
+        cmc_assert_equals(size_t, 1, hmm_iter_value(&it));
+
+        hmm_free(map);
+    });
+
+    CMC_CREATE_TEST(PFX##_iter_to_end(), {
+        struct hashmultimap *map =
+            hmm_new(100, 0.6, hmm_fkey_numhash, hmm_fval);
+
+        cmc_assert_not_equals(ptr, NULL, map);
+
+        struct hashmultimap_iter it = hmm_iter_end(map);
+
+        cmc_assert(!hmm_iter_to_end(&it));
+
+        for (size_t i = 1; i <= 100; i++)
+            hmm_insert(map, i, i);
+
+        it = hmm_iter_start(map);
+
+        cmc_assert(hmm_iter_at_start(&it));
+        cmc_assert(!hmm_iter_at_end(&it));
+
+        cmc_assert_equals(size_t, 1, hmm_iter_value(&it));
+
+        cmc_assert(hmm_iter_to_end(&it));
+
+        cmc_assert(!hmm_iter_at_start(&it));
+        cmc_assert(hmm_iter_at_end(&it));
+
+        cmc_assert_equals(size_t, 100, hmm_iter_value(&it));
+
+        hmm_free(map);
+    });
+
+    CMC_CREATE_TEST(PFX##_iter_next(), {
+        struct hashmultimap *map = hmm_new(100, 0.6, hmm_fkey, hmm_fval);
+
+        cmc_assert_not_equals(ptr, NULL, map);
+
+        struct hashmultimap_iter it = hmm_iter_start(map);
+
+        cmc_assert(!hmm_iter_next(&it));
+
+        for (size_t i = 1; i <= 1000; i++)
+            hmm_insert(map, i, i);
+
+        size_t sum = 0;
+        for (it = hmm_iter_start(map); !hmm_iter_at_end(&it);
+             hmm_iter_next(&it))
+        {
+            sum += hmm_iter_value(&it);
+        }
+
+        cmc_assert_equals(size_t, 500500, sum);
+
+        sum = 0;
+
+        hmm_iter_to_start(&it);
+        do
+        {
+            sum += hmm_iter_value(&it);
+        } while (hmm_iter_next(&it));
+
+        cmc_assert_equals(size_t, 500500, sum);
+
+        hmm_free(map);
+    });
+
+    CMC_CREATE_TEST(PFX##_iter_prev(), {
+        struct hashmultimap *map = hmm_new(100, 0.6, hmm_fkey, hmm_fval);
+
+        cmc_assert_not_equals(ptr, NULL, map);
+
+        struct hashmultimap_iter it = hmm_iter_end(map);
+
+        cmc_assert(!hmm_iter_prev(&it));
+
+        for (size_t i = 1; i <= 1000; i++)
+            hmm_insert(map, i, i);
+
+        size_t sum = 0;
+        for (it = hmm_iter_end(map); !hmm_iter_at_start(&it);
+             hmm_iter_prev(&it))
+        {
+            sum += hmm_iter_value(&it);
+        }
+
+        cmc_assert_equals(size_t, 500500, sum);
+
+        sum = 0;
+
+        hmm_iter_to_end(&it);
+        do
+        {
+            sum += hmm_iter_value(&it);
+        } while (hmm_iter_prev(&it));
+
+        cmc_assert_equals(size_t, 500500, sum);
+
+        hmm_free(map);
+    });
+
+    CMC_CREATE_TEST(PFX##_iter_advance(), {
+        struct hashmultimap *map =
+            hmm_new(100, 0.6, hmm_fkey_numhash, hmm_fval);
+
+        cmc_assert_not_equals(ptr, NULL, map);
+
+        struct hashmultimap_iter it = hmm_iter_start(map);
+
+        cmc_assert(!hmm_iter_advance(&it, 1));
+
+        for (size_t i = 0; i <= 1000; i++)
+            hmm_insert(map, i, i);
+
+        it = hmm_iter_start(map);
+
+        cmc_assert(!hmm_iter_advance(&it, 0));
+        cmc_assert(!hmm_iter_advance(&it, map->count));
+
+        size_t sum = 0;
+        for (it = hmm_iter_start(map);;)
+        {
+            sum += hmm_iter_value(&it);
+
+            if (!hmm_iter_advance(&it, 2))
+                break;
+        }
+
+        cmc_assert_equals(size_t, 250500, sum);
+
+        hmm_iter_to_start(&it);
+        cmc_assert(hmm_iter_advance(&it, map->count - 1));
+
+        hmm_free(map);
+    });
+
+    CMC_CREATE_TEST(PFX##_iter_rewind(), {
+        struct hashmultimap *map =
+            hmm_new(100, 0.6, hmm_fkey_numhash, hmm_fval);
+
+        cmc_assert_not_equals(ptr, NULL, map);
+
+        struct hashmultimap_iter it = hmm_iter_end(map);
+
+        cmc_assert(!hmm_iter_rewind(&it, 1));
+
+        for (size_t i = 0; i <= 1000; i++)
+            hmm_insert(map, i, i);
+
+        it = hmm_iter_end(map);
+
+        cmc_assert(!hmm_iter_rewind(&it, 0));
+        cmc_assert(!hmm_iter_rewind(&it, map->count));
+
+        size_t sum = 0;
+        for (it = hmm_iter_end(map);;)
+        {
+            sum += hmm_iter_value(&it);
+
+            if (!hmm_iter_rewind(&it, 2))
+                break;
+        }
+
+        cmc_assert_equals(size_t, 250500, sum);
+
+        hmm_iter_to_end(&it);
+        cmc_assert(hmm_iter_rewind(&it, map->count - 1));
+
+        hmm_free(map);
+    });
+
+    CMC_CREATE_TEST(PFX##_iter_go_to(), {
+        struct hashmultimap *map =
+            hmm_new(100, 0.6, hmm_fkey_numhash, hmm_fval);
+
+        cmc_assert_not_equals(ptr, NULL, map);
+
+        struct hashmultimap_iter it = hmm_iter_end(map);
+        cmc_assert(!hmm_iter_go_to(&it, 0));
+
+        it = hmm_iter_start(map);
+        cmc_assert(!hmm_iter_go_to(&it, 0));
+
+        for (size_t i = 0; i <= 1000; i++)
+            hmm_insert(map, i, i);
+
+        it = hmm_iter_start(map);
+
+        size_t sum = 0;
+        for (size_t i = 0; i < 1001; i++)
+        {
+            hmm_iter_go_to(&it, i);
+
+            sum += hmm_iter_value(&it);
+        }
+
+        cmc_assert_equals(size_t, 500500, sum);
+
+        sum = 0;
+        for (size_t i = 1001; i > 0; i--)
+        {
+            cmc_assert(hmm_iter_go_to(&it, i - 1));
+
+            sum += hmm_iter_value(&it);
+        }
+
+        cmc_assert_equals(size_t, 500500, sum);
+
+        sum = 0;
+        for (size_t i = 0; i < 1001; i += 100)
+        {
+            cmc_assert(hmm_iter_go_to(&it, i));
+            cmc_assert_equals(size_t, i, hmm_iter_index(&it));
+
+            sum += hmm_iter_value(&it);
+        }
+
+        cmc_assert_equals(size_t, 5500, sum);
+
+        hmm_free(map);
+    });
+
+    CMC_CREATE_TEST(PFX##_iter_key(), {
+        struct hashmultimap *map = hmm_new(100, 0.6, hmm_fkey, hmm_fval);
+
+        cmc_assert_not_equals(ptr, NULL, map);
+
+        struct hashmultimap_iter it = hmm_iter_end(map);
+
+        cmc_assert_equals(size_t, (size_t){ 0 }, hmm_iter_key(&it));
+
+        cmc_assert(hmm_insert(map, 10, 10));
+
+        it = hmm_iter_start(map);
+
+        cmc_assert_equals(size_t, 10, hmm_iter_key(&it));
+
+        hmm_free(map);
+    });
+
+    CMC_CREATE_TEST(PFX##_iter_value(), {
+        struct hashmultimap *map = hmm_new(100, 0.6, hmm_fkey, hmm_fval);
+
+        cmc_assert_not_equals(ptr, NULL, map);
+
+        struct hashmultimap_iter it = hmm_iter_end(map);
+
+        cmc_assert_equals(size_t, (size_t){ 0 }, hmm_iter_value(&it));
+
+        cmc_assert(hmm_insert(map, 10, 10));
+
+        it = hmm_iter_start(map);
+
+        cmc_assert_equals(size_t, 10, hmm_iter_value(&it));
+
+        hmm_free(map);
+    });
+
+    CMC_CREATE_TEST(PFX##_iter_rvalue(), {
+        struct hashmultimap *map = hmm_new(100, 0.6, hmm_fkey, hmm_fval);
+
+        cmc_assert_not_equals(ptr, NULL, map);
+
+        struct hashmultimap_iter it = hmm_iter_end(map);
+
+        cmc_assert_equals(ptr, NULL, hmm_iter_rvalue(&it));
+
+        cmc_assert(hmm_insert(map, 10, 10));
+
+        it = hmm_iter_start(map);
+
+        cmc_assert_not_equals(ptr, NULL, hmm_iter_rvalue(&it));
+        cmc_assert_equals(size_t, 10, *hmm_iter_rvalue(&it));
+
+        hmm_free(map);
+    });
+
+    CMC_CREATE_TEST(PFX##_iter_index(), {
+        struct hashmultimap *map = hmm_new(100, 0.6, hmm_fkey, hmm_fval);
+
+        cmc_assert_not_equals(ptr, NULL, map);
+
+        for (size_t i = 0; i <= 1000; i++)
+            hmm_insert(map, i, i);
+
+        struct hashmultimap_iter it = hmm_iter_start(map);
+
+        for (size_t i = 0; i < 1001; i++)
+        {
+            cmc_assert_equals(size_t, i, hmm_iter_index(&it));
+            hmm_iter_next(&it);
+        }
+
+        it = hmm_iter_end(map);
+        for (size_t i = 1001; i > 0; i--)
+        {
+            cmc_assert_equals(size_t, i - 1, hmm_iter_index(&it));
+            hmm_iter_prev(&it);
+        }
+
+        hmm_free(map);
     });
 });

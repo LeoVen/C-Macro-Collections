@@ -11,8 +11,6 @@ struct hashmultimap
     struct hashmultimap_fval *f_val;
     struct cmc_alloc_node *alloc;
     struct cmc_callbacks *callbacks;
-    struct hashmultimap_iter (*it_start)(struct hashmultimap *);
-    struct hashmultimap_iter (*it_end)(struct hashmultimap *);
 };
 struct hashmultimap_entry
 {
@@ -87,13 +85,12 @@ struct hashmultimap *hmm_copy_of(struct hashmultimap *_map_);
 _Bool hmm_equals(struct hashmultimap *_map1_, struct hashmultimap *_map2_);
 struct cmc_string hmm_to_string(struct hashmultimap *_map_);
 _Bool hmm_print(struct hashmultimap *_map_, FILE *fptr);
-struct hashmultimap_iter *hmm_iter_new(struct hashmultimap *target);
-void hmm_iter_free(struct hashmultimap_iter *iter);
-void hmm_iter_init(struct hashmultimap_iter *iter, struct hashmultimap *target);
-_Bool hmm_iter_start(struct hashmultimap_iter *iter);
-_Bool hmm_iter_end(struct hashmultimap_iter *iter);
-void hmm_iter_to_start(struct hashmultimap_iter *iter);
-void hmm_iter_to_end(struct hashmultimap_iter *iter);
+struct hashmultimap_iter hmm_iter_start(struct hashmultimap *target);
+struct hashmultimap_iter hmm_iter_end(struct hashmultimap *target);
+_Bool hmm_iter_at_start(struct hashmultimap_iter *iter);
+_Bool hmm_iter_at_end(struct hashmultimap_iter *iter);
+_Bool hmm_iter_to_start(struct hashmultimap_iter *iter);
+_Bool hmm_iter_to_end(struct hashmultimap_iter *iter);
 _Bool hmm_iter_next(struct hashmultimap_iter *iter);
 _Bool hmm_iter_prev(struct hashmultimap_iter *iter);
 _Bool hmm_iter_advance(struct hashmultimap_iter *iter, size_t steps);
@@ -109,8 +106,6 @@ struct hashmultimap_entry *hmm_impl_get_entry(struct hashmultimap *_map_,
                                               size_t key);
 size_t hmm_impl_key_count(struct hashmultimap *_map_, size_t key);
 size_t hmm_impl_calculate_size(size_t required);
-static struct hashmultimap_iter hmm_impl_it_start(struct hashmultimap *_map_);
-static struct hashmultimap_iter hmm_impl_it_end(struct hashmultimap *_map_);
 struct hashmultimap *hmm_new(size_t capacity, double load,
                              struct hashmultimap_fkey *f_key,
                              struct hashmultimap_fval *f_val)
@@ -141,8 +136,6 @@ struct hashmultimap *hmm_new(size_t capacity, double load,
     _map_->f_val = f_val;
     _map_->alloc = alloc;
     _map_->callbacks = ((void *)0);
-    _map_->it_end = hmm_impl_it_end;
-    _map_->it_start = hmm_impl_it_start;
     return _map_;
 }
 struct hashmultimap *hmm_new_custom(size_t capacity, double load,
@@ -178,8 +171,6 @@ struct hashmultimap *hmm_new_custom(size_t capacity, double load,
     _map_->f_val = f_val;
     _map_->alloc = alloc;
     _map_->callbacks = callbacks;
-    _map_->it_start = hmm_impl_it_start;
-    _map_->it_end = hmm_impl_it_end;
     return _map_;
 }
 void hmm_clear(struct hashmultimap *_map_)
@@ -497,9 +488,8 @@ _Bool hmm_max(struct hashmultimap *_map_, size_t *key, size_t *value)
     }
     size_t max_key;
     size_t max_val;
-    struct hashmultimap_iter iter;
-    for (hmm_iter_init(&iter, _map_); !hmm_iter_end(&iter);
-         hmm_iter_next(&iter))
+    struct hashmultimap_iter iter = hmm_iter_start(_map_);
+    for (; !hmm_iter_at_end(&iter); hmm_iter_next(&iter))
     {
         size_t result_key = hmm_iter_key(&iter);
         size_t result_value = hmm_iter_value(&iter);
@@ -533,9 +523,8 @@ _Bool hmm_min(struct hashmultimap *_map_, size_t *key, size_t *value)
     }
     size_t min_key;
     size_t min_val;
-    struct hashmultimap_iter iter;
-    for (hmm_iter_init(&iter, _map_); !hmm_iter_end(&iter);
-         hmm_iter_next(&iter))
+    struct hashmultimap_iter iter = hmm_iter_start(_map_);
+    for (; !hmm_iter_at_end(&iter); hmm_iter_next(&iter))
     {
         size_t result_key = hmm_iter_key(&iter);
         size_t result_value = hmm_iter_value(&iter);
@@ -658,9 +647,8 @@ _Bool hmm_resize(struct hashmultimap *_map_, size_t capacity)
         _map_->flag = cmc_flags.ALLOC;
         return 0;
     }
-    struct hashmultimap_iter iter;
-    for (hmm_iter_init(&iter, _map_); !hmm_iter_end(&iter);
-         hmm_iter_next(&iter))
+    struct hashmultimap_iter iter = hmm_iter_start(_map_);
+    for (; !hmm_iter_at_end(&iter); hmm_iter_next(&iter))
     {
         size_t key = hmm_iter_key(&iter);
         size_t value = hmm_iter_value(&iter);
@@ -696,12 +684,10 @@ struct hashmultimap *hmm_copy_of(struct hashmultimap *_map_)
         _map_->flag = cmc_flags.ERROR;
         return ((void *)0);
     }
-    struct hashmultimap_iter iter;
-    hmm_iter_init(&iter, _map_);
+    struct hashmultimap_iter iter = hmm_iter_start(_map_);
     if (!hmm_empty(_map_))
     {
-        for (hmm_iter_to_start(&iter); !hmm_iter_end(&iter);
-             hmm_iter_next(&iter))
+        for (; !hmm_iter_at_end(&iter); hmm_iter_next(&iter))
         {
             size_t key = hmm_iter_key(&iter);
             size_t value = hmm_iter_value(&iter);
@@ -722,9 +708,8 @@ _Bool hmm_equals(struct hashmultimap *_map1_, struct hashmultimap *_map2_)
     _map2_->flag = cmc_flags.OK;
     if (_map1_->count != _map2_->count)
         return 0;
-    struct hashmultimap_iter iter;
-    hmm_iter_init(&iter, _map1_);
-    for (hmm_iter_to_start(&iter); !hmm_iter_end(&iter); hmm_iter_next(&iter))
+    struct hashmultimap_iter iter = hmm_iter_start(_map1_);
+    for (; !hmm_iter_at_end(&iter); hmm_iter_next(&iter))
     {
         size_t key = hmm_iter_key(&iter);
         if (hmm_impl_key_count(_map1_, key) != hmm_impl_key_count(_map2_, key))
@@ -757,56 +742,84 @@ _Bool hmm_print(struct hashmultimap *_map_, FILE *fptr)
     }
     return 1;
 }
-struct hashmultimap_iter *hmm_iter_new(struct hashmultimap *target)
+struct hashmultimap_iter hmm_iter_start(struct hashmultimap *target)
 {
-    struct hashmultimap_iter *iter =
-        target->alloc->malloc(sizeof(struct hashmultimap_iter));
-    if (!iter)
-        return ((void *)0);
-    hmm_iter_init(iter, target);
-    return iter;
-}
-void hmm_iter_free(struct hashmultimap_iter *iter)
-{
-    iter->target->alloc->free(iter);
-}
-void hmm_iter_init(struct hashmultimap_iter *iter, struct hashmultimap *target)
-{
-    memset(iter, 0, sizeof(struct hashmultimap_iter));
-    iter->target = target;
-    iter->start = 1;
-    iter->end = hmm_empty(target);
+    struct hashmultimap_iter iter;
+    iter.target = target;
+    iter.curr_entry = ((void *)0);
+    iter.cursor = 0;
+    iter.index = 0;
+    iter.first = 0;
+    iter.last = 0;
+    iter.start = 1;
+    iter.end = hmm_empty(target);
     if (!hmm_empty(target))
     {
         for (size_t i = 0; i < target->capacity; i++)
         {
             if (target->buffer[i][0] != ((void *)0))
             {
-                iter->curr_entry = target->buffer[i][0];
-                iter->first = i;
+                iter.curr_entry = target->buffer[i][0];
+                iter.first = i;
                 break;
             }
         }
-        iter->cursor = iter->first;
+        iter.cursor = iter.first;
         for (size_t i = target->capacity; i > 0; i--)
         {
-            if (target->buffer[i - 1][0] != ((void *)0))
+            if (target->buffer[i - 1][1] != ((void *)0))
             {
-                iter->last = i - 1;
+                iter.last = i - 1;
                 break;
             }
         }
     }
+    return iter;
 }
-_Bool hmm_iter_start(struct hashmultimap_iter *iter)
+struct hashmultimap_iter hmm_iter_end(struct hashmultimap *target)
+{
+    struct hashmultimap_iter iter;
+    iter.target = target;
+    iter.curr_entry = ((void *)0);
+    iter.cursor = 0;
+    iter.index = 0;
+    iter.first = 0;
+    iter.last = 0;
+    iter.start = hmm_empty(target);
+    iter.end = 1;
+    if (!hmm_empty(target))
+    {
+        for (size_t i = 0; i < target->capacity; i++)
+        {
+            if (target->buffer[i][0] != ((void *)0))
+            {
+                iter.first = i;
+                break;
+            }
+        }
+        for (size_t i = target->capacity; i > 0; i--)
+        {
+            if (target->buffer[i - 1][1] != ((void *)0))
+            {
+                iter.curr_entry = target->buffer[i - 1][1];
+                iter.last = i - 1;
+                break;
+            }
+        }
+        iter.cursor = iter.last;
+        iter.index = target->count - 1;
+    }
+    return iter;
+}
+_Bool hmm_iter_at_start(struct hashmultimap_iter *iter)
 {
     return hmm_empty(iter->target) || iter->start;
 }
-_Bool hmm_iter_end(struct hashmultimap_iter *iter)
+_Bool hmm_iter_at_end(struct hashmultimap_iter *iter)
 {
     return hmm_empty(iter->target) || iter->end;
 }
-void hmm_iter_to_start(struct hashmultimap_iter *iter)
+_Bool hmm_iter_to_start(struct hashmultimap_iter *iter)
 {
     if (!hmm_empty(iter->target))
     {
@@ -815,9 +828,11 @@ void hmm_iter_to_start(struct hashmultimap_iter *iter)
         iter->start = 1;
         iter->end = hmm_empty(iter->target);
         iter->curr_entry = iter->target->buffer[iter->first][0];
+        return 1;
     }
+    return 0;
 }
-void hmm_iter_to_end(struct hashmultimap_iter *iter)
+_Bool hmm_iter_to_end(struct hashmultimap_iter *iter)
 {
     if (!hmm_empty(iter->target))
     {
@@ -826,7 +841,9 @@ void hmm_iter_to_end(struct hashmultimap_iter *iter)
         iter->start = hmm_empty(iter->target);
         iter->end = 1;
         iter->curr_entry = iter->target->buffer[iter->last][1];
+        return 1;
     }
+    return 0;
 }
 _Bool hmm_iter_next(struct hashmultimap_iter *iter)
 {
@@ -991,17 +1008,4 @@ size_t hmm_impl_calculate_size(size_t required)
     while (cmc_hashtable_primes[i] < required)
         i++;
     return cmc_hashtable_primes[i];
-}
-static struct hashmultimap_iter hmm_impl_it_start(struct hashmultimap *_map_)
-{
-    struct hashmultimap_iter iter;
-    hmm_iter_init(&iter, _map_);
-    return iter;
-}
-static struct hashmultimap_iter hmm_impl_it_end(struct hashmultimap *_map_)
-{
-    struct hashmultimap_iter iter;
-    hmm_iter_init(&iter, _map_);
-    hmm_iter_to_end(&iter);
-    return iter;
 }
