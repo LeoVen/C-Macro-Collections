@@ -57,6 +57,7 @@ int main(void)
     cmc_run(HashMultiMap, units, tests);
     cmc_run(HashMultiMapIter, units, tests);
     cmc_run(HashMultiSet, units, tests);
+    cmc_run(HashMultiSetIter, units, tests);
     cmc_run(HashSet, units, tests);
     cmc_run(Heap, units, tests);
     cmc_run(IntervalHeap, units, tests);
