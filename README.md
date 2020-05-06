@@ -4,7 +4,7 @@
     <img src="https://leoven.github.io/C-Macro-Collections/img/logo.png" alt="C Macro Collections Logo" width="300"/>
 </p>
 
-<p align="center">Header only, macro generated, generic and type-safe Collections in C.</p>
+<p align="center">Easy to use, header only, macro generated, generic and type-safe Collections in C.</p>
 
 <p align="center">
     <a href="https://github.com/LeoVen/C-Macro-Collections"><img src="https://img.shields.io/badge/GitHub-C%20Macro%20Collections-lightgrey.svg?logo=github" alt="LinkToRepo"/></a>
