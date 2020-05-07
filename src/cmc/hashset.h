@@ -85,12 +85,6 @@ static const char *cmc_string_fmt_hashset = "struct %s<%s> "
                                                                                \
         /* Custom callback functions */                                        \
         struct cmc_callbacks *callbacks;                                       \
-                                                                               \
-        /* Function that returns an iterator to the start of the hashset */    \
-        struct SNAME##_iter (*it_start)(struct SNAME *);                       \
-                                                                               \
-        /* Function that returns an iterator to the end of the hashset */      \
-        struct SNAME##_iter (*it_end)(struct SNAME *);                         \
     };                                                                         \
                                                                                \
     struct SNAME##_entry                                                       \
@@ -201,17 +195,15 @@ static const char *cmc_string_fmt_hashset = "struct %s<%s> "
     bool PFX##_is_disjointset(struct SNAME *_set1_, struct SNAME *_set2_);     \
                                                                                \
     /* Iterator Functions */                                                   \
-    /* Iterator Allocation and Deallocation */                                 \
-    struct SNAME##_iter *PFX##_iter_new(struct SNAME *target);                 \
-    void PFX##_iter_free(struct SNAME##_iter *iter);                           \
     /* Iterator Initialization */                                              \
-    void PFX##_iter_init(struct SNAME##_iter *iter, struct SNAME *target);     \
+    struct SNAME##_iter PFX##_iter_start(struct SNAME *target);                \
+    struct SNAME##_iter PFX##_iter_end(struct SNAME *target);                  \
     /* Iterator State */                                                       \
-    bool PFX##_iter_start(struct SNAME##_iter *iter);                          \
-    bool PFX##_iter_end(struct SNAME##_iter *iter);                            \
+    bool PFX##_iter_at_start(struct SNAME##_iter *iter);                       \
+    bool PFX##_iter_at_end(struct SNAME##_iter *iter);                         \
     /* Iterator Movement */                                                    \
-    void PFX##_iter_to_start(struct SNAME##_iter *iter);                       \
-    void PFX##_iter_to_end(struct SNAME##_iter *iter);                         \
+    bool PFX##_iter_to_start(struct SNAME##_iter *iter);                       \
+    bool PFX##_iter_to_end(struct SNAME##_iter *iter);                         \
     bool PFX##_iter_next(struct SNAME##_iter *iter);                           \
     bool PFX##_iter_prev(struct SNAME##_iter *iter);                           \
     bool PFX##_iter_advance(struct SNAME##_iter *iter, size_t steps);          \
@@ -271,8 +263,6 @@ static const char *cmc_string_fmt_hashset = "struct %s<%s> "
         _set_->f_val = f_val;                                                  \
         _set_->alloc = alloc;                                                  \
         _set_->callbacks = NULL;                                               \
-        _set_->it_start = PFX##_impl_it_start;                                 \
-        _set_->it_end = PFX##_impl_it_end;                                     \
                                                                                \
         return _set_;                                                          \
     }                                                                          \
@@ -317,8 +307,6 @@ static const char *cmc_string_fmt_hashset = "struct %s<%s> "
         _set_->f_val = f_val;                                                  \
         _set_->alloc = alloc;                                                  \
         _set_->callbacks = callbacks;                                          \
-        _set_->it_start = PFX##_impl_it_start;                                 \
-        _set_->it_end = PFX##_impl_it_end;                                     \
                                                                                \
         return _set_;                                                          \
     }                                                                          \
@@ -480,11 +468,10 @@ static const char *cmc_string_fmt_hashset = "struct %s<%s> "
         }                                                                      \
                                                                                \
         V max_value;                                                           \
-        struct SNAME##_iter iter;                                              \
+        struct SNAME##_iter iter = PFX##_iter_start(_set_);                    \
                                                                                \
         /* TODO turn this into a normal loop */                                \
-        for (PFX##_iter_init(&iter, _set_); !PFX##_iter_end(&iter);            \
-             PFX##_iter_next(&iter))                                           \
+        for (; !PFX##_iter_at_end(&iter); PFX##_iter_next(&iter))              \
         {                                                                      \
             V result = PFX##_iter_value(&iter);                                \
             size_t index = PFX##_iter_index(&iter);                            \
@@ -515,11 +502,10 @@ static const char *cmc_string_fmt_hashset = "struct %s<%s> "
         }                                                                      \
                                                                                \
         V min_value;                                                           \
-        struct SNAME##_iter iter;                                              \
+        struct SNAME##_iter iter = PFX##_iter_start(_set_);                    \
                                                                                \
         /* TODO turn this into a normal loop */                                \
-        for (PFX##_iter_init(&iter, _set_); !PFX##_iter_end(&iter);            \
-             PFX##_iter_next(&iter))                                           \
+        for (; !PFX##_iter_at_end(&iter); PFX##_iter_next(&iter))              \
         {                                                                      \
             V result = PFX##_iter_value(&iter);                                \
             size_t index = PFX##_iter_index(&iter);                            \
@@ -620,11 +606,10 @@ static const char *cmc_string_fmt_hashset = "struct %s<%s> "
             return false;                                                      \
         }                                                                      \
                                                                                \
-        struct SNAME##_iter iter;                                              \
+        struct SNAME##_iter iter = PFX##_iter_start(_set_);                    \
                                                                                \
         /* TODO turn this into a normal loop */                                \
-        for (PFX##_iter_init(&iter, _set_); !PFX##_iter_end(&iter);            \
-             PFX##_iter_next(&iter))                                           \
+        for (; !PFX##_iter_at_end(&iter); PFX##_iter_next(&iter))              \
         {                                                                      \
             V value = PFX##_iter_value(&iter);                                 \
                                                                                \
@@ -718,12 +703,10 @@ static const char *cmc_string_fmt_hashset = "struct %s<%s> "
         if (_set1_->count == 0)                                                \
             return true;                                                       \
                                                                                \
-        struct SNAME##_iter iter;                                              \
-        PFX##_iter_init(&iter, _set1_);                                        \
+        struct SNAME##_iter iter = PFX##_iter_start(_set1_);                   \
                                                                                \
         /* TODO optimize this loop */                                          \
-        for (PFX##_iter_to_start(&iter); !PFX##_iter_end(&iter);               \
-             PFX##_iter_next(&iter))                                           \
+        for (; !PFX##_iter_at_end(&iter); PFX##_iter_next(&iter))              \
         {                                                                      \
             if (PFX##_impl_get_entry(_set2_, PFX##_iter_value(&iter)) == NULL) \
                 return false;                                                  \
@@ -775,19 +758,16 @@ static const char *cmc_string_fmt_hashset = "struct %s<%s> "
             return NULL;                                                       \
         }                                                                      \
                                                                                \
-        struct SNAME##_iter iter1, iter2;                                      \
-        PFX##_iter_init(&iter1, _set1_);                                       \
-        PFX##_iter_init(&iter2, _set2_);                                       \
+        struct SNAME##_iter iter1 = PFX##_iter_start(_set1_);                  \
+        struct SNAME##_iter iter2 = PFX##_iter_start(_set2_);                  \
                                                                                \
         /* TODO turn this into a normal loop and check for errors */           \
-        for (PFX##_iter_to_start(&iter1); !PFX##_iter_end(&iter1);             \
-             PFX##_iter_next(&iter1))                                          \
+        for (; !PFX##_iter_at_end(&iter1); PFX##_iter_next(&iter1))            \
         {                                                                      \
             PFX##_insert(_set_r_, PFX##_iter_value(&iter1));                   \
         }                                                                      \
                                                                                \
-        for (PFX##_iter_to_start(&iter2); !PFX##_iter_end(&iter2);             \
-             PFX##_iter_next(&iter2))                                          \
+        for (; !PFX##_iter_at_end(&iter2); PFX##_iter_next(&iter2))            \
         {                                                                      \
             PFX##_insert(_set_r_, PFX##_iter_value(&iter2));                   \
         }                                                                      \
@@ -816,11 +796,9 @@ static const char *cmc_string_fmt_hashset = "struct %s<%s> "
             _set1_->count < _set2_->count ? _set1_ : _set2_;                   \
         struct SNAME *_set_B_ = _set_A_ == _set1_ ? _set2_ : _set1_;           \
                                                                                \
-        struct SNAME##_iter iter;                                              \
-        PFX##_iter_init(&iter, _set_A_);                                       \
+        struct SNAME##_iter iter = PFX##_iter_start(_set_A_);                  \
                                                                                \
-        for (PFX##_iter_to_start(&iter); !PFX##_iter_end(&iter);               \
-             PFX##_iter_next(&iter))                                           \
+        for (; !PFX##_iter_at_end(&iter); PFX##_iter_next(&iter))              \
         {                                                                      \
             V value = PFX##_iter_value(&iter);                                 \
                                                                                \
@@ -847,11 +825,9 @@ static const char *cmc_string_fmt_hashset = "struct %s<%s> "
             return NULL;                                                       \
         }                                                                      \
                                                                                \
-        struct SNAME##_iter iter;                                              \
-        PFX##_iter_init(&iter, _set1_);                                        \
+        struct SNAME##_iter iter = PFX##_iter_start(_set1_);                   \
                                                                                \
-        for (PFX##_iter_to_start(&iter); !PFX##_iter_end(&iter);               \
-             PFX##_iter_next(&iter))                                           \
+        for (; !PFX##_iter_at_end(&iter); PFX##_iter_next(&iter))              \
         {                                                                      \
             V value = PFX##_iter_value(&iter);                                 \
                                                                                \
@@ -879,13 +855,10 @@ static const char *cmc_string_fmt_hashset = "struct %s<%s> "
             return NULL;                                                       \
         }                                                                      \
                                                                                \
-        struct SNAME##_iter iter1, iter2;                                      \
+        struct SNAME##_iter iter1 = PFX##_iter_start(_set1_);                  \
+        struct SNAME##_iter iter2 = PFX##_iter_start(_set2_);                  \
                                                                                \
-        PFX##_iter_init(&iter1, _set1_);                                       \
-        PFX##_iter_init(&iter2, _set2_);                                       \
-                                                                               \
-        for (PFX##_iter_to_start(&iter1); !PFX##_iter_end(&iter1);             \
-             PFX##_iter_next(&iter1))                                          \
+        for (; !PFX##_iter_at_end(&iter1); PFX##_iter_next(&iter1))            \
         {                                                                      \
             V value = PFX##_iter_value(&iter1);                                \
                                                                                \
@@ -893,8 +866,7 @@ static const char *cmc_string_fmt_hashset = "struct %s<%s> "
                 PFX##_insert(_set_r_, value);                                  \
         }                                                                      \
                                                                                \
-        for (PFX##_iter_to_start(&iter2); !PFX##_iter_end(&iter2);             \
-             PFX##_iter_next(&iter2))                                          \
+        for (; !PFX##_iter_at_end(&iter2); PFX##_iter_next(&iter2))            \
         {                                                                      \
             V value = PFX##_iter_value(&iter2);                                \
                                                                                \
@@ -924,12 +896,9 @@ static const char *cmc_string_fmt_hashset = "struct %s<%s> "
         if (PFX##_empty(_set1_))                                               \
             return true;                                                       \
                                                                                \
-        struct SNAME##_iter iter;                                              \
+        struct SNAME##_iter iter = PFX##_iter_start(_set1_);                   \
                                                                                \
-        PFX##_iter_init(&iter, _set1_);                                        \
-                                                                               \
-        for (PFX##_iter_to_start(&iter); !PFX##_iter_end(&iter);               \
-             PFX##_iter_next(&iter))                                           \
+        for (; !PFX##_iter_at_end(&iter); PFX##_iter_next(&iter))              \
         {                                                                      \
             V value = PFX##_iter_value(&iter);                                 \
                                                                                \
@@ -973,12 +942,9 @@ static const char *cmc_string_fmt_hashset = "struct %s<%s> "
                 return false;                                                  \
         }                                                                      \
                                                                                \
-        struct SNAME##_iter iter;                                              \
+        struct SNAME##_iter iter = PFX##_iter_start(_set1_);                   \
                                                                                \
-        PFX##_iter_init(&iter, _set1_);                                        \
-                                                                               \
-        for (PFX##_iter_to_start(&iter); !PFX##_iter_end(&iter);               \
-             PFX##_iter_next(&iter))                                           \
+        for (; !PFX##_iter_at_end(&iter); PFX##_iter_next(&iter))              \
         {                                                                      \
             V value = PFX##_iter_value(&iter);                                 \
                                                                                \
@@ -1010,12 +976,9 @@ static const char *cmc_string_fmt_hashset = "struct %s<%s> "
         if (PFX##_empty(_set1_))                                               \
             return true;                                                       \
                                                                                \
-        struct SNAME##_iter iter;                                              \
+        struct SNAME##_iter iter = PFX##_iter_start(_set1_);                   \
                                                                                \
-        PFX##_iter_init(&iter, _set1_);                                        \
-                                                                               \
-        for (PFX##_iter_to_start(&iter); !PFX##_iter_end(&iter);               \
-             PFX##_iter_next(&iter))                                           \
+        for (; !PFX##_iter_at_end(&iter); PFX##_iter_next(&iter))              \
         {                                                                      \
             V value = PFX##_iter_value(&iter);                                 \
                                                                                \
@@ -1026,31 +989,17 @@ static const char *cmc_string_fmt_hashset = "struct %s<%s> "
         return true;                                                           \
     }                                                                          \
                                                                                \
-    struct SNAME##_iter *PFX##_iter_new(struct SNAME *target)                  \
+    struct SNAME##_iter PFX##_iter_start(struct SNAME *target)                 \
     {                                                                          \
-        struct SNAME##_iter *iter =                                            \
-            target->alloc->malloc(sizeof(struct SNAME##_iter));                \
+        struct SNAME##_iter iter;                                              \
                                                                                \
-        if (!iter)                                                             \
-            return NULL;                                                       \
-                                                                               \
-        PFX##_iter_init(iter, target);                                         \
-                                                                               \
-        return iter;                                                           \
-    }                                                                          \
-                                                                               \
-    void PFX##_iter_free(struct SNAME##_iter *iter)                            \
-    {                                                                          \
-        iter->target->alloc->free(iter);                                       \
-    }                                                                          \
-                                                                               \
-    void PFX##_iter_init(struct SNAME##_iter *iter, struct SNAME *target)      \
-    {                                                                          \
-        memset(iter, 0, sizeof(struct SNAME##_iter));                          \
-                                                                               \
-        iter->target = target;                                                 \
-        iter->start = true;                                                    \
-        iter->end = PFX##_empty(target);                                       \
+        iter.target = target;                                                  \
+        iter.cursor = 0;                                                       \
+        iter.index = 0;                                                        \
+        iter.first = 0;                                                        \
+        iter.last = 0;                                                         \
+        iter.start = true;                                                     \
+        iter.end = PFX##_empty(target);                                        \
                                                                                \
         if (!PFX##_empty(target))                                              \
         {                                                                      \
@@ -1058,35 +1007,76 @@ static const char *cmc_string_fmt_hashset = "struct %s<%s> "
             {                                                                  \
                 if (target->buffer[i].state == CMC_ES_FILLED)                  \
                 {                                                              \
-                    iter->first = i;                                           \
+                    iter.first = i;                                            \
                     break;                                                     \
                 }                                                              \
             }                                                                  \
                                                                                \
-            iter->cursor = iter->first;                                        \
+            iter.cursor = iter.first;                                          \
                                                                                \
             for (size_t i = target->capacity; i > 0; i--)                      \
             {                                                                  \
                 if (target->buffer[i - 1].state == CMC_ES_FILLED)              \
                 {                                                              \
-                    iter->last = i - 1;                                        \
+                    iter.last = i - 1;                                         \
                     break;                                                     \
                 }                                                              \
             }                                                                  \
         }                                                                      \
+                                                                               \
+        return iter;                                                           \
     }                                                                          \
                                                                                \
-    bool PFX##_iter_start(struct SNAME##_iter *iter)                           \
+    struct SNAME##_iter PFX##_iter_end(struct SNAME *target)                   \
+    {                                                                          \
+        struct SNAME##_iter iter;                                              \
+                                                                               \
+        iter.target = target;                                                  \
+        iter.cursor = 0;                                                       \
+        iter.index = 0;                                                        \
+        iter.first = 0;                                                        \
+        iter.last = 0;                                                         \
+        iter.start = PFX##_empty(target);                                      \
+        iter.end = true;                                                       \
+                                                                               \
+        if (!PFX##_empty(target))                                              \
+        {                                                                      \
+            for (size_t i = 0; i < target->capacity; i++)                      \
+            {                                                                  \
+                if (target->buffer[i].state == CMC_ES_FILLED)                  \
+                {                                                              \
+                    iter.first = i;                                            \
+                    break;                                                     \
+                }                                                              \
+            }                                                                  \
+                                                                               \
+            for (size_t i = target->capacity; i > 0; i--)                      \
+            {                                                                  \
+                if (target->buffer[i - 1].state == CMC_ES_FILLED)              \
+                {                                                              \
+                    iter.last = i - 1;                                         \
+                    break;                                                     \
+                }                                                              \
+            }                                                                  \
+                                                                               \
+            iter.cursor = iter.last;                                           \
+            iter.index = target->count - 1;                                    \
+        }                                                                      \
+                                                                               \
+        return iter;                                                           \
+    }                                                                          \
+                                                                               \
+    bool PFX##_iter_at_start(struct SNAME##_iter *iter)                        \
     {                                                                          \
         return PFX##_empty(iter->target) || iter->start;                       \
     }                                                                          \
                                                                                \
-    bool PFX##_iter_end(struct SNAME##_iter *iter)                             \
+    bool PFX##_iter_at_end(struct SNAME##_iter *iter)                          \
     {                                                                          \
         return PFX##_empty(iter->target) || iter->end;                         \
     }                                                                          \
                                                                                \
-    void PFX##_iter_to_start(struct SNAME##_iter *iter)                        \
+    bool PFX##_iter_to_start(struct SNAME##_iter *iter)                        \
     {                                                                          \
         if (!PFX##_empty(iter->target))                                        \
         {                                                                      \
@@ -1094,10 +1084,14 @@ static const char *cmc_string_fmt_hashset = "struct %s<%s> "
             iter->index = 0;                                                   \
             iter->start = true;                                                \
             iter->end = PFX##_empty(iter->target);                             \
+                                                                               \
+            return true;                                                       \
         }                                                                      \
+                                                                               \
+        return false;                                                          \
     }                                                                          \
                                                                                \
-    void PFX##_iter_to_end(struct SNAME##_iter *iter)                          \
+    bool PFX##_iter_to_end(struct SNAME##_iter *iter)                          \
     {                                                                          \
         if (!PFX##_empty(iter->target))                                        \
         {                                                                      \
@@ -1105,7 +1099,11 @@ static const char *cmc_string_fmt_hashset = "struct %s<%s> "
             iter->index = iter->target->count - 1;                             \
             iter->start = PFX##_empty(iter->target);                           \
             iter->end = true;                                                  \
+                                                                               \
+            return true;                                                       \
         }                                                                      \
+                                                                               \
+        return false;                                                          \
     }                                                                          \
                                                                                \
     bool PFX##_iter_next(struct SNAME##_iter *iter)                            \
@@ -1270,25 +1268,6 @@ static const char *cmc_string_fmt_hashset = "struct %s<%s> "
             i++;                                                               \
                                                                                \
         return cmc_hashtable_primes[i];                                        \
-    }                                                                          \
-                                                                               \
-    static struct SNAME##_iter PFX##_impl_it_start(struct SNAME *_set_)        \
-    {                                                                          \
-        struct SNAME##_iter iter;                                              \
-                                                                               \
-        PFX##_iter_init(&iter, _set_);                                         \
-                                                                               \
-        return iter;                                                           \
-    }                                                                          \
-                                                                               \
-    static struct SNAME##_iter PFX##_impl_it_end(struct SNAME *_set_)          \
-    {                                                                          \
-        struct SNAME##_iter iter;                                              \
-                                                                               \
-        PFX##_iter_init(&iter, _set_);                                         \
-        PFX##_iter_to_end(&iter);                                              \
-                                                                               \
-        return iter;                                                           \
     }
 
 #endif /* CMC_HASHSET_H */

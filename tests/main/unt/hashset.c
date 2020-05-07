@@ -624,3 +624,413 @@ CMC_CREATE_UNIT(HashSet, true, {
         total_resize = 0;
     });
 });
+
+struct hashset_fval *hs_fval_numhash =
+    &(struct hashset_fval){ .cmp = cmc_size_cmp,
+                            .cpy = NULL,
+                            .str = cmc_size_str,
+                            .free = NULL,
+                            .hash = numhash,
+                            .pri = cmc_size_cmp };
+
+CMC_CREATE_UNIT(HashSetIter, true, {
+    CMC_CREATE_TEST(PFX##_iter_start(), {
+        struct hashset *set = hs_new(100, 0.6, hs_fval_numhash);
+
+        cmc_assert_not_equals(ptr, NULL, set);
+
+        struct hashset_iter it = hs_iter_start(set);
+
+        cmc_assert_equals(ptr, set, it.target);
+        cmc_assert_equals(size_t, 0, it.cursor);
+        cmc_assert_equals(size_t, 0, it.index);
+        cmc_assert_equals(size_t, 0, it.first);
+        cmc_assert_equals(size_t, 0, it.last);
+        cmc_assert_equals(bool, true, it.start);
+        cmc_assert_equals(bool, true, it.end);
+
+        cmc_assert(hs_iter_at_start(&it));
+        cmc_assert(hs_iter_at_end(&it));
+
+        cmc_assert(hs_insert(set, 1));
+        cmc_assert(hs_insert(set, 2));
+        cmc_assert(hs_insert(set, 3));
+
+        it = hs_iter_start(set);
+
+        cmc_assert_equals(size_t, 0, it.index);
+
+        cmc_assert_equals(size_t, 1, it.cursor);
+        cmc_assert_equals(size_t, 1, it.first);
+        cmc_assert_equals(size_t, 3, it.last);
+
+        hs_free(set);
+    });
+
+    CMC_CREATE_TEST(PFX##_iter_end(), {
+        struct hashset *set = hs_new(100, 0.6, hs_fval_numhash);
+
+        cmc_assert_not_equals(ptr, NULL, set);
+
+        struct hashset_iter it = hs_iter_end(set);
+
+        cmc_assert_equals(ptr, set, it.target);
+        cmc_assert_equals(size_t, 0, it.cursor);
+        cmc_assert_equals(size_t, 0, it.index);
+        cmc_assert_equals(size_t, 0, it.first);
+        cmc_assert_equals(size_t, 0, it.last);
+        cmc_assert_equals(bool, true, it.start);
+        cmc_assert_equals(bool, true, it.end);
+
+        cmc_assert(hs_iter_at_start(&it));
+        cmc_assert(hs_iter_at_end(&it));
+
+        cmc_assert(hs_insert(set, 1));
+        cmc_assert(hs_insert(set, 2));
+        cmc_assert(hs_insert(set, 3));
+
+        it = hs_iter_end(set);
+
+        cmc_assert_equals(size_t, set->count - 1, it.index);
+
+        cmc_assert_equals(size_t, 3, it.cursor);
+        cmc_assert_equals(size_t, 1, it.first);
+        cmc_assert_equals(size_t, 3, it.last);
+
+        hs_free(set);
+    });
+
+    CMC_CREATE_TEST(PFX##_iter_at_start(), {
+        struct hashset *set = hs_new(100, 0.6, hs_fval);
+
+        cmc_assert_not_equals(ptr, NULL, set);
+
+        struct hashset_iter it = hs_iter_start(set);
+
+        // Empty checks
+        cmc_assert(hs_iter_at_start(&it));
+        it = hs_iter_end(set);
+        cmc_assert(hs_iter_at_start(&it));
+
+        // Non-empty checks
+        cmc_assert(hs_insert(set, 1));
+        cmc_assert(hs_insert(set, 2));
+        it = hs_iter_end(set);
+        cmc_assert(!hs_iter_at_start(&it));
+        it = hs_iter_start(set);
+        cmc_assert(hs_iter_at_start(&it));
+
+        hs_free(set);
+    });
+
+    CMC_CREATE_TEST(PFX##_iter_at_end(), {
+        struct hashset *set = hs_new(100, 0.6, hs_fval);
+
+        cmc_assert_not_equals(ptr, NULL, set);
+
+        struct hashset_iter it = hs_iter_start(set);
+
+        // Empty check
+        cmc_assert(hs_iter_at_end(&it));
+        it = hs_iter_end(set);
+        cmc_assert(hs_iter_at_end(&it));
+
+        // Non-empty checks
+        cmc_assert(hs_insert(set, 1));
+        cmc_assert(hs_insert(set, 2));
+        it = hs_iter_end(set);
+        cmc_assert(hs_iter_at_end(&it));
+        it = hs_iter_start(set);
+        cmc_assert(!hs_iter_at_end(&it));
+
+        hs_free(set);
+    });
+
+    CMC_CREATE_TEST(PFX##_iter_to_start(), {
+        struct hashset *set = hs_new(100, 0.6, hs_fval_numhash);
+
+        cmc_assert_not_equals(ptr, NULL, set);
+
+        struct hashset_iter it = hs_iter_start(set);
+
+        cmc_assert(!hs_iter_to_start(&it));
+
+        for (size_t i = 1; i <= 100; i++)
+            hs_insert(set, i);
+
+        cmc_assert_equals(size_t, 100, set->count);
+
+        it = hs_iter_end(set);
+
+        cmc_assert(!hs_iter_at_start(&it));
+        cmc_assert(hs_iter_at_end(&it));
+
+        cmc_assert_equals(size_t, 100, hs_iter_value(&it));
+
+        cmc_assert(hs_iter_to_start(&it));
+
+        cmc_assert(hs_iter_at_start(&it));
+        cmc_assert(!hs_iter_at_end(&it));
+
+        cmc_assert_equals(size_t, 1, hs_iter_value(&it));
+
+        hs_free(set);
+    });
+
+    CMC_CREATE_TEST(PFX##_iter_to_end(), {
+        struct hashset *set = hs_new(100, 0.6, hs_fval_numhash);
+
+        cmc_assert_not_equals(ptr, NULL, set);
+
+        struct hashset_iter it = hs_iter_end(set);
+
+        cmc_assert(!hs_iter_to_end(&it));
+
+        for (size_t i = 1; i <= 100; i++)
+            hs_insert(set, i);
+
+        it = hs_iter_start(set);
+
+        cmc_assert(hs_iter_at_start(&it));
+        cmc_assert(!hs_iter_at_end(&it));
+
+        cmc_assert_equals(size_t, 1, hs_iter_value(&it));
+
+        cmc_assert(hs_iter_to_end(&it));
+
+        cmc_assert(!hs_iter_at_start(&it));
+        cmc_assert(hs_iter_at_end(&it));
+
+        cmc_assert_equals(size_t, 100, hs_iter_value(&it));
+
+        hs_free(set);
+    });
+
+    CMC_CREATE_TEST(PFX##_iter_next(), {
+        struct hashset *set = hs_new(100, 0.6, hs_fval);
+
+        cmc_assert_not_equals(ptr, NULL, set);
+
+        struct hashset_iter it = hs_iter_start(set);
+
+        cmc_assert(!hs_iter_next(&it));
+
+        for (size_t i = 1; i <= 1000; i++)
+            hs_insert(set, i);
+
+        size_t sum = 0;
+        for (it = hs_iter_start(set); !hs_iter_at_end(&it); hs_iter_next(&it))
+        {
+            sum += hs_iter_value(&it);
+        }
+
+        cmc_assert_equals(size_t, 500500, sum);
+
+        sum = 0;
+
+        hs_iter_to_start(&it);
+        do
+        {
+            sum += hs_iter_value(&it);
+        } while (hs_iter_next(&it));
+
+        cmc_assert_equals(size_t, 500500, sum);
+
+        hs_free(set);
+    });
+
+    CMC_CREATE_TEST(PFX##_iter_prev(), {
+        struct hashset *set = hs_new(100, 0.6, hs_fval);
+
+        cmc_assert_not_equals(ptr, NULL, set);
+
+        struct hashset_iter it = hs_iter_end(set);
+
+        cmc_assert(!hs_iter_prev(&it));
+
+        for (size_t i = 1; i <= 1000; i++)
+            hs_insert(set, i);
+
+        size_t sum = 0;
+        for (it = hs_iter_end(set); !hs_iter_at_start(&it); hs_iter_prev(&it))
+        {
+            sum += hs_iter_value(&it);
+        }
+
+        cmc_assert_equals(size_t, 500500, sum);
+
+        sum = 0;
+
+        hs_iter_to_end(&it);
+        do
+        {
+            sum += hs_iter_value(&it);
+        } while (hs_iter_prev(&it));
+
+        cmc_assert_equals(size_t, 500500, sum);
+
+        hs_free(set);
+    });
+
+    CMC_CREATE_TEST(PFX##_iter_advance(), {
+        struct hashset *set = hs_new(100, 0.6, hs_fval_numhash);
+
+        cmc_assert_not_equals(ptr, NULL, set);
+
+        struct hashset_iter it = hs_iter_start(set);
+
+        cmc_assert(!hs_iter_advance(&it, 1));
+
+        for (size_t i = 0; i <= 1000; i++)
+            hs_insert(set, i);
+
+        it = hs_iter_start(set);
+
+        cmc_assert(!hs_iter_advance(&it, 0));
+        cmc_assert(!hs_iter_advance(&it, set->count));
+
+        size_t sum = 0;
+        for (it = hs_iter_start(set);;)
+        {
+            sum += hs_iter_value(&it);
+
+            if (!hs_iter_advance(&it, 2))
+                break;
+        }
+
+        cmc_assert_equals(size_t, 250500, sum);
+
+        hs_iter_to_start(&it);
+        cmc_assert(hs_iter_advance(&it, set->count - 1));
+
+        hs_free(set);
+    });
+
+    CMC_CREATE_TEST(PFX##_iter_rewind(), {
+        struct hashset *set = hs_new(100, 0.6, hs_fval_numhash);
+
+        cmc_assert_not_equals(ptr, NULL, set);
+
+        struct hashset_iter it = hs_iter_end(set);
+
+        cmc_assert(!hs_iter_rewind(&it, 1));
+
+        for (size_t i = 0; i <= 1000; i++)
+            hs_insert(set, i);
+
+        it = hs_iter_end(set);
+
+        cmc_assert(!hs_iter_rewind(&it, 0));
+        cmc_assert(!hs_iter_rewind(&it, set->count));
+
+        size_t sum = 0;
+        for (it = hs_iter_end(set);;)
+        {
+            sum += hs_iter_value(&it);
+
+            if (!hs_iter_rewind(&it, 2))
+                break;
+        }
+
+        cmc_assert_equals(size_t, 250500, sum);
+
+        hs_iter_to_end(&it);
+        cmc_assert(hs_iter_rewind(&it, set->count - 1));
+
+        hs_free(set);
+    });
+
+    CMC_CREATE_TEST(PFX##_iter_go_to(), {
+        struct hashset *set = hs_new(100, 0.6, hs_fval_numhash);
+
+        cmc_assert_not_equals(ptr, NULL, set);
+
+        struct hashset_iter it = hs_iter_end(set);
+        cmc_assert(!hs_iter_go_to(&it, 0));
+
+        it = hs_iter_start(set);
+        cmc_assert(!hs_iter_go_to(&it, 0));
+
+        for (size_t i = 0; i <= 1000; i++)
+            hs_insert(set, i);
+
+        it = hs_iter_start(set);
+
+        size_t sum = 0;
+        for (size_t i = 0; i < 1001; i++)
+        {
+            hs_iter_go_to(&it, i);
+
+            sum += hs_iter_value(&it);
+        }
+
+        cmc_assert_equals(size_t, 500500, sum);
+
+        sum = 0;
+        for (size_t i = 1001; i > 0; i--)
+        {
+            cmc_assert(hs_iter_go_to(&it, i - 1));
+
+            sum += hs_iter_value(&it);
+        }
+
+        cmc_assert_equals(size_t, 500500, sum);
+
+        sum = 0;
+        for (size_t i = 0; i < 1001; i += 100)
+        {
+            cmc_assert(hs_iter_go_to(&it, i));
+            cmc_assert_equals(size_t, i, hs_iter_index(&it));
+
+            sum += hs_iter_value(&it);
+        }
+
+        cmc_assert_equals(size_t, 5500, sum);
+
+        hs_free(set);
+    });
+
+    CMC_CREATE_TEST(PFX##_iter_value(), {
+        struct hashset *set = hs_new(100, 0.6, hs_fval);
+
+        cmc_assert_not_equals(ptr, NULL, set);
+
+        struct hashset_iter it = hs_iter_end(set);
+
+        cmc_assert_equals(size_t, (size_t){ 0 }, hs_iter_value(&it));
+
+        cmc_assert(hs_insert(set, 10));
+
+        it = hs_iter_start(set);
+
+        cmc_assert_equals(size_t, 10, hs_iter_value(&it));
+
+        hs_free(set);
+    });
+
+    CMC_CREATE_TEST(PFX##_iter_index(), {
+        struct hashset *set = hs_new(100, 0.6, hs_fval);
+
+        cmc_assert_not_equals(ptr, NULL, set);
+
+        for (size_t i = 0; i <= 1000; i++)
+            hs_insert(set, i);
+
+        struct hashset_iter it = hs_iter_start(set);
+
+        for (size_t i = 0; i < 1001; i++)
+        {
+            cmc_assert_equals(size_t, i, hs_iter_index(&it));
+            hs_iter_next(&it);
+        }
+
+        it = hs_iter_end(set);
+        for (size_t i = 1001; i > 0; i--)
+        {
+            cmc_assert_equals(size_t, i - 1, hs_iter_index(&it));
+            hs_iter_prev(&it);
+        }
+
+        hs_free(set);
+    });
+});
