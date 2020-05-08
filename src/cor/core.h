@@ -28,6 +28,9 @@
 #include <stdlib.h>
 #include <string.h>
 
+#define CMC_TO_STRING_(X) #X
+#define CMC_TO_STRING(X) CMC_TO_STRING_(X)
+
 /**
  * struct cmc_string
  *
