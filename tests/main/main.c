@@ -61,6 +61,7 @@ int main(void)
     cmc_run(HashSet, units, tests);
     cmc_run(HashSetIter, units, tests);
     cmc_run(Heap, units, tests);
+    cmc_run(HeapIter, units, tests);
     cmc_run(IntervalHeap, units, tests);
     cmc_run(LinkedList, units, tests);
     cmc_run(List, units, tests);
