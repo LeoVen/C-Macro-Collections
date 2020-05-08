@@ -10,8 +10,6 @@ struct heap
     struct heap_fval *f_val;
     struct cmc_alloc_node *alloc;
     struct cmc_callbacks *callbacks;
-    struct heap_iter (*it_start)(struct heap *);
-    struct heap_iter (*it_end)(struct heap *);
 };
 struct heap_fval
 {
@@ -52,13 +50,12 @@ struct heap *h_copy_of(struct heap *_heap_);
 _Bool h_equals(struct heap *_heap1_, struct heap *_heap2_);
 struct cmc_string h_to_string(struct heap *_heap_);
 _Bool h_print(struct heap *_heap_, FILE *fptr);
-struct heap_iter *h_iter_new(struct heap *target);
-void h_iter_free(struct heap_iter *iter);
-void h_iter_init(struct heap_iter *iter, struct heap *target);
-_Bool h_iter_start(struct heap_iter *iter);
-_Bool h_iter_end(struct heap_iter *iter);
-void h_iter_to_start(struct heap_iter *iter);
-void h_iter_to_end(struct heap_iter *iter);
+struct heap_iter h_iter_start(struct heap *target);
+struct heap_iter h_iter_end(struct heap *target);
+_Bool h_iter_at_start(struct heap_iter *iter);
+_Bool h_iter_at_end(struct heap_iter *iter);
+_Bool h_iter_to_start(struct heap_iter *iter);
+_Bool h_iter_to_end(struct heap_iter *iter);
 _Bool h_iter_next(struct heap_iter *iter);
 _Bool h_iter_prev(struct heap_iter *iter);
 _Bool h_iter_advance(struct heap_iter *iter, size_t steps);
@@ -68,8 +65,6 @@ size_t h_iter_value(struct heap_iter *iter);
 size_t h_iter_index(struct heap_iter *iter);
 static void h_impl_float_up(struct heap *_heap_, size_t index);
 static void h_impl_float_down(struct heap *_heap_, size_t index);
-static struct heap_iter h_impl_it_start(struct heap *_heap_);
-static struct heap_iter h_impl_it_end(struct heap *_heap_);
 struct heap *h_new(size_t capacity, enum cmc_heap_order HO,
                    struct heap_fval *f_val)
 {
@@ -96,8 +91,6 @@ struct heap *h_new(size_t capacity, enum cmc_heap_order HO,
     _heap_->f_val = f_val;
     _heap_->alloc = alloc;
     _heap_->callbacks = ((void *)0);
-    _heap_->it_start = h_impl_it_start;
-    _heap_->it_end = h_impl_it_end;
     return _heap_;
 }
 struct heap *h_new_custom(size_t capacity, enum cmc_heap_order HO,
@@ -128,8 +121,6 @@ struct heap *h_new_custom(size_t capacity, enum cmc_heap_order HO,
     _heap_->f_val = f_val;
     _heap_->alloc = alloc;
     _heap_->callbacks = callbacks;
-    _heap_->it_start = h_impl_it_start;
-    _heap_->it_end = h_impl_it_end;
     return _heap_;
 }
 void h_clear(struct heap *_heap_)
@@ -325,50 +316,57 @@ _Bool h_print(struct heap *_heap_, FILE *fptr)
     }
     return 1;
 }
-struct heap_iter *h_iter_new(struct heap *target)
+struct heap_iter h_iter_start(struct heap *target)
 {
-    struct heap_iter *iter = target->alloc->malloc(sizeof(struct heap_iter));
-    if (!iter)
-        return ((void *)0);
-    h_iter_init(iter, target);
+    struct heap_iter iter;
+    iter.target = target;
+    iter.cursor = 0;
+    iter.start = 1;
+    iter.end = h_empty(target);
     return iter;
 }
-void h_iter_free(struct heap_iter *iter)
+struct heap_iter h_iter_end(struct heap *target)
 {
-    iter->target->alloc->free(iter);
+    struct heap_iter iter;
+    iter.target = target;
+    iter.cursor = 0;
+    iter.start = h_empty(target);
+    iter.end = 1;
+    if (!h_empty(target))
+    {
+        iter.cursor = target->count - 1;
+    }
+    return iter;
 }
-void h_iter_init(struct heap_iter *iter, struct heap *target)
-{
-    iter->target = target;
-    iter->cursor = 0;
-    iter->start = 1;
-    iter->end = h_empty(target);
-}
-_Bool h_iter_start(struct heap_iter *iter)
+_Bool h_iter_at_start(struct heap_iter *iter)
 {
     return h_empty(iter->target) || iter->start;
 }
-_Bool h_iter_end(struct heap_iter *iter)
+_Bool h_iter_at_end(struct heap_iter *iter)
 {
     return h_empty(iter->target) || iter->end;
 }
-void h_iter_to_start(struct heap_iter *iter)
+_Bool h_iter_to_start(struct heap_iter *iter)
 {
     if (!h_empty(iter->target))
     {
         iter->cursor = 0;
         iter->start = 1;
         iter->end = h_empty(iter->target);
+        return 1;
     }
+    return 0;
 }
-void h_iter_to_end(struct heap_iter *iter)
+_Bool h_iter_to_end(struct heap_iter *iter)
 {
     if (!h_empty(iter->target))
     {
         iter->cursor = iter->target->count - 1;
         iter->start = h_empty(iter->target);
         iter->end = 1;
+        return 1;
     }
+    return 0;
 }
 _Bool h_iter_next(struct heap_iter *iter)
 {
@@ -398,7 +396,7 @@ _Bool h_iter_prev(struct heap_iter *iter)
 }
 _Bool h_iter_advance(struct heap_iter *iter, size_t steps)
 {
-    if (iter->start)
+    if (iter->end)
         return 0;
     if (iter->cursor + 1 == iter->target->count)
     {
@@ -494,18 +492,4 @@ static void h_impl_float_down(struct heap *_heap_, size_t index)
         else
             break;
     }
-}
-static struct heap_iter h_impl_it_start(struct heap *_heap_)
-{
-    struct heap_iter iter;
-    h_iter_init(&iter, _heap_);
-    h_iter_to_start(&iter);
-    return iter;
-}
-static struct heap_iter h_impl_it_end(struct heap *_heap_)
-{
-    struct heap_iter iter;
-    h_iter_init(&iter, _heap_);
-    h_iter_to_end(&iter);
-    return iter;
 }

@@ -578,7 +578,7 @@ _Bool ih_iter_prev(struct intervalheap_iter *iter)
 }
 _Bool ih_iter_advance(struct intervalheap_iter *iter, size_t steps)
 {
-    if (iter->start)
+    if (iter->end)
         return 0;
     if (iter->cursor == 0)
     {

@@ -1294,6 +1294,7 @@ CMC_CREATE_UNIT(DequeIter, true, {
         it = d_iter_start(d);
 
         cmc_assert_equals(size_t, 0, it.index);
+        cmc_assert_equals(bool, false, it.end);
         cmc_assert_equals(size_t, d->front, it.cursor);
 
         d_free(d);
@@ -1323,6 +1324,7 @@ CMC_CREATE_UNIT(DequeIter, true, {
 
         cmc_assert_equals(size_t, d->count - 1, it.index);
         cmc_assert_equals(size_t, d->back - 1, it.cursor);
+        cmc_assert_equals(bool, false, it.start);
 
         d_free(d);
     });

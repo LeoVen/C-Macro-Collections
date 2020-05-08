@@ -877,7 +877,7 @@ static const char *cmc_string_fmt_intervalheap = "struct %s<%s> "
     /* Returns true only if the iterator moved */                              \
     bool PFX##_iter_advance(struct SNAME##_iter *iter, size_t steps)           \
     {                                                                          \
-        if (iter->start)                                                       \
+        if (iter->end)                                                         \
             return false;                                                      \
                                                                                \
         if (iter->cursor == 0)                                                 \

@@ -663,6 +663,7 @@ CMC_CREATE_UNIT(HashSetIter, true, {
         cmc_assert_equals(size_t, 1, it.cursor);
         cmc_assert_equals(size_t, 1, it.first);
         cmc_assert_equals(size_t, 3, it.last);
+        cmc_assert_equals(bool, false, it.end);
 
         hs_free(set);
     });
@@ -696,6 +697,7 @@ CMC_CREATE_UNIT(HashSetIter, true, {
         cmc_assert_equals(size_t, 3, it.cursor);
         cmc_assert_equals(size_t, 1, it.first);
         cmc_assert_equals(size_t, 3, it.last);
+        cmc_assert_equals(bool, false, it.start);
 
         hs_free(set);
     });

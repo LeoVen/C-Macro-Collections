@@ -928,6 +928,7 @@ CMC_CREATE_UNIT(HashMapIter, true, {
         cmc_assert_equals(size_t, 1, it.cursor);
         cmc_assert_equals(size_t, 1, it.first);
         cmc_assert_equals(size_t, 3, it.last);
+        cmc_assert_equals(bool, false, it.end);
 
         hm_free(map);
     });
@@ -961,6 +962,7 @@ CMC_CREATE_UNIT(HashMapIter, true, {
         cmc_assert_equals(size_t, 3, it.cursor);
         cmc_assert_equals(size_t, 1, it.first);
         cmc_assert_equals(size_t, 3, it.last);
+        cmc_assert_equals(bool, false, it.start);
 
         hm_free(map);
     });
