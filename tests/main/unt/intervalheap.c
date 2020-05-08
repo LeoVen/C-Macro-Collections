@@ -612,3 +612,22 @@ CMC_CREATE_UNIT(IntervalHeap, true, {
         total_resize = 0;
     });
 });
+
+CMC_CREATE_UNIT(IntervalHeapIter, true, {
+
+});
+
+#ifdef CMC_TEST_MAIN
+int main(void)
+{
+    int result = IntervalHeap() + IntervalHeapIter();
+
+    printf(" +---------------------------------------------------------------+");
+    printf("\n");
+    printf(" | IntervalHeap Suit : %-41s |\n", result == 0 ? "PASSED" : "FAILED");
+    printf(" +---------------------------------------------------------------+");
+    printf("\n\n\n");
+
+    return result;
+}
+#endif

@@ -198,7 +198,7 @@ static void cmc_test_log(const char *unit_name, const char *current_test,
         printf(                                                                         \
             " +---------------------------------------------------------------+\n");    \
         printf("%s", cmc_test_color(0));                                                \
-        printf("\n\n");                                                                 \
+        printf("\n");                                                                   \
                                                                                         \
         return tinfo.failed;                                                            \
     }

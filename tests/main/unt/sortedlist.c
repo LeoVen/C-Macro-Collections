@@ -312,3 +312,22 @@ CMC_CREATE_UNIT(SortedList, true, {
         total_resize = 0;
     });
 });
+
+CMC_CREATE_UNIT(SortedListIter, true, {
+
+});
+
+#ifdef CMC_TEST_MAIN
+int main(void)
+{
+    int result = SortedList() + SortedListIter();
+
+    printf(" +---------------------------------------------------------------+");
+    printf("\n");
+    printf(" | SortedList Suit : %-43s |\n", result == 0 ? "PASSED" : "FAILED");
+    printf(" +---------------------------------------------------------------+");
+    printf("\n\n\n");
+
+    return result;
+}
+#endif

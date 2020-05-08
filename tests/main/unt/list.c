@@ -612,3 +612,22 @@ CMC_CREATE_UNIT(List, true, {
         total_resize = 0;
     });
 })
+
+CMC_CREATE_UNIT(ListIter, true, {
+
+});
+
+#ifdef CMC_TEST_MAIN
+int main(void)
+{
+    int result = List() + ListIter();
+
+    printf(" +---------------------------------------------------------------+");
+    printf("\n");
+    printf(" | List Suit : %-49s |\n", result == 0 ? "PASSED" : "FAILED");
+    printf(" +---------------------------------------------------------------+");
+    printf("\n\n\n");
+
+    return result;
+}
+#endif

@@ -1034,3 +1034,18 @@ CMC_CREATE_UNIT(HashSetIter, true, {
         hs_free(set);
     });
 });
+
+#ifdef CMC_TEST_MAIN
+int main(void)
+{
+    int result = HashSet() + HashSetIter();
+
+    printf(" +---------------------------------------------------------------+");
+    printf("\n");
+    printf(" | HashSet Suit : %-46s |\n", result == 0 ? "PASSED" : "FAILED");
+    printf(" +---------------------------------------------------------------+");
+    printf("\n\n\n");
+
+    return result;
+}
+#endif

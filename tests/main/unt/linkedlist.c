@@ -342,3 +342,22 @@ CMC_CREATE_UNIT(LinkedList, true, {
         total_resize = 0;
     });
 });
+
+CMC_CREATE_UNIT(LinkedListIter, true, {
+
+});
+
+#ifdef CMC_TEST_MAIN
+int main(void)
+{
+    int result = LinkedList() + LinkedListIter();
+
+    printf(" +---------------------------------------------------------------+");
+    printf("\n");
+    printf(" | LinkedList Suit : %-43s |\n", result == 0 ? "PASSED" : "FAILED");
+    printf(" +---------------------------------------------------------------+");
+    printf("\n\n\n");
+
+    return result;
+}
+#endif

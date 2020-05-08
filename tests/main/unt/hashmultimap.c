@@ -936,3 +936,18 @@ CMC_CREATE_UNIT(HashMultiMapIter, true, {
         hmm_free(map);
     });
 });
+
+#ifdef CMC_TEST_MAIN
+int main(void)
+{
+    int result = HashMultiMap() + HashMultiMapIter();
+
+    printf(" +---------------------------------------------------------------+");
+    printf("\n");
+    printf(" | HashMultiMap Suit : %-41s |\n", result == 0 ? "PASSED" : "FAILED");
+    printf(" +---------------------------------------------------------------+");
+    printf("\n\n\n");
+
+    return result;
+}
+#endif

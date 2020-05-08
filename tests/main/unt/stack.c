@@ -278,6 +278,134 @@ CMC_CREATE_UNIT(Stack, true, {
         s_free(s);
     });
 
+    CMC_CREATE_TEST(flags, {
+        struct stack *s = s_new(100, s_fval);
+
+        cmc_assert_not_equals(ptr, NULL, s);
+        cmc_assert_equals(int32_t, cmc_flags.OK, s_flag(s));
+
+        // clear
+        s->flag = cmc_flags.ERROR;
+        s_clear(s);
+        cmc_assert_equals(int32_t, cmc_flags.OK, s_flag(s));
+
+        // customize
+        s->flag = cmc_flags.ERROR;
+        s_customize(s, NULL, NULL);
+        cmc_assert_equals(int32_t, cmc_flags.OK, s_flag(s));
+
+        // push
+        s->flag = cmc_flags.ERROR;
+        cmc_assert(s_push(s, 1));
+        cmc_assert_equals(int32_t, cmc_flags.OK, s_flag(s));
+
+        // pop
+        s->flag = cmc_flags.ERROR;
+        cmc_assert(s_pop(s));
+        cmc_assert_equals(int32_t, cmc_flags.OK, s_flag(s));
+
+        cmc_assert(!s_pop(s));
+        cmc_assert_equals(int32_t, cmc_flags.EMPTY, s_flag(s));
+
+        // top
+        s->flag = cmc_flags.ERROR;
+        s_top(s);
+        cmc_assert_equals(int32_t, cmc_flags.EMPTY, s_flag(s));
+
+        cmc_assert(s_push(s, 1));
+        s_top(s);
+        cmc_assert_equals(int32_t, cmc_flags.OK, s_flag(s));
+
+        // contains
+        s->flag = cmc_flags.ERROR;
+        cmc_assert(s_contains(s, 1));
+        cmc_assert_equals(int32_t, cmc_flags.OK, s_flag(s));
+
+        // copy_of
+        s->flag = cmc_flags.ERROR;
+        struct stack *s2 = s_copy_of(s);
+        cmc_assert_equals(int32_t, cmc_flags.OK, s_flag(s));
+        cmc_assert_equals(int32_t, cmc_flags.OK, s_flag(s2));
+
+        // equals
+        s->flag = cmc_flags.ERROR;
+        s2->flag = cmc_flags.ERROR;
+        cmc_assert(s_equals(s, s2));
+        cmc_assert_equals(int32_t, cmc_flags.OK, s_flag(s));
+        cmc_assert_equals(int32_t, cmc_flags.OK, s_flag(s2));
+
+        s_free(s);
+        s_free(s2);
+    });
+
+    CMC_CREATE_TEST(callbacks, {
+        struct stack *s = s_new_custom(100, s_fval, NULL, callbacks);
+
+        cmc_assert_not_equals(ptr, NULL, s);
+
+        total_create = 0;
+        total_read = 0;
+        total_update = 0;
+        total_delete = 0;
+        total_resize = 0;
+
+        cmc_assert(s_push(s, 10));
+        cmc_assert_equals(int32_t, 1, total_create);
+
+        cmc_assert(s_pop(s));
+        cmc_assert_equals(int32_t, 1, total_delete);
+
+        cmc_assert(s_push(s, 1));
+        cmc_assert_equals(int32_t, 2, total_create);
+
+        cmc_assert_equals(size_t, 1, s_top(s));
+        cmc_assert_equals(int32_t, 1, total_read);
+
+        cmc_assert(s_contains(s, 1));
+        cmc_assert_equals(int32_t, 2, total_read);
+
+        cmc_assert(s_resize(s, 1000));
+        cmc_assert_equals(int32_t, 1, total_resize);
+
+        cmc_assert(s_resize(s, 10));
+        cmc_assert_equals(int32_t, 2, total_resize);
+
+        cmc_assert_equals(int32_t, 2, total_create);
+        cmc_assert_equals(int32_t, 2, total_read);
+        cmc_assert_equals(int32_t, 0, total_update);
+        cmc_assert_equals(int32_t, 1, total_delete);
+        cmc_assert_equals(int32_t, 2, total_resize);
+
+        s_customize(s, NULL, NULL);
+
+        s_clear(s);
+        cmc_assert(s_push(s, 10));
+        cmc_assert(s_pop(s));
+        cmc_assert(s_push(s, 1));
+        cmc_assert_equals(size_t, 1, s_top(s));
+        cmc_assert(s_contains(s, 1));
+        cmc_assert(s_resize(s, 1000));
+        cmc_assert(s_resize(s, 10));
+
+        cmc_assert_equals(int32_t, 2, total_create);
+        cmc_assert_equals(int32_t, 2, total_read);
+        cmc_assert_equals(int32_t, 0, total_update);
+        cmc_assert_equals(int32_t, 1, total_delete);
+        cmc_assert_equals(int32_t, 2, total_resize);
+
+        cmc_assert_equals(ptr, NULL, s->callbacks);
+
+        s_free(s);
+
+        total_create = 0;
+        total_read = 0;
+        total_update = 0;
+        total_delete = 0;
+        total_resize = 0;
+    });
+});
+
+CMC_CREATE_UNIT(StackIter, true, {
     CMC_CREATE_TEST(iter_alloc, {
         struct stack *s = s_new(100, s_fval);
 
@@ -608,130 +736,19 @@ CMC_CREATE_UNIT(Stack, true, {
 
         s_free(s);
     });
-
-    CMC_CREATE_TEST(flags, {
-        struct stack *s = s_new(100, s_fval);
-
-        cmc_assert_not_equals(ptr, NULL, s);
-        cmc_assert_equals(int32_t, cmc_flags.OK, s_flag(s));
-
-        // clear
-        s->flag = cmc_flags.ERROR;
-        s_clear(s);
-        cmc_assert_equals(int32_t, cmc_flags.OK, s_flag(s));
-
-        // customize
-        s->flag = cmc_flags.ERROR;
-        s_customize(s, NULL, NULL);
-        cmc_assert_equals(int32_t, cmc_flags.OK, s_flag(s));
-
-        // push
-        s->flag = cmc_flags.ERROR;
-        cmc_assert(s_push(s, 1));
-        cmc_assert_equals(int32_t, cmc_flags.OK, s_flag(s));
-
-        // pop
-        s->flag = cmc_flags.ERROR;
-        cmc_assert(s_pop(s));
-        cmc_assert_equals(int32_t, cmc_flags.OK, s_flag(s));
-
-        cmc_assert(!s_pop(s));
-        cmc_assert_equals(int32_t, cmc_flags.EMPTY, s_flag(s));
-
-        // top
-        s->flag = cmc_flags.ERROR;
-        s_top(s);
-        cmc_assert_equals(int32_t, cmc_flags.EMPTY, s_flag(s));
-
-        cmc_assert(s_push(s, 1));
-        s_top(s);
-        cmc_assert_equals(int32_t, cmc_flags.OK, s_flag(s));
-
-        // contains
-        s->flag = cmc_flags.ERROR;
-        cmc_assert(s_contains(s, 1));
-        cmc_assert_equals(int32_t, cmc_flags.OK, s_flag(s));
-
-        // copy_of
-        s->flag = cmc_flags.ERROR;
-        struct stack *s2 = s_copy_of(s);
-        cmc_assert_equals(int32_t, cmc_flags.OK, s_flag(s));
-        cmc_assert_equals(int32_t, cmc_flags.OK, s_flag(s2));
-
-        // equals
-        s->flag = cmc_flags.ERROR;
-        s2->flag = cmc_flags.ERROR;
-        cmc_assert(s_equals(s, s2));
-        cmc_assert_equals(int32_t, cmc_flags.OK, s_flag(s));
-        cmc_assert_equals(int32_t, cmc_flags.OK, s_flag(s2));
-
-        s_free(s);
-        s_free(s2);
-    });
-
-    CMC_CREATE_TEST(callbacks, {
-        struct stack *s = s_new_custom(100, s_fval, NULL, callbacks);
-
-        cmc_assert_not_equals(ptr, NULL, s);
-
-        total_create = 0;
-        total_read = 0;
-        total_update = 0;
-        total_delete = 0;
-        total_resize = 0;
-
-        cmc_assert(s_push(s, 10));
-        cmc_assert_equals(int32_t, 1, total_create);
-
-        cmc_assert(s_pop(s));
-        cmc_assert_equals(int32_t, 1, total_delete);
-
-        cmc_assert(s_push(s, 1));
-        cmc_assert_equals(int32_t, 2, total_create);
-
-        cmc_assert_equals(size_t, 1, s_top(s));
-        cmc_assert_equals(int32_t, 1, total_read);
-
-        cmc_assert(s_contains(s, 1));
-        cmc_assert_equals(int32_t, 2, total_read);
-
-        cmc_assert(s_resize(s, 1000));
-        cmc_assert_equals(int32_t, 1, total_resize);
-
-        cmc_assert(s_resize(s, 10));
-        cmc_assert_equals(int32_t, 2, total_resize);
-
-        cmc_assert_equals(int32_t, 2, total_create);
-        cmc_assert_equals(int32_t, 2, total_read);
-        cmc_assert_equals(int32_t, 0, total_update);
-        cmc_assert_equals(int32_t, 1, total_delete);
-        cmc_assert_equals(int32_t, 2, total_resize);
-
-        s_customize(s, NULL, NULL);
-
-        s_clear(s);
-        cmc_assert(s_push(s, 10));
-        cmc_assert(s_pop(s));
-        cmc_assert(s_push(s, 1));
-        cmc_assert_equals(size_t, 1, s_top(s));
-        cmc_assert(s_contains(s, 1));
-        cmc_assert(s_resize(s, 1000));
-        cmc_assert(s_resize(s, 10));
-
-        cmc_assert_equals(int32_t, 2, total_create);
-        cmc_assert_equals(int32_t, 2, total_read);
-        cmc_assert_equals(int32_t, 0, total_update);
-        cmc_assert_equals(int32_t, 1, total_delete);
-        cmc_assert_equals(int32_t, 2, total_resize);
-
-        cmc_assert_equals(ptr, NULL, s->callbacks);
-
-        s_free(s);
-
-        total_create = 0;
-        total_read = 0;
-        total_update = 0;
-        total_delete = 0;
-        total_resize = 0;
-    });
 });
+
+#ifdef CMC_TEST_MAIN
+int main(void)
+{
+    int result = Stack() + StackIter();
+
+    printf(" +---------------------------------------------------------------+");
+    printf("\n");
+    printf(" | Stack Suit : %-48s |\n", result == 0 ? "PASSED" : "FAILED");
+    printf(" +---------------------------------------------------------------+");
+    printf("\n\n\n");
+
+    return result;
+}
+#endif

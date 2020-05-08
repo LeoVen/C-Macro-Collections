@@ -1724,3 +1724,18 @@ CMC_CREATE_UNIT(DequeIter, true, {
         d_free(d);
     });
 });
+
+#ifdef CMC_TEST_MAIN
+int main(void)
+{
+    int result = Deque() + DequeIter();
+
+    printf(" +---------------------------------------------------------------+");
+    printf("\n");
+    printf(" | Deque Suit : %-48s |\n", result == 0 ? "PASSED" : "FAILED");
+    printf(" +---------------------------------------------------------------+");
+    printf("\n\n\n");
+
+    return result;
+}
+#endif

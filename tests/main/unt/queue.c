@@ -544,3 +544,22 @@ CMC_CREATE_UNIT(Queue, true, {
         total_resize = 0;
     });
 });
+
+CMC_CREATE_UNIT(QueueIter, true, {
+
+});
+
+#ifdef CMC_TEST_MAIN
+int main(void)
+{
+    int result = Queue() + QueueIter();
+
+    printf(" +---------------------------------------------------------------+");
+    printf("\n");
+    printf(" | Queue Suit : %-48s |\n", result == 0 ? "PASSED" : "FAILED");
+    printf(" +---------------------------------------------------------------+");
+    printf("\n\n\n");
+
+    return result;
+}
+#endif

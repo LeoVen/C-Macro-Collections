@@ -164,3 +164,22 @@ CMC_CREATE_UNIT(TreeSet, true, {
         ts_free(set);
     });
 });
+
+CMC_CREATE_UNIT(TreeSetIter, true, {
+
+});
+
+#ifdef CMC_TEST_MAIN
+int main(void)
+{
+    int result = TreeSet() + TreeSetIter();
+
+    printf(" +---------------------------------------------------------------+");
+    printf("\n");
+    printf(" | TreeSet Suit : %-46s |\n", result == 0 ? "PASSED" : "FAILED");
+    printf(" +---------------------------------------------------------------+");
+    printf("\n\n\n");
+
+    return result;
+}
+#endif

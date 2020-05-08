@@ -290,3 +290,22 @@ CMC_CREATE_UNIT(Heap, true, {
         total_resize = 0;
     });
 });
+
+CMC_CREATE_UNIT(HeapIter, true, {
+
+});
+
+#ifdef CMC_TEST_MAIN
+int main(void)
+{
+    int result = Heap() + HeapIter();
+
+    printf(" +---------------------------------------------------------------+");
+    printf("\n");
+    printf(" | Heap Suit : %-49s |\n", result == 0 ? "PASSED" : "FAILED");
+    printf(" +---------------------------------------------------------------+");
+    printf("\n\n\n");
+
+    return result;
+}
+#endif

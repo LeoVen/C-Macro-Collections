@@ -212,3 +212,22 @@ CMC_CREATE_UNIT(TreeMap, true, {
         tm_free(map);
     });
 });
+
+CMC_CREATE_UNIT(TreeMapIter, true, {
+
+});
+
+#ifdef CMC_TEST_MAIN
+int main(void)
+{
+    int result = TreeMap() + TreeMapIter();
+
+    printf(" +---------------------------------------------------------------+");
+    printf("\n");
+    printf(" | TreeMap Suit : %-46s |\n", result == 0 ? "PASSED" : "FAILED");
+    printf(" +---------------------------------------------------------------+");
+    printf("\n\n\n");
+
+    return result;
+}
+#endif
