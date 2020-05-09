@@ -165,17 +165,15 @@ static const char *cmc_string_fmt_intervalheap = "struct %s<%s> "
     bool PFX##_print(struct SNAME *_heap_, FILE *fptr);                      \
                                                                              \
     /* Iterator Functions */                                                 \
-    /* Iterator Allocation and Deallocation */                               \
-    struct SNAME##_iter *PFX##_iter_new(struct SNAME *target);               \
-    void PFX##_iter_free(struct SNAME##_iter *iter);                         \
     /* Iterator Initialization */                                            \
-    void PFX##_iter_init(struct SNAME##_iter *iter, struct SNAME *target);   \
+    struct SNAME##_iter PFX##_iter_start(struct SNAME *target);              \
+    struct SNAME##_iter PFX##_iter_end(struct SNAME *target);                \
     /* Iterator State */                                                     \
-    bool PFX##_iter_start(struct SNAME##_iter *iter);                        \
-    bool PFX##_iter_end(struct SNAME##_iter *iter);                          \
+    bool PFX##_iter_at_start(struct SNAME##_iter *iter);                     \
+    bool PFX##_iter_at_end(struct SNAME##_iter *iter);                       \
     /* Iterator Movement */                                                  \
-    void PFX##_iter_to_start(struct SNAME##_iter *iter);                     \
-    void PFX##_iter_to_end(struct SNAME##_iter *iter);                       \
+    bool PFX##_iter_to_start(struct SNAME##_iter *iter);                     \
+    bool PFX##_iter_to_end(struct SNAME##_iter *iter);                       \
     bool PFX##_iter_next(struct SNAME##_iter *iter);                         \
     bool PFX##_iter_prev(struct SNAME##_iter *iter);                         \
     bool PFX##_iter_advance(struct SNAME##_iter *iter, size_t steps);        \
@@ -195,8 +193,6 @@ static const char *cmc_string_fmt_intervalheap = "struct %s<%s> "
     static void PFX##_impl_float_up_min(struct SNAME *_heap_);                 \
     static void PFX##_impl_float_down_max(struct SNAME *_heap_);               \
     static void PFX##_impl_float_down_min(struct SNAME *_heap_);               \
-    static struct SNAME##_iter PFX##_impl_it_start(struct SNAME *_heap_);      \
-    static struct SNAME##_iter PFX##_impl_it_end(struct SNAME *_heap_);        \
                                                                                \
     struct SNAME *PFX##_new(size_t capacity, struct SNAME##_fval *f_val)       \
     {                                                                          \
@@ -230,8 +226,6 @@ static const char *cmc_string_fmt_intervalheap = "struct %s<%s> "
         _heap_->f_val = f_val;                                                 \
         _heap_->alloc = alloc;                                                 \
         _heap_->callbacks = NULL;                                              \
-        _heap_->it_start = PFX##_impl_it_start;                                \
-        _heap_->it_end = PFX##_impl_it_end;                                    \
                                                                                \
         return _heap_;                                                         \
     }                                                                          \
@@ -271,8 +265,6 @@ static const char *cmc_string_fmt_intervalheap = "struct %s<%s> "
         _heap_->f_val = f_val;                                                 \
         _heap_->alloc = alloc;                                                 \
         _heap_->callbacks = callbacks;                                         \
-        _heap_->it_start = PFX##_impl_it_start;                                \
-        _heap_->it_end = PFX##_impl_it_end;                                    \
                                                                                \
         return _heap_;                                                         \
     }                                                                          \
@@ -730,8 +722,6 @@ static const char *cmc_string_fmt_intervalheap = "struct %s<%s> "
         result->f_val = _heap_->f_val;                                         \
         result->alloc = _heap_->alloc;                                         \
         result->callbacks = _heap_->callbacks;                                 \
-        result->it_start = PFX##_impl_it_start;                                \
-        result->it_end = PFX##_impl_it_end;                                    \
                                                                                \
         _heap_->flag = cmc_flags.OK;                                           \
                                                                                \
@@ -782,60 +772,69 @@ static const char *cmc_string_fmt_intervalheap = "struct %s<%s> "
         return true;                                                           \
     }                                                                          \
                                                                                \
-    struct SNAME##_iter *PFX##_iter_new(struct SNAME *target)                  \
+    struct SNAME##_iter PFX##_iter_start(struct SNAME *target)                 \
     {                                                                          \
-        struct SNAME##_iter *iter =                                            \
-            target->alloc->malloc(sizeof(struct SNAME##_iter));                \
+        struct SNAME##_iter iter;                                              \
                                                                                \
-        if (!iter)                                                             \
-            return NULL;                                                       \
-                                                                               \
-        PFX##_iter_init(iter, target);                                         \
+        iter.target = target;                                                  \
+        iter.cursor = 0;                                                       \
+        iter.start = true;                                                     \
+        iter.end = PFX##_empty(target);                                        \
                                                                                \
         return iter;                                                           \
     }                                                                          \
                                                                                \
-    void PFX##_iter_free(struct SNAME##_iter *iter)                            \
+    struct SNAME##_iter PFX##_iter_end(struct SNAME *target)                   \
     {                                                                          \
-        iter->target->alloc->free(iter);                                       \
+        struct SNAME##_iter iter;                                              \
+                                                                               \
+        iter.target = target;                                                  \
+        iter.cursor = 0;                                                       \
+        iter.start = PFX##_empty(target);                                      \
+        iter.end = true;                                                       \
+                                                                               \
+        if (!PFX##_empty(target))                                              \
+            iter.cursor = target->count - 1;                                   \
+                                                                               \
+        return iter;                                                           \
     }                                                                          \
                                                                                \
-    void PFX##_iter_init(struct SNAME##_iter *iter, struct SNAME *target)      \
-    {                                                                          \
-        iter->target = target;                                                 \
-        iter->cursor = 0;                                                      \
-        iter->start = true;                                                    \
-        iter->end = PFX##_empty(target);                                       \
-    }                                                                          \
-                                                                               \
-    bool PFX##_iter_start(struct SNAME##_iter *iter)                           \
+    bool PFX##_iter_at_start(struct SNAME##_iter *iter)                        \
     {                                                                          \
         return PFX##_empty(iter->target) || iter->start;                       \
     }                                                                          \
                                                                                \
-    bool PFX##_iter_end(struct SNAME##_iter *iter)                             \
+    bool PFX##_iter_at_end(struct SNAME##_iter *iter)                          \
     {                                                                          \
         return PFX##_empty(iter->target) || iter->end;                         \
     }                                                                          \
                                                                                \
-    void PFX##_iter_to_start(struct SNAME##_iter *iter)                        \
+    bool PFX##_iter_to_start(struct SNAME##_iter *iter)                        \
     {                                                                          \
         if (!PFX##_empty(iter->target))                                        \
         {                                                                      \
             iter->cursor = 0;                                                  \
             iter->start = true;                                                \
             iter->end = PFX##_empty(iter->target);                             \
+                                                                               \
+            return true;                                                       \
         }                                                                      \
+                                                                               \
+        return false;                                                          \
     }                                                                          \
                                                                                \
-    void PFX##_iter_to_end(struct SNAME##_iter *iter)                          \
+    bool PFX##_iter_to_end(struct SNAME##_iter *iter)                          \
     {                                                                          \
         if (!PFX##_empty(iter->target))                                        \
         {                                                                      \
             iter->cursor = iter->target->count - 1;                            \
             iter->start = PFX##_empty(iter->target);                           \
             iter->end = true;                                                  \
+                                                                               \
+            return true;                                                       \
         }                                                                      \
+                                                                               \
+        return false;                                                          \
     }                                                                          \
                                                                                \
     bool PFX##_iter_next(struct SNAME##_iter *iter)                            \
@@ -880,13 +879,16 @@ static const char *cmc_string_fmt_intervalheap = "struct %s<%s> "
         if (iter->end)                                                         \
             return false;                                                      \
                                                                                \
-        if (iter->cursor == 0)                                                 \
+        if (iter->cursor + 1 == iter->target->count)                           \
         {                                                                      \
-            iter->start = true;                                                \
+            iter->end = true;                                                  \
             return false;                                                      \
         }                                                                      \
                                                                                \
         if (steps == 0 || iter->cursor + steps >= iter->target->count)         \
+            return false;                                                      \
+                                                                               \
+        if (iter->end)                                                         \
             return false;                                                      \
                                                                                \
         iter->start = PFX##_empty(iter->target);                               \
@@ -1173,26 +1175,6 @@ static const char *cmc_string_fmt_intervalheap = "struct %s<%s> "
             index = child;                                                     \
             curr_node = child_node;                                            \
         }                                                                      \
-    }                                                                          \
-                                                                               \
-    static struct SNAME##_iter PFX##_impl_it_start(struct SNAME *_heap_)       \
-    {                                                                          \
-        struct SNAME##_iter iter;                                              \
-                                                                               \
-        PFX##_iter_init(&iter, _heap_);                                        \
-        PFX##_iter_to_start(&iter);                                            \
-                                                                               \
-        return iter;                                                           \
-    }                                                                          \
-                                                                               \
-    static struct SNAME##_iter PFX##_impl_it_end(struct SNAME *_heap_)         \
-    {                                                                          \
-        struct SNAME##_iter iter;                                              \
-                                                                               \
-        PFX##_iter_init(&iter, _heap_);                                        \
-        PFX##_iter_to_end(&iter);                                              \
-                                                                               \
-        return iter;                                                           \
     }
 
 #endif /* CMC_INTERVALHEAP_H */

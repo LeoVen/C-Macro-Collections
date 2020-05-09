@@ -561,9 +561,7 @@ static const char *cmc_string_fmt_heap = "struct %s<%s> "
         iter.end = true;                                                       \
                                                                                \
         if (!PFX##_empty(target))                                              \
-        {                                                                      \
             iter.cursor = target->count - 1;                                   \
-        }                                                                      \
                                                                                \
         return iter;                                                           \
     }                                                                          \
@@ -657,10 +655,10 @@ static const char *cmc_string_fmt_heap = "struct %s<%s> "
         if (steps == 0 || iter->cursor + steps >= iter->target->count)         \
             return false;                                                      \
                                                                                \
-        iter->start = PFX##_empty(iter->target);                               \
-                                                                               \
         if (iter->end)                                                         \
             return false;                                                      \
+                                                                               \
+        iter->start = PFX##_empty(iter->target);                               \
                                                                                \
         iter->cursor += steps;                                                 \
                                                                                \

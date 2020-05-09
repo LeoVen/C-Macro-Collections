@@ -333,9 +333,7 @@ struct heap_iter h_iter_end(struct heap *target)
     iter.start = h_empty(target);
     iter.end = 1;
     if (!h_empty(target))
-    {
         iter.cursor = target->count - 1;
-    }
     return iter;
 }
 _Bool h_iter_at_start(struct heap_iter *iter)
@@ -405,9 +403,9 @@ _Bool h_iter_advance(struct heap_iter *iter, size_t steps)
     }
     if (steps == 0 || iter->cursor + steps >= iter->target->count)
         return 0;
-    iter->start = h_empty(iter->target);
     if (iter->end)
         return 0;
+    iter->start = h_empty(iter->target);
     iter->cursor += steps;
     return 1;
 }

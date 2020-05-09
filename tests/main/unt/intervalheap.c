@@ -614,7 +614,429 @@ CMC_CREATE_UNIT(IntervalHeap, true, {
 });
 
 CMC_CREATE_UNIT(IntervalHeapIter, true, {
+    CMC_CREATE_TEST(PFX##_iter_start(), {
+        struct intervalheap *ih = ih_new(100, ih_fval);
 
+        cmc_assert_not_equals(ptr, NULL, ih);
+
+        struct intervalheap_iter it = ih_iter_start(ih);
+
+        cmc_assert_equals(ptr, ih, it.target);
+        cmc_assert_equals(size_t, 0, it.cursor);
+        cmc_assert_equals(bool, true, it.start);
+        cmc_assert_equals(bool, true, it.end);
+
+        cmc_assert(ih_iter_at_start(&it));
+        cmc_assert(ih_iter_at_end(&it));
+
+        cmc_assert(ih_insert(ih, 1));
+        cmc_assert(ih_insert(ih, 2));
+
+        it = ih_iter_start(ih);
+
+        cmc_assert_equals(size_t, 0, it.cursor);
+        cmc_assert_equals(bool, false, it.end);
+
+        ih_free(ih);
+    });
+
+    CMC_CREATE_TEST(PFX##_iter_end(), {
+        struct intervalheap *ih = ih_new(100, ih_fval);
+
+        cmc_assert_not_equals(ptr, NULL, ih);
+
+        struct intervalheap_iter it = ih_iter_end(ih);
+
+        cmc_assert_equals(ptr, ih, it.target);
+        cmc_assert_equals(size_t, 0, it.cursor);
+        cmc_assert_equals(bool, true, it.start);
+        cmc_assert_equals(bool, true, it.end);
+
+        cmc_assert(ih_iter_at_start(&it));
+        cmc_assert(ih_iter_at_end(&it));
+
+        cmc_assert(ih_insert(ih, 1));
+        cmc_assert(ih_insert(ih, 2));
+        cmc_assert(ih_insert(ih, 3));
+
+        it = ih_iter_end(ih);
+
+        cmc_assert_equals(size_t, ih->count - 1, it.cursor);
+        cmc_assert_equals(bool, false, it.start);
+
+        ih_free(ih);
+    });
+
+    CMC_CREATE_TEST(PFX##_iter_at_start(), {
+        struct intervalheap *ih = ih_new(100, ih_fval);
+
+        cmc_assert_not_equals(ptr, NULL, ih);
+
+        struct intervalheap_iter it = ih_iter_start(ih);
+
+        // Empty checks
+        cmc_assert(ih_iter_at_start(&it));
+        it = ih_iter_end(ih);
+        cmc_assert(ih_iter_at_start(&it));
+
+        // Non-empty check
+        cmc_assert(ih_insert(ih, 1));
+        it = ih_iter_end(ih);
+        cmc_assert(!ih_iter_at_start(&it));
+        it = ih_iter_start(ih);
+        cmc_assert(ih_iter_at_start(&it));
+
+        ih_free(ih);
+    });
+
+    CMC_CREATE_TEST(PFX##_iter_at_end(), {
+        struct intervalheap *ih = ih_new(100, ih_fval);
+
+        cmc_assert_not_equals(ptr, NULL, ih);
+
+        struct intervalheap_iter it = ih_iter_start(ih);
+
+        // Empty check
+        cmc_assert(ih_iter_at_end(&it));
+        it = ih_iter_end(ih);
+        cmc_assert(ih_iter_at_end(&it));
+
+        // Non-empty check
+        cmc_assert(ih_insert(ih, 1));
+        it = ih_iter_end(ih);
+        cmc_assert(ih_iter_at_end(&it));
+        it = ih_iter_start(ih);
+        cmc_assert(!ih_iter_at_end(&it));
+
+        ih_free(ih);
+    });
+
+    CMC_CREATE_TEST(PFX##_iter_to_start(), {
+        struct intervalheap *ih = ih_new(100, ih_fval);
+
+        cmc_assert_not_equals(ptr, NULL, ih);
+
+        struct intervalheap_iter it = ih_iter_start(ih);
+
+        cmc_assert(!ih_iter_to_start(&it));
+
+        for (size_t i = 1; i <= 100; i++)
+        {
+            if (i % 2 == 0)
+                ih_insert(ih, i);
+            else
+                ih_insert(ih, i);
+        }
+
+        cmc_assert_equals(size_t, 100, ih->count);
+
+        it = ih_iter_end(ih);
+        cmc_assert(!ih_iter_at_start(&it));
+        cmc_assert(ih_iter_at_end(&it));
+        cmc_assert_equals(size_t, 99, it.cursor);
+
+        cmc_assert(ih_iter_to_start(&it));
+        cmc_assert(ih_iter_at_start(&it));
+        cmc_assert(!ih_iter_at_end(&it));
+        cmc_assert_equals(size_t, 0, it.cursor);
+
+        ih_free(ih);
+    });
+
+    CMC_CREATE_TEST(PFX##_iter_to_end(), {
+        struct intervalheap *ih = ih_new(100, ih_fval);
+
+        cmc_assert_not_equals(ptr, NULL, ih);
+
+        struct intervalheap_iter it = ih_iter_end(ih);
+
+        cmc_assert(!ih_iter_to_end(&it));
+
+        for (size_t i = 1; i <= 100; i++)
+        {
+            if (i % 2 == 0)
+                ih_insert(ih, i);
+            else
+                ih_insert(ih, i);
+        }
+
+        it = ih_iter_start(ih);
+        cmc_assert(ih_iter_at_start(&it));
+        cmc_assert(!ih_iter_at_end(&it));
+
+        cmc_assert(ih_iter_to_end(&it));
+        cmc_assert(!ih_iter_at_start(&it));
+        cmc_assert(ih_iter_at_end(&it));
+
+        ih_free(ih);
+    });
+
+    CMC_CREATE_TEST(PFX##_iter_next(), {
+        struct intervalheap *ih = ih_new(100, ih_fval);
+
+        cmc_assert_not_equals(ptr, NULL, ih);
+
+        struct intervalheap_iter it = ih_iter_start(ih);
+
+        cmc_assert(!ih_iter_next(&it));
+
+        for (size_t i = 1; i <= 1000; i++)
+        {
+            if (i % 2 == 0)
+                ih_insert(ih, i);
+            else
+                ih_insert(ih, i);
+        }
+
+        size_t sum = 0;
+        for (it = ih_iter_start(ih); !ih_iter_at_end(&it); ih_iter_next(&it))
+        {
+            sum += ih_iter_value(&it);
+        }
+
+        cmc_assert_equals(size_t, 500500, sum);
+
+        sum = 0;
+
+        ih_iter_to_start(&it);
+        do
+        {
+            sum += ih_iter_value(&it);
+        } while (ih_iter_next(&it));
+
+        cmc_assert_equals(size_t, 500500, sum);
+
+        ih_free(ih);
+    });
+
+    CMC_CREATE_TEST(PFX##_iter_prev(), {
+        struct intervalheap *ih = ih_new(100, ih_fval);
+
+        cmc_assert_not_equals(ptr, NULL, ih);
+
+        struct intervalheap_iter it = ih_iter_end(ih);
+
+        cmc_assert(!ih_iter_prev(&it));
+
+        for (size_t i = 1; i <= 1000; i++)
+        {
+            if (i % 2 == 0)
+                ih_insert(ih, i);
+            else
+                ih_insert(ih, i);
+        }
+
+        size_t sum = 0;
+        for (it = ih_iter_end(ih); !ih_iter_at_start(&it); ih_iter_prev(&it))
+        {
+            sum += ih_iter_value(&it);
+        }
+
+        cmc_assert_equals(size_t, 500500, sum);
+
+        sum = 0;
+
+        ih_iter_to_end(&it);
+        do
+        {
+            sum += ih_iter_value(&it);
+        } while (ih_iter_prev(&it));
+
+        cmc_assert_equals(size_t, 500500, sum);
+
+        ih_free(ih);
+    });
+
+    CMC_CREATE_TEST(PFX##_iter_advance(), {
+        struct intervalheap *ih = ih_new(100, ih_fval);
+
+        cmc_assert_not_equals(ptr, NULL, ih);
+
+        struct intervalheap_iter it = ih_iter_start(ih);
+
+        cmc_assert(!ih_iter_advance(&it, 1));
+
+        for (size_t i = 1; i <= 1000; i++)
+            ih_insert(ih, i);
+
+        it = ih_iter_start(ih);
+
+        cmc_assert(!ih_iter_advance(&it, 0));
+        cmc_assert(!ih_iter_advance(&it, ih->count));
+
+        size_t sum = 0;
+        for (it = ih_iter_start(ih);;)
+        {
+            sum += ih_iter_value(&it);
+
+            if (!ih_iter_advance(&it, 2))
+                break;
+
+            cmc_assert_equals(size_t, 0, ih_iter_index(&it) % 2);
+        }
+
+        cmc_assert(ih_iter_to_start(&it));
+        cmc_assert(ih_iter_next(&it));
+
+        cmc_assert_equals(size_t, 1, ih_iter_index(&it));
+
+        for (;;)
+        {
+            sum += ih_iter_value(&it);
+
+            if (!ih_iter_advance(&it, 2))
+                break;
+
+            cmc_assert_equals(size_t, 1, ih_iter_index(&it) % 2);
+        }
+
+        cmc_assert_equals(size_t, 500500, sum);
+
+        ih_iter_to_start(&it);
+        cmc_assert(ih_iter_advance(&it, ih->count - 1));
+
+        ih_free(ih);
+    });
+
+    CMC_CREATE_TEST(PFX##_iter_rewind(), {
+        struct intervalheap *ih = ih_new(100, ih_fval);
+
+        cmc_assert_not_equals(ptr, NULL, ih);
+
+        struct intervalheap_iter it = ih_iter_end(ih);
+
+        cmc_assert(!ih_iter_rewind(&it, 1));
+
+        for (size_t i = 0; i <= 1000; i++)
+            ih_insert(ih, i);
+
+        it = ih_iter_end(ih);
+
+        cmc_assert(!ih_iter_rewind(&it, 0));
+        cmc_assert(!ih_iter_rewind(&it, ih->count));
+
+        size_t sum = 0;
+        for (it = ih_iter_end(ih);;)
+        {
+            sum += ih_iter_value(&it);
+
+            if (!ih_iter_rewind(&it, 2))
+                break;
+
+            cmc_assert_equals(size_t, 0, ih_iter_index(&it) % 2);
+        }
+
+        cmc_assert(ih_iter_to_end(&it));
+        cmc_assert(ih_iter_prev(&it));
+
+        cmc_assert_equals(size_t, ih->count - 2, ih_iter_index(&it));
+
+        for (;;)
+        {
+            sum += ih_iter_value(&it);
+
+            if (!ih_iter_rewind(&it, 2))
+                break;
+
+            cmc_assert_equals(size_t, 1, ih_iter_index(&it) % 2);
+        }
+
+        cmc_assert_equals(size_t, 500500, sum);
+
+        ih_iter_to_end(&it);
+        cmc_assert(ih_iter_rewind(&it, ih->count - 1));
+
+        ih_free(ih);
+    });
+
+    CMC_CREATE_TEST(PFX##_iter_go_to(), {
+        struct intervalheap *ih = ih_new(100, ih_fval);
+
+        cmc_assert_not_equals(ptr, NULL, ih);
+
+        struct intervalheap_iter it = ih_iter_end(ih);
+        cmc_assert(!ih_iter_go_to(&it, 0));
+
+        it = ih_iter_start(ih);
+        cmc_assert(!ih_iter_go_to(&it, 0));
+
+        for (size_t i = 0; i <= 1000; i++)
+            ih_insert(ih, i);
+
+        cmc_assert_equals(size_t, 1001, ih->count);
+
+        it = ih_iter_start(ih);
+
+        size_t sum = 0;
+        for (size_t i = 0; i < 1001; i++)
+        {
+            ih_iter_go_to(&it, i);
+
+            sum += ih_iter_value(&it);
+        }
+
+        cmc_assert_equals(size_t, 500500, sum);
+
+        sum = 0;
+        for (size_t i = 1001; i > 0; i--)
+        {
+            cmc_assert(ih_iter_go_to(&it, i - 1));
+
+            sum += ih_iter_value(&it);
+        }
+
+        cmc_assert_equals(size_t, 500500, sum);
+
+        ih_free(ih);
+    });
+
+    CMC_CREATE_TEST(PFX##_iter_value(), {
+        struct intervalheap *ih = ih_new(100, ih_fval);
+
+        cmc_assert_not_equals(ptr, NULL, ih);
+
+        struct intervalheap_iter it = ih_iter_end(ih);
+
+        cmc_assert_equals(size_t, (size_t){ 0 }, ih_iter_value(&it));
+
+        cmc_assert(ih_insert(ih, 1));
+        cmc_assert(ih_insert(ih, 3));
+        cmc_assert(ih_insert(ih, 2));
+
+        it = ih_iter_start(ih);
+
+        cmc_assert_equals(size_t, 1, ih_iter_value(&it));
+        cmc_assert(ih_iter_next(&it));
+        cmc_assert_equals(size_t, 3, ih_iter_value(&it));
+
+        ih_free(ih);
+    });
+
+    CMC_CREATE_TEST(PFX##_iter_index(), {
+        struct intervalheap *ih = ih_new(100, ih_fval);
+
+        cmc_assert_not_equals(ptr, NULL, ih);
+
+        for (size_t i = 0; i <= 1000; i++)
+            ih_insert(ih, i);
+
+        struct intervalheap_iter it = ih_iter_start(ih);
+
+        for (size_t i = 0; i < 1001; i++)
+        {
+            cmc_assert_equals(size_t, i, ih_iter_index(&it));
+            ih_iter_next(&it);
+        }
+
+        it = ih_iter_end(ih);
+        for (size_t i = 1001; i > 0; i--)
+        {
+            cmc_assert_equals(size_t, i - 1, ih_iter_index(&it));
+            ih_iter_prev(&it);
+        }
+
+        ih_free(ih);
+    });
 });
 
 #ifdef CMC_TEST_MAIN

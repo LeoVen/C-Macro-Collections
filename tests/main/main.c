@@ -63,13 +63,21 @@ int main(void)
     cmc_run(Heap, units, tests);
     cmc_run(HeapIter, units, tests);
     cmc_run(IntervalHeap, units, tests);
+    cmc_run(IntervalHeapIter, units, tests);
     cmc_run(LinkedList, units, tests);
+    cmc_run(LinkedListIter, units, tests);
     cmc_run(List, units, tests);
+    cmc_run(ListIter, units, tests);
     cmc_run(Queue, units, tests);
+    cmc_run(QueueIter, units, tests);
     cmc_run(SortedList, units, tests);
+    cmc_run(SortedListIter, units, tests);
     cmc_run(Stack, units, tests);
+    cmc_run(StackIter, units, tests);
     cmc_run(TreeMap, units, tests);
+    cmc_run(TreeMapIter, units, tests);
     cmc_run(TreeSet, units, tests);
+    cmc_run(TreeSetIter, units, tests);
 
     cmc_timer_stop(timer);
 
