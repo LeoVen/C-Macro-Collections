@@ -546,7 +546,413 @@ CMC_CREATE_UNIT(Queue, true, {
 });
 
 CMC_CREATE_UNIT(QueueIter, true, {
+    CMC_CREATE_TEST(PFX##_iter_start(), {
+        struct queue *q = q_new(100, q_fval);
 
+        cmc_assert_not_equals(ptr, NULL, q);
+
+        struct queue_iter it = q_iter_start(q);
+
+        cmc_assert_equals(ptr, q, it.target);
+        cmc_assert_equals(size_t, q->front, it.cursor);
+        cmc_assert_equals(size_t, 0, it.index);
+        cmc_assert_equals(bool, true, it.start);
+        cmc_assert_equals(bool, true, it.end);
+
+        cmc_assert(q_iter_at_start(&it));
+        cmc_assert(q_iter_at_end(&it));
+
+        cmc_assert(q_enqueue(q, 1));
+        cmc_assert(q_enqueue(q, 2));
+
+        it = q_iter_start(q);
+
+        cmc_assert_equals(size_t, 0, it.index);
+        cmc_assert_equals(bool, false, it.end);
+        cmc_assert_equals(size_t, q->front, it.cursor);
+
+        q_free(q);
+    });
+
+    CMC_CREATE_TEST(PFX##_iter_end(), {
+        struct queue *q = q_new(100, q_fval);
+
+        cmc_assert_not_equals(ptr, NULL, q);
+
+        struct queue_iter it = q_iter_end(q);
+
+        cmc_assert_equals(ptr, q, it.target);
+        cmc_assert_equals(size_t, q->back, it.cursor);
+        cmc_assert_equals(size_t, 0, it.index);
+        cmc_assert_equals(bool, true, it.start);
+        cmc_assert_equals(bool, true, it.end);
+
+        cmc_assert(q_iter_at_start(&it));
+        cmc_assert(q_iter_at_end(&it));
+
+        cmc_assert(q_enqueue(q, 1));
+        cmc_assert(q_enqueue(q, 2));
+        cmc_assert(q_enqueue(q, 3));
+
+        it = q_iter_end(q);
+
+        cmc_assert_equals(size_t, q->count - 1, it.index);
+        cmc_assert_equals(size_t, q->back - 1, it.cursor);
+        cmc_assert_equals(bool, false, it.start);
+
+        q_free(q);
+    });
+
+    CMC_CREATE_TEST(PFX##_iter_at_start(), {
+        struct queue *q = q_new(100, q_fval);
+
+        cmc_assert_not_equals(ptr, NULL, q);
+
+        struct queue_iter it = q_iter_start(q);
+
+        // Empty checks
+        cmc_assert(q_iter_at_start(&it));
+        it = q_iter_end(q);
+        cmc_assert(q_iter_at_start(&it));
+
+        // Non-empty check
+        cmc_assert(q_enqueue(q, 1));
+        it = q_iter_end(q);
+        cmc_assert(!q_iter_at_start(&it));
+        it = q_iter_start(q);
+        cmc_assert(q_iter_at_start(&it));
+
+        q_free(q);
+    });
+
+    CMC_CREATE_TEST(PFX##_iter_at_end(), {
+        struct queue *q = q_new(100, q_fval);
+
+        cmc_assert_not_equals(ptr, NULL, q);
+
+        struct queue_iter it = q_iter_start(q);
+
+        // Empty check
+        cmc_assert(q_iter_at_end(&it));
+        it = q_iter_end(q);
+        cmc_assert(q_iter_at_end(&it));
+
+        // Non-empty check
+        cmc_assert(q_enqueue(q, 1));
+        it = q_iter_end(q);
+        cmc_assert(q_iter_at_end(&it));
+        it = q_iter_start(q);
+        cmc_assert(!q_iter_at_end(&it));
+
+        q_free(q);
+    });
+
+    CMC_CREATE_TEST(PFX##_iter_to_start(), {
+        struct queue *q = q_new(100, q_fval);
+
+        cmc_assert_not_equals(ptr, NULL, q);
+
+        struct queue_iter it = q_iter_start(q);
+
+        cmc_assert(!q_iter_to_start(&it));
+
+        for (size_t i = 1; i <= 100; i++)
+            q_enqueue(q, i);
+
+        cmc_assert_equals(size_t, 100, q->count);
+
+        it = q_iter_end(q);
+
+        cmc_assert(!q_iter_at_start(&it));
+        cmc_assert(q_iter_at_end(&it));
+
+        cmc_assert_equals(size_t, 100, q_iter_value(&it));
+
+        cmc_assert(q_iter_to_start(&it));
+
+        cmc_assert(q_iter_at_start(&it));
+        cmc_assert(!q_iter_at_end(&it));
+
+        cmc_assert_equals(size_t, 1, q_iter_value(&it));
+
+        q_free(q);
+    });
+
+    CMC_CREATE_TEST(PFX##_iter_to_end(), {
+        struct queue *q = q_new(100, q_fval);
+
+        cmc_assert_not_equals(ptr, NULL, q);
+
+        struct queue_iter it = q_iter_end(q);
+
+        cmc_assert(!q_iter_to_end(&it));
+
+        for (size_t i = 1; i <= 100; i++)
+                q_enqueue(q, i);
+
+        it = q_iter_start(q);
+
+        cmc_assert(q_iter_at_start(&it));
+        cmc_assert(!q_iter_at_end(&it));
+
+        cmc_assert_equals(size_t, 1, q_iter_value(&it));
+
+        cmc_assert(q_iter_to_end(&it));
+
+        cmc_assert(!q_iter_at_start(&it));
+        cmc_assert(q_iter_at_end(&it));
+
+        cmc_assert_equals(size_t, 100, q_iter_value(&it));
+
+        q_free(q);
+    });
+
+    CMC_CREATE_TEST(PFX##_iter_next(), {
+        struct queue *q = q_new(100, q_fval);
+
+        cmc_assert_not_equals(ptr, NULL, q);
+
+        struct queue_iter it = q_iter_start(q);
+
+        cmc_assert(!q_iter_next(&it));
+
+        for (size_t i = 1; i <= 1000; i++)
+            q_enqueue(q, i);
+
+        size_t sum = 0;
+        for (it = q_iter_start(q); !q_iter_at_end(&it); q_iter_next(&it))
+        {
+            sum += q_iter_value(&it);
+        }
+
+        cmc_assert_equals(size_t, 500500, sum);
+
+        sum = 0;
+
+        q_iter_to_start(&it);
+        do
+        {
+            sum += q_iter_value(&it);
+        } while (q_iter_next(&it));
+
+        cmc_assert_equals(size_t, 500500, sum);
+
+        q_free(q);
+    });
+
+    CMC_CREATE_TEST(PFX##_iter_prev(), {
+        struct queue *q = q_new(100, q_fval);
+
+        cmc_assert_not_equals(ptr, NULL, q);
+
+        struct queue_iter it = q_iter_end(q);
+
+        cmc_assert(!q_iter_prev(&it));
+
+        for (size_t i = 1; i <= 1000; i++)
+            q_enqueue(q, i);
+
+        size_t sum = 0;
+        for (it = q_iter_end(q); !q_iter_at_start(&it); q_iter_prev(&it))
+        {
+            sum += q_iter_value(&it);
+        }
+
+        cmc_assert_equals(size_t, 500500, sum);
+
+        sum = 0;
+
+        q_iter_to_end(&it);
+        do
+        {
+            sum += q_iter_value(&it);
+        } while (q_iter_prev(&it));
+
+        cmc_assert_equals(size_t, 500500, sum);
+
+        q_free(q);
+    });
+
+    CMC_CREATE_TEST(PFX##_iter_advance(), {
+        struct queue *q = q_new(100, q_fval);
+
+        cmc_assert_not_equals(ptr, NULL, q);
+
+        struct queue_iter it = q_iter_start(q);
+
+        cmc_assert(!q_iter_advance(&it, 1));
+
+        for (size_t i = 0; i <= 1000; i++)
+            q_enqueue(q, i);
+
+        it = q_iter_start(q);
+
+        cmc_assert(!q_iter_advance(&it, 0));
+        cmc_assert(!q_iter_advance(&it, q->count));
+
+        size_t sum = 0;
+        for (it = q_iter_start(q);;)
+        {
+            sum += q_iter_value(&it);
+
+            if (!q_iter_advance(&it, 2))
+                break;
+        }
+
+        cmc_assert_equals(size_t, 250500, sum);
+
+        q_iter_to_start(&it);
+        cmc_assert(q_iter_advance(&it, q->count - 1));
+
+        q_free(q);
+    });
+
+    CMC_CREATE_TEST(PFX##_iter_rewind(), {
+        struct queue *q = q_new(100, q_fval);
+
+        cmc_assert_not_equals(ptr, NULL, q);
+
+        struct queue_iter it = q_iter_end(q);
+
+        cmc_assert(!q_iter_rewind(&it, 1));
+
+        for (size_t i = 0; i <= 1000; i++)
+            q_enqueue(q, i);
+
+        it = q_iter_end(q);
+
+        cmc_assert(!q_iter_rewind(&it, 0));
+        cmc_assert(!q_iter_rewind(&it, q->count));
+
+        size_t sum = 0;
+        for (it = q_iter_end(q);;)
+        {
+            sum += q_iter_value(&it);
+
+            if (!q_iter_rewind(&it, 2))
+                break;
+        }
+
+        cmc_assert_equals(size_t, 250500, sum);
+
+        q_iter_to_end(&it);
+        cmc_assert(q_iter_rewind(&it, q->count - 1));
+
+        q_free(q);
+    });
+
+    CMC_CREATE_TEST(PFX##_iter_go_to(), {
+        struct queue *q = q_new(100, q_fval);
+
+        cmc_assert_not_equals(ptr, NULL, q);
+
+        struct queue_iter it = q_iter_end(q);
+        cmc_assert(!q_iter_go_to(&it, 0));
+
+        it = q_iter_start(q);
+        cmc_assert(!q_iter_go_to(&it, 0));
+
+        for (size_t i = 0; i <= 1000; i++)
+            q_enqueue(q, i);
+
+        it = q_iter_start(q);
+
+        size_t sum = 0;
+        for (size_t i = 0; i < 1001; i++)
+        {
+            q_iter_go_to(&it, i);
+
+            sum += q_iter_value(&it);
+        }
+
+        cmc_assert_equals(size_t, 500500, sum);
+
+        sum = 0;
+        for (size_t i = 1001; i > 0; i--)
+        {
+            cmc_assert(q_iter_go_to(&it, i - 1));
+
+            sum += q_iter_value(&it);
+        }
+
+        cmc_assert_equals(size_t, 500500, sum);
+
+        sum = 0;
+        for (size_t i = 0; i < 1001; i += 100)
+        {
+            cmc_assert(q_iter_go_to(&it, i));
+            cmc_assert_equals(size_t, i, q_iter_index(&it));
+
+            sum += q_iter_value(&it);
+        }
+
+        cmc_assert_equals(size_t, 5500, sum);
+
+        q_free(q);
+    });
+
+    CMC_CREATE_TEST(PFX##_iter_value(), {
+        struct queue *q = q_new(100, q_fval);
+
+        cmc_assert_not_equals(ptr, NULL, q);
+
+        struct queue_iter it = q_iter_end(q);
+
+        cmc_assert_equals(size_t, (size_t){ 0 }, q_iter_value(&it));
+
+        cmc_assert(q_enqueue(q, 10));
+
+        it = q_iter_start(q);
+
+        cmc_assert_equals(size_t, 10, q_iter_value(&it));
+
+        q_free(q);
+    });
+
+    CMC_CREATE_TEST(PFX##_iter_rvalue(), {
+        struct queue *q = q_new(100, q_fval);
+
+        cmc_assert_not_equals(ptr, NULL, q);
+
+        struct queue_iter it = q_iter_end(q);
+
+        cmc_assert_equals(ptr, NULL, q_iter_rvalue(&it));
+
+        cmc_assert(q_enqueue(q, 10));
+
+        it = q_iter_start(q);
+
+        cmc_assert_not_equals(ptr, NULL, q_iter_rvalue(&it));
+        cmc_assert_equals(size_t, 10, *q_iter_rvalue(&it));
+
+        q_free(q);
+    });
+
+    CMC_CREATE_TEST(PFX##_iter_index(), {
+        struct queue *q = q_new(100, q_fval);
+
+        cmc_assert_not_equals(ptr, NULL, q);
+
+        for (size_t i = 0; i <= 1000; i++)
+            q_enqueue(q, i);
+
+        struct queue_iter it = q_iter_start(q);
+
+        for (size_t i = 0; i < 1001; i++)
+        {
+            cmc_assert_equals(size_t, i, q_iter_index(&it));
+            q_iter_next(&it);
+        }
+
+        it = q_iter_end(q);
+        for (size_t i = 1001; i > 0; i--)
+        {
+            cmc_assert_equals(size_t, i - 1, q_iter_index(&it));
+            q_iter_prev(&it);
+        }
+
+        q_free(q);
+    });
 });
 
 #ifdef CMC_TEST_MAIN
