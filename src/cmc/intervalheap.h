@@ -78,12 +78,6 @@ static const char *cmc_string_fmt_intervalheap = "struct %s<%s> "
         /* Value function table */                                           \
         struct SNAME##_fval *f_val;                                          \
                                                                              \
-        /* Function that returns an iterator to the start of the heap */     \
-        struct SNAME##_iter (*it_start)(struct SNAME *);                     \
-                                                                             \
-        /* Function that returns an iterator to the end of the heap */       \
-        struct SNAME##_iter (*it_end)(struct SNAME *);                       \
-                                                                             \
         /* Custom allocation functions */                                    \
         struct cmc_alloc_node *alloc;                                        \
                                                                              \

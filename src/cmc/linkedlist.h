@@ -85,12 +85,6 @@ static const char *cmc_string_fmt_linkedlist = "struct %s<%s> "
                                                                              \
         /* Custom callback functions */                                      \
         struct cmc_callbacks *callbacks;                                     \
-                                                                             \
-        /* Function that returns an iterator to the start of the list */     \
-        struct SNAME##_iter (*it_start)(struct SNAME *);                     \
-                                                                             \
-        /* Function that returns an iterator to the end of the list */       \
-        struct SNAME##_iter (*it_end)(struct SNAME *);                       \
     };                                                                       \
                                                                              \
     /* Doubly-linked list node */                                            \

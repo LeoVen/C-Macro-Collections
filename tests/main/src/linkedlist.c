@@ -9,8 +9,6 @@ struct linkedlist
     struct linkedlist_fval *f_val;
     struct cmc_alloc_node *alloc;
     struct cmc_callbacks *callbacks;
-    struct linkedlist_iter (*it_start)(struct linkedlist *);
-    struct linkedlist_iter (*it_end)(struct linkedlist *);
 };
 struct linkedlist_node
 {

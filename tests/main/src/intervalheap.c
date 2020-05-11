@@ -8,8 +8,6 @@ struct intervalheap
     size_t count;
     int flag;
     struct intervalheap_fval *f_val;
-    struct intervalheap_iter (*it_start)(struct intervalheap *);
-    struct intervalheap_iter (*it_end)(struct intervalheap *);
     struct cmc_alloc_node *alloc;
     struct cmc_callbacks *callbacks;
 };
