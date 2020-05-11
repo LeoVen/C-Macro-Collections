@@ -7,8 +7,6 @@ struct list
     size_t count;
     int flag;
     struct list_fval *f_val;
-    struct list_iter (*it_start)(struct list *);
-    struct list_iter (*it_end)(struct list *);
     struct cmc_alloc_node *alloc;
     struct cmc_callbacks *callbacks;
 };
@@ -65,13 +63,12 @@ struct list *l_copy_of(struct list *_list_);
 _Bool l_equals(struct list *_list1_, struct list *_list2_);
 struct cmc_string l_to_string(struct list *_list_);
 _Bool l_print(struct list *_list_, FILE *fptr);
-struct list_iter *l_iter_new(struct list *target);
-void l_iter_free(struct list_iter *iter);
-void l_iter_init(struct list_iter *iter, struct list *target);
-_Bool l_iter_start(struct list_iter *iter);
-_Bool l_iter_end(struct list_iter *iter);
-void l_iter_to_start(struct list_iter *iter);
-void l_iter_to_end(struct list_iter *iter);
+struct list_iter l_iter_start(struct list *target);
+struct list_iter l_iter_end(struct list *target);
+_Bool l_iter_at_start(struct list_iter *iter);
+_Bool l_iter_at_end(struct list_iter *iter);
+_Bool l_iter_to_start(struct list_iter *iter);
+_Bool l_iter_to_end(struct list_iter *iter);
 _Bool l_iter_next(struct list_iter *iter);
 _Bool l_iter_prev(struct list_iter *iter);
 _Bool l_iter_advance(struct list_iter *iter, size_t steps);
@@ -80,8 +77,6 @@ _Bool l_iter_go_to(struct list_iter *iter, size_t index);
 size_t l_iter_value(struct list_iter *iter);
 size_t *l_iter_rvalue(struct list_iter *iter);
 size_t l_iter_index(struct list_iter *iter);
-static struct list_iter l_impl_it_start(struct list *_list_);
-static struct list_iter l_impl_it_end(struct list *_list_);
 struct list *l_new(size_t capacity, struct list_fval *f_val)
 {
     struct cmc_alloc_node *alloc = &cmc_alloc_node_default;
@@ -102,8 +97,6 @@ struct list *l_new(size_t capacity, struct list_fval *f_val)
     _list_->f_val = f_val;
     _list_->alloc = alloc;
     _list_->callbacks = ((void *)0);
-    _list_->it_start = l_impl_it_start;
-    _list_->it_end = l_impl_it_end;
     return _list_;
 }
 struct list *l_new_custom(size_t capacity, struct list_fval *f_val,
@@ -131,8 +124,6 @@ struct list *l_new_custom(size_t capacity, struct list_fval *f_val,
     _list_->f_val = f_val;
     _list_->alloc = alloc;
     _list_->callbacks = callbacks;
-    _list_->it_start = l_impl_it_start;
-    _list_->it_end = l_impl_it_end;
     return _list_;
 }
 void l_clear(struct list *_list_)
@@ -590,50 +581,55 @@ _Bool l_print(struct list *_list_, FILE *fptr)
     }
     return 1;
 }
-struct list_iter *l_iter_new(struct list *target)
+struct list_iter l_iter_start(struct list *target)
 {
-    struct list_iter *iter = target->alloc->malloc(sizeof(struct list_iter));
-    if (!iter)
-        return ((void *)0);
-    l_iter_init(iter, target);
+    struct list_iter iter;
+    iter.target = target;
+    iter.cursor = 0;
+    iter.start = 1;
+    iter.end = l_empty(target);
     return iter;
 }
-void l_iter_free(struct list_iter *iter)
+struct list_iter l_iter_end(struct list *target)
 {
-    iter->target->alloc->free(iter);
+    struct list_iter iter;
+    iter.target = target;
+    iter.cursor = 0;
+    iter.start = l_empty(target);
+    iter.end = 1;
+    if (!l_empty(target))
+        iter.cursor = target->count - 1;
+    return iter;
 }
-void l_iter_init(struct list_iter *iter, struct list *target)
-{
-    iter->target = target;
-    iter->cursor = 0;
-    iter->start = 1;
-    iter->end = l_empty(target);
-}
-_Bool l_iter_start(struct list_iter *iter)
+_Bool l_iter_at_start(struct list_iter *iter)
 {
     return l_empty(iter->target) || iter->start;
 }
-_Bool l_iter_end(struct list_iter *iter)
+_Bool l_iter_at_end(struct list_iter *iter)
 {
     return l_empty(iter->target) || iter->end;
 }
-void l_iter_to_start(struct list_iter *iter)
+_Bool l_iter_to_start(struct list_iter *iter)
 {
     if (!l_empty(iter->target))
     {
         iter->cursor = 0;
         iter->start = 1;
         iter->end = l_empty(iter->target);
+        return 1;
     }
+    return 0;
 }
-void l_iter_to_end(struct list_iter *iter)
+_Bool l_iter_to_end(struct list_iter *iter)
 {
     if (!l_empty(iter->target))
     {
         iter->start = l_empty(iter->target);
-        iter->cursor = l_empty(iter->target) ? 0 : iter->target->count - 1;
+        iter->cursor = iter->target->count - 1;
         iter->end = 1;
+        return 1;
     }
+    return 0;
 }
 _Bool l_iter_next(struct list_iter *iter)
 {
@@ -716,18 +712,4 @@ size_t *l_iter_rvalue(struct list_iter *iter)
 size_t l_iter_index(struct list_iter *iter)
 {
     return iter->cursor;
-}
-static struct list_iter l_impl_it_start(struct list *_list_)
-{
-    struct list_iter iter;
-    l_iter_init(&iter, _list_);
-    l_iter_to_start(&iter);
-    return iter;
-}
-static struct list_iter l_impl_it_end(struct list *_list_)
-{
-    struct list_iter iter;
-    l_iter_init(&iter, _list_);
-    l_iter_to_end(&iter);
-    return iter;
 }
