@@ -585,7 +585,7 @@ struct treeset *ts_symmetric_difference(struct treeset *_set1_,
 }
 _Bool ts_is_subset(struct treeset *_set1_, struct treeset *_set2_)
 {
-    if (ts_count(_set1_) > ts_count(_set2_))
+    if (_set1_->count > _set2_->count)
         return 0;
     if (ts_empty(_set1_))
         return 1;
@@ -605,7 +605,7 @@ _Bool ts_is_superset(struct treeset *_set1_, struct treeset *_set2_)
 }
 _Bool ts_is_proper_subset(struct treeset *_set1_, struct treeset *_set2_)
 {
-    if (ts_count(_set1_) >= ts_count(_set2_))
+    if (_set1_->count >= _set2_->count)
         return 0;
     if (ts_empty(_set1_))
     {
@@ -767,7 +767,7 @@ _Bool ts_iter_advance(struct treeset_iter *iter, size_t steps)
         iter->end = 1;
         return 0;
     }
-    if (steps == 0 || iter->index + steps >= ts_count(iter->target))
+    if (steps == 0 || iter->index + steps >= iter->target->count)
         return 0;
     iter->index += steps;
     for (size_t i = 0; i < steps; i++)
@@ -792,7 +792,7 @@ _Bool ts_iter_rewind(struct treeset_iter *iter, size_t steps)
 }
 _Bool ts_iter_go_to(struct treeset_iter *iter, size_t index)
 {
-    if (index >= ts_count(iter->target))
+    if (index >= iter->target->count)
         return 0;
     if (iter->index > index)
         return ts_iter_rewind(iter, iter->index - index);

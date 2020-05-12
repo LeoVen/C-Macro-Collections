@@ -166,7 +166,7 @@ _Bool h_insert(struct heap *_heap_, size_t value)
             return 0;
     }
     _heap_->buffer[_heap_->count++] = value;
-    if (h_count(_heap_) > 1)
+    if (_heap_->count > 1)
     {
         h_impl_float_up(_heap_, _heap_->count - 1);
     }

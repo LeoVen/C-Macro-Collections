@@ -876,7 +876,7 @@ static const char *cmc_string_fmt_treeset = "struct %s<%s> "
     {                                                                          \
         /* If the cardinality of _set1_ is greater than that of _set2_ */      \
         /* then it is safe to say that _set1_ can't be a subset of _set2_ */   \
-        if (PFX##_count(_set1_) > PFX##_count(_set2_))                         \
+        if (_set1_->count > _set2_->count)                                     \
             return false;                                                      \
                                                                                \
         /* The empty set is a subset of all sets */                            \
@@ -915,7 +915,7 @@ static const char *cmc_string_fmt_treeset = "struct %s<%s> "
         /* If the cardinality of _set1_ is greater than or equal to that */    \
         /* of _set2_, then it is safe to say that _set1_ can't be a proper */  \
         /* subset of _set2_ */                                                 \
-        if (PFX##_count(_set1_) >= PFX##_count(_set2_))                        \
+        if (_set1_->count >= _set2_->count)                                    \
             return false;                                                      \
                                                                                \
         if (PFX##_empty(_set1_))                                               \
@@ -1145,7 +1145,7 @@ static const char *cmc_string_fmt_treeset = "struct %s<%s> "
             return false;                                                      \
         }                                                                      \
                                                                                \
-        if (steps == 0 || iter->index + steps >= PFX##_count(iter->target))    \
+        if (steps == 0 || iter->index + steps >= iter->target->count)          \
             return false;                                                      \
                                                                                \
         iter->index += steps;                                                  \
@@ -1183,7 +1183,7 @@ static const char *cmc_string_fmt_treeset = "struct %s<%s> "
     /* given index */                                                          \
     bool PFX##_iter_go_to(struct SNAME##_iter *iter, size_t index)             \
     {                                                                          \
-        if (index >= PFX##_count(iter->target))                                \
+        if (index >= iter->target->count)                                      \
             return false;                                                      \
                                                                                \
         if (iter->index > index)                                               \

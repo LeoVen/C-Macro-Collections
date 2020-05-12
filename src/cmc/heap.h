@@ -337,7 +337,7 @@ static const char *cmc_string_fmt_heap = "struct %s<%s> "
                                                                                \
         _heap_->buffer[_heap_->count++] = value;                               \
                                                                                \
-        if (PFX##_count(_heap_) > 1)                                           \
+        if (_heap_->count > 1)                                                 \
         {                                                                      \
             PFX##_impl_float_up(_heap_, _heap_->count - 1);                    \
         }                                                                      \
