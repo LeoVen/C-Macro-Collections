@@ -52,6 +52,7 @@ int main(void)
     cmc_run(Deque, units, tests);
     cmc_run(DequeIter, units, tests);
     cmc_run(HashBidiMap, units, tests);
+    cmc_run(HashBidiMapIter, units, tests);
     cmc_run(HashMap, units, tests);
     cmc_run(HashMapIter, units, tests);
     cmc_run(HashMultiMap, units, tests);

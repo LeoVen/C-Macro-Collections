@@ -314,7 +314,390 @@ CMC_CREATE_UNIT(SortedList, true, {
 });
 
 CMC_CREATE_UNIT(SortedListIter, true, {
+    CMC_CREATE_TEST(PFX##_iter_start(), {
+        struct sortedlist *sl = sl_new(100, sl_fval);
 
+        cmc_assert_not_equals(ptr, NULL, sl);
+
+        struct sortedlist_iter it = sl_iter_start(sl);
+
+        cmc_assert_equals(ptr, sl, it.target);
+        cmc_assert_equals(size_t, 0, it.cursor);
+        cmc_assert_equals(bool, true, it.start);
+        cmc_assert_equals(bool, true, it.end);
+
+        cmc_assert(sl_iter_at_start(&it));
+        cmc_assert(sl_iter_at_end(&it));
+
+        cmc_assert(sl_insert(sl, 1));
+        cmc_assert(sl_insert(sl, 2));
+
+        it = sl_iter_start(sl);
+
+        cmc_assert_equals(size_t, 0, it.cursor);
+        cmc_assert_equals(bool, false, it.end);
+
+        sl_free(sl);
+    });
+
+    CMC_CREATE_TEST(PFX##_iter_end(), {
+        struct sortedlist *sl = sl_new(100, sl_fval);
+
+        cmc_assert_not_equals(ptr, NULL, sl);
+
+        struct sortedlist_iter it = sl_iter_end(sl);
+
+        cmc_assert_equals(ptr, sl, it.target);
+        cmc_assert_equals(size_t, 0, it.cursor);
+        cmc_assert_equals(bool, true, it.start);
+        cmc_assert_equals(bool, true, it.end);
+
+        cmc_assert(sl_iter_at_start(&it));
+        cmc_assert(sl_iter_at_end(&it));
+
+        cmc_assert(sl_insert(sl, 1));
+        cmc_assert(sl_insert(sl, 2));
+        cmc_assert(sl_insert(sl, 3));
+
+        it = sl_iter_end(sl);
+
+        cmc_assert_equals(size_t, sl->count - 1, it.cursor);
+        cmc_assert_equals(bool, false, it.start);
+
+        sl_free(sl);
+    });
+
+    CMC_CREATE_TEST(PFX##_iter_at_start(), {
+        struct sortedlist *sl = sl_new(100, sl_fval);
+
+        cmc_assert_not_equals(ptr, NULL, sl);
+
+        struct sortedlist_iter it = sl_iter_start(sl);
+
+        // Empty checks
+        cmc_assert(sl_iter_at_start(&it));
+        it = sl_iter_end(sl);
+        cmc_assert(sl_iter_at_start(&it));
+
+        // Non-empty checks
+        cmc_assert(sl_insert(sl, 1));
+        it = sl_iter_end(sl);
+        cmc_assert(!sl_iter_at_start(&it));
+        it = sl_iter_start(sl);
+        cmc_assert(sl_iter_at_start(&it));
+
+        sl_free(sl);
+    });
+
+    CMC_CREATE_TEST(PFX##_iter_at_end(), {
+        struct sortedlist *sl = sl_new(100, sl_fval);
+
+        cmc_assert_not_equals(ptr, NULL, sl);
+
+        struct sortedlist_iter it = sl_iter_start(sl);
+
+        // Empty check
+        cmc_assert(sl_iter_at_end(&it));
+        it = sl_iter_end(sl);
+        cmc_assert(sl_iter_at_end(&it));
+
+        // Non-empty checks
+        cmc_assert(sl_insert(sl, 1));
+        it = sl_iter_end(sl);
+        cmc_assert(sl_iter_at_end(&it));
+        it = sl_iter_start(sl);
+        cmc_assert(!sl_iter_at_end(&it));
+
+        sl_free(sl);
+    });
+
+    CMC_CREATE_TEST(PFX##_iter_to_start(), {
+        struct sortedlist *sl = sl_new(100, sl_fval);
+
+        cmc_assert_not_equals(ptr, NULL, sl);
+
+        struct sortedlist_iter it = sl_iter_start(sl);
+
+        cmc_assert(!sl_iter_to_start(&it));
+
+        for (size_t i = 1; i <= 100; i++)
+            sl_insert(sl, i);
+
+        cmc_assert_equals(size_t, 100, sl->count);
+
+        it = sl_iter_end(sl);
+
+        cmc_assert(!sl_iter_at_start(&it));
+        cmc_assert(sl_iter_at_end(&it));
+
+        cmc_assert_equals(size_t, 100, sl_iter_value(&it));
+
+        cmc_assert(sl_iter_to_start(&it));
+
+        cmc_assert(sl_iter_at_start(&it));
+        cmc_assert(!sl_iter_at_end(&it));
+
+        cmc_assert_equals(size_t, 1, sl_iter_value(&it));
+
+        sl_free(sl);
+    });
+
+    CMC_CREATE_TEST(PFX##_iter_to_end(), {
+        struct sortedlist *sl = sl_new(100, sl_fval);
+
+        cmc_assert_not_equals(ptr, NULL, sl);
+
+        struct sortedlist_iter it = sl_iter_end(sl);
+
+        cmc_assert(!sl_iter_to_end(&it));
+
+        for (size_t i = 1; i <= 100; i++)
+            sl_insert(sl, i);
+
+        it = sl_iter_start(sl);
+
+        cmc_assert(sl_iter_at_start(&it));
+        cmc_assert(!sl_iter_at_end(&it));
+
+        cmc_assert_equals(size_t, 1, sl_iter_value(&it));
+
+        cmc_assert(sl_iter_to_end(&it));
+
+        cmc_assert(!sl_iter_at_start(&it));
+        cmc_assert(sl_iter_at_end(&it));
+
+        cmc_assert_equals(size_t, 100, sl_iter_value(&it));
+
+        sl_free(sl);
+    });
+
+    CMC_CREATE_TEST(PFX##_iter_next(), {
+        struct sortedlist *sl = sl_new(100, sl_fval);
+
+        cmc_assert_not_equals(ptr, NULL, sl);
+
+        struct sortedlist_iter it = sl_iter_start(sl);
+
+        cmc_assert(!sl_iter_next(&it));
+
+        for (size_t i = 1; i <= 1000; i++)
+            sl_insert(sl, i);
+
+        size_t sum = 0;
+        for (it = sl_iter_start(sl); !sl_iter_at_end(&it); sl_iter_next(&it))
+        {
+            sum += sl_iter_value(&it);
+        }
+
+        cmc_assert_equals(size_t, 500500, sum);
+
+        sum = 0;
+
+        sl_iter_to_start(&it);
+        do
+        {
+            sum += sl_iter_value(&it);
+        } while (sl_iter_next(&it));
+
+        cmc_assert_equals(size_t, 500500, sum);
+
+        sl_free(sl);
+    });
+
+    CMC_CREATE_TEST(PFX##_iter_prev(), {
+        struct sortedlist *sl = sl_new(100, sl_fval);
+
+        cmc_assert_not_equals(ptr, NULL, sl);
+
+        struct sortedlist_iter it = sl_iter_end(sl);
+
+        cmc_assert(!sl_iter_prev(&it));
+
+        for (size_t i = 1; i <= 1000; i++)
+            sl_insert(sl, i);
+
+        size_t sum = 0;
+        for (it = sl_iter_end(sl); !sl_iter_at_start(&it); sl_iter_prev(&it))
+        {
+            sum += sl_iter_value(&it);
+        }
+
+        cmc_assert_equals(size_t, 500500, sum);
+
+        sum = 0;
+
+        sl_iter_to_end(&it);
+        do
+        {
+            sum += sl_iter_value(&it);
+        } while (sl_iter_prev(&it));
+
+        cmc_assert_equals(size_t, 500500, sum);
+
+        sl_free(sl);
+    });
+
+    CMC_CREATE_TEST(PFX##_iter_advance(), {
+        struct sortedlist *sl = sl_new(100, sl_fval);
+
+        cmc_assert_not_equals(ptr, NULL, sl);
+
+        struct sortedlist_iter it = sl_iter_start(sl);
+
+        cmc_assert(!sl_iter_advance(&it, 1));
+
+        for (size_t i = 0; i <= 1000; i++)
+            sl_insert(sl, i);
+
+        it = sl_iter_start(sl);
+
+        cmc_assert(!sl_iter_advance(&it, 0));
+        cmc_assert(!sl_iter_advance(&it, sl->count));
+
+        size_t sum = 0;
+        for (it = sl_iter_start(sl);;)
+        {
+            sum += sl_iter_value(&it);
+
+            if (!sl_iter_advance(&it, 2))
+                break;
+        }
+
+        cmc_assert_equals(size_t, 250500, sum);
+
+        sl_iter_to_start(&it);
+        cmc_assert(sl_iter_advance(&it, sl->count - 1));
+
+        sl_free(sl);
+    });
+
+    CMC_CREATE_TEST(PFX##_iter_rewind(), {
+        struct sortedlist *sl = sl_new(100, sl_fval);
+
+        cmc_assert_not_equals(ptr, NULL, sl);
+
+        struct sortedlist_iter it = sl_iter_end(sl);
+
+        cmc_assert(!sl_iter_rewind(&it, 1));
+
+        for (size_t i = 0; i <= 1000; i++)
+            sl_insert(sl, i);
+
+        it = sl_iter_end(sl);
+
+        cmc_assert(!sl_iter_rewind(&it, 0));
+        cmc_assert(!sl_iter_rewind(&it, sl->count));
+
+        size_t sum = 0;
+        for (it = sl_iter_end(sl);;)
+        {
+            sum += sl_iter_value(&it);
+
+            if (!sl_iter_rewind(&it, 2))
+                break;
+        }
+
+        cmc_assert_equals(size_t, 250500, sum);
+
+        sl_iter_to_end(&it);
+        cmc_assert(sl_iter_rewind(&it, sl->count - 1));
+
+        sl_free(sl);
+    });
+
+    CMC_CREATE_TEST(PFX##_iter_go_to(), {
+        struct sortedlist *sl = sl_new(100, sl_fval);
+
+        cmc_assert_not_equals(ptr, NULL, sl);
+
+        struct sortedlist_iter it = sl_iter_end(sl);
+        cmc_assert(!sl_iter_go_to(&it, 0));
+
+        it = sl_iter_start(sl);
+        cmc_assert(!sl_iter_go_to(&it, 0));
+
+        for (size_t i = 0; i <= 1000; i++)
+            sl_insert(sl, i);
+
+        it = sl_iter_start(sl);
+
+        size_t sum = 0;
+        for (size_t i = 0; i < 1001; i++)
+        {
+            sl_iter_go_to(&it, i);
+
+            sum += sl_iter_value(&it);
+        }
+
+        cmc_assert_equals(size_t, 500500, sum);
+
+        sum = 0;
+        for (size_t i = 1001; i > 0; i--)
+        {
+            cmc_assert(sl_iter_go_to(&it, i - 1));
+
+            sum += sl_iter_value(&it);
+        }
+
+        cmc_assert_equals(size_t, 500500, sum);
+
+        sum = 0;
+        for (size_t i = 0; i < 1001; i += 100)
+        {
+            cmc_assert(sl_iter_go_to(&it, i));
+            cmc_assert_equals(size_t, i, sl_iter_index(&it));
+
+            sum += sl_iter_value(&it);
+        }
+
+        cmc_assert_equals(size_t, 5500, sum);
+
+        sl_free(sl);
+    });
+
+    CMC_CREATE_TEST(PFX##_iter_value(), {
+        struct sortedlist *sl = sl_new(100, sl_fval);
+
+        cmc_assert_not_equals(ptr, NULL, sl);
+
+        struct sortedlist_iter it = sl_iter_end(sl);
+
+        cmc_assert_equals(size_t, (size_t){ 0 }, sl_iter_value(&it));
+
+        cmc_assert(sl_insert(sl, 10));
+
+        it = sl_iter_start(sl);
+
+        cmc_assert_equals(size_t, 10, sl_iter_value(&it));
+
+        sl_free(sl);
+    });
+
+    CMC_CREATE_TEST(PFX##_iter_index(), {
+        struct sortedlist *sl = sl_new(100, sl_fval);
+
+        cmc_assert_not_equals(ptr, NULL, sl);
+
+        for (size_t i = 0; i <= 1000; i++)
+            sl_insert(sl, i);
+
+        struct sortedlist_iter it = sl_iter_start(sl);
+
+        for (size_t i = 0; i < 1001; i++)
+        {
+            cmc_assert_equals(size_t, i, sl_iter_index(&it));
+            sl_iter_next(&it);
+        }
+
+        it = sl_iter_end(sl);
+        for (size_t i = 1001; i > 0; i--)
+        {
+            cmc_assert_equals(size_t, i - 1, sl_iter_index(&it));
+            sl_iter_prev(&it);
+        }
+
+        sl_free(sl);
+    });
 });
 
 #ifdef CMC_TEST_MAIN

@@ -10,8 +10,6 @@ struct sortedlist
     struct sortedlist_fval *f_val;
     struct cmc_alloc_node *alloc;
     struct cmc_callbacks *callbacks;
-    struct sortedlist_iter (*it_start)(struct sortedlist *);
-    struct sortedlist_iter (*it_end)(struct sortedlist *);
 };
 struct sortedlist_fval
 {
@@ -55,13 +53,12 @@ struct sortedlist *sl_copy_of(struct sortedlist *_list_);
 _Bool sl_equals(struct sortedlist *_list1_, struct sortedlist *_list2_);
 struct cmc_string sl_to_string(struct sortedlist *_list_);
 _Bool sl_print(struct sortedlist *_list_, FILE *fptr);
-struct sortedlist_iter *sl_iter_new(struct sortedlist *target);
-void sl_iter_free(struct sortedlist_iter *iter);
-void sl_iter_init(struct sortedlist_iter *iter, struct sortedlist *target);
-_Bool sl_iter_start(struct sortedlist_iter *iter);
-_Bool sl_iter_end(struct sortedlist_iter *iter);
-void sl_iter_to_start(struct sortedlist_iter *iter);
-void sl_iter_to_end(struct sortedlist_iter *iter);
+struct sortedlist_iter sl_iter_start(struct sortedlist *target);
+struct sortedlist_iter sl_iter_end(struct sortedlist *target);
+_Bool sl_iter_at_start(struct sortedlist_iter *iter);
+_Bool sl_iter_at_end(struct sortedlist_iter *iter);
+_Bool sl_iter_to_start(struct sortedlist_iter *iter);
+_Bool sl_iter_to_end(struct sortedlist_iter *iter);
 _Bool sl_iter_next(struct sortedlist_iter *iter);
 _Bool sl_iter_prev(struct sortedlist_iter *iter);
 _Bool sl_iter_advance(struct sortedlist_iter *iter, size_t steps);
@@ -77,8 +74,6 @@ void sl_impl_sort_quicksort(size_t *array, int (*cmp)(size_t, size_t),
                             size_t low, size_t high);
 void sl_impl_sort_insertion(size_t *array, int (*cmp)(size_t, size_t),
                             size_t low, size_t high);
-static struct sortedlist_iter sl_impl_it_start(struct sortedlist *_list_);
-static struct sortedlist_iter sl_impl_it_end(struct sortedlist *_list_);
 struct sortedlist *sl_new(size_t capacity, struct sortedlist_fval *f_val)
 {
     struct cmc_alloc_node *alloc = &cmc_alloc_node_default;
@@ -102,8 +97,6 @@ struct sortedlist *sl_new(size_t capacity, struct sortedlist_fval *f_val)
     _list_->f_val = f_val;
     _list_->alloc = alloc;
     _list_->callbacks = ((void *)0);
-    _list_->it_start = sl_impl_it_start;
-    _list_->it_end = sl_impl_it_end;
     return _list_;
 }
 struct sortedlist *sl_new_custom(size_t capacity, struct sortedlist_fval *f_val,
@@ -130,8 +123,6 @@ struct sortedlist *sl_new_custom(size_t capacity, struct sortedlist_fval *f_val,
     _list_->f_val = f_val;
     _list_->alloc = alloc;
     _list_->callbacks = callbacks;
-    _list_->it_start = sl_impl_it_start;
-    _list_->it_end = sl_impl_it_end;
     return _list_;
 }
 void sl_clear(struct sortedlist *_list_)
@@ -372,52 +363,57 @@ _Bool sl_print(struct sortedlist *_list_, FILE *fptr)
     }
     return 1;
 }
-struct sortedlist_iter *sl_iter_new(struct sortedlist *target)
-{
-    struct sortedlist_iter *iter =
-        target->alloc->malloc(sizeof(struct sortedlist_iter));
-    if (!iter)
-        return ((void *)0);
-    sl_iter_init(iter, target);
-    return iter;
-}
-void sl_iter_free(struct sortedlist_iter *iter)
-{
-    iter->target->alloc->free(iter);
-}
-void sl_iter_init(struct sortedlist_iter *iter, struct sortedlist *target)
+struct sortedlist_iter sl_iter_start(struct sortedlist *target)
 {
     sl_sort(target);
-    iter->target = target;
-    iter->cursor = 0;
-    iter->start = 1;
-    iter->end = sl_empty(target);
+    struct sortedlist_iter iter;
+    iter.target = target;
+    iter.cursor = 0;
+    iter.start = 1;
+    iter.end = sl_empty(target);
+    return iter;
 }
-_Bool sl_iter_start(struct sortedlist_iter *iter)
+struct sortedlist_iter sl_iter_end(struct sortedlist *target)
+{
+    sl_sort(target);
+    struct sortedlist_iter iter;
+    iter.target = target;
+    iter.cursor = 0;
+    iter.start = sl_empty(target);
+    iter.end = 1;
+    if (!sl_empty(target))
+        iter.cursor = target->count - 1;
+    return iter;
+}
+_Bool sl_iter_at_start(struct sortedlist_iter *iter)
 {
     return sl_empty(iter->target) || iter->start;
 }
-_Bool sl_iter_end(struct sortedlist_iter *iter)
+_Bool sl_iter_at_end(struct sortedlist_iter *iter)
 {
     return sl_empty(iter->target) || iter->end;
 }
-void sl_iter_to_start(struct sortedlist_iter *iter)
+_Bool sl_iter_to_start(struct sortedlist_iter *iter)
 {
     if (!sl_empty(iter->target))
     {
         iter->cursor = 0;
         iter->start = 1;
         iter->end = sl_empty(iter->target);
+        return 1;
     }
+    return 0;
 }
-void sl_iter_to_end(struct sortedlist_iter *iter)
+_Bool sl_iter_to_end(struct sortedlist_iter *iter)
 {
     if (!sl_empty(iter->target))
     {
         iter->start = sl_empty(iter->target);
-        iter->cursor = sl_empty(iter->target) ? 0 : iter->target->count - 1;
+        iter->cursor = iter->target->count - 1;
         iter->end = 1;
+        return 1;
     }
+    return 0;
 }
 _Bool sl_iter_next(struct sortedlist_iter *iter)
 {
@@ -587,18 +583,4 @@ void sl_impl_sort_insertion(size_t *array, int (*cmp)(size_t, size_t),
         }
         array[j] = _tmp_;
     }
-}
-static struct sortedlist_iter sl_impl_it_start(struct sortedlist *_list_)
-{
-    struct sortedlist_iter iter;
-    sl_iter_init(&iter, _list_);
-    sl_iter_to_start(&iter);
-    return iter;
-}
-static struct sortedlist_iter sl_impl_it_end(struct sortedlist *_list_)
-{
-    struct sortedlist_iter iter;
-    sl_iter_init(&iter, _list_);
-    sl_iter_to_end(&iter);
-    return iter;
 }
