@@ -85,12 +85,6 @@ static const char *cmc_string_fmt_stack = "struct %s<%s> "
                                                                               \
         /* Custom callback functions */                                       \
         struct cmc_callbacks *callbacks;                                      \
-                                                                              \
-        /* Function that returns an iterator to the start of the stack */     \
-        struct SNAME##_iter (*it_start)(struct SNAME *);                      \
-                                                                              \
-        /* Function that returns an iterator to the end of the stack */       \
-        struct SNAME##_iter (*it_end)(struct SNAME *);                        \
     };                                                                        \
                                                                               \
     /* Value struct function table */                                         \
@@ -162,17 +156,15 @@ static const char *cmc_string_fmt_stack = "struct %s<%s> "
     bool PFX##_print(struct SNAME *_stack_, FILE *fptr);                      \
                                                                               \
     /* Iterator Functions */                                                  \
-    /* Iterator Allocation and Deallocation */                                \
-    struct SNAME##_iter *PFX##_iter_new(struct SNAME *target);                \
-    void PFX##_iter_free(struct SNAME##_iter *iter);                          \
     /* Iterator Initialization */                                             \
-    void PFX##_iter_init(struct SNAME##_iter *iter, struct SNAME *target);    \
+    struct SNAME##_iter PFX##_iter_start(struct SNAME *target);               \
+    struct SNAME##_iter PFX##_iter_end(struct SNAME *target);                 \
     /* Iterator State */                                                      \
-    bool PFX##_iter_start(struct SNAME##_iter *iter);                         \
-    bool PFX##_iter_end(struct SNAME##_iter *iter);                           \
+    bool PFX##_iter_at_start(struct SNAME##_iter *iter);                      \
+    bool PFX##_iter_at_end(struct SNAME##_iter *iter);                        \
     /* Iterator Movement */                                                   \
-    void PFX##_iter_to_start(struct SNAME##_iter *iter);                      \
-    void PFX##_iter_to_end(struct SNAME##_iter *iter);                        \
+    bool PFX##_iter_to_start(struct SNAME##_iter *iter);                      \
+    bool PFX##_iter_to_end(struct SNAME##_iter *iter);                        \
     bool PFX##_iter_next(struct SNAME##_iter *iter);                          \
     bool PFX##_iter_prev(struct SNAME##_iter *iter);                          \
     bool PFX##_iter_advance(struct SNAME##_iter *iter, size_t steps);         \
@@ -189,8 +181,7 @@ static const char *cmc_string_fmt_stack = "struct %s<%s> "
 #define CMC_GENERATE_STACK_SOURCE(PFX, SNAME, V)                              \
                                                                               \
     /* Implementation Detail Functions */                                     \
-    static struct SNAME##_iter PFX##_impl_it_start(struct SNAME *_stack_);    \
-    static struct SNAME##_iter PFX##_impl_it_end(struct SNAME *_stack_);      \
+    /* None */                                                                \
                                                                               \
     struct SNAME *PFX##_new(size_t capacity, struct SNAME##_fval *f_val)      \
     {                                                                         \
@@ -221,8 +212,6 @@ static const char *cmc_string_fmt_stack = "struct %s<%s> "
         _stack_->f_val = f_val;                                               \
         _stack_->alloc = alloc;                                               \
         _stack_->callbacks = NULL;                                            \
-        _stack_->it_start = PFX##_impl_it_start;                              \
-        _stack_->it_end = PFX##_impl_it_end;                                  \
                                                                               \
         return _stack_;                                                       \
     }                                                                         \
@@ -258,8 +247,6 @@ static const char *cmc_string_fmt_stack = "struct %s<%s> "
         _stack_->f_val = f_val;                                               \
         _stack_->alloc = alloc;                                               \
         _stack_->callbacks = callbacks;                                       \
-        _stack_->it_start = PFX##_impl_it_start;                              \
-        _stack_->it_end = PFX##_impl_it_end;                                  \
                                                                               \
         return _stack_;                                                       \
     }                                                                         \
@@ -505,60 +492,69 @@ static const char *cmc_string_fmt_stack = "struct %s<%s> "
         return true;                                                          \
     }                                                                         \
                                                                               \
-    struct SNAME##_iter *PFX##_iter_new(struct SNAME *target)                 \
+    struct SNAME##_iter PFX##_iter_start(struct SNAME *target)                \
     {                                                                         \
-        struct SNAME##_iter *iter =                                           \
-            target->alloc->malloc(sizeof(struct SNAME##_iter));               \
+        struct SNAME##_iter iter;                                             \
                                                                               \
-        if (!iter)                                                            \
-            return NULL;                                                      \
+        iter.target = target;                                                 \
+        iter.cursor = 0;                                                      \
+        iter.start = true;                                                    \
+        iter.end = PFX##_empty(target);                                       \
                                                                               \
-        PFX##_iter_init(iter, target);                                        \
+        if (!PFX##_empty(target))                                             \
+            iter.cursor = target->count - 1;                                  \
                                                                               \
         return iter;                                                          \
     }                                                                         \
                                                                               \
-    void PFX##_iter_free(struct SNAME##_iter *iter)                           \
+    struct SNAME##_iter PFX##_iter_end(struct SNAME *target)                  \
     {                                                                         \
-        iter->target->alloc->free(iter);                                      \
+        struct SNAME##_iter iter;                                             \
+                                                                              \
+        iter.target = target;                                                 \
+        iter.cursor = 0;                                                      \
+        iter.start = PFX##_empty(target);                                     \
+        iter.end = true;                                                      \
+                                                                              \
+        return iter;                                                          \
     }                                                                         \
                                                                               \
-    void PFX##_iter_init(struct SNAME##_iter *iter, struct SNAME *target)     \
-    {                                                                         \
-        iter->target = target;                                                \
-        iter->cursor = PFX##_empty(target) ? 0 : iter->target->count - 1;     \
-        iter->start = true;                                                   \
-        iter->end = PFX##_empty(target);                                      \
-    }                                                                         \
-                                                                              \
-    bool PFX##_iter_start(struct SNAME##_iter *iter)                          \
+    bool PFX##_iter_at_start(struct SNAME##_iter *iter)                       \
     {                                                                         \
         return PFX##_empty(iter->target) || iter->start;                      \
     }                                                                         \
                                                                               \
-    bool PFX##_iter_end(struct SNAME##_iter *iter)                            \
+    bool PFX##_iter_at_end(struct SNAME##_iter *iter)                         \
     {                                                                         \
         return PFX##_empty(iter->target) || iter->end;                        \
     }                                                                         \
                                                                               \
-    void PFX##_iter_to_start(struct SNAME##_iter *iter)                       \
+    bool PFX##_iter_to_start(struct SNAME##_iter *iter)                       \
     {                                                                         \
         if (!PFX##_empty(iter->target))                                       \
         {                                                                     \
             iter->cursor = iter->target->count - 1;                           \
             iter->start = true;                                               \
             iter->end = PFX##_empty(iter->target);                            \
+                                                                              \
+            return true;                                                      \
         }                                                                     \
+                                                                              \
+        return false;                                                         \
     }                                                                         \
                                                                               \
-    void PFX##_iter_to_end(struct SNAME##_iter *iter)                         \
+    bool PFX##_iter_to_end(struct SNAME##_iter *iter)                         \
     {                                                                         \
         if (!PFX##_empty(iter->target))                                       \
         {                                                                     \
             iter->cursor = 0;                                                 \
             iter->start = PFX##_empty(iter->target);                          \
             iter->end = true;                                                 \
+                                                                              \
+            return true;                                                      \
         }                                                                     \
+                                                                              \
+        return false;                                                         \
     }                                                                         \
                                                                               \
     bool PFX##_iter_next(struct SNAME##_iter *iter)                           \
@@ -584,7 +580,7 @@ static const char *cmc_string_fmt_stack = "struct %s<%s> "
         if (iter->start)                                                      \
             return false;                                                     \
                                                                               \
-        if (iter->cursor + 1 == PFX##_count(iter->target))                    \
+        if (iter->cursor + 1 == iter->target->count)                          \
         {                                                                     \
             iter->start = true;                                               \
             return false;                                                     \
@@ -625,13 +621,13 @@ static const char *cmc_string_fmt_stack = "struct %s<%s> "
         if (iter->start)                                                      \
             return false;                                                     \
                                                                               \
-        if (iter->cursor + 1 == PFX##_count(iter->target))                    \
+        if (iter->cursor + 1 == iter->target->count)                          \
         {                                                                     \
             iter->start = true;                                               \
             return false;                                                     \
         }                                                                     \
                                                                               \
-        if (steps == 0 || iter->cursor + steps >= PFX##_count(iter->target))  \
+        if (steps == 0 || iter->cursor + steps >= iter->target->count)        \
             return false;                                                     \
                                                                               \
         iter->end = PFX##_empty(iter->target);                                \
@@ -645,13 +641,13 @@ static const char *cmc_string_fmt_stack = "struct %s<%s> "
     /* given index */                                                         \
     bool PFX##_iter_go_to(struct SNAME##_iter *iter, size_t index)            \
     {                                                                         \
-        if (index >= PFX##_count(iter->target))                               \
+        if (index >= iter->target->count)                                     \
             return false;                                                     \
                                                                               \
         if (iter->cursor > index)                                             \
-            return PFX##_iter_rewind(iter, iter->cursor - index);             \
+            return PFX##_iter_advance(iter, iter->cursor - index);            \
         else if (iter->cursor < index)                                        \
-            return PFX##_iter_advance(iter, index - iter->cursor);            \
+            return PFX##_iter_rewind(iter, index - iter->cursor);             \
                                                                               \
         return true;                                                          \
     }                                                                         \
@@ -678,26 +674,6 @@ static const char *cmc_string_fmt_stack = "struct %s<%s> "
             return 0;                                                         \
                                                                               \
         return iter->target->count - 1 - iter->cursor;                        \
-    }                                                                         \
-                                                                              \
-    static struct SNAME##_iter PFX##_impl_it_start(struct SNAME *_stack_)     \
-    {                                                                         \
-        struct SNAME##_iter iter;                                             \
-                                                                              \
-        PFX##_iter_init(&iter, _stack_);                                      \
-        PFX##_iter_to_start(&iter);                                           \
-                                                                              \
-        return iter;                                                          \
-    }                                                                         \
-                                                                              \
-    static struct SNAME##_iter PFX##_impl_it_end(struct SNAME *_stack_)       \
-    {                                                                         \
-        struct SNAME##_iter iter;                                             \
-                                                                              \
-        PFX##_iter_init(&iter, _stack_);                                      \
-        PFX##_iter_to_end(&iter);                                             \
-                                                                              \
-        return iter;                                                          \
     }
 
 #endif /* CMC_STACK_H */

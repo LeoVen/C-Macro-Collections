@@ -9,8 +9,6 @@ struct stack
     struct stack_fval *f_val;
     struct cmc_alloc_node *alloc;
     struct cmc_callbacks *callbacks;
-    struct stack_iter (*it_start)(struct stack *);
-    struct stack_iter (*it_end)(struct stack *);
 };
 struct stack_fval
 {
@@ -50,13 +48,12 @@ struct stack *s_copy_of(struct stack *_stack_);
 _Bool s_equals(struct stack *_stack1_, struct stack *_stack2_);
 struct cmc_string s_to_string(struct stack *_stack_);
 _Bool s_print(struct stack *_stack_, FILE *fptr);
-struct stack_iter *s_iter_new(struct stack *target);
-void s_iter_free(struct stack_iter *iter);
-void s_iter_init(struct stack_iter *iter, struct stack *target);
-_Bool s_iter_start(struct stack_iter *iter);
-_Bool s_iter_end(struct stack_iter *iter);
-void s_iter_to_start(struct stack_iter *iter);
-void s_iter_to_end(struct stack_iter *iter);
+struct stack_iter s_iter_start(struct stack *target);
+struct stack_iter s_iter_end(struct stack *target);
+_Bool s_iter_at_start(struct stack_iter *iter);
+_Bool s_iter_at_end(struct stack_iter *iter);
+_Bool s_iter_to_start(struct stack_iter *iter);
+_Bool s_iter_to_end(struct stack_iter *iter);
 _Bool s_iter_next(struct stack_iter *iter);
 _Bool s_iter_prev(struct stack_iter *iter);
 _Bool s_iter_advance(struct stack_iter *iter, size_t steps);
@@ -65,8 +62,6 @@ _Bool s_iter_go_to(struct stack_iter *iter, size_t index);
 size_t s_iter_value(struct stack_iter *iter);
 size_t *s_iter_rvalue(struct stack_iter *iter);
 size_t s_iter_index(struct stack_iter *iter);
-static struct stack_iter s_impl_it_start(struct stack *_stack_);
-static struct stack_iter s_impl_it_end(struct stack *_stack_);
 struct stack *s_new(size_t capacity, struct stack_fval *f_val)
 {
     struct cmc_alloc_node *alloc = &cmc_alloc_node_default;
@@ -89,8 +84,6 @@ struct stack *s_new(size_t capacity, struct stack_fval *f_val)
     _stack_->f_val = f_val;
     _stack_->alloc = alloc;
     _stack_->callbacks = ((void *)0);
-    _stack_->it_start = s_impl_it_start;
-    _stack_->it_end = s_impl_it_end;
     return _stack_;
 }
 struct stack *s_new_custom(size_t capacity, struct stack_fval *f_val,
@@ -118,8 +111,6 @@ struct stack *s_new_custom(size_t capacity, struct stack_fval *f_val,
     _stack_->f_val = f_val;
     _stack_->alloc = alloc;
     _stack_->callbacks = callbacks;
-    _stack_->it_start = s_impl_it_start;
-    _stack_->it_end = s_impl_it_end;
     return _stack_;
 }
 void s_clear(struct stack *_stack_)
@@ -303,50 +294,55 @@ _Bool s_print(struct stack *_stack_, FILE *fptr)
     }
     return 1;
 }
-struct stack_iter *s_iter_new(struct stack *target)
+struct stack_iter s_iter_start(struct stack *target)
 {
-    struct stack_iter *iter = target->alloc->malloc(sizeof(struct stack_iter));
-    if (!iter)
-        return ((void *)0);
-    s_iter_init(iter, target);
+    struct stack_iter iter;
+    iter.target = target;
+    iter.cursor = 0;
+    iter.start = 1;
+    iter.end = s_empty(target);
+    if (!s_empty(target))
+        iter.cursor = target->count - 1;
     return iter;
 }
-void s_iter_free(struct stack_iter *iter)
+struct stack_iter s_iter_end(struct stack *target)
 {
-    iter->target->alloc->free(iter);
+    struct stack_iter iter;
+    iter.target = target;
+    iter.cursor = 0;
+    iter.start = s_empty(target);
+    iter.end = 1;
+    return iter;
 }
-void s_iter_init(struct stack_iter *iter, struct stack *target)
-{
-    iter->target = target;
-    iter->cursor = s_empty(target) ? 0 : iter->target->count - 1;
-    iter->start = 1;
-    iter->end = s_empty(target);
-}
-_Bool s_iter_start(struct stack_iter *iter)
+_Bool s_iter_at_start(struct stack_iter *iter)
 {
     return s_empty(iter->target) || iter->start;
 }
-_Bool s_iter_end(struct stack_iter *iter)
+_Bool s_iter_at_end(struct stack_iter *iter)
 {
     return s_empty(iter->target) || iter->end;
 }
-void s_iter_to_start(struct stack_iter *iter)
+_Bool s_iter_to_start(struct stack_iter *iter)
 {
     if (!s_empty(iter->target))
     {
         iter->cursor = iter->target->count - 1;
         iter->start = 1;
         iter->end = s_empty(iter->target);
+        return 1;
     }
+    return 0;
 }
-void s_iter_to_end(struct stack_iter *iter)
+_Bool s_iter_to_end(struct stack_iter *iter)
 {
     if (!s_empty(iter->target))
     {
         iter->cursor = 0;
         iter->start = s_empty(iter->target);
         iter->end = 1;
+        return 1;
     }
+    return 0;
 }
 _Bool s_iter_next(struct stack_iter *iter)
 {
@@ -365,7 +361,7 @@ _Bool s_iter_prev(struct stack_iter *iter)
 {
     if (iter->start)
         return 0;
-    if (iter->cursor + 1 == s_count(iter->target))
+    if (iter->cursor + 1 == iter->target->count)
     {
         iter->start = 1;
         return 0;
@@ -393,12 +389,12 @@ _Bool s_iter_rewind(struct stack_iter *iter, size_t steps)
 {
     if (iter->start)
         return 0;
-    if (iter->cursor + 1 == s_count(iter->target))
+    if (iter->cursor + 1 == iter->target->count)
     {
         iter->start = 1;
         return 0;
     }
-    if (steps == 0 || iter->cursor + steps >= s_count(iter->target))
+    if (steps == 0 || iter->cursor + steps >= iter->target->count)
         return 0;
     iter->end = s_empty(iter->target);
     iter->cursor += steps;
@@ -406,12 +402,12 @@ _Bool s_iter_rewind(struct stack_iter *iter, size_t steps)
 }
 _Bool s_iter_go_to(struct stack_iter *iter, size_t index)
 {
-    if (index >= s_count(iter->target))
+    if (index >= iter->target->count)
         return 0;
     if (iter->cursor > index)
-        return s_iter_rewind(iter, iter->cursor - index);
+        return s_iter_advance(iter, iter->cursor - index);
     else if (iter->cursor < index)
-        return s_iter_advance(iter, index - iter->cursor);
+        return s_iter_rewind(iter, index - iter->cursor);
     return 1;
 }
 size_t s_iter_value(struct stack_iter *iter)
@@ -431,18 +427,4 @@ size_t s_iter_index(struct stack_iter *iter)
     if (s_empty(iter->target))
         return 0;
     return iter->target->count - 1 - iter->cursor;
-}
-static struct stack_iter s_impl_it_start(struct stack *_stack_)
-{
-    struct stack_iter iter;
-    s_iter_init(&iter, _stack_);
-    s_iter_to_start(&iter);
-    return iter;
-}
-static struct stack_iter s_impl_it_end(struct stack *_stack_)
-{
-    struct stack_iter iter;
-    s_iter_init(&iter, _stack_);
-    s_iter_to_end(&iter);
-    return iter;
 }

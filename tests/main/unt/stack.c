@@ -406,333 +406,428 @@ CMC_CREATE_UNIT(Stack, true, {
 });
 
 CMC_CREATE_UNIT(StackIter, true, {
-    CMC_CREATE_TEST(iter_alloc, {
+    CMC_CREATE_TEST(PFX##_iter_start(), {
         struct stack *s = s_new(100, s_fval);
 
         cmc_assert_not_equals(ptr, NULL, s);
 
-        struct stack_iter *iter = s_iter_new(s);
+        struct stack_iter it = s_iter_start(s);
 
-        cmc_assert_not_equals(ptr, NULL, iter);
+        cmc_assert_equals(ptr, s, it.target);
+        cmc_assert_equals(size_t, 0, it.cursor);
+        cmc_assert_equals(bool, true, it.start);
+        cmc_assert_equals(bool, true, it.end);
 
-        s_iter_free(iter);
-        s_free(s);
-    });
+        cmc_assert(s_iter_at_start(&it));
+        cmc_assert(s_iter_at_end(&it));
 
-    CMC_CREATE_TEST(iter_init[count = 0], {
-        struct stack *s = s_new(100, s_fval);
+        cmc_assert(s_push(s, 1));
+        cmc_assert(s_push(s, 2));
 
-        cmc_assert_not_equals(ptr, NULL, s);
+        it = s_iter_start(s);
 
-        struct stack_iter iter;
-
-        s_iter_init(&iter, s);
-
-        cmc_assert_equals(ptr, iter.target, s);
-        cmc_assert_equals(size_t, iter.cursor, 0);
-        cmc_assert(iter.start);
-        cmc_assert(iter.end);
+        cmc_assert_equals(size_t, s->count - 1, it.cursor);
+        cmc_assert_equals(bool, false, it.end);
 
         s_free(s);
     });
 
-    CMC_CREATE_TEST(iter_start[count = 0], {
+    CMC_CREATE_TEST(PFX##_iter_end(), {
         struct stack *s = s_new(100, s_fval);
 
         cmc_assert_not_equals(ptr, NULL, s);
 
-        struct stack_iter iter;
+        struct stack_iter it = s_iter_end(s);
 
-        s_iter_init(&iter, s);
+        cmc_assert_equals(ptr, s, it.target);
+        cmc_assert_equals(size_t, 0, it.cursor);
+        cmc_assert_equals(bool, true, it.start);
+        cmc_assert_equals(bool, true, it.end);
 
-        cmc_assert(s_iter_start(&iter));
+        cmc_assert(s_iter_at_start(&it));
+        cmc_assert(s_iter_at_end(&it));
+
+        cmc_assert(s_push(s, 1));
+        cmc_assert(s_push(s, 2));
+        cmc_assert(s_push(s, 3));
+
+        it = s_iter_end(s);
+
+        cmc_assert_equals(size_t, 0, it.cursor);
+        cmc_assert_equals(bool, false, it.start);
 
         s_free(s);
     });
 
-    CMC_CREATE_TEST(iter_end[count = 0], {
+    CMC_CREATE_TEST(PFX##_iter_at_start(), {
         struct stack *s = s_new(100, s_fval);
 
         cmc_assert_not_equals(ptr, NULL, s);
 
-        struct stack_iter iter;
+        struct stack_iter it = s_iter_start(s);
 
-        s_iter_init(&iter, s);
+        // Empty checks
+        cmc_assert(s_iter_at_start(&it));
+        it = s_iter_end(s);
+        cmc_assert(s_iter_at_start(&it));
 
-        cmc_assert(s_iter_end(&iter));
+        // Non-empty checks
+        cmc_assert(s_push(s, 1));
+        it = s_iter_end(s);
+        cmc_assert(!s_iter_at_start(&it));
+        it = s_iter_start(s);
+        cmc_assert(s_iter_at_start(&it));
 
         s_free(s);
     });
 
-    CMC_CREATE_TEST(iteration, {
+    CMC_CREATE_TEST(PFX##_iter_at_end(), {
         struct stack *s = s_new(100, s_fval);
 
         cmc_assert_not_equals(ptr, NULL, s);
 
-        for (size_t i = 1; i <= 200; i++)
-            cmc_assert(s_push(s, i));
+        struct stack_iter it = s_iter_start(s);
 
-        size_t total = 0;
+        // Empty check
+        cmc_assert(s_iter_at_end(&it));
+        it = s_iter_end(s);
+        cmc_assert(s_iter_at_end(&it));
 
-        for (struct stack_iter it = s->it_start(s); !s_iter_end(&it);
-             s_iter_next(&it))
+        // Non-empty checks
+        cmc_assert(s_push(s, 1));
+        it = s_iter_end(s);
+        cmc_assert(s_iter_at_end(&it));
+        it = s_iter_start(s);
+        cmc_assert(!s_iter_at_end(&it));
+
+        s_free(s);
+    });
+
+    CMC_CREATE_TEST(PFX##_iter_to_start(), {
+        struct stack *s = s_new(100, s_fval);
+
+        cmc_assert_not_equals(ptr, NULL, s);
+
+        struct stack_iter it = s_iter_start(s);
+
+        cmc_assert(!s_iter_to_start(&it));
+
+        for (size_t i = 1; i <= 100; i++)
+            s_push(s, i);
+
+        cmc_assert_equals(size_t, 100, s->count);
+
+        it = s_iter_end(s);
+
+        cmc_assert(!s_iter_at_start(&it));
+        cmc_assert(s_iter_at_end(&it));
+
+        cmc_assert_equals(size_t, 1, s_iter_value(&it));
+
+        cmc_assert(s_iter_to_start(&it));
+
+        cmc_assert(s_iter_at_start(&it));
+        cmc_assert(!s_iter_at_end(&it));
+
+        cmc_assert_equals(size_t, 100, s_iter_value(&it));
+
+        s_free(s);
+    });
+
+    CMC_CREATE_TEST(PFX##_iter_to_end(), {
+        struct stack *s = s_new(100, s_fval);
+
+        cmc_assert_not_equals(ptr, NULL, s);
+
+        struct stack_iter it = s_iter_end(s);
+
+        cmc_assert(!s_iter_to_end(&it));
+
+        for (size_t i = 1; i <= 100; i++)
+            s_push(s, i);
+
+        it = s_iter_start(s);
+
+        cmc_assert(s_iter_at_start(&it));
+        cmc_assert(!s_iter_at_end(&it));
+
+        cmc_assert_equals(size_t, 100, s_iter_value(&it));
+
+        cmc_assert(s_iter_to_end(&it));
+
+        cmc_assert(!s_iter_at_start(&it));
+        cmc_assert(s_iter_at_end(&it));
+
+        cmc_assert_equals(size_t, 1, s_iter_value(&it));
+
+        s_free(s);
+    });
+
+    CMC_CREATE_TEST(PFX##_iter_next(), {
+        struct stack *s = s_new(100, s_fval);
+
+        cmc_assert_not_equals(ptr, NULL, s);
+
+        struct stack_iter it = s_iter_start(s);
+
+        cmc_assert(!s_iter_next(&it));
+
+        for (size_t i = 1; i <= 1000; i++)
+            s_push(s, i);
+
+        size_t sum = 0;
+        for (it = s_iter_start(s); !s_iter_at_end(&it); s_iter_next(&it))
         {
-            total += s_iter_value(&it);
+            sum += s_iter_value(&it);
         }
 
-        cmc_assert_equals(size_t, 20100, total);
+        cmc_assert_equals(size_t, 500500, sum);
 
-        for (struct stack_iter it = s->it_end(s); !s_iter_start(&it);
-             s_iter_prev(&it))
-        {
-            total += s_iter_value(&it);
-        }
+        sum = 0;
 
-        cmc_assert_equals(size_t, 40200, total);
-
-        s_free(s);
-    });
-
-    CMC_CREATE_TEST(iteration[while loop], {
-        struct stack *s = s_new(100, s_fval);
-
-        cmc_assert_not_equals(ptr, NULL, s);
-
-        for (size_t i = 1; i <= 200; i++)
-            cmc_assert(s_push(s, i));
-
-        size_t total = 0;
-        struct stack_iter it = s->it_start(s);
-
+        s_iter_to_start(&it);
         do
         {
-            total += s_iter_value(&it);
+            sum += s_iter_value(&it);
         } while (s_iter_next(&it));
 
-        cmc_assert_equals(size_t, 20100, total);
+        cmc_assert_equals(size_t, 500500, sum);
 
-        it = s->it_end(s);
+        s_free(s);
+    });
 
+    CMC_CREATE_TEST(PFX##_iter_prev(), {
+        struct stack *s = s_new(100, s_fval);
+
+        cmc_assert_not_equals(ptr, NULL, s);
+
+        struct stack_iter it = s_iter_end(s);
+
+        cmc_assert(!s_iter_prev(&it));
+
+        for (size_t i = 1; i <= 1000; i++)
+            s_push(s, i);
+
+        size_t sum = 0;
+        for (it = s_iter_end(s); !s_iter_at_start(&it); s_iter_prev(&it))
+        {
+            sum += s_iter_value(&it);
+        }
+
+        cmc_assert_equals(size_t, 500500, sum);
+
+        sum = 0;
+
+        s_iter_to_end(&it);
         do
         {
-            total += s_iter_value(&it);
+            sum += s_iter_value(&it);
         } while (s_iter_prev(&it));
 
-        cmc_assert_equals(size_t, 40200, total);
+        cmc_assert_equals(size_t, 500500, sum);
 
         s_free(s);
     });
 
-    CMC_CREATE_TEST(iteration[count = 1], {
+    CMC_CREATE_TEST(PFX##_iter_advance(), {
         struct stack *s = s_new(100, s_fval);
 
         cmc_assert_not_equals(ptr, NULL, s);
+
+        struct stack_iter it = s_iter_start(s);
+
+        cmc_assert(!s_iter_advance(&it, 1));
+
+        for (size_t i = 0; i <= 1000; i++)
+            s_push(s, i);
+
+        it = s_iter_start(s);
+
+        cmc_assert(!s_iter_advance(&it, 0));
+        cmc_assert(!s_iter_advance(&it, s->count));
+
+        size_t sum = 0;
+        for (it = s_iter_start(s);;)
+        {
+            sum += s_iter_value(&it);
+
+            if (!s_iter_advance(&it, 2))
+                break;
+        }
+
+        cmc_assert_equals(size_t, 250500, sum);
+
+        s_iter_to_start(&it);
+        cmc_assert(s_iter_advance(&it, s->count - 1));
+
+        // sum (1000, 990, 980, 970, ..., 910, 900)
+        sum = 0;
+        it = s_iter_start(s);
+        for (size_t val = s_iter_value(&it); val > 900; s_iter_advance(&it, 10))
+        {
+            val = s_iter_value(&it);
+            sum += val;
+        }
+
+        cmc_assert_equals(size_t, 10450, sum);
+
+        s_free(s);
+    });
+
+    CMC_CREATE_TEST(PFX##_iter_rewind(), {
+        struct stack *s = s_new(100, s_fval);
+
+        cmc_assert_not_equals(ptr, NULL, s);
+
+        struct stack_iter it = s_iter_end(s);
+
+        cmc_assert(!s_iter_rewind(&it, 1));
+
+        for (size_t i = 0; i <= 1000; i++)
+            s_push(s, i);
+
+        it = s_iter_end(s);
+
+        cmc_assert(!s_iter_rewind(&it, 0));
+        cmc_assert(!s_iter_rewind(&it, s->count));
+
+        size_t sum = 0;
+        for (it = s_iter_end(s);;)
+        {
+            sum += s_iter_value(&it);
+
+            if (!s_iter_rewind(&it, 2))
+                break;
+        }
+
+        cmc_assert_equals(size_t, 250500, sum);
+
+        s_iter_to_end(&it);
+        cmc_assert(s_iter_rewind(&it, s->count - 1));
+
+        // sum (0, 10, 20, ..., 90, 100)
+        sum = 0;
+        it = s_iter_end(s);
+        for (size_t val = s_iter_value(&it); val < 100; s_iter_rewind(&it, 10))
+        {
+            val = s_iter_value(&it);
+            sum += val;
+        }
+
+        cmc_assert_equals(size_t, 550, sum);
+
+        s_free(s);
+    });
+
+    CMC_CREATE_TEST(PFX##_iter_go_to(), {
+        struct stack *s = s_new(100, s_fval);
+
+        cmc_assert_not_equals(ptr, NULL, s);
+
+        struct stack_iter it = s_iter_end(s);
+        cmc_assert(!s_iter_go_to(&it, 0));
+
+        it = s_iter_start(s);
+        cmc_assert(!s_iter_go_to(&it, 0));
+
+        for (size_t i = 1001; i > 0; i--)
+            s_push(s, i - 1);
+
+        it = s_iter_start(s);
+
+        size_t sum = 0;
+        for (size_t i = 0; i < 1001; i++)
+        {
+            s_iter_go_to(&it, i);
+
+            sum += s_iter_value(&it);
+        }
+
+        cmc_assert_equals(size_t, 500500, sum);
+
+        sum = 0;
+        for (size_t i = 1001; i > 0; i--)
+        {
+            cmc_assert(s_iter_go_to(&it, i - 1));
+
+            sum += s_iter_value(&it);
+        }
+
+        cmc_assert_equals(size_t, 500500, sum);
+
+        sum = 0;
+        for (size_t i = 1000; i > 0; i -= 100)
+        {
+            cmc_assert(s_iter_go_to(&it, 1000 - i));
+            cmc_assert_equals(size_t, i, s_iter_index(&it));
+
+            sum += s_iter_value(&it);
+        }
+
+        cmc_assert_equals(size_t, 5500, sum);
+
+        s_free(s);
+    });
+
+    CMC_CREATE_TEST(PFX##_iter_value(), {
+        struct stack *s = s_new(100, s_fval);
+
+        cmc_assert_not_equals(ptr, NULL, s);
+
+        struct stack_iter it = s_iter_end(s);
+
+        cmc_assert_equals(size_t, (size_t){ 0 }, s_iter_value(&it));
+
         cmc_assert(s_push(s, 10));
 
-        size_t total = 0;
+        it = s_iter_start(s);
 
-        for (struct stack_iter it = s->it_start(s); !s_iter_end(&it);
-             s_iter_next(&it))
-        {
-            total += s_iter_value(&it);
-        }
-
-        for (struct stack_iter it = s->it_end(s); !s_iter_start(&it);
-             s_iter_prev(&it))
-        {
-            total += s_iter_value(&it);
-        }
-
-        cmc_assert_equals(size_t, 20, total);
+        cmc_assert_equals(size_t, 10, s_iter_value(&it));
 
         s_free(s);
     });
 
-    CMC_CREATE_TEST(iteration[count = capacity], {
+    CMC_CREATE_TEST(PFX##_iter_rvalue(), {
         struct stack *s = s_new(100, s_fval);
 
         cmc_assert_not_equals(ptr, NULL, s);
 
-        while (!s_full(s))
-            cmc_assert(s_push(s, 10));
+        struct stack_iter it = s_iter_end(s);
 
-        cmc_assert_equals(size_t, s_capacity(s), s_count(s));
+        cmc_assert_equals(ptr, NULL, s_iter_rvalue(&it));
 
-        size_t total = 0;
+        cmc_assert(s_push(s, 10));
 
-        for (struct stack_iter it = s->it_start(s); !s_iter_end(&it);
-             s_iter_next(&it))
+        it = s_iter_start(s);
+
+        cmc_assert_not_equals(ptr, NULL, s_iter_rvalue(&it));
+        cmc_assert_equals(size_t, 10, *s_iter_rvalue(&it));
+
+        s_free(s);
+    });
+
+    CMC_CREATE_TEST(PFX##_iter_index(), {
+        struct stack *s = s_new(100, s_fval);
+
+        cmc_assert_not_equals(ptr, NULL, s);
+
+        for (size_t i = 0; i <= 1000; i++)
+            s_push(s, i);
+
+        struct stack_iter it = s_iter_start(s);
+
+        for (size_t i = 0; i < 1001; i++)
         {
-            total += s_iter_value(&it);
+            cmc_assert_equals(size_t, i, s_iter_index(&it));
+            s_iter_next(&it);
         }
 
-        cmc_assert_equals(size_t, 1000, total);
-
-        for (struct stack_iter it = s->it_end(s); !s_iter_start(&it);
-             s_iter_prev(&it))
+        it = s_iter_end(s);
+        for (size_t i = 1001; i > 0; i--)
         {
-            total += *s_iter_rvalue(&it);
+            cmc_assert_equals(size_t, i - 1, s_iter_index(&it));
+            s_iter_prev(&it);
         }
-
-        cmc_assert_equals(size_t, 2000, total);
-
-        s_free(s);
-    });
-
-    CMC_CREATE_TEST(iteration[to_start = it_start and to_end = it_end], {
-        struct stack *s = s_new(100, s_fval);
-
-        cmc_assert_not_equals(ptr, NULL, s);
-
-        for (size_t i = 0; i < 50; i++)
-            cmc_assert(s_push(s, i));
-
-        struct stack_iter it1;
-        struct stack_iter it2;
-
-        memset(&it1, 0, sizeof(struct stack_iter));
-        memset(&it2, 0, sizeof(struct stack_iter));
-
-        s_iter_init(&it2, s);
-
-        it1 = s->it_start(s);
-        s_iter_to_start(&it2);
-
-        cmc_assert_equals(ptr, it1.target, it2.target);
-        cmc_assert_equals(size_t, it1.cursor, it2.cursor);
-        cmc_assert_equals(bool, it1.start, it2.start);
-        cmc_assert_equals(bool, it1.end, it2.end);
-
-        it1 = s->it_end(s);
-        s_iter_to_end(&it2);
-
-        cmc_assert_equals(ptr, it1.target, it2.target);
-        cmc_assert_equals(size_t, it1.cursor, it2.cursor);
-        cmc_assert_equals(bool, it1.start, it2.start);
-        cmc_assert_equals(bool, it1.end, it2.end);
-
-        s_free(s);
-    });
-
-    CMC_CREATE_TEST(iteration[boundaries count = 0], {
-        struct stack *s = s_new(100, s_fval);
-
-        cmc_assert_not_equals(ptr, NULL, s);
-
-        struct stack_iter iter;
-        s_iter_init(&iter, s);
-
-        s_iter_to_end(&iter);
-
-        cmc_assert_equals(bool, false, s_iter_next(&iter));
-
-        s_iter_to_start(&iter);
-
-        cmc_assert_equals(bool, false, s_iter_prev(&iter));
-
-        s_free(s);
-    });
-
-    CMC_CREATE_TEST(iteration[boundaries count > 0], {
-        struct stack *s = s_new(100, s_fval);
-
-        cmc_assert_not_equals(ptr, NULL, s);
-
-        for (size_t i = 0; i < 200; i++)
-            cmc_assert(s_push(s, i));
-
-        struct stack_iter iter;
-        s_iter_init(&iter, s);
-
-        s_iter_to_end(&iter);
-
-        cmc_assert_equals(bool, false, s_iter_next(&iter));
-
-        s_iter_to_start(&iter);
-
-        cmc_assert_equals(bool, false, s_iter_prev(&iter));
-
-        s_free(s);
-    });
-
-    CMC_CREATE_TEST(iter_value[count = 0], {
-        struct stack *s = s_new(100, s_fval);
-
-        cmc_assert_not_equals(ptr, NULL, s);
-
-        struct stack_iter iter;
-
-        s_iter_init(&iter, s);
-
-        cmc_assert_equals(size_t, (size_t){ 0 }, s_iter_value(&iter));
-
-        s_free(s);
-    });
-
-    CMC_CREATE_TEST(iter_rvalue[count = 0], {
-        struct stack *s = s_new(100, s_fval);
-
-        cmc_assert_not_equals(ptr, NULL, s);
-
-        struct stack_iter iter;
-
-        s_iter_init(&iter, s);
-
-        cmc_assert_equals(ptr, NULL, s_iter_rvalue(&iter));
-
-        s_free(s);
-    });
-
-    CMC_CREATE_TEST(index, {
-        struct stack *s = s_new(100, s_fval);
-
-        cmc_assert_not_equals(ptr, NULL, s);
-
-        for (size_t i = 0; i < 10; i++)
-            cmc_assert(s_push(s, i));
-
-        cmc_assert_equals(size_t, 10, s_count(s));
-
-        size_t total = 0;
-
-        for (struct stack_iter it = s->it_start(s); false;)
-        {
-            cmc_assert_equals(size_t, 0, s_iter_index(&it));
-        }
-
-        for (struct stack_iter it = s->it_start(s); false;)
-        {
-            cmc_assert_equals(size_t, s_count(s) - 1, s_iter_index(&it));
-        }
-
-        for (struct stack_iter it = s->it_start(s); !s_iter_end(&it);
-             s_iter_next(&it))
-        {
-            total += s_iter_index(&it);
-        }
-
-        cmc_assert_equals(size_t, 45, total);
-
-        for (struct stack_iter it = s->it_end(s); !s_iter_start(&it);
-             s_iter_prev(&it))
-        {
-            total += s_iter_index(&it);
-        }
-
-        cmc_assert_equals(size_t, 90, total);
-
-        s_free(s);
-    });
-
-    CMC_CREATE_TEST(index[count = 0], {
-        struct stack *s = s_new(100, s_fval);
-
-        cmc_assert_not_equals(ptr, NULL, s);
-
-        struct stack_iter iter;
-        s_iter_init(&iter, s);
-
-        cmc_assert_equals(size_t, 0, s_iter_index(&iter));
 
         s_free(s);
     });
