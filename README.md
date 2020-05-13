@@ -4,7 +4,7 @@
     <img src="https://leoven.github.io/C-Macro-Collections/img/logo.png" alt="C Macro Collections Logo" width="300"/>
 </p>
 
-<p align="center">Easy to use, header only, macro generated, generic and type-safe Collections in C.</p>
+<p align="center">Easy to use, header only, macro generated, generic and type-safe Data Structures in C.</p>
 
 <p align="center">
     <a href="https://github.com/LeoVen/C-Macro-Collections"><img src="https://img.shields.io/badge/GitHub-C%20Macro%20Collections-lightgrey.svg?logo=github" alt="LinkToRepo"/></a>
@@ -48,29 +48,40 @@
 * Linear Collections
     * List, LinkedList, Deque, Stack, Queue, SortedList
 * Sets
-    * HashSet, TreeSet, MultiSet
+    * HashSet, TreeSet, HashMultiSet
 * Maps
-    * BidiMap, HashMap, TreeMap, MultiMap
+    * HashMap, TreeMap, HashMultiMap
+* Bidirectional Maps
+    * HashBidiMap
 * Heaps
     * Heap, IntervalHeap
+* WIP
+    * BitSet, Matrix, TreeBidiMap, TreeMultiMap, TreeMultiSet
+
+__The following table is an overview of all the currently available or upcoming data structures__:
 
 | Collection <img width=250/>        | Abstract Data Type <img width=250/> | Data Structure <img width=250/> | Details                               |
 | :--------------------------------: | :---------------------------------: | :-----------------------------: | :-----------------------------------: |
-| BidiMap      <br> _bidimap.h_      | Bidirectional Map                   | Two Hashtables                  | A bijection between two sets of unique keys and unique values `K <-> V` using two hashtables |
-| Deque        <br> _deque.h_        | Double-Ended Queue                  | Dynamic Circular Array          | A circular array that allows `push` and `pop` on both ends (only) at constant time |
-| HashMap      <br> _hashmap.h_      | Map                                 | Hashtable                       | A unique set of keys associated with a value `K -> V` with constant time look up using a hashtable with open addressing and robin hood hashing |
-| HashSet      <br> _hashset.h_      | Set                                 | Hashtable                       | A unique set of values with constant time look up  using a hashtable with open addressing and robin hood hashing |
-| Heap         <br> _heap.h_         | Priority Queue                      | Dynamic Array                   | A binary heap as a dynamic array as an implicit data structure |
-| IntervalHeap <br> _intervalheap.h_ | Double-Ended Priority Queue         | Custom Dynamic Array            | A dynamic array of nodes, each hosting one value from the MinHeap and one from the MaxHeap |
-| LinkedList   <br> _linkedlist.h_   | List                                | Doubly-Linked List              | A default doubly-linked list |
-| List         <br> _list.h_         | List                                | Dynamic Array                   | A dynamic array with `push` and `pop` anywhere on the array |
-| MultiMap     <br> _multimap.h_     | Multimap                            | Custom Hashtable                | A mapping of multiple keys with one node per key using a hashtable with separate chaining |
-| Multiset     <br> _multiset.h_     | Multiset                            | Hashtable                       | A mapping of a value and its multiplicity using a hashtable with open addressing and robin hood hashing |
-| Queue        <br> _queue.h_        | FIFO                                | Dynamic Circular Array          | A queue using a circular array with `enqueue` at the `back` index and `dequeue` at the `front` index |
-| SortedList   <br> _sortedlist.h_   | Sorted List                         | Sorted Dynamic Array            | A lazily sorted dynamic array that is sorted only when necessary |
-| Stack        <br> _stack.h_        | FILO                                | Dynamic Array                   | A stack with push and pop at the end of a dynamic array |
-| TreeMap      <br> _treemap.h_      | Sorted Map                          | AVL Tree                        | A unique set of keys associated with a value `K -> V` using an AVL tree with `log(n)` look up and sorted iteration |
-| TreeSet      <br> _treeset.h_      | Sorted Set                          | AVL Tree                        | A unique set of keys using an AVL tree with `log(n)` look up and sorted iteration |
+| BitSet       <br> _bitset.h_       | Set                                 | Dynamic Array                   | A set of bits that can be individually modified and queried, each identified by a bit index                                                    |
+| Deque        <br> _deque.h_        | Double-Ended Queue                  | Dynamic Circular Array          | A circular array that allows `push` and `pop` on both ends (only) at constant time                                                             |
+| HashBidiMap  <br> _hashbidimap.h_  | Bidirectional Map                   | Two Hashtables                  | A bijection between two sets of unique keys and unique values `K <-> V` using two hashtables                                                   |
+| HashMap      <br> _hashmap.h_      | Map                                 | Flat Hashtable                  | A unique set of keys associated with a value `K -> V` with constant time look up using a hashtable with open addressing and robin hood hashing |
+| HashMultiMap <br> _hashmultimap.h_ | Multimap                            | Hashtable                       | A mapping of multiple keys with one node per key using a hashtable with separate chaining                                                      |
+| HashMultiSet <br> _hashmultiset.h_ | Multiset                            | Flat Hashtable                  | A mapping of a value and its multiplicity using a hashtable with open addressing and robin hood hashing                                        |
+| HashSet      <br> _hashset.h_      | Set                                 | Flat Hashtable                  | A unique set of values with constant time look up  using a hashtable with open addressing and robin hood hashing                               |
+| Heap         <br> _heap.h_         | Priority Queue                      | Dynamic Array                   | A binary heap as a dynamic array as an implicit data structure                                                                                 |
+| IntervalHeap <br> _intervalheap.h_ | Double-Ended Priority Queue         | Custom Dynamic Array            | A dynamic array of nodes, each hosting one value from the MinHeap and one from the MaxHeap                                                     |
+| LinkedList   <br> _linkedlist.h_   | List                                | Doubly-Linked List              | A default doubly-linked list                                                                                                                   |
+| List         <br> _list.h_         | List                                | Dynamic Array                   | A dynamic array with `push` and `pop` anywhere on the array                                                                                    |
+| Matrix       <br> _WIP_            | Regular Matrix                      | Dynamic Array of Dynamic Arrays | A regular matrix with arbitrary rows and columns                                                                                               |
+| Queue        <br> _queue.h_        | FIFO                                | Dynamic Circular Array          | A queue using a circular array with `enqueue` at the `back` index and `dequeue` at the `front` index                                           |
+| SortedList   <br> _sortedlist.h_   | Sorted List                         | Sorted Dynamic Array            | A lazily sorted dynamic array that is sorted only when necessary                                                                               |
+| Stack        <br> _stack.h_        | FILO                                | Dynamic Array                   | A stack with push and pop at the end of a dynamic array                                                                                        |
+| TreeBidiMap  <br> _WIP_            | Sorted Bidirectional Map            | Two AVL Trees                   | A sorted bijection between two sets of unique keys and unique values `K <-> V` using two AVL trees                                             |
+| TreeMap      <br> _treemap.h_      | Sorted Map                          | AVL Tree                        | A unique set of keys associated with a value `K -> V` using an AVL tree with `log(n)` look up and sorted iteration                             |
+| TreeMultiMap <br> _WIP_            | Sorted Multimap                     | AVL Tree                        | A sorted mapping of multiple keys with one node per key using an AVL Tree of linked-lists                                                      |
+| TreeMultiSet <br> _WIP_            | Sorted Multiset                     | AVL Tree                        | A sorted mapping of a value and its multiplicity using an AVL tree                                                                             |
+| TreeSet      <br> _treeset.h_      | Sorted Set                          | AVL Tree                        | A unique set of keys using an AVL tree with `log(n)` look up and sorted iteration                                                              |
 
 ## Features
 
@@ -126,16 +137,16 @@ The following table shows which functions are required, optional or never used f
 
 | Collection | CMP | CPY | STR | FREE | HASH | PRI |
 | ---------- | :-: | :-: | :-: | :--: | :--: | :-: |
-| BidiMap      | ![#b82b28](https://placehold.it/20/b82b28/000000?text=+) | ![#9f3b94](https://placehold.it/20/9f3b94/000000?text=+) | ![#497edd](https://placehold.it/20/497edd/000000?text=+) | ![#00d3eb](https://placehold.it/20/00d3eb/000000?text=+) | ![#b82b28](https://placehold.it/20/b82b28/000000?text=+) | ![#2ef625](https://placehold.it/20/2ef625/000000?text=+) |
 | Deque        | ![#9f3b94](https://placehold.it/20/9f3b94/000000?text=+) | ![#9f3b94](https://placehold.it/20/9f3b94/000000?text=+) | ![#497edd](https://placehold.it/20/497edd/000000?text=+) | ![#00d3eb](https://placehold.it/20/00d3eb/000000?text=+) | ![#2ef625](https://placehold.it/20/2ef625/000000?text=+) | ![#2ef625](https://placehold.it/20/2ef625/000000?text=+) |
 | HashMap      | ![#b82b28](https://placehold.it/20/b82b28/000000?text=+) | ![#9f3b94](https://placehold.it/20/9f3b94/000000?text=+) | ![#497edd](https://placehold.it/20/497edd/000000?text=+) | ![#00d3eb](https://placehold.it/20/00d3eb/000000?text=+) | ![#b82b28](https://placehold.it/20/b82b28/000000?text=+) | ![#2ef625](https://placehold.it/20/2ef625/000000?text=+) |
+| HashBidiMap  | ![#b82b28](https://placehold.it/20/b82b28/000000?text=+) | ![#9f3b94](https://placehold.it/20/9f3b94/000000?text=+) | ![#497edd](https://placehold.it/20/497edd/000000?text=+) | ![#00d3eb](https://placehold.it/20/00d3eb/000000?text=+) | ![#b82b28](https://placehold.it/20/b82b28/000000?text=+) | ![#2ef625](https://placehold.it/20/2ef625/000000?text=+) |
+| HashMultiMap | ![#b82b28](https://placehold.it/20/b82b28/000000?text=+) | ![#9f3b94](https://placehold.it/20/9f3b94/000000?text=+) | ![#497edd](https://placehold.it/20/497edd/000000?text=+) | ![#00d3eb](https://placehold.it/20/00d3eb/000000?text=+) | ![#b82b28](https://placehold.it/20/b82b28/000000?text=+) | ![#2ef625](https://placehold.it/20/2ef625/000000?text=+) |
+| HashMultiSet | ![#b82b28](https://placehold.it/20/b82b28/000000?text=+) | ![#9f3b94](https://placehold.it/20/9f3b94/000000?text=+) | ![#497edd](https://placehold.it/20/497edd/000000?text=+) | ![#00d3eb](https://placehold.it/20/00d3eb/000000?text=+) | ![#b82b28](https://placehold.it/20/b82b28/000000?text=+) | ![#2ef625](https://placehold.it/20/2ef625/000000?text=+) |
 | HashSet      | ![#b82b28](https://placehold.it/20/b82b28/000000?text=+) | ![#9f3b94](https://placehold.it/20/9f3b94/000000?text=+) | ![#497edd](https://placehold.it/20/497edd/000000?text=+) | ![#00d3eb](https://placehold.it/20/00d3eb/000000?text=+) | ![#b82b28](https://placehold.it/20/b82b28/000000?text=+) | ![#2ef625](https://placehold.it/20/2ef625/000000?text=+) |
 | Heap         | ![#9f3b94](https://placehold.it/20/9f3b94/000000?text=+) | ![#9f3b94](https://placehold.it/20/9f3b94/000000?text=+) | ![#497edd](https://placehold.it/20/497edd/000000?text=+) | ![#00d3eb](https://placehold.it/20/00d3eb/000000?text=+) | ![#2ef625](https://placehold.it/20/2ef625/000000?text=+) | ![#b82b28](https://placehold.it/20/b82b28/000000?text=+) |
 | IntervalHeap | ![#9f3b94](https://placehold.it/20/9f3b94/000000?text=+) | ![#9f3b94](https://placehold.it/20/9f3b94/000000?text=+) | ![#497edd](https://placehold.it/20/497edd/000000?text=+) | ![#00d3eb](https://placehold.it/20/00d3eb/000000?text=+) | ![#2ef625](https://placehold.it/20/2ef625/000000?text=+) | ![#b82b28](https://placehold.it/20/b82b28/000000?text=+) |
 | List         | ![#9f3b94](https://placehold.it/20/9f3b94/000000?text=+) | ![#9f3b94](https://placehold.it/20/9f3b94/000000?text=+) | ![#497edd](https://placehold.it/20/497edd/000000?text=+) | ![#00d3eb](https://placehold.it/20/00d3eb/000000?text=+) | ![#2ef625](https://placehold.it/20/2ef625/000000?text=+) | ![#2ef625](https://placehold.it/20/2ef625/000000?text=+) |
 | LinkedList   | ![#9f3b94](https://placehold.it/20/9f3b94/000000?text=+) | ![#9f3b94](https://placehold.it/20/9f3b94/000000?text=+) | ![#497edd](https://placehold.it/20/497edd/000000?text=+) | ![#00d3eb](https://placehold.it/20/00d3eb/000000?text=+) | ![#2ef625](https://placehold.it/20/2ef625/000000?text=+) | ![#2ef625](https://placehold.it/20/2ef625/000000?text=+) |
-| MultiMap     | ![#b82b28](https://placehold.it/20/b82b28/000000?text=+) | ![#9f3b94](https://placehold.it/20/9f3b94/000000?text=+) | ![#497edd](https://placehold.it/20/497edd/000000?text=+) | ![#00d3eb](https://placehold.it/20/00d3eb/000000?text=+) | ![#b82b28](https://placehold.it/20/b82b28/000000?text=+) | ![#2ef625](https://placehold.it/20/2ef625/000000?text=+) |
-| MultiSet     | ![#b82b28](https://placehold.it/20/b82b28/000000?text=+) | ![#9f3b94](https://placehold.it/20/9f3b94/000000?text=+) | ![#497edd](https://placehold.it/20/497edd/000000?text=+) | ![#00d3eb](https://placehold.it/20/00d3eb/000000?text=+) | ![#b82b28](https://placehold.it/20/b82b28/000000?text=+) | ![#2ef625](https://placehold.it/20/2ef625/000000?text=+) |
 | Queue        | ![#9f3b94](https://placehold.it/20/9f3b94/000000?text=+) | ![#9f3b94](https://placehold.it/20/9f3b94/000000?text=+) | ![#497edd](https://placehold.it/20/497edd/000000?text=+) | ![#00d3eb](https://placehold.it/20/00d3eb/000000?text=+) | ![#2ef625](https://placehold.it/20/2ef625/000000?text=+) | ![#2ef625](https://placehold.it/20/2ef625/000000?text=+) |
 | SortedList   | ![#b82b28](https://placehold.it/20/b82b28/000000?text=+) | ![#9f3b94](https://placehold.it/20/9f3b94/000000?text=+) | ![#497edd](https://placehold.it/20/497edd/000000?text=+) | ![#00d3eb](https://placehold.it/20/00d3eb/000000?text=+) | ![#2ef625](https://placehold.it/20/2ef625/000000?text=+) | ![#2ef625](https://placehold.it/20/2ef625/000000?text=+) |
 | Stack        | ![#9f3b94](https://placehold.it/20/9f3b94/000000?text=+) | ![#9f3b94](https://placehold.it/20/9f3b94/000000?text=+) | ![#497edd](https://placehold.it/20/497edd/000000?text=+) | ![#00d3eb](https://placehold.it/20/00d3eb/000000?text=+) | ![#2ef625](https://placehold.it/20/2ef625/000000?text=+) | ![#2ef625](https://placehold.it/20/2ef625/000000?text=+) |
