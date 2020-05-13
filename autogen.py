@@ -93,30 +93,9 @@ for data in collections:
 
     print(f'Generated {data["h"]: >20} -> {OUTPUT_DIR}/{data["sname"]}.c')
 
-# This seemed to be crashing
-# subprocess.run(f'clang-format --style=file -i {OUTPUT_DIR}/*.c')
-
-# So I guess... it will have to be called from a temp Makefile... ugh
-TMP_MAKE = './temp_makefile'
-
-data = f'''
-.PHONY: codecov FORCE
-
-codecov: FORCE
-\tclang-format --style=file -i {OUTPUT_DIR}/*.c
-
-FORCE:
-
-'''
-
-print(f'Creating temporary Makefile as {TMP_MAKE}')
-
-file = open(TMP_MAKE, 'w')
-file.write(data)
-file.flush()
-file.close()
-
-subprocess.call(['make', '-f' , TMP_MAKE, 'codecov', '--always-make'])
-
 os.remove(TMP_FILE)
-os.remove(TMP_MAKE)
+
+# Format all files
+print('Formating files...')
+subprocess.call(['clang-format', '--style=file', '-i', f'{OUTPUT_DIR}/*.c'])
+print('Done')
