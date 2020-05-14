@@ -28,6 +28,8 @@
 #include <stdlib.h>
 #include <string.h>
 
+#include "flags.h"
+
 #define CMC_TO_STRING_(X) #X
 #define CMC_TO_STRING(X) CMC_TO_STRING_(X)
 
@@ -75,32 +77,5 @@ struct cmc_callbacks
     void (*delete)(void);
     void (*resize)(void);
 };
-
-/**
- * cmc_flags
- *
- * Defines common error codes used by all collections. These are flags that
- * indicate if something went wrong in the last operation by the collection.
- */
-static struct
-{
-    int OK;        // No errors
-    int ALLOC;     // Allocation failed
-    int EMPTY;     // The collection is empty when it should not
-    int NOT_FOUND; // Key or value not found
-    int INVALID;   // Invalid argument or operation
-    int RANGE;     // Index out of range
-    int DUPLICATE; // Duplicate key or value
-    int ERROR;     // Generic error, usually caused by algorithm error
-} cmc_flags = { 0, 1, 2, 3, 4, 5, 6, 7 };
-
-/**
- * cmc_flags_to_str
- *
- * Maps the error codes to their character representation.
- */
-const char *cmc_flags_to_str[8] = { "OK",        "ALLOC",   "EMPTY",
-                                    "NOT_FOUND", "INVALID", "RANGE",
-                                    "DUPLICATE", "ERROR" };
 
 #endif /* CMC_CORE_H */
