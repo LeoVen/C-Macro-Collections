@@ -26,15 +26,18 @@ static struct
     int RANGE;     // Index out of range
     int DUPLICATE; // Duplicate key or value
     int ERROR;     // Generic error, usually caused by algorithm error
-} cmc_flags = { 0, 1, 2, 3, 4, 5, 6, 7 };
+    int THREAD;    // Generic error regarding threads
+    int MUTEX;     // Generic error regarding mutexes
+} cmc_flags = { 0, 1, 2, 3, 4, 5, 6, 7, 8, 9 };
 
 /**
  * cmc_flags_to_str
  *
  * Maps the error codes to their character representation.
  */
-const char *cmc_flags_to_str[8] = { "OK",        "ALLOC",   "EMPTY",
-                                    "NOT_FOUND", "INVALID", "RANGE",
-                                    "DUPLICATE", "ERROR" };
+const char *cmc_flags_to_str[10] = { "OK",        "ALLOC",   "EMPTY",
+                                     "NOT_FOUND", "INVALID", "RANGE",
+                                     "DUPLICATE", "ERROR",   "THREAD",
+                                     "MUTEX" };
 
 #endif /* CMC_FLAGS_H */
