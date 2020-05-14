@@ -379,7 +379,7 @@ static const char *cmc_string_fmt_bitset = "struct %s "
         {                                                                      \
             _bitset_->buffer[start_index] &= ~start_mask;                      \
                                                                                \
-            for (size_t i = start_index; i < end_index; i++)                   \
+            for (size_t i = start_index + 1; i < end_index; i++)               \
                 _bitset_->buffer[i] = 0;                                       \
                                                                                \
             _bitset_->buffer[end_index] &= ~end_mask;                          \
@@ -395,11 +395,69 @@ static const char *cmc_string_fmt_bitset = "struct %s "
                                                                                \
     bool PFX##_flip(struct SNAME *_bitset_, size_t bit_index)                  \
     {                                                                          \
+        if (!PFX##_impl_resize(_bitset_, bit_index + 1, false))                \
+            return false;                                                      \
+                                                                               \
+        /* How many bits in a word */                                          \
+        const cmc_bitset_word bits = sizeof(cmc_bitset_word) * CHAR_BIT;       \
+                                                                               \
+        size_t i = PFX##_bit_to_index(bit_index);                              \
+                                                                               \
+        _bitset_->buffer[i] ^= ((cmc_bitset_word)1) << (bit_index % bits);     \
+                                                                               \
+        _bitset_->flag = cmc_flags.OK;                                         \
+                                                                               \
+        if (_bitset_->callbacks && _bitset_->callbacks->update)                \
+            _bitset_->callbacks->update();                                     \
+                                                                               \
         return true;                                                           \
     }                                                                          \
                                                                                \
     bool PFX##_flip_range(struct SNAME *_bitset_, size_t from, size_t to)      \
     {                                                                          \
+        if (to < from)                                                         \
+        {                                                                      \
+            _bitset_->flag = cmc_flags.INVALID;                                \
+            return false;                                                      \
+        }                                                                      \
+                                                                               \
+        if (!PFX##_impl_resize(_bitset_, to + 1, false))                       \
+            return false;                                                      \
+                                                                               \
+        size_t start_index = PFX##_bit_to_index(from);                         \
+        size_t end_index = PFX##_bit_to_index(to);                             \
+                                                                               \
+        /* How many bits in a word */                                          \
+        const cmc_bitset_word bits = sizeof(cmc_bitset_word) * CHAR_BIT;       \
+                                                                               \
+        /* 1111 ... 1111 */                                                    \
+        const cmc_bitset_word ones = ~((cmc_bitset_word)0);                    \
+                                                                               \
+        cmc_bitset_word shift_start = from % bits;                             \
+        cmc_bitset_word shift_end = (cmc_bitset_word)(-(to + 1)) % bits;       \
+                                                                               \
+        cmc_bitset_word start_mask = ones << shift_start;                      \
+        cmc_bitset_word end_mask = ones >> shift_end;                          \
+                                                                               \
+        if (start_index == end_index)                                          \
+        {                                                                      \
+            _bitset_->buffer[end_index] ^= (start_mask & end_mask);            \
+        }                                                                      \
+        else                                                                   \
+        {                                                                      \
+            _bitset_->buffer[start_index] ^= start_mask;                       \
+                                                                               \
+            for (size_t i = start_index + 1; i < end_index; i++)               \
+                _bitset_->buffer[i] ^= ones;                                   \
+                                                                               \
+            _bitset_->buffer[end_index] ^= end_mask;                           \
+        }                                                                      \
+                                                                               \
+        _bitset_->flag = cmc_flags.OK;                                         \
+                                                                               \
+        if (_bitset_->callbacks && _bitset_->callbacks->update)                \
+            _bitset_->callbacks->update ();                                    \
+                                                                               \
         return true;                                                           \
     }                                                                          \
                                                                                \
