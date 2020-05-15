@@ -1,0 +1,17 @@
+name: Test Suit
+
+on:
+  push:
+    branches: [ master ]
+
+jobs:
+  main:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v2
+    - name: Setup Environment
+      run: sudo apt install make valgrind gcc
+    - name: Test Suite
+      run: make -C ./tests/main nocov
+    - name: Valgrind Test
+      run: make -C ./tests/main valgrind
