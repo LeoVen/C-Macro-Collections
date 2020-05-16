@@ -127,17 +127,23 @@ static const char *cmc_string_fmt_bitset = "struct %s "
     bool PFX##_clear_range(struct SNAME *_bitset_, size_t from, size_t to);    \
     bool PFX##_flip(struct SNAME *_bitset_, size_t bit_index);                 \
     bool PFX##_flip_range(struct SNAME *_bitset_, size_t from, size_t to);     \
-    bool PFX##_put(struct SNAME *_bitset_, size_t bit_index);                  \
-    bool PFX##_put_range(struct SNAME *_bitset_, size_t from, size_t to);      \
-    bool PFX##_fill(struct SNAME *_bitset_);                                   \
-    bool PFX##_empty(struct SNAME *_bitset_);                                  \
+    bool PFX##_put(struct SNAME *_bitset_, size_t bit_index, bool state);      \
+    bool PFX##_put_range(struct SNAME *_bitset_, size_t from, size_t to,       \
+                         bool state);                                          \
+    bool PFX##_set_all(struct SNAME *_bitset_);                                \
+    bool PFX##_clear_all(struct SNAME *_bitset_);                              \
+    bool PFX##_flip_all(struct SNAME *_bitset_);                               \
     /* Element Access */                                                       \
     bool PFX##_get(struct SNAME *_bitset_, size_t bit_index);                  \
-                                                                               \
     /* Collection State */                                                     \
-                                                                               \
     /* Collection Utility */                                                   \
     bool PFX##_resize(struct SNAME *_bitset_, size_t n_bits);                  \
+                                                                               \
+    /* Iterator Functions */                                                   \
+    /* Iterator Initialization */                                              \
+    /* Iterator State */                                                       \
+    /* Iterator Movement */                                                    \
+    /* Iterator Access */                                                      \
                                                                                \
     /* Utility Methods */                                                      \
     /* Translates a bit index to a word index */                               \
@@ -456,28 +462,64 @@ static const char *cmc_string_fmt_bitset = "struct %s "
         _bitset_->flag = cmc_flags.OK;                                         \
                                                                                \
         if (_bitset_->callbacks && _bitset_->callbacks->update)                \
-            _bitset_->callbacks->update ();                                    \
+            _bitset_->callbacks->update();                                     \
                                                                                \
         return true;                                                           \
     }                                                                          \
                                                                                \
-    bool PFX##_put(struct SNAME *_bitset_, size_t bit_index)                   \
+    bool PFX##_put(struct SNAME *_bitset_, size_t bit_index, bool state)       \
     {                                                                          \
+        if (state)                                                             \
+            return PFX##_set(_bitset_, bit_index);                             \
+        else                                                                   \
+            return PFX##_clear(_bitset_, bit_index);                           \
+    }                                                                          \
+                                                                               \
+    bool PFX##_put_range(struct SNAME *_bitset_, size_t from, size_t to,       \
+                         bool state)                                           \
+    {                                                                          \
+        if (state)                                                             \
+            return PFX##_set_range(_bitset_, from, to);                        \
+        else                                                                   \
+            return PFX##_clear_range(_bitset_, from, to);                      \
+    }                                                                          \
+                                                                               \
+    bool PFX##_set_all(struct SNAME *_bitset_)                                 \
+    {                                                                          \
+        for (size_t i = 0; i < _bitset_->capacity; i++)                        \
+            _bitset_->buffer[i] = ~((cmc_bitset_word)0);                       \
+                                                                               \
+        _bitset_->flag = cmc_flags.OK;                                         \
+                                                                               \
+        if (_bitset_->callbacks && _bitset_->callbacks->create)                \
+            _bitset_->callbacks->create();                                     \
+                                                                               \
         return true;                                                           \
     }                                                                          \
                                                                                \
-    bool PFX##_put_range(struct SNAME *_bitset_, size_t from, size_t to)       \
+    bool PFX##_clear_all(struct SNAME *_bitset_)                               \
     {                                                                          \
+        for (size_t i = 0; i < _bitset_->capacity; i++)                        \
+            _bitset_->buffer[i] = 0;                                           \
+                                                                               \
+        _bitset_->flag = cmc_flags.OK;                                         \
+                                                                               \
+        if (_bitset_->callbacks && _bitset_->callbacks->delete)                \
+            _bitset_->callbacks->delete ();                                    \
+                                                                               \
         return true;                                                           \
     }                                                                          \
                                                                                \
-    bool PFX##_fill(struct SNAME *_bitset_)                                    \
+    bool PFX##_flip_all(struct SNAME *_bitset_)                                \
     {                                                                          \
-        return true;                                                           \
-    }                                                                          \
+        for (size_t i = 0; i < _bitset_->capacity; i++)                        \
+            _bitset_->buffer[i] ^= ~((cmc_bitset_word)0);                      \
                                                                                \
-    bool PFX##_empty(struct SNAME *_bitset_)                                   \
-    {                                                                          \
+        _bitset_->flag = cmc_flags.OK;                                         \
+                                                                               \
+        if (_bitset_->callbacks && _bitset_->callbacks->create)                \
+            _bitset_->callbacks->create();                                     \
+                                                                               \
         return true;                                                           \
     }                                                                          \
                                                                                \

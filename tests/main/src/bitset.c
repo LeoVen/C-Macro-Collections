@@ -31,10 +31,12 @@ _Bool bs_clear(struct bitset *_bitset_, size_t bit_index);
 _Bool bs_clear_range(struct bitset *_bitset_, size_t from, size_t to);
 _Bool bs_flip(struct bitset *_bitset_, size_t bit_index);
 _Bool bs_flip_range(struct bitset *_bitset_, size_t from, size_t to);
-_Bool bs_put(struct bitset *_bitset_, size_t bit_index);
-_Bool bs_put_range(struct bitset *_bitset_, size_t from, size_t to);
-_Bool bs_fill(struct bitset *_bitset_);
-_Bool bs_empty(struct bitset *_bitset_);
+_Bool bs_put(struct bitset *_bitset_, size_t bit_index, _Bool state);
+_Bool bs_put_range(struct bitset *_bitset_, size_t from, size_t to,
+                   _Bool state);
+_Bool bs_set_all(struct bitset *_bitset_);
+_Bool bs_clear_all(struct bitset *_bitset_);
+_Bool bs_flip_all(struct bitset *_bitset_);
 _Bool bs_get(struct bitset *_bitset_, size_t bit_index);
 _Bool bs_resize(struct bitset *_bitset_, size_t n_bits);
 static inline size_t bs_bit_to_index(size_t idx)
@@ -247,24 +249,49 @@ _Bool bs_flip_range(struct bitset *_bitset_, size_t from, size_t to)
         _bitset_->buffer[end_index] ^= end_mask;
     }
     _bitset_->flag = cmc_flags.OK;
+    if (_bitset_->callbacks && _bitset_->callbacks->update)
+        _bitset_->callbacks->update();
+    return 1;
+}
+_Bool bs_put(struct bitset *_bitset_, size_t bit_index, _Bool state)
+{
+    if (state)
+        return bs_set(_bitset_, bit_index);
+    else
+        return bs_clear(_bitset_, bit_index);
+}
+_Bool bs_put_range(struct bitset *_bitset_, size_t from, size_t to, _Bool state)
+{
+    if (state)
+        return bs_set_range(_bitset_, from, to);
+    else
+        return bs_clear_range(_bitset_, from, to);
+}
+_Bool bs_set_all(struct bitset *_bitset_)
+{
+    for (size_t i = 0; i < _bitset_->capacity; i++)
+        _bitset_->buffer[i] = ~((cmc_bitset_word)0);
+    _bitset_->flag = cmc_flags.OK;
+    if (_bitset_->callbacks && _bitset_->callbacks->create)
+        _bitset_->callbacks->create();
+    return 1;
+}
+_Bool bs_clear_all(struct bitset *_bitset_)
+{
+    for (size_t i = 0; i < _bitset_->capacity; i++)
+        _bitset_->buffer[i] = 0;
+    _bitset_->flag = cmc_flags.OK;
     if (_bitset_->callbacks && _bitset_->callbacks->delete)
         _bitset_->callbacks->delete ();
     return 1;
 }
-_Bool bs_put(struct bitset *_bitset_, size_t bit_index)
+_Bool bs_flip_all(struct bitset *_bitset_)
 {
-    return 1;
-}
-_Bool bs_put_range(struct bitset *_bitset_, size_t from, size_t to)
-{
-    return 1;
-}
-_Bool bs_fill(struct bitset *_bitset_)
-{
-    return 1;
-}
-_Bool bs_empty(struct bitset *_bitset_)
-{
+    for (size_t i = 0; i < _bitset_->capacity; i++)
+        _bitset_->buffer[i] ^= ~((cmc_bitset_word)0);
+    _bitset_->flag = cmc_flags.OK;
+    if (_bitset_->callbacks && _bitset_->callbacks->create)
+        _bitset_->callbacks->create();
     return 1;
 }
 _Bool bs_get(struct bitset *_bitset_, size_t bit_index)

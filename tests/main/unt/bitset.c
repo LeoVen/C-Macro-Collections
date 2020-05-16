@@ -315,6 +315,106 @@ CMC_CREATE_UNIT(BitSet, true, {
         bs_free(bs);
     });
 
+    CMC_CREATE_TEST(PFX##_put(), {
+        struct bitset *bs = bs_new(word_bits * 10 - 1);
+
+        cmc_assert_not_equals(ptr, NULL, bs);
+        cmc_assert_equals(CMC_BITSET_WORD_TYPE, 0, bs->buffer[0]);
+
+        cmc_assert(bs_put(bs, 1, true)); // 0010
+        cmc_assert_equals(CMC_BITSET_WORD_TYPE, 2, bs->buffer[0]);
+        cmc_assert(bs_put(bs, 0, false)); // 0010
+        cmc_assert_equals(CMC_BITSET_WORD_TYPE, 2, bs->buffer[0]);
+        cmc_assert(bs_put(bs, 1, false)); // 0000
+        cmc_assert_equals(CMC_BITSET_WORD_TYPE, 0, bs->buffer[0]);
+        cmc_assert(bs_put(bs, 3, true)); // 1000
+        cmc_assert_equals(CMC_BITSET_WORD_TYPE, 8, bs->buffer[0]);
+        cmc_assert(bs_put(bs, 0, true)); // 1001
+        cmc_assert_equals(CMC_BITSET_WORD_TYPE, 9, bs->buffer[0]);
+        cmc_assert(bs_put(bs, 3, false)); // 0001
+        cmc_assert_equals(CMC_BITSET_WORD_TYPE, 1, bs->buffer[0]);
+
+        cmc_assert(bs_put(bs, word_bits * 100 - 1, true));
+        cmc_assert_equals(size_t, 100, bs->capacity);
+
+        bs_free(bs);
+    });
+
+    CMC_CREATE_TEST(PFX##_put_range(), {
+        struct bitset *bs = bs_new(word_bits * 10 - 1);
+
+        cmc_assert_not_equals(ptr, NULL, bs);
+        cmc_assert_equals(CMC_BITSET_WORD_TYPE, 0, bs->buffer[0]);
+
+        cmc_assert(bs_put_range(bs, 1, 2, true)); // 0110
+        cmc_assert_equals(CMC_BITSET_WORD_TYPE, 6, bs->buffer[0]);
+        cmc_assert(bs_put_range(bs, 0, 1, false)); // 0100
+        cmc_assert_equals(CMC_BITSET_WORD_TYPE, 4, bs->buffer[0]);
+        cmc_assert(bs_put_range(bs, 1, 3, true)); // 1110
+        cmc_assert_equals(CMC_BITSET_WORD_TYPE, 14, bs->buffer[0]);
+        cmc_assert(bs_put_range(bs, 2, 3, false)); // 0010
+        cmc_assert_equals(CMC_BITSET_WORD_TYPE, 2, bs->buffer[0]);
+
+        cmc_assert(bs_put_range(bs, 0, word_bits * 100 - 1, true));
+        cmc_assert_equals(size_t, 100, bs->capacity);
+
+        for (size_t i = 0; i < bs->capacity; i++)
+            cmc_assert_equals(CMC_BITSET_WORD_TYPE, ~((cmc_bitset_word)0),
+                              bs->buffer[i]);
+
+        cmc_assert(bs_put_range(bs, 0, word_bits * 100 - 1, false));
+        for (size_t i = 0; i < bs->capacity; i++)
+            cmc_assert_equals(CMC_BITSET_WORD_TYPE, 0,
+                              bs->buffer[i]);
+
+        bs_free(bs);
+    });
+
+    CMC_CREATE_TEST(PFX##_set_all(), {
+        struct bitset *bs = bs_new(word_bits * 10 - 1);
+
+        cmc_assert_not_equals(ptr, NULL, bs);
+
+        cmc_assert(bs_set_all(bs));
+
+        for (size_t i = 0; i < bs->capacity; i++)
+            cmc_assert_equals(CMC_BITSET_WORD_TYPE, ~((cmc_bitset_word)0),
+                              bs->buffer[i]);
+
+        bs_free(bs);
+    });
+
+    CMC_CREATE_TEST(PFX##_clear_all(), {
+        struct bitset *bs = bs_new(word_bits * 10 - 1);
+
+        cmc_assert_not_equals(ptr, NULL, bs);
+
+        cmc_assert(bs_set_all(bs));
+        cmc_assert(bs_clear_all(bs));
+
+        for (size_t i = 0; i < bs->capacity; i++)
+            cmc_assert_equals(CMC_BITSET_WORD_TYPE, 0, bs->buffer[i]);
+
+        bs_free(bs);
+    });
+
+    CMC_CREATE_TEST(PFX##_flip_all(), {
+        struct bitset *bs = bs_new(word_bits * 10 - 1);
+
+        cmc_assert_not_equals(ptr, NULL, bs);
+
+        cmc_assert(bs_flip_all(bs));
+        for (size_t i = 0; i < bs->capacity; i++)
+            cmc_assert_equals(CMC_BITSET_WORD_TYPE, ~((cmc_bitset_word)0),
+                              bs->buffer[i]);
+
+        cmc_assert(bs_flip_all(bs));
+        for (size_t i = 0; i < bs->capacity; i++)
+            cmc_assert_equals(CMC_BITSET_WORD_TYPE, 0, bs->buffer[i]);
+
+        bs_free(bs);
+    });
+
     CMC_CREATE_TEST(PFX##_get(), {
         struct bitset *bs = bs_new(64);
 
