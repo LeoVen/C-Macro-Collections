@@ -72,12 +72,6 @@ static const char *cmc_string_fmt_treeset = "struct %s<%s> "
                                                                                \
         /* Custom callback functions */                                        \
         struct cmc_callbacks *callbacks;                                       \
-                                                                               \
-        /* Function that returns an iterator to the start of the treeset */    \
-        struct SNAME##_iter (*it_start)(struct SNAME *);                       \
-                                                                               \
-        /* Function that returns an iterator to the end of the treeset */      \
-        struct SNAME##_iter (*it_end)(struct SNAME *);                         \
     };                                                                         \
                                                                                \
     /* Treeset Node */                                                         \
@@ -189,17 +183,15 @@ static const char *cmc_string_fmt_treeset = "struct %s<%s> "
     bool PFX##_is_disjointset(struct SNAME *_set1_, struct SNAME *_set2_);     \
                                                                                \
     /* Iterator Functions */                                                   \
-    /* Iterator Allocation and Deallocation */                                 \
-    struct SNAME##_iter *PFX##_iter_new(struct SNAME *target);                 \
-    void PFX##_iter_free(struct SNAME##_iter *iter);                           \
     /* Iterator Initialization */                                              \
-    void PFX##_iter_init(struct SNAME##_iter *iter, struct SNAME *target);     \
+    struct SNAME##_iter PFX##_iter_start(struct SNAME *target);                \
+    struct SNAME##_iter PFX##_iter_end(struct SNAME *target);                  \
     /* Iterator State */                                                       \
-    bool PFX##_iter_start(struct SNAME##_iter *iter);                          \
-    bool PFX##_iter_end(struct SNAME##_iter *iter);                            \
+    bool PFX##_iter_at_start(struct SNAME##_iter *iter);                       \
+    bool PFX##_iter_at_end(struct SNAME##_iter *iter);                         \
     /* Iterator Movement */                                                    \
-    void PFX##_iter_to_start(struct SNAME##_iter *iter);                       \
-    void PFX##_iter_to_end(struct SNAME##_iter *iter);                         \
+    bool PFX##_iter_to_start(struct SNAME##_iter *iter);                       \
+    bool PFX##_iter_to_end(struct SNAME##_iter *iter);                         \
     bool PFX##_iter_next(struct SNAME##_iter *iter);                           \
     bool PFX##_iter_prev(struct SNAME##_iter *iter);                           \
     bool PFX##_iter_advance(struct SNAME##_iter *iter, size_t steps);          \
@@ -235,8 +227,6 @@ static const char *cmc_string_fmt_treeset = "struct %s<%s> "
     static void PFX##_impl_rotate_left(struct SNAME##_node **Z);               \
     static void PFX##_impl_rebalance(struct SNAME *_set_,                      \
                                      struct SNAME##_node *node);               \
-    static struct SNAME##_iter PFX##_impl_it_start(struct SNAME *_set_);       \
-    static struct SNAME##_iter PFX##_impl_it_end(struct SNAME *_set_);         \
                                                                                \
     struct SNAME *PFX##_new(struct SNAME##_fval *f_val)                        \
     {                                                                          \
@@ -256,8 +246,6 @@ static const char *cmc_string_fmt_treeset = "struct %s<%s> "
         _set_->f_val = f_val;                                                  \
         _set_->alloc = alloc;                                                  \
         _set_->callbacks = NULL;                                               \
-        _set_->it_start = PFX##_impl_it_start;                                 \
-        _set_->it_end = PFX##_impl_it_end;                                     \
                                                                                \
         return _set_;                                                          \
     }                                                                          \
@@ -283,8 +271,6 @@ static const char *cmc_string_fmt_treeset = "struct %s<%s> "
         _set_->f_val = f_val;                                                  \
         _set_->alloc = alloc;                                                  \
         _set_->callbacks = callbacks;                                          \
-        _set_->it_start = PFX##_impl_it_start;                                 \
-        _set_->it_end = PFX##_impl_it_end;                                     \
                                                                                \
         return _set_;                                                          \
     }                                                                          \
@@ -662,13 +648,11 @@ static const char *cmc_string_fmt_treeset = "struct %s<%s> "
             return NULL;                                                       \
         }                                                                      \
                                                                                \
-        struct SNAME##_iter iter;                                              \
-        PFX##_iter_init(&iter, _set_);                                         \
-                                                                               \
         if (!PFX##_empty(_set_))                                               \
         {                                                                      \
-            for (PFX##_iter_to_start(&iter); !PFX##_iter_end(&iter);           \
-                 PFX##_iter_next(&iter))                                       \
+            struct SNAME##_iter iter = PFX##_iter_start(_set_);                \
+                                                                               \
+            for (; !PFX##_iter_at_end(&iter); PFX##_iter_next(&iter))          \
             {                                                                  \
                 if (_set_->f_val->cpy)                                         \
                     PFX##_insert(result,                                       \
@@ -691,11 +675,9 @@ static const char *cmc_string_fmt_treeset = "struct %s<%s> "
         if (_set1_->count != _set2_->count)                                    \
             return false;                                                      \
                                                                                \
-        struct SNAME##_iter iter;                                              \
-        PFX##_iter_init(&iter, _set1_);                                        \
+        struct SNAME##_iter iter = PFX##_iter_start(_set1_);                   \
                                                                                \
-        for (PFX##_iter_to_start(&iter); !PFX##_iter_end(&iter);               \
-             PFX##_iter_next(&iter))                                           \
+        for (; !PFX##_iter_at_end(&iter); PFX##_iter_next(&iter))              \
         {                                                                      \
             if (PFX##_impl_get_node(_set2_, PFX##_iter_value(&iter)) == NULL)  \
                 return false;                                                  \
@@ -765,18 +747,15 @@ static const char *cmc_string_fmt_treeset = "struct %s<%s> "
         if (!_set_r_)                                                          \
             return NULL;                                                       \
                                                                                \
-        struct SNAME##_iter iter1, iter2;                                      \
-        PFX##_iter_init(&iter1, _set1_);                                       \
-        PFX##_iter_init(&iter2, _set2_);                                       \
+        struct SNAME##_iter iter1 = PFX##_iter_start(_set1_);                  \
+        struct SNAME##_iter iter2 = PFX##_iter_start(_set2_);                  \
                                                                                \
-        for (PFX##_iter_to_start(&iter1); !PFX##_iter_end(&iter1);             \
-             PFX##_iter_next(&iter1))                                          \
+        for (; !PFX##_iter_at_end(&iter1); PFX##_iter_next(&iter1))            \
         {                                                                      \
             PFX##_insert(_set_r_, PFX##_iter_value(&iter1));                   \
         }                                                                      \
                                                                                \
-        for (PFX##_iter_to_start(&iter2); !PFX##_iter_end(&iter2);             \
-             PFX##_iter_next(&iter2))                                          \
+        for (; !PFX##_iter_at_end(&iter2); PFX##_iter_next(&iter2))            \
         {                                                                      \
             PFX##_insert(_set_r_, PFX##_iter_value(&iter2));                   \
         }                                                                      \
@@ -793,15 +772,14 @@ static const char *cmc_string_fmt_treeset = "struct %s<%s> "
         if (!_set_r_)                                                          \
             return NULL;                                                       \
                                                                                \
+        /** TODO Should this compare count or capacity? */                     \
         struct SNAME *_set_A_ =                                                \
             _set1_->count < _set2_->count ? _set1_ : _set2_;                   \
         struct SNAME *_set_B_ = _set_A_ == _set1_ ? _set2_ : _set1_;           \
                                                                                \
-        struct SNAME##_iter iter;                                              \
-        PFX##_iter_init(&iter, _set_A_);                                       \
+        struct SNAME##_iter iter = PFX##_iter_start(_set_A_);                  \
                                                                                \
-        for (PFX##_iter_to_start(&iter); !PFX##_iter_end(&iter);               \
-             PFX##_iter_next(&iter))                                           \
+        for (; !PFX##_iter_at_end(&iter); PFX##_iter_next(&iter))              \
         {                                                                      \
             V value = PFX##_iter_value(&iter);                                 \
                                                                                \
@@ -820,11 +798,9 @@ static const char *cmc_string_fmt_treeset = "struct %s<%s> "
         if (!_set_r_)                                                          \
             return NULL;                                                       \
                                                                                \
-        struct SNAME##_iter iter;                                              \
-        PFX##_iter_init(&iter, _set1_);                                        \
+        struct SNAME##_iter iter = PFX##_iter_start(_set1_);                   \
                                                                                \
-        for (PFX##_iter_to_start(&iter); !PFX##_iter_end(&iter);               \
-             PFX##_iter_next(&iter))                                           \
+        for (; !PFX##_iter_at_end(&iter); PFX##_iter_next(&iter))              \
         {                                                                      \
             V value = PFX##_iter_value(&iter);                                 \
                                                                                \
@@ -844,12 +820,10 @@ static const char *cmc_string_fmt_treeset = "struct %s<%s> "
         if (!_set_r_)                                                          \
             return NULL;                                                       \
                                                                                \
-        struct SNAME##_iter iter1, iter2;                                      \
-        PFX##_iter_init(&iter1, _set1_);                                       \
-        PFX##_iter_init(&iter2, _set2_);                                       \
+        struct SNAME##_iter iter1 = PFX##_iter_start(_set1_);                  \
+        struct SNAME##_iter iter2 = PFX##_iter_start(_set2_);                  \
                                                                                \
-        for (PFX##_iter_to_start(&iter1); !PFX##_iter_end(&iter1);             \
-             PFX##_iter_next(&iter1))                                          \
+        for (; !PFX##_iter_at_end(&iter1); PFX##_iter_next(&iter1))            \
         {                                                                      \
             V value = PFX##_iter_value(&iter1);                                \
                                                                                \
@@ -857,8 +831,7 @@ static const char *cmc_string_fmt_treeset = "struct %s<%s> "
                 PFX##_insert(_set_r_, value);                                  \
         }                                                                      \
                                                                                \
-        for (PFX##_iter_to_start(&iter2); !PFX##_iter_end(&iter2);             \
-             PFX##_iter_next(&iter2))                                          \
+        for (; !PFX##_iter_at_end(&iter2); PFX##_iter_next(&iter2))            \
         {                                                                      \
             V value = PFX##_iter_value(&iter2);                                \
                                                                                \
@@ -883,12 +856,9 @@ static const char *cmc_string_fmt_treeset = "struct %s<%s> "
         if (PFX##_empty(_set1_))                                               \
             return true;                                                       \
                                                                                \
-        struct SNAME##_iter iter;                                              \
+        struct SNAME##_iter iter = PFX##_iter_start(_set1_);                   \
                                                                                \
-        PFX##_iter_init(&iter, _set1_);                                        \
-                                                                               \
-        for (PFX##_iter_to_start(&iter); !PFX##_iter_end(&iter);               \
-             PFX##_iter_next(&iter))                                           \
+        for (; !PFX##_iter_at_end(&iter); PFX##_iter_next(&iter))              \
         {                                                                      \
             V value = PFX##_iter_value(&iter);                                 \
                                                                                \
@@ -929,12 +899,9 @@ static const char *cmc_string_fmt_treeset = "struct %s<%s> "
                 return false;                                                  \
         }                                                                      \
                                                                                \
-        struct SNAME##_iter iter;                                              \
+        struct SNAME##_iter iter = PFX##_iter_start(_set1_);                   \
                                                                                \
-        PFX##_iter_init(&iter, _set1_);                                        \
-                                                                               \
-        for (PFX##_iter_to_start(&iter); !PFX##_iter_end(&iter);               \
-             PFX##_iter_next(&iter))                                           \
+        for (; !PFX##_iter_at_end(&iter); PFX##_iter_next(&iter))              \
         {                                                                      \
             V value = PFX##_iter_value(&iter);                                 \
                                                                                \
@@ -963,12 +930,9 @@ static const char *cmc_string_fmt_treeset = "struct %s<%s> "
         if (PFX##_empty(_set1_))                                               \
             return true;                                                       \
                                                                                \
-        struct SNAME##_iter iter;                                              \
+        struct SNAME##_iter iter = PFX##_iter_start(_set1_);                   \
                                                                                \
-        PFX##_iter_init(&iter, _set1_);                                        \
-                                                                               \
-        for (PFX##_iter_to_start(&iter); !PFX##_iter_end(&iter);               \
-             PFX##_iter_next(&iter))                                           \
+        for (; !PFX##_iter_at_end(&iter); PFX##_iter_next(&iter))              \
         {                                                                      \
             V value = PFX##_iter_value(&iter);                                 \
                                                                                \
@@ -979,58 +943,73 @@ static const char *cmc_string_fmt_treeset = "struct %s<%s> "
         return true;                                                           \
     }                                                                          \
                                                                                \
-    struct SNAME##_iter *PFX##_iter_new(struct SNAME *target)                  \
+    struct SNAME##_iter PFX##_iter_start(struct SNAME *target)                 \
     {                                                                          \
-        struct SNAME##_iter *iter =                                            \
-            target->alloc->malloc(sizeof(struct SNAME##_iter));                \
+        struct SNAME##_iter iter;                                              \
                                                                                \
-        if (!iter)                                                             \
-            return NULL;                                                       \
+        iter.target = target;                                                  \
+        iter.cursor = target->root;                                            \
+        iter.first = NULL;                                                     \
+        iter.last = NULL;                                                      \
+        iter.index = 0;                                                        \
+        iter.start = true;                                                     \
+        iter.end = PFX##_empty(target);                                        \
                                                                                \
-        PFX##_iter_init(iter, target);                                         \
+        if (!PFX##_empty(target))                                              \
+        {                                                                      \
+            while (iter.cursor->left != NULL)                                  \
+                iter.cursor = iter.cursor->left;                               \
+                                                                               \
+            iter.first = iter.cursor;                                          \
+                                                                               \
+            iter.last = target->root;                                          \
+            while (iter.last->right != NULL)                                   \
+                iter.last = iter.last->right;                                  \
+        }                                                                      \
                                                                                \
         return iter;                                                           \
     }                                                                          \
                                                                                \
-    void PFX##_iter_free(struct SNAME##_iter *iter)                            \
+    struct SNAME##_iter PFX##_iter_end(struct SNAME *target)                   \
     {                                                                          \
-        iter->target->alloc->free(iter);                                       \
-    }                                                                          \
+        struct SNAME##_iter iter;                                              \
                                                                                \
-    void PFX##_iter_init(struct SNAME##_iter *iter, struct SNAME *target)      \
-    {                                                                          \
-        memset(iter, 0, sizeof(struct SNAME##_iter));                          \
-                                                                               \
-        iter->target = target;                                                 \
-        iter->start = true;                                                    \
-        iter->end = PFX##_empty(target);                                       \
-                                                                               \
-        iter->cursor = target->root;                                           \
+        iter.target = target;                                                  \
+        iter.cursor = target->root;                                            \
+        iter.first = NULL;                                                     \
+        iter.last = NULL;                                                      \
+        iter.index = 0;                                                        \
+        iter.start = PFX##_empty(target);                                      \
+        iter.end = true;                                                       \
                                                                                \
         if (!PFX##_empty(target))                                              \
         {                                                                      \
-            while (iter->cursor->left != NULL)                                 \
-                iter->cursor = iter->cursor->left;                             \
+            while (iter.cursor->right != NULL)                                 \
+                iter.cursor = iter.cursor->right;                              \
                                                                                \
-            iter->first = iter->cursor;                                        \
+            iter.last = iter.cursor;                                           \
                                                                                \
-            iter->last = target->root;                                         \
-            while (iter->last->right != NULL)                                  \
-                iter->last = iter->last->right;                                \
+            iter.first = target->root;                                         \
+            while (iter.first->left != NULL)                                   \
+                iter.first = iter.first->left;                                 \
+                                                                               \
+            iter.index = target->count - 1;                                    \
         }                                                                      \
+                                                                               \
+        return iter;                                                           \
     }                                                                          \
                                                                                \
-    bool PFX##_iter_start(struct SNAME##_iter *iter)                           \
+    bool PFX##_iter_at_start(struct SNAME##_iter *iter)                        \
     {                                                                          \
         return PFX##_empty(iter->target) || iter->start;                       \
     }                                                                          \
                                                                                \
-    bool PFX##_iter_end(struct SNAME##_iter *iter)                             \
+    bool PFX##_iter_at_end(struct SNAME##_iter *iter)                          \
     {                                                                          \
         return PFX##_empty(iter->target) || iter->end;                         \
     }                                                                          \
                                                                                \
-    void PFX##_iter_to_start(struct SNAME##_iter *iter)                        \
+    bool PFX##_iter_to_start(struct SNAME##_iter *iter)                        \
     {                                                                          \
         if (!PFX##_empty(iter->target))                                        \
         {                                                                      \
@@ -1038,10 +1017,14 @@ static const char *cmc_string_fmt_treeset = "struct %s<%s> "
             iter->start = true;                                                \
             iter->end = PFX##_empty(iter->target);                             \
             iter->cursor = iter->first;                                        \
+                                                                               \
+            return true;                                                       \
         }                                                                      \
+                                                                               \
+        return false;                                                          \
     }                                                                          \
                                                                                \
-    void PFX##_iter_to_end(struct SNAME##_iter *iter)                          \
+    bool PFX##_iter_to_end(struct SNAME##_iter *iter)                          \
     {                                                                          \
         if (!PFX##_empty(iter->target))                                        \
         {                                                                      \
@@ -1049,7 +1032,11 @@ static const char *cmc_string_fmt_treeset = "struct %s<%s> "
             iter->start = PFX##_empty(iter->target);                           \
             iter->end = true;                                                  \
             iter->cursor = iter->last;                                         \
+                                                                               \
+            return true;                                                       \
         }                                                                      \
+                                                                               \
+        return false;                                                          \
     }                                                                          \
                                                                                \
     bool PFX##_iter_next(struct SNAME##_iter *iter)                            \
@@ -1060,7 +1047,7 @@ static const char *cmc_string_fmt_treeset = "struct %s<%s> "
         if (iter->cursor == iter->last)                                        \
         {                                                                      \
             iter->end = true;                                                  \
-            return true;                                                       \
+            return false;                                                      \
         }                                                                      \
                                                                                \
         iter->start = PFX##_empty(iter->target);                               \
@@ -1100,8 +1087,7 @@ static const char *cmc_string_fmt_treeset = "struct %s<%s> "
         if (iter->cursor == iter->first)                                       \
         {                                                                      \
             iter->start = true;                                                \
-                                                                               \
-            return true;                                                       \
+            return false;                                                      \
         }                                                                      \
                                                                                \
         iter->end = PFX##_empty(iter->target);                                 \
@@ -1148,8 +1134,6 @@ static const char *cmc_string_fmt_treeset = "struct %s<%s> "
         if (steps == 0 || iter->index + steps >= iter->target->count)          \
             return false;                                                      \
                                                                                \
-        iter->index += steps;                                                  \
-                                                                               \
         for (size_t i = 0; i < steps; i++)                                     \
             PFX##_iter_next(iter);                                             \
                                                                                \
@@ -1170,8 +1154,6 @@ static const char *cmc_string_fmt_treeset = "struct %s<%s> "
                                                                                \
         if (steps == 0 || iter->index < steps)                                 \
             return false;                                                      \
-                                                                               \
-        iter->index -= steps;                                                  \
                                                                                \
         for (size_t i = 0; i < steps; i++)                                     \
             PFX##_iter_prev(iter);                                             \
@@ -1363,25 +1345,6 @@ static const char *cmc_string_fmt_treeset = "struct %s<%s> "
                                                                                \
             scan = scan->parent;                                               \
         }                                                                      \
-    }                                                                          \
-                                                                               \
-    static struct SNAME##_iter PFX##_impl_it_start(struct SNAME *_set_)        \
-    {                                                                          \
-        struct SNAME##_iter iter;                                              \
-                                                                               \
-        PFX##_iter_init(&iter, _set_);                                         \
-                                                                               \
-        return iter;                                                           \
-    }                                                                          \
-                                                                               \
-    static struct SNAME##_iter PFX##_impl_it_end(struct SNAME *_set_)          \
-    {                                                                          \
-        struct SNAME##_iter iter;                                              \
-                                                                               \
-        PFX##_iter_init(&iter, _set_);                                         \
-        PFX##_iter_to_end(&iter);                                              \
-                                                                               \
-        return iter;                                                           \
     }
 
 #endif /* CMC_TREESET_H */
