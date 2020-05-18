@@ -9,8 +9,6 @@ struct treemap
     struct treemap_fval *f_val;
     struct cmc_alloc_node *alloc;
     struct cmc_callbacks *callbacks;
-    struct treemap_iter (*it_start)(struct treemap *);
-    struct treemap_iter (*it_end)(struct treemap *);
 };
 struct treemap_node
 {
@@ -74,13 +72,12 @@ struct treemap *tm_copy_of(struct treemap *_map_);
 _Bool tm_equals(struct treemap *_map1_, struct treemap *_map2_);
 struct cmc_string tm_to_string(struct treemap *_map_);
 _Bool tm_print(struct treemap *_map_, FILE *fptr);
-struct treemap_iter *tm_iter_new(struct treemap *target);
-void tm_iter_free(struct treemap_iter *iter);
-void tm_iter_init(struct treemap_iter *iter, struct treemap *target);
-_Bool tm_iter_start(struct treemap_iter *iter);
-_Bool tm_iter_end(struct treemap_iter *iter);
-void tm_iter_to_start(struct treemap_iter *iter);
-void tm_iter_to_end(struct treemap_iter *iter);
+struct treemap_iter tm_iter_start(struct treemap *target);
+struct treemap_iter tm_iter_end(struct treemap *target);
+_Bool tm_iter_at_start(struct treemap_iter *iter);
+_Bool tm_iter_at_end(struct treemap_iter *iter);
+_Bool tm_iter_to_start(struct treemap_iter *iter);
+_Bool tm_iter_to_end(struct treemap_iter *iter);
 _Bool tm_iter_next(struct treemap_iter *iter);
 _Bool tm_iter_prev(struct treemap_iter *iter);
 _Bool tm_iter_advance(struct treemap_iter *iter, size_t steps);
@@ -98,8 +95,6 @@ static unsigned char tm_impl_hupdate(struct treemap_node *node);
 static void tm_impl_rotate_right(struct treemap_node **Z);
 static void tm_impl_rotate_left(struct treemap_node **Z);
 static void tm_impl_rebalance(struct treemap *_map_, struct treemap_node *node);
-static struct treemap_iter tm_impl_it_start(struct treemap *_map_);
-static struct treemap_iter tm_impl_it_end(struct treemap *_map_);
 struct treemap *tm_new(struct treemap_fkey *f_key, struct treemap_fval *f_val)
 {
     if (!f_key || !f_val)
@@ -115,8 +110,6 @@ struct treemap *tm_new(struct treemap_fkey *f_key, struct treemap_fval *f_val)
     _map_->f_val = f_val;
     _map_->alloc = alloc;
     _map_->callbacks = ((void *)0);
-    _map_->it_start = tm_impl_it_start;
-    _map_->it_end = tm_impl_it_end;
     return _map_;
 }
 struct treemap *tm_new_custom(struct treemap_fkey *f_key,
@@ -138,8 +131,6 @@ struct treemap *tm_new_custom(struct treemap_fkey *f_key,
     _map_->f_val = f_val;
     _map_->alloc = alloc;
     _map_->callbacks = callbacks;
-    _map_->it_start = tm_impl_it_start;
-    _map_->it_end = tm_impl_it_end;
     return _map_;
 }
 void tm_clear(struct treemap *_map_)
@@ -504,9 +495,8 @@ struct treemap *tm_copy_of(struct treemap *_map_)
         _map_->flag = cmc_flags.ERROR;
         return ((void *)0);
     }
-    struct treemap_iter iter;
-    tm_iter_init(&iter, _map_);
-    for (tm_iter_to_start(&iter); !tm_iter_end(&iter); tm_iter_next(&iter))
+    struct treemap_iter iter = tm_iter_start(_map_);
+    for (; !tm_iter_at_end(&iter); tm_iter_next(&iter))
     {
         size_t key = tm_iter_key(&iter);
         size_t value = tm_iter_value(&iter);
@@ -526,9 +516,8 @@ _Bool tm_equals(struct treemap *_map1_, struct treemap *_map2_)
     _map2_->flag = cmc_flags.OK;
     if (_map1_->count != _map2_->count)
         return 0;
-    struct treemap_iter iter;
-    tm_iter_init(&iter, _map1_);
-    for (tm_iter_to_start(&iter); !tm_iter_end(&iter); tm_iter_next(&iter))
+    struct treemap_iter iter = tm_iter_start(_map1_);
+    for (; !tm_iter_at_end(&iter); tm_iter_next(&iter))
     {
         struct treemap_node *node =
             tm_impl_get_node(_map2_, tm_iter_key(&iter));
@@ -581,45 +570,58 @@ _Bool tm_print(struct treemap *_map_, FILE *fptr)
     }
     return 1;
 }
-struct treemap_iter *tm_iter_new(struct treemap *target)
+struct treemap_iter tm_iter_start(struct treemap *target)
 {
-    struct treemap_iter *iter =
-        target->alloc->malloc(sizeof(struct treemap_iter));
-    if (!iter)
-        return ((void *)0);
-    tm_iter_init(iter, target);
-    return iter;
-}
-void tm_iter_free(struct treemap_iter *iter)
-{
-    iter->target->alloc->free(iter);
-}
-void tm_iter_init(struct treemap_iter *iter, struct treemap *target)
-{
-    memset(iter, 0, sizeof(struct treemap_iter));
-    iter->target = target;
-    iter->start = 1;
-    iter->end = tm_empty(target);
-    iter->cursor = target->root;
+    struct treemap_iter iter;
+    iter.target = target;
+    iter.cursor = target->root;
+    iter.first = ((void *)0);
+    iter.last = ((void *)0);
+    iter.index = 0;
+    iter.start = 1;
+    iter.end = tm_empty(target);
     if (!tm_empty(target))
     {
-        while (iter->cursor->left != ((void *)0))
-            iter->cursor = iter->cursor->left;
-        iter->first = iter->cursor;
-        iter->last = target->root;
-        while (iter->last->right != ((void *)0))
-            iter->last = iter->last->right;
+        while (iter.cursor->left != ((void *)0))
+            iter.cursor = iter.cursor->left;
+        iter.first = iter.cursor;
+        iter.last = target->root;
+        while (iter.last->right != ((void *)0))
+            iter.last = iter.last->right;
     }
+    return iter;
 }
-_Bool tm_iter_start(struct treemap_iter *iter)
+struct treemap_iter tm_iter_end(struct treemap *target)
+{
+    struct treemap_iter iter;
+    iter.target = target;
+    iter.cursor = target->root;
+    iter.first = ((void *)0);
+    iter.last = ((void *)0);
+    iter.index = 0;
+    iter.start = tm_empty(target);
+    iter.end = 1;
+    if (!tm_empty(target))
+    {
+        while (iter.cursor->right != ((void *)0))
+            iter.cursor = iter.cursor->right;
+        iter.last = iter.cursor;
+        iter.first = target->root;
+        while (iter.first->left != ((void *)0))
+            iter.first = iter.first->left;
+        iter.index = target->count - 1;
+    }
+    return iter;
+}
+_Bool tm_iter_at_start(struct treemap_iter *iter)
 {
     return tm_empty(iter->target) || iter->start;
 }
-_Bool tm_iter_end(struct treemap_iter *iter)
+_Bool tm_iter_at_end(struct treemap_iter *iter)
 {
     return tm_empty(iter->target) || iter->end;
 }
-void tm_iter_to_start(struct treemap_iter *iter)
+_Bool tm_iter_to_start(struct treemap_iter *iter)
 {
     if (!tm_empty(iter->target))
     {
@@ -627,9 +629,11 @@ void tm_iter_to_start(struct treemap_iter *iter)
         iter->start = 1;
         iter->end = tm_empty(iter->target);
         iter->cursor = iter->first;
+        return 1;
     }
+    return 0;
 }
-void tm_iter_to_end(struct treemap_iter *iter)
+_Bool tm_iter_to_end(struct treemap_iter *iter)
 {
     if (!tm_empty(iter->target))
     {
@@ -637,7 +641,9 @@ void tm_iter_to_end(struct treemap_iter *iter)
         iter->start = tm_empty(iter->target);
         iter->end = 1;
         iter->cursor = iter->last;
+        return 1;
     }
+    return 0;
 }
 _Bool tm_iter_next(struct treemap_iter *iter)
 {
@@ -708,7 +714,6 @@ _Bool tm_iter_advance(struct treemap_iter *iter, size_t steps)
     }
     if (steps == 0 || iter->index + steps >= iter->target->count)
         return 0;
-    iter->index += steps;
     for (size_t i = 0; i < steps; i++)
         tm_iter_next(iter);
     return 1;
@@ -724,7 +729,6 @@ _Bool tm_iter_rewind(struct treemap_iter *iter, size_t steps)
     }
     if (steps == 0 || iter->index < steps)
         return 0;
-    iter->index -= steps;
     for (size_t i = 0; i < steps; i++)
         tm_iter_prev(iter);
     return 1;
@@ -878,17 +882,4 @@ static void tm_impl_rebalance(struct treemap *_map_, struct treemap_node *node)
         }
         scan = scan->parent;
     }
-}
-static struct treemap_iter tm_impl_it_start(struct treemap *_map_)
-{
-    struct treemap_iter iter;
-    tm_iter_init(&iter, _map_);
-    return iter;
-}
-static struct treemap_iter tm_impl_it_end(struct treemap *_map_)
-{
-    struct treemap_iter iter;
-    tm_iter_init(&iter, _map_);
-    tm_iter_to_end(&iter);
-    return iter;
 }
