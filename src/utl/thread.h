@@ -20,6 +20,9 @@
  *  - cmc_thrd_join
  */
 
+#ifndef CMC_THREAD_H
+#define CMC_THREAD_H
+
 #include <inttypes.h>
 #include <stdbool.h>
 
@@ -171,3 +174,5 @@ static inline bool cmc_thrd_join(struct cmc_thread *thr, int *result)
 
 #endif
 }
+
+#endif /* CMC_THREAD_H */

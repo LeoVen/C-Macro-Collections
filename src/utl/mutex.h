@@ -22,6 +22,9 @@
  *  - cmc_mtx_trylock
  */
 
+#ifndef CMC_MUTEX_H
+#define CMC_MUTEX_H
+
 #include <stdbool.h>
 
 #include "../cor/flags.h"
@@ -210,3 +213,5 @@ static inline bool cmc_mtx_trylock(struct cmc_mutex *mtx)
     return err == 0;
 #endif
 }
+
+#endif /* CMC_MUTEX_H */
