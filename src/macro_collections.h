@@ -25,6 +25,7 @@
 #define CMC_COLLECTION_GENERATE_SOURCE(C, PFX, SNAME, K, V) \
     CMC_CONCAT(C, SOURCE)(PFX, SNAME, K, V)
 
+#include "cor/bitset.h"       /* Added in 20/05/2020 */
 #include "cor/core.h"         /* Added in 17/03/2020 */
 #include "cor/flags.h"        /* Added in 14/05/2020 */
 #include "cor/hashtable.h"    /* Added in 17/03/2020 */

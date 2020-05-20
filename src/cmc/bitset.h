@@ -37,16 +37,13 @@
 #include "../cor/core.h"
 
 /* -------------------------------------------------------------------------
+ * BitSet Implementation
+ * ------------------------------------------------------------------------- */
+#include "../cor/bitset.h"
+
+/* -------------------------------------------------------------------------
  * BitSet specific
  * ------------------------------------------------------------------------- */
-/* Defines the underlaying data type for the bitset array */
-/* Possible values: uint64_t, uint32_t, uint16_t, uint8_t, size_t */
-#ifndef CMC_BITSET_WORD_TYPE
-#define CMC_BITSET_WORD_TYPE uint32_t
-#endif /* CMC_BITSET_WORD_TYPE */
-
-typedef CMC_BITSET_WORD_TYPE cmc_bitset_word;
-
 /* to_string format */
 static const char *cmc_string_fmt_bitset = "struct %s "
                                            "at %p { "
