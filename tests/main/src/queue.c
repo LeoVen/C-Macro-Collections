@@ -1,3 +1,6 @@
+#ifndef CMC_TEST_SRC_QUEUE
+#define CMC_TEST_SRC_QUEUE
+
 #include "cmc/queue.h"
 
 struct queue
@@ -494,3 +497,5 @@ size_t q_iter_index(struct queue_iter *iter)
 {
     return iter->index;
 }
+
+#endif /* CMC_TEST_SRC_QUEUE */

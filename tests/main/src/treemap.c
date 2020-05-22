@@ -1,3 +1,6 @@
+#ifndef CMC_TEST_SRC_TREEMAP
+#define CMC_TEST_SRC_TREEMAP
+
 #include "cmc/treemap.h"
 
 struct treemap
@@ -883,3 +886,5 @@ static void tm_impl_rebalance(struct treemap *_map_, struct treemap_node *node)
         scan = scan->parent;
     }
 }
+
+#endif /* CMC_TEST_SRC_TREEMAP */

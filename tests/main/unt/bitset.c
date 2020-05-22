@@ -364,8 +364,7 @@ CMC_CREATE_UNIT(BitSet, true, {
 
         cmc_assert(bs_put_range(bs, 0, word_bits * 100 - 1, false));
         for (size_t i = 0; i < bs->capacity; i++)
-            cmc_assert_equals(CMC_BITSET_WORD_TYPE, 0,
-                              bs->buffer[i]);
+            cmc_assert_equals(CMC_BITSET_WORD_TYPE, 0, bs->buffer[i]);
 
         bs_free(bs);
     });

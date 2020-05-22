@@ -1,3 +1,6 @@
+#ifndef CMC_TEST_SRC_HASHBIDIMAP
+#define CMC_TEST_SRC_HASHBIDIMAP
+
 #include "cmc/hashbidimap.h"
 
 struct hashbidimap
@@ -973,3 +976,5 @@ static struct hashbidimap_iter hbm_impl_it_end(struct hashbidimap *_map_)
     hbm_iter_to_end(&iter);
     return iter;
 }
+
+#endif /* CMC_TEST_SRC_HASHBIDIMAP */

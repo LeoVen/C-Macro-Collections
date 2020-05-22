@@ -1,3 +1,6 @@
+#ifndef CMC_TEST_SRC_SORTEDLIST
+#define CMC_TEST_SRC_SORTEDLIST
+
 #include "cmc/sortedlist.h"
 
 struct sortedlist
@@ -584,3 +587,5 @@ void sl_impl_sort_insertion(size_t *array, int (*cmp)(size_t, size_t),
         array[j] = _tmp_;
     }
 }
+
+#endif /* CMC_TEST_SRC_SORTEDLIST */

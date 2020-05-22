@@ -1,3 +1,6 @@
+#ifndef CMC_TEST_SRC_HASHSET
+#define CMC_TEST_SRC_HASHSET
+
 #include "cmc/hashset.h"
 
 struct hashset
@@ -848,3 +851,5 @@ static size_t hs_impl_calculate_size(size_t required)
         i++;
     return cmc_hashtable_primes[i];
 }
+
+#endif /* CMC_TEST_SRC_HASHSET */

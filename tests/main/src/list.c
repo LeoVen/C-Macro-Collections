@@ -1,3 +1,6 @@
+#ifndef CMC_TEST_SRC_LIST
+#define CMC_TEST_SRC_LIST
+
 #include "cmc/list.h"
 
 struct list
@@ -713,3 +716,5 @@ size_t l_iter_index(struct list_iter *iter)
 {
     return iter->cursor;
 }
+
+#endif /* CMC_TEST_SRC_LIST */

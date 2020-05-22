@@ -944,10 +944,13 @@ int main(void)
 {
     int result = HashMultiMap() + HashMultiMapIter();
 
-    printf(" +---------------------------------------------------------------+");
+    printf(
+        " +---------------------------------------------------------------+");
     printf("\n");
-    printf(" | HashMultiMap Suit : %-41s |\n", result == 0 ? "PASSED" : "FAILED");
-    printf(" +---------------------------------------------------------------+");
+    printf(" | HashMultiMap Suit : %-41s |\n",
+           result == 0 ? "PASSED" : "FAILED");
+    printf(
+        " +---------------------------------------------------------------+");
     printf("\n\n\n");
 
     return result;

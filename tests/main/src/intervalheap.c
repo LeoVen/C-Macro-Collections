@@ -1,3 +1,6 @@
+#ifndef CMC_TEST_SRC_INTERVALHEAP
+#define CMC_TEST_SRC_INTERVALHEAP
+
 #include "cmc/intervalheap.h"
 
 struct intervalheap
@@ -756,3 +759,5 @@ static void ih_impl_float_down_min(struct intervalheap *_heap_)
         curr_node = child_node;
     }
 }
+
+#endif /* CMC_TEST_SRC_INTERVALHEAP */

@@ -1,3 +1,6 @@
+#ifndef CMC_TEST_SRC_HEAP
+#define CMC_TEST_SRC_HEAP
+
 #include "cmc/heap.h"
 
 struct heap
@@ -491,3 +494,5 @@ static void h_impl_float_down(struct heap *_heap_, size_t index)
             break;
     }
 }
+
+#endif /* CMC_TEST_SRC_HEAP */

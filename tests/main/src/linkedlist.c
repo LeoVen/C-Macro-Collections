@@ -1,3 +1,6 @@
+#ifndef CMC_TEST_SRC_LINKEDLIST
+#define CMC_TEST_SRC_LINKEDLIST
+
 #include "cmc/linkedlist.h"
 
 struct linkedlist
@@ -760,3 +763,5 @@ struct linkedlist_node *ll_iter_node(struct linkedlist_iter *iter)
 {
     return iter->cursor;
 }
+
+#endif /* CMC_TEST_SRC_LINKEDLIST */

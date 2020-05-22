@@ -1,3 +1,6 @@
+#ifndef CMC_TEST_SRC_STACK
+#define CMC_TEST_SRC_STACK
+
 #include "cmc/stack.h"
 
 struct stack
@@ -428,3 +431,5 @@ size_t s_iter_index(struct stack_iter *iter)
         return 0;
     return iter->target->count - 1 - iter->cursor;
 }
+
+#endif /* CMC_TEST_SRC_STACK */

@@ -864,10 +864,13 @@ int main(void)
 {
     int result = HashMultiSet() + HashMultiSetIter();
 
-    printf(" +---------------------------------------------------------------+");
+    printf(
+        " +---------------------------------------------------------------+");
     printf("\n");
-    printf(" | HashMultiSet Suit : %-41s |\n", result == 0 ? "PASSED" : "FAILED");
-    printf(" +---------------------------------------------------------------+");
+    printf(" | HashMultiSet Suit : %-41s |\n",
+           result == 0 ? "PASSED" : "FAILED");
+    printf(
+        " +---------------------------------------------------------------+");
     printf("\n\n\n");
 
     return result;

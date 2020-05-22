@@ -1044,10 +1044,13 @@ int main(void)
 {
     int result = IntervalHeap() + IntervalHeapIter();
 
-    printf(" +---------------------------------------------------------------+");
+    printf(
+        " +---------------------------------------------------------------+");
     printf("\n");
-    printf(" | IntervalHeap Suit : %-41s |\n", result == 0 ? "PASSED" : "FAILED");
-    printf(" +---------------------------------------------------------------+");
+    printf(" | IntervalHeap Suit : %-41s |\n",
+           result == 0 ? "PASSED" : "FAILED");
+    printf(
+        " +---------------------------------------------------------------+");
     printf("\n\n\n");
 
     return result;

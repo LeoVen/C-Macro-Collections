@@ -825,19 +825,23 @@ CMC_CREATE_UNIT(HashBidiMap, true, {
     });
 });
 
-CMC_CREATE_UNIT(HashBidiMapIter, true, {
+CMC_CREATE_UNIT(HashBidiMapIter, true,
+                {
 
-});
+                });
 
 #ifdef CMC_TEST_MAIN
 int main(void)
 {
     int result = HashBidiMap() + HashBidiMapIter();
 
-    printf(" +---------------------------------------------------------------+");
+    printf(
+        " +---------------------------------------------------------------+");
     printf("\n");
-    printf(" | HashBidiMap Suit : %-42s |\n", result == 0 ? "PASSED" : "FAILED");
-    printf(" +---------------------------------------------------------------+");
+    printf(" | HashBidiMap Suit : %-42s |\n",
+           result == 0 ? "PASSED" : "FAILED");
+    printf(
+        " +---------------------------------------------------------------+");
     printf("\n\n\n");
 
     return result;

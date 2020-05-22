@@ -1,3 +1,6 @@
+#ifndef CMC_TEST_SRC_DEQUE
+#define CMC_TEST_SRC_DEQUE
+
 #include "cmc/deque.h"
 
 struct deque
@@ -565,3 +568,5 @@ size_t d_iter_index(struct deque_iter *iter)
 {
     return iter->index;
 }
+
+#endif /* CMC_TEST_SRC_DEQUE */

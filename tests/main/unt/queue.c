@@ -688,7 +688,7 @@ CMC_CREATE_UNIT(QueueIter, true, {
         cmc_assert(!q_iter_to_end(&it));
 
         for (size_t i = 1; i <= 100; i++)
-                q_enqueue(q, i);
+            q_enqueue(q, i);
 
         it = q_iter_start(q);
 
@@ -960,10 +960,12 @@ int main(void)
 {
     int result = Queue() + QueueIter();
 
-    printf(" +---------------------------------------------------------------+");
+    printf(
+        " +---------------------------------------------------------------+");
     printf("\n");
     printf(" | Queue Suit : %-48s |\n", result == 0 ? "PASSED" : "FAILED");
-    printf(" +---------------------------------------------------------------+");
+    printf(
+        " +---------------------------------------------------------------+");
     printf("\n\n\n");
 
     return result;

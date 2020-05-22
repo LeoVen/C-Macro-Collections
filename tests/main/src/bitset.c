@@ -1,3 +1,6 @@
+#ifndef CMC_TEST_SRC_BITSET
+#define CMC_TEST_SRC_BITSET
+
 #include "cmc/bitset.h"
 
 struct bitset
@@ -331,3 +334,5 @@ _Bool bs_impl_resize(struct bitset *_bitset_, size_t n_bits, _Bool do_resize)
     _bitset_->flag = cmc_flags.OK;
     return 1;
 }
+
+#endif /* CMC_TEST_SRC_BITSET */

@@ -1,3 +1,6 @@
+#ifndef CMC_TEST_SRC_HASHMULTIMAP
+#define CMC_TEST_SRC_HASHMULTIMAP
+
 #include "cmc/hashmultimap.h"
 
 struct hashmultimap
@@ -1009,3 +1012,5 @@ size_t hmm_impl_calculate_size(size_t required)
         i++;
     return cmc_hashtable_primes[i];
 }
+
+#endif /* CMC_TEST_SRC_HASHMULTIMAP */

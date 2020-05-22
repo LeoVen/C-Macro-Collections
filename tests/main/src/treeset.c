@@ -1,3 +1,6 @@
+#ifndef CMC_TEST_SRC_TREESET
+#define CMC_TEST_SRC_TREESET
+
 #include "cmc/treeset.h"
 
 struct treeset
@@ -925,3 +928,5 @@ static void ts_impl_rebalance(struct treeset *_set_, struct treeset_node *node)
         scan = scan->parent;
     }
 }
+
+#endif /* CMC_TEST_SRC_TREESET */

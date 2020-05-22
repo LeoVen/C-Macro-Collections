@@ -1,3 +1,6 @@
+#ifndef CMC_TEST_SRC_HASHMAP
+#define CMC_TEST_SRC_HASHMAP
+
 #include "cmc/hashmap.h"
 
 struct hashmap
@@ -842,3 +845,5 @@ static size_t hm_impl_calculate_size(size_t required)
         i++;
     return cmc_hashtable_primes[i];
 }
+
+#endif /* CMC_TEST_SRC_HASHMAP */

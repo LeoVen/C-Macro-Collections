@@ -86,7 +86,14 @@ for data in collections:
 
     file = open(f'{OUTPUT_DIR}/{data["sname"]}.c', 'w')
 
-    file.write(f'#include {data["h"]}\n{match.group("code")}')
+    file.write(
+    f'''#ifndef CMC_TEST_SRC_{data['t']}
+        #define CMC_TEST_SRC_{data['t']}
+
+        #include {data["h"]}\n{match.group("code")}
+
+        #endif /* CMC_TEST_SRC_{data['t']} */
+    ''')
 
     file.flush()
     file.close()
