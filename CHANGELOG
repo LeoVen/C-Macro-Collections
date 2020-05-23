@@ -1,5 +1,11 @@
 # RELEASE.MAJOR.MINOR
 
+0.23.1
+    Added ./cor/bitset.h
+    Added foreach tests
+    Updating foreach macros with the new iterators API
+    Bug fixes for ./cmc/hashmultiset.h
+
 0.23.0
     Added ./cmc/bitset.h
     Added ./utl/futils.h
