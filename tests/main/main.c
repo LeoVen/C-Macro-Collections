@@ -17,6 +17,8 @@
 #include "unt/treemap.c"
 #include "unt/treeset.c"
 
+#include "unt/foreach.c"
+
 #define cmc_run(unit, unit_fails, test_fails) \
     do                                        \
     {                                         \
@@ -79,6 +81,8 @@ int main(void)
     cmc_run(TreeMapIter, units, tests);
     cmc_run(TreeSet, units, tests);
     cmc_run(TreeSetIter, units, tests);
+
+    cmc_run(ForEach, units, tests);
 
     cmc_timer_stop(timer);
 

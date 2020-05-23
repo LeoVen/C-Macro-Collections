@@ -27,7 +27,7 @@ debug: FORCE
 valgrind: debug
 	valgrind --leak-check=full ./main.exe
 
-all: bitset deque hashbidimap hashmap hashmultimap hashmultiset hashset heap intervalheap linkedlist list queue sortedlist stack treemap treeset
+all: bitset deque hashbidimap hashmap hashmultimap hashmultiset hashset heap intervalheap linkedlist list queue sortedlist stack treemap treeset foreach
 	rm ./main.exe
 
 bitset: $(UNIT)/bitset.c $(INCLUDE)/cmc/bitset.h
@@ -97,6 +97,10 @@ treemap: $(UNIT)/treemap.c $(INCLUDE)/cmc/treemap.h
 	./main.exe
 
 treeset: $(UNIT)/treeset.c $(INCLUDE)/cmc/treeset.h
+	$(CC) $^ -o main.exe -I $(INCLUDE) -DCMC_TEST_MAIN -DCMC_TEST_COLOR
+	./main.exe
+
+foreach: $(UNIT)/foreach.c $(INCLUDE)/utl/foreach.h
 	$(CC) $^ -o main.exe -I $(INCLUDE) -DCMC_TEST_MAIN -DCMC_TEST_COLOR
 	./main.exe
 
