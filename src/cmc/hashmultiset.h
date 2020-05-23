@@ -1431,6 +1431,7 @@ static const char *cmc_string_fmt_hashmultiset = "struct %s<%s> "
         size_t curr_mul = 1;                                                   \
                                                                                \
         struct SNAME##_entry *target = &(_set_->buffer[pos]);                  \
+        struct SNAME##_entry *to_return = NULL;                                \
                                                                                \
         if (target->state == CMC_ES_EMPTY || target->state == CMC_ES_DELETED)  \
         {                                                                      \
@@ -1438,6 +1439,8 @@ static const char *cmc_string_fmt_hashmultiset = "struct %s<%s> "
             target->multiplicity = curr_mul;                                   \
             target->dist = pos - original_pos;                                 \
             target->state = CMC_ES_FILLED;                                     \
+                                                                               \
+            to_return = target;                                                \
         }                                                                      \
         else                                                                   \
         {                                                                      \
@@ -1453,6 +1456,9 @@ static const char *cmc_string_fmt_hashmultiset = "struct %s<%s> "
                     target->multiplicity = curr_mul;                           \
                     target->dist = pos - original_pos;                         \
                     target->state = CMC_ES_FILLED;                             \
+                                                                               \
+                    if (!to_return)                                            \
+                        to_return = target;                                    \
                                                                                \
                     break;                                                     \
                 }                                                              \
@@ -1470,13 +1476,16 @@ static const char *cmc_string_fmt_hashmultiset = "struct %s<%s> "
                     value = tmp;                                               \
                     original_pos = pos - tmp_dist;                             \
                     curr_mul = tmp_mul;                                        \
+                                                                               \
+                    if (!to_return)                                            \
+                        to_return = target;                                    \
                 }                                                              \
             }                                                                  \
         }                                                                      \
                                                                                \
         _set_->count++;                                                        \
                                                                                \
-        return target;                                                         \
+        return to_return;                                                      \
     }                                                                          \
                                                                                \
     static struct SNAME##_entry *PFX##_impl_get_entry(struct SNAME *_set_,     \

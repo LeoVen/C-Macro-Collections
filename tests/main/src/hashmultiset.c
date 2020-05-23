@@ -994,12 +994,14 @@ hms_impl_insert_and_return(struct hashmultiset *_set_, size_t value,
     size_t pos = original_pos;
     size_t curr_mul = 1;
     struct hashmultiset_entry *target = &(_set_->buffer[pos]);
+    struct hashmultiset_entry *to_return = ((void *)0);
     if (target->state == CMC_ES_EMPTY || target->state == CMC_ES_DELETED)
     {
         target->value = value;
         target->multiplicity = curr_mul;
         target->dist = pos - original_pos;
         target->state = CMC_ES_FILLED;
+        to_return = target;
     }
     else
     {
@@ -1014,6 +1016,8 @@ hms_impl_insert_and_return(struct hashmultiset *_set_, size_t value,
                 target->multiplicity = curr_mul;
                 target->dist = pos - original_pos;
                 target->state = CMC_ES_FILLED;
+                if (!to_return)
+                    to_return = target;
                 break;
             }
             else if (target->dist < pos - original_pos)
@@ -1027,11 +1031,13 @@ hms_impl_insert_and_return(struct hashmultiset *_set_, size_t value,
                 value = tmp;
                 original_pos = pos - tmp_dist;
                 curr_mul = tmp_mul;
+                if (!to_return)
+                    to_return = target;
             }
         }
     }
     _set_->count++;
-    return target;
+    return to_return;
 }
 static struct hashmultiset_entry *hms_impl_get_entry(struct hashmultiset *_set_,
                                                      size_t value)
