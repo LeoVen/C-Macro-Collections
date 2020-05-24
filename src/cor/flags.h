@@ -8,8 +8,8 @@
  *
  */
 
-#ifndef CMC_FLAGS_H
-#define CMC_FLAGS_H
+#ifndef CMC_COR_FLAGS_H
+#define CMC_COR_FLAGS_H
 
 /**
  * cmc_flags
@@ -40,4 +40,4 @@ const char *cmc_flags_to_str[10] = { "OK",        "ALLOC",   "EMPTY",
                                      "DUPLICATE", "ERROR",   "THREAD",
                                      "MUTEX" };
 
-#endif /* CMC_FLAGS_H */
+#endif /* CMC_COR_FLAGS_H */

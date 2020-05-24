@@ -18,8 +18,8 @@
  *     cmc_flags
  */
 
-#ifndef CMC_CORE_H
-#define CMC_CORE_H
+#ifndef CMC_COR_CORE_H
+#define CMC_COR_CORE_H
 
 #include <inttypes.h>
 #include <limits.h>
@@ -28,6 +28,8 @@
 #include <stdlib.h>
 #include <string.h>
 
+#include "alloc.h"
+#include "callbacks.h"
 #include "flags.h"
 
 #define CMC_TO_STRING_(X) #X
@@ -45,37 +47,4 @@ struct cmc_string
 
 static const size_t cmc_string_len = 400;
 
-/**
- * struct cmc_alloc_node
- *
- * Custom allocation node. Allows collections to use custom allocation
- * functions.
- */
-static struct cmc_alloc_node
-{
-    void *(*malloc)(size_t);
-    void *(*calloc)(size_t, size_t);
-    void *(*realloc)(void *, size_t);
-    void (*free)(void *);
-} cmc_alloc_node_default = { malloc, calloc, realloc, free };
-
-/**
- * struct cmc_callbacks
- *
- * Callback node. Each collection will call one of these functions when:
- * - create : an element was successfully added to the collection
- * - read   : the collection was successfully queried about an element
- * - update : an element in the collection was successfully updated
- * - delete : an element was successfully removed from the collection
- * - resize : the collection was full and successfully resized
- */
-struct cmc_callbacks
-{
-    void (*create)(void);
-    void (*read)(void);
-    void (*update)(void);
-    void (*delete)(void);
-    void (*resize)(void);
-};
-
-#endif /* CMC_CORE_H */
+#endif /* CMC_COR_CORE_H */
