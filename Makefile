@@ -2,7 +2,7 @@
 
 .PHONY: all cmc dev sac utl tests FORCE
 
-all: cmc cor dev sac utl tests
+all: cmc cor dev ext sac utl tests
 
 cmc: FORCE
 	clang-format --style=file -i ./src/cmc/*.h
@@ -12,6 +12,9 @@ cor: FORCE
 
 dev: FORCE
 	clang-format --style=file -i ./src/dev/*.h
+
+ext: FORCE
+	clang-format --style=file -i ./src/ext/**/*.h
 
 sac: FORCE
 	clang-format --style=file -i ./src/sac/*.h
