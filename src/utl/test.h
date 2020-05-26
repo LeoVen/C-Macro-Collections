@@ -34,8 +34,8 @@
  *      Define this macro to allow colored output.
  */
 
-#ifndef CMC_TEST_H
-#define CMC_TEST_H
+#ifndef CMC_UTL_TEST_H
+#define CMC_UTL_TEST_H
 
 #include <inttypes.h>
 #include <stdbool.h>
@@ -240,4 +240,4 @@ static void cmc_test_log(const char *unit_name, const char *current_test,
                               \
     } while (0)
 
-#endif /* CMC_TEST_H */
+#endif /* CMC_UTL_TEST_H */

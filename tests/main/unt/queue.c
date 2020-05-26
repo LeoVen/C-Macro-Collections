@@ -420,57 +420,57 @@ CMC_CREATE_UNIT(Queue, true, {
         struct queue *q = q_new(100, q_fval);
 
         cmc_assert_not_equals(ptr, NULL, q);
-        cmc_assert_equals(int32_t, cmc_flags.OK, q_flag(q));
+        cmc_assert_equals(int32_t, CMC_FLAG_OK, q_flag(q));
 
         // clear
-        q->flag = cmc_flags.ERROR;
+        q->flag = CMC_FLAG_ERROR;
         q_clear(q);
-        cmc_assert_equals(int32_t, cmc_flags.OK, q_flag(q));
+        cmc_assert_equals(int32_t, CMC_FLAG_OK, q_flag(q));
 
         // customize
-        q->flag = cmc_flags.ERROR;
+        q->flag = CMC_FLAG_ERROR;
         q_customize(q, NULL, NULL);
-        cmc_assert_equals(int32_t, cmc_flags.OK, q_flag(q));
+        cmc_assert_equals(int32_t, CMC_FLAG_OK, q_flag(q));
 
         // enqueue
-        q->flag = cmc_flags.ERROR;
+        q->flag = CMC_FLAG_ERROR;
         q_enqueue(q, 10);
-        cmc_assert_equals(int32_t, cmc_flags.OK, q_flag(q));
+        cmc_assert_equals(int32_t, CMC_FLAG_OK, q_flag(q));
 
         // dequeue
-        q->flag = cmc_flags.ERROR;
+        q->flag = CMC_FLAG_ERROR;
         q_dequeue(q);
-        cmc_assert_equals(int32_t, cmc_flags.OK, q_flag(q));
+        cmc_assert_equals(int32_t, CMC_FLAG_OK, q_flag(q));
 
         q_dequeue(q);
-        cmc_assert_equals(int32_t, cmc_flags.EMPTY, q_flag(q));
+        cmc_assert_equals(int32_t, CMC_FLAG_EMPTY, q_flag(q));
 
         // peek
-        q->flag = cmc_flags.ERROR;
+        q->flag = CMC_FLAG_ERROR;
         q_peek(q);
-        cmc_assert_equals(int32_t, cmc_flags.EMPTY, q_flag(q));
+        cmc_assert_equals(int32_t, CMC_FLAG_EMPTY, q_flag(q));
 
         cmc_assert(q_enqueue(q, 10));
         q_peek(q);
-        cmc_assert_equals(int32_t, cmc_flags.OK, q_flag(q));
+        cmc_assert_equals(int32_t, CMC_FLAG_OK, q_flag(q));
 
         // contains
-        q->flag = cmc_flags.ERROR;
+        q->flag = CMC_FLAG_ERROR;
         cmc_assert(q_contains(q, 10));
-        cmc_assert_equals(int32_t, cmc_flags.OK, q_flag(q));
+        cmc_assert_equals(int32_t, CMC_FLAG_OK, q_flag(q));
 
         // copy_of
-        q->flag = cmc_flags.OK;
+        q->flag = CMC_FLAG_OK;
         struct queue *q2 = q_copy_of(q);
-        cmc_assert_equals(int32_t, cmc_flags.OK, q_flag(q));
-        cmc_assert_equals(int32_t, cmc_flags.OK, q_flag(q2));
+        cmc_assert_equals(int32_t, CMC_FLAG_OK, q_flag(q));
+        cmc_assert_equals(int32_t, CMC_FLAG_OK, q_flag(q2));
 
         // equals
-        q->flag = cmc_flags.OK;
-        q2->flag = cmc_flags.OK;
+        q->flag = CMC_FLAG_OK;
+        q2->flag = CMC_FLAG_OK;
         cmc_assert(q_equals(q, q2));
-        cmc_assert_equals(int32_t, cmc_flags.OK, q_flag(q));
-        cmc_assert_equals(int32_t, cmc_flags.OK, q_flag(q2));
+        cmc_assert_equals(int32_t, CMC_FLAG_OK, q_flag(q));
+        cmc_assert_equals(int32_t, CMC_FLAG_OK, q_flag(q2));
 
         q_free(q);
         q_free(q2);

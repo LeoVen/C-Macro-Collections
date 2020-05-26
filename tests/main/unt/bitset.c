@@ -106,19 +106,19 @@ CMC_CREATE_UNIT(BitSet, true, {
 
         cmc_assert_not_equals(ptr, NULL, bs);
 
-        bs->flag = cmc_flags.ERROR;
+        bs->flag = CMC_FLAG_ERROR;
         bs_customize(bs, bs_alloc_node, callbacks);
 
         cmc_assert_equals(ptr, bs_alloc_node, bs->alloc);
         cmc_assert_equals(ptr, callbacks, bs->callbacks);
-        cmc_assert_equals(int32_t, cmc_flags.OK, bs->flag);
+        cmc_assert_equals(int32_t, CMC_FLAG_OK, bs->flag);
 
-        bs->flag = cmc_flags.ERROR;
+        bs->flag = CMC_FLAG_ERROR;
         bs_customize(bs, NULL, NULL);
 
         cmc_assert_equals(ptr, &cmc_alloc_node_default, bs->alloc);
         cmc_assert_equals(ptr, NULL, bs->callbacks);
-        cmc_assert_equals(int32_t, cmc_flags.OK, bs->flag);
+        cmc_assert_equals(int32_t, CMC_FLAG_OK, bs->flag);
 
         bs_free(bs);
     });
@@ -129,10 +129,10 @@ CMC_CREATE_UNIT(BitSet, true, {
         cmc_assert_not_equals(ptr, NULL, bs);
         cmc_assert_equals(CMC_BITSET_WORD_TYPE, 0, bs->buffer[0]);
 
-        bs->flag = cmc_flags.ERROR;
+        bs->flag = CMC_FLAG_ERROR;
         cmc_assert(bs_set(bs, 0));
         cmc_assert_equals(CMC_BITSET_WORD_TYPE, 1, bs->buffer[0]);
-        cmc_assert_equals(int32_t, cmc_flags.OK, bs->flag);
+        cmc_assert_equals(int32_t, CMC_FLAG_OK, bs->flag);
 
         bs->buffer[0] = 0;
 
@@ -160,13 +160,13 @@ CMC_CREATE_UNIT(BitSet, true, {
         cmc_assert_not_equals(ptr, NULL, bs);
         cmc_assert_equals(CMC_BITSET_WORD_TYPE, 0, bs->buffer[0]);
 
-        bs->flag = cmc_flags.ERROR;
+        bs->flag = CMC_FLAG_ERROR;
         cmc_assert(bs_set_range(bs, 0, 0));
         cmc_assert_equals(uint8_t, 1, bs->buffer[0]);
-        cmc_assert_equals(int32_t, cmc_flags.OK, bs->flag);
+        cmc_assert_equals(int32_t, CMC_FLAG_OK, bs->flag);
 
         cmc_assert(!bs_set_range(bs, 1, 0));
-        cmc_assert_equals(int32_t, cmc_flags.INVALID, bs->flag);
+        cmc_assert_equals(int32_t, CMC_FLAG_INVALID, bs->flag);
 
         bs->buffer[0] = 0;
 
@@ -231,7 +231,7 @@ CMC_CREATE_UNIT(BitSet, true, {
         cmc_assert_equals(CMC_BITSET_WORD_TYPE, 0, bs->buffer[0]);
 
         cmc_assert(!bs_clear_range(bs, 1, 0));
-        cmc_assert_equals(int32_t, cmc_flags.INVALID, bs->flag);
+        cmc_assert_equals(int32_t, CMC_FLAG_INVALID, bs->flag);
 
         cmc_assert(bs_clear_range(bs, 0, word_bits * 100 - 1));
         cmc_assert_equals(size_t, 100, bs->capacity);

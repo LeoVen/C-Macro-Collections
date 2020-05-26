@@ -37,23 +37,25 @@
     CMC_EXT_CMC_DEQUE_INIT_SOURCE_(CMC_PARAM_PFX(BODY), CMC_PARAM_SNAME(BODY), \
                                    CMC_PARAM_V(BODY))
 
-#define CMC_EXT_CMC_DEQUE_INIT_HEADER_(PFX, SNAME, V)                     \
-                                                                          \
-    struct SNAME PFX##_init(size_t capacity, struct SNAME##_fval *f_val); \
-    struct SNAME PFX##_init_custom(                                       \
-        size_t capacity, struct SNAME##_fval *f_val,                      \
-        struct cmc_alloc_node *alloc, struct cmc_callbacks *callbacks);
+#define CMC_EXT_CMC_DEQUE_INIT_HEADER_(PFX, SNAME, V)                  \
+                                                                       \
+    struct SNAME CMC_(PFX, _init)(size_t capacity,                     \
+                                  struct CMC_DEF_FVAL(SNAME) * f_val); \
+    struct SNAME CMC_(PFX, _init_custom)(                              \
+        size_t capacity, struct CMC_DEF_FVAL(SNAME) * f_val,           \
+        struct cmc_alloc_node * alloc, struct cmc_callbacks * callbacks);
 
 #define CMC_EXT_CMC_DEQUE_INIT_SOURCE_(PFX, SNAME, V)                    \
                                                                          \
-    struct SNAME PFX##_init(size_t capacity, struct SNAME##_fval *f_val) \
+    struct SNAME CMC_(PFX, _init)(size_t capacity,                       \
+                                  struct CMC_DEF_FVAL(SNAME) * f_val)    \
     {                                                                    \
-        return PFX##_init_custom(capacity, f_val, NULL, NULL);           \
+        return CMC_(PFX, _init_custom)(capacity, f_val, NULL, NULL);     \
     }                                                                    \
                                                                          \
-    struct SNAME PFX##_init_custom(                                      \
-        size_t capacity, struct SNAME##_fval *f_val,                     \
-        struct cmc_alloc_node *alloc, struct cmc_callbacks *callbacks)   \
+    struct SNAME CMC_(PFX, _init_custom)(                                \
+        size_t capacity, struct CMC_DEF_FVAL(SNAME) * f_val,             \
+        struct cmc_alloc_node * alloc, struct cmc_callbacks * callbacks) \
     {                                                                    \
         struct SNAME _deque_ = { 0 };                                    \
                                                                          \

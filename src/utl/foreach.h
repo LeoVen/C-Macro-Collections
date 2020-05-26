@@ -17,15 +17,19 @@
  * TARGET   - Target variable
  */
 
-#ifndef CMC_FOREACH_H
-#define CMC_FOREACH_H
+#ifndef CMC_UTL_FOREACH_H
+#define CMC_UTL_FOREACH_H
 
-#define CMC_FOREACH(PFX, SNAME, ITERNAME, TARGET)                 \
-    for (struct SNAME##_iter ITERNAME = PFX##_iter_start(TARGET); \
-         !PFX##_iter_at_end(&ITERNAME); PFX##_iter_next(&ITERNAME))
+#include "../cor/core.h"
 
-#define CMC_FOREACH_REV(PFX, SNAME, ITERNAME, TARGET)           \
-    for (struct SNAME##_iter ITERNAME = PFX##_iter_end(TARGET); \
-         !PFX##_iter_at_start(&ITERNAME); PFX##_iter_prev(&ITERNAME))
+#define CMC_FOREACH(PFX, SNAME, ITERNAME, TARGET)                              \
+    for (struct CMC_DEF_ITER(SNAME) ITERNAME = CMC_(PFX, _iter_start)(TARGET); \
+         !CMC_(PFX, _iter_at_end)(&ITERNAME);                                  \
+         CMC_(PFX, _iter_next)(&ITERNAME))
 
-#endif /* CMC_FOREACH_H */
+#define CMC_FOREACH_REV(PFX, SNAME, ITERNAME, TARGET)                        \
+    for (struct CMC_DEF_ITER(SNAME) ITERNAME = CMC_(PFX, _iter_end)(TARGET); \
+         !CMC_(PFX, _iter_at_start)(&ITERNAME);                              \
+         CMC_(PFX, _iter_prev)(&ITERNAME))
+
+#endif /* CMC_UTL_FOREACH_H */

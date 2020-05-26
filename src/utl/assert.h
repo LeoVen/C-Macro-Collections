@@ -48,8 +48,8 @@
  * - cmc_assert_array_sorted_any
  */
 
-#ifndef CMC_ASSERT_H
-#define CMC_ASSERT_H
+#ifndef CMC_UTL_ASSERT_H
+#define CMC_UTL_ASSERT_H
 
 #include <inttypes.h>
 #include <stdbool.h>
@@ -2830,4 +2830,4 @@ static uintmax_t cmc_assert_failed = 0;
                                                                                                          \
     } while (0)
 
-#endif /* CMC_ASSERT_H */
+#endif /* CMC_UTL_ASSERT_H */

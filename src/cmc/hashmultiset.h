@@ -23,8 +23,8 @@
  * mapped to their multiplicity.
  */
 
-#ifndef CMC_HASHMULTISET_H
-#define CMC_HASHMULTISET_H
+#ifndef CMC_CMC_HASHMULTISET_H
+#define CMC_CMC_HASHMULTISET_H
 
 /* -------------------------------------------------------------------------
  * Core functionalities of the C Macro Collections Library
@@ -40,38 +40,44 @@
  * HashMultiSet specific
  * ------------------------------------------------------------------------- */
 /* to_string format */
-static const char *cmc_string_fmt_hashmultiset = "struct %s<%s> "
-                                                 "at %p { "
-                                                 "buffer:%p, "
-                                                 "capacity:%" PRIuMAX ", "
-                                                 "count:%" PRIuMAX ", "
-                                                 "cardinality:%" PRIuMAX ", "
-                                                 "load:%lf, "
-                                                 "flag:%d, "
-                                                 "f_val:%p, "
-                                                 "alloc:%p, "
-                                                 "callbacks:%p }";
+static const char *cmc_cmc_string_fmt_hashmultiset =
+    "struct %s<%s> "
+    "at %p { "
+    "buffer:%p, "
+    "capacity:%" PRIuMAX ", "
+    "count:%" PRIuMAX ", "
+    "cardinality:%" PRIuMAX ", "
+    "load:%lf, "
+    "flag:%d, "
+    "f_val:%p, "
+    "alloc:%p, "
+    "callbacks:%p }";
 
-#define CMC_GENERATE_HASHMULTISET(PFX, SNAME, V)    \
-    CMC_GENERATE_HASHMULTISET_HEADER(PFX, SNAME, V) \
-    CMC_GENERATE_HASHMULTISET_SOURCE(PFX, SNAME, V)
+/**
+ * Core HashMultiSet implementation
+ */
+#define CMC_CMC_HASHMULTISET_CORE(BODY)    \
+    CMC_CMC_HASHMULTISET_CORE_HEADER(BODY) \
+    CMC_CMC_HASHMULTISET_CORE_SOURCE(BODY)
 
-#define CMC_WRAPGEN_HASHMULTISET_HEADER(PFX, SNAME, K, V) \
-    CMC_GENERATE_HASHMULTISET_HEADER(PFX, SNAME, V)
+#define CMC_CMC_HASHMULTISET_CORE_HEADER(BODY) \
+    CMC_CMC_HASHMULTISET_CORE_HEADER_(         \
+        CMC_PARAM_PFX(BODY), CMC_PARAM_SNAME(BODY), CMC_PARAM_V(BODY))
 
-#define CMC_WRAPGEN_HASHMULTISET_SOURCE(PFX, SNAME, K, V) \
-    CMC_GENERATE_HASHMULTISET_SOURCE(PFX, SNAME, V)
+#define CMC_CMC_HASHMULTISET_CORE_SOURCE(BODY) \
+    CMC_CMC_HASHMULTISET_CORE_SOURCE_(         \
+        CMC_PARAM_PFX(BODY), CMC_PARAM_SNAME(BODY), CMC_PARAM_V(BODY))
 
 /* -------------------------------------------------------------------------
  * Header
  * ------------------------------------------------------------------------- */
-#define CMC_GENERATE_HASHMULTISET_HEADER(PFX, SNAME, V)                        \
+#define CMC_CMC_HASHMULTISET_CORE_HEADER_(PFX, SNAME, V)                       \
                                                                                \
     /* HashMultiset Structure */                                               \
     struct SNAME                                                               \
     {                                                                          \
         /* Array of Entries */                                                 \
-        struct SNAME##_entry *buffer;                                          \
+        struct CMC_DEF_ENTRY(SNAME) * buffer;                                  \
                                                                                \
         /* Current Array Capcity */                                            \
         size_t capacity;                                                       \
@@ -89,7 +95,7 @@ static const char *cmc_string_fmt_hashmultiset = "struct %s<%s> "
         int flag;                                                              \
                                                                                \
         /* Key function table */                                               \
-        struct SNAME##_fval *f_val;                                            \
+        struct CMC_DEF_FVAL(SNAME) * f_val;                                    \
                                                                                \
         /* Custom allocation functions */                                      \
         struct cmc_alloc_node *alloc;                                          \
@@ -98,7 +104,7 @@ static const char *cmc_string_fmt_hashmultiset = "struct %s<%s> "
         struct cmc_callbacks *callbacks;                                       \
     };                                                                         \
                                                                                \
-    struct SNAME##_entry                                                       \
+    struct CMC_DEF_ENTRY(SNAME)                                                \
     {                                                                          \
         /* Entry element */                                                    \
         V value;                                                               \
@@ -115,7 +121,7 @@ static const char *cmc_string_fmt_hashmultiset = "struct %s<%s> "
     };                                                                         \
                                                                                \
     /* Value struct function table */                                          \
-    struct SNAME##_fval                                                        \
+    struct CMC_DEF_FVAL(SNAME)                                                 \
     {                                                                          \
         /* Comparator function */                                              \
         int (*cmp)(V, V);                                                      \
@@ -137,7 +143,7 @@ static const char *cmc_string_fmt_hashmultiset = "struct %s<%s> "
     };                                                                         \
                                                                                \
     /* HashMultiset Iterator */                                                \
-    struct SNAME##_iter                                                        \
+    struct CMC_DEF_ITER(SNAME)                                                 \
     {                                                                          \
         /* Target HashMultiset */                                              \
         struct SNAME *target;                                                  \
@@ -163,92 +169,105 @@ static const char *cmc_string_fmt_hashmultiset = "struct %s<%s> "
                                                                                \
     /* Collection Functions */                                                 \
     /* Collection Allocation and Deallocation */                               \
-    struct SNAME *PFX##_new(size_t capacity, double load,                      \
-                            struct SNAME##_fval *f_val);                       \
-    struct SNAME *PFX##_new_custom(                                            \
-        size_t capacity, double load, struct SNAME##_fval *f_val,              \
-        struct cmc_alloc_node *alloc, struct cmc_callbacks *callbacks);        \
-    void PFX##_clear(struct SNAME *_set_);                                     \
-    void PFX##_free(struct SNAME *_set_);                                      \
+    struct SNAME *CMC_(PFX, _new)(size_t capacity, double load,                \
+                                  struct CMC_DEF_FVAL(SNAME) * f_val);         \
+    struct SNAME *CMC_(PFX, _new_custom)(                                      \
+        size_t capacity, double load, struct CMC_DEF_FVAL(SNAME) * f_val,      \
+        struct cmc_alloc_node * alloc, struct cmc_callbacks * callbacks);      \
+    void CMC_(PFX, _clear)(struct SNAME * _set_);                              \
+    void CMC_(PFX, _free)(struct SNAME * _set_);                               \
     /* Customization of Allocation and Callbacks */                            \
-    void PFX##_customize(struct SNAME *_set_, struct cmc_alloc_node *alloc,    \
-                         struct cmc_callbacks *callbacks);                     \
+    void CMC_(PFX, _customize)(struct SNAME * _set_,                           \
+                               struct cmc_alloc_node * alloc,                  \
+                               struct cmc_callbacks * callbacks);              \
     /* Collection Input and Output */                                          \
-    bool PFX##_insert(struct SNAME *_set_, V value);                           \
-    bool PFX##_insert_many(struct SNAME *_set_, V value, size_t count);        \
-    bool PFX##_update(struct SNAME *_set_, V value, size_t multiplicity);      \
-    bool PFX##_remove(struct SNAME *_set_, V value);                           \
-    size_t PFX##_remove_all(struct SNAME *_set_, V value);                     \
+    bool CMC_(PFX, _insert)(struct SNAME * _set_, V value);                    \
+    bool CMC_(PFX, _insert_many)(struct SNAME * _set_, V value, size_t count); \
+    bool CMC_(PFX, _update)(struct SNAME * _set_, V value,                     \
+                            size_t multiplicity);                              \
+    bool CMC_(PFX, _remove)(struct SNAME * _set_, V value);                    \
+    size_t CMC_(PFX, _remove_all)(struct SNAME * _set_, V value);              \
     /* Element Access */                                                       \
-    bool PFX##_max(struct SNAME *_set_, V *value);                             \
-    bool PFX##_min(struct SNAME *_set_, V *value);                             \
-    size_t PFX##_multiplicity_of(struct SNAME *_set_, V value);                \
+    bool CMC_(PFX, _max)(struct SNAME * _set_, V * value);                     \
+    bool CMC_(PFX, _min)(struct SNAME * _set_, V * value);                     \
+    size_t CMC_(PFX, _multiplicity_of)(struct SNAME * _set_, V value);         \
     /* Collection State */                                                     \
-    bool PFX##_contains(struct SNAME *_set_, V value);                         \
-    bool PFX##_empty(struct SNAME *_set_);                                     \
-    bool PFX##_full(struct SNAME *_set_);                                      \
-    size_t PFX##_count(struct SNAME *_set_);                                   \
-    size_t PFX##_cardinality(struct SNAME *_set_);                             \
-    size_t PFX##_capacity(struct SNAME *_set_);                                \
-    double PFX##_load(struct SNAME *_set_);                                    \
-    int PFX##_flag(struct SNAME *_set_);                                       \
+    bool CMC_(PFX, _contains)(struct SNAME * _set_, V value);                  \
+    bool CMC_(PFX, _empty)(struct SNAME * _set_);                              \
+    bool CMC_(PFX, _full)(struct SNAME * _set_);                               \
+    size_t CMC_(PFX, _count)(struct SNAME * _set_);                            \
+    size_t CMC_(PFX, _cardinality)(struct SNAME * _set_);                      \
+    size_t CMC_(PFX, _capacity)(struct SNAME * _set_);                         \
+    double CMC_(PFX, _load)(struct SNAME * _set_);                             \
+    int CMC_(PFX, _flag)(struct SNAME * _set_);                                \
     /* Collection Utility */                                                   \
-    bool PFX##_resize(struct SNAME *_set_, size_t capacity);                   \
-    struct SNAME *PFX##_copy_of(struct SNAME *_set_);                          \
-    bool PFX##_equals(struct SNAME *_set1_, struct SNAME *_set2_);             \
-    struct cmc_string PFX##_to_string(struct SNAME *_set_);                    \
-    bool PFX##_print(struct SNAME *_set_, FILE *fptr);                         \
+    bool CMC_(PFX, _resize)(struct SNAME * _set_, size_t capacity);            \
+    struct SNAME *CMC_(PFX, _copy_of)(struct SNAME * _set_);                   \
+    bool CMC_(PFX, _equals)(struct SNAME * _set1_, struct SNAME * _set2_);     \
+    struct cmc_string CMC_(PFX, _to_string)(struct SNAME * _set_);             \
+    bool CMC_(PFX, _print)(struct SNAME * _set_, FILE * fptr);                 \
                                                                                \
     /* Set Operations */                                                       \
-    struct SNAME *PFX##_union(struct SNAME *_set1_, struct SNAME *_set2_);     \
-    struct SNAME *PFX##_intersection(struct SNAME *_set1_,                     \
-                                     struct SNAME *_set2_);                    \
-    struct SNAME *PFX##_difference(struct SNAME *_set1_,                       \
-                                   struct SNAME *_set2_);                      \
-    struct SNAME *PFX##_summation(struct SNAME *_set1_, struct SNAME *_set2_); \
-    struct SNAME *PFX##_symmetric_difference(struct SNAME *_set1_,             \
-                                             struct SNAME *_set2_);            \
-    bool PFX##_is_subset(struct SNAME *_set1_, struct SNAME *_set2_);          \
-    bool PFX##_is_superset(struct SNAME *_set1_, struct SNAME *_set2_);        \
-    bool PFX##_is_proper_subset(struct SNAME *_set1_, struct SNAME *_set2_);   \
-    bool PFX##_is_proper_superset(struct SNAME *_set1_, struct SNAME *_set2_); \
-    bool PFX##_is_disjointset(struct SNAME *_set1_, struct SNAME *_set2_);     \
+    struct SNAME *CMC_(PFX, _union)(struct SNAME * _set1_,                     \
+                                    struct SNAME * _set2_);                    \
+    struct SNAME *CMC_(PFX, _intersection)(struct SNAME * _set1_,              \
+                                           struct SNAME * _set2_);             \
+    struct SNAME *CMC_(PFX, _difference)(struct SNAME * _set1_,                \
+                                         struct SNAME * _set2_);               \
+    struct SNAME *CMC_(PFX, _summation)(struct SNAME * _set1_,                 \
+                                        struct SNAME * _set2_);                \
+    struct SNAME *CMC_(PFX, _symmetric_difference)(struct SNAME * _set1_,      \
+                                                   struct SNAME * _set2_);     \
+    bool CMC_(PFX, _is_subset)(struct SNAME * _set1_, struct SNAME * _set2_);  \
+    bool CMC_(PFX, _is_superset)(struct SNAME * _set1_,                        \
+                                 struct SNAME * _set2_);                       \
+    bool CMC_(PFX, _is_proper_subset)(struct SNAME * _set1_,                   \
+                                      struct SNAME * _set2_);                  \
+    bool CMC_(PFX, _is_proper_superset)(struct SNAME * _set1_,                 \
+                                        struct SNAME * _set2_);                \
+    bool CMC_(PFX, _is_disjointset)(struct SNAME * _set1_,                     \
+                                    struct SNAME * _set2_);                    \
                                                                                \
     /* Iterator Functions */                                                   \
     /* Iterator Initialization */                                              \
-    struct SNAME##_iter PFX##_iter_start(struct SNAME *target);                \
-    struct SNAME##_iter PFX##_iter_end(struct SNAME *target);                  \
+    struct CMC_DEF_ITER(SNAME) CMC_(PFX, _iter_start)(struct SNAME * target);  \
+    struct CMC_DEF_ITER(SNAME) CMC_(PFX, _iter_end)(struct SNAME * target);    \
     /* Iterator State */                                                       \
-    bool PFX##_iter_at_start(struct SNAME##_iter *iter);                       \
-    bool PFX##_iter_at_end(struct SNAME##_iter *iter);                         \
+    bool CMC_(PFX, _iter_at_start)(struct CMC_DEF_ITER(SNAME) * iter);         \
+    bool CMC_(PFX, _iter_at_end)(struct CMC_DEF_ITER(SNAME) * iter);           \
     /* Iterator Movement */                                                    \
-    bool PFX##_iter_to_start(struct SNAME##_iter *iter);                       \
-    bool PFX##_iter_to_end(struct SNAME##_iter *iter);                         \
-    bool PFX##_iter_next(struct SNAME##_iter *iter);                           \
-    bool PFX##_iter_prev(struct SNAME##_iter *iter);                           \
-    bool PFX##_iter_advance(struct SNAME##_iter *iter, size_t steps);          \
-    bool PFX##_iter_rewind(struct SNAME##_iter *iter, size_t steps);           \
-    bool PFX##_iter_go_to(struct SNAME##_iter *iter, size_t index);            \
+    bool CMC_(PFX, _iter_to_start)(struct CMC_DEF_ITER(SNAME) * iter);         \
+    bool CMC_(PFX, _iter_to_end)(struct CMC_DEF_ITER(SNAME) * iter);           \
+    bool CMC_(PFX, _iter_next)(struct CMC_DEF_ITER(SNAME) * iter);             \
+    bool CMC_(PFX, _iter_prev)(struct CMC_DEF_ITER(SNAME) * iter);             \
+    bool CMC_(PFX, _iter_advance)(struct CMC_DEF_ITER(SNAME) * iter,           \
+                                  size_t steps);                               \
+    bool CMC_(PFX, _iter_rewind)(struct CMC_DEF_ITER(SNAME) * iter,            \
+                                 size_t steps);                                \
+    bool CMC_(PFX, _iter_go_to)(struct CMC_DEF_ITER(SNAME) * iter,             \
+                                size_t index);                                 \
     /* Iterator Access */                                                      \
-    V PFX##_iter_value(struct SNAME##_iter *iter);                             \
-    size_t PFX##_iter_multiplicity(struct SNAME##_iter *iter);                 \
-    size_t PFX##_iter_index(struct SNAME##_iter *iter);
+    V CMC_(PFX, _iter_value)(struct CMC_DEF_ITER(SNAME) * iter);               \
+    size_t CMC_(PFX, _iter_multiplicity)(struct CMC_DEF_ITER(SNAME) * iter);   \
+    size_t CMC_(PFX, _iter_index)(struct CMC_DEF_ITER(SNAME) * iter);
 
 /* -------------------------------------------------------------------------
  * Source
  * ------------------------------------------------------------------------- */
-#define CMC_GENERATE_HASHMULTISET_SOURCE(PFX, SNAME, V)                        \
+#define CMC_CMC_HASHMULTISET_CORE_SOURCE_(PFX, SNAME, V)                       \
                                                                                \
     /* Implementation Detail Functions */                                      \
-    static size_t PFX##_impl_multiplicity_of(struct SNAME *_set_, V value);    \
-    static struct SNAME##_entry *PFX##_impl_insert_and_return(                 \
-        struct SNAME *_set_, V value, bool *new_node);                         \
-    static struct SNAME##_entry *PFX##_impl_get_entry(struct SNAME *_set_,     \
-                                                      V value);                \
-    static size_t PFX##_impl_calculate_size(size_t required);                  \
+    static size_t CMC_(PFX, _impl_multiplicity_of)(struct SNAME * _set_,       \
+                                                   V value);                   \
+    static struct CMC_DEF_ENTRY(SNAME) *                                       \
+        CMC_(PFX, _impl_insert_and_return)(struct SNAME * _set_, V value,      \
+                                           bool *new_node);                    \
+    static struct CMC_DEF_ENTRY(SNAME) *                                       \
+        CMC_(PFX, _impl_get_entry)(struct SNAME * _set_, V value);             \
+    static size_t CMC_(PFX, _impl_calculate_size)(size_t required);            \
                                                                                \
-    struct SNAME *PFX##_new(size_t capacity, double load,                      \
-                            struct SNAME##_fval *f_val)                        \
+    struct SNAME *CMC_(PFX, _new)(size_t capacity, double load,                \
+                                  struct CMC_DEF_FVAL(SNAME) * f_val)          \
     {                                                                          \
         struct cmc_alloc_node *alloc = &cmc_alloc_node_default;                \
                                                                                \
@@ -262,7 +281,8 @@ static const char *cmc_string_fmt_hashmultiset = "struct %s<%s> "
         if (!f_val)                                                            \
             return NULL;                                                       \
                                                                                \
-        size_t real_capacity = PFX##_impl_calculate_size(capacity / load);     \
+        size_t real_capacity =                                                 \
+            CMC_(PFX, _impl_calculate_size)(capacity / load);                  \
                                                                                \
         struct SNAME *_set_ = alloc->malloc(sizeof(struct SNAME));             \
                                                                                \
@@ -270,7 +290,7 @@ static const char *cmc_string_fmt_hashmultiset = "struct %s<%s> "
             return NULL;                                                       \
                                                                                \
         _set_->buffer =                                                        \
-            alloc->calloc(real_capacity, sizeof(struct SNAME##_entry));        \
+            alloc->calloc(real_capacity, sizeof(struct CMC_DEF_ENTRY(SNAME))); \
                                                                                \
         if (!_set_->buffer)                                                    \
         {                                                                      \
@@ -282,7 +302,7 @@ static const char *cmc_string_fmt_hashmultiset = "struct %s<%s> "
         _set_->cardinality = 0;                                                \
         _set_->capacity = real_capacity;                                       \
         _set_->load = load;                                                    \
-        _set_->flag = cmc_flags.OK;                                            \
+        _set_->flag = CMC_FLAG_OK;                                             \
         _set_->f_val = f_val;                                                  \
         _set_->alloc = alloc;                                                  \
         _set_->callbacks = NULL;                                               \
@@ -290,9 +310,9 @@ static const char *cmc_string_fmt_hashmultiset = "struct %s<%s> "
         return _set_;                                                          \
     }                                                                          \
                                                                                \
-    struct SNAME *PFX##_new_custom(                                            \
-        size_t capacity, double load, struct SNAME##_fval *f_val,              \
-        struct cmc_alloc_node *alloc, struct cmc_callbacks *callbacks)         \
+    struct SNAME *CMC_(PFX, _new_custom)(                                      \
+        size_t capacity, double load, struct CMC_DEF_FVAL(SNAME) * f_val,      \
+        struct cmc_alloc_node * alloc, struct cmc_callbacks * callbacks)       \
     {                                                                          \
         if (capacity == 0 || load <= 0 || load >= 1)                           \
             return NULL;                                                       \
@@ -304,7 +324,8 @@ static const char *cmc_string_fmt_hashmultiset = "struct %s<%s> "
         if (!f_val)                                                            \
             return NULL;                                                       \
                                                                                \
-        size_t real_capacity = PFX##_impl_calculate_size(capacity / load);     \
+        size_t real_capacity =                                                 \
+            CMC_(PFX, _impl_calculate_size)(capacity / load);                  \
                                                                                \
         if (!alloc)                                                            \
             alloc = &cmc_alloc_node_default;                                   \
@@ -315,7 +336,7 @@ static const char *cmc_string_fmt_hashmultiset = "struct %s<%s> "
             return NULL;                                                       \
                                                                                \
         _set_->buffer =                                                        \
-            alloc->calloc(real_capacity, sizeof(struct SNAME##_entry));        \
+            alloc->calloc(real_capacity, sizeof(struct CMC_DEF_ENTRY(SNAME))); \
                                                                                \
         if (!_set_->buffer)                                                    \
         {                                                                      \
@@ -327,7 +348,7 @@ static const char *cmc_string_fmt_hashmultiset = "struct %s<%s> "
         _set_->cardinality = 0;                                                \
         _set_->capacity = real_capacity;                                       \
         _set_->load = load;                                                    \
-        _set_->flag = cmc_flags.OK;                                            \
+        _set_->flag = CMC_FLAG_OK;                                             \
         _set_->f_val = f_val;                                                  \
         _set_->alloc = alloc;                                                  \
         _set_->callbacks = callbacks;                                          \
@@ -335,13 +356,13 @@ static const char *cmc_string_fmt_hashmultiset = "struct %s<%s> "
         return _set_;                                                          \
     }                                                                          \
                                                                                \
-    void PFX##_clear(struct SNAME *_set_)                                      \
+    void CMC_(PFX, _clear)(struct SNAME * _set_)                               \
     {                                                                          \
         if (_set_->f_val->free)                                                \
         {                                                                      \
             for (size_t i = 0; i < _set_->capacity; i++)                       \
             {                                                                  \
-                struct SNAME##_entry *entry = &(_set_->buffer[i]);             \
+                struct CMC_DEF_ENTRY(SNAME) *entry = &(_set_->buffer[i]);      \
                                                                                \
                 if (entry->state == CMC_ES_FILLED)                             \
                 {                                                              \
@@ -351,19 +372,19 @@ static const char *cmc_string_fmt_hashmultiset = "struct %s<%s> "
         }                                                                      \
                                                                                \
         memset(_set_->buffer, 0,                                               \
-               sizeof(struct SNAME##_entry) * _set_->capacity);                \
+               sizeof(struct CMC_DEF_ENTRY(SNAME)) * _set_->capacity);         \
                                                                                \
         _set_->count = 0;                                                      \
-        _set_->flag = cmc_flags.OK;                                            \
+        _set_->flag = CMC_FLAG_OK;                                             \
     }                                                                          \
                                                                                \
-    void PFX##_free(struct SNAME *_set_)                                       \
+    void CMC_(PFX, _free)(struct SNAME * _set_)                                \
     {                                                                          \
         if (_set_->f_val->free)                                                \
         {                                                                      \
             for (size_t i = 0; i < _set_->capacity; i++)                       \
             {                                                                  \
-                struct SNAME##_entry *entry = &(_set_->buffer[i]);             \
+                struct CMC_DEF_ENTRY(SNAME) *entry = &(_set_->buffer[i]);      \
                                                                                \
                 if (entry->state == CMC_ES_FILLED)                             \
                 {                                                              \
@@ -376,8 +397,9 @@ static const char *cmc_string_fmt_hashmultiset = "struct %s<%s> "
         _set_->alloc->free(_set_);                                             \
     }                                                                          \
                                                                                \
-    void PFX##_customize(struct SNAME *_set_, struct cmc_alloc_node *alloc,    \
-                         struct cmc_callbacks *callbacks)                      \
+    void CMC_(PFX, _customize)(struct SNAME * _set_,                           \
+                               struct cmc_alloc_node * alloc,                  \
+                               struct cmc_callbacks * callbacks)               \
     {                                                                          \
         if (!alloc)                                                            \
             _set_->alloc = &cmc_alloc_node_default;                            \
@@ -386,19 +408,19 @@ static const char *cmc_string_fmt_hashmultiset = "struct %s<%s> "
                                                                                \
         _set_->callbacks = callbacks;                                          \
                                                                                \
-        _set_->flag = cmc_flags.OK;                                            \
+        _set_->flag = CMC_FLAG_OK;                                             \
     }                                                                          \
                                                                                \
-    bool PFX##_insert(struct SNAME *_set_, V value)                            \
+    bool CMC_(PFX, _insert)(struct SNAME * _set_, V value)                     \
     {                                                                          \
         bool new_node;                                                         \
                                                                                \
-        struct SNAME##_entry *entry =                                          \
-            PFX##_impl_insert_and_return(_set_, value, &new_node);             \
+        struct CMC_DEF_ENTRY(SNAME) *entry =                                   \
+            CMC_(PFX, _impl_insert_and_return)(_set_, value, &new_node);       \
                                                                                \
         if (!entry)                                                            \
         {                                                                      \
-            _set_->flag = cmc_flags.ERROR;                                     \
+            _set_->flag = CMC_FLAG_ERROR;                                      \
             return false;                                                      \
         }                                                                      \
                                                                                \
@@ -406,7 +428,7 @@ static const char *cmc_string_fmt_hashmultiset = "struct %s<%s> "
             entry->multiplicity++;                                             \
                                                                                \
         _set_->cardinality++;                                                  \
-        _set_->flag = cmc_flags.OK;                                            \
+        _set_->flag = CMC_FLAG_OK;                                             \
                                                                                \
         if (_set_->callbacks && _set_->callbacks->create)                      \
             _set_->callbacks->create();                                        \
@@ -414,19 +436,19 @@ static const char *cmc_string_fmt_hashmultiset = "struct %s<%s> "
         return true;                                                           \
     }                                                                          \
                                                                                \
-    bool PFX##_insert_many(struct SNAME *_set_, V value, size_t count)         \
+    bool CMC_(PFX, _insert_many)(struct SNAME * _set_, V value, size_t count)  \
     {                                                                          \
         if (count == 0)                                                        \
             goto success;                                                      \
                                                                                \
         bool new_node;                                                         \
                                                                                \
-        struct SNAME##_entry *entry =                                          \
-            PFX##_impl_insert_and_return(_set_, value, &new_node);             \
+        struct CMC_DEF_ENTRY(SNAME) *entry =                                   \
+            CMC_(PFX, _impl_insert_and_return)(_set_, value, &new_node);       \
                                                                                \
         if (!entry)                                                            \
         {                                                                      \
-            _set_->flag = cmc_flags.ERROR;                                     \
+            _set_->flag = CMC_FLAG_ERROR;                                      \
             return false;                                                      \
         }                                                                      \
                                                                                \
@@ -439,7 +461,7 @@ static const char *cmc_string_fmt_hashmultiset = "struct %s<%s> "
                                                                                \
     success:                                                                   \
                                                                                \
-        _set_->flag = cmc_flags.OK;                                            \
+        _set_->flag = CMC_FLAG_OK;                                             \
                                                                                \
         if (_set_->callbacks && _set_->callbacks->create)                      \
             _set_->callbacks->create();                                        \
@@ -447,12 +469,14 @@ static const char *cmc_string_fmt_hashmultiset = "struct %s<%s> "
         return true;                                                           \
     }                                                                          \
                                                                                \
-    bool PFX##_update(struct SNAME *_set_, V value, size_t multiplicity)       \
+    bool CMC_(PFX, _update)(struct SNAME * _set_, V value,                     \
+                            size_t multiplicity)                               \
     {                                                                          \
         if (multiplicity == 0)                                                 \
         {                                                                      \
             /* Effectively delete the entry */                                 \
-            struct SNAME##_entry *result = PFX##_impl_get_entry(_set_, value); \
+            struct CMC_DEF_ENTRY(SNAME) *result =                              \
+                CMC_(PFX, _impl_get_entry)(_set_, value);                      \
                                                                                \
             if (!result)                                                       \
                 /* If no entry was found then its multiplicity is already 0 */ \
@@ -471,8 +495,8 @@ static const char *cmc_string_fmt_hashmultiset = "struct %s<%s> "
                                                                                \
         bool new_node;                                                         \
                                                                                \
-        struct SNAME##_entry *entry =                                          \
-            PFX##_impl_insert_and_return(_set_, value, &new_node);             \
+        struct CMC_DEF_ENTRY(SNAME) *entry =                                   \
+            CMC_(PFX, _impl_insert_and_return)(_set_, value, &new_node);       \
                                                                                \
         if (!entry)                                                            \
             return false;                                                      \
@@ -487,7 +511,7 @@ static const char *cmc_string_fmt_hashmultiset = "struct %s<%s> "
                                                                                \
     success:                                                                   \
                                                                                \
-        _set_->flag = cmc_flags.OK;                                            \
+        _set_->flag = CMC_FLAG_OK;                                             \
                                                                                \
         if (_set_->callbacks && _set_->callbacks->update)                      \
             _set_->callbacks->update();                                        \
@@ -495,19 +519,20 @@ static const char *cmc_string_fmt_hashmultiset = "struct %s<%s> "
         return true;                                                           \
     }                                                                          \
                                                                                \
-    bool PFX##_remove(struct SNAME *_set_, V value)                            \
+    bool CMC_(PFX, _remove)(struct SNAME * _set_, V value)                     \
     {                                                                          \
-        if (PFX##_empty(_set_))                                                \
+        if (CMC_(PFX, _empty)(_set_))                                          \
         {                                                                      \
-            _set_->flag = cmc_flags.EMPTY;                                     \
+            _set_->flag = CMC_FLAG_EMPTY;                                      \
             return false;                                                      \
         }                                                                      \
                                                                                \
-        struct SNAME##_entry *result = PFX##_impl_get_entry(_set_, value);     \
+        struct CMC_DEF_ENTRY(SNAME) *result =                                  \
+            CMC_(PFX, _impl_get_entry)(_set_, value);                          \
                                                                                \
         if (!result)                                                           \
         {                                                                      \
-            _set_->flag = cmc_flags.NOT_FOUND;                                 \
+            _set_->flag = CMC_FLAG_NOT_FOUND;                                  \
             return false;                                                      \
         }                                                                      \
                                                                                \
@@ -524,7 +549,7 @@ static const char *cmc_string_fmt_hashmultiset = "struct %s<%s> "
         }                                                                      \
                                                                                \
         _set_->cardinality--;                                                  \
-        _set_->flag = cmc_flags.OK;                                            \
+        _set_->flag = CMC_FLAG_OK;                                             \
                                                                                \
         if (_set_->callbacks && _set_->callbacks->delete)                      \
             _set_->callbacks->delete ();                                       \
@@ -532,19 +557,20 @@ static const char *cmc_string_fmt_hashmultiset = "struct %s<%s> "
         return true;                                                           \
     }                                                                          \
                                                                                \
-    size_t PFX##_remove_all(struct SNAME *_set_, V value)                      \
+    size_t CMC_(PFX, _remove_all)(struct SNAME * _set_, V value)               \
     {                                                                          \
-        if (PFX##_empty(_set_))                                                \
+        if (CMC_(PFX, _empty)(_set_))                                          \
         {                                                                      \
-            _set_->flag = cmc_flags.EMPTY;                                     \
+            _set_->flag = CMC_FLAG_EMPTY;                                      \
             return false;                                                      \
         }                                                                      \
                                                                                \
-        struct SNAME##_entry *result = PFX##_impl_get_entry(_set_, value);     \
+        struct CMC_DEF_ENTRY(SNAME) *result =                                  \
+            CMC_(PFX, _impl_get_entry)(_set_, value);                          \
                                                                                \
         if (!result)                                                           \
         {                                                                      \
-            _set_->flag = cmc_flags.NOT_FOUND;                                 \
+            _set_->flag = CMC_FLAG_NOT_FOUND;                                  \
             return 0;                                                          \
         }                                                                      \
                                                                                \
@@ -557,7 +583,7 @@ static const char *cmc_string_fmt_hashmultiset = "struct %s<%s> "
                                                                                \
         _set_->count--;                                                        \
         _set_->cardinality -= removed;                                         \
-        _set_->flag = cmc_flags.OK;                                            \
+        _set_->flag = CMC_FLAG_OK;                                             \
                                                                                \
         if (_set_->callbacks && _set_->callbacks->delete)                      \
             _set_->callbacks->delete ();                                       \
@@ -565,22 +591,22 @@ static const char *cmc_string_fmt_hashmultiset = "struct %s<%s> "
         return removed;                                                        \
     }                                                                          \
                                                                                \
-    bool PFX##_max(struct SNAME *_set_, V *value)                              \
+    bool CMC_(PFX, _max)(struct SNAME * _set_, V * value)                      \
     {                                                                          \
-        if (PFX##_empty(_set_))                                                \
+        if (CMC_(PFX, _empty)(_set_))                                          \
         {                                                                      \
-            _set_->flag = cmc_flags.EMPTY;                                     \
+            _set_->flag = CMC_FLAG_EMPTY;                                      \
             return false;                                                      \
         }                                                                      \
                                                                                \
         V max_val;                                                             \
-        struct SNAME##_iter iter = PFX##_iter_start(_set_);                    \
+        struct CMC_DEF_ITER(SNAME) iter = CMC_(PFX, _iter_start)(_set_);       \
                                                                                \
         /* TODO transform this into a normal loop */                           \
-        for (; !PFX##_iter_at_end(&iter); PFX##_iter_next(&iter))              \
+        for (; !CMC_(PFX, _iter_at_end)(&iter); CMC_(PFX, _iter_next)(&iter))  \
         {                                                                      \
-            V result = PFX##_iter_value(&iter);                                \
-            size_t index = PFX##_iter_index(&iter);                            \
+            V result = CMC_(PFX, _iter_value)(&iter);                          \
+            size_t index = CMC_(PFX, _iter_index)(&iter);                      \
                                                                                \
             if (index == 0)                                                    \
                 max_val = result;                                              \
@@ -591,7 +617,7 @@ static const char *cmc_string_fmt_hashmultiset = "struct %s<%s> "
         if (value)                                                             \
             *value = max_val;                                                  \
                                                                                \
-        _set_->flag = cmc_flags.OK;                                            \
+        _set_->flag = CMC_FLAG_OK;                                             \
                                                                                \
         if (_set_->callbacks && _set_->callbacks->read)                        \
             _set_->callbacks->read();                                          \
@@ -599,22 +625,22 @@ static const char *cmc_string_fmt_hashmultiset = "struct %s<%s> "
         return true;                                                           \
     }                                                                          \
                                                                                \
-    bool PFX##_min(struct SNAME *_set_, V *value)                              \
+    bool CMC_(PFX, _min)(struct SNAME * _set_, V * value)                      \
     {                                                                          \
-        if (PFX##_empty(_set_))                                                \
+        if (CMC_(PFX, _empty)(_set_))                                          \
         {                                                                      \
-            _set_->flag = cmc_flags.EMPTY;                                     \
+            _set_->flag = CMC_FLAG_EMPTY;                                      \
             return false;                                                      \
         }                                                                      \
                                                                                \
         V min_val;                                                             \
-        struct SNAME##_iter iter = PFX##_iter_start(_set_);                    \
+        struct CMC_DEF_ITER(SNAME) iter = CMC_(PFX, _iter_start)(_set_);       \
                                                                                \
         /* TODO transform this into a normal loop */                           \
-        for (; !PFX##_iter_at_end(&iter); PFX##_iter_next(&iter))              \
+        for (; !CMC_(PFX, _iter_at_end)(&iter); CMC_(PFX, _iter_next)(&iter))  \
         {                                                                      \
-            V result = PFX##_iter_value(&iter);                                \
-            size_t index = PFX##_iter_index(&iter);                            \
+            V result = CMC_(PFX, _iter_value)(&iter);                          \
+            size_t index = CMC_(PFX, _iter_index)(&iter);                      \
                                                                                \
             if (index == 0)                                                    \
                 min_val = result;                                              \
@@ -625,7 +651,7 @@ static const char *cmc_string_fmt_hashmultiset = "struct %s<%s> "
         if (value)                                                             \
             *value = min_val;                                                  \
                                                                                \
-        _set_->flag = cmc_flags.OK;                                            \
+        _set_->flag = CMC_FLAG_OK;                                             \
                                                                                \
         if (_set_->callbacks && _set_->callbacks->read)                        \
             _set_->callbacks->read();                                          \
@@ -633,11 +659,12 @@ static const char *cmc_string_fmt_hashmultiset = "struct %s<%s> "
         return true;                                                           \
     }                                                                          \
                                                                                \
-    size_t PFX##_multiplicity_of(struct SNAME *_set_, V value)                 \
+    size_t CMC_(PFX, _multiplicity_of)(struct SNAME * _set_, V value)          \
     {                                                                          \
-        struct SNAME##_entry *entry = PFX##_impl_get_entry(_set_, value);      \
+        struct CMC_DEF_ENTRY(SNAME) *entry =                                   \
+            CMC_(PFX, _impl_get_entry)(_set_, value);                          \
                                                                                \
-        _set_->flag = cmc_flags.OK;                                            \
+        _set_->flag = CMC_FLAG_OK;                                             \
                                                                                \
         if (_set_->callbacks && _set_->callbacks->read)                        \
             _set_->callbacks->read();                                          \
@@ -648,11 +675,11 @@ static const char *cmc_string_fmt_hashmultiset = "struct %s<%s> "
         return entry->multiplicity;                                            \
     }                                                                          \
                                                                                \
-    bool PFX##_contains(struct SNAME *_set_, V value)                          \
+    bool CMC_(PFX, _contains)(struct SNAME * _set_, V value)                   \
     {                                                                          \
-        _set_->flag = cmc_flags.OK;                                            \
+        _set_->flag = CMC_FLAG_OK;                                             \
                                                                                \
-        bool result = PFX##_impl_get_entry(_set_, value) != NULL;              \
+        bool result = CMC_(PFX, _impl_get_entry)(_set_, value) != NULL;        \
                                                                                \
         if (_set_->callbacks && _set_->callbacks->read)                        \
             _set_->callbacks->read();                                          \
@@ -660,44 +687,44 @@ static const char *cmc_string_fmt_hashmultiset = "struct %s<%s> "
         return result;                                                         \
     }                                                                          \
                                                                                \
-    bool PFX##_empty(struct SNAME *_set_)                                      \
+    bool CMC_(PFX, _empty)(struct SNAME * _set_)                               \
     {                                                                          \
         return _set_->count == 0;                                              \
     }                                                                          \
                                                                                \
-    bool PFX##_full(struct SNAME *_set_)                                       \
+    bool CMC_(PFX, _full)(struct SNAME * _set_)                                \
     {                                                                          \
         return (double)_set_->capacity * _set_->load <= (double)_set_->count;  \
     }                                                                          \
                                                                                \
-    size_t PFX##_count(struct SNAME *_set_)                                    \
+    size_t CMC_(PFX, _count)(struct SNAME * _set_)                             \
     {                                                                          \
         return _set_->count;                                                   \
     }                                                                          \
                                                                                \
-    size_t PFX##_cardinality(struct SNAME *_set_)                              \
+    size_t CMC_(PFX, _cardinality)(struct SNAME * _set_)                       \
     {                                                                          \
         return _set_->cardinality;                                             \
     }                                                                          \
                                                                                \
-    size_t PFX##_capacity(struct SNAME *_set_)                                 \
+    size_t CMC_(PFX, _capacity)(struct SNAME * _set_)                          \
     {                                                                          \
         return _set_->capacity;                                                \
     }                                                                          \
                                                                                \
-    double PFX##_load(struct SNAME *_set_)                                     \
+    double CMC_(PFX, _load)(struct SNAME * _set_)                              \
     {                                                                          \
         return _set_->load;                                                    \
     }                                                                          \
                                                                                \
-    int PFX##_flag(struct SNAME *_set_)                                        \
+    int CMC_(PFX, _flag)(struct SNAME * _set_)                                 \
     {                                                                          \
         return _set_->flag;                                                    \
     }                                                                          \
                                                                                \
-    bool PFX##_resize(struct SNAME *_set_, size_t capacity)                    \
+    bool CMC_(PFX, _resize)(struct SNAME * _set_, size_t capacity)             \
     {                                                                          \
-        _set_->flag = cmc_flags.OK;                                            \
+        _set_->flag = CMC_FLAG_OK;                                             \
                                                                                \
         if (_set_->capacity == capacity)                                       \
             goto success;                                                      \
@@ -708,48 +735,49 @@ static const char *cmc_string_fmt_hashmultiset = "struct %s<%s> "
         /* Prevent integer overflow */                                         \
         if (capacity >= UINTMAX_MAX * _set_->load)                             \
         {                                                                      \
-            _set_->flag = cmc_flags.ERROR;                                     \
+            _set_->flag = CMC_FLAG_ERROR;                                      \
             return false;                                                      \
         }                                                                      \
                                                                                \
         /* Calculate required capacity based on the prime numbers */           \
-        size_t theoretical_size = PFX##_impl_calculate_size(capacity);         \
+        size_t theoretical_size = CMC_(PFX, _impl_calculate_size)(capacity);   \
                                                                                \
         /* Not possible to shrink with current available prime numbers */      \
         if (theoretical_size < _set_->count / _set_->load)                     \
         {                                                                      \
-            _set_->flag = cmc_flags.INVALID;                                   \
+            _set_->flag = CMC_FLAG_INVALID;                                    \
             return false;                                                      \
         }                                                                      \
                                                                                \
         /* No callbacks since _new_set_ is just a temporary hashtable */       \
-        struct SNAME *_new_set_ = PFX##_new_custom(                            \
+        struct SNAME *_new_set_ = CMC_(PFX, _new_custom)(                      \
             capacity, _set_->load, _set_->f_val, _set_->alloc, NULL);          \
                                                                                \
         if (!_new_set_)                                                        \
         {                                                                      \
-            _set_->flag = cmc_flags.ERROR;                                     \
+            _set_->flag = CMC_FLAG_ERROR;                                      \
             return false;                                                      \
         }                                                                      \
                                                                                \
-        struct SNAME##_iter iter = PFX##_iter_start(_set_);                    \
+        struct CMC_DEF_ITER(SNAME) iter = CMC_(PFX, _iter_start)(_set_);       \
                                                                                \
         /* TODO transform this into a normal loop */                           \
-        for (; !PFX##_iter_at_end(&iter); PFX##_iter_next(&iter))              \
+        for (; !CMC_(PFX, _iter_at_end)(&iter); CMC_(PFX, _iter_next)(&iter))  \
         {                                                                      \
-            PFX##_insert_many(_new_set_, PFX##_iter_value(&iter),              \
-                              PFX##_iter_multiplicity(&iter));                 \
+            CMC_(PFX, _insert_many)                                            \
+            (_new_set_, CMC_(PFX, _iter_value)(&iter),                         \
+             CMC_(PFX, _iter_multiplicity)(&iter));                            \
         }                                                                      \
                                                                                \
         if (_set_->count != _new_set_->count)                                  \
         {                                                                      \
-            PFX##_free(_new_set_);                                             \
+            CMC_(PFX, _free)(_new_set_);                                       \
                                                                                \
-            _set_->flag = cmc_flags.ERROR;                                     \
+            _set_->flag = CMC_FLAG_ERROR;                                      \
             return false;                                                      \
         }                                                                      \
                                                                                \
-        struct SNAME##_entry *tmp_b = _set_->buffer;                           \
+        struct CMC_DEF_ENTRY(SNAME) *tmp_b = _set_->buffer;                    \
         _set_->buffer = _new_set_->buffer;                                     \
         _new_set_->buffer = tmp_b;                                             \
                                                                                \
@@ -758,9 +786,9 @@ static const char *cmc_string_fmt_hashmultiset = "struct %s<%s> "
         _new_set_->capacity = tmp_c;                                           \
                                                                                \
         /* Prevent the set from freeing the data */                            \
-        _new_set_->f_val = &(struct SNAME##_fval){ NULL };                     \
+        _new_set_->f_val = &(struct CMC_DEF_FVAL(SNAME)){ NULL };              \
                                                                                \
-        PFX##_free(_new_set_);                                                 \
+        CMC_(PFX, _free)(_new_set_);                                           \
                                                                                \
     success:                                                                   \
                                                                                \
@@ -770,15 +798,15 @@ static const char *cmc_string_fmt_hashmultiset = "struct %s<%s> "
         return true;                                                           \
     }                                                                          \
                                                                                \
-    struct SNAME *PFX##_copy_of(struct SNAME *_set_)                           \
+    struct SNAME *CMC_(PFX, _copy_of)(struct SNAME * _set_)                    \
     {                                                                          \
-        struct SNAME *result =                                                 \
-            PFX##_new_custom(_set_->capacity * _set_->load, _set_->load,       \
-                             _set_->f_val, _set_->alloc, _set_->callbacks);    \
+        struct SNAME *result = CMC_(PFX, _new_custom)(                         \
+            _set_->capacity * _set_->load, _set_->load, _set_->f_val,          \
+            _set_->alloc, _set_->callbacks);                                   \
                                                                                \
         if (!result)                                                           \
         {                                                                      \
-            _set_->flag = cmc_flags.ERROR;                                     \
+            _set_->flag = CMC_FLAG_ERROR;                                      \
             return NULL;                                                       \
         }                                                                      \
                                                                                \
@@ -786,11 +814,12 @@ static const char *cmc_string_fmt_hashmultiset = "struct %s<%s> "
         {                                                                      \
             for (size_t i = 0; i < _set_->capacity; i++)                       \
             {                                                                  \
-                struct SNAME##_entry *scan = &(_set_->buffer[i]);              \
+                struct CMC_DEF_ENTRY(SNAME) *scan = &(_set_->buffer[i]);       \
                                                                                \
                 if (scan->state != CMC_ES_EMPTY)                               \
                 {                                                              \
-                    struct SNAME##_entry *target = &(result->buffer[i]);       \
+                    struct CMC_DEF_ENTRY(SNAME) *target =                      \
+                        &(result->buffer[i]);                                  \
                                                                                \
                     if (scan->state == CMC_ES_DELETED)                         \
                         target->state = CMC_ES_DELETED;                        \
@@ -807,20 +836,20 @@ static const char *cmc_string_fmt_hashmultiset = "struct %s<%s> "
         }                                                                      \
         else                                                                   \
             memcpy(result->buffer, _set_->buffer,                              \
-                   sizeof(struct SNAME##_entry) * _set_->capacity);            \
+                   sizeof(struct CMC_DEF_ENTRY(SNAME)) * _set_->capacity);     \
                                                                                \
         result->count = _set_->count;                                          \
         result->cardinality = _set_->cardinality;                              \
                                                                                \
-        _set_->flag = cmc_flags.OK;                                            \
+        _set_->flag = CMC_FLAG_OK;                                             \
                                                                                \
         return result;                                                         \
     }                                                                          \
                                                                                \
-    bool PFX##_equals(struct SNAME *_set1_, struct SNAME *_set2_)              \
+    bool CMC_(PFX, _equals)(struct SNAME * _set1_, struct SNAME * _set2_)      \
     {                                                                          \
-        _set1_->flag = cmc_flags.OK;                                           \
-        _set2_->flag = cmc_flags.OK;                                           \
+        _set1_->flag = CMC_FLAG_OK;                                            \
+        _set2_->flag = CMC_FLAG_OK;                                            \
                                                                                \
         if (_set1_->count != _set2_->count)                                    \
             return false;                                                      \
@@ -831,41 +860,41 @@ static const char *cmc_string_fmt_hashmultiset = "struct %s<%s> "
         if (_set1_->count == 0)                                                \
             return true;                                                       \
                                                                                \
-        struct SNAME##_iter iter = PFX##_iter_start(_set1_);                   \
+        struct CMC_DEF_ITER(SNAME) iter = CMC_(PFX, _iter_start)(_set1_);      \
                                                                                \
-        for (; !PFX##_iter_at_end(&iter); PFX##_iter_next(&iter))              \
+        for (; !CMC_(PFX, _iter_at_end)(&iter); CMC_(PFX, _iter_next)(&iter))  \
         {                                                                      \
-            struct SNAME##_entry *entry =                                      \
-                PFX##_impl_get_entry(_set2_, PFX##_iter_value(&iter));         \
+            struct CMC_DEF_ENTRY(SNAME) *entry = CMC_(PFX, _impl_get_entry)(   \
+                _set2_, CMC_(PFX, _iter_value)(&iter));                        \
                                                                                \
             if (!entry)                                                        \
                 return false;                                                  \
                                                                                \
-            if (entry->multiplicity != PFX##_iter_multiplicity(&iter))         \
+            if (entry->multiplicity != CMC_(PFX, _iter_multiplicity)(&iter))   \
                 return false;                                                  \
         }                                                                      \
                                                                                \
         return true;                                                           \
     }                                                                          \
                                                                                \
-    struct cmc_string PFX##_to_string(struct SNAME *_set_)                     \
+    struct cmc_string CMC_(PFX, _to_string)(struct SNAME * _set_)              \
     {                                                                          \
         struct cmc_string str;                                                 \
         struct SNAME *s_ = _set_;                                              \
                                                                                \
-        int n = snprintf(str.s, cmc_string_len, cmc_string_fmt_hashmultiset,   \
-                         #SNAME, #V, s_, s_->buffer, s_->capacity, s_->count,  \
-                         s_->cardinality, s_->load, s_->flag, s_->f_val,       \
-                         s_->alloc, s_->callbacks);                            \
+        int n = snprintf(                                                      \
+            str.s, cmc_string_len, cmc_cmc_string_fmt_hashmultiset, #SNAME,    \
+            #V, s_, s_->buffer, s_->capacity, s_->count, s_->cardinality,      \
+            s_->load, s_->flag, s_->f_val, s_->alloc, s_->callbacks);          \
                                                                                \
         return n >= 0 ? str : (struct cmc_string){ 0 };                        \
     }                                                                          \
                                                                                \
-    bool PFX##_print(struct SNAME *_set_, FILE *fptr)                          \
+    bool CMC_(PFX, _print)(struct SNAME * _set_, FILE * fptr)                  \
     {                                                                          \
         for (size_t i = 0; i < _set_->capacity; i++)                           \
         {                                                                      \
-            struct SNAME##_entry *entry = &(_set_->buffer[i]);                 \
+            struct CMC_DEF_ENTRY(SNAME) *entry = &(_set_->buffer[i]);          \
                                                                                \
             if (entry->state == CMC_ES_FILLED)                                 \
             {                                                                  \
@@ -877,39 +906,42 @@ static const char *cmc_string_fmt_hashmultiset = "struct %s<%s> "
         return true;                                                           \
     }                                                                          \
                                                                                \
-    struct SNAME *PFX##_union(struct SNAME *_set1_, struct SNAME *_set2_)      \
+    struct SNAME *CMC_(PFX, _union)(struct SNAME * _set1_,                     \
+                                    struct SNAME * _set2_)                     \
     {                                                                          \
         /* Callbacks are added later */                                        \
         struct SNAME *_set_r_ =                                                \
-            PFX##_new_custom(_set1_->capacity, _set1_->load, _set1_->f_val,    \
-                             _set1_->alloc, NULL);                             \
+            CMC_(PFX, _new_custom)(_set1_->capacity, _set1_->load,             \
+                                   _set1_->f_val, _set1_->alloc, NULL);        \
                                                                                \
         if (!_set_r_)                                                          \
             return NULL;                                                       \
                                                                                \
-        struct SNAME##_iter iter1 = PFX##_iter_start(_set1_);                  \
-        struct SNAME##_iter iter2 = PFX##_iter_start(_set2_);                  \
+        struct CMC_DEF_ITER(SNAME) iter1 = CMC_(PFX, _iter_start)(_set1_);     \
+        struct CMC_DEF_ITER(SNAME) iter2 = CMC_(PFX, _iter_start)(_set2_);     \
                                                                                \
-        for (; !PFX##_iter_at_end(&iter1); PFX##_iter_next(&iter1))            \
+        for (; !CMC_(PFX, _iter_at_end)(&iter1);                               \
+             CMC_(PFX, _iter_next)(&iter1))                                    \
         {                                                                      \
-            V value = PFX##_iter_value(&iter1);                                \
+            V value = CMC_(PFX, _iter_value)(&iter1);                          \
                                                                                \
-            size_t m1 = PFX##_iter_multiplicity(&iter1);                       \
-            size_t m2 = PFX##_impl_multiplicity_of(_set2_, value);             \
+            size_t m1 = CMC_(PFX, _iter_multiplicity)(&iter1);                 \
+            size_t m2 = CMC_(PFX, _impl_multiplicity_of)(_set2_, value);       \
             size_t max_ = m1 > m2 ? m1 : m2;                                   \
                                                                                \
-            PFX##_update(_set_r_, value, max_);                                \
+            CMC_(PFX, _update)(_set_r_, value, max_);                          \
         }                                                                      \
                                                                                \
-        for (; !PFX##_iter_at_end(&iter2); PFX##_iter_next(&iter2))            \
+        for (; !CMC_(PFX, _iter_at_end)(&iter2);                               \
+             CMC_(PFX, _iter_next)(&iter2))                                    \
         {                                                                      \
-            V value = PFX##_iter_value(&iter2);                                \
+            V value = CMC_(PFX, _iter_value)(&iter2);                          \
                                                                                \
-            size_t m1 = PFX##_impl_multiplicity_of(_set1_, value);             \
-            size_t m2 = PFX##_iter_multiplicity(&iter2);                       \
+            size_t m1 = CMC_(PFX, _impl_multiplicity_of)(_set1_, value);       \
+            size_t m2 = CMC_(PFX, _iter_multiplicity)(&iter2);                 \
             size_t max_ = m1 > m2 ? m1 : m2;                                   \
                                                                                \
-            PFX##_update(_set_r_, value, max_);                                \
+            CMC_(PFX, _update)(_set_r_, value, max_);                          \
         }                                                                      \
                                                                                \
         _set_r_->callbacks = _set1_->callbacks;                                \
@@ -917,13 +949,13 @@ static const char *cmc_string_fmt_hashmultiset = "struct %s<%s> "
         return _set_r_;                                                        \
     }                                                                          \
                                                                                \
-    struct SNAME *PFX##_intersection(struct SNAME *_set1_,                     \
-                                     struct SNAME *_set2_)                     \
+    struct SNAME *CMC_(PFX, _intersection)(struct SNAME * _set1_,              \
+                                           struct SNAME * _set2_)              \
     {                                                                          \
         /* Callbacks are added later */                                        \
         struct SNAME *_set_r_ =                                                \
-            PFX##_new_custom(_set1_->capacity, _set1_->load, _set1_->f_val,    \
-                             _set1_->alloc, NULL);                             \
+            CMC_(PFX, _new_custom)(_set1_->capacity, _set1_->load,             \
+                                   _set1_->f_val, _set1_->alloc, NULL);        \
                                                                                \
         if (!_set_r_)                                                          \
             return NULL;                                                       \
@@ -932,17 +964,17 @@ static const char *cmc_string_fmt_hashmultiset = "struct %s<%s> "
             _set1_->count < _set2_->count ? _set1_ : _set2_;                   \
         struct SNAME *_set_B_ = _set_A_ == _set1_ ? _set2_ : _set1_;           \
                                                                                \
-        struct SNAME##_iter iter = PFX##_iter_start(_set_A_);                  \
+        struct CMC_DEF_ITER(SNAME) iter = CMC_(PFX, _iter_start)(_set_A_);     \
                                                                                \
-        for (; !PFX##_iter_at_end(&iter); PFX##_iter_next(&iter))              \
+        for (; !CMC_(PFX, _iter_at_end)(&iter); CMC_(PFX, _iter_next)(&iter))  \
         {                                                                      \
-            V value = PFX##_iter_value(&iter);                                 \
+            V value = CMC_(PFX, _iter_value)(&iter);                           \
                                                                                \
-            size_t m1 = PFX##_iter_multiplicity(&iter);                        \
-            size_t m2 = PFX##_impl_multiplicity_of(_set_B_, value);            \
+            size_t m1 = CMC_(PFX, _iter_multiplicity)(&iter);                  \
+            size_t m2 = CMC_(PFX, _impl_multiplicity_of)(_set_B_, value);      \
             size_t max_ = m1 < m2 ? m1 : m2;                                   \
                                                                                \
-            PFX##_update(_set_r_, value, max_);                                \
+            CMC_(PFX, _update)(_set_r_, value, max_);                          \
         }                                                                      \
                                                                                \
         _set_r_->callbacks = _set1_->callbacks;                                \
@@ -950,27 +982,28 @@ static const char *cmc_string_fmt_hashmultiset = "struct %s<%s> "
         return _set_r_;                                                        \
     }                                                                          \
                                                                                \
-    struct SNAME *PFX##_difference(struct SNAME *_set1_, struct SNAME *_set2_) \
+    struct SNAME *CMC_(PFX, _difference)(struct SNAME * _set1_,                \
+                                         struct SNAME * _set2_)                \
     {                                                                          \
         /* Callbacks are added later */                                        \
         struct SNAME *_set_r_ =                                                \
-            PFX##_new_custom(_set1_->capacity, _set1_->load, _set1_->f_val,    \
-                             _set1_->alloc, NULL);                             \
+            CMC_(PFX, _new_custom)(_set1_->capacity, _set1_->load,             \
+                                   _set1_->f_val, _set1_->alloc, NULL);        \
                                                                                \
         if (!_set_r_)                                                          \
             return NULL;                                                       \
                                                                                \
-        struct SNAME##_iter iter = PFX##_iter_start(_set1_);                   \
+        struct CMC_DEF_ITER(SNAME) iter = CMC_(PFX, _iter_start)(_set1_);      \
                                                                                \
-        for (; !PFX##_iter_at_end(&iter); PFX##_iter_next(&iter))              \
+        for (; !CMC_(PFX, _iter_at_end)(&iter); CMC_(PFX, _iter_next)(&iter))  \
         {                                                                      \
-            V value = PFX##_iter_value(&iter);                                 \
+            V value = CMC_(PFX, _iter_value)(&iter);                           \
                                                                                \
-            size_t m1 = PFX##_iter_multiplicity(&iter);                        \
-            size_t m2 = PFX##_impl_multiplicity_of(_set2_, value);             \
+            size_t m1 = CMC_(PFX, _iter_multiplicity)(&iter);                  \
+            size_t m2 = CMC_(PFX, _impl_multiplicity_of)(_set2_, value);       \
                                                                                \
             if (m1 > m2)                                                       \
-                PFX##_update(_set_r_, value, m1 - m2);                         \
+                CMC_(PFX, _update)(_set_r_, value, m1 - m2);                   \
         }                                                                      \
                                                                                \
         _set_r_->callbacks = _set1_->callbacks;                                \
@@ -978,29 +1011,34 @@ static const char *cmc_string_fmt_hashmultiset = "struct %s<%s> "
         return _set_r_;                                                        \
     }                                                                          \
                                                                                \
-    struct SNAME *PFX##_summation(struct SNAME *_set1_, struct SNAME *_set2_)  \
+    struct SNAME *CMC_(PFX, _summation)(struct SNAME * _set1_,                 \
+                                        struct SNAME * _set2_)                 \
     {                                                                          \
         /* Callbacks are added later */                                        \
         struct SNAME *_set_r_ =                                                \
-            PFX##_new_custom(_set1_->capacity, _set1_->load, _set1_->f_val,    \
-                             _set1_->alloc, NULL);                             \
+            CMC_(PFX, _new_custom)(_set1_->capacity, _set1_->load,             \
+                                   _set1_->f_val, _set1_->alloc, NULL);        \
                                                                                \
         if (!_set_r_)                                                          \
             return NULL;                                                       \
                                                                                \
-        struct SNAME##_iter iter1 = PFX##_iter_start(_set1_);                  \
-        struct SNAME##_iter iter2 = PFX##_iter_start(_set2_);                  \
+        struct CMC_DEF_ITER(SNAME) iter1 = CMC_(PFX, _iter_start)(_set1_);     \
+        struct CMC_DEF_ITER(SNAME) iter2 = CMC_(PFX, _iter_start)(_set2_);     \
                                                                                \
-        for (; !PFX##_iter_at_end(&iter1); PFX##_iter_next(&iter1))            \
+        for (; !CMC_(PFX, _iter_at_end)(&iter1);                               \
+             CMC_(PFX, _iter_next)(&iter1))                                    \
         {                                                                      \
-            PFX##_insert_many(_set_r_, PFX##_iter_value(&iter1),               \
-                              PFX##_iter_multiplicity(&iter1));                \
+            CMC_(PFX, _insert_many)                                            \
+            (_set_r_, CMC_(PFX, _iter_value)(&iter1),                          \
+             CMC_(PFX, _iter_multiplicity)(&iter1));                           \
         }                                                                      \
                                                                                \
-        for (; !PFX##_iter_at_end(&iter2); PFX##_iter_next(&iter2))            \
+        for (; !CMC_(PFX, _iter_at_end)(&iter2);                               \
+             CMC_(PFX, _iter_next)(&iter2))                                    \
         {                                                                      \
-            PFX##_insert_many(_set_r_, PFX##_iter_value(&iter2),               \
-                              PFX##_iter_multiplicity(&iter2));                \
+            CMC_(PFX, _insert_many)                                            \
+            (_set_r_, CMC_(PFX, _iter_value)(&iter2),                          \
+             CMC_(PFX, _iter_multiplicity)(&iter2));                           \
         }                                                                      \
                                                                                \
         _set_r_->callbacks = _set1_->callbacks;                                \
@@ -1008,48 +1046,50 @@ static const char *cmc_string_fmt_hashmultiset = "struct %s<%s> "
         return _set_r_;                                                        \
     }                                                                          \
                                                                                \
-    struct SNAME *PFX##_symmetric_difference(struct SNAME *_set1_,             \
-                                             struct SNAME *_set2_)             \
+    struct SNAME *CMC_(PFX, _symmetric_difference)(struct SNAME * _set1_,      \
+                                                   struct SNAME * _set2_)      \
     {                                                                          \
         /* Callbacks are added later */                                        \
         struct SNAME *_set_r_ =                                                \
-            PFX##_new_custom(_set1_->capacity, _set1_->load, _set1_->f_val,    \
-                             _set1_->alloc, NULL);                             \
+            CMC_(PFX, _new_custom)(_set1_->capacity, _set1_->load,             \
+                                   _set1_->f_val, _set1_->alloc, NULL);        \
                                                                                \
         if (!_set_r_)                                                          \
             return NULL;                                                       \
-        struct SNAME##_iter iter1 = PFX##_iter_start(_set1_);                  \
-        struct SNAME##_iter iter2 = PFX##_iter_start(_set2_);                  \
+        struct CMC_DEF_ITER(SNAME) iter1 = CMC_(PFX, _iter_start)(_set1_);     \
+        struct CMC_DEF_ITER(SNAME) iter2 = CMC_(PFX, _iter_start)(_set2_);     \
                                                                                \
-        for (; !PFX##_iter_at_end(&iter1); PFX##_iter_next(&iter1))            \
+        for (; !CMC_(PFX, _iter_at_end)(&iter1);                               \
+             CMC_(PFX, _iter_next)(&iter1))                                    \
         {                                                                      \
-            V value = PFX##_iter_value(&iter1);                                \
+            V value = CMC_(PFX, _iter_value)(&iter1);                          \
                                                                                \
-            size_t m1 = PFX##_iter_multiplicity(&iter1);                       \
-            size_t m2 = PFX##_impl_multiplicity_of(_set2_, value);             \
+            size_t m1 = CMC_(PFX, _iter_multiplicity)(&iter1);                 \
+            size_t m2 = CMC_(PFX, _impl_multiplicity_of)(_set2_, value);       \
                                                                                \
             if (m1 != m2)                                                      \
             {                                                                  \
                 if (m1 > m2)                                                   \
-                    PFX##_update(_set_r_, value, m1 - m2);                     \
+                    CMC_(PFX, _update)(_set_r_, value, m1 - m2);               \
                 else                                                           \
-                    PFX##_update(_set_r_, value, m2 - m1);                     \
+                    CMC_(PFX, _update)(_set_r_, value, m2 - m1);               \
             }                                                                  \
         }                                                                      \
                                                                                \
-        for (; !PFX##_iter_at_end(&iter2); PFX##_iter_next(&iter2))            \
+        for (; !CMC_(PFX, _iter_at_end)(&iter2);                               \
+             CMC_(PFX, _iter_next)(&iter2))                                    \
         {                                                                      \
-            V value = PFX##_iter_value(&iter2);                                \
+            V value = CMC_(PFX, _iter_value)(&iter2);                          \
                                                                                \
-            size_t m1 = PFX##_impl_multiplicity_of(_set1_, value);             \
-            size_t m2 = PFX##_iter_multiplicity(&iter2);                       \
+            size_t m1 = CMC_(PFX, _impl_multiplicity_of)(_set1_, value);       \
+            size_t m2 = CMC_(PFX, _iter_multiplicity)(&iter2);                 \
                                                                                \
             if (m1 != m2)                                                      \
             {                                                                  \
                 if (m1 > m2)                                                   \
-                    PFX##_update(_set_r_, value, m1 - m2);                     \
+                    CMC_(PFX, _update)(_set_r_, value, m1 - m2);               \
                 else                                                           \
-                    PFX##_update(_set_r_, value, m2 - m1);                     \
+                    CMC_(PFX, _update)(_set_r_, value, m2 - m1);               \
             }                                                                  \
         }                                                                      \
                                                                                \
@@ -1058,22 +1098,22 @@ static const char *cmc_string_fmt_hashmultiset = "struct %s<%s> "
         return _set_r_;                                                        \
     }                                                                          \
                                                                                \
-    bool PFX##_is_subset(struct SNAME *_set1_, struct SNAME *_set2_)           \
+    bool CMC_(PFX, _is_subset)(struct SNAME * _set1_, struct SNAME * _set2_)   \
     {                                                                          \
         if (_set1_->count > _set2_->count)                                     \
             return false;                                                      \
                                                                                \
-        if (PFX##_empty(_set1_))                                               \
+        if (CMC_(PFX, _empty)(_set1_))                                         \
             return true;                                                       \
                                                                                \
-        struct SNAME##_iter iter = PFX##_iter_start(_set1_);                   \
+        struct CMC_DEF_ITER(SNAME) iter = CMC_(PFX, _iter_start)(_set1_);      \
                                                                                \
-        for (; !PFX##_iter_at_end(&iter); PFX##_iter_next(&iter))              \
+        for (; !CMC_(PFX, _iter_at_end)(&iter); CMC_(PFX, _iter_next)(&iter))  \
         {                                                                      \
-            V value = PFX##_iter_value(&iter);                                 \
+            V value = CMC_(PFX, _iter_value)(&iter);                           \
                                                                                \
-            size_t m1 = PFX##_iter_multiplicity(&iter);                        \
-            size_t m2 = PFX##_impl_multiplicity_of(_set2_, value);             \
+            size_t m1 = CMC_(PFX, _iter_multiplicity)(&iter);                  \
+            size_t m2 = CMC_(PFX, _impl_multiplicity_of)(_set2_, value);       \
                                                                                \
             if (m1 > m2)                                                       \
                 return false;                                                  \
@@ -1082,32 +1122,33 @@ static const char *cmc_string_fmt_hashmultiset = "struct %s<%s> "
         return true;                                                           \
     }                                                                          \
                                                                                \
-    bool PFX##_is_superset(struct SNAME *_set1_, struct SNAME *_set2_)         \
+    bool CMC_(PFX, _is_superset)(struct SNAME * _set1_, struct SNAME * _set2_) \
     {                                                                          \
-        return PFX##_is_subset(_set2_, _set1_);                                \
+        return CMC_(PFX, _is_subset)(_set2_, _set1_);                          \
     }                                                                          \
                                                                                \
-    bool PFX##_is_proper_subset(struct SNAME *_set1_, struct SNAME *_set2_)    \
+    bool CMC_(PFX, _is_proper_subset)(struct SNAME * _set1_,                   \
+                                      struct SNAME * _set2_)                   \
     {                                                                          \
         if (_set1_->count >= _set2_->count)                                    \
             return false;                                                      \
                                                                                \
-        if (PFX##_empty(_set1_))                                               \
+        if (CMC_(PFX, _empty)(_set1_))                                         \
         {                                                                      \
-            if (!PFX##_empty(_set2_))                                          \
+            if (!CMC_(PFX, _empty)(_set2_))                                    \
                 return true;                                                   \
             else                                                               \
                 return false;                                                  \
         }                                                                      \
                                                                                \
-        struct SNAME##_iter iter = PFX##_iter_start(_set1_);                   \
+        struct CMC_DEF_ITER(SNAME) iter = CMC_(PFX, _iter_start)(_set1_);      \
                                                                                \
-        for (; !PFX##_iter_at_end(&iter); PFX##_iter_next(&iter))              \
+        for (; !CMC_(PFX, _iter_at_end)(&iter); CMC_(PFX, _iter_next)(&iter))  \
         {                                                                      \
-            V value = PFX##_iter_value(&iter);                                 \
+            V value = CMC_(PFX, _iter_value)(&iter);                           \
                                                                                \
-            size_t m1 = PFX##_iter_multiplicity(&iter);                        \
-            size_t m2 = PFX##_impl_multiplicity_of(_set2_, value);             \
+            size_t m1 = CMC_(PFX, _iter_multiplicity)(&iter);                  \
+            size_t m2 = CMC_(PFX, _impl_multiplicity_of)(_set2_, value);       \
                                                                                \
             if (m1 >= m2)                                                      \
                 return false;                                                  \
@@ -1116,32 +1157,34 @@ static const char *cmc_string_fmt_hashmultiset = "struct %s<%s> "
         return true;                                                           \
     }                                                                          \
                                                                                \
-    bool PFX##_is_proper_superset(struct SNAME *_set1_, struct SNAME *_set2_)  \
+    bool CMC_(PFX, _is_proper_superset)(struct SNAME * _set1_,                 \
+                                        struct SNAME * _set2_)                 \
     {                                                                          \
-        return PFX##_is_proper_subset(_set2_, _set1_);                         \
+        return CMC_(PFX, _is_proper_subset)(_set2_, _set1_);                   \
     }                                                                          \
                                                                                \
-    bool PFX##_is_disjointset(struct SNAME *_set1_, struct SNAME *_set2_)      \
+    bool CMC_(PFX, _is_disjointset)(struct SNAME * _set1_,                     \
+                                    struct SNAME * _set2_)                     \
     {                                                                          \
-        if (PFX##_empty(_set1_))                                               \
+        if (CMC_(PFX, _empty)(_set1_))                                         \
             return true;                                                       \
                                                                                \
-        struct SNAME##_iter iter = PFX##_iter_start(_set1_);                   \
+        struct CMC_DEF_ITER(SNAME) iter = CMC_(PFX, _iter_start)(_set1_);      \
                                                                                \
-        for (; !PFX##_iter_at_end(&iter); PFX##_iter_next(&iter))              \
+        for (; !CMC_(PFX, _iter_at_end)(&iter); CMC_(PFX, _iter_next)(&iter))  \
         {                                                                      \
-            V value = PFX##_iter_value(&iter);                                 \
+            V value = CMC_(PFX, _iter_value)(&iter);                           \
                                                                                \
-            if (PFX##_impl_get_entry(_set2_, value) != NULL)                   \
+            if (CMC_(PFX, _impl_get_entry)(_set2_, value) != NULL)             \
                 return false;                                                  \
         }                                                                      \
                                                                                \
         return true;                                                           \
     }                                                                          \
                                                                                \
-    struct SNAME##_iter PFX##_iter_start(struct SNAME *target)                 \
+    struct CMC_DEF_ITER(SNAME) CMC_(PFX, _iter_start)(struct SNAME * target)   \
     {                                                                          \
-        struct SNAME##_iter iter;                                              \
+        struct CMC_DEF_ITER(SNAME) iter;                                       \
                                                                                \
         iter.target = target;                                                  \
         iter.cursor = 0;                                                       \
@@ -1149,9 +1192,9 @@ static const char *cmc_string_fmt_hashmultiset = "struct %s<%s> "
         iter.first = 0;                                                        \
         iter.last = 0;                                                         \
         iter.start = true;                                                     \
-        iter.end = PFX##_empty(target);                                        \
+        iter.end = CMC_(PFX, _empty)(target);                                  \
                                                                                \
-        if (!PFX##_empty(target))                                              \
+        if (!CMC_(PFX, _empty)(target))                                        \
         {                                                                      \
             for (size_t i = 0; i < target->capacity; i++)                      \
             {                                                                  \
@@ -1177,19 +1220,19 @@ static const char *cmc_string_fmt_hashmultiset = "struct %s<%s> "
         return iter;                                                           \
     }                                                                          \
                                                                                \
-    struct SNAME##_iter PFX##_iter_end(struct SNAME *target)                   \
+    struct CMC_DEF_ITER(SNAME) CMC_(PFX, _iter_end)(struct SNAME * target)     \
     {                                                                          \
-        struct SNAME##_iter iter;                                              \
+        struct CMC_DEF_ITER(SNAME) iter;                                       \
                                                                                \
         iter.target = target;                                                  \
         iter.cursor = 0;                                                       \
         iter.index = 0;                                                        \
         iter.first = 0;                                                        \
         iter.last = 0;                                                         \
-        iter.start = PFX##_empty(target);                                      \
+        iter.start = CMC_(PFX, _empty)(target);                                \
         iter.end = true;                                                       \
                                                                                \
-        if (!PFX##_empty(target))                                              \
+        if (!CMC_(PFX, _empty)(target))                                        \
         {                                                                      \
             for (size_t i = 0; i < target->capacity; i++)                      \
             {                                                                  \
@@ -1216,24 +1259,24 @@ static const char *cmc_string_fmt_hashmultiset = "struct %s<%s> "
         return iter;                                                           \
     }                                                                          \
                                                                                \
-    bool PFX##_iter_at_start(struct SNAME##_iter *iter)                        \
+    bool CMC_(PFX, _iter_at_start)(struct CMC_DEF_ITER(SNAME) * iter)          \
     {                                                                          \
-        return PFX##_empty(iter->target) || iter->start;                       \
+        return CMC_(PFX, _empty)(iter->target) || iter->start;                 \
     }                                                                          \
                                                                                \
-    bool PFX##_iter_at_end(struct SNAME##_iter *iter)                          \
+    bool CMC_(PFX, _iter_at_end)(struct CMC_DEF_ITER(SNAME) * iter)            \
     {                                                                          \
-        return PFX##_empty(iter->target) || iter->end;                         \
+        return CMC_(PFX, _empty)(iter->target) || iter->end;                   \
     }                                                                          \
                                                                                \
-    bool PFX##_iter_to_start(struct SNAME##_iter *iter)                        \
+    bool CMC_(PFX, _iter_to_start)(struct CMC_DEF_ITER(SNAME) * iter)          \
     {                                                                          \
-        if (!PFX##_empty(iter->target))                                        \
+        if (!CMC_(PFX, _empty)(iter->target))                                  \
         {                                                                      \
             iter->cursor = iter->first;                                        \
             iter->index = 0;                                                   \
             iter->start = true;                                                \
-            iter->end = PFX##_empty(iter->target);                             \
+            iter->end = CMC_(PFX, _empty)(iter->target);                       \
                                                                                \
             return true;                                                       \
         }                                                                      \
@@ -1241,13 +1284,13 @@ static const char *cmc_string_fmt_hashmultiset = "struct %s<%s> "
         return false;                                                          \
     }                                                                          \
                                                                                \
-    bool PFX##_iter_to_end(struct SNAME##_iter *iter)                          \
+    bool CMC_(PFX, _iter_to_end)(struct CMC_DEF_ITER(SNAME) * iter)            \
     {                                                                          \
-        if (!PFX##_empty(iter->target))                                        \
+        if (!CMC_(PFX, _empty)(iter->target))                                  \
         {                                                                      \
             iter->cursor = iter->last;                                         \
             iter->index = iter->target->count - 1;                             \
-            iter->start = PFX##_empty(iter->target);                           \
+            iter->start = CMC_(PFX, _empty)(iter->target);                     \
             iter->end = true;                                                  \
                                                                                \
             return true;                                                       \
@@ -1256,7 +1299,7 @@ static const char *cmc_string_fmt_hashmultiset = "struct %s<%s> "
         return false;                                                          \
     }                                                                          \
                                                                                \
-    bool PFX##_iter_next(struct SNAME##_iter *iter)                            \
+    bool CMC_(PFX, _iter_next)(struct CMC_DEF_ITER(SNAME) * iter)              \
     {                                                                          \
         if (iter->end)                                                         \
             return false;                                                      \
@@ -1267,9 +1310,10 @@ static const char *cmc_string_fmt_hashmultiset = "struct %s<%s> "
             return false;                                                      \
         }                                                                      \
                                                                                \
-        iter->start = PFX##_empty(iter->target);                               \
+        iter->start = CMC_(PFX, _empty)(iter->target);                         \
                                                                                \
-        struct SNAME##_entry *scan = &(iter->target->buffer[iter->cursor]);    \
+        struct CMC_DEF_ENTRY(SNAME) *scan =                                    \
+            &(iter->target->buffer[iter->cursor]);                             \
                                                                                \
         iter->index++;                                                         \
                                                                                \
@@ -1285,7 +1329,7 @@ static const char *cmc_string_fmt_hashmultiset = "struct %s<%s> "
         return true;                                                           \
     }                                                                          \
                                                                                \
-    bool PFX##_iter_prev(struct SNAME##_iter *iter)                            \
+    bool CMC_(PFX, _iter_prev)(struct CMC_DEF_ITER(SNAME) * iter)              \
     {                                                                          \
         if (iter->start)                                                       \
             return false;                                                      \
@@ -1296,9 +1340,10 @@ static const char *cmc_string_fmt_hashmultiset = "struct %s<%s> "
             return false;                                                      \
         }                                                                      \
                                                                                \
-        iter->end = PFX##_empty(iter->target);                                 \
+        iter->end = CMC_(PFX, _empty)(iter->target);                           \
                                                                                \
-        struct SNAME##_entry *scan = &(iter->target->buffer[iter->cursor]);    \
+        struct CMC_DEF_ENTRY(SNAME) *scan =                                    \
+            &(iter->target->buffer[iter->cursor]);                             \
                                                                                \
         iter->index--;                                                         \
                                                                                \
@@ -1315,7 +1360,8 @@ static const char *cmc_string_fmt_hashmultiset = "struct %s<%s> "
     }                                                                          \
                                                                                \
     /* Returns true only if the iterator moved */                              \
-    bool PFX##_iter_advance(struct SNAME##_iter *iter, size_t steps)           \
+    bool CMC_(PFX, _iter_advance)(struct CMC_DEF_ITER(SNAME) * iter,           \
+                                  size_t steps)                                \
     {                                                                          \
         if (iter->end)                                                         \
             return false;                                                      \
@@ -1330,13 +1376,14 @@ static const char *cmc_string_fmt_hashmultiset = "struct %s<%s> "
             return false;                                                      \
                                                                                \
         for (size_t i = 0; i < steps; i++)                                     \
-            PFX##_iter_next(iter);                                             \
+            CMC_(PFX, _iter_next)(iter);                                       \
                                                                                \
         return true;                                                           \
     }                                                                          \
                                                                                \
     /* Returns true only if the iterator moved */                              \
-    bool PFX##_iter_rewind(struct SNAME##_iter *iter, size_t steps)            \
+    bool CMC_(PFX, _iter_rewind)(struct CMC_DEF_ITER(SNAME) * iter,            \
+                                 size_t steps)                                 \
     {                                                                          \
         if (iter->start)                                                       \
             return false;                                                      \
@@ -1351,50 +1398,53 @@ static const char *cmc_string_fmt_hashmultiset = "struct %s<%s> "
             return false;                                                      \
                                                                                \
         for (size_t i = 0; i < steps; i++)                                     \
-            PFX##_iter_prev(iter);                                             \
+            CMC_(PFX, _iter_prev)(iter);                                       \
                                                                                \
         return true;                                                           \
     }                                                                          \
                                                                                \
     /* Returns true only if the iterator was able to be positioned at the */   \
     /* given index */                                                          \
-    bool PFX##_iter_go_to(struct SNAME##_iter *iter, size_t index)             \
+    bool CMC_(PFX, _iter_go_to)(struct CMC_DEF_ITER(SNAME) * iter,             \
+                                size_t index)                                  \
     {                                                                          \
         if (index >= iter->target->count)                                      \
             return false;                                                      \
                                                                                \
         if (iter->index > index)                                               \
-            return PFX##_iter_rewind(iter, iter->index - index);               \
+            return CMC_(PFX, _iter_rewind)(iter, iter->index - index);         \
         else if (iter->index < index)                                          \
-            return PFX##_iter_advance(iter, index - iter->index);              \
+            return CMC_(PFX, _iter_advance)(iter, index - iter->index);        \
                                                                                \
         return true;                                                           \
     }                                                                          \
                                                                                \
-    V PFX##_iter_value(struct SNAME##_iter *iter)                              \
+    V CMC_(PFX, _iter_value)(struct CMC_DEF_ITER(SNAME) * iter)                \
     {                                                                          \
-        if (PFX##_empty(iter->target))                                         \
+        if (CMC_(PFX, _empty)(iter->target))                                   \
             return (V){ 0 };                                                   \
                                                                                \
         return iter->target->buffer[iter->cursor].value;                       \
     }                                                                          \
                                                                                \
-    size_t PFX##_iter_multiplicity(struct SNAME##_iter *iter)                  \
+    size_t CMC_(PFX, _iter_multiplicity)(struct CMC_DEF_ITER(SNAME) * iter)    \
     {                                                                          \
-        if (PFX##_empty(iter->target))                                         \
+        if (CMC_(PFX, _empty)(iter->target))                                   \
             return 0;                                                          \
                                                                                \
         return iter->target->buffer[iter->cursor].multiplicity;                \
     }                                                                          \
                                                                                \
-    size_t PFX##_iter_index(struct SNAME##_iter *iter)                         \
+    size_t CMC_(PFX, _iter_index)(struct CMC_DEF_ITER(SNAME) * iter)           \
     {                                                                          \
         return iter->index;                                                    \
     }                                                                          \
                                                                                \
-    static size_t PFX##_impl_multiplicity_of(struct SNAME *_set_, V value)     \
+    static size_t CMC_(PFX, _impl_multiplicity_of)(struct SNAME * _set_,       \
+                                                   V value)                    \
     {                                                                          \
-        struct SNAME##_entry *entry = PFX##_impl_get_entry(_set_, value);      \
+        struct CMC_DEF_ENTRY(SNAME) *entry =                                   \
+            CMC_(PFX, _impl_get_entry)(_set_, value);                          \
                                                                                \
         if (!entry)                                                            \
             return 0;                                                          \
@@ -1402,8 +1452,9 @@ static const char *cmc_string_fmt_hashmultiset = "struct %s<%s> "
         return entry->multiplicity;                                            \
     }                                                                          \
                                                                                \
-    static struct SNAME##_entry *PFX##_impl_insert_and_return(                 \
-        struct SNAME *_set_, V value, bool *new_node)                          \
+    static struct CMC_DEF_ENTRY(SNAME) *                                       \
+        CMC_(PFX, _impl_insert_and_return)(struct SNAME * _set_, V value,      \
+                                           bool *new_node)                     \
     {                                                                          \
         /* If the entry already exists simply return it as we might do */      \
         /* something with it. This function only guarantees that there is */   \
@@ -1411,16 +1462,17 @@ static const char *cmc_string_fmt_hashmultiset = "struct %s<%s> "
                                                                                \
         *new_node = false;                                                     \
                                                                                \
-        struct SNAME##_entry *entry = PFX##_impl_get_entry(_set_, value);      \
+        struct CMC_DEF_ENTRY(SNAME) *entry =                                   \
+            CMC_(PFX, _impl_get_entry)(_set_, value);                          \
                                                                                \
         if (entry != NULL)                                                     \
             return entry;                                                      \
                                                                                \
         *new_node = true;                                                      \
                                                                                \
-        if (PFX##_full(_set_))                                                 \
+        if (CMC_(PFX, _full)(_set_))                                           \
         {                                                                      \
-            if (!PFX##_resize(_set_, _set_->capacity + 1))                     \
+            if (!CMC_(PFX, _resize)(_set_, _set_->capacity + 1))               \
                 return NULL;                                                   \
         }                                                                      \
                                                                                \
@@ -1430,8 +1482,8 @@ static const char *cmc_string_fmt_hashmultiset = "struct %s<%s> "
         /* Current multiplicity. Might change due to robin hood hashing */     \
         size_t curr_mul = 1;                                                   \
                                                                                \
-        struct SNAME##_entry *target = &(_set_->buffer[pos]);                  \
-        struct SNAME##_entry *to_return = NULL;                                \
+        struct CMC_DEF_ENTRY(SNAME) *target = &(_set_->buffer[pos]);           \
+        struct CMC_DEF_ENTRY(SNAME) *to_return = NULL;                         \
                                                                                \
         if (target->state == CMC_ES_EMPTY || target->state == CMC_ES_DELETED)  \
         {                                                                      \
@@ -1488,13 +1540,13 @@ static const char *cmc_string_fmt_hashmultiset = "struct %s<%s> "
         return to_return;                                                      \
     }                                                                          \
                                                                                \
-    static struct SNAME##_entry *PFX##_impl_get_entry(struct SNAME *_set_,     \
-                                                      V value)                 \
+    static struct CMC_DEF_ENTRY(SNAME) *                                       \
+        CMC_(PFX, _impl_get_entry)(struct SNAME * _set_, V value)              \
     {                                                                          \
         size_t hash = _set_->f_val->hash(value);                               \
         size_t pos = hash % _set_->capacity;                                   \
                                                                                \
-        struct SNAME##_entry *target = &(_set_->buffer[pos]);                  \
+        struct CMC_DEF_ENTRY(SNAME) *target = &(_set_->buffer[pos]);           \
                                                                                \
         while (target->state == CMC_ES_FILLED ||                               \
                target->state == CMC_ES_DELETED)                                \
@@ -1509,7 +1561,7 @@ static const char *cmc_string_fmt_hashmultiset = "struct %s<%s> "
         return NULL;                                                           \
     }                                                                          \
                                                                                \
-    static size_t PFX##_impl_calculate_size(size_t required)                   \
+    static size_t CMC_(PFX, _impl_calculate_size)(size_t required)             \
     {                                                                          \
         const size_t count =                                                   \
             sizeof(cmc_hashtable_primes) / sizeof(cmc_hashtable_primes[0]);    \
@@ -1524,4 +1576,4 @@ static const char *cmc_string_fmt_hashmultiset = "struct %s<%s> "
         return cmc_hashtable_primes[i];                                        \
     }
 
-#endif /* CMC_HASHMULTISET_H */
+#endif /* CMC_CMC_HASHMULTISET_H */

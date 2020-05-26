@@ -90,7 +90,7 @@ struct heap *h_new(size_t capacity, enum cmc_heap_order HO,
     _heap_->capacity = capacity;
     _heap_->count = 0;
     _heap_->HO = HO;
-    _heap_->flag = cmc_flags.OK;
+    _heap_->flag = CMC_FLAG_OK;
     _heap_->f_val = f_val;
     _heap_->alloc = alloc;
     _heap_->callbacks = ((void *)0);
@@ -120,7 +120,7 @@ struct heap *h_new_custom(size_t capacity, enum cmc_heap_order HO,
     _heap_->capacity = capacity;
     _heap_->count = 0;
     _heap_->HO = HO;
-    _heap_->flag = cmc_flags.OK;
+    _heap_->flag = CMC_FLAG_OK;
     _heap_->f_val = f_val;
     _heap_->alloc = alloc;
     _heap_->callbacks = callbacks;
@@ -137,7 +137,7 @@ void h_clear(struct heap *_heap_)
     }
     memset(_heap_->buffer, 0, sizeof(size_t) * _heap_->capacity);
     _heap_->count = 0;
-    _heap_->flag = cmc_flags.OK;
+    _heap_->flag = CMC_FLAG_OK;
 }
 void h_free(struct heap *_heap_)
 {
@@ -159,7 +159,7 @@ void h_customize(struct heap *_heap_, struct cmc_alloc_node *alloc,
     else
         _heap_->alloc = alloc;
     _heap_->callbacks = callbacks;
-    _heap_->flag = cmc_flags.OK;
+    _heap_->flag = CMC_FLAG_OK;
 }
 _Bool h_insert(struct heap *_heap_, size_t value)
 {
@@ -173,7 +173,7 @@ _Bool h_insert(struct heap *_heap_, size_t value)
     {
         h_impl_float_up(_heap_, _heap_->count - 1);
     }
-    _heap_->flag = cmc_flags.OK;
+    _heap_->flag = CMC_FLAG_OK;
     if (_heap_->callbacks && _heap_->callbacks->create)
         _heap_->callbacks->create();
     return 1;
@@ -182,14 +182,14 @@ _Bool h_remove(struct heap *_heap_)
 {
     if (h_empty(_heap_))
     {
-        _heap_->flag = cmc_flags.EMPTY;
+        _heap_->flag = CMC_FLAG_EMPTY;
         return 0;
     }
     _heap_->buffer[0] = _heap_->buffer[_heap_->count - 1];
     _heap_->buffer[_heap_->count - 1] = (size_t){ 0 };
     _heap_->count--;
     h_impl_float_down(_heap_, 0);
-    _heap_->flag = cmc_flags.OK;
+    _heap_->flag = CMC_FLAG_OK;
     if (_heap_->callbacks && _heap_->callbacks->delete)
         _heap_->callbacks->delete ();
     return 1;
@@ -198,17 +198,17 @@ size_t h_peek(struct heap *_heap_)
 {
     if (h_empty(_heap_))
     {
-        _heap_->flag = cmc_flags.EMPTY;
+        _heap_->flag = CMC_FLAG_EMPTY;
         return (size_t){ 0 };
     }
-    _heap_->flag = cmc_flags.OK;
+    _heap_->flag = CMC_FLAG_OK;
     if (_heap_->callbacks && _heap_->callbacks->read)
         _heap_->callbacks->read();
     return _heap_->buffer[0];
 }
 _Bool h_contains(struct heap *_heap_, size_t value)
 {
-    _heap_->flag = cmc_flags.OK;
+    _heap_->flag = CMC_FLAG_OK;
     _Bool result = 0;
     for (size_t i = 0; i < _heap_->count; i++)
     {
@@ -244,19 +244,19 @@ int h_flag(struct heap *_heap_)
 }
 _Bool h_resize(struct heap *_heap_, size_t capacity)
 {
-    _heap_->flag = cmc_flags.OK;
+    _heap_->flag = CMC_FLAG_OK;
     if (_heap_->capacity == capacity)
         goto success;
     if (capacity < _heap_->count)
     {
-        _heap_->flag = cmc_flags.INVALID;
+        _heap_->flag = CMC_FLAG_INVALID;
         return 0;
     }
     size_t *new_buffer =
         _heap_->alloc->realloc(_heap_->buffer, sizeof(size_t) * capacity);
     if (!new_buffer)
     {
-        _heap_->flag = cmc_flags.ALLOC;
+        _heap_->flag = CMC_FLAG_ALLOC;
         return 0;
     }
     _heap_->buffer = new_buffer;
@@ -273,7 +273,7 @@ struct heap *h_copy_of(struct heap *_heap_)
                      _heap_->callbacks);
     if (!result)
     {
-        _heap_->flag = cmc_flags.ERROR;
+        _heap_->flag = CMC_FLAG_ERROR;
         return ((void *)0);
     }
     if (_heap_->f_val->cpy)
@@ -284,13 +284,13 @@ struct heap *h_copy_of(struct heap *_heap_)
     else
         memcpy(result->buffer, _heap_->buffer, sizeof(size_t) * _heap_->count);
     result->count = _heap_->count;
-    _heap_->flag = cmc_flags.OK;
+    _heap_->flag = CMC_FLAG_OK;
     return result;
 }
 _Bool h_equals(struct heap *_heap1_, struct heap *_heap2_)
 {
-    _heap1_->flag = cmc_flags.OK;
-    _heap2_->flag = cmc_flags.OK;
+    _heap1_->flag = CMC_FLAG_OK;
+    _heap2_->flag = CMC_FLAG_OK;
     if (_heap1_->count != _heap2_->count)
         return 0;
     for (size_t i = 0; i < _heap1_->count; i++)
@@ -305,9 +305,11 @@ struct cmc_string h_to_string(struct heap *_heap_)
     struct cmc_string str;
     struct heap *h_ = _heap_;
     const char *t = h_->HO == 1 ? "MaxHeap" : "MinHeap";
-    int n = snprintf(str.s, cmc_string_len, cmc_string_fmt_heap, "heap",
-                     "size_t", h_, h_->buffer, h_->capacity, h_->count, t,
-                     h_->flag, h_->f_val, h_->alloc, h_->callbacks);
+    int n = snprintf(str.s, cmc_string_len, cmc_cmc_string_fmt_heap,
+                     "CMC_PARAM_SNAME((h, heap, , , size_t))",
+                     "CMC_PARAM_V((h, heap, , , size_t))", h_, h_->buffer,
+                     h_->capacity, h_->count, t, h_->flag, h_->f_val, h_->alloc,
+                     h_->callbacks);
     return n >= 0 ? str : (struct cmc_string){ 0 };
 }
 _Bool h_print(struct heap *_heap_, FILE *fptr)

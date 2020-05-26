@@ -42,61 +42,61 @@ CMC_CREATE_UNIT(TreeSet, true, {
         struct treeset *set = ts_new(ts_fval);
 
         cmc_assert_not_equals(ptr, NULL, set);
-        cmc_assert_equals(int32_t, cmc_flags.OK, ts_flag(set));
+        cmc_assert_equals(int32_t, CMC_FLAG_OK, ts_flag(set));
 
         // clear
-        set->flag = cmc_flags.ERROR;
+        set->flag = CMC_FLAG_ERROR;
         ts_clear(set);
-        cmc_assert_equals(int32_t, cmc_flags.OK, ts_flag(set));
+        cmc_assert_equals(int32_t, CMC_FLAG_OK, ts_flag(set));
 
         // insert
-        set->flag = cmc_flags.ERROR;
+        set->flag = CMC_FLAG_ERROR;
         cmc_assert(ts_insert(set, 1));
-        cmc_assert_equals(int32_t, cmc_flags.OK, ts_flag(set));
+        cmc_assert_equals(int32_t, CMC_FLAG_OK, ts_flag(set));
 
         cmc_assert(!ts_insert(set, 1));
-        cmc_assert_equals(int32_t, cmc_flags.DUPLICATE, ts_flag(set));
+        cmc_assert_equals(int32_t, CMC_FLAG_DUPLICATE, ts_flag(set));
 
         // remove
         cmc_assert(!ts_remove(set, 2));
-        cmc_assert_equals(int32_t, cmc_flags.NOT_FOUND, ts_flag(set));
+        cmc_assert_equals(int32_t, CMC_FLAG_NOT_FOUND, ts_flag(set));
 
         cmc_assert(ts_remove(set, 1));
-        cmc_assert_equals(int32_t, cmc_flags.OK, ts_flag(set));
+        cmc_assert_equals(int32_t, CMC_FLAG_OK, ts_flag(set));
 
         cmc_assert(!ts_remove(set, 1));
-        cmc_assert_equals(int32_t, cmc_flags.EMPTY, ts_flag(set));
+        cmc_assert_equals(int32_t, CMC_FLAG_EMPTY, ts_flag(set));
 
         // max min
-        set->flag = cmc_flags.ERROR;
+        set->flag = CMC_FLAG_ERROR;
         cmc_assert(!ts_max(set, NULL));
-        cmc_assert_equals(int32_t, cmc_flags.EMPTY, ts_flag(set));
+        cmc_assert_equals(int32_t, CMC_FLAG_EMPTY, ts_flag(set));
 
-        set->flag = cmc_flags.ERROR;
+        set->flag = CMC_FLAG_ERROR;
         cmc_assert(!ts_min(set, NULL));
-        cmc_assert_equals(int32_t, cmc_flags.EMPTY, ts_flag(set));
+        cmc_assert_equals(int32_t, CMC_FLAG_EMPTY, ts_flag(set));
 
         cmc_assert(ts_insert(set, 1));
-        set->flag = cmc_flags.ERROR;
+        set->flag = CMC_FLAG_ERROR;
         cmc_assert(ts_max(set, NULL));
-        cmc_assert_equals(int32_t, cmc_flags.OK, ts_flag(set));
+        cmc_assert_equals(int32_t, CMC_FLAG_OK, ts_flag(set));
 
-        set->flag = cmc_flags.ERROR;
+        set->flag = CMC_FLAG_ERROR;
         cmc_assert(ts_min(set, NULL));
-        cmc_assert_equals(int32_t, cmc_flags.OK, ts_flag(set));
+        cmc_assert_equals(int32_t, CMC_FLAG_OK, ts_flag(set));
 
         // copy_of
-        set->flag = cmc_flags.ERROR;
+        set->flag = CMC_FLAG_ERROR;
         struct treeset *set2 = ts_copy_of(set);
-        cmc_assert_equals(int32_t, cmc_flags.OK, ts_flag(set));
-        cmc_assert_equals(int32_t, cmc_flags.OK, ts_flag(set2));
+        cmc_assert_equals(int32_t, CMC_FLAG_OK, ts_flag(set));
+        cmc_assert_equals(int32_t, CMC_FLAG_OK, ts_flag(set2));
 
         // equals
-        set->flag = cmc_flags.ERROR;
-        set2->flag = cmc_flags.ERROR;
+        set->flag = CMC_FLAG_ERROR;
+        set2->flag = CMC_FLAG_ERROR;
         cmc_assert(ts_equals(set, set2));
-        cmc_assert_equals(int32_t, cmc_flags.OK, ts_flag(set));
-        cmc_assert_equals(int32_t, cmc_flags.OK, ts_flag(set2));
+        cmc_assert_equals(int32_t, CMC_FLAG_OK, ts_flag(set));
+        cmc_assert_equals(int32_t, CMC_FLAG_OK, ts_flag(set2));
 
         ts_free(set);
         ts_free(set2);

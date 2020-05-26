@@ -30,7 +30,7 @@ CMC_CREATE_UNIT(HashSet, true, {
         cmc_assert_not_equals(ptr, NULL, set->buffer);
         cmc_assert_equals(size_t, 0, set->count);
         cmc_assert_equals(double, 0.6, set->load);
-        cmc_assert_equals(int32_t, cmc_flags.OK, set->flag);
+        cmc_assert_equals(int32_t, CMC_FLAG_OK, set->flag);
         cmc_assert_equals(ptr, hs_fval, set->f_val);
         cmc_assert_equals(ptr, &cmc_alloc_node_default, set->alloc);
         cmc_assert_equals(ptr, NULL, set->callbacks);
@@ -60,7 +60,7 @@ CMC_CREATE_UNIT(HashSet, true, {
         cmc_assert_not_equals(ptr, NULL, set->buffer);
         cmc_assert_equals(size_t, 0, set->count);
         cmc_assert_equals(double, 0.6, set->load);
-        cmc_assert_equals(int32_t, cmc_flags.OK, set->flag);
+        cmc_assert_equals(int32_t, CMC_FLAG_OK, set->flag);
         cmc_assert_equals(ptr, hs_fval, set->f_val);
         cmc_assert_equals(ptr, hs_alloc_node, set->alloc);
         cmc_assert_equals(ptr, callbacks, set->callbacks);
@@ -90,11 +90,11 @@ CMC_CREATE_UNIT(HashSet, true, {
 
         cmc_assert_equals(size_t, 1000, set->count);
 
-        set->flag = cmc_flags.ERROR;
+        set->flag = CMC_FLAG_ERROR;
         hs_clear(set);
 
         cmc_assert_equals(size_t, 0, set->count);
-        cmc_assert_equals(int32_t, cmc_flags.OK, set->flag);
+        cmc_assert_equals(int32_t, CMC_FLAG_OK, set->flag);
         cmc_assert_equals(int32_t, 1000, v_total_free);
 
         hs_free(set);
@@ -481,58 +481,58 @@ CMC_CREATE_UNIT(HashSet, true, {
         struct hashset *set = hs_new(1, 0.99, hs_fval);
 
         cmc_assert_not_equals(ptr, NULL, set);
-        cmc_assert_equals(int32_t, cmc_flags.OK, hs_flag(set));
+        cmc_assert_equals(int32_t, CMC_FLAG_OK, hs_flag(set));
 
         // insert
         cmc_assert(hs_insert(set, 1));
-        cmc_assert_equals(int32_t, cmc_flags.OK, hs_flag(set));
+        cmc_assert_equals(int32_t, CMC_FLAG_OK, hs_flag(set));
         cmc_assert(!hs_insert(set, 1));
-        cmc_assert_equals(int32_t, cmc_flags.DUPLICATE, hs_flag(set));
+        cmc_assert_equals(int32_t, CMC_FLAG_DUPLICATE, hs_flag(set));
 
         // clear
         hs_clear(set);
-        cmc_assert_equals(int32_t, cmc_flags.OK, hs_flag(set));
+        cmc_assert_equals(int32_t, CMC_FLAG_OK, hs_flag(set));
 
         cmc_assert(hs_insert(set, 1));
 
         // remove
         cmc_assert(!hs_remove(set, 2));
-        cmc_assert_equals(int32_t, cmc_flags.NOT_FOUND, hs_flag(set));
+        cmc_assert_equals(int32_t, CMC_FLAG_NOT_FOUND, hs_flag(set));
 
         cmc_assert(hs_remove(set, 1));
-        cmc_assert_equals(int32_t, cmc_flags.OK, hs_flag(set));
+        cmc_assert_equals(int32_t, CMC_FLAG_OK, hs_flag(set));
 
         cmc_assert(!hs_remove(set, 1));
-        cmc_assert_equals(int32_t, cmc_flags.EMPTY, hs_flag(set));
+        cmc_assert_equals(int32_t, CMC_FLAG_EMPTY, hs_flag(set));
 
         // max
         cmc_assert(hs_insert(set, 1));
         cmc_assert(hs_max(set, NULL));
-        cmc_assert_equals(int32_t, cmc_flags.OK, hs_flag(set));
+        cmc_assert_equals(int32_t, CMC_FLAG_OK, hs_flag(set));
 
         cmc_assert(hs_remove(set, 1));
         cmc_assert(!hs_max(set, NULL));
-        cmc_assert_equals(int32_t, cmc_flags.EMPTY, hs_flag(set));
+        cmc_assert_equals(int32_t, CMC_FLAG_EMPTY, hs_flag(set));
 
         // min
         cmc_assert(hs_insert(set, 1));
         cmc_assert(hs_min(set, NULL));
-        cmc_assert_equals(int32_t, cmc_flags.OK, hs_flag(set));
+        cmc_assert_equals(int32_t, CMC_FLAG_OK, hs_flag(set));
 
         cmc_assert(hs_remove(set, 1));
         cmc_assert(!hs_min(set, NULL));
-        cmc_assert_equals(int32_t, cmc_flags.EMPTY, hs_flag(set));
+        cmc_assert_equals(int32_t, CMC_FLAG_EMPTY, hs_flag(set));
 
         // contains
         hs_contains(set, 1);
-        cmc_assert_equals(int32_t, cmc_flags.OK, hs_flag(set));
+        cmc_assert_equals(int32_t, CMC_FLAG_OK, hs_flag(set));
 
         // copy
-        set->flag = cmc_flags.ERROR;
+        set->flag = CMC_FLAG_ERROR;
         struct hashset *set2 = hs_copy_of(set);
 
-        cmc_assert_equals(int32_t, cmc_flags.OK, hs_flag(set));
-        cmc_assert_equals(int32_t, cmc_flags.OK, hs_flag(set2));
+        cmc_assert_equals(int32_t, CMC_FLAG_OK, hs_flag(set));
+        cmc_assert_equals(int32_t, CMC_FLAG_OK, hs_flag(set2));
 
         size_t tmp = set->capacity;
         set->capacity = 0;
@@ -540,13 +540,13 @@ CMC_CREATE_UNIT(HashSet, true, {
         struct hashset *set3 = hs_copy_of(set);
         cmc_assert_equals(ptr, NULL, set3);
 
-        cmc_assert_equals(int32_t, cmc_flags.ERROR, hs_flag(set));
+        cmc_assert_equals(int32_t, CMC_FLAG_ERROR, hs_flag(set));
 
         set->capacity = tmp;
 
         cmc_assert(hs_equals(set, set2));
-        cmc_assert_equals(int32_t, cmc_flags.OK, hs_flag(set));
-        cmc_assert_equals(int32_t, cmc_flags.OK, hs_flag(set2));
+        cmc_assert_equals(int32_t, CMC_FLAG_OK, hs_flag(set));
+        cmc_assert_equals(int32_t, CMC_FLAG_OK, hs_flag(set2));
 
         hs_free(set);
         hs_free(set2);

@@ -56,8 +56,8 @@
  *      - If X is less than the level of FATAL, all logs are enabled
  */
 
-#ifndef CMC_LOG_H
-#define CMC_LOG_H
+#ifndef CMC_UTL_LOG_H
+#define CMC_UTL_LOG_H
 
 #include <stdarg.h>
 #include <stdbool.h>
@@ -178,4 +178,4 @@ skip:
     }
 }
 
-#endif /* CMC_LOG_H */
+#endif /* CMC_UTL_LOG_H */

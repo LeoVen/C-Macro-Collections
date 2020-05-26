@@ -17,7 +17,8 @@
  * struct cmc_alloc_node
  *
  * Custom allocation node. Allows collections to use custom allocation
- * functions.
+ * functions. The cmc_alloc_node_default is the default heap allocator provided
+ * by the standard library.
  */
 static struct cmc_alloc_node
 {

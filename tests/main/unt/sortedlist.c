@@ -148,87 +148,87 @@ CMC_CREATE_UNIT(SortedList, true, {
         struct sortedlist *sl = sl_new(100, sl_fval);
 
         cmc_assert_not_equals(ptr, NULL, sl);
-        cmc_assert_equals(int32_t, cmc_flags.OK, sl_flag(sl));
+        cmc_assert_equals(int32_t, CMC_FLAG_OK, sl_flag(sl));
 
         // clear
-        sl->flag = cmc_flags.ERROR;
+        sl->flag = CMC_FLAG_ERROR;
         sl_clear(sl);
-        cmc_assert_equals(int32_t, cmc_flags.OK, sl_flag(sl));
+        cmc_assert_equals(int32_t, CMC_FLAG_OK, sl_flag(sl));
 
         // customize
-        sl->flag = cmc_flags.ERROR;
+        sl->flag = CMC_FLAG_ERROR;
         sl_customize(sl, NULL, NULL);
-        cmc_assert_equals(int32_t, cmc_flags.OK, sl_flag(sl));
+        cmc_assert_equals(int32_t, CMC_FLAG_OK, sl_flag(sl));
 
         // insert
-        sl->flag = cmc_flags.ERROR;
+        sl->flag = CMC_FLAG_ERROR;
         cmc_assert(sl_insert(sl, 10));
-        cmc_assert_equals(int32_t, cmc_flags.OK, sl_flag(sl));
+        cmc_assert_equals(int32_t, CMC_FLAG_OK, sl_flag(sl));
 
         // remove
         cmc_assert(!sl_remove(sl, 2));
-        cmc_assert_equals(int32_t, cmc_flags.RANGE, sl_flag(sl));
+        cmc_assert_equals(int32_t, CMC_FLAG_RANGE, sl_flag(sl));
 
         cmc_assert(sl_remove(sl, 0));
-        cmc_assert_equals(int32_t, cmc_flags.OK, sl_flag(sl));
+        cmc_assert_equals(int32_t, CMC_FLAG_OK, sl_flag(sl));
 
         cmc_assert(!sl_remove(sl, 0));
-        cmc_assert_equals(int32_t, cmc_flags.EMPTY, sl_flag(sl));
+        cmc_assert_equals(int32_t, CMC_FLAG_EMPTY, sl_flag(sl));
 
         // max min
-        sl->flag = cmc_flags.ERROR;
+        sl->flag = CMC_FLAG_ERROR;
         cmc_assert_equals(size_t, (size_t){ 0 }, sl_max(sl));
-        cmc_assert_equals(int32_t, cmc_flags.EMPTY, sl_flag(sl));
-        sl->flag = cmc_flags.ERROR;
+        cmc_assert_equals(int32_t, CMC_FLAG_EMPTY, sl_flag(sl));
+        sl->flag = CMC_FLAG_ERROR;
         cmc_assert_equals(size_t, (size_t){ 0 }, sl_min(sl));
-        cmc_assert_equals(int32_t, cmc_flags.EMPTY, sl_flag(sl));
+        cmc_assert_equals(int32_t, CMC_FLAG_EMPTY, sl_flag(sl));
 
         cmc_assert(sl_insert(sl, 1));
-        sl->flag = cmc_flags.ERROR;
+        sl->flag = CMC_FLAG_ERROR;
         cmc_assert_equals(size_t, 1, sl_max(sl));
-        cmc_assert_equals(int32_t, cmc_flags.OK, sl_flag(sl));
-        sl->flag = cmc_flags.ERROR;
+        cmc_assert_equals(int32_t, CMC_FLAG_OK, sl_flag(sl));
+        sl->flag = CMC_FLAG_ERROR;
         cmc_assert_equals(size_t, 1, sl_min(sl));
-        cmc_assert_equals(int32_t, cmc_flags.OK, sl_flag(sl));
+        cmc_assert_equals(int32_t, CMC_FLAG_OK, sl_flag(sl));
 
         // get
-        sl->flag = cmc_flags.ERROR;
+        sl->flag = CMC_FLAG_ERROR;
         sl_get(sl, 1);
-        cmc_assert_equals(int32_t, cmc_flags.RANGE, sl_flag(sl));
+        cmc_assert_equals(int32_t, CMC_FLAG_RANGE, sl_flag(sl));
 
         sl_get(sl, 0);
-        cmc_assert_equals(int32_t, cmc_flags.OK, sl_flag(sl));
+        cmc_assert_equals(int32_t, CMC_FLAG_OK, sl_flag(sl));
 
         cmc_assert(sl_remove(sl, 0));
         sl_get(sl, 0);
-        cmc_assert_equals(int32_t, cmc_flags.EMPTY, sl_flag(sl));
+        cmc_assert_equals(int32_t, CMC_FLAG_EMPTY, sl_flag(sl));
 
         // index_of
         cmc_assert(sl_insert(sl, 1));
         sl_index_of(sl, 1, false);
-        cmc_assert_equals(int32_t, cmc_flags.OK, sl_flag(sl));
+        cmc_assert_equals(int32_t, CMC_FLAG_OK, sl_flag(sl));
 
         // contains
         cmc_assert(sl_contains(sl, 1));
-        cmc_assert_equals(int32_t, cmc_flags.OK, sl_flag(sl));
+        cmc_assert_equals(int32_t, CMC_FLAG_OK, sl_flag(sl));
 
         // sort
-        sl->flag = cmc_flags.ERROR;
+        sl->flag = CMC_FLAG_ERROR;
         sl_sort(sl);
-        cmc_assert_equals(int32_t, cmc_flags.OK, sl_flag(sl));
+        cmc_assert_equals(int32_t, CMC_FLAG_OK, sl_flag(sl));
 
         // copy_of
-        sl->flag = cmc_flags.ERROR;
+        sl->flag = CMC_FLAG_ERROR;
         struct sortedlist *sl2 = sl_copy_of(sl);
-        cmc_assert_equals(int32_t, cmc_flags.OK, sl_flag(sl));
-        cmc_assert_equals(int32_t, cmc_flags.OK, sl_flag(sl2));
+        cmc_assert_equals(int32_t, CMC_FLAG_OK, sl_flag(sl));
+        cmc_assert_equals(int32_t, CMC_FLAG_OK, sl_flag(sl2));
 
         // equals
-        sl->flag = cmc_flags.ERROR;
-        sl2->flag = cmc_flags.ERROR;
+        sl->flag = CMC_FLAG_ERROR;
+        sl2->flag = CMC_FLAG_ERROR;
         cmc_assert(sl_equals(sl, sl2));
-        cmc_assert_equals(int32_t, cmc_flags.OK, sl_flag(sl));
-        cmc_assert_equals(int32_t, cmc_flags.OK, sl_flag(sl2));
+        cmc_assert_equals(int32_t, CMC_FLAG_OK, sl_flag(sl));
+        cmc_assert_equals(int32_t, CMC_FLAG_OK, sl_flag(sl2));
 
         sl_free(sl);
         sl_free(sl2);

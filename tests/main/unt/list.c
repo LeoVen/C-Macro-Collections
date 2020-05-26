@@ -316,178 +316,178 @@ CMC_CREATE_UNIT(List, true, {
         struct list *l = l_new(100, l_fval);
 
         cmc_assert_not_equals(ptr, NULL, l);
-        cmc_assert_equals(int32_t, cmc_flags.OK, l_flag(l));
+        cmc_assert_equals(int32_t, CMC_FLAG_OK, l_flag(l));
 
         // clear
-        l->flag = cmc_flags.ERROR;
+        l->flag = CMC_FLAG_ERROR;
         l_clear(l);
-        cmc_assert_equals(int32_t, cmc_flags.OK, l_flag(l));
+        cmc_assert_equals(int32_t, CMC_FLAG_OK, l_flag(l));
 
         // customize
-        l->flag = cmc_flags.ERROR;
+        l->flag = CMC_FLAG_ERROR;
         l_customize(l, NULL, NULL);
-        cmc_assert_equals(int32_t, cmc_flags.OK, l_flag(l));
+        cmc_assert_equals(int32_t, CMC_FLAG_OK, l_flag(l));
 
         // push_front
-        l->flag = cmc_flags.ERROR;
+        l->flag = CMC_FLAG_ERROR;
         cmc_assert(l_push_front(l, 10));
-        cmc_assert_equals(int32_t, cmc_flags.OK, l_flag(l));
+        cmc_assert_equals(int32_t, CMC_FLAG_OK, l_flag(l));
 
         // push_at
         cmc_assert(!l_push_at(l, 5, 2));
-        cmc_assert_equals(int32_t, cmc_flags.RANGE, l_flag(l));
+        cmc_assert_equals(int32_t, CMC_FLAG_RANGE, l_flag(l));
         cmc_assert(l_push_at(l, 5, 1));
-        cmc_assert_equals(int32_t, cmc_flags.OK, l_flag(l));
+        cmc_assert_equals(int32_t, CMC_FLAG_OK, l_flag(l));
 
         // push_back
-        l->flag = cmc_flags.ERROR;
+        l->flag = CMC_FLAG_ERROR;
         cmc_assert(l_push_back(l, 0));
-        cmc_assert_equals(int32_t, cmc_flags.OK, l_flag(l));
+        cmc_assert_equals(int32_t, CMC_FLAG_OK, l_flag(l));
 
         // pop_front
-        l->flag = cmc_flags.ERROR;
+        l->flag = CMC_FLAG_ERROR;
         cmc_assert(l_pop_front(l));
-        cmc_assert_equals(int32_t, cmc_flags.OK, l_flag(l));
+        cmc_assert_equals(int32_t, CMC_FLAG_OK, l_flag(l));
 
         l_clear(l);
         cmc_assert(!l_pop_front(l));
-        cmc_assert_equals(int32_t, cmc_flags.EMPTY, l_flag(l));
+        cmc_assert_equals(int32_t, CMC_FLAG_EMPTY, l_flag(l));
 
         // pop_back
         cmc_assert(l_push_front(l, 10));
-        l->flag = cmc_flags.ERROR;
+        l->flag = CMC_FLAG_ERROR;
         cmc_assert(l_pop_back(l));
-        cmc_assert_equals(int32_t, cmc_flags.OK, l_flag(l));
+        cmc_assert_equals(int32_t, CMC_FLAG_OK, l_flag(l));
 
         cmc_assert(!l_pop_front(l));
-        cmc_assert_equals(int32_t, cmc_flags.EMPTY, l_flag(l));
+        cmc_assert_equals(int32_t, CMC_FLAG_EMPTY, l_flag(l));
 
         // pop_at
-        l->flag = cmc_flags.ERROR;
+        l->flag = CMC_FLAG_ERROR;
         cmc_assert(!l_pop_at(l, 0));
-        cmc_assert_equals(int32_t, cmc_flags.EMPTY, l_flag(l));
+        cmc_assert_equals(int32_t, CMC_FLAG_EMPTY, l_flag(l));
 
         cmc_assert(l_push_back(l, 10));
         cmc_assert(!l_pop_at(l, 1));
-        cmc_assert_equals(int32_t, cmc_flags.RANGE, l_flag(l));
+        cmc_assert_equals(int32_t, CMC_FLAG_RANGE, l_flag(l));
 
         cmc_assert(l_pop_at(l, 0));
-        cmc_assert_equals(int32_t, cmc_flags.OK, l_flag(l));
+        cmc_assert_equals(int32_t, CMC_FLAG_OK, l_flag(l));
 
         // seq_push_front
         cmc_assert(!l_seq_push_front(l, NULL, 0));
-        cmc_assert_equals(int32_t, cmc_flags.INVALID, l_flag(l));
+        cmc_assert_equals(int32_t, CMC_FLAG_INVALID, l_flag(l));
 
         cmc_assert(l_seq_push_front(l, (size_t[2]){ 1, 2 }, 2));
-        cmc_assert_equals(int32_t, cmc_flags.OK, l_flag(l));
+        cmc_assert_equals(int32_t, CMC_FLAG_OK, l_flag(l));
 
         // seq_push_at
         cmc_assert(!l_seq_push_at(l, NULL, 0, 0));
-        cmc_assert_equals(int32_t, cmc_flags.INVALID, l_flag(l));
+        cmc_assert_equals(int32_t, CMC_FLAG_INVALID, l_flag(l));
 
         cmc_assert(!l_seq_push_at(l, (size_t[2]){ 1, 2 }, 2, 10));
-        cmc_assert_equals(int32_t, cmc_flags.RANGE, l_flag(l));
+        cmc_assert_equals(int32_t, CMC_FLAG_RANGE, l_flag(l));
 
         cmc_assert(l_seq_push_at(l, (size_t[2]){ 1, 2 }, 2, l_count(l) - 1));
-        cmc_assert_equals(int32_t, cmc_flags.OK, l_flag(l));
+        cmc_assert_equals(int32_t, CMC_FLAG_OK, l_flag(l));
 
         // seq_push_back
         cmc_assert(!l_seq_push_back(l, NULL, 0));
-        cmc_assert_equals(int32_t, cmc_flags.INVALID, l_flag(l));
+        cmc_assert_equals(int32_t, CMC_FLAG_INVALID, l_flag(l));
 
         cmc_assert(l_seq_push_back(l, (size_t[2]){ 1, 2 }, 2));
-        cmc_assert_equals(int32_t, cmc_flags.OK, l_flag(l));
+        cmc_assert_equals(int32_t, CMC_FLAG_OK, l_flag(l));
 
         // seq_pop_at
         cmc_assert(!l_seq_pop_at(l, 10, 1));
-        cmc_assert_equals(int32_t, cmc_flags.INVALID, l_flag(l));
+        cmc_assert_equals(int32_t, CMC_FLAG_INVALID, l_flag(l));
 
         cmc_assert(!l_seq_pop_at(l, 100, 200));
-        cmc_assert_equals(int32_t, cmc_flags.RANGE, l_flag(l));
+        cmc_assert_equals(int32_t, CMC_FLAG_RANGE, l_flag(l));
 
         cmc_assert(l_seq_pop_at(l, 1, l_count(l) - 2));
-        cmc_assert_equals(int32_t, cmc_flags.OK, l_flag(l));
+        cmc_assert_equals(int32_t, CMC_FLAG_OK, l_flag(l));
 
         // seq_sublist
         struct list *l2 = l_seq_sublist(l, 10, 1);
         cmc_assert_equals(ptr, NULL, l2);
-        cmc_assert_equals(int32_t, cmc_flags.INVALID, l_flag(l));
+        cmc_assert_equals(int32_t, CMC_FLAG_INVALID, l_flag(l));
 
         l2 = l_seq_sublist(l, 100, 200);
         cmc_assert_equals(ptr, NULL, l2);
-        cmc_assert_equals(int32_t, cmc_flags.RANGE, l_flag(l));
+        cmc_assert_equals(int32_t, CMC_FLAG_RANGE, l_flag(l));
 
         l2 = l_seq_sublist(l, 0, l_count(l) - 1);
-        cmc_assert_equals(int32_t, cmc_flags.OK, l_flag(l));
-        cmc_assert_equals(int32_t, cmc_flags.OK, l_flag(l2));
+        cmc_assert_equals(int32_t, CMC_FLAG_OK, l_flag(l));
+        cmc_assert_equals(int32_t, CMC_FLAG_OK, l_flag(l2));
 
         l_clear(l);
 
         // l_front
         l_front(l);
-        cmc_assert_equals(int32_t, cmc_flags.EMPTY, l_flag(l));
+        cmc_assert_equals(int32_t, CMC_FLAG_EMPTY, l_flag(l));
 
         cmc_assert(l_push_back(l, 10));
-        l->flag = cmc_flags.ERROR;
+        l->flag = CMC_FLAG_ERROR;
         l_front(l);
-        cmc_assert_equals(int32_t, cmc_flags.OK, l_flag(l));
+        cmc_assert_equals(int32_t, CMC_FLAG_OK, l_flag(l));
 
         l_clear(l);
 
         // l_back
         l_back(l);
-        cmc_assert_equals(int32_t, cmc_flags.EMPTY, l_flag(l));
+        cmc_assert_equals(int32_t, CMC_FLAG_EMPTY, l_flag(l));
 
         cmc_assert(l_push_back(l, 10));
-        l->flag = cmc_flags.ERROR;
+        l->flag = CMC_FLAG_ERROR;
         l_back(l);
-        cmc_assert_equals(int32_t, cmc_flags.OK, l_flag(l));
+        cmc_assert_equals(int32_t, CMC_FLAG_OK, l_flag(l));
 
         l_clear(l);
 
         // get, get_ref
         l_get(l, 0);
-        cmc_assert_equals(int32_t, cmc_flags.EMPTY, l_flag(l));
-        l->flag = cmc_flags.ERROR;
+        cmc_assert_equals(int32_t, CMC_FLAG_EMPTY, l_flag(l));
+        l->flag = CMC_FLAG_ERROR;
         l_get_ref(l, 0);
-        cmc_assert_equals(int32_t, cmc_flags.EMPTY, l_flag(l));
+        cmc_assert_equals(int32_t, CMC_FLAG_EMPTY, l_flag(l));
 
         cmc_assert(l_push_back(l, 10));
 
         l_get(l, 1);
-        cmc_assert_equals(int32_t, cmc_flags.RANGE, l_flag(l));
-        l->flag = cmc_flags.ERROR;
+        cmc_assert_equals(int32_t, CMC_FLAG_RANGE, l_flag(l));
+        l->flag = CMC_FLAG_ERROR;
         l_get_ref(l, 1);
-        cmc_assert_equals(int32_t, cmc_flags.RANGE, l_flag(l));
+        cmc_assert_equals(int32_t, CMC_FLAG_RANGE, l_flag(l));
 
         l_get(l, 0);
-        cmc_assert_equals(int32_t, cmc_flags.OK, l_flag(l));
-        l->flag = cmc_flags.ERROR;
+        cmc_assert_equals(int32_t, CMC_FLAG_OK, l_flag(l));
+        l->flag = CMC_FLAG_ERROR;
         l_get_ref(l, 0);
-        cmc_assert_equals(int32_t, cmc_flags.OK, l_flag(l));
+        cmc_assert_equals(int32_t, CMC_FLAG_OK, l_flag(l));
 
         // index_of
-        l->flag = cmc_flags.ERROR;
+        l->flag = CMC_FLAG_ERROR;
         l_index_of(l, 10, false);
-        cmc_assert_equals(int32_t, cmc_flags.OK, l_flag(l));
+        cmc_assert_equals(int32_t, CMC_FLAG_OK, l_flag(l));
 
         // contains
-        l->flag = cmc_flags.ERROR;
+        l->flag = CMC_FLAG_ERROR;
         cmc_assert(l_contains(l, 10));
-        cmc_assert_equals(int32_t, cmc_flags.OK, l_flag(l));
+        cmc_assert_equals(int32_t, CMC_FLAG_OK, l_flag(l));
 
         // copy_of
-        l->flag = cmc_flags.ERROR;
+        l->flag = CMC_FLAG_ERROR;
         struct list *l3 = l_copy_of(l);
-        cmc_assert_equals(int32_t, cmc_flags.OK, l_flag(l));
-        cmc_assert_equals(int32_t, cmc_flags.OK, l_flag(l3));
+        cmc_assert_equals(int32_t, CMC_FLAG_OK, l_flag(l));
+        cmc_assert_equals(int32_t, CMC_FLAG_OK, l_flag(l3));
 
         // equals
-        l->flag = cmc_flags.ERROR;
-        l3->flag = cmc_flags.ERROR;
+        l->flag = CMC_FLAG_ERROR;
+        l3->flag = CMC_FLAG_ERROR;
         cmc_assert(l_equals(l, l3));
-        cmc_assert_equals(int32_t, cmc_flags.OK, l_flag(l));
-        cmc_assert_equals(int32_t, cmc_flags.OK, l_flag(l3));
+        cmc_assert_equals(int32_t, CMC_FLAG_OK, l_flag(l));
+        cmc_assert_equals(int32_t, CMC_FLAG_OK, l_flag(l3));
 
         l_free(l);
         l_free(l2);

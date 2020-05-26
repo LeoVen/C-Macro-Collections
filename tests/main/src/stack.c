@@ -83,7 +83,7 @@ struct stack *s_new(size_t capacity, struct stack_fval *f_val)
     }
     _stack_->capacity = capacity;
     _stack_->count = 0;
-    _stack_->flag = cmc_flags.OK;
+    _stack_->flag = CMC_FLAG_OK;
     _stack_->f_val = f_val;
     _stack_->alloc = alloc;
     _stack_->callbacks = ((void *)0);
@@ -110,7 +110,7 @@ struct stack *s_new_custom(size_t capacity, struct stack_fval *f_val,
     }
     _stack_->capacity = capacity;
     _stack_->count = 0;
-    _stack_->flag = cmc_flags.OK;
+    _stack_->flag = CMC_FLAG_OK;
     _stack_->f_val = f_val;
     _stack_->alloc = alloc;
     _stack_->callbacks = callbacks;
@@ -125,7 +125,7 @@ void s_clear(struct stack *_stack_)
     }
     memset(_stack_->buffer, 0, sizeof(size_t) * _stack_->capacity);
     _stack_->count = 0;
-    _stack_->flag = cmc_flags.OK;
+    _stack_->flag = CMC_FLAG_OK;
 }
 void s_free(struct stack *_stack_)
 {
@@ -145,7 +145,7 @@ void s_customize(struct stack *_stack_, struct cmc_alloc_node *alloc,
     else
         _stack_->alloc = alloc;
     _stack_->callbacks = callbacks;
-    _stack_->flag = cmc_flags.OK;
+    _stack_->flag = CMC_FLAG_OK;
 }
 _Bool s_push(struct stack *_stack_, size_t value)
 {
@@ -155,7 +155,7 @@ _Bool s_push(struct stack *_stack_, size_t value)
             return 0;
     }
     _stack_->buffer[_stack_->count++] = value;
-    _stack_->flag = cmc_flags.OK;
+    _stack_->flag = CMC_FLAG_OK;
     if (_stack_->callbacks && _stack_->callbacks->create)
         _stack_->callbacks->create();
     return 1;
@@ -164,11 +164,11 @@ _Bool s_pop(struct stack *_stack_)
 {
     if (s_empty(_stack_))
     {
-        _stack_->flag = cmc_flags.EMPTY;
+        _stack_->flag = CMC_FLAG_EMPTY;
         return 0;
     }
     _stack_->buffer[--_stack_->count] = (size_t){ 0 };
-    _stack_->flag = cmc_flags.OK;
+    _stack_->flag = CMC_FLAG_OK;
     if (_stack_->callbacks && _stack_->callbacks->delete)
         _stack_->callbacks->delete ();
     return 1;
@@ -177,17 +177,17 @@ size_t s_top(struct stack *_stack_)
 {
     if (s_empty(_stack_))
     {
-        _stack_->flag = cmc_flags.EMPTY;
+        _stack_->flag = CMC_FLAG_EMPTY;
         return (size_t){ 0 };
     }
-    _stack_->flag = cmc_flags.OK;
+    _stack_->flag = CMC_FLAG_OK;
     if (_stack_->callbacks && _stack_->callbacks->read)
         _stack_->callbacks->read();
     return _stack_->buffer[_stack_->count - 1];
 }
 _Bool s_contains(struct stack *_stack_, size_t value)
 {
-    _stack_->flag = cmc_flags.OK;
+    _stack_->flag = CMC_FLAG_OK;
     _Bool result = 0;
     for (size_t i = 0; i < _stack_->count; i++)
     {
@@ -227,20 +227,20 @@ _Bool s_resize(struct stack *_stack_, size_t capacity)
         goto success;
     if (capacity < _stack_->count)
     {
-        _stack_->flag = cmc_flags.INVALID;
+        _stack_->flag = CMC_FLAG_INVALID;
         return 0;
     }
     size_t *new_buffer =
         _stack_->alloc->realloc(_stack_->buffer, sizeof(size_t) * capacity);
     if (!new_buffer)
     {
-        _stack_->flag = cmc_flags.ALLOC;
+        _stack_->flag = CMC_FLAG_ALLOC;
         return 0;
     }
     _stack_->buffer = new_buffer;
     _stack_->capacity = capacity;
 success:
-    _stack_->flag = cmc_flags.OK;
+    _stack_->flag = CMC_FLAG_OK;
     if (_stack_->callbacks && _stack_->callbacks->resize)
         _stack_->callbacks->resize();
     return 1;
@@ -251,7 +251,7 @@ struct stack *s_copy_of(struct stack *_stack_)
                                         _stack_->alloc, _stack_->callbacks);
     if (!result)
     {
-        _stack_->flag = cmc_flags.ERROR;
+        _stack_->flag = CMC_FLAG_ERROR;
         return ((void *)0);
     }
     if (_stack_->f_val->cpy)
@@ -263,13 +263,13 @@ struct stack *s_copy_of(struct stack *_stack_)
         memcpy(result->buffer, _stack_->buffer,
                sizeof(size_t) * _stack_->count);
     result->count = _stack_->count;
-    _stack_->flag = cmc_flags.OK;
+    _stack_->flag = CMC_FLAG_OK;
     return result;
 }
 _Bool s_equals(struct stack *_stack1_, struct stack *_stack2_)
 {
-    _stack1_->flag = cmc_flags.OK;
-    _stack2_->flag = cmc_flags.OK;
+    _stack1_->flag = CMC_FLAG_OK;
+    _stack2_->flag = CMC_FLAG_OK;
     if (_stack1_->count != _stack2_->count)
         return 0;
     for (size_t i = 0; i < _stack1_->count; i++)
@@ -283,9 +283,11 @@ struct cmc_string s_to_string(struct stack *_stack_)
 {
     struct cmc_string str;
     struct stack *s_ = _stack_;
-    int n = snprintf(str.s, cmc_string_len, cmc_string_fmt_stack, "stack",
-                     "size_t", s_, s_->buffer, s_->capacity, s_->count,
-                     s_->flag, s_->f_val, s_->alloc, s_->callbacks);
+    int n = snprintf(str.s, cmc_string_len, cmc_cmc_string_fmt_stack,
+                     "CMC_PARAM_SNAME((s, stack, , , size_t))",
+                     "CMC_PARAM_V((s, stack, , , size_t))", s_, s_->buffer,
+                     s_->capacity, s_->count, s_->flag, s_->f_val, s_->alloc,
+                     s_->callbacks);
     return n >= 0 ? str : (struct cmc_string){ 0 };
 }
 _Bool s_print(struct stack *_stack_, FILE *fptr)

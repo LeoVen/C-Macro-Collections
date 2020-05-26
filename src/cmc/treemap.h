@@ -16,8 +16,8 @@
  * tree called AVL Tree that uses the height of nodes to keep its keys balanced.
  */
 
-#ifndef CMC_TREEMAP_H
-#define CMC_TREEMAP_H
+#ifndef CMC_CMC_TREEMAP_H
+#define CMC_CMC_TREEMAP_H
 
 /* -------------------------------------------------------------------------
  * Core functionalities of the C Macro Collections Library
@@ -28,36 +28,41 @@
  * TreeMap specific
  * ------------------------------------------------------------------------- */
 /* to_string format */
-static const char *cmc_string_fmt_treemap = "struct %s<%s, %s> "
-                                            "at %p { "
-                                            "root:%p, "
-                                            "count:%" PRIuMAX ", "
-                                            "flag:%d, "
-                                            "f_val:%p, "
-                                            "f_key:%p, "
-                                            "alloc:%p, "
-                                            "callbacks:%p }";
+static const char *cmc_cmc_string_fmt_treemap = "struct %s<%s, %s> "
+                                                "at %p { "
+                                                "root:%p, "
+                                                "count:%" PRIuMAX ", "
+                                                "flag:%d, "
+                                                "f_val:%p, "
+                                                "f_key:%p, "
+                                                "alloc:%p, "
+                                                "callbacks:%p }";
 
-#define CMC_GENERATE_TREEMAP(PFX, SNAME, K, V)    \
-    CMC_GENERATE_TREEMAP_HEADER(PFX, SNAME, K, V) \
-    CMC_GENERATE_TREEMAP_SOURCE(PFX, SNAME, K, V)
+/**
+ * Core TreeMap implementation
+ */
+#define CMC_CMC_TREEMAP_CORE(BODY)    \
+    CMC_CMC_TREEMAP_CORE_HEADER(BODY) \
+    CMC_CMC_TREEMAP_CORE_SOURCE(BODY)
 
-#define CMC_WRAPGEN_TREEMAP_HEADER(PFX, SNAME, K, V) \
-    CMC_GENERATE_TREEMAP_HEADER(PFX, SNAME, K, V)
+#define CMC_CMC_TREEMAP_CORE_HEADER(BODY)                                    \
+    CMC_CMC_TREEMAP_CORE_HEADER_(CMC_PARAM_PFX(BODY), CMC_PARAM_SNAME(BODY), \
+                                 CMC_PARAM_K(BODY), CMC_PARAM_V(BODY))
 
-#define CMC_WRAPGEN_TREEMAP_SOURCE(PFX, SNAME, K, V) \
-    CMC_GENERATE_TREEMAP_SOURCE(PFX, SNAME, K, V)
+#define CMC_CMC_TREEMAP_CORE_SOURCE(BODY)                                    \
+    CMC_CMC_TREEMAP_CORE_SOURCE_(CMC_PARAM_PFX(BODY), CMC_PARAM_SNAME(BODY), \
+                                 CMC_PARAM_K(BODY), CMC_PARAM_V(BODY))
 
 /* -------------------------------------------------------------------------
  * Header
  * ------------------------------------------------------------------------- */
-#define CMC_GENERATE_TREEMAP_HEADER(PFX, SNAME, K, V)                         \
+#define CMC_CMC_TREEMAP_CORE_HEADER_(PFX, SNAME, K, V)                        \
                                                                               \
     /* Treemap Structure */                                                   \
     struct SNAME                                                              \
     {                                                                         \
         /* Root node */                                                       \
-        struct SNAME##_node *root;                                            \
+        struct CMC_DEF_NODE(SNAME) * root;                                    \
                                                                               \
         /* Current amount of keys */                                          \
         size_t count;                                                         \
@@ -66,10 +71,10 @@ static const char *cmc_string_fmt_treemap = "struct %s<%s, %s> "
         int flag;                                                             \
                                                                               \
         /* Key function table */                                              \
-        struct SNAME##_fkey *f_key;                                           \
+        struct CMC_DEF_FKEY(SNAME) * f_key;                                   \
                                                                               \
         /* Value function table */                                            \
-        struct SNAME##_fval *f_val;                                           \
+        struct CMC_DEF_FVAL(SNAME) * f_val;                                   \
                                                                               \
         /* Custom allocation functions */                                     \
         struct cmc_alloc_node *alloc;                                         \
@@ -79,7 +84,7 @@ static const char *cmc_string_fmt_treemap = "struct %s<%s, %s> "
     };                                                                        \
                                                                               \
     /* Treemap Node */                                                        \
-    struct SNAME##_node                                                       \
+    struct CMC_DEF_NODE(SNAME)                                                \
     {                                                                         \
         /* Node Key */                                                        \
         K key;                                                                \
@@ -91,17 +96,17 @@ static const char *cmc_string_fmt_treemap = "struct %s<%s, %s> "
         unsigned char height;                                                 \
                                                                               \
         /* Right child node or subtree */                                     \
-        struct SNAME##_node *right;                                           \
+        struct CMC_DEF_NODE(SNAME) * right;                                   \
                                                                               \
         /* Left child node or subtree */                                      \
-        struct SNAME##_node *left;                                            \
+        struct CMC_DEF_NODE(SNAME) * left;                                    \
                                                                               \
         /* Parent node */                                                     \
-        struct SNAME##_node *parent;                                          \
+        struct CMC_DEF_NODE(SNAME) * parent;                                  \
     };                                                                        \
                                                                               \
     /* Key struct function table */                                           \
-    struct SNAME##_fkey                                                       \
+    struct CMC_DEF_FKEY(SNAME)                                                \
     {                                                                         \
         /* Comparator function */                                             \
         int (*cmp)(K, K);                                                     \
@@ -123,7 +128,7 @@ static const char *cmc_string_fmt_treemap = "struct %s<%s, %s> "
     };                                                                        \
                                                                               \
     /* Value struct function table */                                         \
-    struct SNAME##_fval                                                       \
+    struct CMC_DEF_FVAL(SNAME)                                                \
     {                                                                         \
         /* Comparator function */                                             \
         int (*cmp)(V, V);                                                     \
@@ -145,19 +150,19 @@ static const char *cmc_string_fmt_treemap = "struct %s<%s, %s> "
     };                                                                        \
                                                                               \
     /* Treemap Iterator */                                                    \
-    struct SNAME##_iter                                                       \
+    struct CMC_DEF_ITER(SNAME)                                                \
     {                                                                         \
         /* Target treemap */                                                  \
         struct SNAME *target;                                                 \
                                                                               \
         /* Cursor's current node */                                           \
-        struct SNAME##_node *cursor;                                          \
+        struct CMC_DEF_NODE(SNAME) * cursor;                                  \
                                                                               \
         /* The first node in the iteration */                                 \
-        struct SNAME##_node *first;                                           \
+        struct CMC_DEF_NODE(SNAME) * first;                                   \
                                                                               \
         /* The last node in the iteration */                                  \
-        struct SNAME##_node *last;                                            \
+        struct CMC_DEF_NODE(SNAME) * last;                                    \
                                                                               \
         /* Keeps track of relative index to the iteration of elements */      \
         size_t index;                                                         \
@@ -171,76 +176,85 @@ static const char *cmc_string_fmt_treemap = "struct %s<%s, %s> "
                                                                               \
     /* Collection Functions */                                                \
     /* Collection Allocation and Deallocation */                              \
-    struct SNAME *PFX##_new(struct SNAME##_fkey *f_key,                       \
-                            struct SNAME##_fval *f_val);                      \
-    struct SNAME *PFX##_new_custom(                                           \
-        struct SNAME##_fkey *f_key, struct SNAME##_fval *f_val,               \
-        struct cmc_alloc_node *alloc, struct cmc_callbacks *callbacks);       \
-    void PFX##_clear(struct SNAME *_map_);                                    \
-    void PFX##_free(struct SNAME *_map_);                                     \
+    struct SNAME *CMC_(PFX, _new)(struct CMC_DEF_FKEY(SNAME) * f_key,         \
+                                  struct CMC_DEF_FVAL(SNAME) * f_val);        \
+    struct SNAME *CMC_(PFX, _new_custom)(struct CMC_DEF_FKEY(SNAME) * f_key,  \
+                                         struct CMC_DEF_FVAL(SNAME) * f_val,  \
+                                         struct cmc_alloc_node * alloc,       \
+                                         struct cmc_callbacks * callbacks);   \
+    void CMC_(PFX, _clear)(struct SNAME * _map_);                             \
+    void CMC_(PFX, _free)(struct SNAME * _map_);                              \
     /* Customization of Allocation and Callbacks */                           \
-    void PFX##_customize(struct SNAME *_map_, struct cmc_alloc_node *alloc,   \
-                         struct cmc_callbacks *callbacks);                    \
+    void CMC_(PFX, _customize)(struct SNAME * _map_,                          \
+                               struct cmc_alloc_node * alloc,                 \
+                               struct cmc_callbacks * callbacks);             \
     /* Collection Input and Output */                                         \
-    bool PFX##_insert(struct SNAME *_map_, K key, V value);                   \
-    bool PFX##_update(struct SNAME *_map_, K key, V new_value, V *old_value); \
-    bool PFX##_remove(struct SNAME *_map_, K key, V *out_value);              \
+    bool CMC_(PFX, _insert)(struct SNAME * _map_, K key, V value);            \
+    bool CMC_(PFX, _update)(struct SNAME * _map_, K key, V new_value,         \
+                            V * old_value);                                   \
+    bool CMC_(PFX, _remove)(struct SNAME * _map_, K key, V * out_value);      \
     /* Element Access */                                                      \
-    bool PFX##_max(struct SNAME *_map_, K *key, V *value);                    \
-    bool PFX##_min(struct SNAME *_map_, K *key, V *value);                    \
-    V PFX##_get(struct SNAME *_map_, K key);                                  \
-    V *PFX##_get_ref(struct SNAME *_map_, K key);                             \
+    bool CMC_(PFX, _max)(struct SNAME * _map_, K * key, V * value);           \
+    bool CMC_(PFX, _min)(struct SNAME * _map_, K * key, V * value);           \
+    V CMC_(PFX, _get)(struct SNAME * _map_, K key);                           \
+    V *CMC_(PFX, _get_ref)(struct SNAME * _map_, K key);                      \
     /* Collection State */                                                    \
-    bool PFX##_contains(struct SNAME *_map_, K key);                          \
-    bool PFX##_empty(struct SNAME *_map_);                                    \
-    size_t PFX##_count(struct SNAME *_map_);                                  \
-    int PFX##_flag(struct SNAME *_map_);                                      \
+    bool CMC_(PFX, _contains)(struct SNAME * _map_, K key);                   \
+    bool CMC_(PFX, _empty)(struct SNAME * _map_);                             \
+    size_t CMC_(PFX, _count)(struct SNAME * _map_);                           \
+    int CMC_(PFX, _flag)(struct SNAME * _map_);                               \
     /* Collection Utility */                                                  \
-    struct SNAME *PFX##_copy_of(struct SNAME *_map_);                         \
-    bool PFX##_equals(struct SNAME *_map1_, struct SNAME *_map2_);            \
-    struct cmc_string PFX##_to_string(struct SNAME *_map_);                   \
-    bool PFX##_print(struct SNAME *_map_, FILE *fptr);                        \
+    struct SNAME *CMC_(PFX, _copy_of)(struct SNAME * _map_);                  \
+    bool CMC_(PFX, _equals)(struct SNAME * _map1_, struct SNAME * _map2_);    \
+    struct cmc_string CMC_(PFX, _to_string)(struct SNAME * _map_);            \
+    bool CMC_(PFX, _print)(struct SNAME * _map_, FILE * fptr);                \
                                                                               \
     /* Iterator Functions */                                                  \
     /* Iterator Initialization */                                             \
-    struct SNAME##_iter PFX##_iter_start(struct SNAME *target);               \
-    struct SNAME##_iter PFX##_iter_end(struct SNAME *target);                 \
+    struct CMC_DEF_ITER(SNAME) CMC_(PFX, _iter_start)(struct SNAME * target); \
+    struct CMC_DEF_ITER(SNAME) CMC_(PFX, _iter_end)(struct SNAME * target);   \
     /* Iterator State */                                                      \
-    bool PFX##_iter_at_start(struct SNAME##_iter *iter);                      \
-    bool PFX##_iter_at_end(struct SNAME##_iter *iter);                        \
+    bool CMC_(PFX, _iter_at_start)(struct CMC_DEF_ITER(SNAME) * iter);        \
+    bool CMC_(PFX, _iter_at_end)(struct CMC_DEF_ITER(SNAME) * iter);          \
     /* Iterator Movement */                                                   \
-    bool PFX##_iter_to_start(struct SNAME##_iter *iter);                      \
-    bool PFX##_iter_to_end(struct SNAME##_iter *iter);                        \
-    bool PFX##_iter_next(struct SNAME##_iter *iter);                          \
-    bool PFX##_iter_prev(struct SNAME##_iter *iter);                          \
-    bool PFX##_iter_advance(struct SNAME##_iter *iter, size_t steps);         \
-    bool PFX##_iter_rewind(struct SNAME##_iter *iter, size_t steps);          \
-    bool PFX##_iter_go_to(struct SNAME##_iter *iter, size_t index);           \
+    bool CMC_(PFX, _iter_to_start)(struct CMC_DEF_ITER(SNAME) * iter);        \
+    bool CMC_(PFX, _iter_to_end)(struct CMC_DEF_ITER(SNAME) * iter);          \
+    bool CMC_(PFX, _iter_next)(struct CMC_DEF_ITER(SNAME) * iter);            \
+    bool CMC_(PFX, _iter_prev)(struct CMC_DEF_ITER(SNAME) * iter);            \
+    bool CMC_(PFX, _iter_advance)(struct CMC_DEF_ITER(SNAME) * iter,          \
+                                  size_t steps);                              \
+    bool CMC_(PFX, _iter_rewind)(struct CMC_DEF_ITER(SNAME) * iter,           \
+                                 size_t steps);                               \
+    bool CMC_(PFX, _iter_go_to)(struct CMC_DEF_ITER(SNAME) * iter,            \
+                                size_t index);                                \
     /* Iterator Access */                                                     \
-    K PFX##_iter_key(struct SNAME##_iter *iter);                              \
-    V PFX##_iter_value(struct SNAME##_iter *iter);                            \
-    V *PFX##_iter_rvalue(struct SNAME##_iter *iter);                          \
-    size_t PFX##_iter_index(struct SNAME##_iter *iter);
+    K CMC_(PFX, _iter_key)(struct CMC_DEF_ITER(SNAME) * iter);                \
+    V CMC_(PFX, _iter_value)(struct CMC_DEF_ITER(SNAME) * iter);              \
+    V *CMC_(PFX, _iter_rvalue)(struct CMC_DEF_ITER(SNAME) * iter);            \
+    size_t CMC_(PFX, _iter_index)(struct CMC_DEF_ITER(SNAME) * iter);
 
 /* -------------------------------------------------------------------------
  * Source
  * ------------------------------------------------------------------------- */
-#define CMC_GENERATE_TREEMAP_SOURCE(PFX, SNAME, K, V)                          \
+#define CMC_CMC_TREEMAP_CORE_SOURCE_(PFX, SNAME, K, V)                         \
                                                                                \
     /* Implementation Detail Functions */                                      \
-    static struct SNAME##_node *PFX##_impl_new_node(struct SNAME *_map_,       \
-                                                    K key, V value);           \
-    static struct SNAME##_node *PFX##_impl_get_node(struct SNAME *_map_,       \
-                                                    K key);                    \
-    static unsigned char PFX##_impl_h(struct SNAME##_node *node);              \
-    static unsigned char PFX##_impl_hupdate(struct SNAME##_node *node);        \
-    static void PFX##_impl_rotate_right(struct SNAME##_node **Z);              \
-    static void PFX##_impl_rotate_left(struct SNAME##_node **Z);               \
-    static void PFX##_impl_rebalance(struct SNAME *_map_,                      \
-                                     struct SNAME##_node *node);               \
+    static struct CMC_DEF_NODE(SNAME) *                                        \
+        CMC_(PFX, _impl_new_node)(struct SNAME * _map_, K key, V value);       \
+    static struct CMC_DEF_NODE(SNAME) *                                        \
+        CMC_(PFX, _impl_get_node)(struct SNAME * _map_, K key);                \
+    static unsigned char CMC_(PFX,                                             \
+                              _impl_h)(struct CMC_DEF_NODE(SNAME) * node);     \
+    static unsigned char CMC_(PFX, _impl_hupdate)(struct CMC_DEF_NODE(SNAME) * \
+                                                  node);                       \
+    static void CMC_(PFX,                                                      \
+                     _impl_rotate_right)(struct CMC_DEF_NODE(SNAME) * *Z);     \
+    static void CMC_(PFX, _impl_rotate_left)(struct CMC_DEF_NODE(SNAME) * *Z); \
+    static void CMC_(PFX, _impl_rebalance)(struct SNAME * _map_,               \
+                                           struct CMC_DEF_NODE(SNAME) * node); \
                                                                                \
-    struct SNAME *PFX##_new(struct SNAME##_fkey *f_key,                        \
-                            struct SNAME##_fval *f_val)                        \
+    struct SNAME *CMC_(PFX, _new)(struct CMC_DEF_FKEY(SNAME) * f_key,          \
+                                  struct CMC_DEF_FVAL(SNAME) * f_val)          \
     {                                                                          \
         if (!f_key || !f_val)                                                  \
             return NULL;                                                       \
@@ -254,7 +268,7 @@ static const char *cmc_string_fmt_treemap = "struct %s<%s, %s> "
                                                                                \
         _map_->count = 0;                                                      \
         _map_->root = NULL;                                                    \
-        _map_->flag = cmc_flags.OK;                                            \
+        _map_->flag = CMC_FLAG_OK;                                             \
         _map_->f_key = f_key;                                                  \
         _map_->f_val = f_val;                                                  \
         _map_->alloc = alloc;                                                  \
@@ -263,9 +277,10 @@ static const char *cmc_string_fmt_treemap = "struct %s<%s, %s> "
         return _map_;                                                          \
     }                                                                          \
                                                                                \
-    struct SNAME *PFX##_new_custom(                                            \
-        struct SNAME##_fkey *f_key, struct SNAME##_fval *f_val,                \
-        struct cmc_alloc_node *alloc, struct cmc_callbacks *callbacks)         \
+    struct SNAME *CMC_(PFX, _new_custom)(struct CMC_DEF_FKEY(SNAME) * f_key,   \
+                                         struct CMC_DEF_FVAL(SNAME) * f_val,   \
+                                         struct cmc_alloc_node * alloc,        \
+                                         struct cmc_callbacks * callbacks)     \
     {                                                                          \
         if (!f_key || !f_val)                                                  \
             return NULL;                                                       \
@@ -280,7 +295,7 @@ static const char *cmc_string_fmt_treemap = "struct %s<%s, %s> "
                                                                                \
         _map_->count = 0;                                                      \
         _map_->root = NULL;                                                    \
-        _map_->flag = cmc_flags.OK;                                            \
+        _map_->flag = CMC_FLAG_OK;                                             \
         _map_->f_key = f_key;                                                  \
         _map_->f_val = f_val;                                                  \
         _map_->alloc = alloc;                                                  \
@@ -289,16 +304,16 @@ static const char *cmc_string_fmt_treemap = "struct %s<%s, %s> "
         return _map_;                                                          \
     }                                                                          \
                                                                                \
-    void PFX##_clear(struct SNAME *_map_)                                      \
+    void CMC_(PFX, _clear)(struct SNAME * _map_)                               \
     {                                                                          \
-        struct SNAME##_node *scan = _map_->root;                               \
-        struct SNAME##_node *up = NULL;                                        \
+        struct CMC_DEF_NODE(SNAME) *scan = _map_->root;                        \
+        struct CMC_DEF_NODE(SNAME) *up = NULL;                                 \
                                                                                \
         while (scan != NULL)                                                   \
         {                                                                      \
             if (scan->left != NULL)                                            \
             {                                                                  \
-                struct SNAME##_node *left = scan->left;                        \
+                struct CMC_DEF_NODE(SNAME) *left = scan->left;                 \
                                                                                \
                 scan->left = up;                                               \
                 up = scan;                                                     \
@@ -306,7 +321,7 @@ static const char *cmc_string_fmt_treemap = "struct %s<%s, %s> "
             }                                                                  \
             else if (scan->right != NULL)                                      \
             {                                                                  \
-                struct SNAME##_node *right = scan->right;                      \
+                struct CMC_DEF_NODE(SNAME) *right = scan->right;               \
                                                                                \
                 scan->left = up;                                               \
                 scan->right = NULL;                                            \
@@ -352,18 +367,19 @@ static const char *cmc_string_fmt_treemap = "struct %s<%s, %s> "
                                                                                \
         _map_->count = 0;                                                      \
         _map_->root = NULL;                                                    \
-        _map_->flag = cmc_flags.OK;                                            \
+        _map_->flag = CMC_FLAG_OK;                                             \
     }                                                                          \
                                                                                \
-    void PFX##_free(struct SNAME *_map_)                                       \
+    void CMC_(PFX, _free)(struct SNAME * _map_)                                \
     {                                                                          \
-        PFX##_clear(_map_);                                                    \
+        CMC_(PFX, _clear)(_map_);                                              \
                                                                                \
         _map_->alloc->free(_map_);                                             \
     }                                                                          \
                                                                                \
-    void PFX##_customize(struct SNAME *_map_, struct cmc_alloc_node *alloc,    \
-                         struct cmc_callbacks *callbacks)                      \
+    void CMC_(PFX, _customize)(struct SNAME * _map_,                           \
+                               struct cmc_alloc_node * alloc,                  \
+                               struct cmc_callbacks * callbacks)               \
     {                                                                          \
         if (!alloc)                                                            \
             _map_->alloc = &cmc_alloc_node_default;                            \
@@ -372,25 +388,25 @@ static const char *cmc_string_fmt_treemap = "struct %s<%s, %s> "
                                                                                \
         _map_->callbacks = callbacks;                                          \
                                                                                \
-        _map_->flag = cmc_flags.OK;                                            \
+        _map_->flag = CMC_FLAG_OK;                                             \
     }                                                                          \
                                                                                \
-    bool PFX##_insert(struct SNAME *_map_, K key, V value)                     \
+    bool CMC_(PFX, _insert)(struct SNAME * _map_, K key, V value)              \
     {                                                                          \
-        if (PFX##_empty(_map_))                                                \
+        if (CMC_(PFX, _empty)(_map_))                                          \
         {                                                                      \
-            _map_->root = PFX##_impl_new_node(_map_, key, value);              \
+            _map_->root = CMC_(PFX, _impl_new_node)(_map_, key, value);        \
                                                                                \
             if (!_map_->root)                                                  \
             {                                                                  \
-                _map_->flag = cmc_flags.ALLOC;                                 \
+                _map_->flag = CMC_FLAG_ALLOC;                                  \
                 return false;                                                  \
             }                                                                  \
         }                                                                      \
         else                                                                   \
         {                                                                      \
-            struct SNAME##_node *scan = _map_->root;                           \
-            struct SNAME##_node *parent = scan;                                \
+            struct CMC_DEF_NODE(SNAME) *scan = _map_->root;                    \
+            struct CMC_DEF_NODE(SNAME) *parent = scan;                         \
                                                                                \
             while (scan != NULL)                                               \
             {                                                                  \
@@ -402,20 +418,20 @@ static const char *cmc_string_fmt_treemap = "struct %s<%s, %s> "
                     scan = scan->right;                                        \
                 else                                                           \
                 {                                                              \
-                    _map_->flag = cmc_flags.DUPLICATE;                         \
+                    _map_->flag = CMC_FLAG_DUPLICATE;                          \
                     return false;                                              \
                 }                                                              \
             }                                                                  \
                                                                                \
-            struct SNAME##_node *node;                                         \
+            struct CMC_DEF_NODE(SNAME) * node;                                 \
                                                                                \
             if (_map_->f_key->cmp(parent->key, key) > 0)                       \
             {                                                                  \
-                parent->left = PFX##_impl_new_node(_map_, key, value);         \
+                parent->left = CMC_(PFX, _impl_new_node)(_map_, key, value);   \
                                                                                \
                 if (!parent->left)                                             \
                 {                                                              \
-                    _map_->flag = cmc_flags.ALLOC;                             \
+                    _map_->flag = CMC_FLAG_ALLOC;                              \
                     return false;                                              \
                 }                                                              \
                                                                                \
@@ -424,11 +440,11 @@ static const char *cmc_string_fmt_treemap = "struct %s<%s, %s> "
             }                                                                  \
             else                                                               \
             {                                                                  \
-                parent->right = PFX##_impl_new_node(_map_, key, value);        \
+                parent->right = CMC_(PFX, _impl_new_node)(_map_, key, value);  \
                                                                                \
                 if (!parent->right)                                            \
                 {                                                              \
-                    _map_->flag = cmc_flags.ALLOC;                             \
+                    _map_->flag = CMC_FLAG_ALLOC;                              \
                     return false;                                              \
                 }                                                              \
                                                                                \
@@ -436,11 +452,11 @@ static const char *cmc_string_fmt_treemap = "struct %s<%s, %s> "
                 node = parent->right;                                          \
             }                                                                  \
                                                                                \
-            PFX##_impl_rebalance(_map_, node);                                 \
+            CMC_(PFX, _impl_rebalance)(_map_, node);                           \
         }                                                                      \
                                                                                \
         _map_->count++;                                                        \
-        _map_->flag = cmc_flags.OK;                                            \
+        _map_->flag = CMC_FLAG_OK;                                             \
                                                                                \
         if (_map_->callbacks && _map_->callbacks->create)                      \
             _map_->callbacks->create();                                        \
@@ -448,13 +464,15 @@ static const char *cmc_string_fmt_treemap = "struct %s<%s, %s> "
         return true;                                                           \
     }                                                                          \
                                                                                \
-    bool PFX##_update(struct SNAME *_map_, K key, V new_value, V *old_value)   \
+    bool CMC_(PFX, _update)(struct SNAME * _map_, K key, V new_value,          \
+                            V * old_value)                                     \
     {                                                                          \
-        struct SNAME##_node *node = PFX##_impl_get_node(_map_, key);           \
+        struct CMC_DEF_NODE(SNAME) *node =                                     \
+            CMC_(PFX, _impl_get_node)(_map_, key);                             \
                                                                                \
         if (!node)                                                             \
         {                                                                      \
-            _map_->flag = cmc_flags.NOT_FOUND;                                 \
+            _map_->flag = CMC_FLAG_NOT_FOUND;                                  \
             return false;                                                      \
         }                                                                      \
                                                                                \
@@ -463,7 +481,7 @@ static const char *cmc_string_fmt_treemap = "struct %s<%s, %s> "
                                                                                \
         node->value = new_value;                                               \
                                                                                \
-        _map_->flag = cmc_flags.OK;                                            \
+        _map_->flag = CMC_FLAG_OK;                                             \
                                                                                \
         if (_map_->callbacks && _map_->callbacks->update)                      \
             _map_->callbacks->update();                                        \
@@ -471,26 +489,27 @@ static const char *cmc_string_fmt_treemap = "struct %s<%s, %s> "
         return true;                                                           \
     }                                                                          \
                                                                                \
-    bool PFX##_remove(struct SNAME *_map_, K key, V *out_value)                \
+    bool CMC_(PFX, _remove)(struct SNAME * _map_, K key, V * out_value)        \
     {                                                                          \
-        if (PFX##_empty(_map_))                                                \
+        if (CMC_(PFX, _empty)(_map_))                                          \
         {                                                                      \
-            _map_->flag = cmc_flags.EMPTY;                                     \
+            _map_->flag = CMC_FLAG_EMPTY;                                      \
             return false;                                                      \
         }                                                                      \
                                                                                \
-        struct SNAME##_node *node = PFX##_impl_get_node(_map_, key);           \
+        struct CMC_DEF_NODE(SNAME) *node =                                     \
+            CMC_(PFX, _impl_get_node)(_map_, key);                             \
                                                                                \
         if (!node)                                                             \
         {                                                                      \
-            _map_->flag = cmc_flags.NOT_FOUND;                                 \
+            _map_->flag = CMC_FLAG_NOT_FOUND;                                  \
             return false;                                                      \
         }                                                                      \
                                                                                \
         if (out_value)                                                         \
             *out_value = node->value;                                          \
                                                                                \
-        struct SNAME##_node *temp = NULL, *unbalanced = NULL;                  \
+        struct CMC_DEF_NODE(SNAME) *temp = NULL, *unbalanced = NULL;           \
                                                                                \
         bool is_root = node->parent == NULL;                                   \
                                                                                \
@@ -596,13 +615,13 @@ static const char *cmc_string_fmt_treemap = "struct %s<%s, %s> "
         }                                                                      \
                                                                                \
         if (unbalanced != NULL)                                                \
-            PFX##_impl_rebalance(_map_, unbalanced);                           \
+            CMC_(PFX, _impl_rebalance)(_map_, unbalanced);                     \
                                                                                \
         if (_map_->count == 0)                                                 \
             _map_->root = NULL;                                                \
                                                                                \
         _map_->count--;                                                        \
-        _map_->flag = cmc_flags.OK;                                            \
+        _map_->flag = CMC_FLAG_OK;                                             \
                                                                                \
         if (_map_->callbacks && _map_->callbacks->delete)                      \
             _map_->callbacks->delete ();                                       \
@@ -610,15 +629,15 @@ static const char *cmc_string_fmt_treemap = "struct %s<%s, %s> "
         return true;                                                           \
     }                                                                          \
                                                                                \
-    bool PFX##_max(struct SNAME *_map_, K *key, V *value)                      \
+    bool CMC_(PFX, _max)(struct SNAME * _map_, K * key, V * value)             \
     {                                                                          \
-        if (PFX##_empty(_map_))                                                \
+        if (CMC_(PFX, _empty)(_map_))                                          \
         {                                                                      \
-            _map_->flag = cmc_flags.EMPTY;                                     \
+            _map_->flag = CMC_FLAG_EMPTY;                                      \
             return false;                                                      \
         }                                                                      \
                                                                                \
-        struct SNAME##_node *scan = _map_->root;                               \
+        struct CMC_DEF_NODE(SNAME) *scan = _map_->root;                        \
                                                                                \
         while (scan->right != NULL)                                            \
             scan = scan->right;                                                \
@@ -628,7 +647,7 @@ static const char *cmc_string_fmt_treemap = "struct %s<%s, %s> "
         if (value)                                                             \
             *value = scan->value;                                              \
                                                                                \
-        _map_->flag = cmc_flags.OK;                                            \
+        _map_->flag = CMC_FLAG_OK;                                             \
                                                                                \
         if (_map_->callbacks && _map_->callbacks->read)                        \
             _map_->callbacks->read();                                          \
@@ -636,15 +655,15 @@ static const char *cmc_string_fmt_treemap = "struct %s<%s, %s> "
         return true;                                                           \
     }                                                                          \
                                                                                \
-    bool PFX##_min(struct SNAME *_map_, K *key, V *value)                      \
+    bool CMC_(PFX, _min)(struct SNAME * _map_, K * key, V * value)             \
     {                                                                          \
-        if (PFX##_empty(_map_))                                                \
+        if (CMC_(PFX, _empty)(_map_))                                          \
         {                                                                      \
-            _map_->flag = cmc_flags.EMPTY;                                     \
+            _map_->flag = CMC_FLAG_EMPTY;                                      \
             return false;                                                      \
         }                                                                      \
                                                                                \
-        struct SNAME##_node *scan = _map_->root;                               \
+        struct CMC_DEF_NODE(SNAME) *scan = _map_->root;                        \
                                                                                \
         while (scan->left != NULL)                                             \
             scan = scan->left;                                                 \
@@ -654,7 +673,7 @@ static const char *cmc_string_fmt_treemap = "struct %s<%s, %s> "
         if (value)                                                             \
             *value = scan->value;                                              \
                                                                                \
-        _map_->flag = cmc_flags.OK;                                            \
+        _map_->flag = CMC_FLAG_OK;                                             \
                                                                                \
         if (_map_->callbacks && _map_->callbacks->read)                        \
             _map_->callbacks->read();                                          \
@@ -662,23 +681,24 @@ static const char *cmc_string_fmt_treemap = "struct %s<%s, %s> "
         return true;                                                           \
     }                                                                          \
                                                                                \
-    V PFX##_get(struct SNAME *_map_, K key)                                    \
+    V CMC_(PFX, _get)(struct SNAME * _map_, K key)                             \
     {                                                                          \
-        if (PFX##_empty(_map_))                                                \
+        if (CMC_(PFX, _empty)(_map_))                                          \
         {                                                                      \
-            _map_->flag = cmc_flags.EMPTY;                                     \
+            _map_->flag = CMC_FLAG_EMPTY;                                      \
             return false;                                                      \
         }                                                                      \
                                                                                \
-        struct SNAME##_node *node = PFX##_impl_get_node(_map_, key);           \
+        struct CMC_DEF_NODE(SNAME) *node =                                     \
+            CMC_(PFX, _impl_get_node)(_map_, key);                             \
                                                                                \
         if (!node)                                                             \
         {                                                                      \
-            _map_->flag = cmc_flags.NOT_FOUND;                                 \
+            _map_->flag = CMC_FLAG_NOT_FOUND;                                  \
             return (V){ 0 };                                                   \
         }                                                                      \
                                                                                \
-        _map_->flag = cmc_flags.OK;                                            \
+        _map_->flag = CMC_FLAG_OK;                                             \
                                                                                \
         if (_map_->callbacks && _map_->callbacks->read)                        \
             _map_->callbacks->read();                                          \
@@ -686,23 +706,24 @@ static const char *cmc_string_fmt_treemap = "struct %s<%s, %s> "
         return node->value;                                                    \
     }                                                                          \
                                                                                \
-    V *PFX##_get_ref(struct SNAME *_map_, K key)                               \
+    V *CMC_(PFX, _get_ref)(struct SNAME * _map_, K key)                        \
     {                                                                          \
-        if (PFX##_empty(_map_))                                                \
+        if (CMC_(PFX, _empty)(_map_))                                          \
         {                                                                      \
-            _map_->flag = cmc_flags.EMPTY;                                     \
+            _map_->flag = CMC_FLAG_EMPTY;                                      \
             return false;                                                      \
         }                                                                      \
                                                                                \
-        struct SNAME##_node *node = PFX##_impl_get_node(_map_, key);           \
+        struct CMC_DEF_NODE(SNAME) *node =                                     \
+            CMC_(PFX, _impl_get_node)(_map_, key);                             \
                                                                                \
         if (!node)                                                             \
         {                                                                      \
-            _map_->flag = cmc_flags.NOT_FOUND;                                 \
+            _map_->flag = CMC_FLAG_NOT_FOUND;                                  \
             return NULL;                                                       \
         }                                                                      \
                                                                                \
-        _map_->flag = cmc_flags.OK;                                            \
+        _map_->flag = CMC_FLAG_OK;                                             \
                                                                                \
         if (_map_->callbacks && _map_->callbacks->read)                        \
             _map_->callbacks->read();                                          \
@@ -710,9 +731,9 @@ static const char *cmc_string_fmt_treemap = "struct %s<%s, %s> "
         return &(node->value);                                                 \
     }                                                                          \
                                                                                \
-    bool PFX##_contains(struct SNAME *_map_, K key)                            \
+    bool CMC_(PFX, _contains)(struct SNAME * _map_, K key)                     \
     {                                                                          \
-        bool result = PFX##_impl_get_node(_map_, key) != NULL;                 \
+        bool result = CMC_(PFX, _impl_get_node)(_map_, key) != NULL;           \
                                                                                \
         if (_map_->callbacks && _map_->callbacks->read)                        \
             _map_->callbacks->read();                                          \
@@ -720,40 +741,40 @@ static const char *cmc_string_fmt_treemap = "struct %s<%s, %s> "
         return result;                                                         \
     }                                                                          \
                                                                                \
-    bool PFX##_empty(struct SNAME *_map_)                                      \
+    bool CMC_(PFX, _empty)(struct SNAME * _map_)                               \
     {                                                                          \
         return _map_->count == 0;                                              \
     }                                                                          \
                                                                                \
-    size_t PFX##_count(struct SNAME *_map_)                                    \
+    size_t CMC_(PFX, _count)(struct SNAME * _map_)                             \
     {                                                                          \
         return _map_->count;                                                   \
     }                                                                          \
                                                                                \
-    int PFX##_flag(struct SNAME *_map_)                                        \
+    int CMC_(PFX, _flag)(struct SNAME * _map_)                                 \
     {                                                                          \
         return _map_->flag;                                                    \
     }                                                                          \
                                                                                \
-    struct SNAME *PFX##_copy_of(struct SNAME *_map_)                           \
+    struct SNAME *CMC_(PFX, _copy_of)(struct SNAME * _map_)                    \
     {                                                                          \
         /* Callback will be added later */                                     \
-        struct SNAME *result =                                                 \
-            PFX##_new_custom(_map_->f_key, _map_->f_val, _map_->alloc, NULL);  \
+        struct SNAME *result = CMC_(PFX, _new_custom)(                         \
+            _map_->f_key, _map_->f_val, _map_->alloc, NULL);                   \
                                                                                \
         if (!result)                                                           \
         {                                                                      \
-            _map_->flag = cmc_flags.ERROR;                                     \
+            _map_->flag = CMC_FLAG_ERROR;                                      \
             return NULL;                                                       \
         }                                                                      \
                                                                                \
         /* TODO turn this into a normal loop */                                \
-        struct SNAME##_iter iter = PFX##_iter_start(_map_);                    \
+        struct CMC_DEF_ITER(SNAME) iter = CMC_(PFX, _iter_start)(_map_);       \
                                                                                \
-        for (; !PFX##_iter_at_end(&iter); PFX##_iter_next(&iter))              \
+        for (; !CMC_(PFX, _iter_at_end)(&iter); CMC_(PFX, _iter_next)(&iter))  \
         {                                                                      \
-            K key = PFX##_iter_key(&iter);                                     \
-            V value = PFX##_iter_value(&iter);                                 \
+            K key = CMC_(PFX, _iter_key)(&iter);                               \
+            V value = CMC_(PFX, _iter_value)(&iter);                           \
                                                                                \
             if (_map_->f_key->cpy)                                             \
                 key = _map_->f_key->cpy(key);                                  \
@@ -761,56 +782,57 @@ static const char *cmc_string_fmt_treemap = "struct %s<%s, %s> "
                 value = _map_->f_val->cpy(value);                              \
                                                                                \
             /* TODO check this for errors */                                   \
-            PFX##_insert(result, key, value);                                  \
+            CMC_(PFX, _insert)(result, key, value);                            \
         }                                                                      \
                                                                                \
         result->callbacks = _map_->callbacks;                                  \
-        _map_->flag = cmc_flags.OK;                                            \
+        _map_->flag = CMC_FLAG_OK;                                             \
                                                                                \
         return result;                                                         \
     }                                                                          \
                                                                                \
-    bool PFX##_equals(struct SNAME *_map1_, struct SNAME *_map2_)              \
+    bool CMC_(PFX, _equals)(struct SNAME * _map1_, struct SNAME * _map2_)      \
     {                                                                          \
-        _map1_->flag = cmc_flags.OK;                                           \
-        _map2_->flag = cmc_flags.OK;                                           \
+        _map1_->flag = CMC_FLAG_OK;                                            \
+        _map2_->flag = CMC_FLAG_OK;                                            \
                                                                                \
         if (_map1_->count != _map2_->count)                                    \
             return false;                                                      \
                                                                                \
         /* TODO turn this into a normal loop */                                \
-        struct SNAME##_iter iter = PFX##_iter_start(_map1_);                   \
+        struct CMC_DEF_ITER(SNAME) iter = CMC_(PFX, _iter_start)(_map1_);      \
                                                                                \
-        for (; !PFX##_iter_at_end(&iter); PFX##_iter_next(&iter))              \
+        for (; !CMC_(PFX, _iter_at_end)(&iter); CMC_(PFX, _iter_next)(&iter))  \
         {                                                                      \
-            struct SNAME##_node *node =                                        \
-                PFX##_impl_get_node(_map2_, PFX##_iter_key(&iter));            \
+            struct CMC_DEF_NODE(SNAME) *node = CMC_(PFX, _impl_get_node)(      \
+                _map2_, CMC_(PFX, _iter_key)(&iter));                          \
                                                                                \
             if (node == NULL)                                                  \
                 return false;                                                  \
                                                                                \
-            if (_map1_->f_val->cmp(node->value, PFX##_iter_value(&iter)) != 0) \
+            if (_map1_->f_val->cmp(node->value,                                \
+                                   CMC_(PFX, _iter_value)(&iter)) != 0)        \
                 return false;                                                  \
         }                                                                      \
                                                                                \
         return true;                                                           \
     }                                                                          \
                                                                                \
-    struct cmc_string PFX##_to_string(struct SNAME *_map_)                     \
+    struct cmc_string CMC_(PFX, _to_string)(struct SNAME * _map_)              \
     {                                                                          \
         struct cmc_string str;                                                 \
         struct SNAME *m_ = _map_;                                              \
                                                                                \
-        int n = snprintf(str.s, cmc_string_len, cmc_string_fmt_treemap,        \
+        int n = snprintf(str.s, cmc_string_len, cmc_cmc_string_fmt_treemap,    \
                          #SNAME, #K, #V, m_, m_->root, m_->count, m_->flag,    \
                          m_->f_key, m_->f_val, m_->alloc, m_->callbacks);      \
                                                                                \
         return n >= 0 ? str : (struct cmc_string){ 0 };                        \
     }                                                                          \
                                                                                \
-    bool PFX##_print(struct SNAME *_map_, FILE *fptr)                          \
+    bool CMC_(PFX, _print)(struct SNAME * _map_, FILE * fptr)                  \
     {                                                                          \
-        struct SNAME##_node *root = _map_->root;                               \
+        struct CMC_DEF_NODE(SNAME) *root = _map_->root;                        \
                                                                                \
         bool left_done = false;                                                \
                                                                                \
@@ -850,9 +872,9 @@ static const char *cmc_string_fmt_treemap = "struct %s<%s, %s> "
         return true;                                                           \
     }                                                                          \
                                                                                \
-    struct SNAME##_iter PFX##_iter_start(struct SNAME *target)                 \
+    struct CMC_DEF_ITER(SNAME) CMC_(PFX, _iter_start)(struct SNAME * target)   \
     {                                                                          \
-        struct SNAME##_iter iter;                                              \
+        struct CMC_DEF_ITER(SNAME) iter;                                       \
                                                                                \
         iter.target = target;                                                  \
         iter.cursor = target->root;                                            \
@@ -860,9 +882,9 @@ static const char *cmc_string_fmt_treemap = "struct %s<%s, %s> "
         iter.last = NULL;                                                      \
         iter.index = 0;                                                        \
         iter.start = true;                                                     \
-        iter.end = PFX##_empty(target);                                        \
+        iter.end = CMC_(PFX, _empty)(target);                                  \
                                                                                \
-        if (!PFX##_empty(target))                                              \
+        if (!CMC_(PFX, _empty)(target))                                        \
         {                                                                      \
             while (iter.cursor->left != NULL)                                  \
                 iter.cursor = iter.cursor->left;                               \
@@ -877,19 +899,19 @@ static const char *cmc_string_fmt_treemap = "struct %s<%s, %s> "
         return iter;                                                           \
     }                                                                          \
                                                                                \
-    struct SNAME##_iter PFX##_iter_end(struct SNAME *target)                   \
+    struct CMC_DEF_ITER(SNAME) CMC_(PFX, _iter_end)(struct SNAME * target)     \
     {                                                                          \
-        struct SNAME##_iter iter;                                              \
+        struct CMC_DEF_ITER(SNAME) iter;                                       \
                                                                                \
         iter.target = target;                                                  \
         iter.cursor = target->root;                                            \
         iter.first = NULL;                                                     \
         iter.last = NULL;                                                      \
         iter.index = 0;                                                        \
-        iter.start = PFX##_empty(target);                                      \
+        iter.start = CMC_(PFX, _empty)(target);                                \
         iter.end = true;                                                       \
                                                                                \
-        if (!PFX##_empty(target))                                              \
+        if (!CMC_(PFX, _empty)(target))                                        \
         {                                                                      \
             while (iter.cursor->right != NULL)                                 \
                 iter.cursor = iter.cursor->right;                              \
@@ -906,23 +928,23 @@ static const char *cmc_string_fmt_treemap = "struct %s<%s, %s> "
         return iter;                                                           \
     }                                                                          \
                                                                                \
-    bool PFX##_iter_at_start(struct SNAME##_iter *iter)                        \
+    bool CMC_(PFX, _iter_at_start)(struct CMC_DEF_ITER(SNAME) * iter)          \
     {                                                                          \
-        return PFX##_empty(iter->target) || iter->start;                       \
+        return CMC_(PFX, _empty)(iter->target) || iter->start;                 \
     }                                                                          \
                                                                                \
-    bool PFX##_iter_at_end(struct SNAME##_iter *iter)                          \
+    bool CMC_(PFX, _iter_at_end)(struct CMC_DEF_ITER(SNAME) * iter)            \
     {                                                                          \
-        return PFX##_empty(iter->target) || iter->end;                         \
+        return CMC_(PFX, _empty)(iter->target) || iter->end;                   \
     }                                                                          \
                                                                                \
-    bool PFX##_iter_to_start(struct SNAME##_iter *iter)                        \
+    bool CMC_(PFX, _iter_to_start)(struct CMC_DEF_ITER(SNAME) * iter)          \
     {                                                                          \
-        if (!PFX##_empty(iter->target))                                        \
+        if (!CMC_(PFX, _empty)(iter->target))                                  \
         {                                                                      \
             iter->index = 0;                                                   \
             iter->start = true;                                                \
-            iter->end = PFX##_empty(iter->target);                             \
+            iter->end = CMC_(PFX, _empty)(iter->target);                       \
             iter->cursor = iter->first;                                        \
                                                                                \
             return true;                                                       \
@@ -931,12 +953,12 @@ static const char *cmc_string_fmt_treemap = "struct %s<%s, %s> "
         return false;                                                          \
     }                                                                          \
                                                                                \
-    bool PFX##_iter_to_end(struct SNAME##_iter *iter)                          \
+    bool CMC_(PFX, _iter_to_end)(struct CMC_DEF_ITER(SNAME) * iter)            \
     {                                                                          \
-        if (!PFX##_empty(iter->target))                                        \
+        if (!CMC_(PFX, _empty)(iter->target))                                  \
         {                                                                      \
             iter->index = iter->target->count - 1;                             \
-            iter->start = PFX##_empty(iter->target);                           \
+            iter->start = CMC_(PFX, _empty)(iter->target);                     \
             iter->end = true;                                                  \
             iter->cursor = iter->last;                                         \
                                                                                \
@@ -946,7 +968,7 @@ static const char *cmc_string_fmt_treemap = "struct %s<%s, %s> "
         return false;                                                          \
     }                                                                          \
                                                                                \
-    bool PFX##_iter_next(struct SNAME##_iter *iter)                            \
+    bool CMC_(PFX, _iter_next)(struct CMC_DEF_ITER(SNAME) * iter)              \
     {                                                                          \
         if (iter->end)                                                         \
             return false;                                                      \
@@ -957,7 +979,7 @@ static const char *cmc_string_fmt_treemap = "struct %s<%s, %s> "
             return false;                                                      \
         }                                                                      \
                                                                                \
-        iter->start = PFX##_empty(iter->target);                               \
+        iter->start = CMC_(PFX, _empty)(iter->target);                         \
                                                                                \
         if (iter->cursor->right != NULL)                                       \
         {                                                                      \
@@ -986,7 +1008,7 @@ static const char *cmc_string_fmt_treemap = "struct %s<%s, %s> "
         }                                                                      \
     }                                                                          \
                                                                                \
-    bool PFX##_iter_prev(struct SNAME##_iter *iter)                            \
+    bool CMC_(PFX, _iter_prev)(struct CMC_DEF_ITER(SNAME) * iter)              \
     {                                                                          \
         if (iter->start)                                                       \
             return false;                                                      \
@@ -997,7 +1019,7 @@ static const char *cmc_string_fmt_treemap = "struct %s<%s, %s> "
             return false;                                                      \
         }                                                                      \
                                                                                \
-        iter->end = PFX##_empty(iter->target);                                 \
+        iter->end = CMC_(PFX, _empty)(iter->target);                           \
                                                                                \
         if (iter->cursor->left != NULL)                                        \
         {                                                                      \
@@ -1027,7 +1049,8 @@ static const char *cmc_string_fmt_treemap = "struct %s<%s, %s> "
     }                                                                          \
                                                                                \
     /* Returns true only if the iterator moved */                              \
-    bool PFX##_iter_advance(struct SNAME##_iter *iter, size_t steps)           \
+    bool CMC_(PFX, _iter_advance)(struct CMC_DEF_ITER(SNAME) * iter,           \
+                                  size_t steps)                                \
     {                                                                          \
         if (iter->end)                                                         \
             return false;                                                      \
@@ -1042,13 +1065,14 @@ static const char *cmc_string_fmt_treemap = "struct %s<%s, %s> "
             return false;                                                      \
                                                                                \
         for (size_t i = 0; i < steps; i++)                                     \
-            PFX##_iter_next(iter);                                             \
+            CMC_(PFX, _iter_next)(iter);                                       \
                                                                                \
         return true;                                                           \
     }                                                                          \
                                                                                \
     /* Returns true only if the iterator moved */                              \
-    bool PFX##_iter_rewind(struct SNAME##_iter *iter, size_t steps)            \
+    bool CMC_(PFX, _iter_rewind)(struct CMC_DEF_ITER(SNAME) * iter,            \
+                                 size_t steps)                                 \
     {                                                                          \
         if (iter->start)                                                       \
             return false;                                                      \
@@ -1063,60 +1087,61 @@ static const char *cmc_string_fmt_treemap = "struct %s<%s, %s> "
             return false;                                                      \
                                                                                \
         for (size_t i = 0; i < steps; i++)                                     \
-            PFX##_iter_prev(iter);                                             \
+            CMC_(PFX, _iter_prev)(iter);                                       \
                                                                                \
         return true;                                                           \
     }                                                                          \
                                                                                \
     /* Returns true only if the iterator was able to be positioned at the */   \
     /* given index */                                                          \
-    bool PFX##_iter_go_to(struct SNAME##_iter *iter, size_t index)             \
+    bool CMC_(PFX, _iter_go_to)(struct CMC_DEF_ITER(SNAME) * iter,             \
+                                size_t index)                                  \
     {                                                                          \
         if (index >= iter->target->count)                                      \
             return false;                                                      \
                                                                                \
         if (iter->index > index)                                               \
-            return PFX##_iter_rewind(iter, iter->index - index);               \
+            return CMC_(PFX, _iter_rewind)(iter, iter->index - index);         \
         else if (iter->index < index)                                          \
-            return PFX##_iter_advance(iter, index - iter->index);              \
+            return CMC_(PFX, _iter_advance)(iter, index - iter->index);        \
                                                                                \
         return true;                                                           \
     }                                                                          \
                                                                                \
-    K PFX##_iter_key(struct SNAME##_iter *iter)                                \
+    K CMC_(PFX, _iter_key)(struct CMC_DEF_ITER(SNAME) * iter)                  \
     {                                                                          \
-        if (PFX##_empty(iter->target))                                         \
+        if (CMC_(PFX, _empty)(iter->target))                                   \
             return (K){ 0 };                                                   \
                                                                                \
         return iter->cursor->key;                                              \
     }                                                                          \
                                                                                \
-    V PFX##_iter_value(struct SNAME##_iter *iter)                              \
+    V CMC_(PFX, _iter_value)(struct CMC_DEF_ITER(SNAME) * iter)                \
     {                                                                          \
-        if (PFX##_empty(iter->target))                                         \
+        if (CMC_(PFX, _empty)(iter->target))                                   \
             return (V){ 0 };                                                   \
                                                                                \
         return iter->cursor->value;                                            \
     }                                                                          \
                                                                                \
-    V *PFX##_iter_rvalue(struct SNAME##_iter *iter)                            \
+    V *CMC_(PFX, _iter_rvalue)(struct CMC_DEF_ITER(SNAME) * iter)              \
     {                                                                          \
-        if (PFX##_empty(iter->target))                                         \
+        if (CMC_(PFX, _empty)(iter->target))                                   \
             return NULL;                                                       \
                                                                                \
         return &(iter->cursor->value);                                         \
     }                                                                          \
                                                                                \
-    size_t PFX##_iter_index(struct SNAME##_iter *iter)                         \
+    size_t CMC_(PFX, _iter_index)(struct CMC_DEF_ITER(SNAME) * iter)           \
     {                                                                          \
         return iter->index;                                                    \
     }                                                                          \
                                                                                \
-    static struct SNAME##_node *PFX##_impl_new_node(struct SNAME *_map_,       \
-                                                    K key, V value)            \
+    static struct CMC_DEF_NODE(SNAME) *                                        \
+        CMC_(PFX, _impl_new_node)(struct SNAME * _map_, K key, V value)        \
     {                                                                          \
-        struct SNAME##_node *node =                                            \
-            _map_->alloc->malloc(sizeof(struct SNAME##_node));                 \
+        struct CMC_DEF_NODE(SNAME) *node =                                     \
+            _map_->alloc->malloc(sizeof(struct CMC_DEF_NODE(SNAME)));          \
                                                                                \
         if (!node)                                                             \
             return NULL;                                                       \
@@ -1131,10 +1156,10 @@ static const char *cmc_string_fmt_treemap = "struct %s<%s, %s> "
         return node;                                                           \
     }                                                                          \
                                                                                \
-    static struct SNAME##_node *PFX##_impl_get_node(struct SNAME *_map_,       \
-                                                    K key)                     \
+    static struct CMC_DEF_NODE(SNAME) *                                        \
+        CMC_(PFX, _impl_get_node)(struct SNAME * _map_, K key)                 \
     {                                                                          \
-        struct SNAME##_node *scan = _map_->root;                               \
+        struct CMC_DEF_NODE(SNAME) *scan = _map_->root;                        \
                                                                                \
         while (scan != NULL)                                                   \
         {                                                                      \
@@ -1149,7 +1174,7 @@ static const char *cmc_string_fmt_treemap = "struct %s<%s, %s> "
         return NULL;                                                           \
     }                                                                          \
                                                                                \
-    static unsigned char PFX##_impl_h(struct SNAME##_node *node)               \
+    static unsigned char CMC_(PFX, _impl_h)(struct CMC_DEF_NODE(SNAME) * node) \
     {                                                                          \
         if (node == NULL)                                                      \
             return 0;                                                          \
@@ -1157,21 +1182,22 @@ static const char *cmc_string_fmt_treemap = "struct %s<%s, %s> "
         return node->height;                                                   \
     }                                                                          \
                                                                                \
-    static unsigned char PFX##_impl_hupdate(struct SNAME##_node *node)         \
+    static unsigned char CMC_(PFX, _impl_hupdate)(struct CMC_DEF_NODE(SNAME) * \
+                                                  node)                        \
     {                                                                          \
         if (node == NULL)                                                      \
             return 0;                                                          \
                                                                                \
-        unsigned char h_l = PFX##_impl_h(node->left);                          \
-        unsigned char h_r = PFX##_impl_h(node->right);                         \
+        unsigned char h_l = CMC_(PFX, _impl_h)(node->left);                    \
+        unsigned char h_r = CMC_(PFX, _impl_h)(node->right);                   \
                                                                                \
         return 1 + (h_l > h_r ? h_l : h_r);                                    \
     }                                                                          \
                                                                                \
-    static void PFX##_impl_rotate_right(struct SNAME##_node **Z)               \
+    static void CMC_(PFX, _impl_rotate_right)(struct CMC_DEF_NODE(SNAME) * *Z) \
     {                                                                          \
-        struct SNAME##_node *root = *Z;                                        \
-        struct SNAME##_node *new_root = root->left;                            \
+        struct CMC_DEF_NODE(SNAME) *root = *Z;                                 \
+        struct CMC_DEF_NODE(SNAME) *new_root = root->left;                     \
                                                                                \
         if (root->parent != NULL)                                              \
         {                                                                      \
@@ -1191,16 +1217,16 @@ static const char *cmc_string_fmt_treemap = "struct %s<%s, %s> "
                                                                                \
         new_root->right = root;                                                \
                                                                                \
-        root->height = PFX##_impl_hupdate(root);                               \
-        new_root->height = PFX##_impl_hupdate(new_root);                       \
+        root->height = CMC_(PFX, _impl_hupdate)(root);                         \
+        new_root->height = CMC_(PFX, _impl_hupdate)(new_root);                 \
                                                                                \
         *Z = new_root;                                                         \
     }                                                                          \
                                                                                \
-    static void PFX##_impl_rotate_left(struct SNAME##_node **Z)                \
+    static void CMC_(PFX, _impl_rotate_left)(struct CMC_DEF_NODE(SNAME) * *Z)  \
     {                                                                          \
-        struct SNAME##_node *root = *Z;                                        \
-        struct SNAME##_node *new_root = root->right;                           \
+        struct CMC_DEF_NODE(SNAME) *root = *Z;                                 \
+        struct CMC_DEF_NODE(SNAME) *new_root = root->right;                    \
                                                                                \
         if (root->parent != NULL)                                              \
         {                                                                      \
@@ -1220,16 +1246,16 @@ static const char *cmc_string_fmt_treemap = "struct %s<%s, %s> "
                                                                                \
         new_root->left = root;                                                 \
                                                                                \
-        root->height = PFX##_impl_hupdate(root);                               \
-        new_root->height = PFX##_impl_hupdate(new_root);                       \
+        root->height = CMC_(PFX, _impl_hupdate)(root);                         \
+        new_root->height = CMC_(PFX, _impl_hupdate)(new_root);                 \
                                                                                \
         *Z = new_root;                                                         \
     }                                                                          \
                                                                                \
-    static void PFX##_impl_rebalance(struct SNAME *_map_,                      \
-                                     struct SNAME##_node *node)                \
+    static void CMC_(PFX, _impl_rebalance)(struct SNAME * _map_,               \
+                                           struct CMC_DEF_NODE(SNAME) * node)  \
     {                                                                          \
-        struct SNAME##_node *scan = node, *child = NULL;                       \
+        struct CMC_DEF_NODE(SNAME) *scan = node, *child = NULL;                \
                                                                                \
         int balance;                                                           \
         bool is_root = false;                                                  \
@@ -1239,26 +1265,29 @@ static const char *cmc_string_fmt_treemap = "struct %s<%s, %s> "
             if (scan->parent == NULL)                                          \
                 is_root = true;                                                \
                                                                                \
-            scan->height = PFX##_impl_hupdate(scan);                           \
-            balance = PFX##_impl_h(scan->right) - PFX##_impl_h(scan->left);    \
+            scan->height = CMC_(PFX, _impl_hupdate)(scan);                     \
+            balance = CMC_(PFX, _impl_h)(scan->right) -                        \
+                      CMC_(PFX, _impl_h)(scan->left);                          \
                                                                                \
             if (balance >= 2)                                                  \
             {                                                                  \
                 child = scan->right;                                           \
                                                                                \
-                if (PFX##_impl_h(child->right) < PFX##_impl_h(child->left))    \
-                    PFX##_impl_rotate_right(&(scan->right));                   \
+                if (CMC_(PFX, _impl_h)(child->right) <                         \
+                    CMC_(PFX, _impl_h)(child->left))                           \
+                    CMC_(PFX, _impl_rotate_right)(&(scan->right));             \
                                                                                \
-                PFX##_impl_rotate_left(&scan);                                 \
+                CMC_(PFX, _impl_rotate_left)(&scan);                           \
             }                                                                  \
             else if (balance <= -2)                                            \
             {                                                                  \
                 child = scan->left;                                            \
                                                                                \
-                if (PFX##_impl_h(child->left) < PFX##_impl_h(child->right))    \
-                    PFX##_impl_rotate_left(&(scan->left));                     \
+                if (CMC_(PFX, _impl_h)(child->left) <                          \
+                    CMC_(PFX, _impl_h)(child->right))                          \
+                    CMC_(PFX, _impl_rotate_left)(&(scan->left));               \
                                                                                \
-                PFX##_impl_rotate_right(&scan);                                \
+                CMC_(PFX, _impl_rotate_right)(&scan);                          \
             }                                                                  \
                                                                                \
             if (is_root)                                                       \
@@ -1271,4 +1300,4 @@ static const char *cmc_string_fmt_treemap = "struct %s<%s, %s> "
         }                                                                      \
     }
 
-#endif /* CMC_TREEMAP_H */
+#endif /* CMC_CMC_TREEMAP_H */

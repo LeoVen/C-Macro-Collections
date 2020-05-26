@@ -41,8 +41,8 @@
  * the first key added will be the first to be removed.
  */
 
-#ifndef CMC_HASHMULTIMAP_H
-#define CMC_HASHMULTIMAP_H
+#ifndef CMC_CMC_HASHMULTIMAP_H
+#define CMC_CMC_HASHMULTIMAP_H
 
 /* -------------------------------------------------------------------------
  * Core functionalities of the C Macro Collections Library
@@ -58,38 +58,45 @@
  * HashMultiMap specific
  * ------------------------------------------------------------------------- */
 /* to_string format */
-static const char *cmc_string_fmt_hashmultimap = "struct %s<%s, %s> "
-                                                 "at %p { "
-                                                 "buffer:%p, "
-                                                 "capacity:%" PRIuMAX ", "
-                                                 "count:%" PRIuMAX ", "
-                                                 "load:%lf, "
-                                                 "flag:%d, "
-                                                 "f_key:%p, "
-                                                 "f_val:%p, "
-                                                 "alloc:%p, "
-                                                 "callbacks:%p }";
+static const char *cmc_cmc_string_fmt_hashmultimap = "struct %s<%s, %s> "
+                                                     "at %p { "
+                                                     "buffer:%p, "
+                                                     "capacity:%" PRIuMAX ", "
+                                                     "count:%" PRIuMAX ", "
+                                                     "load:%lf, "
+                                                     "flag:%d, "
+                                                     "f_key:%p, "
+                                                     "f_val:%p, "
+                                                     "alloc:%p, "
+                                                     "callbacks:%p }";
 
-#define CMC_GENERATE_HASHMULTIMAP(PFX, SNAME, K, V)    \
-    CMC_GENERATE_HASHMULTIMAP_HEADER(PFX, SNAME, K, V) \
-    CMC_GENERATE_HASHMULTIMAP_SOURCE(PFX, SNAME, K, V)
+/**
+ * Core HashMultiMap implementation
+ */
+#define CMC_CMC_HASHMULTIMAP_CORE(BODY)    \
+    CMC_CMC_HASHMULTIMAP_CORE_HEADER(BODY) \
+    CMC_CMC_HASHMULTIMAP_CORE_SOURCE(BODY)
 
-#define CMC_WRAPGEN_HASHMULTIMAP_HEADER(PFX, SNAME, K, V) \
-    CMC_GENERATE_HASHMULTIMAP_HEADER(PFX, SNAME, K, V)
+#define CMC_CMC_HASHMULTIMAP_CORE_HEADER(BODY)               \
+    CMC_CMC_HASHMULTIMAP_CORE_HEADER_(CMC_PARAM_PFX(BODY),   \
+                                      CMC_PARAM_SNAME(BODY), \
+                                      CMC_PARAM_K(BODY), CMC_PARAM_V(BODY))
 
-#define CMC_WRAPGEN_HASHMULTIMAP_SOURCE(PFX, SNAME, K, V) \
-    CMC_GENERATE_HASHMULTIMAP_SOURCE(PFX, SNAME, K, V)
+#define CMC_CMC_HASHMULTIMAP_CORE_SOURCE(BODY)               \
+    CMC_CMC_HASHMULTIMAP_CORE_SOURCE_(CMC_PARAM_PFX(BODY),   \
+                                      CMC_PARAM_SNAME(BODY), \
+                                      CMC_PARAM_K(BODY), CMC_PARAM_V(BODY))
 
 /* -------------------------------------------------------------------------
  * Header
  * ------------------------------------------------------------------------- */
-#define CMC_GENERATE_HASHMULTIMAP_HEADER(PFX, SNAME, K, V)                    \
+#define CMC_CMC_HASHMULTIMAP_CORE_HEADER_(PFX, SNAME, K, V)                   \
                                                                               \
     /* HashMultimap Structure */                                              \
     struct SNAME                                                              \
     {                                                                         \
         /* Array of linked list to entries */                                 \
-        struct SNAME##_entry *(*buffer)[2];                                   \
+        struct CMC_DEF_ENTRY(SNAME) * (*buffer)[2];                           \
                                                                               \
         /* Current array capacity */                                          \
         size_t capacity;                                                      \
@@ -104,10 +111,10 @@ static const char *cmc_string_fmt_hashmultimap = "struct %s<%s, %s> "
         int flag;                                                             \
                                                                               \
         /* Key function table */                                              \
-        struct SNAME##_fkey *f_key;                                           \
+        struct CMC_DEF_FKEY(SNAME) * f_key;                                   \
                                                                               \
         /* Value function table */                                            \
-        struct SNAME##_fval *f_val;                                           \
+        struct CMC_DEF_FVAL(SNAME) * f_val;                                   \
                                                                               \
         /* Custom allocation functions */                                     \
         struct cmc_alloc_node *alloc;                                         \
@@ -117,7 +124,7 @@ static const char *cmc_string_fmt_hashmultimap = "struct %s<%s, %s> "
     };                                                                        \
                                                                               \
     /* HashMultimap Entry */                                                  \
-    struct SNAME##_entry                                                      \
+    struct CMC_DEF_ENTRY(SNAME)                                               \
     {                                                                         \
         /* Entry Key */                                                       \
         K key;                                                                \
@@ -126,14 +133,14 @@ static const char *cmc_string_fmt_hashmultimap = "struct %s<%s, %s> "
         V value;                                                              \
                                                                               \
         /* Next entry on the linked list */                                   \
-        struct SNAME##_entry *next;                                           \
+        struct CMC_DEF_ENTRY(SNAME) * next;                                   \
                                                                               \
         /* Previous entry on the linked list */                               \
-        struct SNAME##_entry *prev;                                           \
+        struct CMC_DEF_ENTRY(SNAME) * prev;                                   \
     };                                                                        \
                                                                               \
     /* Key struct function table */                                           \
-    struct SNAME##_fkey                                                       \
+    struct CMC_DEF_FKEY(SNAME)                                                \
     {                                                                         \
         /* Comparator function */                                             \
         int (*cmp)(K, K);                                                     \
@@ -155,7 +162,7 @@ static const char *cmc_string_fmt_hashmultimap = "struct %s<%s, %s> "
     };                                                                        \
                                                                               \
     /* Value struct function table */                                         \
-    struct SNAME##_fval                                                       \
+    struct CMC_DEF_FVAL(SNAME)                                                \
     {                                                                         \
         /* Comparator function */                                             \
         int (*cmp)(V, V);                                                     \
@@ -176,13 +183,13 @@ static const char *cmc_string_fmt_hashmultimap = "struct %s<%s, %s> "
         int (*pri)(V, V);                                                     \
     };                                                                        \
                                                                               \
-    struct SNAME##_iter                                                       \
+    struct CMC_DEF_ITER(SNAME)                                                \
     {                                                                         \
         /* Target hashmultimap */                                             \
         struct SNAME *target;                                                 \
                                                                               \
         /* Current entry */                                                   \
-        struct SNAME##_entry *curr_entry;                                     \
+        struct CMC_DEF_ENTRY(SNAME) * curr_entry;                             \
                                                                               \
         /* Cursor`s position (index) */                                       \
         size_t cursor;                                                        \
@@ -205,1266 +212,1287 @@ static const char *cmc_string_fmt_hashmultimap = "struct %s<%s, %s> "
                                                                               \
     /* Collection Functions */                                                \
     /* Collection Allocation and Deallocation */                              \
-    struct SNAME *PFX##_new(size_t capacity, double load,                     \
-                            struct SNAME##_fkey *f_key,                       \
-                            struct SNAME##_fval *f_val);                      \
-    struct SNAME *PFX##_new_custom(                                           \
-        size_t capacity, double load, struct SNAME##_fkey *f_key,             \
-        struct SNAME##_fval *f_val, struct cmc_alloc_node *alloc,             \
-        struct cmc_callbacks *callbacks);                                     \
-    void PFX##_clear(struct SNAME *_map_);                                    \
-    void PFX##_free(struct SNAME *_map_);                                     \
+    struct SNAME *CMC_(PFX, _new)(size_t capacity, double load,               \
+                                  struct CMC_DEF_FKEY(SNAME) * f_key,         \
+                                  struct CMC_DEF_FVAL(SNAME) * f_val);        \
+    struct SNAME *CMC_(PFX, _new_custom)(                                     \
+        size_t capacity, double load, struct CMC_DEF_FKEY(SNAME) * f_key,     \
+        struct CMC_DEF_FVAL(SNAME) * f_val, struct cmc_alloc_node * alloc,    \
+        struct cmc_callbacks * callbacks);                                    \
+    void CMC_(PFX, _clear)(struct SNAME * _map_);                             \
+    void CMC_(PFX, _free)(struct SNAME * _map_);                              \
     /* Customization of Allocation and Callbacks */                           \
-    void PFX##_customize(struct SNAME *_map_, struct cmc_alloc_node *alloc,   \
-                         struct cmc_callbacks *callbacks);                    \
+    void CMC_(PFX, _customize)(struct SNAME * _map_,                          \
+                               struct cmc_alloc_node * alloc,                 \
+                               struct cmc_callbacks * callbacks);             \
     /* Collection Input and Output */                                         \
-    bool PFX##_insert(struct SNAME *_map_, K key, V value);                   \
-    bool PFX##_update(struct SNAME *_map_, K key, V new_value, V *old_value); \
-    size_t PFX##_update_all(struct SNAME *_map_, K key, V new_value,          \
-                            V **old_values);                                  \
-    bool PFX##_remove(struct SNAME *_map_, K key, V *out_value);              \
-    size_t PFX##_remove_all(struct SNAME *_map_, K key, V **out_values);      \
+    bool CMC_(PFX, _insert)(struct SNAME * _map_, K key, V value);            \
+    bool CMC_(PFX, _update)(struct SNAME * _map_, K key, V new_value,         \
+                            V * old_value);                                   \
+    size_t CMC_(PFX, _update_all)(struct SNAME * _map_, K key, V new_value,   \
+                                  V * *old_values);                           \
+    bool CMC_(PFX, _remove)(struct SNAME * _map_, K key, V * out_value);      \
+    size_t CMC_(PFX, _remove_all)(struct SNAME * _map_, K key,                \
+                                  V * *out_values);                           \
     /* Element Access */                                                      \
-    bool PFX##_max(struct SNAME *_map_, K *key, V *value);                    \
-    bool PFX##_min(struct SNAME *_map_, K *key, V *value);                    \
-    V PFX##_get(struct SNAME *_map_, K key);                                  \
-    V *PFX##_get_ref(struct SNAME *_map_, K key);                             \
+    bool CMC_(PFX, _max)(struct SNAME * _map_, K * key, V * value);           \
+    bool CMC_(PFX, _min)(struct SNAME * _map_, K * key, V * value);           \
+    V CMC_(PFX, _get)(struct SNAME * _map_, K key);                           \
+    V *CMC_(PFX, _get_ref)(struct SNAME * _map_, K key);                      \
     /* Collection State */                                                    \
-    bool PFX##_contains(struct SNAME *_map_, K key);                          \
-    bool PFX##_empty(struct SNAME *_map_);                                    \
-    bool PFX##_full(struct SNAME *_map_);                                     \
-    size_t PFX##_count(struct SNAME *_map_);                                  \
-    size_t PFX##_key_count(struct SNAME *_map_, K key);                       \
-    size_t PFX##_capacity(struct SNAME *_map_);                               \
-    double PFX##_load(struct SNAME *_map_);                                   \
-    int PFX##_flag(struct SNAME *_map_);                                      \
+    bool CMC_(PFX, _contains)(struct SNAME * _map_, K key);                   \
+    bool CMC_(PFX, _empty)(struct SNAME * _map_);                             \
+    bool CMC_(PFX, _full)(struct SNAME * _map_);                              \
+    size_t CMC_(PFX, _count)(struct SNAME * _map_);                           \
+    size_t CMC_(PFX, _key_count)(struct SNAME * _map_, K key);                \
+    size_t CMC_(PFX, _capacity)(struct SNAME * _map_);                        \
+    double CMC_(PFX, _load)(struct SNAME * _map_);                            \
+    int CMC_(PFX, _flag)(struct SNAME * _map_);                               \
     /* Collection Utility */                                                  \
-    bool PFX##_resize(struct SNAME *_map_, size_t capacity);                  \
-    struct SNAME *PFX##_copy_of(struct SNAME *_map_);                         \
-    bool PFX##_equals(struct SNAME *_map1_, struct SNAME *_map2_);            \
-    struct cmc_string PFX##_to_string(struct SNAME *_map_);                   \
-    bool PFX##_print(struct SNAME *_map_, FILE *fptr);                        \
+    bool CMC_(PFX, _resize)(struct SNAME * _map_, size_t capacity);           \
+    struct SNAME *CMC_(PFX, _copy_of)(struct SNAME * _map_);                  \
+    bool CMC_(PFX, _equals)(struct SNAME * _map1_, struct SNAME * _map2_);    \
+    struct cmc_string CMC_(PFX, _to_string)(struct SNAME * _map_);            \
+    bool CMC_(PFX, _print)(struct SNAME * _map_, FILE * fptr);                \
                                                                               \
     /* Iterator Functions */                                                  \
     /* Iterator Initialization */                                             \
-    struct SNAME##_iter PFX##_iter_start(struct SNAME *target);               \
-    struct SNAME##_iter PFX##_iter_end(struct SNAME *target);                 \
+    struct CMC_DEF_ITER(SNAME) CMC_(PFX, _iter_start)(struct SNAME * target); \
+    struct CMC_DEF_ITER(SNAME) CMC_(PFX, _iter_end)(struct SNAME * target);   \
     /* Iterator State */                                                      \
-    bool PFX##_iter_at_start(struct SNAME##_iter *iter);                      \
-    bool PFX##_iter_at_end(struct SNAME##_iter *iter);                        \
+    bool CMC_(PFX, _iter_at_start)(struct CMC_DEF_ITER(SNAME) * iter);        \
+    bool CMC_(PFX, _iter_at_end)(struct CMC_DEF_ITER(SNAME) * iter);          \
     /* Iterator Movement */                                                   \
-    bool PFX##_iter_to_start(struct SNAME##_iter *iter);                      \
-    bool PFX##_iter_to_end(struct SNAME##_iter *iter);                        \
-    bool PFX##_iter_next(struct SNAME##_iter *iter);                          \
-    bool PFX##_iter_prev(struct SNAME##_iter *iter);                          \
-    bool PFX##_iter_advance(struct SNAME##_iter *iter, size_t steps);         \
-    bool PFX##_iter_rewind(struct SNAME##_iter *iter, size_t steps);          \
-    bool PFX##_iter_go_to(struct SNAME##_iter *iter, size_t index);           \
+    bool CMC_(PFX, _iter_to_start)(struct CMC_DEF_ITER(SNAME) * iter);        \
+    bool CMC_(PFX, _iter_to_end)(struct CMC_DEF_ITER(SNAME) * iter);          \
+    bool CMC_(PFX, _iter_next)(struct CMC_DEF_ITER(SNAME) * iter);            \
+    bool CMC_(PFX, _iter_prev)(struct CMC_DEF_ITER(SNAME) * iter);            \
+    bool CMC_(PFX, _iter_advance)(struct CMC_DEF_ITER(SNAME) * iter,          \
+                                  size_t steps);                              \
+    bool CMC_(PFX, _iter_rewind)(struct CMC_DEF_ITER(SNAME) * iter,           \
+                                 size_t steps);                               \
+    bool CMC_(PFX, _iter_go_to)(struct CMC_DEF_ITER(SNAME) * iter,            \
+                                size_t index);                                \
     /* Iterator Access */                                                     \
-    K PFX##_iter_key(struct SNAME##_iter *iter);                              \
-    V PFX##_iter_value(struct SNAME##_iter *iter);                            \
-    V *PFX##_iter_rvalue(struct SNAME##_iter *iter);                          \
-    size_t PFX##_iter_index(struct SNAME##_iter *iter);
+    K CMC_(PFX, _iter_key)(struct CMC_DEF_ITER(SNAME) * iter);                \
+    V CMC_(PFX, _iter_value)(struct CMC_DEF_ITER(SNAME) * iter);              \
+    V *CMC_(PFX, _iter_rvalue)(struct CMC_DEF_ITER(SNAME) * iter);            \
+    size_t CMC_(PFX, _iter_index)(struct CMC_DEF_ITER(SNAME) * iter);
 
 /* -------------------------------------------------------------------------
  * Source
  * ------------------------------------------------------------------------- */
-#define CMC_GENERATE_HASHMULTIMAP_SOURCE(PFX, SNAME, K, V)                     \
-                                                                               \
-    /* Implementation Detail Functions */                                      \
-    struct SNAME##_entry *PFX##_impl_new_entry(struct SNAME *_map_, K key,     \
-                                               V value);                       \
-    struct SNAME##_entry *PFX##_impl_get_entry(struct SNAME *_map_, K key);    \
-    size_t PFX##_impl_key_count(struct SNAME *_map_, K key);                   \
-    size_t PFX##_impl_calculate_size(size_t required);                         \
-                                                                               \
-    struct SNAME *PFX##_new(size_t capacity, double load,                      \
-                            struct SNAME##_fkey *f_key,                        \
-                            struct SNAME##_fval *f_val)                        \
-    {                                                                          \
-        struct cmc_alloc_node *alloc = &cmc_alloc_node_default;                \
-                                                                               \
-        if (capacity == 0 || load <= 0)                                        \
-            return NULL;                                                       \
-                                                                               \
-        /* Prevent integer overflow */                                         \
-        if (capacity >= UINTMAX_MAX * load)                                    \
-            return NULL;                                                       \
-                                                                               \
-        if (!f_key || !f_val)                                                  \
-            return NULL;                                                       \
-                                                                               \
-        size_t real_capacity = PFX##_impl_calculate_size(capacity / load);     \
-                                                                               \
-        struct SNAME *_map_ = alloc->malloc(sizeof(struct SNAME));             \
-                                                                               \
-        if (!_map_)                                                            \
-            return NULL;                                                       \
-                                                                               \
-        _map_->buffer =                                                        \
-            alloc->calloc(real_capacity, sizeof(struct SNAME##_entry *[2]));   \
-                                                                               \
-        if (!_map_->buffer)                                                    \
-        {                                                                      \
-            alloc->free(_map_);                                                \
-            return NULL;                                                       \
-        }                                                                      \
-                                                                               \
-        _map_->count = 0;                                                      \
-        _map_->capacity = real_capacity;                                       \
-        _map_->load = load;                                                    \
-        _map_->flag = cmc_flags.OK;                                            \
-        _map_->f_key = f_key;                                                  \
-        _map_->f_val = f_val;                                                  \
-        _map_->alloc = alloc;                                                  \
-        _map_->callbacks = NULL;                                               \
-                                                                               \
-        return _map_;                                                          \
-    }                                                                          \
-                                                                               \
-    struct SNAME *PFX##_new_custom(                                            \
-        size_t capacity, double load, struct SNAME##_fkey *f_key,              \
-        struct SNAME##_fval *f_val, struct cmc_alloc_node *alloc,              \
-        struct cmc_callbacks *callbacks)                                       \
-    {                                                                          \
-        if (capacity == 0 || load <= 0)                                        \
-            return NULL;                                                       \
-                                                                               \
-        /* Prevent integer overflow */                                         \
-        if (capacity >= UINTMAX_MAX * load)                                    \
-            return NULL;                                                       \
-                                                                               \
-        if (!f_key || !f_val)                                                  \
-            return NULL;                                                       \
-                                                                               \
-        if (!alloc)                                                            \
-            alloc = &cmc_alloc_node_default;                                   \
-                                                                               \
-        size_t real_capacity = PFX##_impl_calculate_size(capacity / load);     \
-                                                                               \
-        struct SNAME *_map_ = alloc->malloc(sizeof(struct SNAME));             \
-                                                                               \
-        if (!_map_)                                                            \
-            return NULL;                                                       \
-                                                                               \
-        _map_->buffer =                                                        \
-            alloc->calloc(real_capacity, sizeof(struct SNAME##_entry *[2]));   \
-                                                                               \
-        if (!_map_->buffer)                                                    \
-        {                                                                      \
-            alloc->free(_map_);                                                \
-            return NULL;                                                       \
-        }                                                                      \
-                                                                               \
-        _map_->count = 0;                                                      \
-        _map_->capacity = real_capacity;                                       \
-        _map_->load = load;                                                    \
-        _map_->flag = cmc_flags.OK;                                            \
-        _map_->f_key = f_key;                                                  \
-        _map_->f_val = f_val;                                                  \
-        _map_->alloc = alloc;                                                  \
-        _map_->callbacks = callbacks;                                          \
-                                                                               \
-        return _map_;                                                          \
-    }                                                                          \
-                                                                               \
-    void PFX##_clear(struct SNAME *_map_)                                      \
-    {                                                                          \
-        for (size_t i = 0; i < _map_->capacity; i++)                           \
-        {                                                                      \
-            struct SNAME##_entry *scan = _map_->buffer[i][0];                  \
-                                                                               \
-            while (scan != NULL)                                               \
-            {                                                                  \
-                struct SNAME##_entry *next = scan->next;                       \
-                                                                               \
-                if (_map_->f_key->free)                                        \
-                    _map_->f_key->free(scan->key);                             \
-                if (_map_->f_val->free)                                        \
-                    _map_->f_val->free(scan->value);                           \
-                                                                               \
-                _map_->alloc->free(scan);                                      \
-                                                                               \
-                scan = next;                                                   \
-            }                                                                  \
-        }                                                                      \
-                                                                               \
-        memset(_map_->buffer, 0,                                               \
-               sizeof(struct SNAME##_entry *[2]) * _map_->capacity);           \
-                                                                               \
-        _map_->count = 0;                                                      \
-        _map_->flag = cmc_flags.OK;                                            \
-    }                                                                          \
-                                                                               \
-    void PFX##_free(struct SNAME *_map_)                                       \
-    {                                                                          \
-        size_t index = 0;                                                      \
-                                                                               \
-        while (index < _map_->capacity)                                        \
-        {                                                                      \
-            struct SNAME##_entry *scan = _map_->buffer[index][0];              \
-                                                                               \
-            if (scan != NULL)                                                  \
-            {                                                                  \
-                if (scan->next == NULL && scan->prev == NULL)                  \
-                {                                                              \
-                    if (_map_->f_key->free)                                    \
-                        _map_->f_key->free(scan->key);                         \
-                    if (_map_->f_val->free)                                    \
-                        _map_->f_val->free(scan->value);                       \
-                                                                               \
-                    _map_->alloc->free(scan);                                  \
-                }                                                              \
-                else                                                           \
-                {                                                              \
-                    while (scan != NULL)                                       \
-                    {                                                          \
-                        struct SNAME##_entry *tmp = scan;                      \
-                                                                               \
-                        scan = scan->next;                                     \
-                                                                               \
-                        if (_map_->f_key->free)                                \
-                            _map_->f_key->free(tmp->key);                      \
-                        if (_map_->f_val->free)                                \
-                            _map_->f_val->free(tmp->value);                    \
-                                                                               \
-                        _map_->alloc->free(tmp);                               \
-                    }                                                          \
-                }                                                              \
-            }                                                                  \
-                                                                               \
-            index++;                                                           \
-        }                                                                      \
-                                                                               \
-        _map_->alloc->free(_map_->buffer);                                     \
-        _map_->alloc->free(_map_);                                             \
-    }                                                                          \
-                                                                               \
-    void PFX##_customize(struct SNAME *_map_, struct cmc_alloc_node *alloc,    \
-                         struct cmc_callbacks *callbacks)                      \
-    {                                                                          \
-        if (!alloc)                                                            \
-            _map_->alloc = &cmc_alloc_node_default;                            \
-        else                                                                   \
-            _map_->alloc = alloc;                                              \
-                                                                               \
-        _map_->callbacks = callbacks;                                          \
-                                                                               \
-        _map_->flag = cmc_flags.OK;                                            \
-    }                                                                          \
-                                                                               \
-    bool PFX##_insert(struct SNAME *_map_, K key, V value)                     \
-    {                                                                          \
-        if (PFX##_full(_map_))                                                 \
-        {                                                                      \
-            if (!PFX##_resize(_map_, _map_->capacity + 1))                     \
-                return false;                                                  \
-        }                                                                      \
-                                                                               \
-        size_t hash = _map_->f_key->hash(key);                                 \
-        size_t pos = hash % _map_->capacity;                                   \
-                                                                               \
-        struct SNAME##_entry *entry = PFX##_impl_new_entry(_map_, key, value); \
-                                                                               \
-        if (_map_->buffer[pos][0] == NULL)                                     \
-        {                                                                      \
-            _map_->buffer[pos][0] = entry;                                     \
-            _map_->buffer[pos][1] = entry;                                     \
-        }                                                                      \
-        else                                                                   \
-        {                                                                      \
-            entry->prev = _map_->buffer[pos][1];                               \
-                                                                               \
-            _map_->buffer[pos][1]->next = entry;                               \
-            _map_->buffer[pos][1] = entry;                                     \
-        }                                                                      \
-                                                                               \
-        _map_->count++;                                                        \
-        _map_->flag = cmc_flags.OK;                                            \
-                                                                               \
-        if (_map_->callbacks && _map_->callbacks->create)                      \
-            _map_->callbacks->create();                                        \
-                                                                               \
-        return true;                                                           \
-    }                                                                          \
-                                                                               \
-    bool PFX##_update(struct SNAME *_map_, K key, V new_value, V *old_value)   \
-    {                                                                          \
-        if (PFX##_empty(_map_))                                                \
-        {                                                                      \
-            _map_->flag = cmc_flags.EMPTY;                                     \
-            return false;                                                      \
-        }                                                                      \
-                                                                               \
-        struct SNAME##_entry *entry = PFX##_impl_get_entry(_map_, key);        \
-                                                                               \
-        if (!entry)                                                            \
-        {                                                                      \
-            _map_->flag = cmc_flags.NOT_FOUND;                                 \
-            return false;                                                      \
-        }                                                                      \
-                                                                               \
-        if (old_value)                                                         \
-            *old_value = entry->value;                                         \
-                                                                               \
-        entry->value = new_value;                                              \
-                                                                               \
-        _map_->flag = cmc_flags.OK;                                            \
-                                                                               \
-        if (_map_->callbacks && _map_->callbacks->update)                      \
-            _map_->callbacks->update();                                        \
-                                                                               \
-        return true;                                                           \
-    }                                                                          \
-                                                                               \
-    size_t PFX##_update_all(struct SNAME *_map_, K key, V new_value,           \
-                            V **old_values)                                    \
-    {                                                                          \
-        if (PFX##_empty(_map_))                                                \
-        {                                                                      \
-            _map_->flag = cmc_flags.EMPTY;                                     \
-            return 0;                                                          \
-        }                                                                      \
-                                                                               \
-        size_t hash = _map_->f_key->hash(key);                                 \
-                                                                               \
-        struct SNAME##_entry *entry =                                          \
-            _map_->buffer[hash % _map_->capacity][0];                          \
-                                                                               \
-        if (entry == NULL)                                                     \
-        {                                                                      \
-            _map_->flag = cmc_flags.NOT_FOUND;                                 \
-            return 0;                                                          \
-        }                                                                      \
-                                                                               \
-        if (old_values)                                                        \
-        {                                                                      \
-            size_t total = PFX##_impl_key_count(_map_, key);                   \
-                                                                               \
-            if (total == 0)                                                    \
-            {                                                                  \
-                _map_->flag = cmc_flags.NOT_FOUND;                             \
-                return 0;                                                      \
-            }                                                                  \
-                                                                               \
-            *old_values = _map_->alloc->malloc(sizeof(V) * total);             \
-                                                                               \
-            if (!(*old_values))                                                \
-            {                                                                  \
-                _map_->flag = cmc_flags.ALLOC;                                 \
-                return 0;                                                      \
-            }                                                                  \
-        }                                                                      \
-                                                                               \
-        size_t index = 0;                                                      \
-                                                                               \
-        while (entry != NULL)                                                  \
-        {                                                                      \
-            if (_map_->f_key->cmp(entry->key, key) == 0)                       \
-            {                                                                  \
-                if (old_values)                                                \
-                    (*old_values)[index] = entry->value;                       \
-                                                                               \
-                index++;                                                       \
-                entry->value = new_value;                                      \
-            }                                                                  \
-                                                                               \
-            entry = entry->next;                                               \
-        }                                                                      \
-                                                                               \
-        _map_->flag = cmc_flags.OK;                                            \
-                                                                               \
-        if (_map_->callbacks && _map_->callbacks->update)                      \
-            _map_->callbacks->update();                                        \
-                                                                               \
-        return index;                                                          \
-    }                                                                          \
-                                                                               \
-    bool PFX##_remove(struct SNAME *_map_, K key, V *out_value)                \
-    {                                                                          \
-        if (PFX##_empty(_map_))                                                \
-        {                                                                      \
-            _map_->flag = cmc_flags.EMPTY;                                     \
-            return false;                                                      \
-        }                                                                      \
-                                                                               \
-        size_t hash = _map_->f_key->hash(key);                                 \
-                                                                               \
-        struct SNAME##_entry **head =                                          \
-            &(_map_->buffer[hash % _map_->capacity][0]);                       \
-        struct SNAME##_entry **tail =                                          \
-            &(_map_->buffer[hash % _map_->capacity][1]);                       \
-                                                                               \
-        if (*head == NULL)                                                     \
-        {                                                                      \
-            _map_->flag = cmc_flags.NOT_FOUND;                                 \
-            return false;                                                      \
-        }                                                                      \
-                                                                               \
-        struct SNAME##_entry *entry = *head;                                   \
-                                                                               \
-        if (entry->next == NULL && entry->prev == NULL)                        \
-        {                                                                      \
-            if (_map_->f_key->cmp(entry->key, key) == 0)                       \
-            {                                                                  \
-                *head = NULL;                                                  \
-                *tail = NULL;                                                  \
-                                                                               \
-                if (out_value)                                                 \
-                    *out_value = entry->value;                                 \
-            }                                                                  \
-            else                                                               \
-            {                                                                  \
-                _map_->flag = cmc_flags.NOT_FOUND;                             \
-                return false;                                                  \
-            }                                                                  \
-        }                                                                      \
-        else                                                                   \
-        {                                                                      \
-            bool found = false;                                                \
-                                                                               \
-            while (entry != NULL)                                              \
-            {                                                                  \
-                if (_map_->f_key->cmp(entry->key, key) == 0)                   \
-                {                                                              \
-                    if (*head == entry)                                        \
-                        *head = entry->next;                                   \
-                    if (*tail == entry)                                        \
-                        *tail = entry->prev;                                   \
-                                                                               \
-                    if (entry->prev != NULL)                                   \
-                        entry->prev->next = entry->next;                       \
-                    if (entry->next != NULL)                                   \
-                        entry->next->prev = entry->prev;                       \
-                                                                               \
-                    if (out_value)                                             \
-                        *out_value = entry->value;                             \
-                                                                               \
-                    found = true;                                              \
-                                                                               \
-                    break;                                                     \
-                }                                                              \
-                else                                                           \
-                    entry = entry->next;                                       \
-            }                                                                  \
-                                                                               \
-            if (!found)                                                        \
-            {                                                                  \
-                _map_->flag = cmc_flags.NOT_FOUND;                             \
-                return false;                                                  \
-            }                                                                  \
-        }                                                                      \
-                                                                               \
-        _map_->alloc->free(entry);                                             \
-                                                                               \
-        _map_->count--;                                                        \
-        _map_->flag = cmc_flags.OK;                                            \
-                                                                               \
-        if (_map_->callbacks && _map_->callbacks->delete)                      \
-            _map_->callbacks->delete ();                                       \
-                                                                               \
-        return true;                                                           \
-    }                                                                          \
-                                                                               \
-    size_t PFX##_remove_all(struct SNAME *_map_, K key, V **out_values)        \
-    {                                                                          \
-        if (PFX##_empty(_map_))                                                \
-        {                                                                      \
-            _map_->flag = cmc_flags.EMPTY;                                     \
-            return false;                                                      \
-        }                                                                      \
-                                                                               \
-        size_t hash = _map_->f_key->hash(key);                                 \
-                                                                               \
-        struct SNAME##_entry **head =                                          \
-            &(_map_->buffer[hash % _map_->capacity][0]);                       \
-        struct SNAME##_entry **tail =                                          \
-            &(_map_->buffer[hash % _map_->capacity][1]);                       \
-                                                                               \
-        if (*head == NULL)                                                     \
-        {                                                                      \
-            _map_->flag = cmc_flags.NOT_FOUND;                                 \
-            return 0;                                                          \
-        }                                                                      \
-                                                                               \
-        if (out_values)                                                        \
-        {                                                                      \
-            size_t total = PFX##_impl_key_count(_map_, key);                   \
-                                                                               \
-            if (total == 0)                                                    \
-            {                                                                  \
-                _map_->flag = cmc_flags.NOT_FOUND;                             \
-                return 0;                                                      \
-            }                                                                  \
-                                                                               \
-            *out_values = _map_->alloc->malloc(sizeof(V) * total);             \
-                                                                               \
-            if (!(*out_values))                                                \
-            {                                                                  \
-                _map_->flag = cmc_flags.ALLOC;                                 \
-                return 0;                                                      \
-            }                                                                  \
-        }                                                                      \
-                                                                               \
-        size_t index = 0;                                                      \
-        struct SNAME##_entry *entry = *head;                                   \
-                                                                               \
-        if (entry->next == NULL)                                               \
-        {                                                                      \
-            *head = NULL;                                                      \
-            *tail = NULL;                                                      \
-                                                                               \
-            if (out_values)                                                    \
-                (*out_values)[index] = entry->value;                           \
-                                                                               \
-            index++;                                                           \
-            _map_->alloc->free(entry);                                         \
-        }                                                                      \
-        else                                                                   \
-        {                                                                      \
-            while (entry != NULL)                                              \
-            {                                                                  \
-                if (_map_->f_key->cmp(entry->key, key) == 0)                   \
-                {                                                              \
-                    if (*head == entry)                                        \
-                        *head = entry->next;                                   \
-                    if (*tail == entry)                                        \
-                        *tail = entry->prev;                                   \
-                                                                               \
-                    struct SNAME##_entry *next = entry->next;                  \
-                                                                               \
-                    if (entry->prev != NULL)                                   \
-                        entry->prev->next = entry->next;                       \
-                    if (entry->next != NULL)                                   \
-                        entry->next->prev = entry->prev;                       \
-                                                                               \
-                    if (out_values)                                            \
-                        (*out_values)[index] = entry->value;                   \
-                                                                               \
-                    index++;                                                   \
-                    _map_->alloc->free(entry);                                 \
-                                                                               \
-                    entry = next;                                              \
-                }                                                              \
-                else                                                           \
-                    entry = entry->next;                                       \
-            }                                                                  \
-        }                                                                      \
-                                                                               \
-        _map_->count -= index;                                                 \
-        _map_->flag = cmc_flags.OK;                                            \
-                                                                               \
-        if (_map_->callbacks && _map_->callbacks->delete)                      \
-            _map_->callbacks->delete ();                                       \
-                                                                               \
-        return index;                                                          \
-    }                                                                          \
-                                                                               \
-    bool PFX##_max(struct SNAME *_map_, K *key, V *value)                      \
-    {                                                                          \
-        if (PFX##_empty(_map_))                                                \
-        {                                                                      \
-            _map_->flag = cmc_flags.EMPTY;                                     \
-            return false;                                                      \
-        }                                                                      \
-                                                                               \
-        K max_key;                                                             \
-        V max_val;                                                             \
-                                                                               \
-        struct SNAME##_iter iter = PFX##_iter_start(_map_);                    \
-                                                                               \
-        /* TODO Turn this into a normal loop */                                \
-        for (; !PFX##_iter_at_end(&iter); PFX##_iter_next(&iter))              \
-        {                                                                      \
-            K result_key = PFX##_iter_key(&iter);                              \
-            V result_value = PFX##_iter_value(&iter);                          \
-            size_t index = PFX##_iter_index(&iter);                            \
-                                                                               \
-            if (index == 0)                                                    \
-            {                                                                  \
-                max_key = result_key;                                          \
-                max_val = result_value;                                        \
-            }                                                                  \
-            else if (_map_->f_key->cmp(result_key, max_key) > 0)               \
-            {                                                                  \
-                max_key = result_key;                                          \
-                max_val = result_value;                                        \
-            }                                                                  \
-        }                                                                      \
-                                                                               \
-        if (key)                                                               \
-            *key = max_key;                                                    \
-        if (value)                                                             \
-            *value = max_val;                                                  \
-                                                                               \
-        _map_->flag = cmc_flags.OK;                                            \
-                                                                               \
-        if (_map_->callbacks && _map_->callbacks->read)                        \
-            _map_->callbacks->read();                                          \
-                                                                               \
-        return true;                                                           \
-    }                                                                          \
-                                                                               \
-    bool PFX##_min(struct SNAME *_map_, K *key, V *value)                      \
-    {                                                                          \
-        if (PFX##_empty(_map_))                                                \
-        {                                                                      \
-            _map_->flag = cmc_flags.EMPTY;                                     \
-            return false;                                                      \
-        }                                                                      \
-                                                                               \
-        K min_key;                                                             \
-        V min_val;                                                             \
-                                                                               \
-        struct SNAME##_iter iter = PFX##_iter_start(_map_);                    \
-                                                                               \
-        /* TODO Turn this into a normal loop */                                \
-        for (; !PFX##_iter_at_end(&iter); PFX##_iter_next(&iter))              \
-        {                                                                      \
-            K result_key = PFX##_iter_key(&iter);                              \
-            V result_value = PFX##_iter_value(&iter);                          \
-            size_t index = PFX##_iter_index(&iter);                            \
-                                                                               \
-            if (index == 0)                                                    \
-            {                                                                  \
-                min_key = result_key;                                          \
-                min_val = result_value;                                        \
-            }                                                                  \
-            else if (_map_->f_key->cmp(result_key, min_key) < 0)               \
-            {                                                                  \
-                min_key = result_key;                                          \
-                min_val = result_value;                                        \
-            }                                                                  \
-        }                                                                      \
-                                                                               \
-        if (key)                                                               \
-            *key = min_key;                                                    \
-        if (value)                                                             \
-            *value = min_val;                                                  \
-                                                                               \
-        _map_->flag = cmc_flags.OK;                                            \
-                                                                               \
-        if (_map_->callbacks && _map_->callbacks->read)                        \
-            _map_->callbacks->read();                                          \
-                                                                               \
-        return true;                                                           \
-    }                                                                          \
-                                                                               \
-    V PFX##_get(struct SNAME *_map_, K key)                                    \
-    {                                                                          \
-        if (PFX##_empty(_map_))                                                \
-        {                                                                      \
-            _map_->flag = cmc_flags.EMPTY;                                     \
-            return false;                                                      \
-        }                                                                      \
-                                                                               \
-        struct SNAME##_entry *entry = PFX##_impl_get_entry(_map_, key);        \
-                                                                               \
-        if (!entry)                                                            \
-        {                                                                      \
-            _map_->flag = cmc_flags.NOT_FOUND;                                 \
-            return (V){ 0 };                                                   \
-        }                                                                      \
-                                                                               \
-        _map_->flag = cmc_flags.OK;                                            \
-                                                                               \
-        if (_map_->callbacks && _map_->callbacks->read)                        \
-            _map_->callbacks->read();                                          \
-                                                                               \
-        return entry->value;                                                   \
-    }                                                                          \
-                                                                               \
-    V *PFX##_get_ref(struct SNAME *_map_, K key)                               \
-    {                                                                          \
-        if (PFX##_empty(_map_))                                                \
-        {                                                                      \
-            _map_->flag = cmc_flags.EMPTY;                                     \
-            return false;                                                      \
-        }                                                                      \
-                                                                               \
-        struct SNAME##_entry *entry = PFX##_impl_get_entry(_map_, key);        \
-                                                                               \
-        if (!entry)                                                            \
-        {                                                                      \
-            _map_->flag = cmc_flags.NOT_FOUND;                                 \
-            return NULL;                                                       \
-        }                                                                      \
-                                                                               \
-        _map_->flag = cmc_flags.OK;                                            \
-                                                                               \
-        if (_map_->callbacks && _map_->callbacks->read)                        \
-            _map_->callbacks->read();                                          \
-                                                                               \
-        return &(entry->value);                                                \
-    }                                                                          \
-                                                                               \
-    bool PFX##_contains(struct SNAME *_map_, K key)                            \
-    {                                                                          \
-        _map_->flag = cmc_flags.OK;                                            \
-                                                                               \
-        bool result = PFX##_impl_get_entry(_map_, key) != NULL;                \
-                                                                               \
-        if (_map_->callbacks && _map_->callbacks->read)                        \
-            _map_->callbacks->read();                                          \
-                                                                               \
-        return result;                                                         \
-    }                                                                          \
-                                                                               \
-    bool PFX##_empty(struct SNAME *_map_)                                      \
-    {                                                                          \
-        return _map_->count == 0;                                              \
-    }                                                                          \
-                                                                               \
-    bool PFX##_full(struct SNAME *_map_)                                       \
-    {                                                                          \
-        return (double)_map_->capacity * _map_->load <= (double)_map_->count;  \
-    }                                                                          \
-                                                                               \
-    size_t PFX##_count(struct SNAME *_map_)                                    \
-    {                                                                          \
-        return _map_->count;                                                   \
-    }                                                                          \
-                                                                               \
-    size_t PFX##_key_count(struct SNAME *_map_, K key)                         \
-    {                                                                          \
-        return PFX##_impl_key_count(_map_, key);                               \
-    }                                                                          \
-                                                                               \
-    size_t PFX##_capacity(struct SNAME *_map_)                                 \
-    {                                                                          \
-        return _map_->capacity;                                                \
-    }                                                                          \
-                                                                               \
-    double PFX##_load(struct SNAME *_map_)                                     \
-    {                                                                          \
-        return _map_->load;                                                    \
-    }                                                                          \
-                                                                               \
-    int PFX##_flag(struct SNAME *_map_)                                        \
-    {                                                                          \
-        return _map_->flag;                                                    \
-    }                                                                          \
-                                                                               \
-    bool PFX##_resize(struct SNAME *_map_, size_t capacity)                    \
-    {                                                                          \
-        _map_->flag = cmc_flags.OK;                                            \
-                                                                               \
-        if (_map_->capacity == capacity)                                       \
-            goto success;                                                      \
-                                                                               \
-        if (_map_->capacity > capacity / _map_->load)                          \
-            goto success;                                                      \
-                                                                               \
-        /* Prevent integer overflow */                                         \
-        if (capacity >= UINTMAX_MAX * _map_->load)                             \
-        {                                                                      \
-            _map_->flag = cmc_flags.ERROR;                                     \
-            return false;                                                      \
-        }                                                                      \
-                                                                               \
-        /* Calculate required capacity based on the prime numbers */           \
-        size_t theoretical_size = PFX##_impl_calculate_size(capacity);         \
-                                                                               \
-        /* Not possible to shrink with current available prime numbers */      \
-        if (theoretical_size < _map_->count / _map_->load)                     \
-        {                                                                      \
-            _map_->flag = cmc_flags.INVALID;                                   \
-            return false;                                                      \
-        }                                                                      \
-                                                                               \
-        /* No callbacks since _new_map_ is just a temporary hashtable */       \
-        struct SNAME *_new_map_ =                                              \
-            PFX##_new_custom(capacity, _map_->load, _map_->f_key,              \
-                             _map_->f_val, _map_->alloc, NULL);                \
-                                                                               \
-        if (!_new_map_)                                                        \
-        {                                                                      \
-            _map_->flag = cmc_flags.ALLOC;                                     \
-            return false;                                                      \
-        }                                                                      \
-                                                                               \
-        struct SNAME##_iter iter = PFX##_iter_start(_map_);                    \
-                                                                               \
-        /* TODO Turn this into a normal loop */                                \
-        for (; !PFX##_iter_at_end(&iter); PFX##_iter_next(&iter))              \
-        {                                                                      \
-            K key = PFX##_iter_key(&iter);                                     \
-            V value = PFX##_iter_value(&iter);                                 \
-                                                                               \
-            /* TODO check for errors */                                        \
-            PFX##_insert(_new_map_, key, value);                               \
-        }                                                                      \
-                                                                               \
-        if (_map_->count != _new_map_->count)                                  \
-        {                                                                      \
-            PFX##_free(_new_map_);                                             \
-                                                                               \
-            _map_->flag = cmc_flags.ERROR;                                     \
-            return false;                                                      \
-        }                                                                      \
-                                                                               \
-        struct SNAME##_entry *(*tmp_b)[2] = _map_->buffer;                     \
-        _map_->buffer = _new_map_->buffer;                                     \
-        _new_map_->buffer = tmp_b;                                             \
-                                                                               \
-        size_t tmp_c = _map_->capacity;                                        \
-        _map_->capacity = _new_map_->capacity;                                 \
-        _new_map_->capacity = tmp_c;                                           \
-                                                                               \
-        /* Prevent the map from freeing the data */                            \
-        _new_map_->f_key = &(struct SNAME##_fkey){ NULL };                     \
-        _new_map_->f_val = &(struct SNAME##_fval){ NULL };                     \
-                                                                               \
-        PFX##_free(_new_map_);                                                 \
-                                                                               \
-    success:                                                                   \
-                                                                               \
-        if (_map_->callbacks && _map_->callbacks->resize)                      \
-            _map_->callbacks->resize();                                        \
-                                                                               \
-        return true;                                                           \
-    }                                                                          \
-                                                                               \
-    struct SNAME *PFX##_copy_of(struct SNAME *_map_)                           \
-    {                                                                          \
-        /* Callback will be added later */                                     \
-        struct SNAME *result =                                                 \
-            PFX##_new_custom(_map_->capacity * _map_->load, _map_->load,       \
-                             _map_->f_key, _map_->f_val, _map_->alloc, NULL);  \
-                                                                               \
-        if (!result)                                                           \
-        {                                                                      \
-            _map_->flag = cmc_flags.ERROR;                                     \
-            return NULL;                                                       \
-        }                                                                      \
-                                                                               \
-        struct SNAME##_iter iter = PFX##_iter_start(_map_);                    \
-                                                                               \
-        if (!PFX##_empty(_map_))                                               \
-        {                                                                      \
-            /* TODO Turn this into a normal loop */                            \
-            for (; !PFX##_iter_at_end(&iter); PFX##_iter_next(&iter))          \
-            {                                                                  \
-                K key = PFX##_iter_key(&iter);                                 \
-                V value = PFX##_iter_value(&iter);                             \
-                                                                               \
-                if (_map_->f_key->cpy)                                         \
-                    key = _map_->f_key->cpy(key);                              \
-                if (_map_->f_val->cpy)                                         \
-                    value = _map_->f_val->cpy(value);                          \
-                                                                               \
-                /* TODO check for errors */                                    \
-                PFX##_insert(result, key, value);                              \
-            }                                                                  \
-        }                                                                      \
-                                                                               \
-        result->callbacks = _map_->callbacks;                                  \
-        _map_->flag = cmc_flags.OK;                                            \
-                                                                               \
-        return result;                                                         \
-    }                                                                          \
-                                                                               \
-    bool PFX##_equals(struct SNAME *_map1_, struct SNAME *_map2_)              \
-    {                                                                          \
-        _map1_->flag = cmc_flags.OK;                                           \
-        _map2_->flag = cmc_flags.OK;                                           \
-                                                                               \
-        if (_map1_->count != _map2_->count)                                    \
-            return false;                                                      \
-                                                                               \
-        struct SNAME##_iter iter = PFX##_iter_start(_map1_);                   \
-                                                                               \
-        /* TODO Turn this into a normal loop */                                \
-        for (; !PFX##_iter_at_end(&iter); PFX##_iter_next(&iter))              \
-        {                                                                      \
-            K key = PFX##_iter_key(&iter);                                     \
-                                                                               \
-            if (PFX##_impl_key_count(_map1_, key) !=                           \
-                PFX##_impl_key_count(_map2_, key))                             \
-                return false;                                                  \
-        }                                                                      \
-                                                                               \
-        return true;                                                           \
-    }                                                                          \
-                                                                               \
-    struct cmc_string PFX##_to_string(struct SNAME *_map_)                     \
-    {                                                                          \
-        struct cmc_string str;                                                 \
-        struct SNAME *m_ = _map_;                                              \
-                                                                               \
-        int n = snprintf(str.s, cmc_string_len, cmc_string_fmt_hashmultimap,   \
-                         #SNAME, #K, #V, m_, m_->buffer, m_->capacity,         \
-                         m_->count, m_->load, m_->flag, m_->f_key, m_->f_val,  \
-                         m_->alloc, m_->callbacks);                            \
-                                                                               \
-        return n >= 0 ? str : (struct cmc_string){ 0 };                        \
-    }                                                                          \
-                                                                               \
-    bool PFX##_print(struct SNAME *_map_, FILE *fptr)                          \
-    {                                                                          \
-        for (size_t i = 0; i < _map_->capacity; i++)                           \
-        {                                                                      \
-            struct SNAME##_entry *scan = _map_->buffer[i][0];                  \
-                                                                               \
-            while (scan != NULL)                                               \
-            {                                                                  \
-                if (!_map_->f_key->str(fptr, scan->key) ||                     \
-                    !_map_->f_val->str(fptr, scan->value))                     \
-                    return false;                                              \
-                                                                               \
-                scan = scan->next;                                             \
-            }                                                                  \
-        }                                                                      \
-                                                                               \
-        return true;                                                           \
-    }                                                                          \
-                                                                               \
-    struct SNAME##_iter PFX##_iter_start(struct SNAME *target)                 \
-    {                                                                          \
-        struct SNAME##_iter iter;                                              \
-                                                                               \
-        iter.target = target;                                                  \
-        iter.curr_entry = NULL;                                                \
-        iter.cursor = 0;                                                       \
-        iter.index = 0;                                                        \
-        iter.first = 0;                                                        \
-        iter.last = 0;                                                         \
-        iter.start = true;                                                     \
-        iter.end = PFX##_empty(target);                                        \
-                                                                               \
-        if (!PFX##_empty(target))                                              \
-        {                                                                      \
-            for (size_t i = 0; i < target->capacity; i++)                      \
-            {                                                                  \
-                if (target->buffer[i][0] != NULL)                              \
-                {                                                              \
-                    iter.curr_entry = target->buffer[i][0];                    \
-                    iter.first = i;                                            \
-                    break;                                                     \
-                }                                                              \
-            }                                                                  \
-                                                                               \
-            iter.cursor = iter.first;                                          \
-                                                                               \
-            for (size_t i = target->capacity; i > 0; i--)                      \
-            {                                                                  \
-                if (target->buffer[i - 1][1] != NULL)                          \
-                {                                                              \
-                    iter.last = i - 1;                                         \
-                    break;                                                     \
-                }                                                              \
-            }                                                                  \
-        }                                                                      \
-                                                                               \
-        return iter;                                                           \
-    }                                                                          \
-                                                                               \
-    struct SNAME##_iter PFX##_iter_end(struct SNAME *target)                   \
-    {                                                                          \
-        struct SNAME##_iter iter;                                              \
-                                                                               \
-        iter.target = target;                                                  \
-        iter.curr_entry = NULL;                                                \
-        iter.cursor = 0;                                                       \
-        iter.index = 0;                                                        \
-        iter.first = 0;                                                        \
-        iter.last = 0;                                                         \
-        iter.start = PFX##_empty(target);                                      \
-        iter.end = true;                                                       \
-                                                                               \
-        if (!PFX##_empty(target))                                              \
-        {                                                                      \
-            for (size_t i = 0; i < target->capacity; i++)                      \
-            {                                                                  \
-                if (target->buffer[i][0] != NULL)                              \
-                {                                                              \
-                    iter.first = i;                                            \
-                    break;                                                     \
-                }                                                              \
-            }                                                                  \
-                                                                               \
-            for (size_t i = target->capacity; i > 0; i--)                      \
-            {                                                                  \
-                if (target->buffer[i - 1][1] != NULL)                          \
-                {                                                              \
-                    iter.curr_entry = target->buffer[i - 1][1];                \
-                    iter.last = i - 1;                                         \
-                    break;                                                     \
-                }                                                              \
-            }                                                                  \
-                                                                               \
-            iter.cursor = iter.last;                                           \
-            iter.index = target->count - 1;                                    \
-        }                                                                      \
-                                                                               \
-        return iter;                                                           \
-    }                                                                          \
-                                                                               \
-    bool PFX##_iter_at_start(struct SNAME##_iter *iter)                        \
-    {                                                                          \
-        return PFX##_empty(iter->target) || iter->start;                       \
-    }                                                                          \
-                                                                               \
-    bool PFX##_iter_at_end(struct SNAME##_iter *iter)                          \
-    {                                                                          \
-        return PFX##_empty(iter->target) || iter->end;                         \
-    }                                                                          \
-                                                                               \
-    bool PFX##_iter_to_start(struct SNAME##_iter *iter)                        \
-    {                                                                          \
-        if (!PFX##_empty(iter->target))                                        \
-        {                                                                      \
-            iter->cursor = iter->first;                                        \
-            iter->index = 0;                                                   \
-            iter->start = true;                                                \
-            iter->end = PFX##_empty(iter->target);                             \
-            iter->curr_entry = iter->target->buffer[iter->first][0];           \
-                                                                               \
-            return true;                                                       \
-        }                                                                      \
-                                                                               \
-        return false;                                                          \
-    }                                                                          \
-                                                                               \
-    bool PFX##_iter_to_end(struct SNAME##_iter *iter)                          \
-    {                                                                          \
-        if (!PFX##_empty(iter->target))                                        \
-        {                                                                      \
-            iter->cursor = iter->last;                                         \
-            iter->index = iter->target->count - 1;                             \
-            iter->start = PFX##_empty(iter->target);                           \
-            iter->end = true;                                                  \
-            iter->curr_entry = iter->target->buffer[iter->last][1];            \
-                                                                               \
-            return true;                                                       \
-        }                                                                      \
-                                                                               \
-        return false;                                                          \
-    }                                                                          \
-                                                                               \
-    bool PFX##_iter_next(struct SNAME##_iter *iter)                            \
-    {                                                                          \
-        if (iter->end)                                                         \
-            return false;                                                      \
-                                                                               \
-        if (iter->curr_entry->next != NULL)                                    \
-        {                                                                      \
-            iter->curr_entry = iter->curr_entry->next;                         \
-            iter->index++;                                                     \
-        }                                                                      \
-        else                                                                   \
-        {                                                                      \
-            if (iter->cursor == iter->last)                                    \
-            {                                                                  \
-                iter->end = true;                                              \
-                return false;                                                  \
-            }                                                                  \
-                                                                               \
-            iter->cursor++;                                                    \
-                                                                               \
-            while (iter->target->buffer[iter->cursor][0] == NULL)              \
-                iter->cursor++;                                                \
-                                                                               \
-            iter->curr_entry = iter->target->buffer[iter->cursor][0];          \
-                                                                               \
-            iter->index++;                                                     \
-        }                                                                      \
-                                                                               \
-        iter->start = PFX##_empty(iter->target);                               \
-                                                                               \
-        return true;                                                           \
-    }                                                                          \
-                                                                               \
-    bool PFX##_iter_prev(struct SNAME##_iter *iter)                            \
-    {                                                                          \
-        if (iter->start)                                                       \
-            return false;                                                      \
-                                                                               \
-        if (iter->curr_entry->prev != NULL)                                    \
-        {                                                                      \
-            iter->curr_entry = iter->curr_entry->prev;                         \
-            iter->index--;                                                     \
-        }                                                                      \
-        else                                                                   \
-        {                                                                      \
-            if (iter->cursor == iter->first)                                   \
-            {                                                                  \
-                iter->start = true;                                            \
-                return false;                                                  \
-            }                                                                  \
-                                                                               \
-            iter->cursor--;                                                    \
-                                                                               \
-            while (iter->target->buffer[iter->cursor][1] == NULL)              \
-                iter->cursor--;                                                \
-                                                                               \
-            iter->curr_entry = iter->target->buffer[iter->cursor][1];          \
-                                                                               \
-            iter->index--;                                                     \
-        }                                                                      \
-                                                                               \
-        iter->end = PFX##_empty(iter->target);                                 \
-                                                                               \
-        return true;                                                           \
-    }                                                                          \
-                                                                               \
-    /* Returns true only if the iterator moved */                              \
-    bool PFX##_iter_advance(struct SNAME##_iter *iter, size_t steps)           \
-    {                                                                          \
-        if (iter->end)                                                         \
-            return false;                                                      \
-                                                                               \
-        if (iter->index + 1 == iter->target->count)                            \
-        {                                                                      \
-            iter->end = true;                                                  \
-            return false;                                                      \
-        }                                                                      \
-                                                                               \
-        if (steps == 0 || iter->index + steps >= iter->target->count)          \
-            return false;                                                      \
-                                                                               \
-        for (size_t i = 0; i < steps; i++)                                     \
-            PFX##_iter_next(iter);                                             \
-                                                                               \
-        return true;                                                           \
-    }                                                                          \
-                                                                               \
-    /* Returns true only if the iterator moved */                              \
-    bool PFX##_iter_rewind(struct SNAME##_iter *iter, size_t steps)            \
-    {                                                                          \
-        if (iter->start)                                                       \
-            return false;                                                      \
-                                                                               \
-        if (iter->index == 0)                                                  \
-        {                                                                      \
-            iter->start = true;                                                \
-            return false;                                                      \
-        }                                                                      \
-                                                                               \
-        if (steps == 0 || iter->index < steps)                                 \
-            return false;                                                      \
-                                                                               \
-        for (size_t i = 0; i < steps; i++)                                     \
-            PFX##_iter_prev(iter);                                             \
-                                                                               \
-        return true;                                                           \
-    }                                                                          \
-                                                                               \
-    /* Returns true only if the iterator was able to be positioned at the */   \
-    /* given index */                                                          \
-    bool PFX##_iter_go_to(struct SNAME##_iter *iter, size_t index)             \
-    {                                                                          \
-        if (index >= iter->target->count)                                      \
-            return false;                                                      \
-                                                                               \
-        if (iter->index > index)                                               \
-            return PFX##_iter_rewind(iter, iter->index - index);               \
-        else if (iter->index < index)                                          \
-            return PFX##_iter_advance(iter, index - iter->index);              \
-                                                                               \
-        return true;                                                           \
-    }                                                                          \
-                                                                               \
-    K PFX##_iter_key(struct SNAME##_iter *iter)                                \
-    {                                                                          \
-        if (PFX##_empty(iter->target))                                         \
-            return (K){ 0 };                                                   \
-                                                                               \
-        return iter->curr_entry->key;                                          \
-    }                                                                          \
-                                                                               \
-    V PFX##_iter_value(struct SNAME##_iter *iter)                              \
-    {                                                                          \
-        if (PFX##_empty(iter->target))                                         \
-            return (V){ 0 };                                                   \
-                                                                               \
-        return iter->curr_entry->value;                                        \
-    }                                                                          \
-                                                                               \
-    V *PFX##_iter_rvalue(struct SNAME##_iter *iter)                            \
-    {                                                                          \
-        if (PFX##_empty(iter->target))                                         \
-            return NULL;                                                       \
-                                                                               \
-        return &(iter->curr_entry->value);                                     \
-    }                                                                          \
-                                                                               \
-    size_t PFX##_iter_index(struct SNAME##_iter *iter)                         \
-    {                                                                          \
-        return iter->index;                                                    \
-    }                                                                          \
-                                                                               \
-    struct SNAME##_entry *PFX##_impl_new_entry(struct SNAME *_map_, K key,     \
-                                               V value)                        \
-    {                                                                          \
-        struct SNAME##_entry *entry =                                          \
-            _map_->alloc->malloc(sizeof(struct SNAME##_entry));                \
-                                                                               \
-        if (!entry)                                                            \
-            return NULL;                                                       \
-                                                                               \
-        entry->key = key;                                                      \
-        entry->value = value;                                                  \
-        entry->next = NULL;                                                    \
-        entry->prev = NULL;                                                    \
-                                                                               \
-        return entry;                                                          \
-    }                                                                          \
-                                                                               \
-    struct SNAME##_entry *PFX##_impl_get_entry(struct SNAME *_map_, K key)     \
-    {                                                                          \
-        size_t hash = _map_->f_key->hash(key);                                 \
-                                                                               \
-        struct SNAME##_entry *entry =                                          \
-            _map_->buffer[hash % _map_->capacity][0];                          \
-                                                                               \
-        while (entry != NULL)                                                  \
-        {                                                                      \
-            if (_map_->f_key->cmp(entry->key, key) == 0)                       \
-                return entry;                                                  \
-                                                                               \
-            entry = entry->next;                                               \
-        }                                                                      \
-                                                                               \
-        return NULL;                                                           \
-    }                                                                          \
-                                                                               \
-    size_t PFX##_impl_key_count(struct SNAME *_map_, K key)                    \
-    {                                                                          \
-        size_t hash = _map_->f_key->hash(key);                                 \
-                                                                               \
-        struct SNAME##_entry *entry =                                          \
-            _map_->buffer[hash % _map_->capacity][0];                          \
-                                                                               \
-        size_t total_count = 0;                                                \
-                                                                               \
-        if (!entry)                                                            \
-            return total_count;                                                \
-                                                                               \
-        while (entry != NULL)                                                  \
-        {                                                                      \
-            if (_map_->f_key->cmp(entry->key, key) == 0)                       \
-                total_count++;                                                 \
-                                                                               \
-            entry = entry->next;                                               \
-        }                                                                      \
-                                                                               \
-        return total_count;                                                    \
-    }                                                                          \
-                                                                               \
-    size_t PFX##_impl_calculate_size(size_t required)                          \
-    {                                                                          \
-        const size_t count =                                                   \
-            sizeof(cmc_hashtable_primes) / sizeof(cmc_hashtable_primes[0]);    \
-                                                                               \
-        if (cmc_hashtable_primes[count - 1] < required)                        \
-            return required;                                                   \
-                                                                               \
-        size_t i = 0;                                                          \
-        while (cmc_hashtable_primes[i] < required)                             \
-            i++;                                                               \
-                                                                               \
-        return cmc_hashtable_primes[i];                                        \
+#define CMC_CMC_HASHMULTIMAP_CORE_SOURCE_(PFX, SNAME, K, V)                   \
+                                                                              \
+    /* Implementation Detail Functions */                                     \
+    struct CMC_DEF_ENTRY(SNAME) *                                             \
+        CMC_(PFX, _impl_new_entry)(struct SNAME * _map_, K key, V value);     \
+    struct CMC_DEF_ENTRY(SNAME) *                                             \
+        CMC_(PFX, _impl_get_entry)(struct SNAME * _map_, K key);              \
+    size_t CMC_(PFX, _impl_key_count)(struct SNAME * _map_, K key);           \
+    size_t CMC_(PFX, _impl_calculate_size)(size_t required);                  \
+                                                                              \
+    struct SNAME *CMC_(PFX, _new)(size_t capacity, double load,               \
+                                  struct CMC_DEF_FKEY(SNAME) * f_key,         \
+                                  struct CMC_DEF_FVAL(SNAME) * f_val)         \
+    {                                                                         \
+        struct cmc_alloc_node *alloc = &cmc_alloc_node_default;               \
+                                                                              \
+        if (capacity == 0 || load <= 0)                                       \
+            return NULL;                                                      \
+                                                                              \
+        /* Prevent integer overflow */                                        \
+        if (capacity >= UINTMAX_MAX * load)                                   \
+            return NULL;                                                      \
+                                                                              \
+        if (!f_key || !f_val)                                                 \
+            return NULL;                                                      \
+                                                                              \
+        size_t real_capacity =                                                \
+            CMC_(PFX, _impl_calculate_size)(capacity / load);                 \
+                                                                              \
+        struct SNAME *_map_ = alloc->malloc(sizeof(struct SNAME));            \
+                                                                              \
+        if (!_map_)                                                           \
+            return NULL;                                                      \
+                                                                              \
+        _map_->buffer = alloc->calloc(                                        \
+            real_capacity, sizeof(struct CMC_DEF_ENTRY(SNAME) *[2]));         \
+                                                                              \
+        if (!_map_->buffer)                                                   \
+        {                                                                     \
+            alloc->free(_map_);                                               \
+            return NULL;                                                      \
+        }                                                                     \
+                                                                              \
+        _map_->count = 0;                                                     \
+        _map_->capacity = real_capacity;                                      \
+        _map_->load = load;                                                   \
+        _map_->flag = CMC_FLAG_OK;                                            \
+        _map_->f_key = f_key;                                                 \
+        _map_->f_val = f_val;                                                 \
+        _map_->alloc = alloc;                                                 \
+        _map_->callbacks = NULL;                                              \
+                                                                              \
+        return _map_;                                                         \
+    }                                                                         \
+                                                                              \
+    struct SNAME *CMC_(PFX, _new_custom)(                                     \
+        size_t capacity, double load, struct CMC_DEF_FKEY(SNAME) * f_key,     \
+        struct CMC_DEF_FVAL(SNAME) * f_val, struct cmc_alloc_node * alloc,    \
+        struct cmc_callbacks * callbacks)                                     \
+    {                                                                         \
+        if (capacity == 0 || load <= 0)                                       \
+            return NULL;                                                      \
+                                                                              \
+        /* Prevent integer overflow */                                        \
+        if (capacity >= UINTMAX_MAX * load)                                   \
+            return NULL;                                                      \
+                                                                              \
+        if (!f_key || !f_val)                                                 \
+            return NULL;                                                      \
+                                                                              \
+        if (!alloc)                                                           \
+            alloc = &cmc_alloc_node_default;                                  \
+                                                                              \
+        size_t real_capacity =                                                \
+            CMC_(PFX, _impl_calculate_size)(capacity / load);                 \
+                                                                              \
+        struct SNAME *_map_ = alloc->malloc(sizeof(struct SNAME));            \
+                                                                              \
+        if (!_map_)                                                           \
+            return NULL;                                                      \
+                                                                              \
+        _map_->buffer = alloc->calloc(                                        \
+            real_capacity, sizeof(struct CMC_DEF_ENTRY(SNAME) *[2]));         \
+                                                                              \
+        if (!_map_->buffer)                                                   \
+        {                                                                     \
+            alloc->free(_map_);                                               \
+            return NULL;                                                      \
+        }                                                                     \
+                                                                              \
+        _map_->count = 0;                                                     \
+        _map_->capacity = real_capacity;                                      \
+        _map_->load = load;                                                   \
+        _map_->flag = CMC_FLAG_OK;                                            \
+        _map_->f_key = f_key;                                                 \
+        _map_->f_val = f_val;                                                 \
+        _map_->alloc = alloc;                                                 \
+        _map_->callbacks = callbacks;                                         \
+                                                                              \
+        return _map_;                                                         \
+    }                                                                         \
+                                                                              \
+    void CMC_(PFX, _clear)(struct SNAME * _map_)                              \
+    {                                                                         \
+        for (size_t i = 0; i < _map_->capacity; i++)                          \
+        {                                                                     \
+            struct CMC_DEF_ENTRY(SNAME) *scan = _map_->buffer[i][0];          \
+                                                                              \
+            while (scan != NULL)                                              \
+            {                                                                 \
+                struct CMC_DEF_ENTRY(SNAME) *next = scan->next;               \
+                                                                              \
+                if (_map_->f_key->free)                                       \
+                    _map_->f_key->free(scan->key);                            \
+                if (_map_->f_val->free)                                       \
+                    _map_->f_val->free(scan->value);                          \
+                                                                              \
+                _map_->alloc->free(scan);                                     \
+                                                                              \
+                scan = next;                                                  \
+            }                                                                 \
+        }                                                                     \
+                                                                              \
+        memset(_map_->buffer, 0,                                              \
+               sizeof(struct CMC_DEF_ENTRY(SNAME) *[2]) * _map_->capacity);   \
+                                                                              \
+        _map_->count = 0;                                                     \
+        _map_->flag = CMC_FLAG_OK;                                            \
+    }                                                                         \
+                                                                              \
+    void CMC_(PFX, _free)(struct SNAME * _map_)                               \
+    {                                                                         \
+        size_t index = 0;                                                     \
+                                                                              \
+        while (index < _map_->capacity)                                       \
+        {                                                                     \
+            struct CMC_DEF_ENTRY(SNAME) *scan = _map_->buffer[index][0];      \
+                                                                              \
+            if (scan != NULL)                                                 \
+            {                                                                 \
+                if (scan->next == NULL && scan->prev == NULL)                 \
+                {                                                             \
+                    if (_map_->f_key->free)                                   \
+                        _map_->f_key->free(scan->key);                        \
+                    if (_map_->f_val->free)                                   \
+                        _map_->f_val->free(scan->value);                      \
+                                                                              \
+                    _map_->alloc->free(scan);                                 \
+                }                                                             \
+                else                                                          \
+                {                                                             \
+                    while (scan != NULL)                                      \
+                    {                                                         \
+                        struct CMC_DEF_ENTRY(SNAME) *tmp = scan;              \
+                                                                              \
+                        scan = scan->next;                                    \
+                                                                              \
+                        if (_map_->f_key->free)                               \
+                            _map_->f_key->free(tmp->key);                     \
+                        if (_map_->f_val->free)                               \
+                            _map_->f_val->free(tmp->value);                   \
+                                                                              \
+                        _map_->alloc->free(tmp);                              \
+                    }                                                         \
+                }                                                             \
+            }                                                                 \
+                                                                              \
+            index++;                                                          \
+        }                                                                     \
+                                                                              \
+        _map_->alloc->free(_map_->buffer);                                    \
+        _map_->alloc->free(_map_);                                            \
+    }                                                                         \
+                                                                              \
+    void CMC_(PFX, _customize)(struct SNAME * _map_,                          \
+                               struct cmc_alloc_node * alloc,                 \
+                               struct cmc_callbacks * callbacks)              \
+    {                                                                         \
+        if (!alloc)                                                           \
+            _map_->alloc = &cmc_alloc_node_default;                           \
+        else                                                                  \
+            _map_->alloc = alloc;                                             \
+                                                                              \
+        _map_->callbacks = callbacks;                                         \
+                                                                              \
+        _map_->flag = CMC_FLAG_OK;                                            \
+    }                                                                         \
+                                                                              \
+    bool CMC_(PFX, _insert)(struct SNAME * _map_, K key, V value)             \
+    {                                                                         \
+        if (CMC_(PFX, _full)(_map_))                                          \
+        {                                                                     \
+            if (!CMC_(PFX, _resize)(_map_, _map_->capacity + 1))              \
+                return false;                                                 \
+        }                                                                     \
+                                                                              \
+        size_t hash = _map_->f_key->hash(key);                                \
+        size_t pos = hash % _map_->capacity;                                  \
+                                                                              \
+        struct CMC_DEF_ENTRY(SNAME) *entry =                                  \
+            CMC_(PFX, _impl_new_entry)(_map_, key, value);                    \
+                                                                              \
+        if (_map_->buffer[pos][0] == NULL)                                    \
+        {                                                                     \
+            _map_->buffer[pos][0] = entry;                                    \
+            _map_->buffer[pos][1] = entry;                                    \
+        }                                                                     \
+        else                                                                  \
+        {                                                                     \
+            entry->prev = _map_->buffer[pos][1];                              \
+                                                                              \
+            _map_->buffer[pos][1]->next = entry;                              \
+            _map_->buffer[pos][1] = entry;                                    \
+        }                                                                     \
+                                                                              \
+        _map_->count++;                                                       \
+        _map_->flag = CMC_FLAG_OK;                                            \
+                                                                              \
+        if (_map_->callbacks && _map_->callbacks->create)                     \
+            _map_->callbacks->create();                                       \
+                                                                              \
+        return true;                                                          \
+    }                                                                         \
+                                                                              \
+    bool CMC_(PFX, _update)(struct SNAME * _map_, K key, V new_value,         \
+                            V * old_value)                                    \
+    {                                                                         \
+        if (CMC_(PFX, _empty)(_map_))                                         \
+        {                                                                     \
+            _map_->flag = CMC_FLAG_EMPTY;                                     \
+            return false;                                                     \
+        }                                                                     \
+                                                                              \
+        struct CMC_DEF_ENTRY(SNAME) *entry =                                  \
+            CMC_(PFX, _impl_get_entry)(_map_, key);                           \
+                                                                              \
+        if (!entry)                                                           \
+        {                                                                     \
+            _map_->flag = CMC_FLAG_NOT_FOUND;                                 \
+            return false;                                                     \
+        }                                                                     \
+                                                                              \
+        if (old_value)                                                        \
+            *old_value = entry->value;                                        \
+                                                                              \
+        entry->value = new_value;                                             \
+                                                                              \
+        _map_->flag = CMC_FLAG_OK;                                            \
+                                                                              \
+        if (_map_->callbacks && _map_->callbacks->update)                     \
+            _map_->callbacks->update();                                       \
+                                                                              \
+        return true;                                                          \
+    }                                                                         \
+                                                                              \
+    size_t CMC_(PFX, _update_all)(struct SNAME * _map_, K key, V new_value,   \
+                                  V * *old_values)                            \
+    {                                                                         \
+        if (CMC_(PFX, _empty)(_map_))                                         \
+        {                                                                     \
+            _map_->flag = CMC_FLAG_EMPTY;                                     \
+            return 0;                                                         \
+        }                                                                     \
+                                                                              \
+        size_t hash = _map_->f_key->hash(key);                                \
+                                                                              \
+        struct CMC_DEF_ENTRY(SNAME) *entry =                                  \
+            _map_->buffer[hash % _map_->capacity][0];                         \
+                                                                              \
+        if (entry == NULL)                                                    \
+        {                                                                     \
+            _map_->flag = CMC_FLAG_NOT_FOUND;                                 \
+            return 0;                                                         \
+        }                                                                     \
+                                                                              \
+        if (old_values)                                                       \
+        {                                                                     \
+            size_t total = CMC_(PFX, _impl_key_count)(_map_, key);            \
+                                                                              \
+            if (total == 0)                                                   \
+            {                                                                 \
+                _map_->flag = CMC_FLAG_NOT_FOUND;                             \
+                return 0;                                                     \
+            }                                                                 \
+                                                                              \
+            *old_values = _map_->alloc->malloc(sizeof(V) * total);            \
+                                                                              \
+            if (!(*old_values))                                               \
+            {                                                                 \
+                _map_->flag = CMC_FLAG_ALLOC;                                 \
+                return 0;                                                     \
+            }                                                                 \
+        }                                                                     \
+                                                                              \
+        size_t index = 0;                                                     \
+                                                                              \
+        while (entry != NULL)                                                 \
+        {                                                                     \
+            if (_map_->f_key->cmp(entry->key, key) == 0)                      \
+            {                                                                 \
+                if (old_values)                                               \
+                    (*old_values)[index] = entry->value;                      \
+                                                                              \
+                index++;                                                      \
+                entry->value = new_value;                                     \
+            }                                                                 \
+                                                                              \
+            entry = entry->next;                                              \
+        }                                                                     \
+                                                                              \
+        _map_->flag = CMC_FLAG_OK;                                            \
+                                                                              \
+        if (_map_->callbacks && _map_->callbacks->update)                     \
+            _map_->callbacks->update();                                       \
+                                                                              \
+        return index;                                                         \
+    }                                                                         \
+                                                                              \
+    bool CMC_(PFX, _remove)(struct SNAME * _map_, K key, V * out_value)       \
+    {                                                                         \
+        if (CMC_(PFX, _empty)(_map_))                                         \
+        {                                                                     \
+            _map_->flag = CMC_FLAG_EMPTY;                                     \
+            return false;                                                     \
+        }                                                                     \
+                                                                              \
+        size_t hash = _map_->f_key->hash(key);                                \
+                                                                              \
+        struct CMC_DEF_ENTRY(SNAME) **head =                                  \
+            &(_map_->buffer[hash % _map_->capacity][0]);                      \
+        struct CMC_DEF_ENTRY(SNAME) **tail =                                  \
+            &(_map_->buffer[hash % _map_->capacity][1]);                      \
+                                                                              \
+        if (*head == NULL)                                                    \
+        {                                                                     \
+            _map_->flag = CMC_FLAG_NOT_FOUND;                                 \
+            return false;                                                     \
+        }                                                                     \
+                                                                              \
+        struct CMC_DEF_ENTRY(SNAME) *entry = *head;                           \
+                                                                              \
+        if (entry->next == NULL && entry->prev == NULL)                       \
+        {                                                                     \
+            if (_map_->f_key->cmp(entry->key, key) == 0)                      \
+            {                                                                 \
+                *head = NULL;                                                 \
+                *tail = NULL;                                                 \
+                                                                              \
+                if (out_value)                                                \
+                    *out_value = entry->value;                                \
+            }                                                                 \
+            else                                                              \
+            {                                                                 \
+                _map_->flag = CMC_FLAG_NOT_FOUND;                             \
+                return false;                                                 \
+            }                                                                 \
+        }                                                                     \
+        else                                                                  \
+        {                                                                     \
+            bool found = false;                                               \
+                                                                              \
+            while (entry != NULL)                                             \
+            {                                                                 \
+                if (_map_->f_key->cmp(entry->key, key) == 0)                  \
+                {                                                             \
+                    if (*head == entry)                                       \
+                        *head = entry->next;                                  \
+                    if (*tail == entry)                                       \
+                        *tail = entry->prev;                                  \
+                                                                              \
+                    if (entry->prev != NULL)                                  \
+                        entry->prev->next = entry->next;                      \
+                    if (entry->next != NULL)                                  \
+                        entry->next->prev = entry->prev;                      \
+                                                                              \
+                    if (out_value)                                            \
+                        *out_value = entry->value;                            \
+                                                                              \
+                    found = true;                                             \
+                                                                              \
+                    break;                                                    \
+                }                                                             \
+                else                                                          \
+                    entry = entry->next;                                      \
+            }                                                                 \
+                                                                              \
+            if (!found)                                                       \
+            {                                                                 \
+                _map_->flag = CMC_FLAG_NOT_FOUND;                             \
+                return false;                                                 \
+            }                                                                 \
+        }                                                                     \
+                                                                              \
+        _map_->alloc->free(entry);                                            \
+                                                                              \
+        _map_->count--;                                                       \
+        _map_->flag = CMC_FLAG_OK;                                            \
+                                                                              \
+        if (_map_->callbacks && _map_->callbacks->delete)                     \
+            _map_->callbacks->delete ();                                      \
+                                                                              \
+        return true;                                                          \
+    }                                                                         \
+                                                                              \
+    size_t CMC_(PFX, _remove_all)(struct SNAME * _map_, K key,                \
+                                  V * *out_values)                            \
+    {                                                                         \
+        if (CMC_(PFX, _empty)(_map_))                                         \
+        {                                                                     \
+            _map_->flag = CMC_FLAG_EMPTY;                                     \
+            return false;                                                     \
+        }                                                                     \
+                                                                              \
+        size_t hash = _map_->f_key->hash(key);                                \
+                                                                              \
+        struct CMC_DEF_ENTRY(SNAME) **head =                                  \
+            &(_map_->buffer[hash % _map_->capacity][0]);                      \
+        struct CMC_DEF_ENTRY(SNAME) **tail =                                  \
+            &(_map_->buffer[hash % _map_->capacity][1]);                      \
+                                                                              \
+        if (*head == NULL)                                                    \
+        {                                                                     \
+            _map_->flag = CMC_FLAG_NOT_FOUND;                                 \
+            return 0;                                                         \
+        }                                                                     \
+                                                                              \
+        if (out_values)                                                       \
+        {                                                                     \
+            size_t total = CMC_(PFX, _impl_key_count)(_map_, key);            \
+                                                                              \
+            if (total == 0)                                                   \
+            {                                                                 \
+                _map_->flag = CMC_FLAG_NOT_FOUND;                             \
+                return 0;                                                     \
+            }                                                                 \
+                                                                              \
+            *out_values = _map_->alloc->malloc(sizeof(V) * total);            \
+                                                                              \
+            if (!(*out_values))                                               \
+            {                                                                 \
+                _map_->flag = CMC_FLAG_ALLOC;                                 \
+                return 0;                                                     \
+            }                                                                 \
+        }                                                                     \
+                                                                              \
+        size_t index = 0;                                                     \
+        struct CMC_DEF_ENTRY(SNAME) *entry = *head;                           \
+                                                                              \
+        if (entry->next == NULL)                                              \
+        {                                                                     \
+            *head = NULL;                                                     \
+            *tail = NULL;                                                     \
+                                                                              \
+            if (out_values)                                                   \
+                (*out_values)[index] = entry->value;                          \
+                                                                              \
+            index++;                                                          \
+            _map_->alloc->free(entry);                                        \
+        }                                                                     \
+        else                                                                  \
+        {                                                                     \
+            while (entry != NULL)                                             \
+            {                                                                 \
+                if (_map_->f_key->cmp(entry->key, key) == 0)                  \
+                {                                                             \
+                    if (*head == entry)                                       \
+                        *head = entry->next;                                  \
+                    if (*tail == entry)                                       \
+                        *tail = entry->prev;                                  \
+                                                                              \
+                    struct CMC_DEF_ENTRY(SNAME) *next = entry->next;          \
+                                                                              \
+                    if (entry->prev != NULL)                                  \
+                        entry->prev->next = entry->next;                      \
+                    if (entry->next != NULL)                                  \
+                        entry->next->prev = entry->prev;                      \
+                                                                              \
+                    if (out_values)                                           \
+                        (*out_values)[index] = entry->value;                  \
+                                                                              \
+                    index++;                                                  \
+                    _map_->alloc->free(entry);                                \
+                                                                              \
+                    entry = next;                                             \
+                }                                                             \
+                else                                                          \
+                    entry = entry->next;                                      \
+            }                                                                 \
+        }                                                                     \
+                                                                              \
+        _map_->count -= index;                                                \
+        _map_->flag = CMC_FLAG_OK;                                            \
+                                                                              \
+        if (_map_->callbacks && _map_->callbacks->delete)                     \
+            _map_->callbacks->delete ();                                      \
+                                                                              \
+        return index;                                                         \
+    }                                                                         \
+                                                                              \
+    bool CMC_(PFX, _max)(struct SNAME * _map_, K * key, V * value)            \
+    {                                                                         \
+        if (CMC_(PFX, _empty)(_map_))                                         \
+        {                                                                     \
+            _map_->flag = CMC_FLAG_EMPTY;                                     \
+            return false;                                                     \
+        }                                                                     \
+                                                                              \
+        K max_key;                                                            \
+        V max_val;                                                            \
+                                                                              \
+        struct CMC_DEF_ITER(SNAME) iter = CMC_(PFX, _iter_start)(_map_);      \
+                                                                              \
+        /* TODO Turn this into a normal loop */                               \
+        for (; !CMC_(PFX, _iter_at_end)(&iter); CMC_(PFX, _iter_next)(&iter)) \
+        {                                                                     \
+            K result_key = CMC_(PFX, _iter_key)(&iter);                       \
+            V result_value = CMC_(PFX, _iter_value)(&iter);                   \
+            size_t index = CMC_(PFX, _iter_index)(&iter);                     \
+                                                                              \
+            if (index == 0)                                                   \
+            {                                                                 \
+                max_key = result_key;                                         \
+                max_val = result_value;                                       \
+            }                                                                 \
+            else if (_map_->f_key->cmp(result_key, max_key) > 0)              \
+            {                                                                 \
+                max_key = result_key;                                         \
+                max_val = result_value;                                       \
+            }                                                                 \
+        }                                                                     \
+                                                                              \
+        if (key)                                                              \
+            *key = max_key;                                                   \
+        if (value)                                                            \
+            *value = max_val;                                                 \
+                                                                              \
+        _map_->flag = CMC_FLAG_OK;                                            \
+                                                                              \
+        if (_map_->callbacks && _map_->callbacks->read)                       \
+            _map_->callbacks->read();                                         \
+                                                                              \
+        return true;                                                          \
+    }                                                                         \
+                                                                              \
+    bool CMC_(PFX, _min)(struct SNAME * _map_, K * key, V * value)            \
+    {                                                                         \
+        if (CMC_(PFX, _empty)(_map_))                                         \
+        {                                                                     \
+            _map_->flag = CMC_FLAG_EMPTY;                                     \
+            return false;                                                     \
+        }                                                                     \
+                                                                              \
+        K min_key;                                                            \
+        V min_val;                                                            \
+                                                                              \
+        struct CMC_DEF_ITER(SNAME) iter = CMC_(PFX, _iter_start)(_map_);      \
+                                                                              \
+        /* TODO Turn this into a normal loop */                               \
+        for (; !CMC_(PFX, _iter_at_end)(&iter); CMC_(PFX, _iter_next)(&iter)) \
+        {                                                                     \
+            K result_key = CMC_(PFX, _iter_key)(&iter);                       \
+            V result_value = CMC_(PFX, _iter_value)(&iter);                   \
+            size_t index = CMC_(PFX, _iter_index)(&iter);                     \
+                                                                              \
+            if (index == 0)                                                   \
+            {                                                                 \
+                min_key = result_key;                                         \
+                min_val = result_value;                                       \
+            }                                                                 \
+            else if (_map_->f_key->cmp(result_key, min_key) < 0)              \
+            {                                                                 \
+                min_key = result_key;                                         \
+                min_val = result_value;                                       \
+            }                                                                 \
+        }                                                                     \
+                                                                              \
+        if (key)                                                              \
+            *key = min_key;                                                   \
+        if (value)                                                            \
+            *value = min_val;                                                 \
+                                                                              \
+        _map_->flag = CMC_FLAG_OK;                                            \
+                                                                              \
+        if (_map_->callbacks && _map_->callbacks->read)                       \
+            _map_->callbacks->read();                                         \
+                                                                              \
+        return true;                                                          \
+    }                                                                         \
+                                                                              \
+    V CMC_(PFX, _get)(struct SNAME * _map_, K key)                            \
+    {                                                                         \
+        if (CMC_(PFX, _empty)(_map_))                                         \
+        {                                                                     \
+            _map_->flag = CMC_FLAG_EMPTY;                                     \
+            return false;                                                     \
+        }                                                                     \
+                                                                              \
+        struct CMC_DEF_ENTRY(SNAME) *entry =                                  \
+            CMC_(PFX, _impl_get_entry)(_map_, key);                           \
+                                                                              \
+        if (!entry)                                                           \
+        {                                                                     \
+            _map_->flag = CMC_FLAG_NOT_FOUND;                                 \
+            return (V){ 0 };                                                  \
+        }                                                                     \
+                                                                              \
+        _map_->flag = CMC_FLAG_OK;                                            \
+                                                                              \
+        if (_map_->callbacks && _map_->callbacks->read)                       \
+            _map_->callbacks->read();                                         \
+                                                                              \
+        return entry->value;                                                  \
+    }                                                                         \
+                                                                              \
+    V *CMC_(PFX, _get_ref)(struct SNAME * _map_, K key)                       \
+    {                                                                         \
+        if (CMC_(PFX, _empty)(_map_))                                         \
+        {                                                                     \
+            _map_->flag = CMC_FLAG_EMPTY;                                     \
+            return false;                                                     \
+        }                                                                     \
+                                                                              \
+        struct CMC_DEF_ENTRY(SNAME) *entry =                                  \
+            CMC_(PFX, _impl_get_entry)(_map_, key);                           \
+                                                                              \
+        if (!entry)                                                           \
+        {                                                                     \
+            _map_->flag = CMC_FLAG_NOT_FOUND;                                 \
+            return NULL;                                                      \
+        }                                                                     \
+                                                                              \
+        _map_->flag = CMC_FLAG_OK;                                            \
+                                                                              \
+        if (_map_->callbacks && _map_->callbacks->read)                       \
+            _map_->callbacks->read();                                         \
+                                                                              \
+        return &(entry->value);                                               \
+    }                                                                         \
+                                                                              \
+    bool CMC_(PFX, _contains)(struct SNAME * _map_, K key)                    \
+    {                                                                         \
+        _map_->flag = CMC_FLAG_OK;                                            \
+                                                                              \
+        bool result = CMC_(PFX, _impl_get_entry)(_map_, key) != NULL;         \
+                                                                              \
+        if (_map_->callbacks && _map_->callbacks->read)                       \
+            _map_->callbacks->read();                                         \
+                                                                              \
+        return result;                                                        \
+    }                                                                         \
+                                                                              \
+    bool CMC_(PFX, _empty)(struct SNAME * _map_)                              \
+    {                                                                         \
+        return _map_->count == 0;                                             \
+    }                                                                         \
+                                                                              \
+    bool CMC_(PFX, _full)(struct SNAME * _map_)                               \
+    {                                                                         \
+        return (double)_map_->capacity * _map_->load <= (double)_map_->count; \
+    }                                                                         \
+                                                                              \
+    size_t CMC_(PFX, _count)(struct SNAME * _map_)                            \
+    {                                                                         \
+        return _map_->count;                                                  \
+    }                                                                         \
+                                                                              \
+    size_t CMC_(PFX, _key_count)(struct SNAME * _map_, K key)                 \
+    {                                                                         \
+        return CMC_(PFX, _impl_key_count)(_map_, key);                        \
+    }                                                                         \
+                                                                              \
+    size_t CMC_(PFX, _capacity)(struct SNAME * _map_)                         \
+    {                                                                         \
+        return _map_->capacity;                                               \
+    }                                                                         \
+                                                                              \
+    double CMC_(PFX, _load)(struct SNAME * _map_)                             \
+    {                                                                         \
+        return _map_->load;                                                   \
+    }                                                                         \
+                                                                              \
+    int CMC_(PFX, _flag)(struct SNAME * _map_)                                \
+    {                                                                         \
+        return _map_->flag;                                                   \
+    }                                                                         \
+                                                                              \
+    bool CMC_(PFX, _resize)(struct SNAME * _map_, size_t capacity)            \
+    {                                                                         \
+        _map_->flag = CMC_FLAG_OK;                                            \
+                                                                              \
+        if (_map_->capacity == capacity)                                      \
+            goto success;                                                     \
+                                                                              \
+        if (_map_->capacity > capacity / _map_->load)                         \
+            goto success;                                                     \
+                                                                              \
+        /* Prevent integer overflow */                                        \
+        if (capacity >= UINTMAX_MAX * _map_->load)                            \
+        {                                                                     \
+            _map_->flag = CMC_FLAG_ERROR;                                     \
+            return false;                                                     \
+        }                                                                     \
+                                                                              \
+        /* Calculate required capacity based on the prime numbers */          \
+        size_t theoretical_size = CMC_(PFX, _impl_calculate_size)(capacity);  \
+                                                                              \
+        /* Not possible to shrink with current available prime numbers */     \
+        if (theoretical_size < _map_->count / _map_->load)                    \
+        {                                                                     \
+            _map_->flag = CMC_FLAG_INVALID;                                   \
+            return false;                                                     \
+        }                                                                     \
+                                                                              \
+        /* No callbacks since _new_map_ is just a temporary hashtable */      \
+        struct SNAME *_new_map_ =                                             \
+            CMC_(PFX, _new_custom)(capacity, _map_->load, _map_->f_key,       \
+                                   _map_->f_val, _map_->alloc, NULL);         \
+                                                                              \
+        if (!_new_map_)                                                       \
+        {                                                                     \
+            _map_->flag = CMC_FLAG_ALLOC;                                     \
+            return false;                                                     \
+        }                                                                     \
+                                                                              \
+        struct CMC_DEF_ITER(SNAME) iter = CMC_(PFX, _iter_start)(_map_);      \
+                                                                              \
+        /* TODO Turn this into a normal loop */                               \
+        for (; !CMC_(PFX, _iter_at_end)(&iter); CMC_(PFX, _iter_next)(&iter)) \
+        {                                                                     \
+            K key = CMC_(PFX, _iter_key)(&iter);                              \
+            V value = CMC_(PFX, _iter_value)(&iter);                          \
+                                                                              \
+            /* TODO check for errors */                                       \
+            CMC_(PFX, _insert)(_new_map_, key, value);                        \
+        }                                                                     \
+                                                                              \
+        if (_map_->count != _new_map_->count)                                 \
+        {                                                                     \
+            CMC_(PFX, _free)(_new_map_);                                      \
+                                                                              \
+            _map_->flag = CMC_FLAG_ERROR;                                     \
+            return false;                                                     \
+        }                                                                     \
+                                                                              \
+        struct CMC_DEF_ENTRY(SNAME) * (*tmp_b)[2] = _map_->buffer;            \
+        _map_->buffer = _new_map_->buffer;                                    \
+        _new_map_->buffer = tmp_b;                                            \
+                                                                              \
+        size_t tmp_c = _map_->capacity;                                       \
+        _map_->capacity = _new_map_->capacity;                                \
+        _new_map_->capacity = tmp_c;                                          \
+                                                                              \
+        /* Prevent the map from freeing the data */                           \
+        _new_map_->f_key = &(struct CMC_DEF_FKEY(SNAME)){ NULL };             \
+        _new_map_->f_val = &(struct CMC_DEF_FVAL(SNAME)){ NULL };             \
+                                                                              \
+        CMC_(PFX, _free)(_new_map_);                                          \
+                                                                              \
+    success:                                                                  \
+                                                                              \
+        if (_map_->callbacks && _map_->callbacks->resize)                     \
+            _map_->callbacks->resize();                                       \
+                                                                              \
+        return true;                                                          \
+    }                                                                         \
+                                                                              \
+    struct SNAME *CMC_(PFX, _copy_of)(struct SNAME * _map_)                   \
+    {                                                                         \
+        /* Callback will be added later */                                    \
+        struct SNAME *result = CMC_(PFX, _new_custom)(                        \
+            _map_->capacity * _map_->load, _map_->load, _map_->f_key,         \
+            _map_->f_val, _map_->alloc, NULL);                                \
+                                                                              \
+        if (!result)                                                          \
+        {                                                                     \
+            _map_->flag = CMC_FLAG_ERROR;                                     \
+            return NULL;                                                      \
+        }                                                                     \
+                                                                              \
+        struct CMC_DEF_ITER(SNAME) iter = CMC_(PFX, _iter_start)(_map_);      \
+                                                                              \
+        if (!CMC_(PFX, _empty)(_map_))                                        \
+        {                                                                     \
+            /* TODO Turn this into a normal loop */                           \
+            for (; !CMC_(PFX, _iter_at_end)(&iter);                           \
+                 CMC_(PFX, _iter_next)(&iter))                                \
+            {                                                                 \
+                K key = CMC_(PFX, _iter_key)(&iter);                          \
+                V value = CMC_(PFX, _iter_value)(&iter);                      \
+                                                                              \
+                if (_map_->f_key->cpy)                                        \
+                    key = _map_->f_key->cpy(key);                             \
+                if (_map_->f_val->cpy)                                        \
+                    value = _map_->f_val->cpy(value);                         \
+                                                                              \
+                /* TODO check for errors */                                   \
+                CMC_(PFX, _insert)(result, key, value);                       \
+            }                                                                 \
+        }                                                                     \
+                                                                              \
+        result->callbacks = _map_->callbacks;                                 \
+        _map_->flag = CMC_FLAG_OK;                                            \
+                                                                              \
+        return result;                                                        \
+    }                                                                         \
+                                                                              \
+    bool CMC_(PFX, _equals)(struct SNAME * _map1_, struct SNAME * _map2_)     \
+    {                                                                         \
+        _map1_->flag = CMC_FLAG_OK;                                           \
+        _map2_->flag = CMC_FLAG_OK;                                           \
+                                                                              \
+        if (_map1_->count != _map2_->count)                                   \
+            return false;                                                     \
+                                                                              \
+        struct CMC_DEF_ITER(SNAME) iter = CMC_(PFX, _iter_start)(_map1_);     \
+                                                                              \
+        /* TODO Turn this into a normal loop */                               \
+        for (; !CMC_(PFX, _iter_at_end)(&iter); CMC_(PFX, _iter_next)(&iter)) \
+        {                                                                     \
+            K key = CMC_(PFX, _iter_key)(&iter);                              \
+                                                                              \
+            if (CMC_(PFX, _impl_key_count)(_map1_, key) !=                    \
+                CMC_(PFX, _impl_key_count)(_map2_, key))                      \
+                return false;                                                 \
+        }                                                                     \
+                                                                              \
+        return true;                                                          \
+    }                                                                         \
+                                                                              \
+    struct cmc_string CMC_(PFX, _to_string)(struct SNAME * _map_)             \
+    {                                                                         \
+        struct cmc_string str;                                                \
+        struct SNAME *m_ = _map_;                                             \
+                                                                              \
+        int n = snprintf(                                                     \
+            str.s, cmc_string_len, cmc_cmc_string_fmt_hashmultimap, #SNAME,   \
+            #K, #V, m_, m_->buffer, m_->capacity, m_->count, m_->load,        \
+            m_->flag, m_->f_key, m_->f_val, m_->alloc, m_->callbacks);        \
+                                                                              \
+        return n >= 0 ? str : (struct cmc_string){ 0 };                       \
+    }                                                                         \
+                                                                              \
+    bool CMC_(PFX, _print)(struct SNAME * _map_, FILE * fptr)                 \
+    {                                                                         \
+        for (size_t i = 0; i < _map_->capacity; i++)                          \
+        {                                                                     \
+            struct CMC_DEF_ENTRY(SNAME) *scan = _map_->buffer[i][0];          \
+                                                                              \
+            while (scan != NULL)                                              \
+            {                                                                 \
+                if (!_map_->f_key->str(fptr, scan->key) ||                    \
+                    !_map_->f_val->str(fptr, scan->value))                    \
+                    return false;                                             \
+                                                                              \
+                scan = scan->next;                                            \
+            }                                                                 \
+        }                                                                     \
+                                                                              \
+        return true;                                                          \
+    }                                                                         \
+                                                                              \
+    struct CMC_DEF_ITER(SNAME) CMC_(PFX, _iter_start)(struct SNAME * target)  \
+    {                                                                         \
+        struct CMC_DEF_ITER(SNAME) iter;                                      \
+                                                                              \
+        iter.target = target;                                                 \
+        iter.curr_entry = NULL;                                               \
+        iter.cursor = 0;                                                      \
+        iter.index = 0;                                                       \
+        iter.first = 0;                                                       \
+        iter.last = 0;                                                        \
+        iter.start = true;                                                    \
+        iter.end = CMC_(PFX, _empty)(target);                                 \
+                                                                              \
+        if (!CMC_(PFX, _empty)(target))                                       \
+        {                                                                     \
+            for (size_t i = 0; i < target->capacity; i++)                     \
+            {                                                                 \
+                if (target->buffer[i][0] != NULL)                             \
+                {                                                             \
+                    iter.curr_entry = target->buffer[i][0];                   \
+                    iter.first = i;                                           \
+                    break;                                                    \
+                }                                                             \
+            }                                                                 \
+                                                                              \
+            iter.cursor = iter.first;                                         \
+                                                                              \
+            for (size_t i = target->capacity; i > 0; i--)                     \
+            {                                                                 \
+                if (target->buffer[i - 1][1] != NULL)                         \
+                {                                                             \
+                    iter.last = i - 1;                                        \
+                    break;                                                    \
+                }                                                             \
+            }                                                                 \
+        }                                                                     \
+                                                                              \
+        return iter;                                                          \
+    }                                                                         \
+                                                                              \
+    struct CMC_DEF_ITER(SNAME) CMC_(PFX, _iter_end)(struct SNAME * target)    \
+    {                                                                         \
+        struct CMC_DEF_ITER(SNAME) iter;                                      \
+                                                                              \
+        iter.target = target;                                                 \
+        iter.curr_entry = NULL;                                               \
+        iter.cursor = 0;                                                      \
+        iter.index = 0;                                                       \
+        iter.first = 0;                                                       \
+        iter.last = 0;                                                        \
+        iter.start = CMC_(PFX, _empty)(target);                               \
+        iter.end = true;                                                      \
+                                                                              \
+        if (!CMC_(PFX, _empty)(target))                                       \
+        {                                                                     \
+            for (size_t i = 0; i < target->capacity; i++)                     \
+            {                                                                 \
+                if (target->buffer[i][0] != NULL)                             \
+                {                                                             \
+                    iter.first = i;                                           \
+                    break;                                                    \
+                }                                                             \
+            }                                                                 \
+                                                                              \
+            for (size_t i = target->capacity; i > 0; i--)                     \
+            {                                                                 \
+                if (target->buffer[i - 1][1] != NULL)                         \
+                {                                                             \
+                    iter.curr_entry = target->buffer[i - 1][1];               \
+                    iter.last = i - 1;                                        \
+                    break;                                                    \
+                }                                                             \
+            }                                                                 \
+                                                                              \
+            iter.cursor = iter.last;                                          \
+            iter.index = target->count - 1;                                   \
+        }                                                                     \
+                                                                              \
+        return iter;                                                          \
+    }                                                                         \
+                                                                              \
+    bool CMC_(PFX, _iter_at_start)(struct CMC_DEF_ITER(SNAME) * iter)         \
+    {                                                                         \
+        return CMC_(PFX, _empty)(iter->target) || iter->start;                \
+    }                                                                         \
+                                                                              \
+    bool CMC_(PFX, _iter_at_end)(struct CMC_DEF_ITER(SNAME) * iter)           \
+    {                                                                         \
+        return CMC_(PFX, _empty)(iter->target) || iter->end;                  \
+    }                                                                         \
+                                                                              \
+    bool CMC_(PFX, _iter_to_start)(struct CMC_DEF_ITER(SNAME) * iter)         \
+    {                                                                         \
+        if (!CMC_(PFX, _empty)(iter->target))                                 \
+        {                                                                     \
+            iter->cursor = iter->first;                                       \
+            iter->index = 0;                                                  \
+            iter->start = true;                                               \
+            iter->end = CMC_(PFX, _empty)(iter->target);                      \
+            iter->curr_entry = iter->target->buffer[iter->first][0];          \
+                                                                              \
+            return true;                                                      \
+        }                                                                     \
+                                                                              \
+        return false;                                                         \
+    }                                                                         \
+                                                                              \
+    bool CMC_(PFX, _iter_to_end)(struct CMC_DEF_ITER(SNAME) * iter)           \
+    {                                                                         \
+        if (!CMC_(PFX, _empty)(iter->target))                                 \
+        {                                                                     \
+            iter->cursor = iter->last;                                        \
+            iter->index = iter->target->count - 1;                            \
+            iter->start = CMC_(PFX, _empty)(iter->target);                    \
+            iter->end = true;                                                 \
+            iter->curr_entry = iter->target->buffer[iter->last][1];           \
+                                                                              \
+            return true;                                                      \
+        }                                                                     \
+                                                                              \
+        return false;                                                         \
+    }                                                                         \
+                                                                              \
+    bool CMC_(PFX, _iter_next)(struct CMC_DEF_ITER(SNAME) * iter)             \
+    {                                                                         \
+        if (iter->end)                                                        \
+            return false;                                                     \
+                                                                              \
+        if (iter->curr_entry->next != NULL)                                   \
+        {                                                                     \
+            iter->curr_entry = iter->curr_entry->next;                        \
+            iter->index++;                                                    \
+        }                                                                     \
+        else                                                                  \
+        {                                                                     \
+            if (iter->cursor == iter->last)                                   \
+            {                                                                 \
+                iter->end = true;                                             \
+                return false;                                                 \
+            }                                                                 \
+                                                                              \
+            iter->cursor++;                                                   \
+                                                                              \
+            while (iter->target->buffer[iter->cursor][0] == NULL)             \
+                iter->cursor++;                                               \
+                                                                              \
+            iter->curr_entry = iter->target->buffer[iter->cursor][0];         \
+                                                                              \
+            iter->index++;                                                    \
+        }                                                                     \
+                                                                              \
+        iter->start = CMC_(PFX, _empty)(iter->target);                        \
+                                                                              \
+        return true;                                                          \
+    }                                                                         \
+                                                                              \
+    bool CMC_(PFX, _iter_prev)(struct CMC_DEF_ITER(SNAME) * iter)             \
+    {                                                                         \
+        if (iter->start)                                                      \
+            return false;                                                     \
+                                                                              \
+        if (iter->curr_entry->prev != NULL)                                   \
+        {                                                                     \
+            iter->curr_entry = iter->curr_entry->prev;                        \
+            iter->index--;                                                    \
+        }                                                                     \
+        else                                                                  \
+        {                                                                     \
+            if (iter->cursor == iter->first)                                  \
+            {                                                                 \
+                iter->start = true;                                           \
+                return false;                                                 \
+            }                                                                 \
+                                                                              \
+            iter->cursor--;                                                   \
+                                                                              \
+            while (iter->target->buffer[iter->cursor][1] == NULL)             \
+                iter->cursor--;                                               \
+                                                                              \
+            iter->curr_entry = iter->target->buffer[iter->cursor][1];         \
+                                                                              \
+            iter->index--;                                                    \
+        }                                                                     \
+                                                                              \
+        iter->end = CMC_(PFX, _empty)(iter->target);                          \
+                                                                              \
+        return true;                                                          \
+    }                                                                         \
+                                                                              \
+    /* Returns true only if the iterator moved */                             \
+    bool CMC_(PFX, _iter_advance)(struct CMC_DEF_ITER(SNAME) * iter,          \
+                                  size_t steps)                               \
+    {                                                                         \
+        if (iter->end)                                                        \
+            return false;                                                     \
+                                                                              \
+        if (iter->index + 1 == iter->target->count)                           \
+        {                                                                     \
+            iter->end = true;                                                 \
+            return false;                                                     \
+        }                                                                     \
+                                                                              \
+        if (steps == 0 || iter->index + steps >= iter->target->count)         \
+            return false;                                                     \
+                                                                              \
+        for (size_t i = 0; i < steps; i++)                                    \
+            CMC_(PFX, _iter_next)(iter);                                      \
+                                                                              \
+        return true;                                                          \
+    }                                                                         \
+                                                                              \
+    /* Returns true only if the iterator moved */                             \
+    bool CMC_(PFX, _iter_rewind)(struct CMC_DEF_ITER(SNAME) * iter,           \
+                                 size_t steps)                                \
+    {                                                                         \
+        if (iter->start)                                                      \
+            return false;                                                     \
+                                                                              \
+        if (iter->index == 0)                                                 \
+        {                                                                     \
+            iter->start = true;                                               \
+            return false;                                                     \
+        }                                                                     \
+                                                                              \
+        if (steps == 0 || iter->index < steps)                                \
+            return false;                                                     \
+                                                                              \
+        for (size_t i = 0; i < steps; i++)                                    \
+            CMC_(PFX, _iter_prev)(iter);                                      \
+                                                                              \
+        return true;                                                          \
+    }                                                                         \
+                                                                              \
+    /* Returns true only if the iterator was able to be positioned at the */  \
+    /* given index */                                                         \
+    bool CMC_(PFX, _iter_go_to)(struct CMC_DEF_ITER(SNAME) * iter,            \
+                                size_t index)                                 \
+    {                                                                         \
+        if (index >= iter->target->count)                                     \
+            return false;                                                     \
+                                                                              \
+        if (iter->index > index)                                              \
+            return CMC_(PFX, _iter_rewind)(iter, iter->index - index);        \
+        else if (iter->index < index)                                         \
+            return CMC_(PFX, _iter_advance)(iter, index - iter->index);       \
+                                                                              \
+        return true;                                                          \
+    }                                                                         \
+                                                                              \
+    K CMC_(PFX, _iter_key)(struct CMC_DEF_ITER(SNAME) * iter)                 \
+    {                                                                         \
+        if (CMC_(PFX, _empty)(iter->target))                                  \
+            return (K){ 0 };                                                  \
+                                                                              \
+        return iter->curr_entry->key;                                         \
+    }                                                                         \
+                                                                              \
+    V CMC_(PFX, _iter_value)(struct CMC_DEF_ITER(SNAME) * iter)               \
+    {                                                                         \
+        if (CMC_(PFX, _empty)(iter->target))                                  \
+            return (V){ 0 };                                                  \
+                                                                              \
+        return iter->curr_entry->value;                                       \
+    }                                                                         \
+                                                                              \
+    V *CMC_(PFX, _iter_rvalue)(struct CMC_DEF_ITER(SNAME) * iter)             \
+    {                                                                         \
+        if (CMC_(PFX, _empty)(iter->target))                                  \
+            return NULL;                                                      \
+                                                                              \
+        return &(iter->curr_entry->value);                                    \
+    }                                                                         \
+                                                                              \
+    size_t CMC_(PFX, _iter_index)(struct CMC_DEF_ITER(SNAME) * iter)          \
+    {                                                                         \
+        return iter->index;                                                   \
+    }                                                                         \
+                                                                              \
+    struct CMC_DEF_ENTRY(SNAME) *                                             \
+        CMC_(PFX, _impl_new_entry)(struct SNAME * _map_, K key, V value)      \
+    {                                                                         \
+        struct CMC_DEF_ENTRY(SNAME) *entry =                                  \
+            _map_->alloc->malloc(sizeof(struct CMC_DEF_ENTRY(SNAME)));        \
+                                                                              \
+        if (!entry)                                                           \
+            return NULL;                                                      \
+                                                                              \
+        entry->key = key;                                                     \
+        entry->value = value;                                                 \
+        entry->next = NULL;                                                   \
+        entry->prev = NULL;                                                   \
+                                                                              \
+        return entry;                                                         \
+    }                                                                         \
+                                                                              \
+    struct CMC_DEF_ENTRY(SNAME) *                                             \
+        CMC_(PFX, _impl_get_entry)(struct SNAME * _map_, K key)               \
+    {                                                                         \
+        size_t hash = _map_->f_key->hash(key);                                \
+                                                                              \
+        struct CMC_DEF_ENTRY(SNAME) *entry =                                  \
+            _map_->buffer[hash % _map_->capacity][0];                         \
+                                                                              \
+        while (entry != NULL)                                                 \
+        {                                                                     \
+            if (_map_->f_key->cmp(entry->key, key) == 0)                      \
+                return entry;                                                 \
+                                                                              \
+            entry = entry->next;                                              \
+        }                                                                     \
+                                                                              \
+        return NULL;                                                          \
+    }                                                                         \
+                                                                              \
+    size_t CMC_(PFX, _impl_key_count)(struct SNAME * _map_, K key)            \
+    {                                                                         \
+        size_t hash = _map_->f_key->hash(key);                                \
+                                                                              \
+        struct CMC_DEF_ENTRY(SNAME) *entry =                                  \
+            _map_->buffer[hash % _map_->capacity][0];                         \
+                                                                              \
+        size_t total_count = 0;                                               \
+                                                                              \
+        if (!entry)                                                           \
+            return total_count;                                               \
+                                                                              \
+        while (entry != NULL)                                                 \
+        {                                                                     \
+            if (_map_->f_key->cmp(entry->key, key) == 0)                      \
+                total_count++;                                                \
+                                                                              \
+            entry = entry->next;                                              \
+        }                                                                     \
+                                                                              \
+        return total_count;                                                   \
+    }                                                                         \
+                                                                              \
+    size_t CMC_(PFX, _impl_calculate_size)(size_t required)                   \
+    {                                                                         \
+        const size_t count =                                                  \
+            sizeof(cmc_hashtable_primes) / sizeof(cmc_hashtable_primes[0]);   \
+                                                                              \
+        if (cmc_hashtable_primes[count - 1] < required)                       \
+            return required;                                                  \
+                                                                              \
+        size_t i = 0;                                                         \
+        while (cmc_hashtable_primes[i] < required)                            \
+            i++;                                                              \
+                                                                              \
+        return cmc_hashtable_primes[i];                                       \
     }
 
-#endif /* CMC_HASHMULTIMAP_H */
+#endif /* CMC_CMC_HASHMULTIMAP_H */

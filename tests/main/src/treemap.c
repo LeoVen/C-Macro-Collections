@@ -108,7 +108,7 @@ struct treemap *tm_new(struct treemap_fkey *f_key, struct treemap_fval *f_val)
         return ((void *)0);
     _map_->count = 0;
     _map_->root = ((void *)0);
-    _map_->flag = cmc_flags.OK;
+    _map_->flag = CMC_FLAG_OK;
     _map_->f_key = f_key;
     _map_->f_val = f_val;
     _map_->alloc = alloc;
@@ -129,7 +129,7 @@ struct treemap *tm_new_custom(struct treemap_fkey *f_key,
         return ((void *)0);
     _map_->count = 0;
     _map_->root = ((void *)0);
-    _map_->flag = cmc_flags.OK;
+    _map_->flag = CMC_FLAG_OK;
     _map_->f_key = f_key;
     _map_->f_val = f_val;
     _map_->alloc = alloc;
@@ -191,7 +191,7 @@ void tm_clear(struct treemap *_map_)
     }
     _map_->count = 0;
     _map_->root = ((void *)0);
-    _map_->flag = cmc_flags.OK;
+    _map_->flag = CMC_FLAG_OK;
 }
 void tm_free(struct treemap *_map_)
 {
@@ -206,7 +206,7 @@ void tm_customize(struct treemap *_map_, struct cmc_alloc_node *alloc,
     else
         _map_->alloc = alloc;
     _map_->callbacks = callbacks;
-    _map_->flag = cmc_flags.OK;
+    _map_->flag = CMC_FLAG_OK;
 }
 _Bool tm_insert(struct treemap *_map_, size_t key, size_t value)
 {
@@ -215,7 +215,7 @@ _Bool tm_insert(struct treemap *_map_, size_t key, size_t value)
         _map_->root = tm_impl_new_node(_map_, key, value);
         if (!_map_->root)
         {
-            _map_->flag = cmc_flags.ALLOC;
+            _map_->flag = CMC_FLAG_ALLOC;
             return 0;
         }
     }
@@ -232,7 +232,7 @@ _Bool tm_insert(struct treemap *_map_, size_t key, size_t value)
                 scan = scan->right;
             else
             {
-                _map_->flag = cmc_flags.DUPLICATE;
+                _map_->flag = CMC_FLAG_DUPLICATE;
                 return 0;
             }
         }
@@ -242,7 +242,7 @@ _Bool tm_insert(struct treemap *_map_, size_t key, size_t value)
             parent->left = tm_impl_new_node(_map_, key, value);
             if (!parent->left)
             {
-                _map_->flag = cmc_flags.ALLOC;
+                _map_->flag = CMC_FLAG_ALLOC;
                 return 0;
             }
             parent->left->parent = parent;
@@ -253,7 +253,7 @@ _Bool tm_insert(struct treemap *_map_, size_t key, size_t value)
             parent->right = tm_impl_new_node(_map_, key, value);
             if (!parent->right)
             {
-                _map_->flag = cmc_flags.ALLOC;
+                _map_->flag = CMC_FLAG_ALLOC;
                 return 0;
             }
             parent->right->parent = parent;
@@ -262,7 +262,7 @@ _Bool tm_insert(struct treemap *_map_, size_t key, size_t value)
         tm_impl_rebalance(_map_, node);
     }
     _map_->count++;
-    _map_->flag = cmc_flags.OK;
+    _map_->flag = CMC_FLAG_OK;
     if (_map_->callbacks && _map_->callbacks->create)
         _map_->callbacks->create();
     return 1;
@@ -273,13 +273,13 @@ _Bool tm_update(struct treemap *_map_, size_t key, size_t new_value,
     struct treemap_node *node = tm_impl_get_node(_map_, key);
     if (!node)
     {
-        _map_->flag = cmc_flags.NOT_FOUND;
+        _map_->flag = CMC_FLAG_NOT_FOUND;
         return 0;
     }
     if (old_value)
         *old_value = node->value;
     node->value = new_value;
-    _map_->flag = cmc_flags.OK;
+    _map_->flag = CMC_FLAG_OK;
     if (_map_->callbacks && _map_->callbacks->update)
         _map_->callbacks->update();
     return 1;
@@ -288,13 +288,13 @@ _Bool tm_remove(struct treemap *_map_, size_t key, size_t *out_value)
 {
     if (tm_empty(_map_))
     {
-        _map_->flag = cmc_flags.EMPTY;
+        _map_->flag = CMC_FLAG_EMPTY;
         return 0;
     }
     struct treemap_node *node = tm_impl_get_node(_map_, key);
     if (!node)
     {
-        _map_->flag = cmc_flags.NOT_FOUND;
+        _map_->flag = CMC_FLAG_NOT_FOUND;
         return 0;
     }
     if (out_value)
@@ -391,7 +391,7 @@ _Bool tm_remove(struct treemap *_map_, size_t key, size_t *out_value)
     if (_map_->count == 0)
         _map_->root = ((void *)0);
     _map_->count--;
-    _map_->flag = cmc_flags.OK;
+    _map_->flag = CMC_FLAG_OK;
     if (_map_->callbacks && _map_->callbacks->delete)
         _map_->callbacks->delete ();
     return 1;
@@ -400,7 +400,7 @@ _Bool tm_max(struct treemap *_map_, size_t *key, size_t *value)
 {
     if (tm_empty(_map_))
     {
-        _map_->flag = cmc_flags.EMPTY;
+        _map_->flag = CMC_FLAG_EMPTY;
         return 0;
     }
     struct treemap_node *scan = _map_->root;
@@ -410,7 +410,7 @@ _Bool tm_max(struct treemap *_map_, size_t *key, size_t *value)
         *key = scan->key;
     if (value)
         *value = scan->value;
-    _map_->flag = cmc_flags.OK;
+    _map_->flag = CMC_FLAG_OK;
     if (_map_->callbacks && _map_->callbacks->read)
         _map_->callbacks->read();
     return 1;
@@ -419,7 +419,7 @@ _Bool tm_min(struct treemap *_map_, size_t *key, size_t *value)
 {
     if (tm_empty(_map_))
     {
-        _map_->flag = cmc_flags.EMPTY;
+        _map_->flag = CMC_FLAG_EMPTY;
         return 0;
     }
     struct treemap_node *scan = _map_->root;
@@ -429,7 +429,7 @@ _Bool tm_min(struct treemap *_map_, size_t *key, size_t *value)
         *key = scan->key;
     if (value)
         *value = scan->value;
-    _map_->flag = cmc_flags.OK;
+    _map_->flag = CMC_FLAG_OK;
     if (_map_->callbacks && _map_->callbacks->read)
         _map_->callbacks->read();
     return 1;
@@ -438,16 +438,16 @@ size_t tm_get(struct treemap *_map_, size_t key)
 {
     if (tm_empty(_map_))
     {
-        _map_->flag = cmc_flags.EMPTY;
+        _map_->flag = CMC_FLAG_EMPTY;
         return 0;
     }
     struct treemap_node *node = tm_impl_get_node(_map_, key);
     if (!node)
     {
-        _map_->flag = cmc_flags.NOT_FOUND;
+        _map_->flag = CMC_FLAG_NOT_FOUND;
         return (size_t){ 0 };
     }
-    _map_->flag = cmc_flags.OK;
+    _map_->flag = CMC_FLAG_OK;
     if (_map_->callbacks && _map_->callbacks->read)
         _map_->callbacks->read();
     return node->value;
@@ -456,16 +456,16 @@ size_t *tm_get_ref(struct treemap *_map_, size_t key)
 {
     if (tm_empty(_map_))
     {
-        _map_->flag = cmc_flags.EMPTY;
+        _map_->flag = CMC_FLAG_EMPTY;
         return 0;
     }
     struct treemap_node *node = tm_impl_get_node(_map_, key);
     if (!node)
     {
-        _map_->flag = cmc_flags.NOT_FOUND;
+        _map_->flag = CMC_FLAG_NOT_FOUND;
         return ((void *)0);
     }
-    _map_->flag = cmc_flags.OK;
+    _map_->flag = CMC_FLAG_OK;
     if (_map_->callbacks && _map_->callbacks->read)
         _map_->callbacks->read();
     return &(node->value);
@@ -495,7 +495,7 @@ struct treemap *tm_copy_of(struct treemap *_map_)
         tm_new_custom(_map_->f_key, _map_->f_val, _map_->alloc, ((void *)0));
     if (!result)
     {
-        _map_->flag = cmc_flags.ERROR;
+        _map_->flag = CMC_FLAG_ERROR;
         return ((void *)0);
     }
     struct treemap_iter iter = tm_iter_start(_map_);
@@ -510,13 +510,13 @@ struct treemap *tm_copy_of(struct treemap *_map_)
         tm_insert(result, key, value);
     }
     result->callbacks = _map_->callbacks;
-    _map_->flag = cmc_flags.OK;
+    _map_->flag = CMC_FLAG_OK;
     return result;
 }
 _Bool tm_equals(struct treemap *_map1_, struct treemap *_map2_)
 {
-    _map1_->flag = cmc_flags.OK;
-    _map2_->flag = cmc_flags.OK;
+    _map1_->flag = CMC_FLAG_OK;
+    _map2_->flag = CMC_FLAG_OK;
     if (_map1_->count != _map2_->count)
         return 0;
     struct treemap_iter iter = tm_iter_start(_map1_);
@@ -535,9 +535,12 @@ struct cmc_string tm_to_string(struct treemap *_map_)
 {
     struct cmc_string str;
     struct treemap *m_ = _map_;
-    int n = snprintf(str.s, cmc_string_len, cmc_string_fmt_treemap, "treemap",
-                     "size_t", "size_t", m_, m_->root, m_->count, m_->flag,
-                     m_->f_key, m_->f_val, m_->alloc, m_->callbacks);
+    int n = snprintf(str.s, cmc_string_len, cmc_cmc_string_fmt_treemap,
+                     "CMC_PARAM_SNAME((tm, treemap, , size_t, size_t))",
+                     "CMC_PARAM_K((tm, treemap, , size_t, size_t))",
+                     "CMC_PARAM_V((tm, treemap, , size_t, size_t))", m_,
+                     m_->root, m_->count, m_->flag, m_->f_key, m_->f_val,
+                     m_->alloc, m_->callbacks);
     return n >= 0 ? str : (struct cmc_string){ 0 };
 }
 _Bool tm_print(struct treemap *_map_, FILE *fptr)

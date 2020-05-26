@@ -48,7 +48,7 @@ CMC_CREATE_UNIT(HashBidiMap, true, {
         cmc_assert_not_equals(ptr, NULL, map->buffer);
         cmc_assert_equals(size_t, 0, map->count);
         cmc_assert_equals(double, 0.6, map->load);
-        cmc_assert_equals(int32_t, cmc_flags.OK, map->flag);
+        cmc_assert_equals(int32_t, CMC_FLAG_OK, map->flag);
         cmc_assert_equals(ptr, hbm_fkey, map->f_key);
         cmc_assert_equals(ptr, hbm_fval, map->f_val);
         cmc_assert_equals(ptr, &cmc_alloc_node_default, map->alloc);
@@ -94,7 +94,7 @@ CMC_CREATE_UNIT(HashBidiMap, true, {
         cmc_assert_not_equals(ptr, NULL, map->buffer);
         cmc_assert_equals(size_t, 0, map->count);
         cmc_assert_equals(double, 0.6, map->load);
-        cmc_assert_equals(int32_t, cmc_flags.OK, map->flag);
+        cmc_assert_equals(int32_t, CMC_FLAG_OK, map->flag);
         cmc_assert_equals(ptr, hbm_fkey, map->f_key);
         cmc_assert_equals(ptr, hbm_fval, map->f_val);
         cmc_assert_equals(ptr, hbm_alloc_node, map->alloc);
@@ -133,11 +133,11 @@ CMC_CREATE_UNIT(HashBidiMap, true, {
 
         cmc_assert_equals(size_t, 1000, map->count);
 
-        map->flag = cmc_flags.ERROR;
+        map->flag = CMC_FLAG_ERROR;
         hbm_clear(map);
 
         cmc_assert_equals(size_t, 0, map->count);
-        cmc_assert_equals(int32_t, cmc_flags.OK, map->flag);
+        cmc_assert_equals(int32_t, CMC_FLAG_OK, map->flag);
         cmc_assert_equals(int32_t, 1000, k_total_free);
         cmc_assert_equals(int32_t, 1000, v_total_free);
 
@@ -365,7 +365,7 @@ CMC_CREATE_UNIT(HashBidiMap, true, {
 
         cmc_assert(!hbm_update_key(map, 1, 1));
 
-        cmc_assert_equals(int32_t, cmc_flags.EMPTY, hbm_flag(map));
+        cmc_assert_equals(int32_t, CMC_FLAG_EMPTY, hbm_flag(map));
 
         hbm_free(map);
     });
@@ -379,21 +379,21 @@ CMC_CREATE_UNIT(HashBidiMap, true, {
 
         cmc_assert_equals(size_t, 1, hbm_count(map));
 
-        map->flag = cmc_flags.ERROR;
+        map->flag = CMC_FLAG_ERROR;
         cmc_assert(hbm_update_key(map, 1, 1));
 
-        cmc_assert_equals(int32_t, cmc_flags.OK, hbm_flag(map));
+        cmc_assert_equals(int32_t, CMC_FLAG_OK, hbm_flag(map));
 
         cmc_assert(!hbm_update_key(map, 2, 2));
 
-        cmc_assert_equals(int32_t, cmc_flags.NOT_FOUND, hbm_flag(map));
+        cmc_assert_equals(int32_t, CMC_FLAG_NOT_FOUND, hbm_flag(map));
 
         cmc_assert(hbm_insert(map, 2, 2));
 
         cmc_assert(!hbm_update_key(map, 1, 2));
-        cmc_assert_equals(int32_t, cmc_flags.DUPLICATE, hbm_flag(map));
+        cmc_assert_equals(int32_t, CMC_FLAG_DUPLICATE, hbm_flag(map));
         cmc_assert(!hbm_update_key(map, 2, 1));
-        cmc_assert_equals(int32_t, cmc_flags.DUPLICATE, hbm_flag(map));
+        cmc_assert_equals(int32_t, CMC_FLAG_DUPLICATE, hbm_flag(map));
 
         cmc_assert(hbm_update_key(map, 2, 2));
 
@@ -432,7 +432,7 @@ CMC_CREATE_UNIT(HashBidiMap, true, {
 
         cmc_assert(!hbm_update_val(map, 1, 1));
 
-        cmc_assert_equals(int32_t, cmc_flags.EMPTY, hbm_flag(map));
+        cmc_assert_equals(int32_t, CMC_FLAG_EMPTY, hbm_flag(map));
 
         hbm_free(map);
     });
@@ -446,21 +446,21 @@ CMC_CREATE_UNIT(HashBidiMap, true, {
 
         cmc_assert_equals(size_t, 1, hbm_count(map));
 
-        map->flag = cmc_flags.ERROR;
+        map->flag = CMC_FLAG_ERROR;
         cmc_assert(hbm_update_val(map, 1, 1));
 
-        cmc_assert_equals(int32_t, cmc_flags.OK, hbm_flag(map));
+        cmc_assert_equals(int32_t, CMC_FLAG_OK, hbm_flag(map));
 
         cmc_assert(!hbm_update_val(map, 2, 2));
 
-        cmc_assert_equals(int32_t, cmc_flags.NOT_FOUND, hbm_flag(map));
+        cmc_assert_equals(int32_t, CMC_FLAG_NOT_FOUND, hbm_flag(map));
 
         cmc_assert(hbm_insert(map, 2, 2));
 
         cmc_assert(!hbm_update_val(map, 1, 2));
-        cmc_assert_equals(int32_t, cmc_flags.DUPLICATE, hbm_flag(map));
+        cmc_assert_equals(int32_t, CMC_FLAG_DUPLICATE, hbm_flag(map));
         cmc_assert(!hbm_update_val(map, 2, 1));
-        cmc_assert_equals(int32_t, cmc_flags.DUPLICATE, hbm_flag(map));
+        cmc_assert_equals(int32_t, CMC_FLAG_DUPLICATE, hbm_flag(map));
 
         cmc_assert(hbm_update_val(map, 2, 2));
 
@@ -598,133 +598,133 @@ CMC_CREATE_UNIT(HashBidiMap, true, {
         struct hashbidimap *map = hbm_new(100, 0.7, hbm_fkey, hbm_fval);
 
         cmc_assert_not_equals(ptr, NULL, map);
-        cmc_assert_equals(int32_t, cmc_flags.OK, hbm_flag(map));
+        cmc_assert_equals(int32_t, CMC_FLAG_OK, hbm_flag(map));
 
         // customize
         hbm_customize(map, &cmc_alloc_node_default,
                       &(struct cmc_callbacks){ 0 });
-        cmc_assert_equals(int32_t, cmc_flags.OK, hbm_flag(map));
+        cmc_assert_equals(int32_t, CMC_FLAG_OK, hbm_flag(map));
 
         // Insert
         cmc_assert(hbm_insert(map, 1, 1));
-        cmc_assert_equals(int32_t, cmc_flags.OK, hbm_flag(map));
+        cmc_assert_equals(int32_t, CMC_FLAG_OK, hbm_flag(map));
 
         cmc_assert(!hbm_insert(map, 1, 2));
-        cmc_assert_equals(int32_t, cmc_flags.DUPLICATE, hbm_flag(map));
-        map->flag = cmc_flags.ERROR;
+        cmc_assert_equals(int32_t, CMC_FLAG_DUPLICATE, hbm_flag(map));
+        map->flag = CMC_FLAG_ERROR;
         cmc_assert(!hbm_insert(map, 2, 1));
-        cmc_assert_equals(int32_t, cmc_flags.DUPLICATE, hbm_flag(map));
+        cmc_assert_equals(int32_t, CMC_FLAG_DUPLICATE, hbm_flag(map));
 
         // clear
         hbm_clear(map);
-        cmc_assert_equals(int32_t, cmc_flags.OK, hbm_flag(map));
+        cmc_assert_equals(int32_t, CMC_FLAG_OK, hbm_flag(map));
 
         // hbm_update_key
         cmc_assert(!hbm_update_key(map, 1, 1));
-        cmc_assert_equals(int32_t, cmc_flags.EMPTY, hbm_flag(map));
+        cmc_assert_equals(int32_t, CMC_FLAG_EMPTY, hbm_flag(map));
 
         cmc_assert(hbm_insert(map, 1, 1));
         cmc_assert(!hbm_update_key(map, 2, 1));
-        cmc_assert_equals(int32_t, cmc_flags.NOT_FOUND, hbm_flag(map));
+        cmc_assert_equals(int32_t, CMC_FLAG_NOT_FOUND, hbm_flag(map));
 
         cmc_assert(hbm_insert(map, 2, 2));
         cmc_assert(!hbm_update_key(map, 2, 1));
-        cmc_assert_equals(int32_t, cmc_flags.DUPLICATE, hbm_flag(map));
-        map->flag = cmc_flags.ERROR;
+        cmc_assert_equals(int32_t, CMC_FLAG_DUPLICATE, hbm_flag(map));
+        map->flag = CMC_FLAG_ERROR;
         cmc_assert(!hbm_update_key(map, 1, 2));
-        cmc_assert_equals(int32_t, cmc_flags.DUPLICATE, hbm_flag(map));
+        cmc_assert_equals(int32_t, CMC_FLAG_DUPLICATE, hbm_flag(map));
 
         // clear
         hbm_clear(map);
-        cmc_assert_equals(int32_t, cmc_flags.OK, hbm_flag(map));
+        cmc_assert_equals(int32_t, CMC_FLAG_OK, hbm_flag(map));
 
         // hbm_update_val
         cmc_assert(!hbm_update_val(map, 1, 1));
-        cmc_assert_equals(int32_t, cmc_flags.EMPTY, hbm_flag(map));
+        cmc_assert_equals(int32_t, CMC_FLAG_EMPTY, hbm_flag(map));
 
         cmc_assert(hbm_insert(map, 1, 1));
         cmc_assert(!hbm_update_val(map, 2, 1));
-        cmc_assert_equals(int32_t, cmc_flags.NOT_FOUND, hbm_flag(map));
+        cmc_assert_equals(int32_t, CMC_FLAG_NOT_FOUND, hbm_flag(map));
 
         cmc_assert(hbm_insert(map, 2, 2));
         cmc_assert(!hbm_update_val(map, 2, 1));
-        cmc_assert_equals(int32_t, cmc_flags.DUPLICATE, hbm_flag(map));
-        map->flag = cmc_flags.ERROR;
+        cmc_assert_equals(int32_t, CMC_FLAG_DUPLICATE, hbm_flag(map));
+        map->flag = CMC_FLAG_ERROR;
         cmc_assert(!hbm_update_val(map, 1, 2));
-        cmc_assert_equals(int32_t, cmc_flags.DUPLICATE, hbm_flag(map));
+        cmc_assert_equals(int32_t, CMC_FLAG_DUPLICATE, hbm_flag(map));
 
         // remove_by_key
         cmc_assert(hbm_remove_by_key(map, 1, NULL, NULL));
-        cmc_assert_equals(int32_t, cmc_flags.OK, hbm_flag(map));
+        cmc_assert_equals(int32_t, CMC_FLAG_OK, hbm_flag(map));
 
         cmc_assert(!hbm_remove_by_key(map, 1, NULL, NULL));
-        cmc_assert_equals(int32_t, cmc_flags.NOT_FOUND, hbm_flag(map));
+        cmc_assert_equals(int32_t, CMC_FLAG_NOT_FOUND, hbm_flag(map));
 
         cmc_assert(hbm_remove_by_key(map, 2, NULL, NULL));
         cmc_assert(!hbm_remove_by_key(map, 2, NULL, NULL));
-        cmc_assert_equals(int32_t, cmc_flags.EMPTY, hbm_flag(map));
+        cmc_assert_equals(int32_t, CMC_FLAG_EMPTY, hbm_flag(map));
 
         // remove_by_val
         cmc_assert(hbm_insert(map, 1, 1) && hbm_insert(map, 2, 2));
 
         cmc_assert(hbm_remove_by_val(map, 1, NULL, NULL));
-        cmc_assert_equals(int32_t, cmc_flags.OK, hbm_flag(map));
+        cmc_assert_equals(int32_t, CMC_FLAG_OK, hbm_flag(map));
 
         cmc_assert(!hbm_remove_by_val(map, 1, NULL, NULL));
-        cmc_assert_equals(int32_t, cmc_flags.NOT_FOUND, hbm_flag(map));
+        cmc_assert_equals(int32_t, CMC_FLAG_NOT_FOUND, hbm_flag(map));
 
         cmc_assert(hbm_remove_by_val(map, 2, NULL, NULL));
         cmc_assert(!hbm_remove_by_val(map, 2, NULL, NULL));
-        cmc_assert_equals(int32_t, cmc_flags.EMPTY, hbm_flag(map));
+        cmc_assert_equals(int32_t, CMC_FLAG_EMPTY, hbm_flag(map));
 
         // get_key and get_val
         cmc_assert(hbm_insert(map, 2, 1));
 
         cmc_assert_equals(size_t, 2, hbm_get_key(map, 1));
-        cmc_assert_equals(int32_t, cmc_flags.OK, hbm_flag(map));
-        map->flag = cmc_flags.ERROR;
+        cmc_assert_equals(int32_t, CMC_FLAG_OK, hbm_flag(map));
+        map->flag = CMC_FLAG_ERROR;
         cmc_assert_equals(size_t, 1, hbm_get_val(map, 2));
-        cmc_assert_equals(int32_t, cmc_flags.OK, hbm_flag(map));
+        cmc_assert_equals(int32_t, CMC_FLAG_OK, hbm_flag(map));
 
         cmc_assert_equals(size_t, 0, hbm_get_key(map, 2));
-        cmc_assert_equals(int32_t, cmc_flags.NOT_FOUND, hbm_flag(map));
-        map->flag = cmc_flags.ERROR;
+        cmc_assert_equals(int32_t, CMC_FLAG_NOT_FOUND, hbm_flag(map));
+        map->flag = CMC_FLAG_ERROR;
         cmc_assert_equals(size_t, 0, hbm_get_val(map, 1));
-        cmc_assert_equals(int32_t, cmc_flags.NOT_FOUND, hbm_flag(map));
+        cmc_assert_equals(int32_t, CMC_FLAG_NOT_FOUND, hbm_flag(map));
 
         // contains_key
         cmc_assert(hbm_contains_key(map, 2));
-        cmc_assert_equals(int32_t, cmc_flags.OK, hbm_flag(map));
+        cmc_assert_equals(int32_t, CMC_FLAG_OK, hbm_flag(map));
 
         // contains_val
-        map->flag = cmc_flags.ERROR;
+        map->flag = CMC_FLAG_ERROR;
         cmc_assert(hbm_contains_val(map, 1));
-        cmc_assert_equals(int32_t, cmc_flags.OK, hbm_flag(map));
+        cmc_assert_equals(int32_t, CMC_FLAG_OK, hbm_flag(map));
 
         // copy_of
-        map->flag = cmc_flags.ERROR;
+        map->flag = CMC_FLAG_ERROR;
         struct hashbidimap *map2 = hbm_copy_of(map);
 
-        cmc_assert_equals(int32_t, cmc_flags.OK, hbm_flag(map2));
+        cmc_assert_equals(int32_t, CMC_FLAG_OK, hbm_flag(map2));
 
         size_t tmp = map->capacity;
         map->capacity = 0;
 
         struct hashbidimap *map3 = hbm_copy_of(map);
         cmc_assert_equals(ptr, NULL, map3);
-        cmc_assert_equals(int32_t, cmc_flags.ERROR, hbm_flag(map));
+        cmc_assert_equals(int32_t, CMC_FLAG_ERROR, hbm_flag(map));
 
         map->capacity = tmp;
 
         // equals
         hbm_get_key(map, 100);
         hbm_get_key(map2, 100);
-        cmc_assert_equals(int32_t, cmc_flags.NOT_FOUND, hbm_flag(map));
-        cmc_assert_equals(int32_t, cmc_flags.NOT_FOUND, hbm_flag(map2));
-        map->flag = cmc_flags.ERROR;
+        cmc_assert_equals(int32_t, CMC_FLAG_NOT_FOUND, hbm_flag(map));
+        cmc_assert_equals(int32_t, CMC_FLAG_NOT_FOUND, hbm_flag(map2));
+        map->flag = CMC_FLAG_ERROR;
         cmc_assert(hbm_equals(map, map2));
-        cmc_assert_equals(int32_t, cmc_flags.OK, hbm_flag(map));
-        cmc_assert_equals(int32_t, cmc_flags.OK, hbm_flag(map2));
+        cmc_assert_equals(int32_t, CMC_FLAG_OK, hbm_flag(map));
+        cmc_assert_equals(int32_t, CMC_FLAG_OK, hbm_flag(map2));
 
         hbm_free(map);
         hbm_free(map2);

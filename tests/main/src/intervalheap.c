@@ -94,7 +94,7 @@ struct intervalheap *ih_new(size_t capacity, struct intervalheap_fval *f_val)
     _heap_->capacity = capacity;
     _heap_->size = 0;
     _heap_->count = 0;
-    _heap_->flag = cmc_flags.OK;
+    _heap_->flag = CMC_FLAG_OK;
     _heap_->f_val = f_val;
     _heap_->alloc = alloc;
     _heap_->callbacks = ((void *)0);
@@ -124,7 +124,7 @@ struct intervalheap *ih_new_custom(size_t capacity,
     _heap_->capacity = capacity;
     _heap_->size = 0;
     _heap_->count = 0;
-    _heap_->flag = cmc_flags.OK;
+    _heap_->flag = CMC_FLAG_OK;
     _heap_->f_val = f_val;
     _heap_->alloc = alloc;
     _heap_->callbacks = callbacks;
@@ -142,7 +142,7 @@ void ih_clear(struct intervalheap *_heap_)
     memset(_heap_->buffer, 0, sizeof(size_t[2]) * _heap_->capacity);
     _heap_->size = 0;
     _heap_->count = 0;
-    _heap_->flag = cmc_flags.OK;
+    _heap_->flag = CMC_FLAG_OK;
 }
 void ih_free(struct intervalheap *_heap_)
 {
@@ -164,7 +164,7 @@ void ih_customize(struct intervalheap *_heap_, struct cmc_alloc_node *alloc,
     else
         _heap_->alloc = alloc;
     _heap_->callbacks = callbacks;
-    _heap_->flag = cmc_flags.OK;
+    _heap_->flag = CMC_FLAG_OK;
 }
 _Bool ih_insert(struct intervalheap *_heap_, size_t value)
 {
@@ -193,7 +193,7 @@ _Bool ih_insert(struct intervalheap *_heap_, size_t value)
         }
     }
     _heap_->count++;
-    _heap_->flag = cmc_flags.OK;
+    _heap_->flag = CMC_FLAG_OK;
     if (_heap_->count > 2)
     {
         size_t(*parent)[2] = &(_heap_->buffer[(_heap_->size - 2) / 2]);
@@ -210,7 +210,7 @@ _Bool ih_remove_max(struct intervalheap *_heap_)
 {
     if (ih_empty(_heap_))
     {
-        _heap_->flag = cmc_flags.EMPTY;
+        _heap_->flag = CMC_FLAG_EMPTY;
         return 0;
     }
     if (_heap_->count == 1)
@@ -235,7 +235,7 @@ _Bool ih_remove_max(struct intervalheap *_heap_)
     _heap_->count--;
     ih_impl_float_down_max(_heap_);
 success:
-    _heap_->flag = cmc_flags.OK;
+    _heap_->flag = CMC_FLAG_OK;
     if (_heap_->callbacks && _heap_->callbacks->delete)
         _heap_->callbacks->delete ();
     return 1;
@@ -244,7 +244,7 @@ _Bool ih_remove_min(struct intervalheap *_heap_)
 {
     if (ih_empty(_heap_))
     {
-        _heap_->flag = cmc_flags.EMPTY;
+        _heap_->flag = CMC_FLAG_EMPTY;
         return 0;
     }
     if (_heap_->count == 1)
@@ -269,7 +269,7 @@ _Bool ih_remove_min(struct intervalheap *_heap_)
     _heap_->count--;
     ih_impl_float_down_min(_heap_);
 success:
-    _heap_->flag = cmc_flags.OK;
+    _heap_->flag = CMC_FLAG_OK;
     if (_heap_->callbacks && _heap_->callbacks->delete)
         _heap_->callbacks->delete ();
     return 1;
@@ -278,7 +278,7 @@ _Bool ih_update_max(struct intervalheap *_heap_, size_t value)
 {
     if (ih_empty(_heap_))
     {
-        _heap_->flag = cmc_flags.EMPTY;
+        _heap_->flag = CMC_FLAG_EMPTY;
         return 0;
     }
     if (_heap_->count == 1)
@@ -296,7 +296,7 @@ _Bool ih_update_max(struct intervalheap *_heap_, size_t value)
         _heap_->buffer[0][1] = value;
         ih_impl_float_down_max(_heap_);
     }
-    _heap_->flag = cmc_flags.OK;
+    _heap_->flag = CMC_FLAG_OK;
     if (_heap_->callbacks && _heap_->callbacks->update)
         _heap_->callbacks->update();
     return 1;
@@ -305,7 +305,7 @@ _Bool ih_update_min(struct intervalheap *_heap_, size_t value)
 {
     if (ih_empty(_heap_))
     {
-        _heap_->flag = cmc_flags.EMPTY;
+        _heap_->flag = CMC_FLAG_EMPTY;
         return 0;
     }
     if (_heap_->count == 1)
@@ -323,7 +323,7 @@ _Bool ih_update_min(struct intervalheap *_heap_, size_t value)
         _heap_->buffer[0][0] = value;
         ih_impl_float_down_min(_heap_);
     }
-    _heap_->flag = cmc_flags.OK;
+    _heap_->flag = CMC_FLAG_OK;
     if (_heap_->callbacks && _heap_->callbacks->update)
         _heap_->callbacks->update();
     return 1;
@@ -332,10 +332,10 @@ size_t ih_max(struct intervalheap *_heap_)
 {
     if (ih_empty(_heap_))
     {
-        _heap_->flag = cmc_flags.EMPTY;
+        _heap_->flag = CMC_FLAG_EMPTY;
         return (size_t){ 0 };
     }
-    _heap_->flag = cmc_flags.OK;
+    _heap_->flag = CMC_FLAG_OK;
     if (_heap_->callbacks && _heap_->callbacks->read)
         _heap_->callbacks->read();
     if (_heap_->count == 1)
@@ -346,17 +346,17 @@ size_t ih_min(struct intervalheap *_heap_)
 {
     if (ih_empty(_heap_))
     {
-        _heap_->flag = cmc_flags.EMPTY;
+        _heap_->flag = CMC_FLAG_EMPTY;
         return (size_t){ 0 };
     }
-    _heap_->flag = cmc_flags.OK;
+    _heap_->flag = CMC_FLAG_OK;
     if (_heap_->callbacks && _heap_->callbacks->read)
         _heap_->callbacks->read();
     return _heap_->buffer[0][0];
 }
 _Bool ih_contains(struct intervalheap *_heap_, size_t value)
 {
-    _heap_->flag = cmc_flags.OK;
+    _heap_->flag = CMC_FLAG_OK;
     _Bool result = 0;
     for (size_t i = 0; i < _heap_->count; i++)
     {
@@ -396,12 +396,12 @@ _Bool ih_resize(struct intervalheap *_heap_, size_t capacity)
         goto success;
     if (capacity < _heap_->count)
     {
-        _heap_->flag = cmc_flags.INVALID;
+        _heap_->flag = CMC_FLAG_INVALID;
         return 0;
     }
     if (capacity == 0xffffffffffffffffULL)
     {
-        _heap_->flag = cmc_flags.ERROR;
+        _heap_->flag = CMC_FLAG_ERROR;
         return 0;
     }
     capacity += capacity % 2;
@@ -409,7 +409,7 @@ _Bool ih_resize(struct intervalheap *_heap_, size_t capacity)
         _heap_->alloc->realloc(_heap_->buffer, sizeof(size_t[2]) * capacity);
     if (!new_buffer)
     {
-        _heap_->flag = cmc_flags.ALLOC;
+        _heap_->flag = CMC_FLAG_ALLOC;
         return 0;
     }
     if (capacity > _heap_->capacity)
@@ -420,7 +420,7 @@ _Bool ih_resize(struct intervalheap *_heap_, size_t capacity)
     _heap_->buffer = new_buffer;
     _heap_->capacity = capacity;
 success:
-    _heap_->flag = cmc_flags.OK;
+    _heap_->flag = CMC_FLAG_OK;
     if (_heap_->callbacks && _heap_->callbacks->resize)
         _heap_->callbacks->resize();
     return 1;
@@ -431,7 +431,7 @@ struct intervalheap *ih_copy_of(struct intervalheap *_heap_)
         _heap_->alloc->malloc(sizeof(struct intervalheap));
     if (!result)
     {
-        _heap_->flag = cmc_flags.ALLOC;
+        _heap_->flag = CMC_FLAG_ALLOC;
         return ((void *)0);
     }
     memcpy(result, _heap_, sizeof(struct intervalheap));
@@ -440,7 +440,7 @@ struct intervalheap *ih_copy_of(struct intervalheap *_heap_)
     if (!result->buffer)
     {
         _heap_->alloc->free(result);
-        _heap_->flag = cmc_flags.ALLOC;
+        _heap_->flag = CMC_FLAG_ALLOC;
         return ((void *)0);
     }
     if (_heap_->f_val->cpy)
@@ -455,17 +455,17 @@ struct intervalheap *ih_copy_of(struct intervalheap *_heap_)
     result->capacity = _heap_->capacity;
     result->size = _heap_->size;
     result->count = _heap_->count;
-    result->flag = cmc_flags.OK;
+    result->flag = CMC_FLAG_OK;
     result->f_val = _heap_->f_val;
     result->alloc = _heap_->alloc;
     result->callbacks = _heap_->callbacks;
-    _heap_->flag = cmc_flags.OK;
+    _heap_->flag = CMC_FLAG_OK;
     return result;
 }
 _Bool ih_equals(struct intervalheap *_heap1_, struct intervalheap *_heap2_)
 {
-    _heap1_->flag = cmc_flags.OK;
-    _heap2_->flag = cmc_flags.OK;
+    _heap1_->flag = CMC_FLAG_OK;
+    _heap2_->flag = CMC_FLAG_OK;
     if (_heap1_->count != _heap2_->count)
         return 0;
     for (size_t i = 0; i < _heap1_->count; i++)
@@ -481,10 +481,11 @@ struct cmc_string ih_to_string(struct intervalheap *_heap_)
 {
     struct cmc_string str;
     struct intervalheap *h_ = _heap_;
-    int n = snprintf(str.s, cmc_string_len, cmc_string_fmt_intervalheap,
-                     "intervalheap", "size_t", h_, h_->buffer, h_->capacity,
-                     h_->size, h_->count, h_->flag, h_->f_val, h_->alloc,
-                     h_->callbacks);
+    int n = snprintf(str.s, cmc_string_len, cmc_cmc_string_fmt_intervalheap,
+                     "CMC_PARAM_SNAME((ih, intervalheap, , , size_t))",
+                     "CMC_PARAM_V((ih, intervalheap, , , size_t))", h_,
+                     h_->buffer, h_->capacity, h_->size, h_->count, h_->flag,
+                     h_->f_val, h_->alloc, h_->callbacks);
     return n >= 0 ? str : (struct cmc_string){ 0 };
 }
 _Bool ih_print(struct intervalheap *_heap_, FILE *fptr)

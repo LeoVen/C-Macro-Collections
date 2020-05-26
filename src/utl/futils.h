@@ -13,8 +13,8 @@
  * another one every time.
  */
 
-#ifndef CMC_FUTILS_H
-#define CMC_FUTILS_H
+#ifndef CMC_UTL_FUTILS_H
+#define CMC_UTL_FUTILS_H
 
 #include <inttypes.h>
 #include <stdbool.h>
@@ -461,4 +461,4 @@ static inline size_t cmc_u64_hash_mix(uint64_t element)
 
 /* Can simply use cmp for basic data types */
 
-#endif /* CMC_FUTILS_H */
+#endif /* CMC_UTL_FUTILS_H */

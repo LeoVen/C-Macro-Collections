@@ -282,57 +282,57 @@ CMC_CREATE_UNIT(Stack, true, {
         struct stack *s = s_new(100, s_fval);
 
         cmc_assert_not_equals(ptr, NULL, s);
-        cmc_assert_equals(int32_t, cmc_flags.OK, s_flag(s));
+        cmc_assert_equals(int32_t, CMC_FLAG_OK, s_flag(s));
 
         // clear
-        s->flag = cmc_flags.ERROR;
+        s->flag = CMC_FLAG_ERROR;
         s_clear(s);
-        cmc_assert_equals(int32_t, cmc_flags.OK, s_flag(s));
+        cmc_assert_equals(int32_t, CMC_FLAG_OK, s_flag(s));
 
         // customize
-        s->flag = cmc_flags.ERROR;
+        s->flag = CMC_FLAG_ERROR;
         s_customize(s, NULL, NULL);
-        cmc_assert_equals(int32_t, cmc_flags.OK, s_flag(s));
+        cmc_assert_equals(int32_t, CMC_FLAG_OK, s_flag(s));
 
         // push
-        s->flag = cmc_flags.ERROR;
+        s->flag = CMC_FLAG_ERROR;
         cmc_assert(s_push(s, 1));
-        cmc_assert_equals(int32_t, cmc_flags.OK, s_flag(s));
+        cmc_assert_equals(int32_t, CMC_FLAG_OK, s_flag(s));
 
         // pop
-        s->flag = cmc_flags.ERROR;
+        s->flag = CMC_FLAG_ERROR;
         cmc_assert(s_pop(s));
-        cmc_assert_equals(int32_t, cmc_flags.OK, s_flag(s));
+        cmc_assert_equals(int32_t, CMC_FLAG_OK, s_flag(s));
 
         cmc_assert(!s_pop(s));
-        cmc_assert_equals(int32_t, cmc_flags.EMPTY, s_flag(s));
+        cmc_assert_equals(int32_t, CMC_FLAG_EMPTY, s_flag(s));
 
         // top
-        s->flag = cmc_flags.ERROR;
+        s->flag = CMC_FLAG_ERROR;
         s_top(s);
-        cmc_assert_equals(int32_t, cmc_flags.EMPTY, s_flag(s));
+        cmc_assert_equals(int32_t, CMC_FLAG_EMPTY, s_flag(s));
 
         cmc_assert(s_push(s, 1));
         s_top(s);
-        cmc_assert_equals(int32_t, cmc_flags.OK, s_flag(s));
+        cmc_assert_equals(int32_t, CMC_FLAG_OK, s_flag(s));
 
         // contains
-        s->flag = cmc_flags.ERROR;
+        s->flag = CMC_FLAG_ERROR;
         cmc_assert(s_contains(s, 1));
-        cmc_assert_equals(int32_t, cmc_flags.OK, s_flag(s));
+        cmc_assert_equals(int32_t, CMC_FLAG_OK, s_flag(s));
 
         // copy_of
-        s->flag = cmc_flags.ERROR;
+        s->flag = CMC_FLAG_ERROR;
         struct stack *s2 = s_copy_of(s);
-        cmc_assert_equals(int32_t, cmc_flags.OK, s_flag(s));
-        cmc_assert_equals(int32_t, cmc_flags.OK, s_flag(s2));
+        cmc_assert_equals(int32_t, CMC_FLAG_OK, s_flag(s));
+        cmc_assert_equals(int32_t, CMC_FLAG_OK, s_flag(s2));
 
         // equals
-        s->flag = cmc_flags.ERROR;
-        s2->flag = cmc_flags.ERROR;
+        s->flag = CMC_FLAG_ERROR;
+        s2->flag = CMC_FLAG_ERROR;
         cmc_assert(s_equals(s, s2));
-        cmc_assert_equals(int32_t, cmc_flags.OK, s_flag(s));
-        cmc_assert_equals(int32_t, cmc_flags.OK, s_flag(s2));
+        cmc_assert_equals(int32_t, CMC_FLAG_OK, s_flag(s));
+        cmc_assert_equals(int32_t, CMC_FLAG_OK, s_flag(s2));
 
         s_free(s);
         s_free(s2);

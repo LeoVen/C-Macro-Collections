@@ -102,7 +102,7 @@ struct linkedlist *ll_new(struct linkedlist_fval *f_val)
     _list_->count = 0;
     _list_->head = ((void *)0);
     _list_->tail = ((void *)0);
-    _list_->flag = cmc_flags.OK;
+    _list_->flag = CMC_FLAG_OK;
     _list_->f_val = f_val;
     _list_->alloc = alloc;
     _list_->callbacks = ((void *)0);
@@ -122,7 +122,7 @@ struct linkedlist *ll_new_custom(struct linkedlist_fval *f_val,
     _list_->count = 0;
     _list_->head = ((void *)0);
     _list_->tail = ((void *)0);
-    _list_->flag = cmc_flags.OK;
+    _list_->flag = CMC_FLAG_OK;
     _list_->f_val = f_val;
     _list_->alloc = alloc;
     _list_->callbacks = callbacks;
@@ -144,7 +144,7 @@ void ll_clear(struct linkedlist *_list_)
     _list_->count = 0;
     _list_->head = ((void *)0);
     _list_->tail = ((void *)0);
-    _list_->flag = cmc_flags.OK;
+    _list_->flag = CMC_FLAG_OK;
 }
 void ll_free(struct linkedlist *_list_)
 {
@@ -159,7 +159,7 @@ void ll_customize(struct linkedlist *_list_, struct cmc_alloc_node *alloc,
     else
         _list_->alloc = alloc;
     _list_->callbacks = callbacks;
-    _list_->flag = cmc_flags.OK;
+    _list_->flag = CMC_FLAG_OK;
 }
 _Bool ll_push_front(struct linkedlist *_list_, size_t value)
 {
@@ -178,7 +178,7 @@ _Bool ll_push_front(struct linkedlist *_list_, size_t value)
         _list_->head = _node_;
     }
     _list_->count++;
-    _list_->flag = cmc_flags.OK;
+    _list_->flag = CMC_FLAG_OK;
     if (_list_->callbacks && _list_->callbacks->create)
         _list_->callbacks->create();
     return 1;
@@ -187,7 +187,7 @@ _Bool ll_push_at(struct linkedlist *_list_, size_t value, size_t index)
 {
     if (index > _list_->count)
     {
-        _list_->flag = cmc_flags.RANGE;
+        _list_->flag = CMC_FLAG_RANGE;
         return 0;
     }
     if (index == 0)
@@ -207,7 +207,7 @@ _Bool ll_push_at(struct linkedlist *_list_, size_t value, size_t index)
     _node_->next->prev = _node_;
     _node_->prev->next = _node_;
     _list_->count++;
-    _list_->flag = cmc_flags.OK;
+    _list_->flag = CMC_FLAG_OK;
     if (_list_->callbacks && _list_->callbacks->create)
         _list_->callbacks->create();
     return 1;
@@ -229,7 +229,7 @@ _Bool ll_push_back(struct linkedlist *_list_, size_t value)
         _list_->tail = _node_;
     }
     _list_->count++;
-    _list_->flag = cmc_flags.OK;
+    _list_->flag = CMC_FLAG_OK;
     if (_list_->callbacks && _list_->callbacks->create)
         _list_->callbacks->create();
     return 1;
@@ -238,7 +238,7 @@ _Bool ll_pop_front(struct linkedlist *_list_)
 {
     if (ll_empty(_list_))
     {
-        _list_->flag = cmc_flags.EMPTY;
+        _list_->flag = CMC_FLAG_EMPTY;
         return 0;
     }
     struct linkedlist_node *_node_ = _list_->head;
@@ -249,7 +249,7 @@ _Bool ll_pop_front(struct linkedlist *_list_)
     else
         _list_->head->prev = ((void *)0);
     _list_->count--;
-    _list_->flag = cmc_flags.OK;
+    _list_->flag = CMC_FLAG_OK;
     if (_list_->callbacks && _list_->callbacks->delete)
         _list_->callbacks->delete ();
     return 1;
@@ -258,12 +258,12 @@ _Bool ll_pop_at(struct linkedlist *_list_, size_t index)
 {
     if (ll_empty(_list_))
     {
-        _list_->flag = cmc_flags.EMPTY;
+        _list_->flag = CMC_FLAG_EMPTY;
         return 0;
     }
     if (index >= _list_->count)
     {
-        _list_->flag = cmc_flags.RANGE;
+        _list_->flag = CMC_FLAG_RANGE;
         return 0;
     }
     if (index == 0)
@@ -281,7 +281,7 @@ _Bool ll_pop_at(struct linkedlist *_list_, size_t index)
     _node_->prev->next = _node_->next;
     _list_->alloc->free(_node_);
     _list_->count--;
-    _list_->flag = cmc_flags.OK;
+    _list_->flag = CMC_FLAG_OK;
     if (_list_->callbacks && _list_->callbacks->delete)
         _list_->callbacks->delete ();
     return 1;
@@ -290,7 +290,7 @@ _Bool ll_pop_back(struct linkedlist *_list_)
 {
     if (ll_empty(_list_))
     {
-        _list_->flag = cmc_flags.EMPTY;
+        _list_->flag = CMC_FLAG_EMPTY;
         return 0;
     }
     struct linkedlist_node *_node_ = _list_->tail;
@@ -301,7 +301,7 @@ _Bool ll_pop_back(struct linkedlist *_list_)
     else
         _list_->tail->next = ((void *)0);
     _list_->count--;
-    _list_->flag = cmc_flags.OK;
+    _list_->flag = CMC_FLAG_OK;
     if (_list_->callbacks && _list_->callbacks->delete)
         _list_->callbacks->delete ();
     return 1;
@@ -310,10 +310,10 @@ size_t ll_front(struct linkedlist *_list_)
 {
     if (ll_empty(_list_))
     {
-        _list_->flag = cmc_flags.EMPTY;
+        _list_->flag = CMC_FLAG_EMPTY;
         return (size_t){ 0 };
     }
-    _list_->flag = cmc_flags.OK;
+    _list_->flag = CMC_FLAG_OK;
     if (_list_->callbacks && _list_->callbacks->read)
         _list_->callbacks->read();
     return _list_->head->value;
@@ -322,12 +322,12 @@ size_t ll_get(struct linkedlist *_list_, size_t index)
 {
     if (ll_empty(_list_))
     {
-        _list_->flag = cmc_flags.EMPTY;
+        _list_->flag = CMC_FLAG_EMPTY;
         return (size_t){ 0 };
     }
     if (index >= _list_->count)
     {
-        _list_->flag = cmc_flags.RANGE;
+        _list_->flag = CMC_FLAG_RANGE;
         return (size_t){ 0 };
     }
     struct linkedlist_node *scan = ll_get_node(_list_, index);
@@ -341,12 +341,12 @@ size_t *ll_get_ref(struct linkedlist *_list_, size_t index)
 {
     if (ll_empty(_list_))
     {
-        _list_->flag = cmc_flags.EMPTY;
+        _list_->flag = CMC_FLAG_EMPTY;
         return ((void *)0);
     }
     if (index >= _list_->count)
     {
-        _list_->flag = cmc_flags.RANGE;
+        _list_->flag = CMC_FLAG_RANGE;
         return ((void *)0);
     }
     struct linkedlist_node *scan = ll_get_node(_list_, index);
@@ -360,17 +360,17 @@ size_t ll_back(struct linkedlist *_list_)
 {
     if (ll_empty(_list_))
     {
-        _list_->flag = cmc_flags.EMPTY;
+        _list_->flag = CMC_FLAG_EMPTY;
         return (size_t){ 0 };
     }
-    _list_->flag = cmc_flags.OK;
+    _list_->flag = CMC_FLAG_OK;
     if (_list_->callbacks && _list_->callbacks->read)
         _list_->callbacks->read();
     return _list_->tail->value;
 }
 _Bool ll_contains(struct linkedlist *_list_, size_t value)
 {
-    _list_->flag = cmc_flags.OK;
+    _list_->flag = CMC_FLAG_OK;
     _Bool result = 0;
     struct linkedlist_node *scan = _list_->head;
     while (scan != ((void *)0))
@@ -426,13 +426,13 @@ struct linkedlist *ll_copy_of(struct linkedlist *_list_)
         scan = scan->next;
     }
     result->count = _list_->count;
-    _list_->flag = cmc_flags.OK;
+    _list_->flag = CMC_FLAG_OK;
     return result;
 }
 _Bool ll_equals(struct linkedlist *_list1_, struct linkedlist *_list2_)
 {
-    _list1_->flag = cmc_flags.OK;
-    _list2_->flag = cmc_flags.OK;
+    _list1_->flag = CMC_FLAG_OK;
+    _list2_->flag = CMC_FLAG_OK;
     if (_list1_->count != _list2_->count)
         return 0;
     struct linkedlist_node *scan1 = _list1_->head;
@@ -450,9 +450,11 @@ struct cmc_string ll_to_string(struct linkedlist *_list_)
 {
     struct cmc_string str;
     struct linkedlist *l_ = _list_;
-    int n = snprintf(str.s, cmc_string_len, cmc_string_fmt_linkedlist,
-                     "linkedlist", "size_t", l_, l_->count, l_->head, l_->tail,
-                     l_->flag, l_->f_val, l_->alloc, l_->callbacks);
+    int n = snprintf(str.s, cmc_string_len, cmc_cmc_string_fmt_linkedlist,
+                     "CMC_PARAM_SNAME((ll, linkedlist, , , size_t))",
+                     "CMC_PARAM_V((ll, linkedlist, , , size_t))", l_, l_->count,
+                     l_->head, l_->tail, l_->flag, l_->f_val, l_->alloc,
+                     l_->callbacks);
     return n >= 0 ? str : (struct cmc_string){ 0 };
 }
 _Bool ll_print(struct linkedlist *_list_, FILE *fptr)
@@ -472,7 +474,7 @@ struct linkedlist_node *ll_new_node(struct linkedlist *_list_, size_t value)
         _list_->alloc->malloc(sizeof(struct linkedlist_node));
     if (!_node_)
     {
-        _list_->flag = cmc_flags.ALLOC;
+        _list_->flag = CMC_FLAG_ALLOC;
         return ((void *)0);
     }
     _node_->value = value;
@@ -492,12 +494,12 @@ struct linkedlist_node *ll_get_node(struct linkedlist *_list_, size_t index)
 {
     if (ll_empty(_list_))
     {
-        _list_->flag = cmc_flags.EMPTY;
+        _list_->flag = CMC_FLAG_EMPTY;
         return ((void *)0);
     }
     if (index >= _list_->count)
     {
-        _list_->flag = cmc_flags.RANGE;
+        _list_->flag = CMC_FLAG_RANGE;
         return ((void *)0);
     }
     struct linkedlist_node *_node_ = ((void *)0);
@@ -517,7 +519,7 @@ struct linkedlist_node *ll_get_node(struct linkedlist *_list_, size_t index)
             _node_ = _node_->prev;
         }
     }
-    _list_->flag = cmc_flags.OK;
+    _list_->flag = CMC_FLAG_OK;
     return _node_;
 }
 struct linkedlist_node *ll_tail(struct linkedlist *_list_)
@@ -538,7 +540,7 @@ _Bool ll_add_next(struct linkedlist *_owner_, struct linkedlist_node *_node_,
     new_node->prev = _node_;
     _node_->next = new_node;
     _owner_->count++;
-    _owner_->flag = cmc_flags.OK;
+    _owner_->flag = CMC_FLAG_OK;
     return 1;
 }
 _Bool ll_add_prev(struct linkedlist *_owner_, struct linkedlist_node *_node_,
@@ -555,14 +557,14 @@ _Bool ll_add_prev(struct linkedlist *_owner_, struct linkedlist_node *_node_,
     new_node->next = _node_;
     _node_->prev = new_node;
     _owner_->count++;
-    _owner_->flag = cmc_flags.OK;
+    _owner_->flag = CMC_FLAG_OK;
     return 1;
 }
 _Bool ll_del_next(struct linkedlist *_owner_, struct linkedlist_node *_node_)
 {
     if (_node_->next == ((void *)0))
     {
-        _owner_->flag = cmc_flags.INVALID;
+        _owner_->flag = CMC_FLAG_INVALID;
         return 0;
     }
     struct linkedlist_node *tmp = _node_->next;
@@ -573,7 +575,7 @@ _Bool ll_del_next(struct linkedlist *_owner_, struct linkedlist_node *_node_)
         _owner_->tail = _node_;
     _owner_->alloc->free(tmp);
     _owner_->count--;
-    _owner_->flag = cmc_flags.OK;
+    _owner_->flag = CMC_FLAG_OK;
     return 1;
 }
 _Bool ll_del_curr(struct linkedlist *_owner_, struct linkedlist_node *_node_)
@@ -588,14 +590,14 @@ _Bool ll_del_curr(struct linkedlist *_owner_, struct linkedlist_node *_node_)
         _owner_->tail = _node_->prev;
     _owner_->alloc->free(_node_);
     _owner_->count--;
-    _owner_->flag = cmc_flags.OK;
+    _owner_->flag = CMC_FLAG_OK;
     return 1;
 }
 _Bool ll_del_prev(struct linkedlist *_owner_, struct linkedlist_node *_node_)
 {
     if (_node_->prev == ((void *)0))
     {
-        _owner_->flag = cmc_flags.INVALID;
+        _owner_->flag = CMC_FLAG_INVALID;
         return 0;
     }
     struct linkedlist_node *tmp = _node_->prev;
@@ -606,7 +608,7 @@ _Bool ll_del_prev(struct linkedlist *_owner_, struct linkedlist_node *_node_)
         _owner_->head = _node_;
     _owner_->alloc->free(tmp);
     _owner_->count--;
-    _owner_->flag = cmc_flags.OK;
+    _owner_->flag = CMC_FLAG_OK;
     return 1;
 }
 struct linkedlist_node *ll_next_node(struct linkedlist_node *_node_)

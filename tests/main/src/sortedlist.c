@@ -96,7 +96,7 @@ struct sortedlist *sl_new(size_t capacity, struct sortedlist_fval *f_val)
     _list_->capacity = capacity;
     _list_->count = 0;
     _list_->is_sorted = 0;
-    _list_->flag = cmc_flags.OK;
+    _list_->flag = CMC_FLAG_OK;
     _list_->f_val = f_val;
     _list_->alloc = alloc;
     _list_->callbacks = ((void *)0);
@@ -122,7 +122,7 @@ struct sortedlist *sl_new_custom(size_t capacity, struct sortedlist_fval *f_val,
     _list_->capacity = capacity;
     _list_->count = 0;
     _list_->is_sorted = 0;
-    _list_->flag = cmc_flags.OK;
+    _list_->flag = CMC_FLAG_OK;
     _list_->f_val = f_val;
     _list_->alloc = alloc;
     _list_->callbacks = callbacks;
@@ -137,7 +137,7 @@ void sl_clear(struct sortedlist *_list_)
     }
     memset(_list_->buffer, 0, sizeof(size_t) * _list_->capacity);
     _list_->count = 0;
-    _list_->flag = cmc_flags.OK;
+    _list_->flag = CMC_FLAG_OK;
 }
 void sl_free(struct sortedlist *_list_)
 {
@@ -157,7 +157,7 @@ void sl_customize(struct sortedlist *_list_, struct cmc_alloc_node *alloc,
     else
         _list_->alloc = alloc;
     _list_->callbacks = callbacks;
-    _list_->flag = cmc_flags.OK;
+    _list_->flag = CMC_FLAG_OK;
 }
 _Bool sl_insert(struct sortedlist *_list_, size_t value)
 {
@@ -168,7 +168,7 @@ _Bool sl_insert(struct sortedlist *_list_, size_t value)
     }
     _list_->buffer[_list_->count++] = value;
     _list_->is_sorted = 0;
-    _list_->flag = cmc_flags.OK;
+    _list_->flag = CMC_FLAG_OK;
     if (_list_->callbacks && _list_->callbacks->create)
         _list_->callbacks->create();
     return 1;
@@ -177,18 +177,18 @@ _Bool sl_remove(struct sortedlist *_list_, size_t index)
 {
     if (sl_empty(_list_))
     {
-        _list_->flag = cmc_flags.EMPTY;
+        _list_->flag = CMC_FLAG_EMPTY;
         return 0;
     }
     if (index >= _list_->count)
     {
-        _list_->flag = cmc_flags.RANGE;
+        _list_->flag = CMC_FLAG_RANGE;
         return 0;
     }
     memmove(_list_->buffer + index, _list_->buffer + index + 1,
             (_list_->count - index) * sizeof(size_t));
     _list_->buffer[--_list_->count] = (size_t){ 0 };
-    _list_->flag = cmc_flags.OK;
+    _list_->flag = CMC_FLAG_OK;
     if (_list_->callbacks && _list_->callbacks->delete)
         _list_->callbacks->delete ();
     return 1;
@@ -197,11 +197,11 @@ size_t sl_max(struct sortedlist *_list_)
 {
     if (sl_empty(_list_))
     {
-        _list_->flag = cmc_flags.EMPTY;
+        _list_->flag = CMC_FLAG_EMPTY;
         return (size_t){ 0 };
     }
     sl_sort(_list_);
-    _list_->flag = cmc_flags.OK;
+    _list_->flag = CMC_FLAG_OK;
     if (_list_->callbacks && _list_->callbacks->read)
         _list_->callbacks->read();
     return _list_->buffer[_list_->count - 1];
@@ -210,11 +210,11 @@ size_t sl_min(struct sortedlist *_list_)
 {
     if (sl_empty(_list_))
     {
-        _list_->flag = cmc_flags.EMPTY;
+        _list_->flag = CMC_FLAG_EMPTY;
         return (size_t){ 0 };
     }
     sl_sort(_list_);
-    _list_->flag = cmc_flags.OK;
+    _list_->flag = CMC_FLAG_OK;
     if (_list_->callbacks && _list_->callbacks->read)
         _list_->callbacks->read();
     return _list_->buffer[0];
@@ -223,23 +223,23 @@ size_t sl_get(struct sortedlist *_list_, size_t index)
 {
     if (sl_empty(_list_))
     {
-        _list_->flag = cmc_flags.EMPTY;
+        _list_->flag = CMC_FLAG_EMPTY;
         return (size_t){ 0 };
     }
     if (index >= _list_->count)
     {
-        _list_->flag = cmc_flags.RANGE;
+        _list_->flag = CMC_FLAG_RANGE;
         return (size_t){ 0 };
     }
     sl_sort(_list_);
-    _list_->flag = cmc_flags.OK;
+    _list_->flag = CMC_FLAG_OK;
     if (_list_->callbacks && _list_->callbacks->read)
         _list_->callbacks->read();
     return _list_->buffer[index];
 }
 size_t sl_index_of(struct sortedlist *_list_, size_t value, _Bool from_start)
 {
-    _list_->flag = cmc_flags.OK;
+    _list_->flag = CMC_FLAG_OK;
     sl_sort(_list_);
     if (_list_->callbacks && _list_->callbacks->read)
         _list_->callbacks->read();
@@ -251,7 +251,7 @@ size_t sl_index_of(struct sortedlist *_list_, size_t value, _Bool from_start)
 }
 _Bool sl_contains(struct sortedlist *_list_, size_t value)
 {
-    _list_->flag = cmc_flags.OK;
+    _list_->flag = CMC_FLAG_OK;
     if (sl_empty(_list_))
         return 0;
     sl_sort(_list_);
@@ -285,27 +285,27 @@ _Bool sl_resize(struct sortedlist *_list_, size_t capacity)
         goto success;
     if (capacity < _list_->count)
     {
-        _list_->flag = cmc_flags.INVALID;
+        _list_->flag = CMC_FLAG_INVALID;
         return 0;
     }
     size_t *new_buffer =
         _list_->alloc->realloc(_list_->buffer, sizeof(size_t) * capacity);
     if (!new_buffer)
     {
-        _list_->flag = cmc_flags.ALLOC;
+        _list_->flag = CMC_FLAG_ALLOC;
         return 0;
     }
     _list_->buffer = new_buffer;
     _list_->capacity = capacity;
 success:
-    _list_->flag = cmc_flags.OK;
+    _list_->flag = CMC_FLAG_OK;
     if (_list_->callbacks && _list_->callbacks->resize)
         _list_->callbacks->resize();
     return 1;
 }
 void sl_sort(struct sortedlist *_list_)
 {
-    _list_->flag = cmc_flags.OK;
+    _list_->flag = CMC_FLAG_OK;
     if (!_list_->is_sorted && _list_->count > 1)
     {
         sl_impl_sort_quicksort(_list_->buffer, _list_->f_val->cmp, 0,
@@ -319,7 +319,7 @@ struct sortedlist *sl_copy_of(struct sortedlist *_list_)
                                               _list_->alloc, _list_->callbacks);
     if (!result)
     {
-        _list_->flag = cmc_flags.ERROR;
+        _list_->flag = CMC_FLAG_ERROR;
         return ((void *)0);
     }
     if (_list_->f_val->cpy)
@@ -330,7 +330,7 @@ struct sortedlist *sl_copy_of(struct sortedlist *_list_)
     else
         memcpy(result->buffer, _list_->buffer, sizeof(size_t) * _list_->count);
     result->count = _list_->count;
-    _list_->flag = cmc_flags.OK;
+    _list_->flag = CMC_FLAG_OK;
     return result;
 }
 _Bool sl_equals(struct sortedlist *_list1_, struct sortedlist *_list2_)
@@ -350,10 +350,12 @@ struct cmc_string sl_to_string(struct sortedlist *_list_)
 {
     struct cmc_string str;
     struct sortedlist *l_ = _list_;
-    int n = snprintf(str.s, cmc_string_len, cmc_string_fmt_sortedlist,
-                     "sortedlist", "size_t", l_, l_->buffer, l_->capacity,
-                     l_->count, l_->is_sorted ? "true" : "false", l_->flag,
-                     l_->f_val, l_->alloc, l_->callbacks);
+    int n =
+        snprintf(str.s, cmc_string_len, cmc_cmc_string_fmt_sortedlist,
+                 "CMC_PARAM_SNAME((sl, sortedlist, , , size_t))",
+                 "CMC_PARAM_V((sl, sortedlist, , , size_t))", l_, l_->buffer,
+                 l_->capacity, l_->count, l_->is_sorted ? "true" : "false",
+                 l_->flag, l_->f_val, l_->alloc, l_->callbacks);
     return n >= 0 ? str : (struct cmc_string){ 0 };
 }
 _Bool sl_print(struct sortedlist *_list_, FILE *fptr)

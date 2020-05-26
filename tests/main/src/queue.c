@@ -88,7 +88,7 @@ struct queue *q_new(size_t capacity, struct queue_fval *f_val)
     _queue_->count = 0;
     _queue_->front = 0;
     _queue_->back = 0;
-    _queue_->flag = cmc_flags.OK;
+    _queue_->flag = CMC_FLAG_OK;
     _queue_->f_val = f_val;
     _queue_->alloc = alloc;
     _queue_->callbacks = ((void *)0);
@@ -117,7 +117,7 @@ struct queue *q_new_custom(size_t capacity, struct queue_fval *f_val,
     _queue_->count = 0;
     _queue_->front = 0;
     _queue_->back = 0;
-    _queue_->flag = cmc_flags.OK;
+    _queue_->flag = CMC_FLAG_OK;
     _queue_->f_val = f_val;
     _queue_->alloc = alloc;
     _queue_->callbacks = callbacks;
@@ -137,7 +137,7 @@ void q_clear(struct queue *_queue_)
     _queue_->count = 0;
     _queue_->front = 0;
     _queue_->back = 0;
-    _queue_->flag = cmc_flags.OK;
+    _queue_->flag = CMC_FLAG_OK;
 }
 void q_free(struct queue *_queue_)
 {
@@ -160,7 +160,7 @@ void q_customize(struct queue *_queue_, struct cmc_alloc_node *alloc,
     else
         _queue_->alloc = alloc;
     _queue_->callbacks = callbacks;
-    _queue_->flag = cmc_flags.OK;
+    _queue_->flag = CMC_FLAG_OK;
 }
 _Bool q_enqueue(struct queue *_queue_, size_t value)
 {
@@ -173,7 +173,7 @@ _Bool q_enqueue(struct queue *_queue_, size_t value)
     _queue_->back =
         (_queue_->back == _queue_->capacity - 1) ? 0 : _queue_->back + 1;
     _queue_->count++;
-    _queue_->flag = cmc_flags.OK;
+    _queue_->flag = CMC_FLAG_OK;
     if (_queue_->callbacks && _queue_->callbacks->create)
         _queue_->callbacks->create();
     return 1;
@@ -182,14 +182,14 @@ _Bool q_dequeue(struct queue *_queue_)
 {
     if (q_empty(_queue_))
     {
-        _queue_->flag = cmc_flags.EMPTY;
+        _queue_->flag = CMC_FLAG_EMPTY;
         return 0;
     }
     _queue_->buffer[_queue_->front] = (size_t){ 0 };
     _queue_->front =
         (_queue_->front == _queue_->capacity - 1) ? 0 : _queue_->front + 1;
     _queue_->count--;
-    _queue_->flag = cmc_flags.OK;
+    _queue_->flag = CMC_FLAG_OK;
     if (_queue_->callbacks && _queue_->callbacks->delete)
         _queue_->callbacks->delete ();
     return 1;
@@ -198,17 +198,17 @@ size_t q_peek(struct queue *_queue_)
 {
     if (q_empty(_queue_))
     {
-        _queue_->flag = cmc_flags.EMPTY;
+        _queue_->flag = CMC_FLAG_EMPTY;
         return (size_t){ 0 };
     }
-    _queue_->flag = cmc_flags.OK;
+    _queue_->flag = CMC_FLAG_OK;
     if (_queue_->callbacks && _queue_->callbacks->read)
         _queue_->callbacks->read();
     return _queue_->buffer[_queue_->front];
 }
 _Bool q_contains(struct queue *_queue_, size_t value)
 {
-    _queue_->flag = cmc_flags.OK;
+    _queue_->flag = CMC_FLAG_OK;
     _Bool result = 0;
     for (size_t i = _queue_->front, j = 0; j < _queue_->count; j++)
     {
@@ -249,13 +249,13 @@ _Bool q_resize(struct queue *_queue_, size_t capacity)
         goto success;
     if (capacity < _queue_->count)
     {
-        _queue_->flag = cmc_flags.INVALID;
+        _queue_->flag = CMC_FLAG_INVALID;
         return 0;
     }
     size_t *new_buffer = _queue_->alloc->malloc(sizeof(size_t) * capacity);
     if (!new_buffer)
     {
-        _queue_->flag = cmc_flags.ALLOC;
+        _queue_->flag = CMC_FLAG_ALLOC;
         return 0;
     }
     for (size_t i = _queue_->front, j = 0; j < _queue_->count; j++)
@@ -269,7 +269,7 @@ _Bool q_resize(struct queue *_queue_, size_t capacity)
     _queue_->front = 0;
     _queue_->back = _queue_->count;
 success:
-    _queue_->flag = cmc_flags.OK;
+    _queue_->flag = CMC_FLAG_OK;
     if (_queue_->callbacks && _queue_->callbacks->resize)
         _queue_->callbacks->resize();
     return 1;
@@ -280,7 +280,7 @@ struct queue *q_copy_of(struct queue *_queue_)
                                         _queue_->alloc, _queue_->callbacks);
     if (!result)
     {
-        _queue_->flag = cmc_flags.ERROR;
+        _queue_->flag = CMC_FLAG_ERROR;
         return ((void *)0);
     }
     if (_queue_->f_val->cpy)
@@ -302,13 +302,13 @@ struct queue *q_copy_of(struct queue *_queue_)
     result->count = _queue_->count;
     result->front = 0;
     result->back = _queue_->count;
-    _queue_->flag = cmc_flags.OK;
+    _queue_->flag = CMC_FLAG_OK;
     return result;
 }
 _Bool q_equals(struct queue *_queue1_, struct queue *_queue2_)
 {
-    _queue1_->flag = cmc_flags.OK;
-    _queue2_->flag = cmc_flags.OK;
+    _queue1_->flag = CMC_FLAG_OK;
+    _queue2_->flag = CMC_FLAG_OK;
     if (_queue1_->count != _queue2_->count)
         return 0;
     size_t i, j, k;
@@ -326,10 +326,11 @@ struct cmc_string q_to_string(struct queue *_queue_)
 {
     struct cmc_string str;
     struct queue *q_ = _queue_;
-    int n =
-        snprintf(str.s, cmc_string_len, cmc_string_fmt_queue, "queue", "size_t",
-                 q_, q_->buffer, q_->capacity, q_->count, q_->front, q_->back,
-                 q_->flag, q_->f_val, q_->alloc, q_->callbacks);
+    int n = snprintf(str.s, cmc_string_len, cmc_cmc_string_fmt_queue,
+                     "CMC_PARAM_SNAME((q, queue, , , size_t))",
+                     "CMC_PARAM_V((q, queue, , , size_t))", q_, q_->buffer,
+                     q_->capacity, q_->count, q_->front, q_->back, q_->flag,
+                     q_->f_val, q_->alloc, q_->callbacks);
     return n >= 0 ? str : (struct cmc_string){ 0 };
 }
 _Bool q_print(struct queue *_queue_, FILE *fptr)

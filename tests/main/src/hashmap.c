@@ -57,13 +57,6 @@ struct hashmap *hm_new_custom(size_t capacity, double load,
                               struct hashmap_fval *f_val,
                               struct cmc_alloc_node *alloc,
                               struct cmc_callbacks *callbacks);
-struct hashmap hm_init(size_t capacity, double load, struct hashmap_fkey *f_key,
-                       struct hashmap_fval *f_val);
-struct hashmap hm_init_custom(size_t capacity, double load,
-                              struct hashmap_fkey *f_key,
-                              struct hashmap_fval *f_val,
-                              struct cmc_alloc_node *alloc,
-                              struct cmc_callbacks *callbacks);
 void hm_clear(struct hashmap *_map_);
 void hm_free(struct hashmap *_map_);
 void hm_release(struct hashmap _map_);
@@ -140,46 +133,11 @@ struct hashmap *hm_new_custom(size_t capacity, double load,
     _map_->count = 0;
     _map_->capacity = real_capacity;
     _map_->load = load;
-    _map_->flag = cmc_flags.OK;
+    _map_->flag = CMC_FLAG_OK;
     _map_->f_key = f_key;
     _map_->f_val = f_val;
     _map_->alloc = alloc;
     _map_->callbacks = callbacks;
-    return _map_;
-}
-struct hashmap hm_init(size_t capacity, double load, struct hashmap_fkey *f_key,
-                       struct hashmap_fval *f_val)
-{
-    return hm_init_custom(capacity, load, f_key, f_val, ((void *)0),
-                          ((void *)0));
-}
-struct hashmap hm_init_custom(size_t capacity, double load,
-                              struct hashmap_fkey *f_key,
-                              struct hashmap_fval *f_val,
-                              struct cmc_alloc_node *alloc,
-                              struct cmc_callbacks *callbacks)
-{
-    struct hashmap _map_ = { 0 };
-    if (capacity == 0 || load <= 0 || load >= 1)
-        return _map_;
-    if (capacity >= 0xffffffffffffffffULL * load)
-        return _map_;
-    if (!f_key || !f_val)
-        return _map_;
-    size_t real_capacity = hm_impl_calculate_size(capacity / load);
-    if (!alloc)
-        alloc = &cmc_alloc_node_default;
-    _map_.buffer = alloc->calloc(real_capacity, sizeof(struct hashmap_entry));
-    if (!_map_.buffer)
-        return _map_;
-    _map_.count = 0;
-    _map_.capacity = real_capacity;
-    _map_.load = load;
-    _map_.flag = cmc_flags.OK;
-    _map_.f_key = f_key;
-    _map_.f_val = f_val;
-    _map_.alloc = alloc;
-    _map_.callbacks = callbacks;
     return _map_;
 }
 void hm_clear(struct hashmap *_map_)
@@ -200,7 +158,7 @@ void hm_clear(struct hashmap *_map_)
     }
     memset(_map_->buffer, 0, sizeof(struct hashmap_entry) * _map_->capacity);
     _map_->count = 0;
-    _map_->flag = cmc_flags.OK;
+    _map_->flag = CMC_FLAG_OK;
 }
 void hm_free(struct hashmap *_map_)
 {
@@ -247,7 +205,7 @@ void hm_customize(struct hashmap *_map_, struct cmc_alloc_node *alloc,
     else
         _map_->alloc = alloc;
     _map_->callbacks = callbacks;
-    _map_->flag = cmc_flags.OK;
+    _map_->flag = CMC_FLAG_OK;
 }
 _Bool hm_insert(struct hashmap *_map_, size_t key, size_t value)
 {
@@ -258,7 +216,7 @@ _Bool hm_insert(struct hashmap *_map_, size_t key, size_t value)
     }
     if (hm_impl_get_entry(_map_, key) != ((void *)0))
     {
-        _map_->flag = cmc_flags.DUPLICATE;
+        _map_->flag = CMC_FLAG_DUPLICATE;
         return 0;
     }
     size_t hash = _map_->f_key->hash(key);
@@ -302,7 +260,7 @@ _Bool hm_insert(struct hashmap *_map_, size_t key, size_t value)
         }
     }
     _map_->count++;
-    _map_->flag = cmc_flags.OK;
+    _map_->flag = CMC_FLAG_OK;
     if (_map_->callbacks && _map_->callbacks->create)
         _map_->callbacks->create();
     return 1;
@@ -312,19 +270,19 @@ _Bool hm_update(struct hashmap *_map_, size_t key, size_t new_value,
 {
     if (hm_empty(_map_))
     {
-        _map_->flag = cmc_flags.EMPTY;
+        _map_->flag = CMC_FLAG_EMPTY;
         return 0;
     }
     struct hashmap_entry *entry = hm_impl_get_entry(_map_, key);
     if (!entry)
     {
-        _map_->flag = cmc_flags.NOT_FOUND;
+        _map_->flag = CMC_FLAG_NOT_FOUND;
         return 0;
     }
     if (old_value)
         *old_value = entry->value;
     entry->value = new_value;
-    _map_->flag = cmc_flags.OK;
+    _map_->flag = CMC_FLAG_OK;
     if (_map_->callbacks && _map_->callbacks->update)
         _map_->callbacks->update();
     return 1;
@@ -333,13 +291,13 @@ _Bool hm_remove(struct hashmap *_map_, size_t key, size_t *out_value)
 {
     if (hm_empty(_map_))
     {
-        _map_->flag = cmc_flags.EMPTY;
+        _map_->flag = CMC_FLAG_EMPTY;
         return 0;
     }
     struct hashmap_entry *result = hm_impl_get_entry(_map_, key);
     if (result == ((void *)0))
     {
-        _map_->flag = cmc_flags.NOT_FOUND;
+        _map_->flag = CMC_FLAG_NOT_FOUND;
         return 0;
     }
     if (out_value)
@@ -349,7 +307,7 @@ _Bool hm_remove(struct hashmap *_map_, size_t key, size_t *out_value)
     result->dist = 0;
     result->state = CMC_ES_DELETED;
     _map_->count--;
-    _map_->flag = cmc_flags.OK;
+    _map_->flag = CMC_FLAG_OK;
     if (_map_->callbacks && _map_->callbacks->delete)
         _map_->callbacks->delete ();
     return 1;
@@ -358,7 +316,7 @@ _Bool hm_max(struct hashmap *_map_, size_t *key, size_t *value)
 {
     if (hm_empty(_map_))
     {
-        _map_->flag = cmc_flags.EMPTY;
+        _map_->flag = CMC_FLAG_EMPTY;
         return 0;
     }
     struct hashmap_iter iter = hm_iter_start(_map_);
@@ -387,7 +345,7 @@ _Bool hm_min(struct hashmap *_map_, size_t *key, size_t *value)
 {
     if (hm_empty(_map_))
     {
-        _map_->flag = cmc_flags.EMPTY;
+        _map_->flag = CMC_FLAG_EMPTY;
         return 0;
     }
     struct hashmap_iter iter = hm_iter_start(_map_);
@@ -416,16 +374,16 @@ size_t hm_get(struct hashmap *_map_, size_t key)
 {
     if (hm_empty(_map_))
     {
-        _map_->flag = cmc_flags.EMPTY;
+        _map_->flag = CMC_FLAG_EMPTY;
         return 0;
     }
     struct hashmap_entry *entry = hm_impl_get_entry(_map_, key);
     if (!entry)
     {
-        _map_->flag = cmc_flags.NOT_FOUND;
+        _map_->flag = CMC_FLAG_NOT_FOUND;
         return (size_t){ 0 };
     }
-    _map_->flag = cmc_flags.OK;
+    _map_->flag = CMC_FLAG_OK;
     if (_map_->callbacks && _map_->callbacks->read)
         _map_->callbacks->read();
     return entry->value;
@@ -434,23 +392,23 @@ size_t *hm_get_ref(struct hashmap *_map_, size_t key)
 {
     if (hm_empty(_map_))
     {
-        _map_->flag = cmc_flags.EMPTY;
+        _map_->flag = CMC_FLAG_EMPTY;
         return 0;
     }
     struct hashmap_entry *entry = hm_impl_get_entry(_map_, key);
     if (!entry)
     {
-        _map_->flag = cmc_flags.NOT_FOUND;
+        _map_->flag = CMC_FLAG_NOT_FOUND;
         return ((void *)0);
     }
-    _map_->flag = cmc_flags.OK;
+    _map_->flag = CMC_FLAG_OK;
     if (_map_->callbacks && _map_->callbacks->read)
         _map_->callbacks->read();
     return &(entry->value);
 }
 _Bool hm_contains(struct hashmap *_map_, size_t key)
 {
-    _map_->flag = cmc_flags.OK;
+    _map_->flag = CMC_FLAG_OK;
     _Bool result = hm_impl_get_entry(_map_, key) != ((void *)0);
     if (_map_->callbacks && _map_->callbacks->read)
         _map_->callbacks->read();
@@ -482,20 +440,20 @@ int hm_flag(struct hashmap *_map_)
 }
 _Bool hm_resize(struct hashmap *_map_, size_t capacity)
 {
-    _map_->flag = cmc_flags.OK;
+    _map_->flag = CMC_FLAG_OK;
     if (_map_->capacity == capacity)
         goto success;
     if (_map_->capacity > capacity / _map_->load)
         goto success;
     if (capacity >= 0xffffffffffffffffULL * _map_->load)
     {
-        _map_->flag = cmc_flags.ERROR;
+        _map_->flag = CMC_FLAG_ERROR;
         return 0;
     }
     size_t theoretical_size = hm_impl_calculate_size(capacity);
     if (theoretical_size < _map_->count / _map_->load)
     {
-        _map_->flag = cmc_flags.INVALID;
+        _map_->flag = CMC_FLAG_INVALID;
         return 0;
     }
     struct hashmap *_new_map_ =
@@ -503,7 +461,7 @@ _Bool hm_resize(struct hashmap *_map_, size_t capacity)
                       _map_->alloc, ((void *)0));
     if (!_new_map_)
     {
-        _map_->flag = cmc_flags.ALLOC;
+        _map_->flag = CMC_FLAG_ALLOC;
         return 0;
     }
     struct hashmap_iter iter = hm_iter_start(_map_);
@@ -516,7 +474,7 @@ _Bool hm_resize(struct hashmap *_map_, size_t capacity)
     if (_map_->count != _new_map_->count)
     {
         hm_free(_new_map_);
-        _map_->flag = cmc_flags.ERROR;
+        _map_->flag = CMC_FLAG_ERROR;
         return 0;
     }
     struct hashmap_entry *tmp_b = _map_->buffer;
@@ -540,7 +498,7 @@ struct hashmap *hm_copy_of(struct hashmap *_map_)
                       _map_->f_val, _map_->alloc, _map_->callbacks);
     if (!result)
     {
-        _map_->flag = cmc_flags.ERROR;
+        _map_->flag = CMC_FLAG_ERROR;
         return ((void *)0);
     }
     if (_map_->f_key->cpy || _map_->f_val->cpy)
@@ -573,13 +531,13 @@ struct hashmap *hm_copy_of(struct hashmap *_map_)
         memcpy(result->buffer, _map_->buffer,
                sizeof(struct hashmap_entry) * _map_->capacity);
     result->count = _map_->count;
-    _map_->flag = cmc_flags.OK;
+    _map_->flag = CMC_FLAG_OK;
     return result;
 }
 _Bool hm_equals(struct hashmap *_map1_, struct hashmap *_map2_)
 {
-    _map1_->flag = cmc_flags.OK;
-    _map2_->flag = cmc_flags.OK;
+    _map1_->flag = CMC_FLAG_OK;
+    _map2_->flag = CMC_FLAG_OK;
     if (_map1_->count != _map2_->count)
         return 0;
     struct hashmap_iter iter = hm_iter_start(_map1_);
@@ -598,10 +556,12 @@ struct cmc_string hm_to_string(struct hashmap *_map_)
 {
     struct cmc_string str;
     struct hashmap *m_ = _map_;
-    int n = snprintf(str.s, cmc_string_len, cmc_string_fmt_hashmap, "hashmap",
-                     "size_t", "size_t", m_, m_->buffer, m_->capacity,
-                     m_->count, m_->load, m_->flag, m_->f_key, m_->f_val,
-                     m_->alloc, m_->callbacks);
+    int n = snprintf(str.s, cmc_string_len, cmc_cmc_string_fmt_hashmap,
+                     "CMC_PARAM_SNAME((hm, hashmap, , size_t, size_t))",
+                     "CMC_PARAM_K((hm, hashmap, , size_t, size_t))",
+                     "CMC_PARAM_V((hm, hashmap, , size_t, size_t))", m_,
+                     m_->buffer, m_->capacity, m_->count, m_->load, m_->flag,
+                     m_->f_key, m_->f_val, m_->alloc, m_->callbacks);
     return n >= 0 ? str : (struct cmc_string){ 0 };
 }
 _Bool hm_print(struct hashmap *_map_, FILE *fptr)

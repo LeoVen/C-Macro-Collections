@@ -25,8 +25,8 @@
  * expression evaluation, syntax parsing and many more.
  */
 
-#ifndef CMC_STACK_H
-#define CMC_STACK_H
+#ifndef CMC_CMC_STACK_H
+#define CMC_CMC_STACK_H
 
 /* -------------------------------------------------------------------------
  * Core functionalities of the C Macro Collections Library
@@ -37,153 +37,164 @@
  * Stack specific
  * ------------------------------------------------------------------------- */
 /* to_string format */
-static const char *cmc_string_fmt_stack = "struct %s<%s> "
-                                          "at %p { "
-                                          "buffer:%p, "
-                                          "capacity:%" PRIuMAX ", "
-                                          "count:%" PRIuMAX ", "
-                                          "flag:%d, "
-                                          "f_val:%p, "
-                                          "alloc:%p, "
-                                          "callbacks:%p }";
+static const char *cmc_cmc_string_fmt_stack = "struct %s<%s> "
+                                              "at %p { "
+                                              "buffer:%p, "
+                                              "capacity:%" PRIuMAX ", "
+                                              "count:%" PRIuMAX ", "
+                                              "flag:%d, "
+                                              "f_val:%p, "
+                                              "alloc:%p, "
+                                              "callbacks:%p }";
 
-#define CMC_GENERATE_STACK(PFX, SNAME, V)    \
-    CMC_GENERATE_STACK_HEADER(PFX, SNAME, V) \
-    CMC_GENERATE_STACK_SOURCE(PFX, SNAME, V)
+/**
+ * Core Stack implementation
+ */
+#define CMC_CMC_STACK_CORE(BODY)    \
+    CMC_CMC_STACK_CORE_HEADER(BODY) \
+    CMC_CMC_STACK_CORE_SOURCE(BODY)
 
-#define CMC_WRAPGEN_STACK_HEADER(PFX, SNAME, K, V) \
-    CMC_GENERATE_STACK_HEADER(PFX, SNAME, V)
+#define CMC_CMC_STACK_CORE_HEADER(BODY)                                    \
+    CMC_CMC_STACK_CORE_HEADER_(CMC_PARAM_PFX(BODY), CMC_PARAM_SNAME(BODY), \
+                               CMC_PARAM_V(BODY))
 
-#define CMC_WRAPGEN_STACK_SOURCE(PFX, SNAME, K, V) \
-    CMC_GENERATE_STACK_SOURCE(PFX, SNAME, V)
+#define CMC_CMC_STACK_CORE_SOURCE(BODY)                                    \
+    CMC_CMC_STACK_CORE_SOURCE_(CMC_PARAM_PFX(BODY), CMC_PARAM_SNAME(BODY), \
+                               CMC_PARAM_V(BODY))
 
 /* -------------------------------------------------------------------------
  * Header
  * ------------------------------------------------------------------------- */
-#define CMC_GENERATE_STACK_HEADER(PFX, SNAME, V)                              \
-                                                                              \
-    /* Stack Structure */                                                     \
-    struct SNAME                                                              \
-    {                                                                         \
-        /* Dynamic array of elements */                                       \
-        V *buffer;                                                            \
-                                                                              \
-        /* Current array capacity */                                          \
-        size_t capacity;                                                      \
-                                                                              \
-        /* Current amount of elements */                                      \
-        size_t count;                                                         \
-                                                                              \
-        /* Flags indicating errors or success */                              \
-        int flag;                                                             \
-                                                                              \
-        /* Value function table */                                            \
-        struct SNAME##_fval *f_val;                                           \
-                                                                              \
-        /* Custom allocation functions */                                     \
-        struct cmc_alloc_node *alloc;                                         \
-                                                                              \
-        /* Custom callback functions */                                       \
-        struct cmc_callbacks *callbacks;                                      \
-    };                                                                        \
-                                                                              \
-    /* Value struct function table */                                         \
-    struct SNAME##_fval                                                       \
-    {                                                                         \
-        /* Comparator function */                                             \
-        int (*cmp)(V, V);                                                     \
-                                                                              \
-        /* Copy function */                                                   \
-        V (*cpy)(V);                                                          \
-                                                                              \
-        /* To string function */                                              \
-        bool (*str)(FILE *, V);                                               \
-                                                                              \
-        /* Free from memory function */                                       \
-        void (*free)(V);                                                      \
-                                                                              \
-        /* Hash function */                                                   \
-        size_t (*hash)(V);                                                    \
-                                                                              \
-        /* Priority function */                                               \
-        int (*pri)(V, V);                                                     \
-    };                                                                        \
-                                                                              \
-    /* Stack Iterator */                                                      \
-    struct SNAME##_iter                                                       \
-    {                                                                         \
-        /* Target stack */                                                    \
-        struct SNAME *target;                                                 \
-                                                                              \
-        /* Cursor's position (index) */                                       \
-        size_t cursor;                                                        \
-                                                                              \
-        /* If the iterator has reached the start of the iteration */          \
-        bool start;                                                           \
-                                                                              \
-        /* If the iterator has reached the end of the iteration */            \
-        bool end;                                                             \
-    };                                                                        \
-                                                                              \
-    /* Collection Functions */                                                \
-    /* Collection Allocation and Deallocation */                              \
-    struct SNAME *PFX##_new(size_t capacity, struct SNAME##_fval *f_val);     \
-    struct SNAME *PFX##_new_custom(                                           \
-        size_t capacity, struct SNAME##_fval *f_val,                          \
-        struct cmc_alloc_node *alloc, struct cmc_callbacks *callbacks);       \
-    void PFX##_clear(struct SNAME *_stack_);                                  \
-    void PFX##_free(struct SNAME *_stack_);                                   \
-    /* Customization of Allocation and Callbacks */                           \
-    void PFX##_customize(struct SNAME *_stack_, struct cmc_alloc_node *alloc, \
-                         struct cmc_callbacks *callbacks);                    \
-    /* Collection Input and Output */                                         \
-    bool PFX##_push(struct SNAME *_stack_, V value);                          \
-    bool PFX##_pop(struct SNAME *_stack_);                                    \
-    /* Element Access */                                                      \
-    V PFX##_top(struct SNAME *_stack_);                                       \
-    /* Collection State */                                                    \
-    bool PFX##_contains(struct SNAME *_stack_, V value);                      \
-    bool PFX##_empty(struct SNAME *_stack_);                                  \
-    bool PFX##_full(struct SNAME *_stack_);                                   \
-    size_t PFX##_count(struct SNAME *_stack_);                                \
-    size_t PFX##_capacity(struct SNAME *_stack_);                             \
-    int PFX##_flag(struct SNAME *_stack_);                                    \
-    /* Collection Utility */                                                  \
-    bool PFX##_resize(struct SNAME *_stack_, size_t capacity);                \
-    struct SNAME *PFX##_copy_of(struct SNAME *_stack_);                       \
-    bool PFX##_equals(struct SNAME *_stack1_, struct SNAME *_stack2_);        \
-    struct cmc_string PFX##_to_string(struct SNAME *_stack_);                 \
-    bool PFX##_print(struct SNAME *_stack_, FILE *fptr);                      \
-                                                                              \
-    /* Iterator Functions */                                                  \
-    /* Iterator Initialization */                                             \
-    struct SNAME##_iter PFX##_iter_start(struct SNAME *target);               \
-    struct SNAME##_iter PFX##_iter_end(struct SNAME *target);                 \
-    /* Iterator State */                                                      \
-    bool PFX##_iter_at_start(struct SNAME##_iter *iter);                      \
-    bool PFX##_iter_at_end(struct SNAME##_iter *iter);                        \
-    /* Iterator Movement */                                                   \
-    bool PFX##_iter_to_start(struct SNAME##_iter *iter);                      \
-    bool PFX##_iter_to_end(struct SNAME##_iter *iter);                        \
-    bool PFX##_iter_next(struct SNAME##_iter *iter);                          \
-    bool PFX##_iter_prev(struct SNAME##_iter *iter);                          \
-    bool PFX##_iter_advance(struct SNAME##_iter *iter, size_t steps);         \
-    bool PFX##_iter_rewind(struct SNAME##_iter *iter, size_t steps);          \
-    bool PFX##_iter_go_to(struct SNAME##_iter *iter, size_t index);           \
-    /* Iterator Access */                                                     \
-    V PFX##_iter_value(struct SNAME##_iter *iter);                            \
-    V *PFX##_iter_rvalue(struct SNAME##_iter *iter);                          \
-    size_t PFX##_iter_index(struct SNAME##_iter *iter);
+#define CMC_CMC_STACK_CORE_HEADER_(PFX, SNAME, V)                              \
+                                                                               \
+    /* Stack Structure */                                                      \
+    struct SNAME                                                               \
+    {                                                                          \
+        /* Dynamic array of elements */                                        \
+        V *buffer;                                                             \
+                                                                               \
+        /* Current array capacity */                                           \
+        size_t capacity;                                                       \
+                                                                               \
+        /* Current amount of elements */                                       \
+        size_t count;                                                          \
+                                                                               \
+        /* Flags indicating errors or success */                               \
+        int flag;                                                              \
+                                                                               \
+        /* Value function table */                                             \
+        struct CMC_DEF_FVAL(SNAME) * f_val;                                    \
+                                                                               \
+        /* Custom allocation functions */                                      \
+        struct cmc_alloc_node *alloc;                                          \
+                                                                               \
+        /* Custom callback functions */                                        \
+        struct cmc_callbacks *callbacks;                                       \
+    };                                                                         \
+                                                                               \
+    /* Value struct function table */                                          \
+    struct CMC_DEF_FVAL(SNAME)                                                 \
+    {                                                                          \
+        /* Comparator function */                                              \
+        int (*cmp)(V, V);                                                      \
+                                                                               \
+        /* Copy function */                                                    \
+        V (*cpy)(V);                                                           \
+                                                                               \
+        /* To string function */                                               \
+        bool (*str)(FILE *, V);                                                \
+                                                                               \
+        /* Free from memory function */                                        \
+        void (*free)(V);                                                       \
+                                                                               \
+        /* Hash function */                                                    \
+        size_t (*hash)(V);                                                     \
+                                                                               \
+        /* Priority function */                                                \
+        int (*pri)(V, V);                                                      \
+    };                                                                         \
+                                                                               \
+    /* Stack Iterator */                                                       \
+    struct CMC_DEF_ITER(SNAME)                                                 \
+    {                                                                          \
+        /* Target stack */                                                     \
+        struct SNAME *target;                                                  \
+                                                                               \
+        /* Cursor's position (index) */                                        \
+        size_t cursor;                                                         \
+                                                                               \
+        /* If the iterator has reached the start of the iteration */           \
+        bool start;                                                            \
+                                                                               \
+        /* If the iterator has reached the end of the iteration */             \
+        bool end;                                                              \
+    };                                                                         \
+                                                                               \
+    /* Collection Functions */                                                 \
+    /* Collection Allocation and Deallocation */                               \
+    struct SNAME *CMC_(PFX, _new)(size_t capacity,                             \
+                                  struct CMC_DEF_FVAL(SNAME) * f_val);         \
+    struct SNAME *CMC_(PFX, _new_custom)(                                      \
+        size_t capacity, struct CMC_DEF_FVAL(SNAME) * f_val,                   \
+        struct cmc_alloc_node * alloc, struct cmc_callbacks * callbacks);      \
+    void CMC_(PFX, _clear)(struct SNAME * _stack_);                            \
+    void CMC_(PFX, _free)(struct SNAME * _stack_);                             \
+    /* Customization of Allocation and Callbacks */                            \
+    void CMC_(PFX, _customize)(struct SNAME * _stack_,                         \
+                               struct cmc_alloc_node * alloc,                  \
+                               struct cmc_callbacks * callbacks);              \
+    /* Collection Input and Output */                                          \
+    bool CMC_(PFX, _push)(struct SNAME * _stack_, V value);                    \
+    bool CMC_(PFX, _pop)(struct SNAME * _stack_);                              \
+    /* Element Access */                                                       \
+    V CMC_(PFX, _top)(struct SNAME * _stack_);                                 \
+    /* Collection State */                                                     \
+    bool CMC_(PFX, _contains)(struct SNAME * _stack_, V value);                \
+    bool CMC_(PFX, _empty)(struct SNAME * _stack_);                            \
+    bool CMC_(PFX, _full)(struct SNAME * _stack_);                             \
+    size_t CMC_(PFX, _count)(struct SNAME * _stack_);                          \
+    size_t CMC_(PFX, _capacity)(struct SNAME * _stack_);                       \
+    int CMC_(PFX, _flag)(struct SNAME * _stack_);                              \
+    /* Collection Utility */                                                   \
+    bool CMC_(PFX, _resize)(struct SNAME * _stack_, size_t capacity);          \
+    struct SNAME *CMC_(PFX, _copy_of)(struct SNAME * _stack_);                 \
+    bool CMC_(PFX, _equals)(struct SNAME * _stack1_, struct SNAME * _stack2_); \
+    struct cmc_string CMC_(PFX, _to_string)(struct SNAME * _stack_);           \
+    bool CMC_(PFX, _print)(struct SNAME * _stack_, FILE * fptr);               \
+                                                                               \
+    /* Iterator Functions */                                                   \
+    /* Iterator Initialization */                                              \
+    struct CMC_DEF_ITER(SNAME) CMC_(PFX, _iter_start)(struct SNAME * target);  \
+    struct CMC_DEF_ITER(SNAME) CMC_(PFX, _iter_end)(struct SNAME * target);    \
+    /* Iterator State */                                                       \
+    bool CMC_(PFX, _iter_at_start)(struct CMC_DEF_ITER(SNAME) * iter);         \
+    bool CMC_(PFX, _iter_at_end)(struct CMC_DEF_ITER(SNAME) * iter);           \
+    /* Iterator Movement */                                                    \
+    bool CMC_(PFX, _iter_to_start)(struct CMC_DEF_ITER(SNAME) * iter);         \
+    bool CMC_(PFX, _iter_to_end)(struct CMC_DEF_ITER(SNAME) * iter);           \
+    bool CMC_(PFX, _iter_next)(struct CMC_DEF_ITER(SNAME) * iter);             \
+    bool CMC_(PFX, _iter_prev)(struct CMC_DEF_ITER(SNAME) * iter);             \
+    bool CMC_(PFX, _iter_advance)(struct CMC_DEF_ITER(SNAME) * iter,           \
+                                  size_t steps);                               \
+    bool CMC_(PFX, _iter_rewind)(struct CMC_DEF_ITER(SNAME) * iter,            \
+                                 size_t steps);                                \
+    bool CMC_(PFX, _iter_go_to)(struct CMC_DEF_ITER(SNAME) * iter,             \
+                                size_t index);                                 \
+    /* Iterator Access */                                                      \
+    V CMC_(PFX, _iter_value)(struct CMC_DEF_ITER(SNAME) * iter);               \
+    V *CMC_(PFX, _iter_rvalue)(struct CMC_DEF_ITER(SNAME) * iter);             \
+    size_t CMC_(PFX, _iter_index)(struct CMC_DEF_ITER(SNAME) * iter);
 
 /* -------------------------------------------------------------------------
  * Source
  * ------------------------------------------------------------------------- */
-#define CMC_GENERATE_STACK_SOURCE(PFX, SNAME, V)                              \
+#define CMC_CMC_STACK_CORE_SOURCE_(PFX, SNAME, V)                             \
                                                                               \
     /* Implementation Detail Functions */                                     \
     /* None */                                                                \
                                                                               \
-    struct SNAME *PFX##_new(size_t capacity, struct SNAME##_fval *f_val)      \
+    struct SNAME *CMC_(PFX, _new)(size_t capacity,                            \
+                                  struct CMC_DEF_FVAL(SNAME) * f_val)         \
     {                                                                         \
         struct cmc_alloc_node *alloc = &cmc_alloc_node_default;               \
                                                                               \
@@ -208,7 +219,7 @@ static const char *cmc_string_fmt_stack = "struct %s<%s> "
                                                                               \
         _stack_->capacity = capacity;                                         \
         _stack_->count = 0;                                                   \
-        _stack_->flag = cmc_flags.OK;                                         \
+        _stack_->flag = CMC_FLAG_OK;                                          \
         _stack_->f_val = f_val;                                               \
         _stack_->alloc = alloc;                                               \
         _stack_->callbacks = NULL;                                            \
@@ -216,9 +227,9 @@ static const char *cmc_string_fmt_stack = "struct %s<%s> "
         return _stack_;                                                       \
     }                                                                         \
                                                                               \
-    struct SNAME *PFX##_new_custom(                                           \
-        size_t capacity, struct SNAME##_fval *f_val,                          \
-        struct cmc_alloc_node *alloc, struct cmc_callbacks *callbacks)        \
+    struct SNAME *CMC_(PFX, _new_custom)(                                     \
+        size_t capacity, struct CMC_DEF_FVAL(SNAME) * f_val,                  \
+        struct cmc_alloc_node * alloc, struct cmc_callbacks * callbacks)      \
     {                                                                         \
         if (capacity < 1)                                                     \
             return NULL;                                                      \
@@ -243,7 +254,7 @@ static const char *cmc_string_fmt_stack = "struct %s<%s> "
                                                                               \
         _stack_->capacity = capacity;                                         \
         _stack_->count = 0;                                                   \
-        _stack_->flag = cmc_flags.OK;                                         \
+        _stack_->flag = CMC_FLAG_OK;                                          \
         _stack_->f_val = f_val;                                               \
         _stack_->alloc = alloc;                                               \
         _stack_->callbacks = callbacks;                                       \
@@ -251,7 +262,7 @@ static const char *cmc_string_fmt_stack = "struct %s<%s> "
         return _stack_;                                                       \
     }                                                                         \
                                                                               \
-    void PFX##_clear(struct SNAME *_stack_)                                   \
+    void CMC_(PFX, _clear)(struct SNAME * _stack_)                            \
     {                                                                         \
         if (_stack_->f_val->free)                                             \
         {                                                                     \
@@ -262,10 +273,10 @@ static const char *cmc_string_fmt_stack = "struct %s<%s> "
         memset(_stack_->buffer, 0, sizeof(V) * _stack_->capacity);            \
                                                                               \
         _stack_->count = 0;                                                   \
-        _stack_->flag = cmc_flags.OK;                                         \
+        _stack_->flag = CMC_FLAG_OK;                                          \
     }                                                                         \
                                                                               \
-    void PFX##_free(struct SNAME *_stack_)                                    \
+    void CMC_(PFX, _free)(struct SNAME * _stack_)                             \
     {                                                                         \
         if (_stack_->f_val->free)                                             \
         {                                                                     \
@@ -277,8 +288,9 @@ static const char *cmc_string_fmt_stack = "struct %s<%s> "
         _stack_->alloc->free(_stack_);                                        \
     }                                                                         \
                                                                               \
-    void PFX##_customize(struct SNAME *_stack_, struct cmc_alloc_node *alloc, \
-                         struct cmc_callbacks *callbacks)                     \
+    void CMC_(PFX, _customize)(struct SNAME * _stack_,                        \
+                               struct cmc_alloc_node * alloc,                 \
+                               struct cmc_callbacks * callbacks)              \
     {                                                                         \
         if (!alloc)                                                           \
             _stack_->alloc = &cmc_alloc_node_default;                         \
@@ -287,20 +299,20 @@ static const char *cmc_string_fmt_stack = "struct %s<%s> "
                                                                               \
         _stack_->callbacks = callbacks;                                       \
                                                                               \
-        _stack_->flag = cmc_flags.OK;                                         \
+        _stack_->flag = CMC_FLAG_OK;                                          \
     }                                                                         \
                                                                               \
-    bool PFX##_push(struct SNAME *_stack_, V value)                           \
+    bool CMC_(PFX, _push)(struct SNAME * _stack_, V value)                    \
     {                                                                         \
-        if (PFX##_full(_stack_))                                              \
+        if (CMC_(PFX, _full)(_stack_))                                        \
         {                                                                     \
-            if (!PFX##_resize(_stack_, _stack_->capacity * 2))                \
+            if (!CMC_(PFX, _resize)(_stack_, _stack_->capacity * 2))          \
                 return false;                                                 \
         }                                                                     \
                                                                               \
         _stack_->buffer[_stack_->count++] = value;                            \
                                                                               \
-        _stack_->flag = cmc_flags.OK;                                         \
+        _stack_->flag = CMC_FLAG_OK;                                          \
                                                                               \
         if (_stack_->callbacks && _stack_->callbacks->create)                 \
             _stack_->callbacks->create();                                     \
@@ -308,17 +320,17 @@ static const char *cmc_string_fmt_stack = "struct %s<%s> "
         return true;                                                          \
     }                                                                         \
                                                                               \
-    bool PFX##_pop(struct SNAME *_stack_)                                     \
+    bool CMC_(PFX, _pop)(struct SNAME * _stack_)                              \
     {                                                                         \
-        if (PFX##_empty(_stack_))                                             \
+        if (CMC_(PFX, _empty)(_stack_))                                       \
         {                                                                     \
-            _stack_->flag = cmc_flags.EMPTY;                                  \
+            _stack_->flag = CMC_FLAG_EMPTY;                                   \
             return false;                                                     \
         }                                                                     \
                                                                               \
         _stack_->buffer[--_stack_->count] = (V){ 0 };                         \
                                                                               \
-        _stack_->flag = cmc_flags.OK;                                         \
+        _stack_->flag = CMC_FLAG_OK;                                          \
                                                                               \
         if (_stack_->callbacks && _stack_->callbacks->delete)                 \
             _stack_->callbacks->delete ();                                    \
@@ -326,15 +338,15 @@ static const char *cmc_string_fmt_stack = "struct %s<%s> "
         return true;                                                          \
     }                                                                         \
                                                                               \
-    V PFX##_top(struct SNAME *_stack_)                                        \
+    V CMC_(PFX, _top)(struct SNAME * _stack_)                                 \
     {                                                                         \
-        if (PFX##_empty(_stack_))                                             \
+        if (CMC_(PFX, _empty)(_stack_))                                       \
         {                                                                     \
-            _stack_->flag = cmc_flags.EMPTY;                                  \
+            _stack_->flag = CMC_FLAG_EMPTY;                                   \
             return (V){ 0 };                                                  \
         }                                                                     \
                                                                               \
-        _stack_->flag = cmc_flags.OK;                                         \
+        _stack_->flag = CMC_FLAG_OK;                                          \
                                                                               \
         if (_stack_->callbacks && _stack_->callbacks->read)                   \
             _stack_->callbacks->read();                                       \
@@ -342,9 +354,9 @@ static const char *cmc_string_fmt_stack = "struct %s<%s> "
         return _stack_->buffer[_stack_->count - 1];                           \
     }                                                                         \
                                                                               \
-    bool PFX##_contains(struct SNAME *_stack_, V value)                       \
+    bool CMC_(PFX, _contains)(struct SNAME * _stack_, V value)                \
     {                                                                         \
-        _stack_->flag = cmc_flags.OK;                                         \
+        _stack_->flag = CMC_FLAG_OK;                                          \
                                                                               \
         bool result = false;                                                  \
                                                                               \
@@ -363,39 +375,39 @@ static const char *cmc_string_fmt_stack = "struct %s<%s> "
         return result;                                                        \
     }                                                                         \
                                                                               \
-    bool PFX##_empty(struct SNAME *_stack_)                                   \
+    bool CMC_(PFX, _empty)(struct SNAME * _stack_)                            \
     {                                                                         \
         return _stack_->count == 0;                                           \
     }                                                                         \
                                                                               \
-    bool PFX##_full(struct SNAME *_stack_)                                    \
+    bool CMC_(PFX, _full)(struct SNAME * _stack_)                             \
     {                                                                         \
         return _stack_->count >= _stack_->capacity;                           \
     }                                                                         \
                                                                               \
-    size_t PFX##_count(struct SNAME *_stack_)                                 \
+    size_t CMC_(PFX, _count)(struct SNAME * _stack_)                          \
     {                                                                         \
         return _stack_->count;                                                \
     }                                                                         \
                                                                               \
-    size_t PFX##_capacity(struct SNAME *_stack_)                              \
+    size_t CMC_(PFX, _capacity)(struct SNAME * _stack_)                       \
     {                                                                         \
         return _stack_->capacity;                                             \
     }                                                                         \
                                                                               \
-    int PFX##_flag(struct SNAME *_stack_)                                     \
+    int CMC_(PFX, _flag)(struct SNAME * _stack_)                              \
     {                                                                         \
         return _stack_->flag;                                                 \
     }                                                                         \
                                                                               \
-    bool PFX##_resize(struct SNAME *_stack_, size_t capacity)                 \
+    bool CMC_(PFX, _resize)(struct SNAME * _stack_, size_t capacity)          \
     {                                                                         \
         if (_stack_->capacity == capacity)                                    \
             goto success;                                                     \
                                                                               \
         if (capacity < _stack_->count)                                        \
         {                                                                     \
-            _stack_->flag = cmc_flags.INVALID;                                \
+            _stack_->flag = CMC_FLAG_INVALID;                                 \
             return false;                                                     \
         }                                                                     \
                                                                               \
@@ -404,7 +416,7 @@ static const char *cmc_string_fmt_stack = "struct %s<%s> "
                                                                               \
         if (!new_buffer)                                                      \
         {                                                                     \
-            _stack_->flag = cmc_flags.ALLOC;                                  \
+            _stack_->flag = CMC_FLAG_ALLOC;                                   \
             return false;                                                     \
         }                                                                     \
                                                                               \
@@ -415,7 +427,7 @@ static const char *cmc_string_fmt_stack = "struct %s<%s> "
                                                                               \
     success:                                                                  \
                                                                               \
-        _stack_->flag = cmc_flags.OK;                                         \
+        _stack_->flag = CMC_FLAG_OK;                                          \
                                                                               \
         if (_stack_->callbacks && _stack_->callbacks->resize)                 \
             _stack_->callbacks->resize();                                     \
@@ -423,15 +435,15 @@ static const char *cmc_string_fmt_stack = "struct %s<%s> "
         return true;                                                          \
     }                                                                         \
                                                                               \
-    struct SNAME *PFX##_copy_of(struct SNAME *_stack_)                        \
+    struct SNAME *CMC_(PFX, _copy_of)(struct SNAME * _stack_)                 \
     {                                                                         \
         struct SNAME *result =                                                \
-            PFX##_new_custom(_stack_->capacity, _stack_->f_val,               \
-                             _stack_->alloc, _stack_->callbacks);             \
+            CMC_(PFX, _new_custom)(_stack_->capacity, _stack_->f_val,         \
+                                   _stack_->alloc, _stack_->callbacks);       \
                                                                               \
         if (!result)                                                          \
         {                                                                     \
-            _stack_->flag = cmc_flags.ERROR;                                  \
+            _stack_->flag = CMC_FLAG_ERROR;                                   \
             return NULL;                                                      \
         }                                                                     \
                                                                               \
@@ -446,15 +458,15 @@ static const char *cmc_string_fmt_stack = "struct %s<%s> "
                                                                               \
         result->count = _stack_->count;                                       \
                                                                               \
-        _stack_->flag = cmc_flags.OK;                                         \
+        _stack_->flag = CMC_FLAG_OK;                                          \
                                                                               \
         return result;                                                        \
     }                                                                         \
                                                                               \
-    bool PFX##_equals(struct SNAME *_stack1_, struct SNAME *_stack2_)         \
+    bool CMC_(PFX, _equals)(struct SNAME * _stack1_, struct SNAME * _stack2_) \
     {                                                                         \
-        _stack1_->flag = cmc_flags.OK;                                        \
-        _stack2_->flag = cmc_flags.OK;                                        \
+        _stack1_->flag = CMC_FLAG_OK;                                         \
+        _stack2_->flag = CMC_FLAG_OK;                                         \
                                                                               \
         if (_stack1_->count != _stack2_->count)                               \
             return false;                                                     \
@@ -469,19 +481,19 @@ static const char *cmc_string_fmt_stack = "struct %s<%s> "
         return true;                                                          \
     }                                                                         \
                                                                               \
-    struct cmc_string PFX##_to_string(struct SNAME *_stack_)                  \
+    struct cmc_string CMC_(PFX, _to_string)(struct SNAME * _stack_)           \
     {                                                                         \
         struct cmc_string str;                                                \
         struct SNAME *s_ = _stack_;                                           \
                                                                               \
-        int n = snprintf(str.s, cmc_string_len, cmc_string_fmt_stack, #SNAME, \
-                         #V, s_, s_->buffer, s_->capacity, s_->count,         \
+        int n = snprintf(str.s, cmc_string_len, cmc_cmc_string_fmt_stack,     \
+                         #SNAME, #V, s_, s_->buffer, s_->capacity, s_->count, \
                          s_->flag, s_->f_val, s_->alloc, s_->callbacks);      \
                                                                               \
         return n >= 0 ? str : (struct cmc_string){ 0 };                       \
     }                                                                         \
                                                                               \
-    bool PFX##_print(struct SNAME *_stack_, FILE *fptr)                       \
+    bool CMC_(PFX, _print)(struct SNAME * _stack_, FILE * fptr)               \
     {                                                                         \
         for (size_t i = 0; i < _stack_->count; i++)                           \
         {                                                                     \
@@ -492,50 +504,50 @@ static const char *cmc_string_fmt_stack = "struct %s<%s> "
         return true;                                                          \
     }                                                                         \
                                                                               \
-    struct SNAME##_iter PFX##_iter_start(struct SNAME *target)                \
+    struct CMC_DEF_ITER(SNAME) CMC_(PFX, _iter_start)(struct SNAME * target)  \
     {                                                                         \
-        struct SNAME##_iter iter;                                             \
+        struct CMC_DEF_ITER(SNAME) iter;                                      \
                                                                               \
         iter.target = target;                                                 \
         iter.cursor = 0;                                                      \
         iter.start = true;                                                    \
-        iter.end = PFX##_empty(target);                                       \
+        iter.end = CMC_(PFX, _empty)(target);                                 \
                                                                               \
-        if (!PFX##_empty(target))                                             \
+        if (!CMC_(PFX, _empty)(target))                                       \
             iter.cursor = target->count - 1;                                  \
                                                                               \
         return iter;                                                          \
     }                                                                         \
                                                                               \
-    struct SNAME##_iter PFX##_iter_end(struct SNAME *target)                  \
+    struct CMC_DEF_ITER(SNAME) CMC_(PFX, _iter_end)(struct SNAME * target)    \
     {                                                                         \
-        struct SNAME##_iter iter;                                             \
+        struct CMC_DEF_ITER(SNAME) iter;                                      \
                                                                               \
         iter.target = target;                                                 \
         iter.cursor = 0;                                                      \
-        iter.start = PFX##_empty(target);                                     \
+        iter.start = CMC_(PFX, _empty)(target);                               \
         iter.end = true;                                                      \
                                                                               \
         return iter;                                                          \
     }                                                                         \
                                                                               \
-    bool PFX##_iter_at_start(struct SNAME##_iter *iter)                       \
+    bool CMC_(PFX, _iter_at_start)(struct CMC_DEF_ITER(SNAME) * iter)         \
     {                                                                         \
-        return PFX##_empty(iter->target) || iter->start;                      \
+        return CMC_(PFX, _empty)(iter->target) || iter->start;                \
     }                                                                         \
                                                                               \
-    bool PFX##_iter_at_end(struct SNAME##_iter *iter)                         \
+    bool CMC_(PFX, _iter_at_end)(struct CMC_DEF_ITER(SNAME) * iter)           \
     {                                                                         \
-        return PFX##_empty(iter->target) || iter->end;                        \
+        return CMC_(PFX, _empty)(iter->target) || iter->end;                  \
     }                                                                         \
                                                                               \
-    bool PFX##_iter_to_start(struct SNAME##_iter *iter)                       \
+    bool CMC_(PFX, _iter_to_start)(struct CMC_DEF_ITER(SNAME) * iter)         \
     {                                                                         \
-        if (!PFX##_empty(iter->target))                                       \
+        if (!CMC_(PFX, _empty)(iter->target))                                 \
         {                                                                     \
             iter->cursor = iter->target->count - 1;                           \
             iter->start = true;                                               \
-            iter->end = PFX##_empty(iter->target);                            \
+            iter->end = CMC_(PFX, _empty)(iter->target);                      \
                                                                               \
             return true;                                                      \
         }                                                                     \
@@ -543,12 +555,12 @@ static const char *cmc_string_fmt_stack = "struct %s<%s> "
         return false;                                                         \
     }                                                                         \
                                                                               \
-    bool PFX##_iter_to_end(struct SNAME##_iter *iter)                         \
+    bool CMC_(PFX, _iter_to_end)(struct CMC_DEF_ITER(SNAME) * iter)           \
     {                                                                         \
-        if (!PFX##_empty(iter->target))                                       \
+        if (!CMC_(PFX, _empty)(iter->target))                                 \
         {                                                                     \
             iter->cursor = 0;                                                 \
-            iter->start = PFX##_empty(iter->target);                          \
+            iter->start = CMC_(PFX, _empty)(iter->target);                    \
             iter->end = true;                                                 \
                                                                               \
             return true;                                                      \
@@ -557,7 +569,7 @@ static const char *cmc_string_fmt_stack = "struct %s<%s> "
         return false;                                                         \
     }                                                                         \
                                                                               \
-    bool PFX##_iter_next(struct SNAME##_iter *iter)                           \
+    bool CMC_(PFX, _iter_next)(struct CMC_DEF_ITER(SNAME) * iter)             \
     {                                                                         \
         if (iter->end)                                                        \
             return false;                                                     \
@@ -568,14 +580,14 @@ static const char *cmc_string_fmt_stack = "struct %s<%s> "
             return false;                                                     \
         }                                                                     \
                                                                               \
-        iter->start = PFX##_empty(iter->target);                              \
+        iter->start = CMC_(PFX, _empty)(iter->target);                        \
                                                                               \
         iter->cursor--;                                                       \
                                                                               \
         return true;                                                          \
     }                                                                         \
                                                                               \
-    bool PFX##_iter_prev(struct SNAME##_iter *iter)                           \
+    bool CMC_(PFX, _iter_prev)(struct CMC_DEF_ITER(SNAME) * iter)             \
     {                                                                         \
         if (iter->start)                                                      \
             return false;                                                     \
@@ -586,7 +598,7 @@ static const char *cmc_string_fmt_stack = "struct %s<%s> "
             return false;                                                     \
         }                                                                     \
                                                                               \
-        iter->end = PFX##_empty(iter->target);                                \
+        iter->end = CMC_(PFX, _empty)(iter->target);                          \
                                                                               \
         iter->cursor++;                                                       \
                                                                               \
@@ -594,7 +606,8 @@ static const char *cmc_string_fmt_stack = "struct %s<%s> "
     }                                                                         \
                                                                               \
     /* Returns true only if the iterator moved */                             \
-    bool PFX##_iter_advance(struct SNAME##_iter *iter, size_t steps)          \
+    bool CMC_(PFX, _iter_advance)(struct CMC_DEF_ITER(SNAME) * iter,          \
+                                  size_t steps)                               \
     {                                                                         \
         if (iter->end)                                                        \
             return false;                                                     \
@@ -608,7 +621,7 @@ static const char *cmc_string_fmt_stack = "struct %s<%s> "
         if (steps == 0 || iter->cursor < steps)                               \
             return false;                                                     \
                                                                               \
-        iter->start = PFX##_empty(iter->target);                              \
+        iter->start = CMC_(PFX, _empty)(iter->target);                        \
                                                                               \
         iter->cursor -= steps;                                                \
                                                                               \
@@ -616,7 +629,8 @@ static const char *cmc_string_fmt_stack = "struct %s<%s> "
     }                                                                         \
                                                                               \
     /* Returns true only if the iterator moved */                             \
-    bool PFX##_iter_rewind(struct SNAME##_iter *iter, size_t steps)           \
+    bool CMC_(PFX, _iter_rewind)(struct CMC_DEF_ITER(SNAME) * iter,           \
+                                 size_t steps)                                \
     {                                                                         \
         if (iter->start)                                                      \
             return false;                                                     \
@@ -630,7 +644,7 @@ static const char *cmc_string_fmt_stack = "struct %s<%s> "
         if (steps == 0 || iter->cursor + steps >= iter->target->count)        \
             return false;                                                     \
                                                                               \
-        iter->end = PFX##_empty(iter->target);                                \
+        iter->end = CMC_(PFX, _empty)(iter->target);                          \
                                                                               \
         iter->cursor += steps;                                                \
                                                                               \
@@ -639,41 +653,42 @@ static const char *cmc_string_fmt_stack = "struct %s<%s> "
                                                                               \
     /* Returns true only if the iterator was able to be positioned at the */  \
     /* given index */                                                         \
-    bool PFX##_iter_go_to(struct SNAME##_iter *iter, size_t index)            \
+    bool CMC_(PFX, _iter_go_to)(struct CMC_DEF_ITER(SNAME) * iter,            \
+                                size_t index)                                 \
     {                                                                         \
         if (index >= iter->target->count)                                     \
             return false;                                                     \
                                                                               \
         if (iter->cursor > index)                                             \
-            return PFX##_iter_advance(iter, iter->cursor - index);            \
+            return CMC_(PFX, _iter_advance)(iter, iter->cursor - index);      \
         else if (iter->cursor < index)                                        \
-            return PFX##_iter_rewind(iter, index - iter->cursor);             \
+            return CMC_(PFX, _iter_rewind)(iter, index - iter->cursor);       \
                                                                               \
         return true;                                                          \
     }                                                                         \
                                                                               \
-    V PFX##_iter_value(struct SNAME##_iter *iter)                             \
+    V CMC_(PFX, _iter_value)(struct CMC_DEF_ITER(SNAME) * iter)               \
     {                                                                         \
-        if (PFX##_empty(iter->target))                                        \
+        if (CMC_(PFX, _empty)(iter->target))                                  \
             return (V){ 0 };                                                  \
                                                                               \
         return iter->target->buffer[iter->cursor];                            \
     }                                                                         \
                                                                               \
-    V *PFX##_iter_rvalue(struct SNAME##_iter *iter)                           \
+    V *CMC_(PFX, _iter_rvalue)(struct CMC_DEF_ITER(SNAME) * iter)             \
     {                                                                         \
-        if (PFX##_empty(iter->target))                                        \
+        if (CMC_(PFX, _empty)(iter->target))                                  \
             return NULL;                                                      \
                                                                               \
         return &(iter->target->buffer[iter->cursor]);                         \
     }                                                                         \
                                                                               \
-    size_t PFX##_iter_index(struct SNAME##_iter *iter)                        \
+    size_t CMC_(PFX, _iter_index)(struct CMC_DEF_ITER(SNAME) * iter)          \
     {                                                                         \
-        if (PFX##_empty(iter->target))                                        \
+        if (CMC_(PFX, _empty)(iter->target))                                  \
             return 0;                                                         \
                                                                               \
         return iter->target->count - 1 - iter->cursor;                        \
     }
 
-#endif /* CMC_STACK_H */
+#endif /* CMC_CMC_STACK_H */

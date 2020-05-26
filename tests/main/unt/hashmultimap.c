@@ -48,7 +48,7 @@ CMC_CREATE_UNIT(HashMultiMap, true, {
         cmc_assert_not_equals(ptr, NULL, map->buffer);
         cmc_assert_equals(size_t, 0, map->count);
         cmc_assert_equals(double, 0.6, map->load);
-        cmc_assert_equals(int32_t, cmc_flags.OK, map->flag);
+        cmc_assert_equals(int32_t, CMC_FLAG_OK, map->flag);
         cmc_assert_equals(ptr, hmm_fkey, map->f_key);
         cmc_assert_equals(ptr, hmm_fval, map->f_val);
         cmc_assert_equals(ptr, &cmc_alloc_node_default, map->alloc);
@@ -94,7 +94,7 @@ CMC_CREATE_UNIT(HashMultiMap, true, {
         cmc_assert_not_equals(ptr, NULL, map->buffer);
         cmc_assert_equals(size_t, 0, map->count);
         cmc_assert_equals(double, 0.6, map->load);
-        cmc_assert_equals(int32_t, cmc_flags.OK, map->flag);
+        cmc_assert_equals(int32_t, CMC_FLAG_OK, map->flag);
         cmc_assert_equals(ptr, hmm_fkey, map->f_key);
         cmc_assert_equals(ptr, hmm_fval, map->f_val);
         cmc_assert_equals(ptr, hmm_alloc_node, map->alloc);
@@ -133,11 +133,11 @@ CMC_CREATE_UNIT(HashMultiMap, true, {
 
         cmc_assert_equals(size_t, 1000, map->count);
 
-        map->flag = cmc_flags.ERROR;
+        map->flag = CMC_FLAG_ERROR;
         hmm_clear(map);
 
         cmc_assert_equals(size_t, 0, map->count);
-        cmc_assert_equals(int32_t, cmc_flags.OK, map->flag);
+        cmc_assert_equals(int32_t, CMC_FLAG_OK, map->flag);
         cmc_assert_equals(int32_t, 1000, k_total_free);
         cmc_assert_equals(int32_t, 1000, v_total_free);
 
@@ -263,117 +263,117 @@ CMC_CREATE_UNIT(HashMultiMap, true, {
         struct hashmultimap *map = hmm_new(100, 0.8, hmm_fkey, hmm_fval);
 
         cmc_assert_not_equals(ptr, NULL, map);
-        cmc_assert_equals(int32_t, cmc_flags.OK, hmm_flag(map));
+        cmc_assert_equals(int32_t, CMC_FLAG_OK, hmm_flag(map));
 
         // clear
-        map->flag = cmc_flags.ERROR;
+        map->flag = CMC_FLAG_ERROR;
         hmm_clear(map);
-        cmc_assert_equals(int32_t, cmc_flags.OK, hmm_flag(map));
+        cmc_assert_equals(int32_t, CMC_FLAG_OK, hmm_flag(map));
 
         // customize
-        map->flag = cmc_flags.ERROR;
+        map->flag = CMC_FLAG_ERROR;
         hmm_customize(map, NULL, NULL);
-        cmc_assert_equals(int32_t, cmc_flags.OK, hmm_flag(map));
+        cmc_assert_equals(int32_t, CMC_FLAG_OK, hmm_flag(map));
 
         // insert
-        map->flag = cmc_flags.ERROR;
+        map->flag = CMC_FLAG_ERROR;
         cmc_assert(hmm_insert(map, 1, 1));
-        cmc_assert_equals(int32_t, cmc_flags.OK, hmm_flag(map));
+        cmc_assert_equals(int32_t, CMC_FLAG_OK, hmm_flag(map));
 
         // update
         cmc_assert(!hmm_update(map, 9, 10, NULL));
-        cmc_assert_equals(int32_t, cmc_flags.NOT_FOUND, hmm_flag(map));
+        cmc_assert_equals(int32_t, CMC_FLAG_NOT_FOUND, hmm_flag(map));
 
         cmc_assert(hmm_update(map, 1, 20, NULL));
-        cmc_assert_equals(int32_t, cmc_flags.OK, hmm_flag(map));
+        cmc_assert_equals(int32_t, CMC_FLAG_OK, hmm_flag(map));
 
         // update_all
-        map->flag = cmc_flags.ERROR;
+        map->flag = CMC_FLAG_ERROR;
         cmc_assert_equals(size_t, 1, hmm_update_all(map, 1, 2, NULL));
-        cmc_assert_equals(int32_t, cmc_flags.OK, hmm_flag(map));
+        cmc_assert_equals(int32_t, CMC_FLAG_OK, hmm_flag(map));
 
-        map->flag = cmc_flags.ERROR;
+        map->flag = CMC_FLAG_ERROR;
         cmc_assert_equals(size_t, 0, hmm_update_all(map, 2, 4, NULL));
-        cmc_assert_equals(int32_t, cmc_flags.NOT_FOUND, hmm_flag(map));
+        cmc_assert_equals(int32_t, CMC_FLAG_NOT_FOUND, hmm_flag(map));
 
         hmm_clear(map);
         cmc_assert_equals(size_t, 0, hmm_update_all(map, 1, 2, NULL));
-        cmc_assert_equals(int32_t, cmc_flags.EMPTY, hmm_flag(map));
+        cmc_assert_equals(int32_t, CMC_FLAG_EMPTY, hmm_flag(map));
 
         // remove
-        map->flag = cmc_flags.ERROR;
+        map->flag = CMC_FLAG_ERROR;
         cmc_assert(!hmm_remove(map, 1, NULL));
-        cmc_assert_equals(int32_t, cmc_flags.EMPTY, hmm_flag(map));
+        cmc_assert_equals(int32_t, CMC_FLAG_EMPTY, hmm_flag(map));
 
         cmc_assert(hmm_insert(map, 1, 1));
         cmc_assert(!hmm_remove(map, 2, NULL));
-        cmc_assert_equals(int32_t, cmc_flags.NOT_FOUND, hmm_flag(map));
+        cmc_assert_equals(int32_t, CMC_FLAG_NOT_FOUND, hmm_flag(map));
 
         cmc_assert(hmm_remove(map, 1, NULL));
-        cmc_assert_equals(int32_t, cmc_flags.OK, hmm_flag(map));
+        cmc_assert_equals(int32_t, CMC_FLAG_OK, hmm_flag(map));
 
         // remove_all
         cmc_assert(!hmm_remove_all(map, 1, NULL));
-        cmc_assert_equals(int32_t, cmc_flags.EMPTY, hmm_flag(map));
+        cmc_assert_equals(int32_t, CMC_FLAG_EMPTY, hmm_flag(map));
 
         cmc_assert(hmm_insert(map, 1, 1) && hmm_insert(map, 1, 1));
         cmc_assert_equals(size_t, 0, hmm_remove_all(map, 2, NULL));
-        cmc_assert_equals(int32_t, cmc_flags.NOT_FOUND, hmm_flag(map));
+        cmc_assert_equals(int32_t, CMC_FLAG_NOT_FOUND, hmm_flag(map));
 
         cmc_assert_equals(size_t, 2, hmm_remove_all(map, 1, NULL));
-        cmc_assert_equals(int32_t, cmc_flags.OK, hmm_flag(map));
+        cmc_assert_equals(int32_t, CMC_FLAG_OK, hmm_flag(map));
 
         // max min
         cmc_assert(!hmm_max(map, NULL, NULL));
-        cmc_assert_equals(int32_t, cmc_flags.EMPTY, hmm_flag(map));
-        map->flag = cmc_flags.ERROR;
+        cmc_assert_equals(int32_t, CMC_FLAG_EMPTY, hmm_flag(map));
+        map->flag = CMC_FLAG_ERROR;
         cmc_assert(!hmm_min(map, NULL, NULL));
-        cmc_assert_equals(int32_t, cmc_flags.EMPTY, hmm_flag(map));
+        cmc_assert_equals(int32_t, CMC_FLAG_EMPTY, hmm_flag(map));
 
         cmc_assert(hmm_insert(map, 1, 1));
         cmc_assert(hmm_max(map, NULL, NULL));
-        cmc_assert_equals(int32_t, cmc_flags.OK, hmm_flag(map));
-        map->flag = cmc_flags.ERROR;
+        cmc_assert_equals(int32_t, CMC_FLAG_OK, hmm_flag(map));
+        map->flag = CMC_FLAG_ERROR;
         cmc_assert(hmm_min(map, NULL, NULL));
-        cmc_assert_equals(int32_t, cmc_flags.OK, hmm_flag(map));
+        cmc_assert_equals(int32_t, CMC_FLAG_OK, hmm_flag(map));
 
         // get get_ref
         hmm_get(map, 2);
-        cmc_assert_equals(int32_t, cmc_flags.NOT_FOUND, hmm_flag(map));
-        map->flag = cmc_flags.ERROR;
+        cmc_assert_equals(int32_t, CMC_FLAG_NOT_FOUND, hmm_flag(map));
+        map->flag = CMC_FLAG_ERROR;
         hmm_get_ref(map, 2);
-        cmc_assert_equals(int32_t, cmc_flags.NOT_FOUND, hmm_flag(map));
+        cmc_assert_equals(int32_t, CMC_FLAG_NOT_FOUND, hmm_flag(map));
 
         hmm_get(map, 1);
-        cmc_assert_equals(int32_t, cmc_flags.OK, hmm_flag(map));
-        map->flag = cmc_flags.ERROR;
+        cmc_assert_equals(int32_t, CMC_FLAG_OK, hmm_flag(map));
+        map->flag = CMC_FLAG_ERROR;
         hmm_get_ref(map, 1);
-        cmc_assert_equals(int32_t, cmc_flags.OK, hmm_flag(map));
+        cmc_assert_equals(int32_t, CMC_FLAG_OK, hmm_flag(map));
 
         hmm_clear(map);
         hmm_get(map, 1);
-        cmc_assert_equals(int32_t, cmc_flags.EMPTY, hmm_flag(map));
-        map->flag = cmc_flags.ERROR;
+        cmc_assert_equals(int32_t, CMC_FLAG_EMPTY, hmm_flag(map));
+        map->flag = CMC_FLAG_ERROR;
         hmm_get_ref(map, 1);
-        cmc_assert_equals(int32_t, cmc_flags.EMPTY, hmm_flag(map));
+        cmc_assert_equals(int32_t, CMC_FLAG_EMPTY, hmm_flag(map));
 
         // contains
-        map->flag = cmc_flags.ERROR;
+        map->flag = CMC_FLAG_ERROR;
         cmc_assert(!hmm_contains(map, 1000));
-        cmc_assert_equals(int32_t, cmc_flags.OK, hmm_flag(map));
+        cmc_assert_equals(int32_t, CMC_FLAG_OK, hmm_flag(map));
 
         // copy_of
-        map->flag = cmc_flags.ERROR;
+        map->flag = CMC_FLAG_ERROR;
         struct hashmultimap *map2 = hmm_copy_of(map);
-        cmc_assert_equals(int32_t, cmc_flags.OK, hmm_flag(map));
-        cmc_assert_equals(int32_t, cmc_flags.OK, hmm_flag(map2));
+        cmc_assert_equals(int32_t, CMC_FLAG_OK, hmm_flag(map));
+        cmc_assert_equals(int32_t, CMC_FLAG_OK, hmm_flag(map2));
 
         // equals
-        map->flag = cmc_flags.ERROR;
-        map2->flag = cmc_flags.ERROR;
+        map->flag = CMC_FLAG_ERROR;
+        map2->flag = CMC_FLAG_ERROR;
         cmc_assert(hmm_equals(map, map2));
-        cmc_assert_equals(int32_t, cmc_flags.OK, hmm_flag(map));
-        cmc_assert_equals(int32_t, cmc_flags.OK, hmm_flag(map2));
+        cmc_assert_equals(int32_t, CMC_FLAG_OK, hmm_flag(map));
+        cmc_assert_equals(int32_t, CMC_FLAG_OK, hmm_flag(map2));
 
         hmm_free(map);
         hmm_free(map2);

@@ -12,8 +12,8 @@
  *  Simple timer macros utility for timing code execution.
  */
 
-#ifndef CMC_TIMER_H
-#define CMC_TIMER_H
+#ifndef CMC_UTL_TIMER_H
+#define CMC_UTL_TIMER_H
 
 #include <time.h>
 
@@ -40,4 +40,4 @@ struct cmc_timer
             (double)(t__->stop - t__->start) * 1000.0 / CLOCKS_PER_SEC; \
     } while (0)
 
-#endif /* CMC_TIMER_H */
+#endif /* CMC_UTL_TIMER_H */
