@@ -1,6 +1,7 @@
 # A script that automatically expands the macros for code coverage
 
 import os
+import sys
 import re
 import subprocess
 
@@ -25,22 +26,22 @@ OUTPUT_DIR = './tests/main/src'
 
 collections = [
     # type, header, pfx, sname, key, val
-    {'t': 'BITSET',       'h': '"cmc/bitset.h"',       'pfx': 'bs',  'sname': 'bitset',       'key': '',       'val': ''      },
-    {'t': 'DEQUE',        'h': '"cmc/deque.h"',        'pfx': 'd',   'sname': 'deque',        'key': '',       'val': 'size_t'},
-    {'t': 'HASHBIDIMAP',  'h': '"cmc/hashbidimap.h"',  'pfx': 'hbm', 'sname': 'hashbidimap',  'key': 'size_t', 'val': 'size_t'},
-    {'t': 'HASHMAP',      'h': '"cmc/hashmap.h"',      'pfx': 'hm',  'sname': 'hashmap',      'key': 'size_t', 'val': 'size_t'},
-    {'t': 'HASHMULTIMAP', 'h': '"cmc/hashmultimap.h"', 'pfx': 'hmm', 'sname': 'hashmultimap', 'key': 'size_t', 'val': 'size_t'},
-    {'t': 'HASHMULTISET', 'h': '"cmc/hashmultiset.h"', 'pfx': 'hms', 'sname': 'hashmultiset', 'key': '',       'val': 'size_t'},
-    {'t': 'HASHSET',      'h': '"cmc/hashset.h"',      'pfx': 'hs',  'sname': 'hashset',      'key': '',       'val': 'size_t'},
-    {'t': 'HEAP',         'h': '"cmc/heap.h"',         'pfx': 'h',   'sname': 'heap',         'key': '',       'val': 'size_t'},
-    {'t': 'INTERVALHEAP', 'h': '"cmc/intervalheap.h"', 'pfx': 'ih',  'sname': 'intervalheap', 'key': '',       'val': 'size_t'},
-    {'t': 'LINKEDLIST',   'h': '"cmc/linkedlist.h"',   'pfx': 'll',  'sname': 'linkedlist',   'key': '',       'val': 'size_t'},
-    {'t': 'LIST',         'h': '"cmc/list.h"',         'pfx': 'l',   'sname': 'list',         'key': '',       'val': 'size_t'},
-    {'t': 'QUEUE',        'h': '"cmc/queue.h"',        'pfx': 'q',   'sname': 'queue',        'key': '',       'val': 'size_t'},
-    {'t': 'SORTEDLIST',   'h': '"cmc/sortedlist.h"',   'pfx': 'sl',  'sname': 'sortedlist',   'key': '',       'val': 'size_t'},
-    {'t': 'STACK',        'h': '"cmc/stack.h"',        'pfx': 's',   'sname': 'stack',        'key': '',       'val': 'size_t'},
-    {'t': 'TREEMAP',      'h': '"cmc/treemap.h"',      'pfx': 'tm',  'sname': 'treemap',      'key': 'size_t', 'val': 'size_t'},
-    {'t': 'TREESET',      'h': '"cmc/treeset.h"',      'pfx': 'ts',  'sname': 'treeset',      'key': '',       'val': 'size_t'}
+    {'h': '"cmc/bitset.h"',       'LIB': 'CMC', 'COLLECTION': 'BITSET',       'PFX': 'bs',  'SNAME': 'bitset',       'SIZE': '', 'K': '',       'V': ''      },
+    {'h': '"cmc/deque.h"',        'LIB': 'CMC', 'COLLECTION': 'DEQUE',        'PFX': 'd',   'SNAME': 'deque',        'SIZE': '', 'K': '',       'V': 'size_t'},
+    {'h': '"cmc/hashbidimap.h"',  'LIB': 'CMC', 'COLLECTION': 'HASHBIDIMAP',  'PFX': 'hbm', 'SNAME': 'hashbidimap',  'SIZE': '', 'K': 'size_t', 'V': 'size_t'},
+    {'h': '"cmc/hashmap.h"',      'LIB': 'CMC', 'COLLECTION': 'HASHMAP',      'PFX': 'hm',  'SNAME': 'hashmap',      'SIZE': '', 'K': 'size_t', 'V': 'size_t'},
+    {'h': '"cmc/hashmultimap.h"', 'LIB': 'CMC', 'COLLECTION': 'HASHMULTIMAP', 'PFX': 'hmm', 'SNAME': 'hashmultimap', 'SIZE': '', 'K': 'size_t', 'V': 'size_t'},
+    {'h': '"cmc/hashmultiset.h"', 'LIB': 'CMC', 'COLLECTION': 'HASHMULTISET', 'PFX': 'hms', 'SNAME': 'hashmultiset', 'SIZE': '', 'K': '',       'V': 'size_t'},
+    {'h': '"cmc/hashset.h"',      'LIB': 'CMC', 'COLLECTION': 'HASHSET',      'PFX': 'hs',  'SNAME': 'hashset',      'SIZE': '', 'K': '',       'V': 'size_t'},
+    {'h': '"cmc/heap.h"',         'LIB': 'CMC', 'COLLECTION': 'HEAP',         'PFX': 'h',   'SNAME': 'heap',         'SIZE': '', 'K': '',       'V': 'size_t'},
+    {'h': '"cmc/intervalheap.h"', 'LIB': 'CMC', 'COLLECTION': 'INTERVALHEAP', 'PFX': 'ih',  'SNAME': 'intervalheap', 'SIZE': '', 'K': '',       'V': 'size_t'},
+    {'h': '"cmc/linkedlist.h"',   'LIB': 'CMC', 'COLLECTION': 'LINKEDLIST',   'PFX': 'll',  'SNAME': 'linkedlist',   'SIZE': '', 'K': '',       'V': 'size_t'},
+    {'h': '"cmc/list.h"',         'LIB': 'CMC', 'COLLECTION': 'LIST',         'PFX': 'l',   'SNAME': 'list',         'SIZE': '', 'K': '',       'V': 'size_t'},
+    {'h': '"cmc/queue.h"',        'LIB': 'CMC', 'COLLECTION': 'QUEUE',        'PFX': 'q',   'SNAME': 'queue',        'SIZE': '', 'K': '',       'V': 'size_t'},
+    {'h': '"cmc/sortedlist.h"',   'LIB': 'CMC', 'COLLECTION': 'SORTEDLIST',   'PFX': 'sl',  'SNAME': 'sortedlist',   'SIZE': '', 'K': '',       'V': 'size_t'},
+    {'h': '"cmc/stack.h"',        'LIB': 'CMC', 'COLLECTION': 'STACK',        'PFX': 's',   'SNAME': 'stack',        'SIZE': '', 'K': '',       'V': 'size_t'},
+    {'h': '"cmc/treemap.h"',      'LIB': 'CMC', 'COLLECTION': 'TREEMAP',      'PFX': 'tm',  'SNAME': 'treemap',      'SIZE': '', 'K': 'size_t', 'V': 'size_t'},
+    {'h': '"cmc/treeset.h"',      'LIB': 'CMC', 'COLLECTION': 'TREESET',      'PFX': 'ts',  'SNAME': 'treeset',      'SIZE': '', 'K': '',       'V': 'size_t'}
 ]
 
 # Create output directory
@@ -50,23 +51,13 @@ if not os.path.exists(OUTPUT_DIR):
 for data in collections:
     file = open(TMP_FILE, 'w')
 
-    if data['key'] == '' and data['val'] == '':
-        # bitset, no K and no V
-        type_params = ''
-    elif data['key'] != '':
-        # maps, K and V
-        type_params = f', {data["key"]}, {data["val"]}'
-    else:
-        # only V
-        type_params = f', {data["val"]}'
-
     file.write(
     f'''
     #include {data['h']}
 
     {UNIQUE_FLAG}
 
-    CMC_GENERATE_{data['t']}({data['pfx']}, {data['sname']}{type_params})
+    CMC_{data['LIB']}_{data['COLLECTION']}_CORE(({', '.join([data['PFX'], data['SNAME'], data['SIZE'], data['K'], data['V']])}))
 
     {UNIQUE_FLAG}
     ''')
@@ -81,24 +72,24 @@ for data in collections:
 
     if match is None:
         os.remove(TMP_FILE)
-        print('Didn\'t match FLAG. Probably because compilation failed.')
+        print('Didn\'t match FLAG. Probably because compilation failed.', file=sys.stderr)
         exit(1)
 
-    file = open(f'{OUTPUT_DIR}/{data["sname"]}.c', 'w')
+    file = open(f'{OUTPUT_DIR}/{data["SNAME"]}.c', 'w')
 
     file.write(
-    f'''#ifndef CMC_TEST_SRC_{data['t']}
-        #define CMC_TEST_SRC_{data['t']}
+    f'''#ifndef CMC_TEST_SRC_{data['COLLECTION']}
+        #define CMC_TEST_SRC_{data['COLLECTION']}
 
         #include {data["h"]}\n{match.group("code")}
 
-        #endif /* CMC_TEST_SRC_{data['t']} */
+        #endif /* CMC_TEST_SRC_{data['COLLECTION']} */
     ''')
 
     file.flush()
     file.close()
 
-    print(f'Generated {data["h"]: >20} -> {OUTPUT_DIR}/{data["sname"]}.c')
+    print(f'Generated {data["h"]: >20} -> {OUTPUT_DIR}/{data["SNAME"]}.c')
 
 os.remove(TMP_FILE)
 
