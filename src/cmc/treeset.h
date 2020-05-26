@@ -676,10 +676,9 @@ static const char *cmc_cmc_string_fmt_treeset = "struct %s<%s> "
             {                                                                  \
                 if (_set_->f_val->cpy)                                         \
                     CMC_(PFX, _insert)                                         \
-                    (result,                                                   \
-                     _set_->f_val->cpy(CMC_(PFX, _iter_value)(&iter)));        \
-                else                                                           \
-                    CMC_(PFX, _insert)(result, CMC_(PFX, _iter_value)(&iter)); \
+                (result, _set_->f_val->cpy(CMC_(PFX, _iter_value)(&iter)));    \
+                else CMC_(PFX, _insert)(result,                                \
+                                        CMC_(PFX, _iter_value)(&iter));        \
             }                                                                  \
         }                                                                      \
                                                                                \

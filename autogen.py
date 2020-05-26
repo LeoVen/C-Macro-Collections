@@ -95,5 +95,5 @@ os.remove(TMP_FILE)
 
 # Format all files
 print('Formating files...')
-subprocess.call(['clang-format', '--style=file', '-i', f'{OUTPUT_DIR}/*.c'])
+subprocess.call(['clang-format', '--style=file', '-i', f'{OUTPUT_DIR}/*.c', '--verbose'])
 print('Done')
