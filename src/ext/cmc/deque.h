@@ -1,7 +1,7 @@
 /**
  * deque.h
  *
- * Creation Date: 25/05/2019
+ * Creation Date: 25/05/2020
  *
  * Authors:
  * Leonardo Vencovsky (https://github.com/LeoVen)
@@ -17,7 +17,9 @@
 #ifndef CMC_EXT_CMC_DEQUE_H
 #define CMC_EXT_CMC_DEQUE_H
 
-#include "../../cor/params.h"
+#include "../../cor/core.h"
+
+#define CMC_EXT_CMC_DEQUE_PARTS INIT,
 
 /**
  * INIT

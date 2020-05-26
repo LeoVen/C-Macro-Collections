@@ -60,25 +60,8 @@
 #define CMC_DEF_FKEY(SNAME) CMC_(SNAME, CMC_INTERNAL_PREFIX_FKEY)
 
 /**
- * A PARAM is a unified way to pass arguments to all macros that generate code.
- * It is a tuple that contains the following parameters in order:
- *
- *   PFX - Functions prefix
- * SNAME - `struct` name
- *  SIZE - Size for SAC library
- *     K - Key type
- *     V - Value type
- *
- * PARAM := (PFX, SNAME, SIZE, K, V)
+ * Code to get specific arguments from tuples.
  */
-
-// clang-format off
-/*
-for i in range(5):
-    print(f"#define CMC_TUP_{i}_({', '.join(chr(x) for x in range(65, 65 + i + 1))}, ...) {chr(65 + i)}\n#define CMC_TUP_{i}(TUP) CMC_TUP_{i}_ TUP")
-*/
-// clang-format on
-
 #define CMC_TUP_0_(A, ...) A
 #define CMC_TUP_0(TUP) CMC_TUP_0_ TUP
 #define CMC_TUP_1_(A, B, ...) B
@@ -90,6 +73,18 @@ for i in range(5):
 #define CMC_TUP_4_(A, B, C, D, E, ...) E
 #define CMC_TUP_4(TUP) CMC_TUP_4_ TUP
 
+/**
+ * A PARAM is a unified way to pass arguments to all macros that generate code.
+ * It is a tuple that contains the following parameters in order:
+ *
+ *   PFX - Functions prefix
+ * SNAME - `struct` name
+ *  SIZE - Size for SAC library
+ *     K - Key type
+ *     V - Value type
+ *
+ * PARAM := (PFX, SNAME, SIZE, K, V)
+ */
 #define CMC_PARAM_PFX CMC_TUP_0
 #define CMC_PARAM_SNAME CMC_TUP_1
 #define CMC_PARAM_SIZE CMC_TUP_2
@@ -97,15 +92,25 @@ for i in range(5):
 #define CMC_PARAM_V CMC_TUP_4
 
 /**
- * struct cmc_string
+ * A __VA_ARGS__ argument counter. This argument counter is slightly shifted:
  *
- * Used by all collections when calling the to_string function.
+ * CMC_NARG(HELLO)         -> 0
+ * CMC_NARG(HELLO,)        -> 1
+ * CMC_NARG(HELLO, WORLD,) -> 2
  */
-struct cmc_string
-{
-    char s[400];
-};
-
-static const size_t cmc_string_len = 400;
+#define CMC_NARG(...) CMC_NARG_(__VA_ARGS__, CMC_SEQ_N())
+#define CMC_NARG_(...) CMC_ARG_N(__VA_ARGS__)
+#define CMC_ARG_N(_0, _1, _2, _3, _4, _5, _6, _7, _8, _9, _10, _11, _12, _13, \
+                  _14, _15, _16, _17, _18, _19, _20, _21, _22, _23, _24, _25, \
+                  _26, _27, _28, _29, _30, _31, _32, _33, _34, _35, _36, _37, \
+                  _38, _39, _40, _41, _42, _43, _44, _45, _46, _47, _48, _49, \
+                  _50, _51, _52, _53, _54, _55, _56, _57, _58, _59, _60, _61, \
+                  _62, _63, N, ...)                                           \
+    N
+#define CMC_SEQ_N()                                                         \
+    63, 62, 61, 60, 59, 58, 57, 56, 55, 54, 53, 52, 51, 50, 49, 48, 47, 46, \
+        45, 44, 43, 42, 41, 40, 39, 38, 37, 36, 35, 34, 33, 32, 31, 30, 29, \
+        28, 27, 26, 25, 24, 23, 22, 21, 20, 19, 18, 17, 16, 15, 14, 13, 12, \
+        11, 10, 9, 8, 7, 6, 5, 4, 3, 2, 1, 0
 
 #endif /* CMC_COR_CORE_H */

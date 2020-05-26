@@ -1,7 +1,7 @@
 /**
  * hashmap.h
  *
- * Creation Date: 25/05/2019
+ * Creation Date: 25/05/2020
  *
  * Authors:
  * Leonardo Vencovsky (https://github.com/LeoVen)
@@ -17,7 +17,9 @@
 #ifndef CMC_EXT_CMC_HASHMAP_H
 #define CMC_EXT_CMC_HASHMAP_H
 
-#include "../../cor/params.h"
+#include "../../cor/core.h"
+
+#define CMC_EXT_CMC_HASHMAP_PARTS INIT, ITER
 
 /**
  * INIT
