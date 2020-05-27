@@ -220,8 +220,6 @@ static const char *cmc_cmc_string_fmt_hashmap = "struct %s<%s, %s> "
     bool CMC_(PFX, _resize)(struct SNAME * _map_, size_t capacity);           \
     struct SNAME *CMC_(PFX, _copy_of)(struct SNAME * _map_);                  \
     bool CMC_(PFX, _equals)(struct SNAME * _map1_, struct SNAME * _map2_);    \
-    struct cmc_string CMC_(PFX, _to_string)(struct SNAME * _map_);            \
-    bool CMC_(PFX, _print)(struct SNAME * _map_, FILE * fptr);                \
                                                                               \
     /* Iterator Functions */                                                  \
     /* Iterator Initialization */                                             \
@@ -855,36 +853,6 @@ static const char *cmc_cmc_string_fmt_hashmap = "struct %s<%s, %s> "
             if (_map1_->f_val->cmp(entry->value,                               \
                                    CMC_(PFX, _iter_value)(&iter)) != 0)        \
                 return false;                                                  \
-        }                                                                      \
-                                                                               \
-        return true;                                                           \
-    }                                                                          \
-                                                                               \
-    struct cmc_string CMC_(PFX, _to_string)(struct SNAME * _map_)              \
-    {                                                                          \
-        struct cmc_string str;                                                 \
-        struct SNAME *m_ = _map_;                                              \
-                                                                               \
-        int n = snprintf(str.s, cmc_string_len, cmc_cmc_string_fmt_hashmap,    \
-                         #SNAME, #K, #V, m_, m_->buffer, m_->capacity,         \
-                         m_->count, m_->load, m_->flag, m_->f_key, m_->f_val,  \
-                         m_->alloc, m_->callbacks);                            \
-                                                                               \
-        return n >= 0 ? str : (struct cmc_string){ 0 };                        \
-    }                                                                          \
-                                                                               \
-    bool CMC_(PFX, _print)(struct SNAME * _map_, FILE * fptr)                  \
-    {                                                                          \
-        for (size_t i = 0; i < _map_->capacity; i++)                           \
-        {                                                                      \
-            struct CMC_DEF_ENTRY(SNAME) *entry = &(_map_->buffer[i]);          \
-                                                                               \
-            if (entry->state == CMC_ES_FILLED)                                 \
-            {                                                                  \
-                if (!_map_->f_key->str(fptr, entry->key) ||                    \
-                    !_map_->f_val->str(fptr, entry->value))                    \
-                    return false;                                              \
-            }                                                                  \
         }                                                                      \
                                                                                \
         return true;                                                           \

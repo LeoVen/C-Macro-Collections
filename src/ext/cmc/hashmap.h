@@ -8,18 +8,15 @@
  *
  */
 
-/**
- * Extensions to CMC<HashMap>
- *
- * - INIT
- */
-
 #ifndef CMC_EXT_CMC_HASHMAP_H
 #define CMC_EXT_CMC_HASHMAP_H
 
 #include "../../cor/core.h"
 
-#define CMC_EXT_CMC_HASHMAP_PARTS INIT, ITER
+/**
+ * All the EXT parts of CMC HashMap.
+ */
+#define CMC_EXT_CMC_HASHMAP_PARTS INIT, STR
 
 /**
  * INIT
@@ -91,13 +88,88 @@
         _map_.count = 0;                                                   \
         _map_.capacity = real_capacity;                                    \
         _map_.load = load;                                                 \
-        _map_.flag = cmc_flags.OK;                                         \
+        _map_.flag = CMC_FLAG_OK;                                          \
         _map_.f_key = f_key;                                               \
         _map_.f_val = f_val;                                               \
         _map_.alloc = alloc;                                               \
         _map_.callbacks = callbacks;                                       \
                                                                            \
         return _map_;                                                      \
+    }
+
+/**
+ * STR
+ *
+ * The part 'STR' gives a new way of initializing a collection. The collection
+ * struct is not heap allocated, only its internal structure (nodes, buffers).
+ */
+#define CMC_EXT_CMC_HASHMAP_STR(BODY)    \
+    CMC_EXT_CMC_HASHMAP_STR_HEADER(BODY) \
+    CMC_EXT_CMC_HASHMAP_STR_SOURCE(BODY)
+
+#define CMC_EXT_CMC_HASHMAP_STR_HEADER(BODY)             \
+    CMC_EXT_CMC_HASHMAP_STR_HEADER_(CMC_PARAM_PFX(BODY), \
+                                    CMC_PARAM_SNAME(BODY), CMC_PARAM_V(BODY))
+
+#define CMC_EXT_CMC_HASHMAP_STR_SOURCE(BODY)             \
+    CMC_EXT_CMC_HASHMAP_STR_SOURCE_(CMC_PARAM_PFX(BODY), \
+                                    CMC_PARAM_SNAME(BODY), CMC_PARAM_V(BODY))
+
+#define CMC_EXT_CMC_HASHMAP_STR_HEADER_(PFX, SNAME, V)               \
+                                                                     \
+    struct cmc_string CMC_(PFX, _to_string)(struct SNAME * _map_,    \
+                                            FILE * fptr);            \
+    bool CMC_(PFX, _print)(struct SNAME * _map_, FILE * fptr,        \
+                           const char *start, const char *separator, \
+                           const char *end)
+
+#define CMC_EXT_CMC_HASHMAP_STR_SOURCE_(PFX, SNAME, V)                        \
+                                                                              \
+    bool CMC_(PFX, _to_string)(struct SNAME * _map_, FILE * fptr)             \
+    {                                                                         \
+        struct SNAME *m_ = _map_;                                             \
+                                                                              \
+        return 0 <= fprintf(fptr, cmc_string_len, cmc_cmc_string_fmt_hashmap, \
+                            CMC_TO_STRING(SNAME), CMC_TO_STRING(K),           \
+                            CMC_TO_STRING(V), m_, m_->buffer, m_->capacity,   \
+                            m_->count, m_->load, m_->flag, m_->f_key,         \
+                            m_->f_val, m_->alloc, m_->callbacks);             \
+    }                                                                         \
+                                                                              \
+    bool CMC_(PFX, _print)(struct SNAME * _map_, FILE * fptr,                 \
+                           const char *start, const char *separator,          \
+                           const char *end)                                   \
+    {                                                                         \
+        fprintf(fptr, "%s", start);                                           \
+                                                                              \
+        size_t last = 0;                                                      \
+        for (size_t i = _map_->capacity; i > 0; i--)                          \
+        {                                                                     \
+            if ((_map_->buffer[i - 1]).state == CMC_ES_FILLED)                \
+            {                                                                 \
+                last = i - 1;                                                 \
+                break;                                                        \
+            }                                                                 \
+        }                                                                     \
+                                                                              \
+        for (size_t i = 0; i < _map_->capacity; i++)                          \
+        {                                                                     \
+            struct CMC_DEF_ENTRY(SNAME) *entry = &(_map_->buffer[i]);         \
+                                                                              \
+            if (entry->state == CMC_ES_FILLED)                                \
+            {                                                                 \
+                if (!_map_->f_key->str(fptr, entry->key) ||                   \
+                    !_map_->f_val->str(fptr, entry->value))                   \
+                    return false;                                             \
+            }                                                                 \
+                                                                              \
+            if (i + 1 < last)                                                 \
+                fprintf(fptr, "%s", separator);                               \
+        }                                                                     \
+                                                                              \
+        fprintf(fptr, "%s", end);                                             \
+                                                                              \
+        return true;                                                          \
     }
 
 #endif /* CMC_EXT_CMC_HASHMAP_H */
