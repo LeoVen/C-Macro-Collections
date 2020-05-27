@@ -77,7 +77,7 @@
 
 /* Gets the macro with all EXT parts of a collection */
 #define C_MACRO_COLLECTIONS_PARTS(LIB, COLLECTION) \
-    CMC_EXT_##LIB##_##COLLECTION##_PARTS
+    CMC_EXT_##LIB##_##COLLECTION##_PARTS,
 
 /**
  * A __VA_ARGS__ argument counter. This argument counter is slightly shifted:

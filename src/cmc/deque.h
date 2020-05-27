@@ -39,18 +39,6 @@
 /* -------------------------------------------------------------------------
  * Deque Specific
  * ------------------------------------------------------------------------- */
-/* to_string format */
-static const char *cmc_cmc_string_fmt_deque = "struct %s<%s> "
-                                              "at %p { "
-                                              "buffer:%p, "
-                                              "capacity:%" PRIuMAX ", "
-                                              "count:%" PRIuMAX ", "
-                                              "front:%" PRIuMAX ", "
-                                              "back:%" PRIuMAX ", "
-                                              "flag:%d, "
-                                              "f_val:%p, "
-                                              "alloc:%p, "
-                                              "callbacks:%p }";
 
 /**
  * Core Deque implementation

@@ -29,22 +29,6 @@
  * ------------------------------------------------------------------------- */
 #include "../cor/hashtable.h"
 
-/* -------------------------------------------------------------------------
- * HashMap Specific
- * ------------------------------------------------------------------------- */
-/* to_string format */
-static const char *cmc_cmc_string_fmt_hashmap = "struct %s<%s, %s> "
-                                                "at %p { "
-                                                "buffer:%p, "
-                                                "capacity:%" PRIuMAX ", "
-                                                "count:%" PRIuMAX ", "
-                                                "load:%lf, "
-                                                "flag:%d, "
-                                                "f_key:%p, "
-                                                "f_val:%p, "
-                                                "alloc:%p, "
-                                                "callbacks:%p }";
-
 /**
  * Core HashMap implementation
  */
