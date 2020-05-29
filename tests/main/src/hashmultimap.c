@@ -720,33 +720,6 @@ _Bool hmm_equals(struct hashmultimap *_map1_, struct hashmultimap *_map2_)
     }
     return 1;
 }
-struct cmc_string hmm_to_string(struct hashmultimap *_map_)
-{
-    struct cmc_string str;
-    struct hashmultimap *m_ = _map_;
-    int n = snprintf(str.s, cmc_string_len, cmc_cmc_string_fmt_hashmultimap,
-                     "CMC_PARAM_SNAME((hmm, hashmultimap, , size_t, size_t))",
-                     "CMC_PARAM_K((hmm, hashmultimap, , size_t, size_t))",
-                     "CMC_PARAM_V((hmm, hashmultimap, , size_t, size_t))", m_,
-                     m_->buffer, m_->capacity, m_->count, m_->load, m_->flag,
-                     m_->f_key, m_->f_val, m_->alloc, m_->callbacks);
-    return n >= 0 ? str : (struct cmc_string){ 0 };
-}
-_Bool hmm_print(struct hashmultimap *_map_, FILE *fptr)
-{
-    for (size_t i = 0; i < _map_->capacity; i++)
-    {
-        struct hashmultimap_entry *scan = _map_->buffer[i][0];
-        while (scan != ((void *)0))
-        {
-            if (!_map_->f_key->str(fptr, scan->key) ||
-                !_map_->f_val->str(fptr, scan->value))
-                return 0;
-            scan = scan->next;
-        }
-    }
-    return 1;
-}
 struct hashmultimap_iter hmm_iter_start(struct hashmultimap *target)
 {
     struct hashmultimap_iter iter;

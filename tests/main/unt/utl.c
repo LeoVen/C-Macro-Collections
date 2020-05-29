@@ -2,6 +2,15 @@
 #ifndef CMC_UNIT_TEST_UTL__
 #define CMC_UNIT_TEST_UTL__
 
+/**
+ * TEMPORARY
+ */
+struct cmc_string
+{
+    char s[400];
+};
+static const size_t cmc_string_len = 400;
+
 #include <inttypes.h>
 #include <stdbool.h>
 #include <stdlib.h>

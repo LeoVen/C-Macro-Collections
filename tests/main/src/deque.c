@@ -361,27 +361,6 @@ _Bool d_equals(struct deque *_deque1_, struct deque *_deque2_)
     }
     return 1;
 }
-struct cmc_string d_to_string(struct deque *_deque_)
-{
-    struct cmc_string str;
-    struct deque *d_ = _deque_;
-    int n = snprintf(str.s, cmc_string_len, cmc_cmc_string_fmt_deque,
-                     "CMC_PARAM_SNAME((d, deque, , , size_t))",
-                     "CMC_PARAM_V((d, deque, , , size_t))", d_, d_->buffer,
-                     d_->capacity, d_->count, d_->front, d_->back, d_->flag,
-                     d_->f_val, d_->alloc, d_->callbacks);
-    return n >= 0 ? str : (struct cmc_string){ 0 };
-}
-_Bool d_print(struct deque *_deque_, FILE *fptr)
-{
-    for (size_t i = _deque_->front, j = 0; j < _deque_->count; j++)
-    {
-        if (!_deque_->f_val->str(fptr, _deque_->buffer[i]))
-            return 0;
-        i = (i + 1) % _deque_->capacity;
-    }
-    return 1;
-}
 struct deque_iter d_iter_start(struct deque *target)
 {
     struct deque_iter iter;

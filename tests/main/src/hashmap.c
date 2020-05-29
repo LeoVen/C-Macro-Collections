@@ -552,32 +552,6 @@ _Bool hm_equals(struct hashmap *_map1_, struct hashmap *_map2_)
     }
     return 1;
 }
-struct cmc_string hm_to_string(struct hashmap *_map_)
-{
-    struct cmc_string str;
-    struct hashmap *m_ = _map_;
-    int n = snprintf(str.s, cmc_string_len, cmc_cmc_string_fmt_hashmap,
-                     "CMC_PARAM_SNAME((hm, hashmap, , size_t, size_t))",
-                     "CMC_PARAM_K((hm, hashmap, , size_t, size_t))",
-                     "CMC_PARAM_V((hm, hashmap, , size_t, size_t))", m_,
-                     m_->buffer, m_->capacity, m_->count, m_->load, m_->flag,
-                     m_->f_key, m_->f_val, m_->alloc, m_->callbacks);
-    return n >= 0 ? str : (struct cmc_string){ 0 };
-}
-_Bool hm_print(struct hashmap *_map_, FILE *fptr)
-{
-    for (size_t i = 0; i < _map_->capacity; i++)
-    {
-        struct hashmap_entry *entry = &(_map_->buffer[i]);
-        if (entry->state == CMC_ES_FILLED)
-        {
-            if (!_map_->f_key->str(fptr, entry->key) ||
-                !_map_->f_val->str(fptr, entry->value))
-                return 0;
-        }
-    }
-    return 1;
-}
 struct hashmap_iter hm_iter_start(struct hashmap *target)
 {
     struct hashmap_iter iter;

@@ -113,6 +113,7 @@ static const char *cmc_cmc_string_fmt_deque = "struct %s<%s> "
                                    CMC_PARAM_V(BODY))
 
 #define CMC_EXT_CMC_DEQUE_ITER_HEADER_(PFX, SNAME, V)                         \
+                                                                              \
     /* Deque Iterator */                                                      \
     struct CMC_DEF_ITER(SNAME)                                                \
     {                                                                         \
