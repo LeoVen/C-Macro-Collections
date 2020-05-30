@@ -50,6 +50,7 @@ static const char *cmc_cmc_string_fmt_hashmultimap = "struct %s<%s, %s> "
 
 #define CMC_EXT_CMC_HASHMULTIMAP_ITER_HEADER_(PFX, SNAME, K, V)               \
                                                                               \
+    /* HashMultiMap Iterator */                                               \
     struct CMC_DEF_ITER(SNAME)                                                \
     {                                                                         \
         /* Target hashmultimap */                                             \

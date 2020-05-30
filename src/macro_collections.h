@@ -40,6 +40,7 @@
 #include "ext/cmc/deque.h"        /* Added in 25/05/2020 */
 #include "ext/cmc/hashmap.h"      /* Added in 25/05/2020 */
 #include "ext/cmc/hashmultimap.h" /* Added in 29/05/2020 */
+#include "ext/cmc/hashmultiset.h" /* Added in 30/05/2020 */
 
 #include "utl/assert.h"           /* Added in 27/06/2019 */
 #include "utl/foreach.h"          /* Added in 25/02/2019 */

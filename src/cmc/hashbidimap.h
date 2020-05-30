@@ -1049,9 +1049,9 @@ static const char *cmc_cmc_string_fmt_hashbidimap = "struct %s<%s, %s> "
         {                                                                      \
             for (size_t i = 0; i < target->capacity; i++)                      \
             {                                                                  \
-                struct CMC_DEF_ENTRY(SNAME) *tmp = target->buffer[i][0];       \
+                struct CMC_DEF_ENTRY(SNAME) *entry = target->buffer[i][0];     \
                                                                                \
-                if (tmp != NULL && tmp != CMC_ENTRY_DELETED)                   \
+                if (entry && entry != CMC_ENTRY_DELETED)                       \
                 {                                                              \
                     iter->first = i;                                           \
                     break;                                                     \
@@ -1062,9 +1062,9 @@ static const char *cmc_cmc_string_fmt_hashbidimap = "struct %s<%s, %s> "
                                                                                \
             for (size_t i = target->capacity; i > 0; i--)                      \
             {                                                                  \
-                struct CMC_DEF_ENTRY(SNAME) *tmp = target->buffer[i - 1][0];   \
+                struct CMC_DEF_ENTRY(SNAME) *entry = target->buffer[i - 1][0]; \
                                                                                \
-                if (tmp != NULL && tmp != CMC_ENTRY_DELETED)                   \
+                if (entry && entry != CMC_ENTRY_DELETED)                       \
                 {                                                              \
                     iter->last = i - 1;                                        \
                     break;                                                     \
