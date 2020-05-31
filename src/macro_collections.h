@@ -8,6 +8,21 @@
  *
  */
 
+/**
+ * This file provides everything from the C Macro Collections library.
+ *
+ * Every data structure and features are available through this header. There is
+ * also three macros that can help you generate whichever Collection you need
+ * from any given sub-library. They are:
+ *
+ * - C_MACRO_COLLECTIONS
+ * - C_MACRO_COLLECTIONS_GEN
+ *     - C_MACRO_COLLECTIONS_GEN_HEADER
+ *     - C_MACRO_COLLECTIONS_GEN_SOURCE
+ * - C_MACRO_COLLECTIONS_ALL
+ *     - C_MACRO_COLLECTIONS_ALL_HEADER
+ *     - C_MACRO_COLLECTIONS_ALL_SOURCE
+ */
 #ifndef CMC_MACRO_COLLECTIONS_H
 #define CMC_MACRO_COLLECTIONS_H
 
@@ -41,6 +56,7 @@
 #include "ext/cmc/hashmap.h"      /* Added in 25/05/2020 */
 #include "ext/cmc/hashmultimap.h" /* Added in 29/05/2020 */
 #include "ext/cmc/hashmultiset.h" /* Added in 30/05/2020 */
+#include "ext/cmc/hashset.h"      /* Added in 31/05/2020 */
 
 #include "utl/assert.h"           /* Added in 27/06/2019 */
 #include "utl/foreach.h"          /* Added in 25/02/2019 */
@@ -53,7 +69,15 @@
 // clang-format on
 
 /**
- * Generate a specific part of a collection
+ * C_MACRO_COLLECTIONS
+ *
+ * Generate a specific part of a specific collection from a specific library.
+ *
+ * \param LIB The collection's sub-library
+ * \param COLLECTION The name of the collection in all uppercase
+ * \param PART The part of the collection (either CORE or one available at EXT)
+ * \param FILE Either HEADER or SOURCE
+ * \param PARAMS A tuple of form (PFX, SNAME, SIZE, K, V)
  */
 #define C_MACRO_COLLECTIONS(LIB, COLLECTION, PART, FILE, PARAMS) \
     C_MACRO_COLLECTIONS_(LIB, COLLECTION, PART, FILE)(PARAMS)
@@ -61,25 +85,101 @@
     CMC_##LIB##_##COLLECTION##_##PART##_##FILE
 
 /**
- * Generate everything provided by a collection included in ext
+ * C_MACRO_COLLECTIONS_GEN
+ *
+ * Generate the CORE of a collection along with one or more part from EXT. The
+ * headers are generated first, then the source code.
+ *
+ * \param LIB The collection's sub-library
+ * \param COLLECTION The name of the collection in all uppercase
+ * \param PARAMS A tuple of form (PFX, SNAME, SIZE, K, V)
+ * \param PARTS A non-empty tuple of all desired EXT parts
+ */
+#define C_MACRO_COLLECTIONS_GEN(LIB, COLLECTION, PARAMS, PARTS)    \
+    C_MACRO_COLLECTIONS_GEN_HEADER(LIB, COLLECTION, PARAMS, PARTS) \
+    C_MACRO_COLLECTIONS_GEN_SOURCE(LIB, COLLECTION, PARAMS, PARTS)
+
+/**
+ * C_MACRO_COLLECTIONS_GEN_HEADER
+ *
+ * Generate all headers of CORE and the specified header parts of a collection.
+ *
+ * \param LIB The collection's sub-library
+ * \param COLLECTION The name of the collection in all uppercase
+ * \param PARAMS A tuple of form (PFX, SNAME, SIZE, K, V)
+ * \param PARTS A non-empty tuple of all desired EXT parts
+ */
+#define C_MACRO_COLLECTIONS_GEN_HEADER(LIB, COLLECTION, PARAMS, PARTS) \
+    C_MACRO_COLLECTIONS(LIB, COLLECTION, CORE, HEADER, PARAMS)         \
+    CMC_MAP(CMC_(EXT_, LIB), COLLECTION, HEADER, PARAMS, CMC_EVAL PARTS)
+
+/**
+ * C_MACRO_COLLECTIONS_GEN_SOURCE
+ *
+ * Generate all sources of CORE and the specified source parts of a collection.
+ *
+ * \param LIB The collection's sub-library
+ * \param COLLECTION The name of the collection in all uppercase
+ * \param PARAMS A tuple of form (PFX, SNAME, SIZE, K, V)
+ * \param PARTS A non-empty tuple of all desired EXT parts
+ */
+#define C_MACRO_COLLECTIONS_GEN_SOURCE(LIB, COLLECTION, PARAMS, PARTS) \
+    C_MACRO_COLLECTIONS(LIB, COLLECTION, CORE, SOURCE, PARAMS)         \
+    CMC_MAP(CMC_(EXT_, LIB), COLLECTION, SOURCE, PARAMS, CMC_EVAL PARTS)
+
+/**
+ * C_MACRO_COLLECTIONS_ALL
+ *
+ * Generate everything provided by a collection included in the EXT library. The
+ * headers are generated first, then the source code.
+ *
+ * \param LIB The collection's library
+ * \param COLLECTION The name of the collection in all uppercase
+ * \param PARAMS A tuple of form (PFX, SNAME, SIZE, K, V
  */
 #define C_MACRO_COLLECTIONS_ALL(LIB, COLLECTION, PARAMS)    \
     C_MACRO_COLLECTIONS_ALL_HEADER(LIB, COLLECTION, PARAMS) \
     C_MACRO_COLLECTIONS_ALL_SOURCE(LIB, COLLECTION, PARAMS)
 
+/**
+ * C_MACRO_COLLECTIONS_ALL_HEADER
+ *
+ * Generates all headers (CORE and those at EXT) from a given collection.
+ *
+ * \param LIB The collection's library
+ * \param COLLECTION The name of the collection in all uppercase
+ * \param PARAMS A tuple of form (PFX, SNAME, SIZE, K, V
+ */
 #define C_MACRO_COLLECTIONS_ALL_HEADER(LIB, COLLECTION, PARAMS) \
     C_MACRO_COLLECTIONS(LIB, COLLECTION, CORE, HEADER, PARAMS)  \
     CMC_MAP(CMC_(EXT_, LIB), COLLECTION, HEADER, PARAMS,        \
             C_MACRO_COLLECTIONS_PARTS(LIB, COLLECTION))
 
+/**
+ * C_MACRO_COLLECTIONS_ALL_SOURCE
+ *
+ * Generates all sources (CORE and those at EXT) from a given collection.
+ *
+ * \param LIB The collection's library
+ * \param COLLECTION The name of the collection in all uppercase
+ * \param PARAMS A tuple of form (PFX, SNAME, SIZE, K, V
+ */
 #define C_MACRO_COLLECTIONS_ALL_SOURCE(LIB, COLLECTION, PARAMS) \
     C_MACRO_COLLECTIONS(LIB, COLLECTION, CORE, SOURCE, PARAMS)  \
     CMC_MAP(CMC_(EXT_, LIB), COLLECTION, SOURCE, PARAMS,        \
             C_MACRO_COLLECTIONS_PARTS(LIB, COLLECTION))
 
-/* Gets the macro with all EXT parts of a collection */
+/**
+ * C_MACRO_COLLECTIONS_PARTS
+ *
+ * Gets the macro with all EXT parts of a collection. Every collection has this
+ * macro defined in the EXT libraries.
+ */
 #define C_MACRO_COLLECTIONS_PARTS(LIB, COLLECTION) \
     CMC_EXT_##LIB##_##COLLECTION##_PARTS,
+
+/* Evaluates a tuple so that (A, B) -> A, B, */
+#define CMC_EVAL(...) __VA_ARGS__,
 
 /**
  * A __VA_ARGS__ argument counter. This argument counter is slightly shifted:
@@ -103,6 +203,7 @@
         28, 27, 26, 25, 24, 23, 22, 21, 20, 19, 18, 17, 16, 15, 14, 13, 12, \
         11, 10, 9, 8, 7, 6, 5, 4, 3, 2, 1, 0
 
+/* Generates the FILE for each part (__VA_ARGS__) of a collection */
 #define CMC_MAP(LIB, COLLECTION, FILE, PARAMS, ...) \
     CMC_(CMC_MAP_, CMC_NARG(__VA_ARGS__))           \
     (LIB, COLLECTION, FILE, PARAMS, __VA_ARGS__)

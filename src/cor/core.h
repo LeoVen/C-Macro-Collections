@@ -84,7 +84,7 @@
  *     K - Key type
  *     V - Value type
  *
- * PARAM := (PFX, SNAME, SIZE, K, V)
+ * PARAMS := (PFX, SNAME, SIZE, K, V)
  */
 #define CMC_PARAM_PFX CMC_TUP_0
 #define CMC_PARAM_SNAME CMC_TUP_1

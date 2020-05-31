@@ -7,6 +7,7 @@ C_MACRO_COLLECTIONS_ALL(CMC,        DEQUE, (  d,        deque, ,    , int))
 C_MACRO_COLLECTIONS_ALL(CMC,      HASHMAP, ( hm,      hashmap, , int, int))
 C_MACRO_COLLECTIONS_ALL(CMC, HASHMULTIMAP, (hmm, hashmultimap, , int, int))
 C_MACRO_COLLECTIONS_ALL(CMC, HASHMULTISET, (hms, hashmultiset, ,    , int))
+C_MACRO_COLLECTIONS_ALL(CMC,      HASHSET, ( hs,      hashset, ,    , int))
 
 struct
 {
@@ -26,7 +27,10 @@ int main(void)
     struct hashmultimap *hmm = hmm_new(100, 0.8,
                                        (struct hashmultimap_fkey *)&int_ftab,
                                        (struct hashmultimap_fval *)&int_ftab);
-    struct hashmultiset *hms = hms_new(100, 0.6, (struct hashmultiset_fval *)&int_ftab);
+    struct hashmultiset *hms = hms_new(100, 0.6,
+                                       (struct hashmultiset_fval *)&int_ftab);
+    struct hashset *hs = hs_new(100, 0.6,
+                                (struct hashset_fval *)&int_ftab);
 
     d_to_string(d, stdout);
     d_print(d, stdout, "\n[ ", ", ", " ]\n");
@@ -36,6 +40,8 @@ int main(void)
     hmm_print(hmm, stdout, "\n[ {", "}, {", "} ]\n", " : ");
     hms_to_string(hms, stdout);
     hms_print(hms, stdout, "\n[ {", "}, {", "} ]\n", " : ");
+    hs_to_string(hs, stdout);
+    hs_print(hs, stdout, "\n[ ", ", ", " ]\n");
 
     for (int i = 0; i < 20; i++)
     {
@@ -43,6 +49,7 @@ int main(void)
         hm_insert(hm, i, i);
         hmm_insert(hmm, i, i);
         hms_insert(hms, i);
+        hs_insert(hs, i);
     }
 
     fprintf(stdout, "\n");
@@ -55,11 +62,14 @@ int main(void)
     hmm_print(hmm, stdout, "\n[ {", "}, {", "} ]\n", " : ");
     hms_to_string(hms, stdout);
     hms_print(hms, stdout, "\n[ {", "}, {", "} ]\n", " : ");
+    hs_to_string(hs, stdout);
+    hs_print(hs, stdout, "\n[ ", ", ", " ]\n");
 
     d_free(d);
     hm_free(hm);
     hmm_free(hmm);
     hms_free(hms);
+    hs_free(hs);
 }
 
 // clang-format on

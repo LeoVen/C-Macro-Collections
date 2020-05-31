@@ -455,30 +455,6 @@ _Bool hs_equals(struct hashset *_set1_, struct hashset *_set2_)
     }
     return 1;
 }
-struct cmc_string hs_to_string(struct hashset *_set_)
-{
-    struct cmc_string str;
-    struct hashset *s_ = _set_;
-    int n = snprintf(str.s, cmc_string_len, cmc_cmc_string_fmt_hashset,
-                     "CMC_PARAM_SNAME((hs, hashset, , , size_t))",
-                     "CMC_PARAM_V((hs, hashset, , , size_t))", s_, s_->buffer,
-                     s_->capacity, s_->count, s_->load, s_->flag, s_->f_val,
-                     s_->alloc, s_->callbacks);
-    return n >= 0 ? str : (struct cmc_string){ 0 };
-}
-_Bool hs_print(struct hashset *_set_, FILE *fptr)
-{
-    for (size_t i = 0; i < _set_->capacity; i++)
-    {
-        struct hashset_entry *entry = &(_set_->buffer[i]);
-        if (entry->state == CMC_ES_FILLED)
-        {
-            if (!_set_->f_val->str(fptr, entry->value))
-                return 0;
-        }
-    }
-    return 1;
-}
 struct hashset *hs_union(struct hashset *_set1_, struct hashset *_set2_)
 {
     struct hashset *_set_r_ =
