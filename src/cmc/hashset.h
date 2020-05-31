@@ -112,31 +112,6 @@
         int (*pri)(V, V);                                                     \
     };                                                                        \
                                                                               \
-    /* Hashset Iterator */                                                    \
-    struct CMC_DEF_ITER(SNAME)                                                \
-    {                                                                         \
-        /* Target Hashset */                                                  \
-        struct SNAME *target;                                                 \
-                                                                              \
-        /* Cursor's position (index) */                                       \
-        size_t cursor;                                                        \
-                                                                              \
-        /* Keeps track of relative index to the iteration of elements */      \
-        size_t index;                                                         \
-                                                                              \
-        /* The index of the first element */                                  \
-        size_t first;                                                         \
-                                                                              \
-        /* The index of the last element */                                   \
-        size_t last;                                                          \
-                                                                              \
-        /* If the iterator has reached the start of the iteration */          \
-        bool start;                                                           \
-                                                                              \
-        /* If the iterator has reached the end of the iteration */            \
-        bool end;                                                             \
-    };                                                                        \
-                                                                              \
     /* Collection Functions */                                                \
     /* Collection Allocation and Deallocation */                              \
     struct SNAME *CMC_(PFX, _new)(size_t capacity, double load,               \
