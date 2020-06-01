@@ -18,17 +18,17 @@
  */
 #define CMC_EXT_CMC_HEAP_PARTS ITER, STR
 
-#define CMC_EXT_CMC_HEAP_ITER(BODY)    \
-    CMC_EXT_CMC_HEAP_ITER_HEADER(BODY) \
-    CMC_EXT_CMC_HEAP_ITER_SOURCE(BODY)
+#define CMC_EXT_CMC_HEAP_ITER(PARAMS)    \
+    CMC_EXT_CMC_HEAP_ITER_HEADER(PARAMS) \
+    CMC_EXT_CMC_HEAP_ITER_SOURCE(PARAMS)
 
-#define CMC_EXT_CMC_HEAP_ITER_HEADER(BODY)                                    \
-    CMC_EXT_CMC_HEAP_ITER_HEADER_(CMC_PARAM_PFX(BODY), CMC_PARAM_SNAME(BODY), \
-                                  CMC_PARAM_V(BODY))
+#define CMC_EXT_CMC_HEAP_ITER_HEADER(PARAMS) \
+    CMC_EXT_CMC_HEAP_ITER_HEADER_(           \
+        CMC_PARAM_PFX(PARAMS), CMC_PARAM_SNAME(PARAMS), CMC_PARAM_V(PARAMS))
 
-#define CMC_EXT_CMC_HEAP_ITER_SOURCE(BODY)                                    \
-    CMC_EXT_CMC_HEAP_ITER_SOURCE_(CMC_PARAM_PFX(BODY), CMC_PARAM_SNAME(BODY), \
-                                  CMC_PARAM_V(BODY))
+#define CMC_EXT_CMC_HEAP_ITER_SOURCE(PARAMS) \
+    CMC_EXT_CMC_HEAP_ITER_SOURCE_(           \
+        CMC_PARAM_PFX(PARAMS), CMC_PARAM_SNAME(PARAMS), CMC_PARAM_V(PARAMS))
 
 #define CMC_EXT_CMC_HEAP_ITER_HEADER_(PFX, SNAME, V)                          \
                                                                               \
@@ -264,17 +264,17 @@ static const char *cmc_cmc_string_fmt_heap = "struct %s<%s> "
                                              "alloc:%p, "
                                              "callbacks: %p}";
 
-#define CMC_EXT_CMC_HEAP_STR(BODY)    \
-    CMC_EXT_CMC_HEAP_STR_HEADER(BODY) \
-    CMC_EXT_CMC_HEAP_STR_SOURCE(BODY)
+#define CMC_EXT_CMC_HEAP_STR(PARAMS)    \
+    CMC_EXT_CMC_HEAP_STR_HEADER(PARAMS) \
+    CMC_EXT_CMC_HEAP_STR_SOURCE(PARAMS)
 
-#define CMC_EXT_CMC_HEAP_STR_HEADER(BODY)                                    \
-    CMC_EXT_CMC_HEAP_STR_HEADER_(CMC_PARAM_PFX(BODY), CMC_PARAM_SNAME(BODY), \
-                                 CMC_PARAM_V(BODY))
+#define CMC_EXT_CMC_HEAP_STR_HEADER(PARAMS)             \
+    CMC_EXT_CMC_HEAP_STR_HEADER_(CMC_PARAM_PFX(PARAMS), \
+                                 CMC_PARAM_SNAME(PARAMS), CMC_PARAM_V(PARAMS))
 
-#define CMC_EXT_CMC_HEAP_STR_SOURCE(BODY)                                    \
-    CMC_EXT_CMC_HEAP_STR_SOURCE_(CMC_PARAM_PFX(BODY), CMC_PARAM_SNAME(BODY), \
-                                 CMC_PARAM_V(BODY))
+#define CMC_EXT_CMC_HEAP_STR_SOURCE(PARAMS)             \
+    CMC_EXT_CMC_HEAP_STR_SOURCE_(CMC_PARAM_PFX(PARAMS), \
+                                 CMC_PARAM_SNAME(PARAMS), CMC_PARAM_V(PARAMS))
 
 #define CMC_EXT_CMC_HEAP_STR_HEADER_(PFX, SNAME, V)                  \
                                                                      \

@@ -43,17 +43,17 @@
 /**
  * Core Deque implementation
  */
-#define CMC_CMC_DEQUE_CORE(BODY)    \
-    CMC_CMC_DEQUE_CORE_HEADER(BODY) \
-    CMC_CMC_DEQUE_CORE_SOURCE(BODY)
+#define CMC_CMC_DEQUE_CORE(PARAMS)    \
+    CMC_CMC_DEQUE_CORE_HEADER(PARAMS) \
+    CMC_CMC_DEQUE_CORE_SOURCE(PARAMS)
 
-#define CMC_CMC_DEQUE_CORE_HEADER(BODY)                                    \
-    CMC_CMC_DEQUE_CORE_HEADER_(CMC_PARAM_PFX(BODY), CMC_PARAM_SNAME(BODY), \
-                               CMC_PARAM_V(BODY))
+#define CMC_CMC_DEQUE_CORE_HEADER(PARAMS)                                      \
+    CMC_CMC_DEQUE_CORE_HEADER_(CMC_PARAM_PFX(PARAMS), CMC_PARAM_SNAME(PARAMS), \
+                               CMC_PARAM_V(PARAMS))
 
-#define CMC_CMC_DEQUE_CORE_SOURCE(BODY)                                    \
-    CMC_CMC_DEQUE_CORE_SOURCE_(CMC_PARAM_PFX(BODY), CMC_PARAM_SNAME(BODY), \
-                               CMC_PARAM_V(BODY))
+#define CMC_CMC_DEQUE_CORE_SOURCE(PARAMS)                                      \
+    CMC_CMC_DEQUE_CORE_SOURCE_(CMC_PARAM_PFX(PARAMS), CMC_PARAM_SNAME(PARAMS), \
+                               CMC_PARAM_V(PARAMS))
 
 /* -------------------------------------------------------------------------
  * Header

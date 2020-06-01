@@ -45,17 +45,17 @@ static const char *cmc_cmc_string_fmt_sortedlist = "struct %s<%s> "
 /**
  * Core SortedList implementation
  */
-#define CMC_CMC_SORTEDLIST_CORE(BODY)    \
-    CMC_CMC_SORTEDLIST_CORE_HEADER(BODY) \
-    CMC_CMC_SORTEDLIST_CORE_SOURCE(BODY)
+#define CMC_CMC_SORTEDLIST_CORE(PARAMS)    \
+    CMC_CMC_SORTEDLIST_CORE_HEADER(PARAMS) \
+    CMC_CMC_SORTEDLIST_CORE_SOURCE(PARAMS)
 
-#define CMC_CMC_SORTEDLIST_CORE_HEADER(BODY)             \
-    CMC_CMC_SORTEDLIST_CORE_HEADER_(CMC_PARAM_PFX(BODY), \
-                                    CMC_PARAM_SNAME(BODY), CMC_PARAM_V(BODY))
+#define CMC_CMC_SORTEDLIST_CORE_HEADER(PARAMS) \
+    CMC_CMC_SORTEDLIST_CORE_HEADER_(           \
+        CMC_PARAM_PFX(PARAMS), CMC_PARAM_SNAME(PARAMS), CMC_PARAM_V(PARAMS))
 
-#define CMC_CMC_SORTEDLIST_CORE_SOURCE(BODY)             \
-    CMC_CMC_SORTEDLIST_CORE_SOURCE_(CMC_PARAM_PFX(BODY), \
-                                    CMC_PARAM_SNAME(BODY), CMC_PARAM_V(BODY))
+#define CMC_CMC_SORTEDLIST_CORE_SOURCE(PARAMS) \
+    CMC_CMC_SORTEDLIST_CORE_SOURCE_(           \
+        CMC_PARAM_PFX(PARAMS), CMC_PARAM_SNAME(PARAMS), CMC_PARAM_V(PARAMS))
 
 /* -------------------------------------------------------------------------
  * Header
@@ -94,22 +94,22 @@ static const char *cmc_cmc_string_fmt_sortedlist = "struct %s<%s> "
     struct CMC_DEF_FVAL(SNAME)                                                \
     {                                                                         \
         /* Comparator function */                                             \
-        int (*cmp)(V, V);                                                     \
+        CMC_DEF_FTAB_CMP(V);                                                  \
                                                                               \
         /* Copy function */                                                   \
-        V (*cpy)(V);                                                          \
+        CMC_DEF_FTAB_CPY(V);                                                  \
                                                                               \
         /* To string function */                                              \
-        bool (*str)(FILE *, V);                                               \
+        CMC_DEF_FTAB_STR(V);                                                  \
                                                                               \
         /* Free from memory function */                                       \
-        void (*free)(V);                                                      \
+        CMC_DEF_FTAB_FREE(V);                                                 \
                                                                               \
         /* Hash function */                                                   \
-        size_t (*hash)(V);                                                    \
+        CMC_DEF_FTAB_HASH(V);                                                 \
                                                                               \
         /* Priority function */                                               \
-        int (*pri)(V, V);                                                     \
+        CMC_DEF_FTAB_PRI(V);                                                  \
     };                                                                        \
                                                                               \
     /* List Iterator */                                                       \

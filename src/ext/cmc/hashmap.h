@@ -24,19 +24,19 @@
  * The part 'INIT' gives a new way of initializing a collection. The collection
  * struct is not heap allocated, only its internal structure (nodes, buffers).
  */
-#define CMC_EXT_CMC_HASHMAP_INIT(BODY)    \
-    CMC_EXT_CMC_HASHMAP_INIT_HEADER(BODY) \
-    CMC_EXT_CMC_HASHMAP_INIT_SOURCE(BODY)
+#define CMC_EXT_CMC_HASHMAP_INIT(PARAMS)    \
+    CMC_EXT_CMC_HASHMAP_INIT_HEADER(PARAMS) \
+    CMC_EXT_CMC_HASHMAP_INIT_SOURCE(PARAMS)
 
-#define CMC_EXT_CMC_HASHMAP_INIT_HEADER(BODY)                                  \
-    CMC_EXT_CMC_HASHMAP_INIT_HEADER_(CMC_PARAM_PFX(BODY),                      \
-                                     CMC_PARAM_SNAME(BODY), CMC_PARAM_K(BODY), \
-                                     CMC_PARAM_V(BODY))
+#define CMC_EXT_CMC_HASHMAP_INIT_HEADER(PARAMS)               \
+    CMC_EXT_CMC_HASHMAP_INIT_HEADER_(CMC_PARAM_PFX(PARAMS),   \
+                                     CMC_PARAM_SNAME(PARAMS), \
+                                     CMC_PARAM_K(PARAMS), CMC_PARAM_V(PARAMS))
 
-#define CMC_EXT_CMC_HASHMAP_INIT_SOURCE(BODY)                                  \
-    CMC_EXT_CMC_HASHMAP_INIT_SOURCE_(CMC_PARAM_PFX(BODY),                      \
-                                     CMC_PARAM_SNAME(BODY), CMC_PARAM_K(BODY), \
-                                     CMC_PARAM_V(BODY))
+#define CMC_EXT_CMC_HASHMAP_INIT_SOURCE(PARAMS)               \
+    CMC_EXT_CMC_HASHMAP_INIT_SOURCE_(CMC_PARAM_PFX(PARAMS),   \
+                                     CMC_PARAM_SNAME(PARAMS), \
+                                     CMC_PARAM_K(PARAMS), CMC_PARAM_V(PARAMS))
 
 #define CMC_EXT_CMC_HASHMAP_INIT_HEADER_(PFX, SNAME, K, V)                 \
                                                                            \
@@ -102,19 +102,19 @@
 /**
  * ITER
  */
-#define CMC_EXT_CMC_HASHMAP_ITER(BODY)    \
-    CMC_EXT_CMC_HASHMAP_ITER_HEADER(BODY) \
-    CMC_EXT_CMC_HASHMAP_ITER_SOURCE(BODY)
+#define CMC_EXT_CMC_HASHMAP_ITER(PARAMS)    \
+    CMC_EXT_CMC_HASHMAP_ITER_HEADER(PARAMS) \
+    CMC_EXT_CMC_HASHMAP_ITER_SOURCE(PARAMS)
 
-#define CMC_EXT_CMC_HASHMAP_ITER_HEADER(BODY)                                  \
-    CMC_EXT_CMC_HASHMAP_ITER_HEADER_(CMC_PARAM_PFX(BODY),                      \
-                                     CMC_PARAM_SNAME(BODY), CMC_PARAM_K(BODY), \
-                                     CMC_PARAM_V(BODY))
+#define CMC_EXT_CMC_HASHMAP_ITER_HEADER(PARAMS)               \
+    CMC_EXT_CMC_HASHMAP_ITER_HEADER_(CMC_PARAM_PFX(PARAMS),   \
+                                     CMC_PARAM_SNAME(PARAMS), \
+                                     CMC_PARAM_K(PARAMS), CMC_PARAM_V(PARAMS))
 
-#define CMC_EXT_CMC_HASHMAP_ITER_SOURCE(BODY)                                  \
-    CMC_EXT_CMC_HASHMAP_ITER_SOURCE_(CMC_PARAM_PFX(BODY),                      \
-                                     CMC_PARAM_SNAME(BODY), CMC_PARAM_K(BODY), \
-                                     CMC_PARAM_V(BODY))
+#define CMC_EXT_CMC_HASHMAP_ITER_SOURCE(PARAMS)               \
+    CMC_EXT_CMC_HASHMAP_ITER_SOURCE_(CMC_PARAM_PFX(PARAMS),   \
+                                     CMC_PARAM_SNAME(PARAMS), \
+                                     CMC_PARAM_K(PARAMS), CMC_PARAM_V(PARAMS))
 
 #define CMC_EXT_CMC_HASHMAP_ITER_HEADER_(PFX, SNAME, K, V)                    \
                                                                               \
@@ -449,19 +449,19 @@ static const char *cmc_cmc_string_fmt_hashmap = "struct %s<%s, %s> "
                                                 "alloc:%p, "
                                                 "callbacks:%p }";
 
-#define CMC_EXT_CMC_HASHMAP_STR(BODY)    \
-    CMC_EXT_CMC_HASHMAP_STR_HEADER(BODY) \
-    CMC_EXT_CMC_HASHMAP_STR_SOURCE(BODY)
+#define CMC_EXT_CMC_HASHMAP_STR(PARAMS)    \
+    CMC_EXT_CMC_HASHMAP_STR_HEADER(PARAMS) \
+    CMC_EXT_CMC_HASHMAP_STR_SOURCE(PARAMS)
 
-#define CMC_EXT_CMC_HASHMAP_STR_HEADER(BODY)                                  \
-    CMC_EXT_CMC_HASHMAP_STR_HEADER_(CMC_PARAM_PFX(BODY),                      \
-                                    CMC_PARAM_SNAME(BODY), CMC_PARAM_K(BODY), \
-                                    CMC_PARAM_V(BODY))
+#define CMC_EXT_CMC_HASHMAP_STR_HEADER(PARAMS)               \
+    CMC_EXT_CMC_HASHMAP_STR_HEADER_(CMC_PARAM_PFX(PARAMS),   \
+                                    CMC_PARAM_SNAME(PARAMS), \
+                                    CMC_PARAM_K(PARAMS), CMC_PARAM_V(PARAMS))
 
-#define CMC_EXT_CMC_HASHMAP_STR_SOURCE(BODY)                                  \
-    CMC_EXT_CMC_HASHMAP_STR_SOURCE_(CMC_PARAM_PFX(BODY),                      \
-                                    CMC_PARAM_SNAME(BODY), CMC_PARAM_K(BODY), \
-                                    CMC_PARAM_V(BODY))
+#define CMC_EXT_CMC_HASHMAP_STR_SOURCE(PARAMS)               \
+    CMC_EXT_CMC_HASHMAP_STR_SOURCE_(CMC_PARAM_PFX(PARAMS),   \
+                                    CMC_PARAM_SNAME(PARAMS), \
+                                    CMC_PARAM_K(PARAMS), CMC_PARAM_V(PARAMS))
 
 #define CMC_EXT_CMC_HASHMAP_STR_HEADER_(PFX, SNAME, K, V)            \
                                                                      \
