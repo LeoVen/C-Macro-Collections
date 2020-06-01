@@ -1,5 +1,5 @@
 /**
- * hashmap.h
+ * cmc/hashmap.h
  *
  * Creation Date: 03/04/2019
  *

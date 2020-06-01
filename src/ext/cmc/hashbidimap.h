@@ -1,5 +1,5 @@
 /**
- * hashbidimap.h
+ * ext/cmc/hashbidimap.h
  *
  * Creation Date: 26/05/2020
  *

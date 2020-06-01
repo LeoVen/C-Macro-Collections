@@ -1,5 +1,5 @@
 /**
- * ftable.h
+ * cor/ftable.h
  *
  * Creation Date: 27/05/2020
  *

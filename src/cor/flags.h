@@ -1,5 +1,5 @@
 /**
- * flags.h
+ * cor/flags.h
  *
  * Creation Date: 14/05/2020
  *

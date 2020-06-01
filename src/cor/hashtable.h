@@ -1,5 +1,5 @@
 /**
- * hashtable.h
+ * cor/hashtable.h
  *
  * Creation Date: 17/03/2020
  *

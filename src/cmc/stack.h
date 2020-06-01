@@ -1,5 +1,5 @@
 /**
- * stack.h
+ * cmc/stack.h
  *
  * Creation Date: 14/02/2019
  *

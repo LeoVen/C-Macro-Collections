@@ -1,5 +1,5 @@
 /**
- * bitset.h
+ * cor/bitset.h
  *
  * Creation Date: 20/05/2020
  *

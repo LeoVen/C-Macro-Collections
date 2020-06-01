@@ -1,5 +1,5 @@
 /**
- * deque.h
+ * cmc/deque.h
  *
  * Creation Date: 20/03/2019
  *

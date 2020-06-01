@@ -1,5 +1,5 @@
 /**
- * bitset.h
+ * cmc/bitset.h
  *
  * Creation Date: 30/04/2020
  *

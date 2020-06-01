@@ -1,5 +1,5 @@
 /**
- * hashmap.h
+ * ext/cmc/hashmap.h
  *
  * Creation Date: 25/05/2020
  *

@@ -1,5 +1,5 @@
 /**
- * hashbidimap.h
+ * cmc/hashbidimap.h
  *
  * Creation Date: 26/09/2019
  *
