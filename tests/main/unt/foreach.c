@@ -231,7 +231,7 @@ CMC_CREATE_UNIT(ForEach, true, {
     });
 
     CMC_CREATE_TEST(CMC<Heap>, {
-        struct heap *h = h_new(10000, cmc_max_heap,
+        struct heap *h = h_new(10000, CMC_MAX_HEAP,
                                &(struct heap_fval){ .cmp = cmc_size_cmp,
                                                     .cpy = NULL,
                                                     .str = cmc_size_str,

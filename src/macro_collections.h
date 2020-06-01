@@ -51,12 +51,14 @@
 #include "cor/flags.h"            /* Added in 14/05/2020 */
 #include "cor/ftable.h"           /* Added in 27/05/2020 */
 #include "cor/hashtable.h"        /* Added in 17/03/2020 */
+#include "cor/heap.h"             /* Added in 01/06/2020 */
 
 #include "ext/cmc/deque.h"        /* Added in 25/05/2020 */
 #include "ext/cmc/hashmap.h"      /* Added in 25/05/2020 */
 #include "ext/cmc/hashmultimap.h" /* Added in 29/05/2020 */
 #include "ext/cmc/hashmultiset.h" /* Added in 30/05/2020 */
 #include "ext/cmc/hashset.h"      /* Added in 31/05/2020 */
+#include "ext/cmc/heap.h"         /* Added in 01/06/2020 */
 
 #include "utl/assert.h"           /* Added in 27/06/2019 */
 #include "utl/foreach.h"          /* Added in 25/02/2019 */

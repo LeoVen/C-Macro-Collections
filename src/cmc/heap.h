@@ -38,33 +38,7 @@
 /* -------------------------------------------------------------------------
  * Heap Implementation
  * ------------------------------------------------------------------------- */
-/**
- * enum cmc_heap_order
- *
- * Defines the two possible heaps:
- * - Max Heap has the greatest element at the top
- * - Min Heap has the smallest element at the top
- */
-enum cmc_heap_order
-{
-    cmc_max_heap = 1,
-    cmc_min_heap = -1
-};
-
-/* -------------------------------------------------------------------------
- * Heap specific
- * ------------------------------------------------------------------------- */
-/* to_string format */
-static const char *cmc_cmc_string_fmt_heap = "struct %s<%s> "
-                                             "at %p { "
-                                             "buffer:%p, "
-                                             "capacity:%" PRIuMAX ", "
-                                             "count:%" PRIuMAX ", "
-                                             "type:%s, "
-                                             "flag:%d, "
-                                             "f_val:%p, "
-                                             "alloc:%p, "
-                                             "callbacks: %p}";
+#include "../cor/heap.h"
 
 /**
  * Core Heap implementation
@@ -84,128 +58,88 @@ static const char *cmc_cmc_string_fmt_heap = "struct %s<%s> "
 /* -------------------------------------------------------------------------
  * Header
  * ------------------------------------------------------------------------- */
-#define CMC_CMC_HEAP_CORE_HEADER_(PFX, SNAME, V)                              \
-                                                                              \
-    /* Heap Structure */                                                      \
-    struct SNAME                                                              \
-    {                                                                         \
-        /* Dynamic array of elements */                                       \
-        V *buffer;                                                            \
-                                                                              \
-        /* Current array capacity */                                          \
-        size_t capacity;                                                      \
-                                                                              \
-        /* Current amount of elements in the heap */                          \
-        size_t count;                                                         \
-                                                                              \
-        /* Heap order (MaxHeap or MinHeap) */                                 \
-        enum cmc_heap_order HO;                                               \
-                                                                              \
-        /* Flags indicating errors or success */                              \
-        int flag;                                                             \
-                                                                              \
-        /* Value function table */                                            \
-        struct CMC_DEF_FVAL(SNAME) * f_val;                                   \
-                                                                              \
-        /* Custom allocation functions */                                     \
-        struct cmc_alloc_node *alloc;                                         \
-                                                                              \
-        /* Custom callback functions */                                       \
-        struct cmc_callbacks *callbacks;                                      \
-    };                                                                        \
-                                                                              \
-    /* Value struct function table */                                         \
-    struct CMC_DEF_FVAL(SNAME)                                                \
-    {                                                                         \
-        /* Comparator function */                                             \
-        int (*cmp)(V, V);                                                     \
-                                                                              \
-        /* Copy function */                                                   \
-        V (*cpy)(V);                                                          \
-                                                                              \
-        /* To string function */                                              \
-        bool (*str)(FILE *, V);                                               \
-                                                                              \
-        /* Free from memory function */                                       \
-        void (*free)(V);                                                      \
-                                                                              \
-        /* Hash function */                                                   \
-        size_t (*hash)(V);                                                    \
-                                                                              \
-        /* Priority function */                                               \
-        int (*pri)(V, V);                                                     \
-    };                                                                        \
-                                                                              \
-    /* Heap Iterator */                                                       \
-    struct CMC_DEF_ITER(SNAME)                                                \
-    {                                                                         \
-        /* Target heap */                                                     \
-        struct SNAME *target;                                                 \
-                                                                              \
-        /* Cursor's position (index) */                                       \
-        size_t cursor;                                                        \
-                                                                              \
-        /* If the iterator has reached the start of the iteration */          \
-        bool start;                                                           \
-                                                                              \
-        /* If the iterator has reached the end of the iteration */            \
-        bool end;                                                             \
-    };                                                                        \
-                                                                              \
-    /* Collection Functions */                                                \
-    /* Collection Allocation and Deallocation */                              \
-    struct SNAME *CMC_(PFX, _new)(size_t capacity, enum cmc_heap_order HO,    \
-                                  struct CMC_DEF_FVAL(SNAME) * f_val);        \
-    struct SNAME *CMC_(PFX, _new_custom)(                                     \
-        size_t capacity, enum cmc_heap_order HO,                              \
-        struct CMC_DEF_FVAL(SNAME) * f_val, struct cmc_alloc_node * alloc,    \
-        struct cmc_callbacks * callbacks);                                    \
-    void CMC_(PFX, _clear)(struct SNAME * _heap_);                            \
-    void CMC_(PFX, _free)(struct SNAME * _heap_);                             \
-    /* Customization of Allocation and Callbacks */                           \
-    void CMC_(PFX, _customize)(struct SNAME * _heap_,                         \
-                               struct cmc_alloc_node * alloc,                 \
-                               struct cmc_callbacks * callbacks);             \
-    /* Collection Input and Output */                                         \
-    bool CMC_(PFX, _insert)(struct SNAME * _heap_, V value);                  \
-    bool CMC_(PFX, _remove)(struct SNAME * _heap_);                           \
-    /* Element Access */                                                      \
-    V CMC_(PFX, _peek)(struct SNAME * _heap_);                                \
-    /* Collection State */                                                    \
-    bool CMC_(PFX, _contains)(struct SNAME * _heap_, V value);                \
-    bool CMC_(PFX, _empty)(struct SNAME * _heap_);                            \
-    bool CMC_(PFX, _full)(struct SNAME * _heap_);                             \
-    size_t CMC_(PFX, _count)(struct SNAME * _heap_);                          \
-    size_t CMC_(PFX, _capacity)(struct SNAME * _heap_);                       \
-    int CMC_(PFX, _flag)(struct SNAME * _heap_);                              \
-    /* Collection Utility */                                                  \
-    bool CMC_(PFX, _resize)(struct SNAME * _heap_, size_t capacity);          \
-    struct SNAME *CMC_(PFX, _copy_of)(struct SNAME * _heap_);                 \
-    bool CMC_(PFX, _equals)(struct SNAME * _heap1_, struct SNAME * _heap2_);  \
-    struct cmc_string CMC_(PFX, _to_string)(struct SNAME * _heap_);           \
-    bool CMC_(PFX, _print)(struct SNAME * _heap_, FILE * fptr);               \
-                                                                              \
-    /* Iterator Functions */                                                  \
-    /* Iterator Initialization */                                             \
-    struct CMC_DEF_ITER(SNAME) CMC_(PFX, _iter_start)(struct SNAME * target); \
-    struct CMC_DEF_ITER(SNAME) CMC_(PFX, _iter_end)(struct SNAME * target);   \
-    /* Iterator State */                                                      \
-    bool CMC_(PFX, _iter_at_start)(struct CMC_DEF_ITER(SNAME) * iter);        \
-    bool CMC_(PFX, _iter_at_end)(struct CMC_DEF_ITER(SNAME) * iter);          \
-    /* Iterator Movement */                                                   \
-    bool CMC_(PFX, _iter_to_start)(struct CMC_DEF_ITER(SNAME) * iter);        \
-    bool CMC_(PFX, _iter_to_end)(struct CMC_DEF_ITER(SNAME) * iter);          \
-    bool CMC_(PFX, _iter_next)(struct CMC_DEF_ITER(SNAME) * iter);            \
-    bool CMC_(PFX, _iter_prev)(struct CMC_DEF_ITER(SNAME) * iter);            \
-    bool CMC_(PFX, _iter_advance)(struct CMC_DEF_ITER(SNAME) * iter,          \
-                                  size_t steps);                              \
-    bool CMC_(PFX, _iter_rewind)(struct CMC_DEF_ITER(SNAME) * iter,           \
-                                 size_t steps);                               \
-    bool CMC_(PFX, _iter_go_to)(struct CMC_DEF_ITER(SNAME) * iter,            \
-                                size_t index);                                \
-    /* Iterator Access */                                                     \
-    V CMC_(PFX, _iter_value)(struct CMC_DEF_ITER(SNAME) * iter);              \
-    size_t CMC_(PFX, _iter_index)(struct CMC_DEF_ITER(SNAME) * iter);
+#define CMC_CMC_HEAP_CORE_HEADER_(PFX, SNAME, V)                           \
+                                                                           \
+    /* Heap Structure */                                                   \
+    struct SNAME                                                           \
+    {                                                                      \
+        /* Dynamic array of elements */                                    \
+        V *buffer;                                                         \
+                                                                           \
+        /* Current array capacity */                                       \
+        size_t capacity;                                                   \
+                                                                           \
+        /* Current amount of elements in the heap */                       \
+        size_t count;                                                      \
+                                                                           \
+        /* Heap order (MaxHeap or MinHeap) */                              \
+        enum cmc_heap_order HO;                                            \
+                                                                           \
+        /* Flags indicating errors or success */                           \
+        int flag;                                                          \
+                                                                           \
+        /* Value function table */                                         \
+        struct CMC_DEF_FVAL(SNAME) * f_val;                                \
+                                                                           \
+        /* Custom allocation functions */                                  \
+        struct cmc_alloc_node *alloc;                                      \
+                                                                           \
+        /* Custom callback functions */                                    \
+        struct cmc_callbacks *callbacks;                                   \
+    };                                                                     \
+                                                                           \
+    /* Value struct function table */                                      \
+    struct CMC_DEF_FVAL(SNAME)                                             \
+    {                                                                      \
+        /* Comparator function */                                          \
+        int (*cmp)(V, V);                                                  \
+                                                                           \
+        /* Copy function */                                                \
+        V (*cpy)(V);                                                       \
+                                                                           \
+        /* To string function */                                           \
+        bool (*str)(FILE *, V);                                            \
+                                                                           \
+        /* Free from memory function */                                    \
+        void (*free)(V);                                                   \
+                                                                           \
+        /* Hash function */                                                \
+        size_t (*hash)(V);                                                 \
+                                                                           \
+        /* Priority function */                                            \
+        int (*pri)(V, V);                                                  \
+    };                                                                     \
+                                                                           \
+    /* Collection Functions */                                             \
+    /* Collection Allocation and Deallocation */                           \
+    struct SNAME *CMC_(PFX, _new)(size_t capacity, enum cmc_heap_order HO, \
+                                  struct CMC_DEF_FVAL(SNAME) * f_val);     \
+    struct SNAME *CMC_(PFX, _new_custom)(                                  \
+        size_t capacity, enum cmc_heap_order HO,                           \
+        struct CMC_DEF_FVAL(SNAME) * f_val, struct cmc_alloc_node * alloc, \
+        struct cmc_callbacks * callbacks);                                 \
+    void CMC_(PFX, _clear)(struct SNAME * _heap_);                         \
+    void CMC_(PFX, _free)(struct SNAME * _heap_);                          \
+    /* Customization of Allocation and Callbacks */                        \
+    void CMC_(PFX, _customize)(struct SNAME * _heap_,                      \
+                               struct cmc_alloc_node * alloc,              \
+                               struct cmc_callbacks * callbacks);          \
+    /* Collection Input and Output */                                      \
+    bool CMC_(PFX, _insert)(struct SNAME * _heap_, V value);               \
+    bool CMC_(PFX, _remove)(struct SNAME * _heap_);                        \
+    /* Element Access */                                                   \
+    V CMC_(PFX, _peek)(struct SNAME * _heap_);                             \
+    /* Collection State */                                                 \
+    bool CMC_(PFX, _contains)(struct SNAME * _heap_, V value);             \
+    bool CMC_(PFX, _empty)(struct SNAME * _heap_);                         \
+    bool CMC_(PFX, _full)(struct SNAME * _heap_);                          \
+    size_t CMC_(PFX, _count)(struct SNAME * _heap_);                       \
+    size_t CMC_(PFX, _capacity)(struct SNAME * _heap_);                    \
+    int CMC_(PFX, _flag)(struct SNAME * _heap_);                           \
+    /* Collection Utility */                                               \
+    bool CMC_(PFX, _resize)(struct SNAME * _heap_, size_t capacity);       \
+    struct SNAME *CMC_(PFX, _copy_of)(struct SNAME * _heap_);              \
+    bool CMC_(PFX, _equals)(struct SNAME * _heap1_, struct SNAME * _heap2_);
 
 /* -------------------------------------------------------------------------
  * Source
@@ -226,7 +160,7 @@ static const char *cmc_cmc_string_fmt_heap = "struct %s<%s> "
         if (capacity < 1)                                                      \
             return NULL;                                                       \
                                                                                \
-        if (HO != cmc_min_heap && HO != cmc_max_heap)                          \
+        if (HO != CMC_MIN_HEAP && HO != CMC_MAX_HEAP)                          \
             return NULL;                                                       \
                                                                                \
         if (!f_val)                                                            \
@@ -264,7 +198,7 @@ static const char *cmc_cmc_string_fmt_heap = "struct %s<%s> "
         if (capacity < 1)                                                      \
             return NULL;                                                       \
                                                                                \
-        if (HO != cmc_min_heap && HO != cmc_max_heap)                          \
+        if (HO != CMC_MIN_HEAP && HO != CMC_MAX_HEAP)                          \
             return NULL;                                                       \
                                                                                \
         if (!f_val)                                                            \
@@ -527,209 +461,6 @@ static const char *cmc_cmc_string_fmt_heap = "struct %s<%s> "
         }                                                                      \
                                                                                \
         return true;                                                           \
-    }                                                                          \
-                                                                               \
-    struct cmc_string CMC_(PFX, _to_string)(struct SNAME * _heap_)             \
-    {                                                                          \
-        struct cmc_string str;                                                 \
-        struct SNAME *h_ = _heap_;                                             \
-        const char *t = h_->HO == 1 ? "MaxHeap" : "MinHeap";                   \
-                                                                               \
-        int n = snprintf(str.s, cmc_string_len, cmc_cmc_string_fmt_heap,       \
-                         #SNAME, #V, h_, h_->buffer, h_->capacity, h_->count,  \
-                         t, h_->flag, h_->f_val, h_->alloc, h_->callbacks);    \
-                                                                               \
-        return n >= 0 ? str : (struct cmc_string){ 0 };                        \
-    }                                                                          \
-                                                                               \
-    bool CMC_(PFX, _print)(struct SNAME * _heap_, FILE * fptr)                 \
-    {                                                                          \
-        for (size_t i = 0; i < _heap_->count; i++)                             \
-        {                                                                      \
-            if (!_heap_->f_val->str(fptr, _heap_->buffer[i]))                  \
-                return false;                                                  \
-        }                                                                      \
-                                                                               \
-        return true;                                                           \
-    }                                                                          \
-                                                                               \
-    struct CMC_DEF_ITER(SNAME) CMC_(PFX, _iter_start)(struct SNAME * target)   \
-    {                                                                          \
-        struct CMC_DEF_ITER(SNAME) iter;                                       \
-                                                                               \
-        iter.target = target;                                                  \
-        iter.cursor = 0;                                                       \
-        iter.start = true;                                                     \
-        iter.end = CMC_(PFX, _empty)(target);                                  \
-                                                                               \
-        return iter;                                                           \
-    }                                                                          \
-                                                                               \
-    struct CMC_DEF_ITER(SNAME) CMC_(PFX, _iter_end)(struct SNAME * target)     \
-    {                                                                          \
-        struct CMC_DEF_ITER(SNAME) iter;                                       \
-                                                                               \
-        iter.target = target;                                                  \
-        iter.cursor = 0;                                                       \
-        iter.start = CMC_(PFX, _empty)(target);                                \
-        iter.end = true;                                                       \
-                                                                               \
-        if (!CMC_(PFX, _empty)(target))                                        \
-            iter.cursor = target->count - 1;                                   \
-                                                                               \
-        return iter;                                                           \
-    }                                                                          \
-                                                                               \
-    bool CMC_(PFX, _iter_at_start)(struct CMC_DEF_ITER(SNAME) * iter)          \
-    {                                                                          \
-        return CMC_(PFX, _empty)(iter->target) || iter->start;                 \
-    }                                                                          \
-                                                                               \
-    bool CMC_(PFX, _iter_at_end)(struct CMC_DEF_ITER(SNAME) * iter)            \
-    {                                                                          \
-        return CMC_(PFX, _empty)(iter->target) || iter->end;                   \
-    }                                                                          \
-                                                                               \
-    bool CMC_(PFX, _iter_to_start)(struct CMC_DEF_ITER(SNAME) * iter)          \
-    {                                                                          \
-        if (!CMC_(PFX, _empty)(iter->target))                                  \
-        {                                                                      \
-            iter->cursor = 0;                                                  \
-            iter->start = true;                                                \
-            iter->end = CMC_(PFX, _empty)(iter->target);                       \
-                                                                               \
-            return true;                                                       \
-        }                                                                      \
-                                                                               \
-        return false;                                                          \
-    }                                                                          \
-                                                                               \
-    bool CMC_(PFX, _iter_to_end)(struct CMC_DEF_ITER(SNAME) * iter)            \
-    {                                                                          \
-        if (!CMC_(PFX, _empty)(iter->target))                                  \
-        {                                                                      \
-            iter->cursor = iter->target->count - 1;                            \
-            iter->start = CMC_(PFX, _empty)(iter->target);                     \
-            iter->end = true;                                                  \
-                                                                               \
-            return true;                                                       \
-        }                                                                      \
-                                                                               \
-        return false;                                                          \
-    }                                                                          \
-                                                                               \
-    bool CMC_(PFX, _iter_next)(struct CMC_DEF_ITER(SNAME) * iter)              \
-    {                                                                          \
-        if (iter->end)                                                         \
-            return false;                                                      \
-                                                                               \
-        if (iter->cursor + 1 == iter->target->count)                           \
-        {                                                                      \
-            iter->end = true;                                                  \
-            return false;                                                      \
-        }                                                                      \
-                                                                               \
-        iter->start = CMC_(PFX, _empty)(iter->target);                         \
-                                                                               \
-        iter->cursor++;                                                        \
-                                                                               \
-        return true;                                                           \
-    }                                                                          \
-                                                                               \
-    bool CMC_(PFX, _iter_prev)(struct CMC_DEF_ITER(SNAME) * iter)              \
-    {                                                                          \
-        if (iter->start)                                                       \
-            return false;                                                      \
-                                                                               \
-        if (iter->cursor == 0)                                                 \
-        {                                                                      \
-            iter->start = true;                                                \
-            return false;                                                      \
-        }                                                                      \
-                                                                               \
-        iter->end = CMC_(PFX, _empty)(iter->target);                           \
-                                                                               \
-        iter->cursor--;                                                        \
-                                                                               \
-        return true;                                                           \
-    }                                                                          \
-                                                                               \
-    /* Returns true only if the iterator moved */                              \
-    bool CMC_(PFX, _iter_advance)(struct CMC_DEF_ITER(SNAME) * iter,           \
-                                  size_t steps)                                \
-    {                                                                          \
-        if (iter->end)                                                         \
-            return false;                                                      \
-                                                                               \
-        if (iter->cursor + 1 == iter->target->count)                           \
-        {                                                                      \
-            iter->end = true;                                                  \
-            return false;                                                      \
-        }                                                                      \
-                                                                               \
-        if (steps == 0 || iter->cursor + steps >= iter->target->count)         \
-            return false;                                                      \
-                                                                               \
-        if (iter->end)                                                         \
-            return false;                                                      \
-                                                                               \
-        iter->start = CMC_(PFX, _empty)(iter->target);                         \
-                                                                               \
-        iter->cursor += steps;                                                 \
-                                                                               \
-        return true;                                                           \
-    }                                                                          \
-                                                                               \
-    /* Returns true only if the iterator moved */                              \
-    bool CMC_(PFX, _iter_rewind)(struct CMC_DEF_ITER(SNAME) * iter,            \
-                                 size_t steps)                                 \
-    {                                                                          \
-        if (iter->start)                                                       \
-            return false;                                                      \
-                                                                               \
-        if (iter->cursor == 0)                                                 \
-        {                                                                      \
-            iter->start = true;                                                \
-            return false;                                                      \
-        }                                                                      \
-                                                                               \
-        if (steps == 0 || iter->cursor < steps)                                \
-            return false;                                                      \
-                                                                               \
-        iter->end = CMC_(PFX, _empty)(iter->target);                           \
-                                                                               \
-        iter->cursor -= steps;                                                 \
-                                                                               \
-        return true;                                                           \
-    }                                                                          \
-                                                                               \
-    /* Returns true only if the iterator was able to be positioned at the */   \
-    /* given index */                                                          \
-    bool CMC_(PFX, _iter_go_to)(struct CMC_DEF_ITER(SNAME) * iter,             \
-                                size_t index)                                  \
-    {                                                                          \
-        if (index >= iter->target->count)                                      \
-            return false;                                                      \
-                                                                               \
-        if (iter->cursor > index)                                              \
-            return CMC_(PFX, _iter_rewind)(iter, iter->cursor - index);        \
-        else if (iter->cursor < index)                                         \
-            return CMC_(PFX, _iter_advance)(iter, index - iter->cursor);       \
-                                                                               \
-        return true;                                                           \
-    }                                                                          \
-                                                                               \
-    V CMC_(PFX, _iter_value)(struct CMC_DEF_ITER(SNAME) * iter)                \
-    {                                                                          \
-        if (CMC_(PFX, _empty)(iter->target))                                   \
-            return (V){ 0 };                                                   \
-                                                                               \
-        return iter->target->buffer[iter->cursor];                             \
-    }                                                                          \
-                                                                               \
-    size_t CMC_(PFX, _iter_index)(struct CMC_DEF_ITER(SNAME) * iter)           \
-    {                                                                          \
-        return iter->cursor;                                                   \
     }                                                                          \
                                                                                \
     static void CMC_(PFX, _impl_float_up)(struct SNAME * _heap_, size_t index) \

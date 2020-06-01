@@ -18,20 +18,6 @@
  */
 #define CMC_EXT_CMC_HASHMULTISET_PARTS ITER, STR
 
-/* Used by STR */
-static const char *cmc_cmc_string_fmt_hashmultiset =
-    "struct %s<%s> "
-    "at %p { "
-    "buffer:%p, "
-    "capacity:%" PRIuMAX ", "
-    "count:%" PRIuMAX ", "
-    "cardinality:%" PRIuMAX ", "
-    "load:%lf, "
-    "flag:%d, "
-    "f_val:%p, "
-    "alloc:%p, "
-    "callbacks:%p }";
-
 /**
  * ITER
  */
@@ -359,6 +345,19 @@ static const char *cmc_cmc_string_fmt_hashmultiset =
 /**
  * STR
  */
+static const char *cmc_cmc_string_fmt_hashmultiset =
+    "struct %s<%s> "
+    "at %p { "
+    "buffer:%p, "
+    "capacity:%" PRIuMAX ", "
+    "count:%" PRIuMAX ", "
+    "cardinality:%" PRIuMAX ", "
+    "load:%lf, "
+    "flag:%d, "
+    "f_val:%p, "
+    "alloc:%p, "
+    "callbacks:%p }";
+
 #define CMC_EXT_CMC_HASHMULTISET_STR(BODY)    \
     CMC_EXT_CMC_HASHMULTISET_STR_HEADER(BODY) \
     CMC_EXT_CMC_HASHMULTISET_STR_SOURCE(BODY)

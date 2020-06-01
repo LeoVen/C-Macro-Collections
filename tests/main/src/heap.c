@@ -74,7 +74,7 @@ struct heap *h_new(size_t capacity, enum cmc_heap_order HO,
     struct cmc_alloc_node *alloc = &cmc_alloc_node_default;
     if (capacity < 1)
         return ((void *)0);
-    if (HO != cmc_min_heap && HO != cmc_max_heap)
+    if (HO != CMC_MIN_HEAP && HO != CMC_MAX_HEAP)
         return ((void *)0);
     if (!f_val)
         return ((void *)0);
@@ -102,7 +102,7 @@ struct heap *h_new_custom(size_t capacity, enum cmc_heap_order HO,
 {
     if (capacity < 1)
         return ((void *)0);
-    if (HO != cmc_min_heap && HO != cmc_max_heap)
+    if (HO != CMC_MIN_HEAP && HO != CMC_MAX_HEAP)
         return ((void *)0);
     if (!f_val)
         return ((void *)0);
@@ -296,27 +296,6 @@ _Bool h_equals(struct heap *_heap1_, struct heap *_heap2_)
     for (size_t i = 0; i < _heap1_->count; i++)
     {
         if (_heap1_->f_val->cmp(_heap1_->buffer[i], _heap2_->buffer[i]) != 0)
-            return 0;
-    }
-    return 1;
-}
-struct cmc_string h_to_string(struct heap *_heap_)
-{
-    struct cmc_string str;
-    struct heap *h_ = _heap_;
-    const char *t = h_->HO == 1 ? "MaxHeap" : "MinHeap";
-    int n = snprintf(str.s, cmc_string_len, cmc_cmc_string_fmt_heap,
-                     "CMC_PARAM_SNAME((h, heap, , , size_t))",
-                     "CMC_PARAM_V((h, heap, , , size_t))", h_, h_->buffer,
-                     h_->capacity, h_->count, t, h_->flag, h_->f_val, h_->alloc,
-                     h_->callbacks);
-    return n >= 0 ? str : (struct cmc_string){ 0 };
-}
-_Bool h_print(struct heap *_heap_, FILE *fptr)
-{
-    for (size_t i = 0; i < _heap_->count; i++)
-    {
-        if (!_heap_->f_val->str(fptr, _heap_->buffer[i]))
             return 0;
     }
     return 1;

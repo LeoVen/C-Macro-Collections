@@ -18,19 +18,6 @@
  */
 #define CMC_EXT_CMC_HASHMAP_PARTS INIT, ITER, STR
 
-/* Used by STR */
-static const char *cmc_cmc_string_fmt_hashmap = "struct %s<%s, %s> "
-                                                "at %p { "
-                                                "buffer:%p, "
-                                                "capacity:%" PRIuMAX ", "
-                                                "count:%" PRIuMAX ", "
-                                                "load:%lf, "
-                                                "flag:%d, "
-                                                "f_key:%p, "
-                                                "f_val:%p, "
-                                                "alloc:%p, "
-                                                "callbacks:%p }";
-
 /**
  * INIT
  *
@@ -450,6 +437,18 @@ static const char *cmc_cmc_string_fmt_hashmap = "struct %s<%s, %s> "
 /**
  * STR
  */
+static const char *cmc_cmc_string_fmt_hashmap = "struct %s<%s, %s> "
+                                                "at %p { "
+                                                "buffer:%p, "
+                                                "capacity:%" PRIuMAX ", "
+                                                "count:%" PRIuMAX ", "
+                                                "load:%lf, "
+                                                "flag:%d, "
+                                                "f_key:%p, "
+                                                "f_val:%p, "
+                                                "alloc:%p, "
+                                                "callbacks:%p }";
+
 #define CMC_EXT_CMC_HASHMAP_STR(BODY)    \
     CMC_EXT_CMC_HASHMAP_STR_HEADER(BODY) \
     CMC_EXT_CMC_HASHMAP_STR_SOURCE(BODY)

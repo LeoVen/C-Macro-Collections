@@ -18,19 +18,6 @@
  */
 #define CMC_EXT_CMC_DEQUE_PARTS INIT, ITER, STR
 
-/* Used by STR */
-static const char *cmc_cmc_string_fmt_deque = "struct %s<%s> "
-                                              "at %p { "
-                                              "buffer:%p, "
-                                              "capacity:%" PRIuMAX ", "
-                                              "count:%" PRIuMAX ", "
-                                              "front:%" PRIuMAX ", "
-                                              "back:%" PRIuMAX ", "
-                                              "flag:%d, "
-                                              "f_val:%p, "
-                                              "alloc:%p, "
-                                              "callbacks:%p }";
-
 /**
  * INIT
  *
@@ -374,6 +361,18 @@ static const char *cmc_cmc_string_fmt_deque = "struct %s<%s> "
 /**
  * STR
  */
+static const char *cmc_cmc_string_fmt_deque = "struct %s<%s> "
+                                              "at %p { "
+                                              "buffer:%p, "
+                                              "capacity:%" PRIuMAX ", "
+                                              "count:%" PRIuMAX ", "
+                                              "front:%" PRIuMAX ", "
+                                              "back:%" PRIuMAX ", "
+                                              "flag:%d, "
+                                              "f_val:%p, "
+                                              "alloc:%p, "
+                                              "callbacks:%p }";
+
 #define CMC_EXT_CMC_DEQUE_STR(BODY)    \
     CMC_EXT_CMC_DEQUE_STR_HEADER(BODY) \
     CMC_EXT_CMC_DEQUE_STR_SOURCE(BODY)
