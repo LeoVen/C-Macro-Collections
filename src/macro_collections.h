@@ -59,6 +59,7 @@
 #include "ext/cmc/hashmultiset.h" /* Added in 30/05/2020 */
 #include "ext/cmc/hashset.h"      /* Added in 31/05/2020 */
 #include "ext/cmc/heap.h"         /* Added in 01/06/2020 */
+#include "ext/cmc/intervalheap.h" /* Added in 02/06/2020 */
 
 #include "utl/assert.h"           /* Added in 27/06/2019 */
 #include "utl/foreach.h"          /* Added in 25/02/2019 */
