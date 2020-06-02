@@ -42,6 +42,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 
+#include "../cor/core.h"
 #include "assert.h"
 #include "timer.h"
 
@@ -56,9 +57,9 @@ struct cmc_test_info
     bool verbose;
 };
 
+#ifdef CMC_TEST_COLOR
 static inline const char *cmc_test_color(int i)
 {
-#ifdef CMC_TEST_COLOR
     // 0 - Default, all off
     // 1 - Failed (red)
     // 2 - Passed (green)
@@ -70,13 +71,17 @@ static inline const char *cmc_test_color(int i)
     };
     return cmc_test_colors[i];
 #else
+static inline const char *cmc_test_color(int i)
+{
+    (void)i;
     return "";
 #endif
 }
 
 /* Logging function */
-static void cmc_test_log(const char *unit_name, const char *current_test,
-                         bool aborted, bool passed)
+CMC_UNUSED static void cmc_test_log(const char *unit_name,
+                                    const char *current_test, bool aborted,
+                                    bool passed)
 {
     if (aborted)
     {

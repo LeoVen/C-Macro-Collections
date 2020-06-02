@@ -345,19 +345,6 @@
 /**
  * STR
  */
-static const char *cmc_cmc_string_fmt_hashmultiset =
-    "struct %s<%s> "
-    "at %p { "
-    "buffer:%p, "
-    "capacity:%" PRIuMAX ", "
-    "count:%" PRIuMAX ", "
-    "cardinality:%" PRIuMAX ", "
-    "load:%lf, "
-    "flag:%d, "
-    "f_val:%p, "
-    "alloc:%p, "
-    "callbacks:%p }";
-
 #define CMC_EXT_CMC_HASHMULTISET_STR(PARAMS)    \
     CMC_EXT_CMC_HASHMULTISET_STR_HEADER(PARAMS) \
     CMC_EXT_CMC_HASHMULTISET_STR_SOURCE(PARAMS)
@@ -383,7 +370,18 @@ static const char *cmc_cmc_string_fmt_hashmultiset =
     {                                                                       \
         struct SNAME *s_ = _set_;                                           \
                                                                             \
-        return 0 <= fprintf(fptr, cmc_cmc_string_fmt_hashmultiset,          \
+        return 0 <= fprintf(fptr,                                           \
+                            "struct %s<%s> "                                \
+                            "at %p { "                                      \
+                            "buffer:%p, "                                   \
+                            "capacity:%" PRIuMAX ", "                       \
+                            "count:%" PRIuMAX ", "                          \
+                            "cardinality:%" PRIuMAX ", "                    \
+                            "load:%lf, "                                    \
+                            "flag:%d, "                                     \
+                            "f_val:%p, "                                    \
+                            "alloc:%p, "                                    \
+                            "callbacks:%p }",                               \
                             CMC_TO_STRING(SNAME), CMC_TO_STRING(V), s_,     \
                             s_->buffer, s_->capacity, s_->count,            \
                             s_->cardinality, s_->load, s_->flag, s_->f_val, \

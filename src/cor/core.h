@@ -22,6 +22,12 @@
 #ifndef CMC_COR_CORE_H
 #define CMC_COR_CORE_H
 
+#if defined(__GNUC__) || defined(__clang__)
+#define CMC_UNUSED __attribute__((__unused__))
+#else
+#define CMC_UNUSED
+#endif
+
 #include <inttypes.h>
 #include <limits.h>
 #include <stdbool.h>

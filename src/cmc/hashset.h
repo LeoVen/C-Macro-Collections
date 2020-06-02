@@ -172,10 +172,6 @@
     static struct CMC_DEF_ENTRY(SNAME) *                                       \
         CMC_(PFX, _impl_get_entry)(struct SNAME * _set_, V value);             \
     static size_t CMC_(PFX, _impl_calculate_size)(size_t required);            \
-    static struct CMC_DEF_ITER(SNAME)                                          \
-        CMC_(PFX, _impl_it_start)(struct SNAME * _set_);                       \
-    static struct CMC_DEF_ITER(SNAME)                                          \
-        CMC_(PFX, _impl_it_end)(struct SNAME * _set_);                         \
                                                                                \
     struct SNAME *CMC_(PFX, _new)(size_t capacity, double load,                \
                                   struct CMC_DEF_FVAL(SNAME) * f_val)          \

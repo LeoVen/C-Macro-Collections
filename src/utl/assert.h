@@ -56,6 +56,8 @@
 #include <stdio.h>
 #include <string.h>
 
+#include "../cor/core.h"
+
 #define CMC_ASSERT_GLUE_(dtype, assertion) cmc_assert_##assertion##_##dtype
 #define CMC_ASSERT_GLUE(dtype, assertion) CMC_ASSERT_GLUE_(dtype, assertion)
 
@@ -68,21 +70,21 @@
  * This variable is also used in test.h utility to automatically pass or fail a
  * unit test. Once the unit test finishes, this variable is set back to true.
  */
-static bool cmc_assert_state = true;
+CMC_UNUSED static bool cmc_assert_state = true;
 
 /**
  * cmc_assert_total
  *
  * Tracks the total calls to any type of assertion.
  */
-static uintmax_t cmc_assert_total = 0;
+CMC_UNUSED static uintmax_t cmc_assert_total = 0;
 
 /**
  * cmc_assert_failed
  *
  * Tracks the total failed assertions.
  */
-static uintmax_t cmc_assert_failed = 0;
+CMC_UNUSED static uintmax_t cmc_assert_failed = 0;
 
 /**
  * expression : An expression that is expected to be evaluated to true.

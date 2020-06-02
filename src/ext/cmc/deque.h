@@ -361,18 +361,6 @@
 /**
  * STR
  */
-static const char *cmc_cmc_string_fmt_deque = "struct %s<%s> "
-                                              "at %p { "
-                                              "buffer:%p, "
-                                              "capacity:%" PRIuMAX ", "
-                                              "count:%" PRIuMAX ", "
-                                              "front:%" PRIuMAX ", "
-                                              "back:%" PRIuMAX ", "
-                                              "flag:%d, "
-                                              "f_val:%p, "
-                                              "alloc:%p, "
-                                              "callbacks:%p }";
-
 #define CMC_EXT_CMC_DEQUE_STR(PARAMS)    \
     CMC_EXT_CMC_DEQUE_STR_HEADER(PARAMS) \
     CMC_EXT_CMC_DEQUE_STR_SOURCE(PARAMS)
@@ -398,7 +386,18 @@ static const char *cmc_cmc_string_fmt_deque = "struct %s<%s> "
     {                                                                       \
         struct SNAME *d_ = _deque_;                                         \
                                                                             \
-        return 0 <= fprintf(fptr, cmc_cmc_string_fmt_deque,                 \
+        return 0 <= fprintf(fptr,                                           \
+                            "struct %s<%s> "                                \
+                            "at %p { "                                      \
+                            "buffer:%p, "                                   \
+                            "capacity:%" PRIuMAX ", "                       \
+                            "count:%" PRIuMAX ", "                          \
+                            "front:%" PRIuMAX ", "                          \
+                            "back:%" PRIuMAX ", "                           \
+                            "flag:%d, "                                     \
+                            "f_val:%p, "                                    \
+                            "alloc:%p, "                                    \
+                            "callbacks:%p }",                               \
                             CMC_TO_STRING(SNAME), CMC_TO_STRING(V), d_,     \
                             d_->buffer, d_->capacity, d_->count, d_->front, \
                             d_->back, d_->flag, d_->f_val, d_->alloc,       \

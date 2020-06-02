@@ -253,17 +253,6 @@
 /**
  * STR
  */
-static const char *cmc_cmc_string_fmt_heap = "struct %s<%s> "
-                                             "at %p { "
-                                             "buffer:%p, "
-                                             "capacity:%" PRIuMAX ", "
-                                             "count:%" PRIuMAX ", "
-                                             "type:%s, "
-                                             "flag:%d, "
-                                             "f_val:%p, "
-                                             "alloc:%p, "
-                                             "callbacks: %p}";
-
 #define CMC_EXT_CMC_HEAP_STR(PARAMS)    \
     CMC_EXT_CMC_HEAP_STR_HEADER(PARAMS) \
     CMC_EXT_CMC_HEAP_STR_SOURCE(PARAMS)
@@ -290,7 +279,17 @@ static const char *cmc_cmc_string_fmt_heap = "struct %s<%s> "
         struct SNAME *h_ = _heap_;                                            \
         const char *t = h_->HO == 1 ? "MaxHeap" : "MinHeap";                  \
                                                                               \
-        return 0 <= fprintf(fptr, cmc_cmc_string_fmt_heap,                    \
+        return 0 <= fprintf(fptr,                                             \
+                            "struct %s<%s> "                                  \
+                            "at %p { "                                        \
+                            "buffer:%p, "                                     \
+                            "capacity:%" PRIuMAX ", "                         \
+                            "count:%" PRIuMAX ", "                            \
+                            "type:%s, "                                       \
+                            "flag:%d, "                                       \
+                            "f_val:%p, "                                      \
+                            "alloc:%p, "                                      \
+                            "callbacks: %p}",                                 \
                             CMC_TO_STRING(SNAME), CMC_TO_STRING(V), h_,       \
                             h_->buffer, h_->capacity, h_->count, t, h_->flag, \
                             h_->f_val, h_->alloc, h_->callbacks);             \

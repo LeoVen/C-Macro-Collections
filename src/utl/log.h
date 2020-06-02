@@ -64,6 +64,8 @@
 #include <stdio.h>
 #include <time.h>
 
+#include "../cor/core.h"
+
 static const char *cmc_log_names[] = { "TRACE", "DEBUG", "INFO",
                                        "WARN",  "ERROR", "FATAL" };
 
@@ -106,8 +108,9 @@ static struct
 #define cmc_log_fatal(fmt, ...) \
     cmc_log(CMC_LOG_FATAL, __FILE__, __func__, __LINE__, fmt, ##__VA_ARGS__)
 
-static void cmc_log(enum cmc_log_type log, const char *filename,
-                    const char *funcname, unsigned line, const char *fmt, ...)
+CMC_UNUSED static void cmc_log(enum cmc_log_type log, const char *filename,
+                               const char *funcname, unsigned line,
+                               const char *fmt, ...)
 {
     if (!cmc_log_config.enabled)
         return;
