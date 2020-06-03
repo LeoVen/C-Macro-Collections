@@ -477,26 +477,6 @@ _Bool ih_equals(struct intervalheap *_heap1_, struct intervalheap *_heap2_)
     }
     return 1;
 }
-struct cmc_string ih_to_string(struct intervalheap *_heap_)
-{
-    struct cmc_string str;
-    struct intervalheap *h_ = _heap_;
-    int n = snprintf(str.s, cmc_string_len, cmc_cmc_string_fmt_intervalheap,
-                     "CMC_PARAM_SNAME((ih, intervalheap, , , size_t))",
-                     "CMC_PARAM_V((ih, intervalheap, , , size_t))", h_,
-                     h_->buffer, h_->capacity, h_->size, h_->count, h_->flag,
-                     h_->f_val, h_->alloc, h_->callbacks);
-    return n >= 0 ? str : (struct cmc_string){ 0 };
-}
-_Bool ih_print(struct intervalheap *_heap_, FILE *fptr)
-{
-    for (size_t i = 0; i < _heap_->count; i++)
-    {
-        if (!_heap_->f_val->str(fptr, _heap_->buffer[i / 2][i % 2]))
-            return 0;
-    }
-    return 1;
-}
 struct intervalheap_iter ih_iter_start(struct intervalheap *target)
 {
     struct intervalheap_iter iter;

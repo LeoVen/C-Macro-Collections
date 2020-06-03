@@ -16,7 +16,7 @@
 /**
  * All the EXT parts of CMC HashSet.
  */
-#define CMC_EXT_CMC_HASHSET_PARTS ITER, STR
+#define CMC_EXT_CMC_HASHSET_PARTS ITER, SETF, STR
 
 /**
  * ITER
@@ -331,6 +331,298 @@
     size_t CMC_(PFX, _iter_index)(struct CMC_DEF_ITER(SNAME) * iter)         \
     {                                                                        \
         return iter->index;                                                  \
+    }
+
+/**
+ * SETF
+ */
+#define CMC_EXT_CMC_HASHSET_SETF(PARAMS)    \
+    CMC_EXT_CMC_HASHSET_SETF_HEADER(PARAMS) \
+    CMC_EXT_CMC_HASHSET_SETF_SOURCE(PARAMS)
+
+#define CMC_EXT_CMC_HASHSET_SETF_HEADER(PARAMS) \
+    CMC_EXT_CMC_HASHSET_SETF_HEADER_(           \
+        CMC_PARAM_PFX(PARAMS), CMC_PARAM_SNAME(PARAMS), CMC_PARAM_V(PARAMS))
+
+#define CMC_EXT_CMC_HASHSET_SETF_SOURCE(PARAMS) \
+    CMC_EXT_CMC_HASHSET_SETF_SOURCE_(           \
+        CMC_PARAM_PFX(PARAMS), CMC_PARAM_SNAME(PARAMS), CMC_PARAM_V(PARAMS))
+
+#define CMC_EXT_CMC_HASHSET_SETF_HEADER_(PFX, SNAME, V)                       \
+                                                                              \
+    /* Set Operations */                                                      \
+    struct SNAME *CMC_(PFX, _union)(struct SNAME * _set1_,                    \
+                                    struct SNAME * _set2_);                   \
+    struct SNAME *CMC_(PFX, _intersection)(struct SNAME * _set1_,             \
+                                           struct SNAME * _set2_);            \
+    struct SNAME *CMC_(PFX, _difference)(struct SNAME * _set1_,               \
+                                         struct SNAME * _set2_);              \
+    struct SNAME *CMC_(PFX, _symmetric_difference)(struct SNAME * _set1_,     \
+                                                   struct SNAME * _set2_);    \
+    bool CMC_(PFX, _is_subset)(struct SNAME * _set1_, struct SNAME * _set2_); \
+    bool CMC_(PFX, _is_superset)(struct SNAME * _set1_,                       \
+                                 struct SNAME * _set2_);                      \
+    bool CMC_(PFX, _is_proper_subset)(struct SNAME * _set1_,                  \
+                                      struct SNAME * _set2_);                 \
+    bool CMC_(PFX, _is_proper_superset)(struct SNAME * _set1_,                \
+                                        struct SNAME * _set2_);               \
+    bool CMC_(PFX, _is_disjointset)(struct SNAME * _set1_,                    \
+                                    struct SNAME * _set2_);
+
+#define CMC_EXT_CMC_HASHSET_SETF_SOURCE_(PFX, SNAME, V)                        \
+                                                                               \
+    struct SNAME *CMC_(PFX, _union)(struct SNAME * _set1_,                     \
+                                    struct SNAME * _set2_)                     \
+    {                                                                          \
+        /* Callbacks are added later */                                        \
+        struct SNAME *_set_r_ =                                                \
+            CMC_(PFX, _new_custom)(_set1_->capacity, _set1_->load,             \
+                                   _set1_->f_val, _set1_->alloc, NULL);        \
+                                                                               \
+        if (!_set_r_)                                                          \
+        {                                                                      \
+            _set1_->flag = CMC_FLAG_ALLOC;                                     \
+            _set2_->flag = CMC_FLAG_ALLOC;                                     \
+            return NULL;                                                       \
+        }                                                                      \
+                                                                               \
+        struct CMC_DEF_ITER(SNAME) iter1 = CMC_(PFX, _iter_start)(_set1_);     \
+        struct CMC_DEF_ITER(SNAME) iter2 = CMC_(PFX, _iter_start)(_set2_);     \
+                                                                               \
+        /* TODO turn this into a normal loop and check for errors */           \
+        for (; !CMC_(PFX, _iter_at_end)(&iter1);                               \
+             CMC_(PFX, _iter_next)(&iter1))                                    \
+        {                                                                      \
+            CMC_(PFX, _insert)(_set_r_, CMC_(PFX, _iter_value)(&iter1));       \
+        }                                                                      \
+                                                                               \
+        for (; !CMC_(PFX, _iter_at_end)(&iter2);                               \
+             CMC_(PFX, _iter_next)(&iter2))                                    \
+        {                                                                      \
+            CMC_(PFX, _insert)(_set_r_, CMC_(PFX, _iter_value)(&iter2));       \
+        }                                                                      \
+                                                                               \
+        _set_r_->callbacks = _set1_->callbacks;                                \
+                                                                               \
+        return _set_r_;                                                        \
+    }                                                                          \
+                                                                               \
+    struct SNAME *CMC_(PFX, _intersection)(struct SNAME * _set1_,              \
+                                           struct SNAME * _set2_)              \
+    {                                                                          \
+        /* Callbacks are added later */                                        \
+        struct SNAME *_set_r_ =                                                \
+            CMC_(PFX, _new_custom)(_set1_->capacity, _set1_->load,             \
+                                   _set1_->f_val, _set1_->alloc, NULL);        \
+                                                                               \
+        if (!_set_r_)                                                          \
+        {                                                                      \
+            _set1_->flag = CMC_FLAG_ALLOC;                                     \
+            _set2_->flag = CMC_FLAG_ALLOC;                                     \
+            return NULL;                                                       \
+        }                                                                      \
+                                                                               \
+        struct SNAME *_set_A_ =                                                \
+            _set1_->count < _set2_->count ? _set1_ : _set2_;                   \
+        struct SNAME *_set_B_ = _set_A_ == _set1_ ? _set2_ : _set1_;           \
+                                                                               \
+        struct CMC_DEF_ITER(SNAME) iter = CMC_(PFX, _iter_start)(_set_A_);     \
+                                                                               \
+        for (; !CMC_(PFX, _iter_at_end)(&iter); CMC_(PFX, _iter_next)(&iter))  \
+        {                                                                      \
+            V value = CMC_(PFX, _iter_value)(&iter);                           \
+                                                                               \
+            if (CMC_(PFX, _impl_get_entry)(_set_B_, value) != NULL)            \
+                CMC_(PFX, _insert)(_set_r_, value);                            \
+        }                                                                      \
+                                                                               \
+        _set_r_->callbacks = _set1_->callbacks;                                \
+                                                                               \
+        return _set_r_;                                                        \
+    }                                                                          \
+                                                                               \
+    struct SNAME *CMC_(PFX, _difference)(struct SNAME * _set1_,                \
+                                         struct SNAME * _set2_)                \
+    {                                                                          \
+        /* Callbacks are added later */                                        \
+        struct SNAME *_set_r_ =                                                \
+            CMC_(PFX, _new_custom)(_set1_->capacity, _set1_->load,             \
+                                   _set1_->f_val, _set1_->alloc, NULL);        \
+                                                                               \
+        if (!_set_r_)                                                          \
+        {                                                                      \
+            _set1_->flag = CMC_FLAG_ALLOC;                                     \
+            _set2_->flag = CMC_FLAG_ALLOC;                                     \
+            return NULL;                                                       \
+        }                                                                      \
+                                                                               \
+        struct CMC_DEF_ITER(SNAME) iter = CMC_(PFX, _iter_start)(_set1_);      \
+                                                                               \
+        for (; !CMC_(PFX, _iter_at_end)(&iter); CMC_(PFX, _iter_next)(&iter))  \
+        {                                                                      \
+            V value = CMC_(PFX, _iter_value)(&iter);                           \
+                                                                               \
+            if (CMC_(PFX, _impl_get_entry)(_set2_, value) == NULL)             \
+                CMC_(PFX, _insert)(_set_r_, value);                            \
+        }                                                                      \
+                                                                               \
+        _set_r_->callbacks = _set1_->callbacks;                                \
+                                                                               \
+        return _set_r_;                                                        \
+    }                                                                          \
+                                                                               \
+    struct SNAME *CMC_(PFX, _symmetric_difference)(struct SNAME * _set1_,      \
+                                                   struct SNAME * _set2_)      \
+    {                                                                          \
+        /* Callbacks are added later */                                        \
+        struct SNAME *_set_r_ =                                                \
+            CMC_(PFX, _new_custom)(_set1_->capacity, _set1_->load,             \
+                                   _set1_->f_val, _set1_->alloc, NULL);        \
+                                                                               \
+        if (!_set_r_)                                                          \
+        {                                                                      \
+            _set1_->flag = CMC_FLAG_ALLOC;                                     \
+            _set2_->flag = CMC_FLAG_ALLOC;                                     \
+            return NULL;                                                       \
+        }                                                                      \
+                                                                               \
+        struct CMC_DEF_ITER(SNAME) iter1 = CMC_(PFX, _iter_start)(_set1_);     \
+        struct CMC_DEF_ITER(SNAME) iter2 = CMC_(PFX, _iter_start)(_set2_);     \
+                                                                               \
+        for (; !CMC_(PFX, _iter_at_end)(&iter1);                               \
+             CMC_(PFX, _iter_next)(&iter1))                                    \
+        {                                                                      \
+            V value = CMC_(PFX, _iter_value)(&iter1);                          \
+                                                                               \
+            if (CMC_(PFX, _impl_get_entry)(_set2_, value) == NULL)             \
+                CMC_(PFX, _insert)(_set_r_, value);                            \
+        }                                                                      \
+                                                                               \
+        for (; !CMC_(PFX, _iter_at_end)(&iter2);                               \
+             CMC_(PFX, _iter_next)(&iter2))                                    \
+        {                                                                      \
+            V value = CMC_(PFX, _iter_value)(&iter2);                          \
+                                                                               \
+            if (CMC_(PFX, _impl_get_entry)(_set1_, value) == NULL)             \
+                CMC_(PFX, _insert)(_set_r_, value);                            \
+        }                                                                      \
+                                                                               \
+        _set_r_->callbacks = _set1_->callbacks;                                \
+                                                                               \
+        return _set_r_;                                                        \
+    }                                                                          \
+                                                                               \
+    /* Is _set1_ a subset of _set2_ ? */                                       \
+    /* A set X is a subset of a set Y when: X <= Y */                          \
+    /* If X is a subset of Y, then Y is a superset of X */                     \
+    bool CMC_(PFX, _is_subset)(struct SNAME * _set1_, struct SNAME * _set2_)   \
+    {                                                                          \
+        _set1_->flag = CMC_FLAG_OK;                                            \
+        _set2_->flag = CMC_FLAG_OK;                                            \
+                                                                               \
+        /* If the cardinality of _set1_ is greater than that of _set2_, */     \
+        /* then it is safe to say that _set1_ can't be a subset of _set2_ */   \
+        if (_set1_->count > _set2_->count)                                     \
+            return false;                                                      \
+                                                                               \
+        /* The empty set is a subset of all sets */                            \
+        if (CMC_(PFX, _empty)(_set1_))                                         \
+            return true;                                                       \
+                                                                               \
+        struct CMC_DEF_ITER(SNAME) iter = CMC_(PFX, _iter_start)(_set1_);      \
+                                                                               \
+        for (; !CMC_(PFX, _iter_at_end)(&iter); CMC_(PFX, _iter_next)(&iter))  \
+        {                                                                      \
+            V value = CMC_(PFX, _iter_value)(&iter);                           \
+                                                                               \
+            if (CMC_(PFX, _impl_get_entry)(_set2_, value) == NULL)             \
+                return false;                                                  \
+        }                                                                      \
+                                                                               \
+        return true;                                                           \
+    }                                                                          \
+                                                                               \
+    /* Is _set1_ a superset of _set2_ ? */                                     \
+    /* A set X is a superset of a set Y when: X >= Y */                        \
+    /* If X is a superset of Y, then Y is a subset of X */                     \
+    bool CMC_(PFX, _is_superset)(struct SNAME * _set1_, struct SNAME * _set2_) \
+    {                                                                          \
+        return CMC_(PFX, _is_subset)(_set2_, _set1_);                          \
+    }                                                                          \
+                                                                               \
+    /* Is _set1_ a proper subset of _set2_ ? */                                \
+    /* A set X is a proper subset of a set Y when: X < Y */                    \
+    /* If X is a proper subset of Y, then Y is a proper superset of X */       \
+    bool CMC_(PFX, _is_proper_subset)(struct SNAME * _set1_,                   \
+                                      struct SNAME * _set2_)                   \
+    {                                                                          \
+        _set1_->flag = CMC_FLAG_OK;                                            \
+        _set2_->flag = CMC_FLAG_OK;                                            \
+                                                                               \
+        /* If the cardinality of _set1_ is greater than or equal to that of */ \
+        /* _set2_, then it is safe to say that _set1_ can't be a proper */     \
+        /* subset of _set2_ */                                                 \
+        if (_set1_->count >= _set2_->count)                                    \
+            return false;                                                      \
+                                                                               \
+        if (CMC_(PFX, _empty)(_set1_))                                         \
+        {                                                                      \
+            /* The empty set is a proper subset of all non-empty sets */       \
+            if (!CMC_(PFX, _empty)(_set2_))                                    \
+                return true;                                                   \
+            /* The empty set is not a proper subset of itself (this is true */ \
+            /* for any set) */                                                 \
+            else                                                               \
+                return false;                                                  \
+        }                                                                      \
+                                                                               \
+        struct CMC_DEF_ITER(SNAME) iter = CMC_(PFX, _iter_start)(_set1_);      \
+                                                                               \
+        for (; !CMC_(PFX, _iter_at_end)(&iter); CMC_(PFX, _iter_next)(&iter))  \
+        {                                                                      \
+            V value = CMC_(PFX, _iter_value)(&iter);                           \
+                                                                               \
+            if (CMC_(PFX, _impl_get_entry)(_set2_, value) == NULL)             \
+                return false;                                                  \
+        }                                                                      \
+                                                                               \
+        return true;                                                           \
+    }                                                                          \
+                                                                               \
+    /* Is _set1_ a proper superset of _set2_ ? */                              \
+    /* A set X is a proper superset of a set Y when: X > Y */                  \
+    /* If X is a proper superset of Y, then Y is a proper subset of X */       \
+    bool CMC_(PFX, _is_proper_superset)(struct SNAME * _set1_,                 \
+                                        struct SNAME * _set2_)                 \
+    {                                                                          \
+        return CMC_(PFX, _is_proper_subset)(_set2_, _set1_);                   \
+    }                                                                          \
+                                                                               \
+    /* Is _set1_ a disjointset of _set2_ ? */                                  \
+    /* A set X is a disjointset of a set Y if their intersection is empty, */  \
+    /* that is, if there are no elements in common between the two */          \
+    bool CMC_(PFX, _is_disjointset)(struct SNAME * _set1_,                     \
+                                    struct SNAME * _set2_)                     \
+    {                                                                          \
+        _set1_->flag = CMC_FLAG_OK;                                            \
+        _set2_->flag = CMC_FLAG_OK;                                            \
+                                                                               \
+        /* The intersection of an empty set with any other set will result */  \
+        /* in an empty set */                                                  \
+        if (CMC_(PFX, _empty)(_set1_))                                         \
+            return true;                                                       \
+                                                                               \
+        struct CMC_DEF_ITER(SNAME) iter = CMC_(PFX, _iter_start)(_set1_);      \
+                                                                               \
+        for (; !CMC_(PFX, _iter_at_end)(&iter); CMC_(PFX, _iter_next)(&iter))  \
+        {                                                                      \
+            V value = CMC_(PFX, _iter_value)(&iter);                           \
+                                                                               \
+            if (CMC_(PFX, _impl_get_entry)(_set2_, value) != NULL)             \
+                return false;                                                  \
+        }                                                                      \
+                                                                               \
+        return true;                                                           \
     }
 
 /**

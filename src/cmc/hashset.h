@@ -47,121 +47,102 @@
 /* -------------------------------------------------------------------------
  * Header
  * ------------------------------------------------------------------------- */
-#define CMC_CMC_HASHSET_CORE_HEADER_(PFX, SNAME, V)                           \
-                                                                              \
-    /* Hashset Structure */                                                   \
-    struct SNAME                                                              \
-    {                                                                         \
-        /* Array of Entries */                                                \
-        struct CMC_DEF_ENTRY(SNAME) * buffer;                                 \
-                                                                              \
-        /* Current Array Capcity */                                           \
-        size_t capacity;                                                      \
-                                                                              \
-        /* Current amount of elements */                                      \
-        size_t count;                                                         \
-                                                                              \
-        /* Load factor in range (0.0, 1.0) */                                 \
-        double load;                                                          \
-                                                                              \
-        /* Flags indicating errors or success */                              \
-        int flag;                                                             \
-                                                                              \
-        /* Value function table */                                            \
-        struct CMC_DEF_FVAL(SNAME) * f_val;                                   \
-                                                                              \
-        /* Custom allocation functions */                                     \
-        struct cmc_alloc_node *alloc;                                         \
-                                                                              \
-        /* Custom callback functions */                                       \
-        struct cmc_callbacks *callbacks;                                      \
-    };                                                                        \
-                                                                              \
-    struct CMC_DEF_ENTRY(SNAME)                                               \
-    {                                                                         \
-        /* Entry value */                                                     \
-        V value;                                                              \
-                                                                              \
-        /* The distance of this node to its original position, used by */     \
-        /* robin-hood hashing */                                              \
-        size_t dist;                                                          \
-                                                                              \
-        /* The sate of this node (DELETED, EMPTY, FILLED) */                  \
-        enum cmc_entry_state state;                                           \
-    };                                                                        \
-                                                                              \
-    /* Value struct function table */                                         \
-    struct CMC_DEF_FVAL(SNAME)                                                \
-    {                                                                         \
-        /* Comparator function */                                             \
-        CMC_DEF_FTAB_CMP(V);                                                  \
-                                                                              \
-        /* Copy function */                                                   \
-        CMC_DEF_FTAB_CPY(V);                                                  \
-                                                                              \
-        /* To string function */                                              \
-        CMC_DEF_FTAB_STR(V);                                                  \
-                                                                              \
-        /* Free from memory function */                                       \
-        CMC_DEF_FTAB_FREE(V);                                                 \
-                                                                              \
-        /* Hash function */                                                   \
-        CMC_DEF_FTAB_HASH(V);                                                 \
-                                                                              \
-        /* Priority function */                                               \
-        CMC_DEF_FTAB_PRI(V);                                                  \
-    };                                                                        \
-                                                                              \
-    /* Collection Functions */                                                \
-    /* Collection Allocation and Deallocation */                              \
-    struct SNAME *CMC_(PFX, _new)(size_t capacity, double load,               \
-                                  struct CMC_DEF_FVAL(SNAME) * f_val);        \
-    struct SNAME *CMC_(PFX, _new_custom)(                                     \
-        size_t capacity, double load, struct CMC_DEF_FVAL(SNAME) * f_val,     \
-        struct cmc_alloc_node * alloc, struct cmc_callbacks * callbacks);     \
-    void CMC_(PFX, _clear)(struct SNAME * _set_);                             \
-    void CMC_(PFX, _free)(struct SNAME * _set_);                              \
-    /* Customization of Allocation and Callbacks */                           \
-    void CMC_(PFX, _customize)(struct SNAME * _set_,                          \
-                               struct cmc_alloc_node * alloc,                 \
-                               struct cmc_callbacks * callbacks);             \
-    /* Collection Input and Output */                                         \
-    bool CMC_(PFX, _insert)(struct SNAME * _set_, V value);                   \
-    bool CMC_(PFX, _remove)(struct SNAME * _set_, V value);                   \
-    /* Element Access */                                                      \
-    bool CMC_(PFX, _max)(struct SNAME * _set_, V * value);                    \
-    bool CMC_(PFX, _min)(struct SNAME * _set_, V * value);                    \
-    /* Collection State */                                                    \
-    bool CMC_(PFX, _contains)(struct SNAME * _set_, V value);                 \
-    bool CMC_(PFX, _empty)(struct SNAME * _set_);                             \
-    bool CMC_(PFX, _full)(struct SNAME * _set_);                              \
-    size_t CMC_(PFX, _count)(struct SNAME * _set_);                           \
-    size_t CMC_(PFX, _capacity)(struct SNAME * _set_);                        \
-    double CMC_(PFX, _load)(struct SNAME * _set_);                            \
-    int CMC_(PFX, _flag)(struct SNAME * _set_);                               \
-    /* Collection Utility */                                                  \
-    bool CMC_(PFX, _resize)(struct SNAME * _set_, size_t capacity);           \
-    struct SNAME *CMC_(PFX, _copy_of)(struct SNAME * _set_);                  \
-    bool CMC_(PFX, _equals)(struct SNAME * _set1_, struct SNAME * _set2_);    \
-                                                                              \
-    /* Set Operations */                                                      \
-    struct SNAME *CMC_(PFX, _union)(struct SNAME * _set1_,                    \
-                                    struct SNAME * _set2_);                   \
-    struct SNAME *CMC_(PFX, _intersection)(struct SNAME * _set1_,             \
-                                           struct SNAME * _set2_);            \
-    struct SNAME *CMC_(PFX, _difference)(struct SNAME * _set1_,               \
-                                         struct SNAME * _set2_);              \
-    struct SNAME *CMC_(PFX, _symmetric_difference)(struct SNAME * _set1_,     \
-                                                   struct SNAME * _set2_);    \
-    bool CMC_(PFX, _is_subset)(struct SNAME * _set1_, struct SNAME * _set2_); \
-    bool CMC_(PFX, _is_superset)(struct SNAME * _set1_,                       \
-                                 struct SNAME * _set2_);                      \
-    bool CMC_(PFX, _is_proper_subset)(struct SNAME * _set1_,                  \
-                                      struct SNAME * _set2_);                 \
-    bool CMC_(PFX, _is_proper_superset)(struct SNAME * _set1_,                \
-                                        struct SNAME * _set2_);               \
-    bool CMC_(PFX, _is_disjointset)(struct SNAME * _set1_,                    \
-                                    struct SNAME * _set2_);
+#define CMC_CMC_HASHSET_CORE_HEADER_(PFX, SNAME, V)                       \
+                                                                          \
+    /* Hashset Structure */                                               \
+    struct SNAME                                                          \
+    {                                                                     \
+        /* Array of Entries */                                            \
+        struct CMC_DEF_ENTRY(SNAME) * buffer;                             \
+                                                                          \
+        /* Current Array Capcity */                                       \
+        size_t capacity;                                                  \
+                                                                          \
+        /* Current amount of elements */                                  \
+        size_t count;                                                     \
+                                                                          \
+        /* Load factor in range (0.0, 1.0) */                             \
+        double load;                                                      \
+                                                                          \
+        /* Flags indicating errors or success */                          \
+        int flag;                                                         \
+                                                                          \
+        /* Value function table */                                        \
+        struct CMC_DEF_FVAL(SNAME) * f_val;                               \
+                                                                          \
+        /* Custom allocation functions */                                 \
+        struct cmc_alloc_node *alloc;                                     \
+                                                                          \
+        /* Custom callback functions */                                   \
+        struct cmc_callbacks *callbacks;                                  \
+    };                                                                    \
+                                                                          \
+    struct CMC_DEF_ENTRY(SNAME)                                           \
+    {                                                                     \
+        /* Entry value */                                                 \
+        V value;                                                          \
+                                                                          \
+        /* The distance of this node to its original position, used by */ \
+        /* robin-hood hashing */                                          \
+        size_t dist;                                                      \
+                                                                          \
+        /* The sate of this node (DELETED, EMPTY, FILLED) */              \
+        enum cmc_entry_state state;                                       \
+    };                                                                    \
+                                                                          \
+    /* Value struct function table */                                     \
+    struct CMC_DEF_FVAL(SNAME)                                            \
+    {                                                                     \
+        /* Comparator function */                                         \
+        CMC_DEF_FTAB_CMP(V);                                              \
+                                                                          \
+        /* Copy function */                                               \
+        CMC_DEF_FTAB_CPY(V);                                              \
+                                                                          \
+        /* To string function */                                          \
+        CMC_DEF_FTAB_STR(V);                                              \
+                                                                          \
+        /* Free from memory function */                                   \
+        CMC_DEF_FTAB_FREE(V);                                             \
+                                                                          \
+        /* Hash function */                                               \
+        CMC_DEF_FTAB_HASH(V);                                             \
+                                                                          \
+        /* Priority function */                                           \
+        CMC_DEF_FTAB_PRI(V);                                              \
+    };                                                                    \
+                                                                          \
+    /* Collection Functions */                                            \
+    /* Collection Allocation and Deallocation */                          \
+    struct SNAME *CMC_(PFX, _new)(size_t capacity, double load,           \
+                                  struct CMC_DEF_FVAL(SNAME) * f_val);    \
+    struct SNAME *CMC_(PFX, _new_custom)(                                 \
+        size_t capacity, double load, struct CMC_DEF_FVAL(SNAME) * f_val, \
+        struct cmc_alloc_node * alloc, struct cmc_callbacks * callbacks); \
+    void CMC_(PFX, _clear)(struct SNAME * _set_);                         \
+    void CMC_(PFX, _free)(struct SNAME * _set_);                          \
+    /* Customization of Allocation and Callbacks */                       \
+    void CMC_(PFX, _customize)(struct SNAME * _set_,                      \
+                               struct cmc_alloc_node * alloc,             \
+                               struct cmc_callbacks * callbacks);         \
+    /* Collection Input and Output */                                     \
+    bool CMC_(PFX, _insert)(struct SNAME * _set_, V value);               \
+    bool CMC_(PFX, _remove)(struct SNAME * _set_, V value);               \
+    /* Element Access */                                                  \
+    bool CMC_(PFX, _max)(struct SNAME * _set_, V * value);                \
+    bool CMC_(PFX, _min)(struct SNAME * _set_, V * value);                \
+    /* Collection State */                                                \
+    bool CMC_(PFX, _contains)(struct SNAME * _set_, V value);             \
+    bool CMC_(PFX, _empty)(struct SNAME * _set_);                         \
+    bool CMC_(PFX, _full)(struct SNAME * _set_);                          \
+    size_t CMC_(PFX, _count)(struct SNAME * _set_);                       \
+    size_t CMC_(PFX, _capacity)(struct SNAME * _set_);                    \
+    double CMC_(PFX, _load)(struct SNAME * _set_);                        \
+    int CMC_(PFX, _flag)(struct SNAME * _set_);                           \
+    /* Collection Utility */                                              \
+    bool CMC_(PFX, _resize)(struct SNAME * _set_, size_t capacity);       \
+    struct SNAME *CMC_(PFX, _copy_of)(struct SNAME * _set_);              \
+    bool CMC_(PFX, _equals)(struct SNAME * _set1_, struct SNAME * _set2_);
 
 /* -------------------------------------------------------------------------
  * Source
@@ -663,260 +644,6 @@
         {                                                                      \
             if (CMC_(PFX, _impl_get_entry)(                                    \
                     _set2_, CMC_(PFX, _iter_value)(&iter)) == NULL)            \
-                return false;                                                  \
-        }                                                                      \
-                                                                               \
-        return true;                                                           \
-    }                                                                          \
-                                                                               \
-    struct SNAME *CMC_(PFX, _union)(struct SNAME * _set1_,                     \
-                                    struct SNAME * _set2_)                     \
-    {                                                                          \
-        /* Callbacks are added later */                                        \
-        struct SNAME *_set_r_ =                                                \
-            CMC_(PFX, _new_custom)(_set1_->capacity, _set1_->load,             \
-                                   _set1_->f_val, _set1_->alloc, NULL);        \
-                                                                               \
-        if (!_set_r_)                                                          \
-        {                                                                      \
-            _set1_->flag = CMC_FLAG_ALLOC;                                     \
-            _set2_->flag = CMC_FLAG_ALLOC;                                     \
-            return NULL;                                                       \
-        }                                                                      \
-                                                                               \
-        struct CMC_DEF_ITER(SNAME) iter1 = CMC_(PFX, _iter_start)(_set1_);     \
-        struct CMC_DEF_ITER(SNAME) iter2 = CMC_(PFX, _iter_start)(_set2_);     \
-                                                                               \
-        /* TODO turn this into a normal loop and check for errors */           \
-        for (; !CMC_(PFX, _iter_at_end)(&iter1);                               \
-             CMC_(PFX, _iter_next)(&iter1))                                    \
-        {                                                                      \
-            CMC_(PFX, _insert)(_set_r_, CMC_(PFX, _iter_value)(&iter1));       \
-        }                                                                      \
-                                                                               \
-        for (; !CMC_(PFX, _iter_at_end)(&iter2);                               \
-             CMC_(PFX, _iter_next)(&iter2))                                    \
-        {                                                                      \
-            CMC_(PFX, _insert)(_set_r_, CMC_(PFX, _iter_value)(&iter2));       \
-        }                                                                      \
-                                                                               \
-        _set_r_->callbacks = _set1_->callbacks;                                \
-                                                                               \
-        return _set_r_;                                                        \
-    }                                                                          \
-                                                                               \
-    struct SNAME *CMC_(PFX, _intersection)(struct SNAME * _set1_,              \
-                                           struct SNAME * _set2_)              \
-    {                                                                          \
-        /* Callbacks are added later */                                        \
-        struct SNAME *_set_r_ =                                                \
-            CMC_(PFX, _new_custom)(_set1_->capacity, _set1_->load,             \
-                                   _set1_->f_val, _set1_->alloc, NULL);        \
-                                                                               \
-        if (!_set_r_)                                                          \
-        {                                                                      \
-            _set1_->flag = CMC_FLAG_ALLOC;                                     \
-            _set2_->flag = CMC_FLAG_ALLOC;                                     \
-            return NULL;                                                       \
-        }                                                                      \
-                                                                               \
-        struct SNAME *_set_A_ =                                                \
-            _set1_->count < _set2_->count ? _set1_ : _set2_;                   \
-        struct SNAME *_set_B_ = _set_A_ == _set1_ ? _set2_ : _set1_;           \
-                                                                               \
-        struct CMC_DEF_ITER(SNAME) iter = CMC_(PFX, _iter_start)(_set_A_);     \
-                                                                               \
-        for (; !CMC_(PFX, _iter_at_end)(&iter); CMC_(PFX, _iter_next)(&iter))  \
-        {                                                                      \
-            V value = CMC_(PFX, _iter_value)(&iter);                           \
-                                                                               \
-            if (CMC_(PFX, _impl_get_entry)(_set_B_, value) != NULL)            \
-                CMC_(PFX, _insert)(_set_r_, value);                            \
-        }                                                                      \
-                                                                               \
-        _set_r_->callbacks = _set1_->callbacks;                                \
-                                                                               \
-        return _set_r_;                                                        \
-    }                                                                          \
-                                                                               \
-    struct SNAME *CMC_(PFX, _difference)(struct SNAME * _set1_,                \
-                                         struct SNAME * _set2_)                \
-    {                                                                          \
-        /* Callbacks are added later */                                        \
-        struct SNAME *_set_r_ =                                                \
-            CMC_(PFX, _new_custom)(_set1_->capacity, _set1_->load,             \
-                                   _set1_->f_val, _set1_->alloc, NULL);        \
-                                                                               \
-        if (!_set_r_)                                                          \
-        {                                                                      \
-            _set1_->flag = CMC_FLAG_ALLOC;                                     \
-            _set2_->flag = CMC_FLAG_ALLOC;                                     \
-            return NULL;                                                       \
-        }                                                                      \
-                                                                               \
-        struct CMC_DEF_ITER(SNAME) iter = CMC_(PFX, _iter_start)(_set1_);      \
-                                                                               \
-        for (; !CMC_(PFX, _iter_at_end)(&iter); CMC_(PFX, _iter_next)(&iter))  \
-        {                                                                      \
-            V value = CMC_(PFX, _iter_value)(&iter);                           \
-                                                                               \
-            if (CMC_(PFX, _impl_get_entry)(_set2_, value) == NULL)             \
-                CMC_(PFX, _insert)(_set_r_, value);                            \
-        }                                                                      \
-                                                                               \
-        _set_r_->callbacks = _set1_->callbacks;                                \
-                                                                               \
-        return _set_r_;                                                        \
-    }                                                                          \
-                                                                               \
-    struct SNAME *CMC_(PFX, _symmetric_difference)(struct SNAME * _set1_,      \
-                                                   struct SNAME * _set2_)      \
-    {                                                                          \
-        /* Callbacks are added later */                                        \
-        struct SNAME *_set_r_ =                                                \
-            CMC_(PFX, _new_custom)(_set1_->capacity, _set1_->load,             \
-                                   _set1_->f_val, _set1_->alloc, NULL);        \
-                                                                               \
-        if (!_set_r_)                                                          \
-        {                                                                      \
-            _set1_->flag = CMC_FLAG_ALLOC;                                     \
-            _set2_->flag = CMC_FLAG_ALLOC;                                     \
-            return NULL;                                                       \
-        }                                                                      \
-                                                                               \
-        struct CMC_DEF_ITER(SNAME) iter1 = CMC_(PFX, _iter_start)(_set1_);     \
-        struct CMC_DEF_ITER(SNAME) iter2 = CMC_(PFX, _iter_start)(_set2_);     \
-                                                                               \
-        for (; !CMC_(PFX, _iter_at_end)(&iter1);                               \
-             CMC_(PFX, _iter_next)(&iter1))                                    \
-        {                                                                      \
-            V value = CMC_(PFX, _iter_value)(&iter1);                          \
-                                                                               \
-            if (CMC_(PFX, _impl_get_entry)(_set2_, value) == NULL)             \
-                CMC_(PFX, _insert)(_set_r_, value);                            \
-        }                                                                      \
-                                                                               \
-        for (; !CMC_(PFX, _iter_at_end)(&iter2);                               \
-             CMC_(PFX, _iter_next)(&iter2))                                    \
-        {                                                                      \
-            V value = CMC_(PFX, _iter_value)(&iter2);                          \
-                                                                               \
-            if (CMC_(PFX, _impl_get_entry)(_set1_, value) == NULL)             \
-                CMC_(PFX, _insert)(_set_r_, value);                            \
-        }                                                                      \
-                                                                               \
-        _set_r_->callbacks = _set1_->callbacks;                                \
-                                                                               \
-        return _set_r_;                                                        \
-    }                                                                          \
-                                                                               \
-    /* Is _set1_ a subset of _set2_ ? */                                       \
-    /* A set X is a subset of a set Y when: X <= Y */                          \
-    /* If X is a subset of Y, then Y is a superset of X */                     \
-    bool CMC_(PFX, _is_subset)(struct SNAME * _set1_, struct SNAME * _set2_)   \
-    {                                                                          \
-        _set1_->flag = CMC_FLAG_OK;                                            \
-        _set2_->flag = CMC_FLAG_OK;                                            \
-                                                                               \
-        /* If the cardinality of _set1_ is greater than that of _set2_, */     \
-        /* then it is safe to say that _set1_ can't be a subset of _set2_ */   \
-        if (_set1_->count > _set2_->count)                                     \
-            return false;                                                      \
-                                                                               \
-        /* The empty set is a subset of all sets */                            \
-        if (CMC_(PFX, _empty)(_set1_))                                         \
-            return true;                                                       \
-                                                                               \
-        struct CMC_DEF_ITER(SNAME) iter = CMC_(PFX, _iter_start)(_set1_);      \
-                                                                               \
-        for (; !CMC_(PFX, _iter_at_end)(&iter); CMC_(PFX, _iter_next)(&iter))  \
-        {                                                                      \
-            V value = CMC_(PFX, _iter_value)(&iter);                           \
-                                                                               \
-            if (CMC_(PFX, _impl_get_entry)(_set2_, value) == NULL)             \
-                return false;                                                  \
-        }                                                                      \
-                                                                               \
-        return true;                                                           \
-    }                                                                          \
-                                                                               \
-    /* Is _set1_ a superset of _set2_ ? */                                     \
-    /* A set X is a superset of a set Y when: X >= Y */                        \
-    /* If X is a superset of Y, then Y is a subset of X */                     \
-    bool CMC_(PFX, _is_superset)(struct SNAME * _set1_, struct SNAME * _set2_) \
-    {                                                                          \
-        return CMC_(PFX, _is_subset)(_set2_, _set1_);                          \
-    }                                                                          \
-                                                                               \
-    /* Is _set1_ a proper subset of _set2_ ? */                                \
-    /* A set X is a proper subset of a set Y when: X < Y */                    \
-    /* If X is a proper subset of Y, then Y is a proper superset of X */       \
-    bool CMC_(PFX, _is_proper_subset)(struct SNAME * _set1_,                   \
-                                      struct SNAME * _set2_)                   \
-    {                                                                          \
-        _set1_->flag = CMC_FLAG_OK;                                            \
-        _set2_->flag = CMC_FLAG_OK;                                            \
-                                                                               \
-        /* If the cardinality of _set1_ is greater than or equal to that of */ \
-        /* _set2_, then it is safe to say that _set1_ can't be a proper */     \
-        /* subset of _set2_ */                                                 \
-        if (_set1_->count >= _set2_->count)                                    \
-            return false;                                                      \
-                                                                               \
-        if (CMC_(PFX, _empty)(_set1_))                                         \
-        {                                                                      \
-            /* The empty set is a proper subset of all non-empty sets */       \
-            if (!CMC_(PFX, _empty)(_set2_))                                    \
-                return true;                                                   \
-            /* The empty set is not a proper subset of itself (this is true */ \
-            /* for any set) */                                                 \
-            else                                                               \
-                return false;                                                  \
-        }                                                                      \
-                                                                               \
-        struct CMC_DEF_ITER(SNAME) iter = CMC_(PFX, _iter_start)(_set1_);      \
-                                                                               \
-        for (; !CMC_(PFX, _iter_at_end)(&iter); CMC_(PFX, _iter_next)(&iter))  \
-        {                                                                      \
-            V value = CMC_(PFX, _iter_value)(&iter);                           \
-                                                                               \
-            if (CMC_(PFX, _impl_get_entry)(_set2_, value) == NULL)             \
-                return false;                                                  \
-        }                                                                      \
-                                                                               \
-        return true;                                                           \
-    }                                                                          \
-                                                                               \
-    /* Is _set1_ a proper superset of _set2_ ? */                              \
-    /* A set X is a proper superset of a set Y when: X > Y */                  \
-    /* If X is a proper superset of Y, then Y is a proper subset of X */       \
-    bool CMC_(PFX, _is_proper_superset)(struct SNAME * _set1_,                 \
-                                        struct SNAME * _set2_)                 \
-    {                                                                          \
-        return CMC_(PFX, _is_proper_subset)(_set2_, _set1_);                   \
-    }                                                                          \
-                                                                               \
-    /* Is _set1_ a disjointset of _set2_ ? */                                  \
-    /* A set X is a disjointset of a set Y if their intersection is empty, */  \
-    /* that is, if there are no elements in common between the two */          \
-    bool CMC_(PFX, _is_disjointset)(struct SNAME * _set1_,                     \
-                                    struct SNAME * _set2_)                     \
-    {                                                                          \
-        _set1_->flag = CMC_FLAG_OK;                                            \
-        _set2_->flag = CMC_FLAG_OK;                                            \
-                                                                               \
-        /* The intersection of an empty set with any other set will result */  \
-        /* in an empty set */                                                  \
-        if (CMC_(PFX, _empty)(_set1_))                                         \
-            return true;                                                       \
-                                                                               \
-        struct CMC_DEF_ITER(SNAME) iter = CMC_(PFX, _iter_start)(_set1_);      \
-                                                                               \
-        for (; !CMC_(PFX, _iter_at_end)(&iter); CMC_(PFX, _iter_next)(&iter))  \
-        {                                                                      \
-            V value = CMC_(PFX, _iter_value)(&iter);                           \
-                                                                               \
-            if (CMC_(PFX, _impl_get_entry)(_set2_, value) != NULL)             \
                 return false;                                                  \
         }                                                                      \
                                                                                \

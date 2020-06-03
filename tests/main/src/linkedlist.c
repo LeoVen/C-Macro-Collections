@@ -446,28 +446,6 @@ _Bool ll_equals(struct linkedlist *_list1_, struct linkedlist *_list2_)
     }
     return 1;
 }
-struct cmc_string ll_to_string(struct linkedlist *_list_)
-{
-    struct cmc_string str;
-    struct linkedlist *l_ = _list_;
-    int n = snprintf(str.s, cmc_string_len, cmc_cmc_string_fmt_linkedlist,
-                     "CMC_PARAM_SNAME((ll, linkedlist, , , size_t))",
-                     "CMC_PARAM_V((ll, linkedlist, , , size_t))", l_, l_->count,
-                     l_->head, l_->tail, l_->flag, l_->f_val, l_->alloc,
-                     l_->callbacks);
-    return n >= 0 ? str : (struct cmc_string){ 0 };
-}
-_Bool ll_print(struct linkedlist *_list_, FILE *fptr)
-{
-    struct linkedlist_node *scan = _list_->head;
-    while (scan != ((void *)0))
-    {
-        if (!_list_->f_val->str(fptr, scan->value))
-            return 0;
-        scan = scan->next;
-    }
-    return 1;
-}
 struct linkedlist_node *ll_new_node(struct linkedlist *_list_, size_t value)
 {
     struct linkedlist_node *_node_ =
