@@ -154,7 +154,6 @@
         struct cmc_callbacks * callbacks);                                 \
     void CMC_(PFX, _clear)(struct SNAME * _map_);                          \
     void CMC_(PFX, _free)(struct SNAME * _map_);                           \
-    void CMC_(PFX, _release)(struct SNAME _map_);                          \
     /* Customization of Allocation and Callbacks */                        \
     void CMC_(PFX, _customize)(struct SNAME * _map_,                       \
                                struct cmc_alloc_node * alloc,              \
@@ -292,27 +291,6 @@
                                                                                \
         _map_->alloc->free(_map_->buffer);                                     \
         _map_->alloc->free(_map_);                                             \
-    }                                                                          \
-                                                                               \
-    void CMC_(PFX, _release)(struct SNAME _map_)                               \
-    {                                                                          \
-        if (_map_.f_key->free || _map_.f_val->free)                            \
-        {                                                                      \
-            for (size_t i = 0; i < _map_.capacity; i++)                        \
-            {                                                                  \
-                struct CMC_DEF_ENTRY(SNAME) *entry = &(_map_.buffer[i]);       \
-                                                                               \
-                if (entry->state == CMC_ES_FILLED)                             \
-                {                                                              \
-                    if (_map_.f_key->free)                                     \
-                        _map_.f_key->free(entry->key);                         \
-                    if (_map_.f_val->free)                                     \
-                        _map_.f_val->free(entry->value);                       \
-                }                                                              \
-            }                                                                  \
-        }                                                                      \
-                                                                               \
-        _map_.alloc->free(_map_.buffer);                                       \
     }                                                                          \
                                                                                \
     void CMC_(PFX, _customize)(struct SNAME * _map_,                           \
@@ -472,23 +450,29 @@
             return false;                                                      \
         }                                                                      \
                                                                                \
-        struct CMC_DEF_ITER(SNAME) iter = CMC_(PFX, _iter_start)(_map_);       \
+        K max_key;                                                             \
+        V max_val;                                                             \
+        size_t first = 0;                                                      \
                                                                                \
-        K max_key = CMC_(PFX, _iter_key)(&iter);                               \
-        V max_val = CMC_(PFX, _iter_value)(&iter);                             \
-                                                                               \
-        CMC_(PFX, _iter_next)(&iter);                                          \
-                                                                               \
-        /* TODO Turn this into a normal loop */                                \
-        for (; !CMC_(PFX, _iter_at_end)(&iter); CMC_(PFX, _iter_next)(&iter))  \
+        for (; first < _map_->capacity; first++)                               \
         {                                                                      \
-            K iter_key = CMC_(PFX, _iter_key)(&iter);                          \
-            V iter_val = CMC_(PFX, _iter_value)(&iter);                        \
-                                                                               \
-            if (_map_->f_key->cmp(iter_key, max_key) > 0)                      \
+            if (_map_->buffer[first].state == CMC_ES_FILLED)                   \
             {                                                                  \
-                max_key = iter_key;                                            \
-                max_val = iter_val;                                            \
+                max_key = _map_->buffer[first].key;                            \
+                max_val = _map_->buffer[first].value;                          \
+                break;                                                         \
+            }                                                                  \
+        }                                                                      \
+                                                                               \
+        for (size_t i = first + 1; i < _map_->capacity; i++)                   \
+        {                                                                      \
+            if (_map_->buffer[i].state == CMC_ES_FILLED)                       \
+            {                                                                  \
+                if (_map_->f_key->cmp(_map_->buffer[i].key, max_key) > 0)      \
+                {                                                              \
+                    max_key = _map_->buffer[first].key;                        \
+                    max_val = _map_->buffer[first].value;                      \
+                }                                                              \
             }                                                                  \
         }                                                                      \
                                                                                \
@@ -511,23 +495,29 @@
             return false;                                                      \
         }                                                                      \
                                                                                \
-        struct CMC_DEF_ITER(SNAME) iter = CMC_(PFX, _iter_start)(_map_);       \
+        K min_key;                                                             \
+        V min_val;                                                             \
+        size_t first = 0;                                                      \
                                                                                \
-        K min_key = CMC_(PFX, _iter_key)(&iter);                               \
-        V min_val = CMC_(PFX, _iter_value)(&iter);                             \
-                                                                               \
-        CMC_(PFX, _iter_next)(&iter);                                          \
-                                                                               \
-        /* TODO Turn this into a normal loop */                                \
-        for (; !CMC_(PFX, _iter_at_end)(&iter); CMC_(PFX, _iter_next)(&iter))  \
+        for (; first < _map_->capacity; first++)                               \
         {                                                                      \
-            K iter_key = CMC_(PFX, _iter_key)(&iter);                          \
-            V iter_val = CMC_(PFX, _iter_value)(&iter);                        \
-                                                                               \
-            if (_map_->f_key->cmp(iter_key, min_key) < 0)                      \
+            if (_map_->buffer[first].state == CMC_ES_FILLED)                   \
             {                                                                  \
-                min_key = iter_key;                                            \
-                min_val = iter_val;                                            \
+                min_key = _map_->buffer[first].key;                            \
+                min_val = _map_->buffer[first].value;                          \
+                break;                                                         \
+            }                                                                  \
+        }                                                                      \
+                                                                               \
+        for (size_t i = first + 1; i < _map_->capacity; i++)                   \
+        {                                                                      \
+            if (_map_->buffer[i].state == CMC_ES_FILLED)                       \
+            {                                                                  \
+                if (_map_->f_key->cmp(_map_->buffer[i].key, min_key) > 0)      \
+                {                                                              \
+                    min_key = _map_->buffer[first].key;                        \
+                    min_val = _map_->buffer[first].value;                      \
+                }                                                              \
             }                                                                  \
         }                                                                      \
                                                                                \
@@ -672,15 +662,16 @@
             return false;                                                      \
         }                                                                      \
                                                                                \
-        struct CMC_DEF_ITER(SNAME) iter = CMC_(PFX, _iter_start)(_map_);       \
-                                                                               \
-        /* TODO turn this into a normal loop */                                \
-        for (; !CMC_(PFX, _iter_at_end)(&iter); CMC_(PFX, _iter_next)(&iter))  \
+        for (size_t i = 0; i < _map_->capacity; i++)                           \
         {                                                                      \
-            K key = CMC_(PFX, _iter_key)(&iter);                               \
-            V value = CMC_(PFX, _iter_value)(&iter);                           \
+            if (_map_->buffer[i].state == CMC_ES_FILLED)                       \
+            {                                                                  \
+                K key = _map_->buffer[i].key;                                  \
+                V value = _map_->buffer[i].value;                              \
                                                                                \
-            CMC_(PFX, _insert)(_new_map_, key, value);                         \
+                /* TODO check this for possible errors */                      \
+                CMC_(PFX, _insert)(_new_map_, key, value);                     \
+            }                                                                  \
         }                                                                      \
                                                                                \
         /* Unlikely */                                                         \
@@ -776,20 +767,28 @@
         if (_map1_->count != _map2_->count)                                    \
             return false;                                                      \
                                                                                \
-        struct CMC_DEF_ITER(SNAME) iter = CMC_(PFX, _iter_start)(_map1_);      \
+        /* Optimize loop using the smallest hashtable */                       \
+        struct SNAME *_map_a_;                                                 \
+        struct SNAME *_map_b_;                                                 \
                                                                                \
-        /* TODO optimize this loop */                                          \
-        for (; !CMC_(PFX, _iter_at_end)(&iter); CMC_(PFX, _iter_next)(&iter))  \
+        _map_a_ = _map1_->capacity < _map2_->capacity ? _map1_ : _map2_;       \
+        _map_b_ = _map_a_ == _map1_ ? _map2_ : _map1_;                         \
+                                                                               \
+        for (size_t i = 0; i < _map_a_->capacity; i++)                         \
         {                                                                      \
-            struct CMC_DEF_ENTRY(SNAME) *entry = CMC_(PFX, _impl_get_entry)(   \
-                _map2_, CMC_(PFX, _iter_key)(&iter));                          \
+            if (_map_a_->buffer[i].state == CMC_ES_FILLED)                     \
+            {                                                                  \
+                struct CMC_DEF_ENTRY(SNAME) *entry_a = &(_map_a_->buffer[i]);  \
                                                                                \
-            if (entry == NULL)                                                 \
-                return false;                                                  \
+                struct CMC_DEF_ENTRY(SNAME) *entry_b =                         \
+                    CMC_(PFX, _impl_get_entry)(_map_b_, entry_a->key);         \
                                                                                \
-            if (_map1_->f_val->cmp(entry->value,                               \
-                                   CMC_(PFX, _iter_value)(&iter)) != 0)        \
-                return false;                                                  \
+                if (!entry_b)                                                  \
+                    return false;                                              \
+                                                                               \
+                if (_map_a_->f_val->cmp(entry_a->value, entry_b->value) != 0)  \
+                    return false;                                              \
+            }                                                                  \
         }                                                                      \
                                                                                \
         return true;                                                           \

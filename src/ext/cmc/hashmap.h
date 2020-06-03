@@ -46,7 +46,8 @@
     struct SNAME CMC_(PFX, _init_custom)(                                  \
         size_t capacity, double load, struct CMC_DEF_FKEY(SNAME) * f_key,  \
         struct CMC_DEF_FVAL(SNAME) * f_val, struct cmc_alloc_node * alloc, \
-        struct cmc_callbacks * callbacks);
+        struct cmc_callbacks * callbacks);                                 \
+    void CMC_(PFX, _release)(struct SNAME _map_);
 
 #define CMC_EXT_CMC_HASHMAP_INIT_SOURCE_(PFX, SNAME, K, V)                     \
                                                                                \
@@ -97,6 +98,27 @@
         _map_.callbacks = callbacks;                                           \
                                                                                \
         return _map_;                                                          \
+    }                                                                          \
+                                                                               \
+    void CMC_(PFX, _release)(struct SNAME _map_)                               \
+    {                                                                          \
+        if (_map_.f_key->free || _map_.f_val->free)                            \
+        {                                                                      \
+            for (size_t i = 0; i < _map_.capacity; i++)                        \
+            {                                                                  \
+                struct CMC_DEF_ENTRY(SNAME) *entry = &(_map_.buffer[i]);       \
+                                                                               \
+                if (entry->state == CMC_ES_FILLED)                             \
+                {                                                              \
+                    if (_map_.f_key->free)                                     \
+                        _map_.f_key->free(entry->key);                         \
+                    if (_map_.f_val->free)                                     \
+                        _map_.f_val->free(entry->value);                       \
+                }                                                              \
+            }                                                                  \
+        }                                                                      \
+                                                                               \
+        _map_.alloc->free(_map_.buffer);                                       \
     }
 
 /**

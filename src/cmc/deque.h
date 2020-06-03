@@ -120,7 +120,6 @@
         struct cmc_alloc_node * alloc, struct cmc_callbacks * callbacks); \
     void CMC_(PFX, _clear)(struct SNAME * _deque_);                       \
     void CMC_(PFX, _free)(struct SNAME * _deque_);                        \
-    void CMC_(PFX, _release)(struct SNAME _deque_);                       \
     /* Customization of Allocation and Callbacks */                       \
     void CMC_(PFX, _customize)(struct SNAME * _deque_,                    \
                                struct cmc_alloc_node * alloc,             \
@@ -232,21 +231,6 @@
                                                                               \
         _deque_->alloc->free(_deque_->buffer);                                \
         _deque_->alloc->free(_deque_);                                        \
-    }                                                                         \
-                                                                              \
-    void CMC_(PFX, _release)(struct SNAME _deque_)                            \
-    {                                                                         \
-        if (_deque_.f_val->free)                                              \
-        {                                                                     \
-            for (size_t i = _deque_.front, j = 0; j < _deque_.count; j++)     \
-            {                                                                 \
-                _deque_.f_val->free(_deque_.buffer[i]);                       \
-                                                                              \
-                i = (i + 1) % _deque_.capacity;                               \
-            }                                                                 \
-        }                                                                     \
-                                                                              \
-        _deque_.alloc->free(_deque_.buffer);                                  \
     }                                                                         \
                                                                               \
     void CMC_(PFX, _customize)(struct SNAME * _deque_,                        \
