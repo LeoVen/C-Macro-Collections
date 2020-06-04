@@ -22,14 +22,12 @@
 
 #include "../cor/core.h"
 
-#define CMC_FOREACH(PFX, SNAME, ITERNAME, TARGET)                              \
-    for (struct CMC_DEF_ITER(SNAME) ITERNAME = CMC_(PFX, _iter_start)(TARGET); \
-         !CMC_(PFX, _iter_at_end)(&ITERNAME);                                  \
+#define CMC_FOREACH(PFX, SNAME, ITERNAME, TARGET) \
+    for (struct CMC_DEF_ITER(SNAME) ITERNAME = CMC_(PFX, _iter_start)(TARGET); !CMC_(PFX, _iter_at_end)(&ITERNAME); \
          CMC_(PFX, _iter_next)(&ITERNAME))
 
-#define CMC_FOREACH_REV(PFX, SNAME, ITERNAME, TARGET)                        \
-    for (struct CMC_DEF_ITER(SNAME) ITERNAME = CMC_(PFX, _iter_end)(TARGET); \
-         !CMC_(PFX, _iter_at_start)(&ITERNAME);                              \
+#define CMC_FOREACH_REV(PFX, SNAME, ITERNAME, TARGET) \
+    for (struct CMC_DEF_ITER(SNAME) ITERNAME = CMC_(PFX, _iter_end)(TARGET); !CMC_(PFX, _iter_at_start)(&ITERNAME); \
          CMC_(PFX, _iter_prev)(&ITERNAME))
 
 #endif /* CMC_UTL_FOREACH_H */

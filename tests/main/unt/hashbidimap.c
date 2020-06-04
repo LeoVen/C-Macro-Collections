@@ -4,41 +4,24 @@
 
 #include "../src/hashbidimap.c"
 
-struct hashbidimap_fkey *hbm_fkey =
-    &(struct hashbidimap_fkey){ .cmp = cmc_size_cmp,
-                                .cpy = NULL,
-                                .str = cmc_size_str,
-                                .free = NULL,
-                                .hash = cmc_size_hash,
-                                .pri = cmc_size_cmp };
-
-struct hashbidimap_fval *hbm_fval =
-    &(struct hashbidimap_fval){ .cmp = cmc_size_cmp,
-                                .cpy = NULL,
-                                .str = cmc_size_str,
-                                .free = NULL,
-                                .hash = cmc_size_hash,
-                                .pri = cmc_size_cmp };
-
-struct hashbidimap_fkey *hbm_fkey_counter =
-    &(struct hashbidimap_fkey){ .cmp = k_c_cmp,
-                                .cpy = k_c_cpy,
-                                .str = k_c_str,
-                                .free = k_c_free,
-                                .hash = k_c_hash,
-                                .pri = k_c_pri };
-
-struct hashbidimap_fval *hbm_fval_counter =
-    &(struct hashbidimap_fval){ .cmp = v_c_cmp,
-                                .cpy = v_c_cpy,
-                                .str = v_c_str,
-                                .free = v_c_free,
-                                .hash = v_c_hash,
-                                .pri = v_c_pri };
-
-struct cmc_alloc_node *hbm_alloc_node = &(struct cmc_alloc_node){
-    .malloc = malloc, .calloc = calloc, .realloc = realloc, .free = free
+struct hashbidimap_fkey *hbm_fkey = &(struct hashbidimap_fkey){
+    .cmp = cmc_size_cmp, .cpy = NULL, .str = cmc_size_str, .free = NULL, .hash = cmc_size_hash, .pri = cmc_size_cmp
 };
+
+struct hashbidimap_fval *hbm_fval = &(struct hashbidimap_fval){
+    .cmp = cmc_size_cmp, .cpy = NULL, .str = cmc_size_str, .free = NULL, .hash = cmc_size_hash, .pri = cmc_size_cmp
+};
+
+struct hashbidimap_fkey *hbm_fkey_counter = &(struct hashbidimap_fkey){
+    .cmp = k_c_cmp, .cpy = k_c_cpy, .str = k_c_str, .free = k_c_free, .hash = k_c_hash, .pri = k_c_pri
+};
+
+struct hashbidimap_fval *hbm_fval_counter = &(struct hashbidimap_fval){
+    .cmp = v_c_cmp, .cpy = v_c_cpy, .str = v_c_str, .free = v_c_free, .hash = v_c_hash, .pri = v_c_pri
+};
+
+struct cmc_alloc_node *hbm_alloc_node =
+    &(struct cmc_alloc_node){ .malloc = malloc, .calloc = calloc, .realloc = realloc, .free = free };
 
 CMC_CREATE_UNIT(HashBidiMap, true, {
     CMC_CREATE_TEST(PFX##_new(), {
@@ -87,8 +70,7 @@ CMC_CREATE_UNIT(HashBidiMap, true, {
     });
 
     CMC_CREATE_TEST(PFX##_new_custom(), {
-        struct hashbidimap *map = hbm_new_custom(
-            943722, 0.6, hbm_fkey, hbm_fval, hbm_alloc_node, callbacks);
+        struct hashbidimap *map = hbm_new_custom(943722, 0.6, hbm_fkey, hbm_fval, hbm_alloc_node, callbacks);
 
         cmc_assert_not_equals(ptr, NULL, map);
         cmc_assert_not_equals(ptr, NULL, map->buffer);
@@ -123,8 +105,7 @@ CMC_CREATE_UNIT(HashBidiMap, true, {
     CMC_CREATE_TEST(PFX##_clear(), {
         k_total_free = 0;
         v_total_free = 0;
-        struct hashbidimap *map =
-            hbm_new(100, 0.6, hbm_fkey_counter, hbm_fval_counter);
+        struct hashbidimap *map = hbm_new(100, 0.6, hbm_fkey_counter, hbm_fval_counter);
 
         cmc_assert_not_equals(ptr, NULL, map);
 
@@ -149,8 +130,7 @@ CMC_CREATE_UNIT(HashBidiMap, true, {
     CMC_CREATE_TEST(PFX##_free(), {
         k_total_free = 0;
         v_total_free = 0;
-        struct hashbidimap *map =
-            hbm_new(100, 0.6, hbm_fkey_counter, hbm_fval_counter);
+        struct hashbidimap *map = hbm_new(100, 0.6, hbm_fkey_counter, hbm_fval_counter);
 
         cmc_assert_not_equals(ptr, NULL, map);
 
@@ -178,8 +158,7 @@ CMC_CREATE_UNIT(HashBidiMap, true, {
     });
 
     CMC_CREATE_TEST(customize, {
-        struct hashbidimap *map =
-            hbm_new_custom(100, 0.6, hbm_fkey, hbm_fval, NULL, NULL);
+        struct hashbidimap *map = hbm_new_custom(100, 0.6, hbm_fkey, hbm_fval, NULL, NULL);
 
         cmc_assert_not_equals(ptr, NULL, map);
 
@@ -313,8 +292,7 @@ CMC_CREATE_UNIT(HashBidiMap, true, {
     });
 
     CMC_CREATE_TEST(insert[ftab hash calls], {
-        struct hashbidimap *map =
-            hbm_new(100, 0.7, hbm_fkey_counter, hbm_fval_counter);
+        struct hashbidimap *map = hbm_new(100, 0.7, hbm_fkey_counter, hbm_fval_counter);
 
         cmc_assert_not_equals(ptr, NULL, map);
 
@@ -468,13 +446,10 @@ CMC_CREATE_UNIT(HashBidiMap, true, {
     });
 
     CMC_CREATE_TEST(remove_by_key[cleanup custom], {
-        struct hashbidimap *map =
-            hbm_new_custom(10000, 0.6, hbm_fkey, hbm_fval,
-                           &(struct cmc_alloc_node){ .malloc = malloc,
-                                                     .calloc = calloc,
-                                                     .realloc = realloc,
-                                                     .free = free },
-                           &(struct cmc_callbacks){ 0 });
+        struct hashbidimap *map = hbm_new_custom(
+            10000, 0.6, hbm_fkey, hbm_fval,
+            &(struct cmc_alloc_node){ .malloc = malloc, .calloc = calloc, .realloc = realloc, .free = free },
+            &(struct cmc_callbacks){ 0 });
 
         cmc_assert_not_equals(ptr, NULL, map);
 
@@ -493,21 +468,17 @@ CMC_CREATE_UNIT(HashBidiMap, true, {
             struct hashbidimap_entry *k = map->buffer[i][0];
             struct hashbidimap_entry *v = map->buffer[i][1];
 
-            cmc_assert((k == NULL || k == CMC_ENTRY_DELETED) &&
-                       (v == NULL || v == CMC_ENTRY_DELETED));
+            cmc_assert((k == NULL || k == CMC_ENTRY_DELETED) && (v == NULL || v == CMC_ENTRY_DELETED));
         }
 
         hbm_free(map);
     });
 
     CMC_CREATE_TEST(remove_by_val[cleanup custom], {
-        struct hashbidimap *map =
-            hbm_new_custom(10000, 0.6, hbm_fkey, hbm_fval,
-                           &(struct cmc_alloc_node){ .malloc = malloc,
-                                                     .calloc = calloc,
-                                                     .realloc = realloc,
-                                                     .free = free },
-                           &(struct cmc_callbacks){ 0 });
+        struct hashbidimap *map = hbm_new_custom(
+            10000, 0.6, hbm_fkey, hbm_fval,
+            &(struct cmc_alloc_node){ .malloc = malloc, .calloc = calloc, .realloc = realloc, .free = free },
+            &(struct cmc_callbacks){ 0 });
 
         cmc_assert_not_equals(ptr, NULL, map);
 
@@ -526,8 +497,7 @@ CMC_CREATE_UNIT(HashBidiMap, true, {
             struct hashbidimap_entry *k = map->buffer[i][0];
             struct hashbidimap_entry *v = map->buffer[i][1];
 
-            cmc_assert((k == NULL || k == CMC_ENTRY_DELETED) &&
-                       (v == NULL || v == CMC_ENTRY_DELETED));
+            cmc_assert((k == NULL || k == CMC_ENTRY_DELETED) && (v == NULL || v == CMC_ENTRY_DELETED));
         }
 
         hbm_free(map);
@@ -601,8 +571,7 @@ CMC_CREATE_UNIT(HashBidiMap, true, {
         cmc_assert_equals(int32_t, CMC_FLAG_OK, hbm_flag(map));
 
         // customize
-        hbm_customize(map, &cmc_alloc_node_default,
-                      &(struct cmc_callbacks){ 0 });
+        hbm_customize(map, &cmc_alloc_node_default, &(struct cmc_callbacks){ 0 });
         cmc_assert_equals(int32_t, CMC_FLAG_OK, hbm_flag(map));
 
         // Insert
@@ -731,8 +700,7 @@ CMC_CREATE_UNIT(HashBidiMap, true, {
     });
 
     CMC_CREATE_TEST(callbacks, {
-        struct hashbidimap *map =
-            hbm_new_custom(100, 0.7, hbm_fkey, hbm_fval, NULL, callbacks);
+        struct hashbidimap *map = hbm_new_custom(100, 0.7, hbm_fkey, hbm_fval, NULL, callbacks);
 
         cmc_assert_not_equals(ptr, NULL, map);
         cmc_assert_equals(ptr, callbacks, map->callbacks);
@@ -835,13 +803,10 @@ int main(void)
 {
     int result = HashBidiMap() + HashBidiMapIter();
 
-    printf(
-        " +---------------------------------------------------------------+");
+    printf(" +---------------------------------------------------------------+");
     printf("\n");
-    printf(" | HashBidiMap Suit : %-42s |\n",
-           result == 0 ? "PASSED" : "FAILED");
-    printf(
-        " +---------------------------------------------------------------+");
+    printf(" | HashBidiMap Suit : %-42s |\n", result == 0 ? "PASSED" : "FAILED");
+    printf(" +---------------------------------------------------------------+");
     printf("\n\n\n");
 
     return result;

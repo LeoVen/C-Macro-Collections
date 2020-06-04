@@ -4,25 +4,16 @@
 
 #include "../src/hashmultiset.c"
 
-struct hashmultiset_fval *hms_fval =
-    &(struct hashmultiset_fval){ .cmp = cmc_size_cmp,
-                                 .cpy = NULL,
-                                 .str = cmc_size_str,
-                                 .free = NULL,
-                                 .hash = cmc_size_hash,
-                                 .pri = cmc_size_cmp };
-
-struct hashmultiset_fval *hms_fval_counter =
-    &(struct hashmultiset_fval){ .cmp = v_c_cmp,
-                                 .cpy = v_c_cpy,
-                                 .str = v_c_str,
-                                 .free = v_c_free,
-                                 .hash = v_c_hash,
-                                 .pri = v_c_pri };
-
-struct cmc_alloc_node *hms_alloc_node = &(struct cmc_alloc_node){
-    .malloc = malloc, .calloc = calloc, .realloc = realloc, .free = free
+struct hashmultiset_fval *hms_fval = &(struct hashmultiset_fval){
+    .cmp = cmc_size_cmp, .cpy = NULL, .str = cmc_size_str, .free = NULL, .hash = cmc_size_hash, .pri = cmc_size_cmp
 };
+
+struct hashmultiset_fval *hms_fval_counter = &(struct hashmultiset_fval){
+    .cmp = v_c_cmp, .cpy = v_c_cpy, .str = v_c_str, .free = v_c_free, .hash = v_c_hash, .pri = v_c_pri
+};
+
+struct cmc_alloc_node *hms_alloc_node =
+    &(struct cmc_alloc_node){ .malloc = malloc, .calloc = calloc, .realloc = realloc, .free = free };
 
 CMC_CREATE_UNIT(HashMultiSet, true, {
     CMC_CREATE_TEST(PFX##_new(), {
@@ -55,8 +46,7 @@ CMC_CREATE_UNIT(HashMultiSet, true, {
     });
 
     CMC_CREATE_TEST(PFX##_new_custom(), {
-        struct hashmultiset *set =
-            hms_new_custom(943722, 0.6, hms_fval, hms_alloc_node, callbacks);
+        struct hashmultiset *set = hms_new_custom(943722, 0.6, hms_fval, hms_alloc_node, callbacks);
 
         cmc_assert_not_equals(ptr, NULL, set);
         cmc_assert_not_equals(ptr, NULL, set->buffer);
@@ -336,8 +326,7 @@ CMC_CREATE_UNIT(HashMultiSet, true, {
     });
 
     CMC_CREATE_TEST(callbacks, {
-        struct hashmultiset *set =
-            hms_new_custom(100, 0.8, hms_fval, NULL, callbacks);
+        struct hashmultiset *set = hms_new_custom(100, 0.8, hms_fval, NULL, callbacks);
 
         cmc_assert_not_equals(ptr, NULL, set);
 
@@ -425,13 +414,9 @@ CMC_CREATE_UNIT(HashMultiSet, true, {
     });
 });
 
-struct hashmultiset_fval *hms_fval_numhash =
-    &(struct hashmultiset_fval){ .cmp = cmc_size_cmp,
-                                 .cpy = NULL,
-                                 .str = cmc_size_str,
-                                 .free = NULL,
-                                 .hash = numhash,
-                                 .pri = cmc_size_cmp };
+struct hashmultiset_fval *hms_fval_numhash = &(struct hashmultiset_fval){
+    .cmp = cmc_size_cmp, .cpy = NULL, .str = cmc_size_str, .free = NULL, .hash = numhash, .pri = cmc_size_cmp
+};
 
 CMC_CREATE_UNIT(HashMultiSetIter, true, {
     CMC_CREATE_TEST(PFX##_iter_start(), {
@@ -621,8 +606,7 @@ CMC_CREATE_UNIT(HashMultiSetIter, true, {
             hms_insert(set, i);
 
         size_t sum = 0;
-        for (it = hms_iter_start(set); !hms_iter_at_end(&it);
-             hms_iter_next(&it))
+        for (it = hms_iter_start(set); !hms_iter_at_end(&it); hms_iter_next(&it))
         {
             sum += hms_iter_value(&it);
         }
@@ -655,8 +639,7 @@ CMC_CREATE_UNIT(HashMultiSetIter, true, {
             hms_insert(set, i);
 
         size_t sum = 0;
-        for (it = hms_iter_end(set); !hms_iter_at_start(&it);
-             hms_iter_prev(&it))
+        for (it = hms_iter_end(set); !hms_iter_at_start(&it); hms_iter_prev(&it))
         {
             sum += hms_iter_value(&it);
         }
@@ -864,13 +847,10 @@ int main(void)
 {
     int result = HashMultiSet() + HashMultiSetIter();
 
-    printf(
-        " +---------------------------------------------------------------+");
+    printf(" +---------------------------------------------------------------+");
     printf("\n");
-    printf(" | HashMultiSet Suit : %-41s |\n",
-           result == 0 ? "PASSED" : "FAILED");
-    printf(
-        " +---------------------------------------------------------------+");
+    printf(" | HashMultiSet Suit : %-41s |\n", result == 0 ? "PASSED" : "FAILED");
+    printf(" +---------------------------------------------------------------+");
     printf("\n\n\n");
 
     return result;

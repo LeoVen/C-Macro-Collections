@@ -33,14 +33,12 @@ struct deque_iter
     _Bool end;
 };
 struct deque *d_new(size_t capacity, struct deque_fval *f_val);
-struct deque *d_new_custom(size_t capacity, struct deque_fval *f_val,
-                           struct cmc_alloc_node *alloc,
+struct deque *d_new_custom(size_t capacity, struct deque_fval *f_val, struct cmc_alloc_node *alloc,
                            struct cmc_callbacks *callbacks);
 void d_clear(struct deque *_deque_);
 void d_free(struct deque *_deque_);
 void d_release(struct deque _deque_);
-void d_customize(struct deque *_deque_, struct cmc_alloc_node *alloc,
-                 struct cmc_callbacks *callbacks);
+void d_customize(struct deque *_deque_, struct cmc_alloc_node *alloc, struct cmc_callbacks *callbacks);
 _Bool d_push_front(struct deque *_deque_, size_t value);
 _Bool d_push_back(struct deque *_deque_, size_t value);
 _Bool d_pop_front(struct deque *_deque_);
@@ -76,8 +74,7 @@ struct deque *d_new(size_t capacity, struct deque_fval *f_val)
 {
     return d_new_custom(capacity, f_val, ((void *)0), ((void *)0));
 }
-struct deque *d_new_custom(size_t capacity, struct deque_fval *f_val,
-                           struct cmc_alloc_node *alloc,
+struct deque *d_new_custom(size_t capacity, struct deque_fval *f_val, struct cmc_alloc_node *alloc,
                            struct cmc_callbacks *callbacks)
 {
     if (capacity < 1)
@@ -146,8 +143,7 @@ void d_release(struct deque _deque_)
     }
     _deque_.alloc->free(_deque_.buffer);
 }
-void d_customize(struct deque *_deque_, struct cmc_alloc_node *alloc,
-                 struct cmc_callbacks *callbacks)
+void d_customize(struct deque *_deque_, struct cmc_alloc_node *alloc, struct cmc_callbacks *callbacks)
 {
     if (!alloc)
         _deque_->alloc = &cmc_alloc_node_default;
@@ -163,8 +159,7 @@ _Bool d_push_front(struct deque *_deque_, size_t value)
         if (!d_resize(_deque_, _deque_->capacity * 2))
             return 0;
     }
-    _deque_->front =
-        (_deque_->front == 0) ? _deque_->capacity - 1 : _deque_->front - 1;
+    _deque_->front = (_deque_->front == 0) ? _deque_->capacity - 1 : _deque_->front - 1;
     _deque_->buffer[_deque_->front] = value;
     _deque_->count++;
     _deque_->flag = CMC_FLAG_OK;
@@ -180,8 +175,7 @@ _Bool d_push_back(struct deque *_deque_, size_t value)
             return 0;
     }
     _deque_->buffer[_deque_->back] = value;
-    _deque_->back =
-        (_deque_->back == _deque_->capacity - 1) ? 0 : _deque_->back + 1;
+    _deque_->back = (_deque_->back == _deque_->capacity - 1) ? 0 : _deque_->back + 1;
     _deque_->count++;
     _deque_->flag = CMC_FLAG_OK;
     if (_deque_->callbacks && _deque_->callbacks->create)
@@ -196,8 +190,7 @@ _Bool d_pop_front(struct deque *_deque_)
         return 0;
     }
     _deque_->buffer[_deque_->front] = (size_t){ 0 };
-    _deque_->front =
-        (_deque_->front == _deque_->capacity - 1) ? 0 : _deque_->front + 1;
+    _deque_->front = (_deque_->front == _deque_->capacity - 1) ? 0 : _deque_->front + 1;
     _deque_->count--;
     _deque_->flag = CMC_FLAG_OK;
     if (_deque_->callbacks && _deque_->callbacks->delete)
@@ -211,8 +204,7 @@ _Bool d_pop_back(struct deque *_deque_)
         _deque_->flag = CMC_FLAG_EMPTY;
         return 0;
     }
-    _deque_->back =
-        (_deque_->back == 0) ? _deque_->capacity - 1 : _deque_->back - 1;
+    _deque_->back = (_deque_->back == 0) ? _deque_->capacity - 1 : _deque_->back - 1;
     _deque_->buffer[_deque_->back] = (size_t){ 0 };
     _deque_->count--;
     _deque_->flag = CMC_FLAG_OK;
@@ -242,8 +234,7 @@ size_t d_back(struct deque *_deque_)
     _deque_->flag = CMC_FLAG_OK;
     if (_deque_->callbacks && _deque_->callbacks->read)
         _deque_->callbacks->read();
-    return _deque_->buffer[(_deque_->back == 0) ? _deque_->capacity - 1
-                                                : _deque_->back - 1];
+    return _deque_->buffer[(_deque_->back == 0) ? _deque_->capacity - 1 : _deque_->back - 1];
 }
 _Bool d_contains(struct deque *_deque_, size_t value)
 {
@@ -315,8 +306,7 @@ success:
 }
 struct deque *d_copy_of(struct deque *_deque_)
 {
-    struct deque *result = d_new_custom(_deque_->capacity, _deque_->f_val,
-                                        _deque_->alloc, _deque_->callbacks);
+    struct deque *result = d_new_custom(_deque_->capacity, _deque_->f_val, _deque_->alloc, _deque_->callbacks);
     if (!result)
     {
         _deque_->flag = CMC_FLAG_ERROR;
@@ -351,8 +341,7 @@ _Bool d_equals(struct deque *_deque1_, struct deque *_deque2_)
     if (_deque1_->count != _deque2_->count)
         return 0;
     size_t i, j, k;
-    for (i = _deque1_->front, j = _deque2_->front, k = 0; k < _deque1_->count;
-         k++)
+    for (i = _deque1_->front, j = _deque2_->front, k = 0; k < _deque1_->count; k++)
     {
         if (_deque1_->f_val->cmp(_deque1_->buffer[i], _deque2_->buffer[j]) != 0)
             return 0;
@@ -451,8 +440,7 @@ _Bool d_iter_prev(struct deque_iter *iter)
         return 0;
     }
     iter->end = d_empty(iter->target);
-    iter->cursor =
-        (iter->cursor == 0) ? iter->target->capacity - 1 : iter->cursor - 1;
+    iter->cursor = (iter->cursor == 0) ? iter->target->capacity - 1 : iter->cursor - 1;
     iter->index--;
     return 1;
 }

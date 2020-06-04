@@ -4,19 +4,13 @@
 
 #include "../src/treemap.c"
 
-struct treemap_fkey *tm_fkey = &(struct treemap_fkey){ .cmp = cmc_size_cmp,
-                                                       .cpy = NULL,
-                                                       .str = cmc_size_str,
-                                                       .free = NULL,
-                                                       .hash = cmc_size_hash,
-                                                       .pri = cmc_size_cmp };
+struct treemap_fkey *tm_fkey = &(struct treemap_fkey){
+    .cmp = cmc_size_cmp, .cpy = NULL, .str = cmc_size_str, .free = NULL, .hash = cmc_size_hash, .pri = cmc_size_cmp
+};
 
-struct treemap_fval *tm_fval = &(struct treemap_fval){ .cmp = cmc_size_cmp,
-                                                       .cpy = NULL,
-                                                       .str = cmc_size_str,
-                                                       .free = NULL,
-                                                       .hash = cmc_size_hash,
-                                                       .pri = cmc_size_cmp };
+struct treemap_fval *tm_fval = &(struct treemap_fval){
+    .cmp = cmc_size_cmp, .cpy = NULL, .str = cmc_size_str, .free = NULL, .hash = cmc_size_hash, .pri = cmc_size_cmp
+};
 
 CMC_CREATE_UNIT(TreeMap, true, {
     CMC_CREATE_TEST(new, {
@@ -659,12 +653,10 @@ int main(void)
 {
     int result = TreeMap() + TreeMapIter();
 
-    printf(
-        " +---------------------------------------------------------------+");
+    printf(" +---------------------------------------------------------------+");
     printf("\n");
     printf(" | TreeMap Suit : %-46s |\n", result == 0 ? "PASSED" : "FAILED");
-    printf(
-        " +---------------------------------------------------------------+");
+    printf(" +---------------------------------------------------------------+");
     printf("\n\n\n");
 
     return result;

@@ -20,15 +20,12 @@
 #include "unt/foreach.c"
 
 #define cmc_run(unit, unit_fails, test_fails) \
-    do                                        \
-    {                                         \
-        uintmax_t f = unit();                 \
-                                              \
-        if (f != 0)                           \
-            unit_fails += 1;                  \
-                                              \
-        test_fails += f;                      \
-                                              \
+    do \
+    { \
+        uintmax_t f = unit(); \
+        if (f != 0) \
+            unit_fails += 1; \
+        test_fails += f; \
     } while (0)
 
 int main(void)
@@ -86,19 +83,14 @@ int main(void)
 
     cmc_timer_stop(timer);
 
-    printf(
-        " +---------------------------------------------------------------+\n");
-    printf(
-        " |                            SUMMARY                            |\n");
-    printf(
-        " +---------------------------------------------------------------+\n");
+    printf(" +---------------------------------------------------------------+\n");
+    printf(" |                            SUMMARY                            |\n");
+    printf(" +---------------------------------------------------------------+\n");
     printf(" | Total Units Failed   : %25" PRIuMAX " units        |\n", units);
     printf(" | Total Tests Failed   : %25" PRIuMAX " tests        |\n", tests);
-    printf(" | Total Asserts Failed : %25" PRIuMAX " asserts      |\n",
-           cmc_assert_failed);
+    printf(" | Total Asserts Failed : %25" PRIuMAX " asserts      |\n", cmc_assert_failed);
     printf(" | Total Runtime        : %25.0lf milliseconds |\n", timer.result);
-    printf(
-        " +---------------------------------------------------------------+\n");
+    printf(" +---------------------------------------------------------------+\n");
 
     return tests;
 }

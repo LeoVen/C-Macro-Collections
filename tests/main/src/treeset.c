@@ -40,13 +40,11 @@ struct treeset_iter
     _Bool end;
 };
 struct treeset *ts_new(struct treeset_fval *f_val);
-struct treeset *ts_new_custom(struct treeset_fval *f_val,
-                              struct cmc_alloc_node *alloc,
+struct treeset *ts_new_custom(struct treeset_fval *f_val, struct cmc_alloc_node *alloc,
                               struct cmc_callbacks *callbacks);
 void ts_clear(struct treeset *_set_);
 void ts_free(struct treeset *_set_);
-void ts_customize(struct treeset *_set_, struct cmc_alloc_node *alloc,
-                  struct cmc_callbacks *callbacks);
+void ts_customize(struct treeset *_set_, struct cmc_alloc_node *alloc, struct cmc_callbacks *callbacks);
 _Bool ts_insert(struct treeset *_set_, size_t value);
 _Bool ts_remove(struct treeset *_set_, size_t value);
 _Bool ts_max(struct treeset *_set_, size_t *value);
@@ -62,8 +60,7 @@ _Bool ts_print(struct treeset *_set_, FILE *fptr);
 struct treeset *ts_union(struct treeset *_set1_, struct treeset *_set2_);
 struct treeset *ts_intersection(struct treeset *_set1_, struct treeset *_set2_);
 struct treeset *ts_difference(struct treeset *_set1_, struct treeset *_set2_);
-struct treeset *ts_symmetric_difference(struct treeset *_set1_,
-                                        struct treeset *_set2_);
+struct treeset *ts_symmetric_difference(struct treeset *_set1_, struct treeset *_set2_);
 _Bool ts_is_subset(struct treeset *_set1_, struct treeset *_set2_);
 _Bool ts_is_superset(struct treeset *_set1_, struct treeset *_set2_);
 _Bool ts_is_proper_subset(struct treeset *_set1_, struct treeset *_set2_);
@@ -88,10 +85,8 @@ static inline size_t ts_impl_default_value(void)
     memset(&_empty_value_, 0, sizeof(size_t));
     return _empty_value_;
 }
-static struct treeset_node *ts_impl_new_node(struct treeset *_set_,
-                                             size_t value);
-static struct treeset_node *ts_impl_get_node(struct treeset *_set_,
-                                             size_t value);
+static struct treeset_node *ts_impl_new_node(struct treeset *_set_, size_t value);
+static struct treeset_node *ts_impl_get_node(struct treeset *_set_, size_t value);
 static unsigned char ts_impl_h(struct treeset_node *node);
 static unsigned char ts_impl_hupdate(struct treeset_node *node);
 static void ts_impl_rotate_right(struct treeset_node **Z);
@@ -113,9 +108,7 @@ struct treeset *ts_new(struct treeset_fval *f_val)
     _set_->callbacks = ((void *)0);
     return _set_;
 }
-struct treeset *ts_new_custom(struct treeset_fval *f_val,
-                              struct cmc_alloc_node *alloc,
-                              struct cmc_callbacks *callbacks)
+struct treeset *ts_new_custom(struct treeset_fval *f_val, struct cmc_alloc_node *alloc, struct cmc_callbacks *callbacks)
 {
     if (!f_val)
         return ((void *)0);
@@ -190,8 +183,7 @@ void ts_free(struct treeset *_set_)
     ts_clear(_set_);
     _set_->alloc->free(_set_);
 }
-void ts_customize(struct treeset *_set_, struct cmc_alloc_node *alloc,
-                  struct cmc_callbacks *callbacks)
+void ts_customize(struct treeset *_set_, struct cmc_alloc_node *alloc, struct cmc_callbacks *callbacks)
 {
     if (!alloc)
         _set_->alloc = &cmc_alloc_node_default;
@@ -422,8 +414,7 @@ int ts_flag(struct treeset *_set_)
 }
 struct treeset *ts_copy_of(struct treeset *_set_)
 {
-    struct treeset *result =
-        ts_new_custom(_set_->f_val, _set_->alloc, _set_->callbacks);
+    struct treeset *result = ts_new_custom(_set_->f_val, _set_->alloc, _set_->callbacks);
     if (!result)
     {
         _set_->flag = CMC_FLAG_ERROR;
@@ -457,52 +448,9 @@ _Bool ts_equals(struct treeset *_set1_, struct treeset *_set2_)
     }
     return 1;
 }
-struct cmc_string ts_to_string(struct treeset *_set_)
-{
-    struct cmc_string str;
-    struct treeset *s_ = _set_;
-    int n = snprintf(str.s, cmc_string_len, cmc_cmc_string_fmt_treeset,
-                     "CMC_PARAM_SNAME((ts, treeset, , , size_t))",
-                     "CMC_PARAM_V((ts, treeset, , , size_t))", s_, s_->root,
-                     s_->count, s_->flag, s_->f_val, s_->alloc, s_->callbacks);
-    return n >= 0 ? str : (struct cmc_string){ 0 };
-}
-_Bool ts_print(struct treeset *_set_, FILE *fptr)
-{
-    struct treeset_node *root = _set_->root;
-    _Bool left_done = 0;
-    while (root)
-    {
-        if (!left_done)
-        {
-            while (root->left)
-                root = root->left;
-        }
-        if (!_set_->f_val->str(fptr, root->value))
-            return 0;
-        left_done = 1;
-        if (root->right)
-        {
-            left_done = 0;
-            root = root->right;
-        }
-        else if (root->parent)
-        {
-            while (root->parent && root == root->parent->right)
-                root = root->parent;
-            if (!root->parent)
-                break;
-            root = root->parent;
-        }
-        else
-            break;
-    }
-    return 1;
-}
 struct treeset *ts_union(struct treeset *_set1_, struct treeset *_set2_)
 {
-    struct treeset *_set_r_ =
-        ts_new_custom(_set1_->f_val, _set1_->alloc, _set1_->callbacks);
+    struct treeset *_set_r_ = ts_new_custom(_set1_->f_val, _set1_->alloc, _set1_->callbacks);
     if (!_set_r_)
         return ((void *)0);
     struct treeset_iter iter1 = ts_iter_start(_set1_);
@@ -519,8 +467,7 @@ struct treeset *ts_union(struct treeset *_set1_, struct treeset *_set2_)
 }
 struct treeset *ts_intersection(struct treeset *_set1_, struct treeset *_set2_)
 {
-    struct treeset *_set_r_ =
-        ts_new_custom(_set1_->f_val, _set1_->alloc, _set1_->callbacks);
+    struct treeset *_set_r_ = ts_new_custom(_set1_->f_val, _set1_->alloc, _set1_->callbacks);
     if (!_set_r_)
         return ((void *)0);
     struct treeset *_set_A_ = _set1_->count < _set2_->count ? _set1_ : _set2_;
@@ -536,8 +483,7 @@ struct treeset *ts_intersection(struct treeset *_set1_, struct treeset *_set2_)
 }
 struct treeset *ts_difference(struct treeset *_set1_, struct treeset *_set2_)
 {
-    struct treeset *_set_r_ =
-        ts_new_custom(_set1_->f_val, _set1_->alloc, _set1_->callbacks);
+    struct treeset *_set_r_ = ts_new_custom(_set1_->f_val, _set1_->alloc, _set1_->callbacks);
     if (!_set_r_)
         return ((void *)0);
     struct treeset_iter iter = ts_iter_start(_set1_);
@@ -549,11 +495,9 @@ struct treeset *ts_difference(struct treeset *_set1_, struct treeset *_set2_)
     }
     return _set_r_;
 }
-struct treeset *ts_symmetric_difference(struct treeset *_set1_,
-                                        struct treeset *_set2_)
+struct treeset *ts_symmetric_difference(struct treeset *_set1_, struct treeset *_set2_)
 {
-    struct treeset *_set_r_ =
-        ts_new_custom(_set1_->f_val, _set1_->alloc, _set1_->callbacks);
+    struct treeset *_set_r_ = ts_new_custom(_set1_->f_val, _set1_->alloc, _set1_->callbacks);
     if (!_set_r_)
         return ((void *)0);
     struct treeset_iter iter1 = ts_iter_start(_set1_);
@@ -811,11 +755,9 @@ size_t ts_iter_index(struct treeset_iter *iter)
 {
     return iter->index;
 }
-static struct treeset_node *ts_impl_new_node(struct treeset *_set_,
-                                             size_t value)
+static struct treeset_node *ts_impl_new_node(struct treeset *_set_, size_t value)
 {
-    struct treeset_node *node =
-        _set_->alloc->malloc(sizeof(struct treeset_node));
+    struct treeset_node *node = _set_->alloc->malloc(sizeof(struct treeset_node));
     if (!node)
         return ((void *)0);
     node->value = value;
@@ -825,8 +767,7 @@ static struct treeset_node *ts_impl_new_node(struct treeset *_set_,
     node->height = 0;
     return node;
 }
-static struct treeset_node *ts_impl_get_node(struct treeset *_set_,
-                                             size_t value)
+static struct treeset_node *ts_impl_get_node(struct treeset *_set_, size_t value)
 {
     struct treeset_node *scan = _set_->root;
     while (scan != ((void *)0))

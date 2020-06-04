@@ -30,13 +30,11 @@ struct stack_iter
     _Bool end;
 };
 struct stack *s_new(size_t capacity, struct stack_fval *f_val);
-struct stack *s_new_custom(size_t capacity, struct stack_fval *f_val,
-                           struct cmc_alloc_node *alloc,
+struct stack *s_new_custom(size_t capacity, struct stack_fval *f_val, struct cmc_alloc_node *alloc,
                            struct cmc_callbacks *callbacks);
 void s_clear(struct stack *_stack_);
 void s_free(struct stack *_stack_);
-void s_customize(struct stack *_stack_, struct cmc_alloc_node *alloc,
-                 struct cmc_callbacks *callbacks);
+void s_customize(struct stack *_stack_, struct cmc_alloc_node *alloc, struct cmc_callbacks *callbacks);
 _Bool s_push(struct stack *_stack_, size_t value);
 _Bool s_pop(struct stack *_stack_);
 size_t s_top(struct stack *_stack_);
@@ -89,8 +87,7 @@ struct stack *s_new(size_t capacity, struct stack_fval *f_val)
     _stack_->callbacks = ((void *)0);
     return _stack_;
 }
-struct stack *s_new_custom(size_t capacity, struct stack_fval *f_val,
-                           struct cmc_alloc_node *alloc,
+struct stack *s_new_custom(size_t capacity, struct stack_fval *f_val, struct cmc_alloc_node *alloc,
                            struct cmc_callbacks *callbacks)
 {
     if (capacity < 1)
@@ -137,8 +134,7 @@ void s_free(struct stack *_stack_)
     _stack_->alloc->free(_stack_->buffer);
     _stack_->alloc->free(_stack_);
 }
-void s_customize(struct stack *_stack_, struct cmc_alloc_node *alloc,
-                 struct cmc_callbacks *callbacks)
+void s_customize(struct stack *_stack_, struct cmc_alloc_node *alloc, struct cmc_callbacks *callbacks)
 {
     if (!alloc)
         _stack_->alloc = &cmc_alloc_node_default;
@@ -230,8 +226,7 @@ _Bool s_resize(struct stack *_stack_, size_t capacity)
         _stack_->flag = CMC_FLAG_INVALID;
         return 0;
     }
-    size_t *new_buffer =
-        _stack_->alloc->realloc(_stack_->buffer, sizeof(size_t) * capacity);
+    size_t *new_buffer = _stack_->alloc->realloc(_stack_->buffer, sizeof(size_t) * capacity);
     if (!new_buffer)
     {
         _stack_->flag = CMC_FLAG_ALLOC;
@@ -247,8 +242,7 @@ success:
 }
 struct stack *s_copy_of(struct stack *_stack_)
 {
-    struct stack *result = s_new_custom(_stack_->capacity, _stack_->f_val,
-                                        _stack_->alloc, _stack_->callbacks);
+    struct stack *result = s_new_custom(_stack_->capacity, _stack_->f_val, _stack_->alloc, _stack_->callbacks);
     if (!result)
     {
         _stack_->flag = CMC_FLAG_ERROR;
@@ -260,8 +254,7 @@ struct stack *s_copy_of(struct stack *_stack_)
             result->buffer[i] = _stack_->f_val->cpy(_stack_->buffer[i]);
     }
     else
-        memcpy(result->buffer, _stack_->buffer,
-               sizeof(size_t) * _stack_->count);
+        memcpy(result->buffer, _stack_->buffer, sizeof(size_t) * _stack_->count);
     result->count = _stack_->count;
     _stack_->flag = CMC_FLAG_OK;
     return result;
@@ -275,26 +268,6 @@ _Bool s_equals(struct stack *_stack1_, struct stack *_stack2_)
     for (size_t i = 0; i < _stack1_->count; i++)
     {
         if (_stack1_->f_val->cmp(_stack1_->buffer[i], _stack2_->buffer[i]) != 0)
-            return 0;
-    }
-    return 1;
-}
-struct cmc_string s_to_string(struct stack *_stack_)
-{
-    struct cmc_string str;
-    struct stack *s_ = _stack_;
-    int n = snprintf(str.s, cmc_string_len, cmc_cmc_string_fmt_stack,
-                     "CMC_PARAM_SNAME((s, stack, , , size_t))",
-                     "CMC_PARAM_V((s, stack, , , size_t))", s_, s_->buffer,
-                     s_->capacity, s_->count, s_->flag, s_->f_val, s_->alloc,
-                     s_->callbacks);
-    return n >= 0 ? str : (struct cmc_string){ 0 };
-}
-_Bool s_print(struct stack *_stack_, FILE *fptr)
-{
-    for (size_t i = 0; i < _stack_->count; i++)
-    {
-        if (!_stack_->f_val->str(fptr, _stack_->buffer[i]))
             return 0;
     }
     return 1;

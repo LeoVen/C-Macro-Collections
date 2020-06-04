@@ -4,12 +4,9 @@
 
 #include "../src/queue.c"
 
-struct queue_fval *q_fval = &(struct queue_fval){ .cmp = cmc_size_cmp,
-                                                  .cpy = NULL,
-                                                  .str = cmc_size_str,
-                                                  .free = NULL,
-                                                  .hash = cmc_size_hash,
-                                                  .pri = cmc_size_cmp };
+struct queue_fval *q_fval = &(struct queue_fval){
+    .cmp = cmc_size_cmp, .cpy = NULL, .str = cmc_size_str, .free = NULL, .hash = cmc_size_hash, .pri = cmc_size_cmp
+};
 
 CMC_CREATE_UNIT(Queue, true, {
     CMC_CREATE_TEST(new, {
@@ -78,8 +75,7 @@ CMC_CREATE_UNIT(Queue, true, {
         }
 
         size_t sum = 0;
-        for (size_t i = q->front, j = 0; j < q->count;
-             i = (i + 1) % q->capacity, j++)
+        for (size_t i = q->front, j = 0; j < q->count; i = (i + 1) % q->capacity, j++)
             sum += q->buffer[i];
 
         cmc_assert_equals(size_t, 1200, q_count(q));
@@ -112,8 +108,7 @@ CMC_CREATE_UNIT(Queue, true, {
 
         size_t sum = 0;
 
-        for (size_t i = q->front, j = 0; j < q->count;
-             i = (i + 1) % q->capacity, j++)
+        for (size_t i = q->front, j = 0; j < q->count; i = (i + 1) % q->capacity, j++)
         {
             sum += q->buffer[i];
         }
@@ -154,8 +149,7 @@ CMC_CREATE_UNIT(Queue, true, {
 
         size_t sum = 0;
 
-        for (size_t i = q->front, j = 0; j < q->count;
-             i = (i + 1) % q->capacity, j++)
+        for (size_t i = q->front, j = 0; j < q->count; i = (i + 1) % q->capacity, j++)
         {
             sum += q->buffer[i];
         }
@@ -326,8 +320,7 @@ CMC_CREATE_UNIT(Queue, true, {
 
         size_t sum = 0;
 
-        for (size_t i = q->front, j = 0; j < q->count;
-             i = (i + 1) % q->capacity, j++)
+        for (size_t i = q->front, j = 0; j < q->count; i = (i + 1) % q->capacity, j++)
         {
             sum += q->buffer[i];
         }
@@ -960,12 +953,10 @@ int main(void)
 {
     int result = Queue() + QueueIter();
 
-    printf(
-        " +---------------------------------------------------------------+");
+    printf(" +---------------------------------------------------------------+");
     printf("\n");
     printf(" | Queue Suit : %-48s |\n", result == 0 ? "PASSED" : "FAILED");
-    printf(
-        " +---------------------------------------------------------------+");
+    printf(" +---------------------------------------------------------------+");
     printf("\n\n\n");
 
     return result;

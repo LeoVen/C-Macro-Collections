@@ -30,13 +30,11 @@ struct list_iter
     _Bool end;
 };
 struct list *l_new(size_t capacity, struct list_fval *f_val);
-struct list *l_new_custom(size_t capacity, struct list_fval *f_val,
-                          struct cmc_alloc_node *alloc,
+struct list *l_new_custom(size_t capacity, struct list_fval *f_val, struct cmc_alloc_node *alloc,
                           struct cmc_callbacks *callbacks);
 void l_clear(struct list *_list_);
 void l_free(struct list *_list_);
-void l_customize(struct list *_list_, struct cmc_alloc_node *alloc,
-                 struct cmc_callbacks *callbacks);
+void l_customize(struct list *_list_, struct cmc_alloc_node *alloc, struct cmc_callbacks *callbacks);
 _Bool l_push_front(struct list *_list_, size_t value);
 _Bool l_push_at(struct list *_list_, size_t value, size_t index);
 _Bool l_push_back(struct list *_list_, size_t value);
@@ -44,8 +42,7 @@ _Bool l_pop_front(struct list *_list_);
 _Bool l_pop_at(struct list *_list_, size_t index);
 _Bool l_pop_back(struct list *_list_);
 _Bool l_seq_push_front(struct list *_list_, size_t *values, size_t size);
-_Bool l_seq_push_at(struct list *_list_, size_t *values, size_t size,
-                    size_t index);
+_Bool l_seq_push_at(struct list *_list_, size_t *values, size_t size, size_t index);
 _Bool l_seq_push_back(struct list *_list_, size_t *values, size_t size);
 _Bool l_seq_pop_at(struct list *_list_, size_t from, size_t to);
 struct list *l_seq_sublist(struct list *_list_, size_t from, size_t to);
@@ -102,8 +99,7 @@ struct list *l_new(size_t capacity, struct list_fval *f_val)
     _list_->callbacks = ((void *)0);
     return _list_;
 }
-struct list *l_new_custom(size_t capacity, struct list_fval *f_val,
-                          struct cmc_alloc_node *alloc,
+struct list *l_new_custom(size_t capacity, struct list_fval *f_val, struct cmc_alloc_node *alloc,
                           struct cmc_callbacks *callbacks)
 {
     if (capacity < 1)
@@ -150,8 +146,7 @@ void l_free(struct list *_list_)
     _list_->alloc->free(_list_->buffer);
     _list_->alloc->free(_list_);
 }
-void l_customize(struct list *_list_, struct cmc_alloc_node *alloc,
-                 struct cmc_callbacks *callbacks)
+void l_customize(struct list *_list_, struct cmc_alloc_node *alloc, struct cmc_callbacks *callbacks)
 {
     if (!alloc)
         _list_->alloc = &cmc_alloc_node_default;
@@ -169,8 +164,7 @@ _Bool l_push_front(struct list *_list_, size_t value)
     }
     if (!l_empty(_list_))
     {
-        memmove(_list_->buffer + 1, _list_->buffer,
-                _list_->count * sizeof(size_t));
+        memmove(_list_->buffer + 1, _list_->buffer, _list_->count * sizeof(size_t));
     }
     _list_->buffer[0] = value;
     _list_->count++;
@@ -191,8 +185,7 @@ _Bool l_push_at(struct list *_list_, size_t value, size_t index)
         if (!l_resize(_list_, _list_->count * 2))
             return 0;
     }
-    memmove(_list_->buffer + index + 1, _list_->buffer + index,
-            (_list_->count - index) * sizeof(size_t));
+    memmove(_list_->buffer + index + 1, _list_->buffer + index, (_list_->count - index) * sizeof(size_t));
     _list_->buffer[index] = value;
     _list_->count++;
     _list_->flag = CMC_FLAG_OK;
@@ -220,8 +213,7 @@ _Bool l_pop_front(struct list *_list_)
         _list_->flag = CMC_FLAG_EMPTY;
         return 0;
     }
-    memmove(_list_->buffer, _list_->buffer + 1,
-            (_list_->count - 1) * sizeof(size_t));
+    memmove(_list_->buffer, _list_->buffer + 1, (_list_->count - 1) * sizeof(size_t));
     _list_->buffer[--_list_->count] = (size_t){ 0 };
     _list_->flag = CMC_FLAG_OK;
     if (_list_->callbacks && _list_->callbacks->delete)
@@ -240,8 +232,7 @@ _Bool l_pop_at(struct list *_list_, size_t index)
         _list_->flag = CMC_FLAG_RANGE;
         return 0;
     }
-    memmove(_list_->buffer + index, _list_->buffer + index + 1,
-            (_list_->count - index - 1) * sizeof(size_t));
+    memmove(_list_->buffer + index, _list_->buffer + index + 1, (_list_->count - index - 1) * sizeof(size_t));
     _list_->buffer[--_list_->count] = (size_t){ 0 };
     _list_->flag = CMC_FLAG_OK;
     if (_list_->callbacks && _list_->callbacks->delete)
@@ -270,8 +261,7 @@ _Bool l_seq_push_front(struct list *_list_, size_t *values, size_t size)
         if (!l_resize(_list_, _list_->count + size))
             return 0;
     }
-    memmove(_list_->buffer + size, _list_->buffer,
-            _list_->count * sizeof(size_t));
+    memmove(_list_->buffer + size, _list_->buffer, _list_->count * sizeof(size_t));
     memcpy(_list_->buffer, values, size * sizeof(size_t));
     _list_->count += size;
     _list_->flag = CMC_FLAG_OK;
@@ -279,8 +269,7 @@ _Bool l_seq_push_front(struct list *_list_, size_t *values, size_t size)
         _list_->callbacks->create();
     return 1;
 }
-_Bool l_seq_push_at(struct list *_list_, size_t *values, size_t size,
-                    size_t index)
+_Bool l_seq_push_at(struct list *_list_, size_t *values, size_t size, size_t index)
 {
     if (size == 0)
     {
@@ -301,8 +290,7 @@ _Bool l_seq_push_at(struct list *_list_, size_t *values, size_t size,
         if (!l_resize(_list_, _list_->count + size))
             return 0;
     }
-    memmove(_list_->buffer + index + size, _list_->buffer + index,
-            (_list_->count - index) * sizeof(size_t));
+    memmove(_list_->buffer + index + size, _list_->buffer + index, (_list_->count - index) * sizeof(size_t));
     memcpy(_list_->buffer + index, values, size * sizeof(size_t));
     _list_->count += size;
     _list_->flag = CMC_FLAG_OK;
@@ -342,8 +330,7 @@ _Bool l_seq_pop_at(struct list *_list_, size_t from, size_t to)
         return 0;
     }
     size_t length = (to - from + 1);
-    memmove(_list_->buffer + from, _list_->buffer + to + 1,
-            (_list_->count - to - 1) * sizeof(size_t));
+    memmove(_list_->buffer + from, _list_->buffer + to + 1, (_list_->count - to - 1) * sizeof(size_t));
     memset(_list_->buffer + _list_->count - length, 0, length * sizeof(size_t));
     _list_->count -= to - from + 1;
     _list_->flag = CMC_FLAG_OK;
@@ -364,16 +351,14 @@ struct list *l_seq_sublist(struct list *_list_, size_t from, size_t to)
         return ((void *)0);
     }
     size_t length = to - from + 1;
-    struct list *result =
-        l_new_custom(length, _list_->f_val, _list_->alloc, _list_->callbacks);
+    struct list *result = l_new_custom(length, _list_->f_val, _list_->alloc, _list_->callbacks);
     if (!result)
     {
         _list_->flag = CMC_FLAG_ALLOC;
         return ((void *)0);
     }
     memcpy(result->buffer, _list_->buffer, length * sizeof(size_t));
-    memmove(_list_->buffer + from, _list_->buffer + to + 1,
-            (_list_->count - to - 1) * sizeof(size_t));
+    memmove(_list_->buffer + from, _list_->buffer + to + 1, (_list_->count - to - 1) * sizeof(size_t));
     memset(_list_->buffer + _list_->count - length, 0, length * sizeof(size_t));
     _list_->count -= length;
     result->count = length;
@@ -520,8 +505,7 @@ _Bool l_resize(struct list *_list_, size_t capacity)
         _list_->flag = CMC_FLAG_INVALID;
         return 0;
     }
-    size_t *new_buffer =
-        _list_->alloc->realloc(_list_->buffer, sizeof(size_t) * capacity);
+    size_t *new_buffer = _list_->alloc->realloc(_list_->buffer, sizeof(size_t) * capacity);
     if (!new_buffer)
     {
         _list_->flag = CMC_FLAG_ALLOC;
@@ -535,8 +519,7 @@ _Bool l_resize(struct list *_list_, size_t capacity)
 }
 struct list *l_copy_of(struct list *_list_)
 {
-    struct list *result = l_new_custom(_list_->capacity, _list_->f_val,
-                                       _list_->alloc, _list_->callbacks);
+    struct list *result = l_new_custom(_list_->capacity, _list_->f_val, _list_->alloc, _list_->callbacks);
     if (!result)
     {
         _list_->flag = CMC_FLAG_ALLOC;
@@ -562,26 +545,6 @@ _Bool l_equals(struct list *_list1_, struct list *_list2_)
     for (size_t i = 0; i < _list1_->count; i++)
     {
         if (_list1_->f_val->cmp(_list1_->buffer[i], _list2_->buffer[i]) != 0)
-            return 0;
-    }
-    return 1;
-}
-struct cmc_string l_to_string(struct list *_list_)
-{
-    struct cmc_string str;
-    struct list *l_ = _list_;
-    int n = snprintf(str.s, cmc_string_len, cmc_cmc_string_fmt_list,
-                     "CMC_PARAM_SNAME((l, list, , , size_t))",
-                     "CMC_PARAM_V((l, list, , , size_t))", l_, l_->buffer,
-                     l_->capacity, l_->count, l_->flag, l_->f_val, l_->alloc,
-                     l_->callbacks);
-    return n >= 0 ? str : (struct cmc_string){ 0 };
-}
-_Bool l_print(struct list *_list_, FILE *fptr)
-{
-    for (size_t i = 0; i < _list_->count; i++)
-    {
-        if (!_list_->f_val->str(fptr, _list_->buffer[i]))
             return 0;
     }
     return 1;

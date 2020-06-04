@@ -4,23 +4,16 @@
 
 #include "../src/deque.c"
 
-struct deque_fval *d_fval = &(struct deque_fval){ .cmp = cmc_size_cmp,
-                                                  .cpy = NULL,
-                                                  .str = cmc_size_str,
-                                                  .free = NULL,
-                                                  .hash = cmc_size_hash,
-                                                  .pri = cmc_size_cmp };
-
-struct deque_fval *d_fval_counter = &(struct deque_fval){ .cmp = v_c_cmp,
-                                                          .cpy = v_c_cpy,
-                                                          .str = v_c_str,
-                                                          .free = v_c_free,
-                                                          .hash = v_c_hash,
-                                                          .pri = v_c_pri };
-
-struct cmc_alloc_node *d_alloc_node = &(struct cmc_alloc_node){
-    .malloc = malloc, .calloc = calloc, .realloc = realloc, .free = free
+struct deque_fval *d_fval = &(struct deque_fval){
+    .cmp = cmc_size_cmp, .cpy = NULL, .str = cmc_size_str, .free = NULL, .hash = cmc_size_hash, .pri = cmc_size_cmp
 };
+
+struct deque_fval *d_fval_counter = &(struct deque_fval){
+    .cmp = v_c_cmp, .cpy = v_c_cpy, .str = v_c_str, .free = v_c_free, .hash = v_c_hash, .pri = v_c_pri
+};
+
+struct cmc_alloc_node *d_alloc_node =
+    &(struct cmc_alloc_node){ .malloc = malloc, .calloc = calloc, .realloc = realloc, .free = free };
 
 CMC_CREATE_UNIT(Deque, true, {
     CMC_CREATE_TEST(PFX##_new(), {
@@ -50,8 +43,7 @@ CMC_CREATE_UNIT(Deque, true, {
     });
 
     CMC_CREATE_TEST(PFX##_new_custom(), {
-        struct deque *d =
-            d_new_custom(1000000, d_fval, d_alloc_node, callbacks);
+        struct deque *d = d_new_custom(1000000, d_fval, d_alloc_node, callbacks);
 
         cmc_assert_not_equals(ptr, NULL, d);
         cmc_assert_not_equals(ptr, NULL, d->buffer);
@@ -176,8 +168,7 @@ CMC_CREATE_UNIT(Deque, true, {
         cmc_assert_equals(size_t, 1000, d_count(d));
 
         size_t sum = 0;
-        for (size_t i = d->front, j = 0; j < d->count;
-             i = (i + 1) % d->capacity, j++)
+        for (size_t i = d->front, j = 0; j < d->count; i = (i + 1) % d->capacity, j++)
             sum += d->buffer[i];
 
         cmc_assert_equals(size_t, 500500, sum);
@@ -219,8 +210,7 @@ CMC_CREATE_UNIT(Deque, true, {
         cmc_assert_equals(size_t, 1000, d_count(d));
 
         size_t sum = 0;
-        for (size_t i = d->front, j = 0; j < d->count;
-             i = (i + 1) % d->capacity, j++)
+        for (size_t i = d->front, j = 0; j < d->count; i = (i + 1) % d->capacity, j++)
             sum += d->buffer[i];
 
         cmc_assert_equals(size_t, 500500, sum);
@@ -319,8 +309,7 @@ CMC_CREATE_UNIT(Deque, true, {
 
         size_t sum = 0;
 
-        for (size_t i = d->front, j = 0; j < d->count;
-             i = (i + 1) % d->capacity, j++)
+        for (size_t i = d->front, j = 0; j < d->count; i = (i + 1) % d->capacity, j++)
         {
             sum += d->buffer[i];
         }
@@ -367,8 +356,7 @@ CMC_CREATE_UNIT(Deque, true, {
 
         size_t sum = 0;
 
-        for (size_t i = d->front, j = 0; j < d->count;
-             i = (i + 1) % d->capacity, j++)
+        for (size_t i = d->front, j = 0; j < d->count; i = (i + 1) % d->capacity, j++)
         {
             sum += d->buffer[i];
         }
@@ -417,8 +405,7 @@ CMC_CREATE_UNIT(Deque, true, {
 
         size_t sum = 0;
 
-        for (size_t i = d->front, j = 0; j < d->count;
-             i = (i + 1) % d->capacity, j++)
+        for (size_t i = d->front, j = 0; j < d->count; i = (i + 1) % d->capacity, j++)
         {
             sum += d->buffer[i];
         }
@@ -437,8 +424,7 @@ CMC_CREATE_UNIT(Deque, true, {
 
         sum = 0;
 
-        for (size_t i = d->front, j = 0; j < d->count;
-             i = (i + 1) % d->capacity, j++)
+        for (size_t i = d->front, j = 0; j < d->count; i = (i + 1) % d->capacity, j++)
         {
             sum += d->buffer[i];
         }
@@ -482,8 +468,7 @@ CMC_CREATE_UNIT(Deque, true, {
 
         size_t sum = 0;
 
-        for (size_t i = d->front, j = 0; j < d->count;
-             i = (i + 1) % d->capacity, j++)
+        for (size_t i = d->front, j = 0; j < d->count; i = (i + 1) % d->capacity, j++)
         {
             sum += d->buffer[i];
         }
@@ -502,8 +487,7 @@ CMC_CREATE_UNIT(Deque, true, {
 
         sum = 0;
 
-        for (size_t i = d->front, j = 0; j < d->count;
-             i = (i + 1) % d->capacity, j++)
+        for (size_t i = d->front, j = 0; j < d->count; i = (i + 1) % d->capacity, j++)
         {
             sum += d->buffer[i];
         }
@@ -802,8 +786,7 @@ CMC_CREATE_UNIT(Deque, true, {
 
         size_t sum = 0;
 
-        for (size_t i = d->front, j = 0; j < d->count;
-             i = (i + 1) % d->capacity, j++)
+        for (size_t i = d->front, j = 0; j < d->count; i = (i + 1) % d->capacity, j++)
         {
             sum += d->buffer[i];
         }
@@ -1093,8 +1076,7 @@ CMC_CREATE_UNIT(Deque, true, {
         }
 
         size_t sum = 0;
-        for (size_t i = d->front, j = 0; j < d->count;
-             i = (i + 1) % d->capacity, j++)
+        for (size_t i = d->front, j = 0; j < d->count; i = (i + 1) % d->capacity, j++)
             sum += d->buffer[i];
 
         cmc_assert_equals(size_t, 1200, d_count(d));
@@ -1732,12 +1714,10 @@ int main(void)
 {
     int result = Deque() + DequeIter();
 
-    printf(
-        " +---------------------------------------------------------------+");
+    printf(" +---------------------------------------------------------------+");
     printf("\n");
     printf(" | Deque Suit : %-48s |\n", result == 0 ? "PASSED" : "FAILED");
-    printf(
-        " +---------------------------------------------------------------+");
+    printf(" +---------------------------------------------------------------+");
     printf("\n\n\n");
 
     return result;

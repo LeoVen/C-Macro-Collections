@@ -19,15 +19,12 @@ struct bitset_iter
     _Bool end;
 };
 struct bitset *bs_new(size_t n_bits);
-struct bitset *bs_new_custom(size_t n_bits, struct cmc_alloc_node *alloc,
-                             struct cmc_callbacks *callbacks);
+struct bitset *bs_new_custom(size_t n_bits, struct cmc_alloc_node *alloc, struct cmc_callbacks *callbacks);
 struct bitset bs_init(size_t n_bits);
-struct bitset bs_init_custom(size_t n_bits, struct cmc_alloc_node *alloc,
-                             struct cmc_callbacks *callbacks);
+struct bitset bs_init_custom(size_t n_bits, struct cmc_alloc_node *alloc, struct cmc_callbacks *callbacks);
 void bs_free(struct bitset *_bitset_);
 void bs_release(struct bitset _bitset_);
-void bs_customize(struct bitset *_bitset_, struct cmc_alloc_node *alloc,
-                  struct cmc_callbacks *callbacks);
+void bs_customize(struct bitset *_bitset_, struct cmc_alloc_node *alloc, struct cmc_callbacks *callbacks);
 _Bool bs_set(struct bitset *_bitset_, size_t bit_index);
 _Bool bs_set_range(struct bitset *_bitset_, size_t from, size_t to);
 _Bool bs_clear(struct bitset *_bitset_, size_t bit_index);
@@ -35,8 +32,7 @@ _Bool bs_clear_range(struct bitset *_bitset_, size_t from, size_t to);
 _Bool bs_flip(struct bitset *_bitset_, size_t bit_index);
 _Bool bs_flip_range(struct bitset *_bitset_, size_t from, size_t to);
 _Bool bs_put(struct bitset *_bitset_, size_t bit_index, _Bool state);
-_Bool bs_put_range(struct bitset *_bitset_, size_t from, size_t to,
-                   _Bool state);
+_Bool bs_put_range(struct bitset *_bitset_, size_t from, size_t to, _Bool state);
 _Bool bs_set_all(struct bitset *_bitset_);
 _Bool bs_clear_all(struct bitset *_bitset_);
 _Bool bs_flip_all(struct bitset *_bitset_);
@@ -47,9 +43,7 @@ static inline size_t bs_bit_to_index(size_t idx)
     static const size_t shift =
         ((sizeof(cmc_bitset_word) * 8) >> 6) > 0
             ? 6
-            : ((sizeof(cmc_bitset_word) * 8) >> 5) > 0
-                  ? 5
-                  : ((sizeof(cmc_bitset_word) * 8) >> 4) > 0 ? 4 : 3;
+            : ((sizeof(cmc_bitset_word) * 8) >> 5) > 0 ? 5 : ((sizeof(cmc_bitset_word) * 8) >> 4) > 0 ? 4 : 3;
     return idx >> shift;
 }
 _Bool bs_impl_resize(struct bitset *_bitset_, size_t n_bits, _Bool do_resize);
@@ -57,8 +51,7 @@ struct bitset *bs_new(size_t n_bits)
 {
     return bs_new_custom(n_bits, ((void *)0), ((void *)0));
 }
-struct bitset *bs_new_custom(size_t n_bits, struct cmc_alloc_node *alloc,
-                             struct cmc_callbacks *callbacks)
+struct bitset *bs_new_custom(size_t n_bits, struct cmc_alloc_node *alloc, struct cmc_callbacks *callbacks)
 {
     if (n_bits < 1)
         return ((void *)0);
@@ -84,8 +77,7 @@ struct bitset bs_init(size_t n_bits)
 {
     return bs_init_custom(n_bits, ((void *)0), ((void *)0));
 }
-struct bitset bs_init_custom(size_t n_bits, struct cmc_alloc_node *alloc,
-                             struct cmc_callbacks *callbacks)
+struct bitset bs_init_custom(size_t n_bits, struct cmc_alloc_node *alloc, struct cmc_callbacks *callbacks)
 {
     struct bitset _bitset_ = { 0 };
     if (n_bits < 1)
@@ -111,8 +103,7 @@ void bs_release(struct bitset _bitset_)
 {
     free(_bitset_.buffer);
 }
-void bs_customize(struct bitset *_bitset_, struct cmc_alloc_node *alloc,
-                  struct cmc_callbacks *callbacks)
+void bs_customize(struct bitset *_bitset_, struct cmc_alloc_node *alloc, struct cmc_callbacks *callbacks)
 {
     if (!alloc)
         _bitset_->alloc = &cmc_alloc_node_default;
@@ -317,8 +308,7 @@ _Bool bs_impl_resize(struct bitset *_bitset_, size_t n_bits, _Bool do_resize)
     size_t words = bs_bit_to_index(n_bits - 1) + 1;
     if (!do_resize && words <= _bitset_->capacity)
         return 1;
-    cmc_bitset_word *new_buffer =
-        realloc(_bitset_->buffer, words * sizeof(cmc_bitset_word));
+    cmc_bitset_word *new_buffer = realloc(_bitset_->buffer, words * sizeof(cmc_bitset_word));
     if (!new_buffer)
     {
         _bitset_->flag = CMC_FLAG_ALLOC;
@@ -326,8 +316,7 @@ _Bool bs_impl_resize(struct bitset *_bitset_, size_t n_bits, _Bool do_resize)
     }
     _bitset_->buffer = new_buffer;
     if (_bitset_->capacity < words)
-        memset(_bitset_->buffer + _bitset_->capacity, 0,
-               (words - _bitset_->capacity) * sizeof(cmc_bitset_word));
+        memset(_bitset_->buffer + _bitset_->capacity, 0, (words - _bitset_->capacity) * sizeof(cmc_bitset_word));
     _bitset_->capacity = words;
     if (_bitset_->callbacks && _bitset_->callbacks->resize)
         _bitset_->callbacks->resize();

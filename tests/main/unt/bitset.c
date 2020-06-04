@@ -4,9 +4,8 @@
 
 #include "../src/bitset.c"
 
-struct cmc_alloc_node *bs_alloc_node = &(struct cmc_alloc_node){
-    .malloc = malloc, .calloc = calloc, .realloc = realloc, .free = free
-};
+struct cmc_alloc_node *bs_alloc_node =
+    &(struct cmc_alloc_node){ .malloc = malloc, .calloc = calloc, .realloc = realloc, .free = free };
 
 CMC_CREATE_UNIT(BitSet, true, {
     const size_t word_bytes = sizeof(cmc_bitset_word);
@@ -137,18 +136,14 @@ CMC_CREATE_UNIT(BitSet, true, {
         bs->buffer[0] = 0;
 
         cmc_assert(bs_set(bs, word_bits - 1));
-        cmc_assert_equals(CMC_BITSET_WORD_TYPE,
-                          ((cmc_bitset_word)1 << (word_bits - 1)),
-                          bs->buffer[0]);
+        cmc_assert_equals(CMC_BITSET_WORD_TYPE, ((cmc_bitset_word)1 << (word_bits - 1)), bs->buffer[0]);
 
         cmc_assert(bs_set(bs, word_bits * 8 - 1));
-        cmc_assert_equals(CMC_BITSET_WORD_TYPE,
-                          ((cmc_bitset_word)1 << (word_bits - 1)),
+        cmc_assert_equals(CMC_BITSET_WORD_TYPE, ((cmc_bitset_word)1 << (word_bits - 1)),
                           bs->buffer[bs_bit_to_index(word_bits * 8 - 1)]);
 
         cmc_assert(bs_set(bs, word_bits * 18 - 2));
-        cmc_assert_equals(CMC_BITSET_WORD_TYPE,
-                          ((cmc_bitset_word)1 << (word_bits - 2)),
+        cmc_assert_equals(CMC_BITSET_WORD_TYPE, ((cmc_bitset_word)1 << (word_bits - 2)),
                           bs->buffer[bs_bit_to_index(word_bits * 18 - 2)]);
 
         bs_free(bs);
@@ -177,28 +172,23 @@ CMC_CREATE_UNIT(BitSet, true, {
         cmc_assert_equals(uint8_t, 244, bs->buffer[0]);
 
         cmc_assert(bs_set_range(bs, word_bits * 6 - 2, word_bits * 6 - 2));
-        cmc_assert_equals(CMC_BITSET_WORD_TYPE,
-                          ((cmc_bitset_word)1 << (word_bits - 2)),
+        cmc_assert_equals(CMC_BITSET_WORD_TYPE, ((cmc_bitset_word)1 << (word_bits - 2)),
                           bs->buffer[bs_bit_to_index(word_bits * 6 - 2)]);
 
         // Make sure we have at least word_bits * 40 slots
         bs_set(bs, word_bits * 40);
 
         cmc_assert(bs_set_range(bs, word_bits * 20, word_bits * 21 - 1));
-        cmc_assert_equals(CMC_BITSET_WORD_TYPE, (~(cmc_bitset_word)0),
-                          bs->buffer[bs_bit_to_index(word_bits * 20)]);
+        cmc_assert_equals(CMC_BITSET_WORD_TYPE, (~(cmc_bitset_word)0), bs->buffer[bs_bit_to_index(word_bits * 20)]);
 
-        cmc_assert_equals(CMC_BITSET_WORD_TYPE, 0,
-                          bs->buffer[bs_bit_to_index(word_bits * 20 - 1)]);
-        cmc_assert_equals(CMC_BITSET_WORD_TYPE, 0,
-                          bs->buffer[bs_bit_to_index(word_bits * 21 + 1)]);
+        cmc_assert_equals(CMC_BITSET_WORD_TYPE, 0, bs->buffer[bs_bit_to_index(word_bits * 20 - 1)]);
+        cmc_assert_equals(CMC_BITSET_WORD_TYPE, 0, bs->buffer[bs_bit_to_index(word_bits * 21 + 1)]);
 
         cmc_assert(bs_set_range(bs, 0, word_bits * 100 - 1));
         cmc_assert_equals(size_t, 100, bs->capacity);
 
         for (size_t i = 0; i < bs->capacity; i++)
-            cmc_assert_equals(CMC_BITSET_WORD_TYPE, ~((cmc_bitset_word)0),
-                              bs->buffer[i]);
+            cmc_assert_equals(CMC_BITSET_WORD_TYPE, ~((cmc_bitset_word)0), bs->buffer[i]);
 
         bs_free(bs);
     });
@@ -239,8 +229,7 @@ CMC_CREATE_UNIT(BitSet, true, {
         cmc_assert(bs_set_range(bs, word_bits * 20, word_bits * 21 - 1));
         cmc_assert(bs_clear_range(bs, word_bits * 20, word_bits * 21 - 1));
 
-        cmc_assert_equals(uint32_t, 0,
-                          bs->buffer[bs_bit_to_index(word_bits * 20)]);
+        cmc_assert_equals(uint32_t, 0, bs->buffer[bs_bit_to_index(word_bits * 20)]);
 
         for (size_t i = 0; i < bs->capacity; i++)
             bs->buffer[i] = ~((cmc_bitset_word)0);
@@ -309,8 +298,7 @@ CMC_CREATE_UNIT(BitSet, true, {
         cmc_assert_equals(size_t, 100, bs->capacity);
 
         for (size_t i = 0; i < bs->capacity; i++)
-            cmc_assert_equals(CMC_BITSET_WORD_TYPE, ~((cmc_bitset_word)0),
-                              bs->buffer[i]);
+            cmc_assert_equals(CMC_BITSET_WORD_TYPE, ~((cmc_bitset_word)0), bs->buffer[i]);
 
         bs_free(bs);
     });
@@ -359,8 +347,7 @@ CMC_CREATE_UNIT(BitSet, true, {
         cmc_assert_equals(size_t, 100, bs->capacity);
 
         for (size_t i = 0; i < bs->capacity; i++)
-            cmc_assert_equals(CMC_BITSET_WORD_TYPE, ~((cmc_bitset_word)0),
-                              bs->buffer[i]);
+            cmc_assert_equals(CMC_BITSET_WORD_TYPE, ~((cmc_bitset_word)0), bs->buffer[i]);
 
         cmc_assert(bs_put_range(bs, 0, word_bits * 100 - 1, false));
         for (size_t i = 0; i < bs->capacity; i++)
@@ -377,8 +364,7 @@ CMC_CREATE_UNIT(BitSet, true, {
         cmc_assert(bs_set_all(bs));
 
         for (size_t i = 0; i < bs->capacity; i++)
-            cmc_assert_equals(CMC_BITSET_WORD_TYPE, ~((cmc_bitset_word)0),
-                              bs->buffer[i]);
+            cmc_assert_equals(CMC_BITSET_WORD_TYPE, ~((cmc_bitset_word)0), bs->buffer[i]);
 
         bs_free(bs);
     });
@@ -404,8 +390,7 @@ CMC_CREATE_UNIT(BitSet, true, {
 
         cmc_assert(bs_flip_all(bs));
         for (size_t i = 0; i < bs->capacity; i++)
-            cmc_assert_equals(CMC_BITSET_WORD_TYPE, ~((cmc_bitset_word)0),
-                              bs->buffer[i]);
+            cmc_assert_equals(CMC_BITSET_WORD_TYPE, ~((cmc_bitset_word)0), bs->buffer[i]);
 
         cmc_assert(bs_flip_all(bs));
         for (size_t i = 0; i < bs->capacity; i++)
@@ -457,12 +442,10 @@ int main(void)
 {
     int result = BitSet() + BitSetIter();
 
-    printf(
-        " +---------------------------------------------------------------+");
+    printf(" +---------------------------------------------------------------+");
     printf("\n");
     printf(" | BitSet Suit : %-47s |\n", result == 0 ? "PASSED" : "FAILED");
-    printf(
-        " +---------------------------------------------------------------+");
+    printf(" +---------------------------------------------------------------+");
     printf("\n\n\n");
 
     return result;

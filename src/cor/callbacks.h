@@ -8,8 +8,32 @@
  *
  */
 
-#ifndef CMC_COR_CALLBACK_H
-#define CMC_COR_CALLBACK_H
+#ifndef CMC_COR_CALLBACKS_H
+#define CMC_COR_CALLBACKS_H
+
+#ifdef CMC_CAMEL_CASE
+#define CMC_CALLBACKS_NAME CMCCallbacks
+#else
+#define CMC_CALLBACKS_NAME cmc_callbacks
+#endif
+
+#ifdef CMC_NO_CALLBACKS
+
+#define CMC_CALLBACKS_DECL
+#define CMC_CALLBACKS_GET(ds) NULL /* Placeholder for STR */
+#define CMC_CALLBACKS_ASSIGN(ds, cb)
+#define CMC_CALLBACKS_CALL(ds, cb)
+
+#else
+
+#define CMC_CALLBACKS_DECL struct CMC_CALLBACKS_NAME *callbacks
+#define CMC_CALLBACKS_GET(ds) (ds)->callbacks
+#define CMC_CALLBACKS_ASSIGN(ds, cb) CMC_CALLBACKS_GET(ds) = cb
+#define CMC_CALLBACKS_CALL(ds, cb) \
+    if (CMC_CALLBACKS_GET(ds) && CMC_CALLBACKS_GET(ds)->cb) \
+        CMC_CALLBACKS_GET(ds)->cb();
+
+#endif
 
 /**
  * struct cmc_callbacks
@@ -21,7 +45,7 @@
  * - delete : an element was successfully removed from the collection
  * - resize : the collection was full and successfully resized
  */
-struct cmc_callbacks
+struct CMC_CALLBACKS_NAME
 {
     void (*create)(void);
     void (*read)(void);
@@ -30,4 +54,4 @@ struct cmc_callbacks
     void (*resize)(void);
 };
 
-#endif /* CMC_COR_CALLBACK_H */
+#endif /* CMC_COR_CALLBACKS_H */

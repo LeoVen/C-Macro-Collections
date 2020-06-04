@@ -2,15 +2,6 @@
 #ifndef CMC_UNIT_TEST_UTL__
 #define CMC_UNIT_TEST_UTL__
 
-/**
- * TEMPORARY
- */
-struct cmc_string
-{
-    char s[400];
-};
-static const size_t cmc_string_len = 400;
-
 #include <inttypes.h>
 #include <stdbool.h>
 #include <stdlib.h>
@@ -163,11 +154,10 @@ void callback_resize(void)
     total_resize++;
 }
 
-struct cmc_callbacks *callbacks =
-    &(struct cmc_callbacks){ .create = callback_create,
-                             .read = callback_read,
-                             .update = callback_update,
-                             .delete = callback_delete,
-                             .resize = callback_resize };
+struct cmc_callbacks *callbacks = &(struct cmc_callbacks){ .create = callback_create,
+                                                           .read = callback_read,
+                                                           .update = callback_update,
+                                                           .delete = callback_delete,
+                                                           .resize = callback_resize };
 
 #endif /* CMC_UNIT_TEST_UTL__ */

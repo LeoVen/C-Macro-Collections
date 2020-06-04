@@ -66,12 +66,10 @@
 
 #include "../cor/core.h"
 
-static const char *cmc_log_names[] = { "TRACE", "DEBUG", "INFO",
-                                       "WARN",  "ERROR", "FATAL" };
+static const char *cmc_log_names[] = { "TRACE", "DEBUG", "INFO", "WARN", "ERROR", "FATAL" };
 
 #ifdef CMC_LOG_COLOR
-static const char *cmc_log_color[] = { "\x1b[94m", "\x1b[36m", "\x1b[32m",
-                                       "\x1b[33m", "\x1b[31m", "\x1b[35m" };
+static const char *cmc_log_color[] = { "\x1b[94m", "\x1b[36m", "\x1b[32m", "\x1b[33m", "\x1b[31m", "\x1b[35m" };
 #endif
 
 enum cmc_log_type
@@ -95,21 +93,14 @@ static struct
 
 } cmc_log_config = { 0, 0, true, true, true, NULL };
 
-#define cmc_log_trace(fmt, ...) \
-    cmc_log(CMC_LOG_TRACE, __FILE__, __func__, __LINE__, fmt, ##__VA_ARGS__)
-#define cmc_log_debug(fmt, ...) \
-    cmc_log(CMC_LOG_DEBUG, __FILE__, __func__, __LINE__, fmt, ##__VA_ARGS__)
-#define cmc_log_info(fmt, ...) \
-    cmc_log(CMC_LOG_INFO, __FILE__, __func__, __LINE__, fmt, ##__VA_ARGS__)
-#define cmc_log_warn(fmt, ...) \
-    cmc_log(CMC_LOG_WARN, __FILE__, __func__, __LINE__, fmt, ##__VA_ARGS__)
-#define cmc_log_error(fmt, ...) \
-    cmc_log(CMC_LOG_ERROR, __FILE__, __func__, __LINE__, fmt, ##__VA_ARGS__)
-#define cmc_log_fatal(fmt, ...) \
-    cmc_log(CMC_LOG_FATAL, __FILE__, __func__, __LINE__, fmt, ##__VA_ARGS__)
+#define cmc_log_trace(fmt, ...) cmc_log(CMC_LOG_TRACE, __FILE__, __func__, __LINE__, fmt, ##__VA_ARGS__)
+#define cmc_log_debug(fmt, ...) cmc_log(CMC_LOG_DEBUG, __FILE__, __func__, __LINE__, fmt, ##__VA_ARGS__)
+#define cmc_log_info(fmt, ...) cmc_log(CMC_LOG_INFO, __FILE__, __func__, __LINE__, fmt, ##__VA_ARGS__)
+#define cmc_log_warn(fmt, ...) cmc_log(CMC_LOG_WARN, __FILE__, __func__, __LINE__, fmt, ##__VA_ARGS__)
+#define cmc_log_error(fmt, ...) cmc_log(CMC_LOG_ERROR, __FILE__, __func__, __LINE__, fmt, ##__VA_ARGS__)
+#define cmc_log_fatal(fmt, ...) cmc_log(CMC_LOG_FATAL, __FILE__, __func__, __LINE__, fmt, ##__VA_ARGS__)
 
-CMC_UNUSED static void cmc_log(enum cmc_log_type log, const char *filename,
-                               const char *funcname, unsigned line,
+CMC_UNUSED static void cmc_log(enum cmc_log_type log, const char *filename, const char *funcname, unsigned line,
                                const char *fmt, ...)
 {
     if (!cmc_log_config.enabled)
@@ -133,11 +124,10 @@ CMC_UNUSED static void cmc_log(enum cmc_log_type log, const char *filename,
         time[strftime(time, sizeof(time), "%Y-%m-%d %H:%M:%S", lt)] = '\0';
 
 #ifdef CMC_LOG_COLOR
-        fprintf(stderr, "%s %s%5s\x1b[0m at\x1b[90m %s:%s:%u\x1b[0m | ", time,
-                cmc_log_color[i], cmc_log_names[i], filename, funcname, line);
-#else
-        fprintf(stderr, "%s %5s at %s:%s:%u | ", time, cmc_log_names[i],
+        fprintf(stderr, "%s %s%5s\x1b[0m at\x1b[90m %s:%s:%u\x1b[0m | ", time, cmc_log_color[i], cmc_log_names[i],
                 filename, funcname, line);
+#else
+        fprintf(stderr, "%s %5s at %s:%s:%u | ", time, cmc_log_names[i], filename, funcname, line);
 #endif
 
         va_list args;
@@ -168,8 +158,7 @@ skip:
         char time[32];
         time[strftime(time, sizeof(time), "%Y-%m-%d %H:%M:%S", lt)] = '\0';
 
-        fprintf(cmc_log_config.file, "%s %5s at %s:%s:%u | ", time,
-                cmc_log_names[i], filename, funcname, line);
+        fprintf(cmc_log_config.file, "%s %5s at %s:%s:%u | ", time, cmc_log_names[i], filename, funcname, line);
 
         va_list file_args;
         va_start(file_args, fmt);

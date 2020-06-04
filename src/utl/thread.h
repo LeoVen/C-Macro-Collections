@@ -88,8 +88,7 @@ static void *cmc_thread_wrapper(void *arg)
  * \param args The arguments passed to the proc function.
  * \return True or false if the thread creation was successfull.
  */
-static inline bool cmc_thrd_create(struct cmc_thread *thr, cmc_thread_proc proc,
-                                   void *args)
+static inline bool cmc_thrd_create(struct cmc_thread *thr, cmc_thread_proc proc, void *args)
 {
 #if defined(CMC_THREAD_WINDOWS)
     thr->args = args;

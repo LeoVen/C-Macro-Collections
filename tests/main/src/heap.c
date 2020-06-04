@@ -30,15 +30,12 @@ struct heap_iter
     _Bool start;
     _Bool end;
 };
-struct heap *h_new(size_t capacity, enum cmc_heap_order HO,
-                   struct heap_fval *f_val);
-struct heap *h_new_custom(size_t capacity, enum cmc_heap_order HO,
-                          struct heap_fval *f_val, struct cmc_alloc_node *alloc,
-                          struct cmc_callbacks *callbacks);
+struct heap *h_new(size_t capacity, enum cmc_heap_order HO, struct heap_fval *f_val);
+struct heap *h_new_custom(size_t capacity, enum cmc_heap_order HO, struct heap_fval *f_val,
+                          struct cmc_alloc_node *alloc, struct cmc_callbacks *callbacks);
 void h_clear(struct heap *_heap_);
 void h_free(struct heap *_heap_);
-void h_customize(struct heap *_heap_, struct cmc_alloc_node *alloc,
-                 struct cmc_callbacks *callbacks);
+void h_customize(struct heap *_heap_, struct cmc_alloc_node *alloc, struct cmc_callbacks *callbacks);
 _Bool h_insert(struct heap *_heap_, size_t value);
 _Bool h_remove(struct heap *_heap_);
 size_t h_peek(struct heap *_heap_);
@@ -68,8 +65,7 @@ size_t h_iter_value(struct heap_iter *iter);
 size_t h_iter_index(struct heap_iter *iter);
 static void h_impl_float_up(struct heap *_heap_, size_t index);
 static void h_impl_float_down(struct heap *_heap_, size_t index);
-struct heap *h_new(size_t capacity, enum cmc_heap_order HO,
-                   struct heap_fval *f_val)
+struct heap *h_new(size_t capacity, enum cmc_heap_order HO, struct heap_fval *f_val)
 {
     struct cmc_alloc_node *alloc = &cmc_alloc_node_default;
     if (capacity < 1)
@@ -96,9 +92,8 @@ struct heap *h_new(size_t capacity, enum cmc_heap_order HO,
     _heap_->callbacks = ((void *)0);
     return _heap_;
 }
-struct heap *h_new_custom(size_t capacity, enum cmc_heap_order HO,
-                          struct heap_fval *f_val, struct cmc_alloc_node *alloc,
-                          struct cmc_callbacks *callbacks)
+struct heap *h_new_custom(size_t capacity, enum cmc_heap_order HO, struct heap_fval *f_val,
+                          struct cmc_alloc_node *alloc, struct cmc_callbacks *callbacks)
 {
     if (capacity < 1)
         return ((void *)0);
@@ -151,8 +146,7 @@ void h_free(struct heap *_heap_)
     _heap_->alloc->free(_heap_->buffer);
     _heap_->alloc->free(_heap_);
 }
-void h_customize(struct heap *_heap_, struct cmc_alloc_node *alloc,
-                 struct cmc_callbacks *callbacks)
+void h_customize(struct heap *_heap_, struct cmc_alloc_node *alloc, struct cmc_callbacks *callbacks)
 {
     if (!alloc)
         _heap_->alloc = &cmc_alloc_node_default;
@@ -252,8 +246,7 @@ _Bool h_resize(struct heap *_heap_, size_t capacity)
         _heap_->flag = CMC_FLAG_INVALID;
         return 0;
     }
-    size_t *new_buffer =
-        _heap_->alloc->realloc(_heap_->buffer, sizeof(size_t) * capacity);
+    size_t *new_buffer = _heap_->alloc->realloc(_heap_->buffer, sizeof(size_t) * capacity);
     if (!new_buffer)
     {
         _heap_->flag = CMC_FLAG_ALLOC;
@@ -268,9 +261,7 @@ success:
 }
 struct heap *h_copy_of(struct heap *_heap_)
 {
-    struct heap *result =
-        h_new_custom(_heap_->capacity, _heap_->HO, _heap_->f_val, _heap_->alloc,
-                     _heap_->callbacks);
+    struct heap *result = h_new_custom(_heap_->capacity, _heap_->HO, _heap_->f_val, _heap_->alloc, _heap_->callbacks);
     if (!result)
     {
         _heap_->flag = CMC_FLAG_ERROR;
@@ -454,13 +445,11 @@ static void h_impl_float_down(struct heap *_heap_, size_t index)
         size_t L = 2 * index + 1;
         size_t R = 2 * index + 2;
         size_t C = index;
-        if (L < _heap_->count &&
-            _heap_->f_val->cmp(_heap_->buffer[L], _heap_->buffer[C]) * mod > 0)
+        if (L < _heap_->count && _heap_->f_val->cmp(_heap_->buffer[L], _heap_->buffer[C]) * mod > 0)
         {
             C = L;
         }
-        if (R < _heap_->count &&
-            _heap_->f_val->cmp(_heap_->buffer[R], _heap_->buffer[C]) * mod > 0)
+        if (R < _heap_->count && _heap_->f_val->cmp(_heap_->buffer[R], _heap_->buffer[C]) * mod > 0)
         {
             C = R;
         }

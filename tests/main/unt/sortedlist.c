@@ -4,13 +4,9 @@
 
 #include "../src/sortedlist.c"
 
-struct sortedlist_fval *sl_fval =
-    &(struct sortedlist_fval){ .cmp = cmc_size_cmp,
-                               .cpy = NULL,
-                               .str = cmc_size_str,
-                               .free = NULL,
-                               .hash = cmc_size_hash,
-                               .pri = cmc_size_cmp };
+struct sortedlist_fval *sl_fval = &(struct sortedlist_fval){
+    .cmp = cmc_size_cmp, .cpy = NULL, .str = cmc_size_str, .free = NULL, .hash = cmc_size_hash, .pri = cmc_size_cmp
+};
 
 CMC_CREATE_UNIT(SortedList, true, {
     CMC_CREATE_TEST(new, {
@@ -66,8 +62,7 @@ CMC_CREATE_UNIT(SortedList, true, {
         sl_sort(sl);
 
         cmc_assert_equals(size_t, 50, sl_count(sl));
-        cmc_assert_array_sorted_any(size_t, sl->buffer, cmc_size_cmp, 0,
-                                    sl->count - 1);
+        cmc_assert_array_sorted_any(size_t, sl->buffer, cmc_size_cmp, 0, sl->count - 1);
 
         sl_free(sl);
     });
@@ -705,12 +700,10 @@ int main(void)
 {
     int result = SortedList() + SortedListIter();
 
-    printf(
-        " +---------------------------------------------------------------+");
+    printf(" +---------------------------------------------------------------+");
     printf("\n");
     printf(" | SortedList Suit : %-43s |\n", result == 0 ? "PASSED" : "FAILED");
-    printf(
-        " +---------------------------------------------------------------+");
+    printf(" +---------------------------------------------------------------+");
     printf("\n\n\n");
 
     return result;

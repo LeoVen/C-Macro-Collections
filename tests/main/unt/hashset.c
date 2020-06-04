@@ -4,23 +4,16 @@
 
 #include "../src/hashset.c"
 
-struct hashset_fval *hs_fval = &(struct hashset_fval){ .cmp = cmc_size_cmp,
-                                                       .cpy = NULL,
-                                                       .str = cmc_size_str,
-                                                       .free = NULL,
-                                                       .hash = cmc_size_hash,
-                                                       .pri = cmc_size_cmp };
-
-struct hashset_fval *hs_fval_counter = &(struct hashset_fval){ .cmp = v_c_cmp,
-                                                               .cpy = v_c_cpy,
-                                                               .str = v_c_str,
-                                                               .free = v_c_free,
-                                                               .hash = v_c_hash,
-                                                               .pri = v_c_pri };
-
-struct cmc_alloc_node *hs_alloc_node = &(struct cmc_alloc_node){
-    .malloc = malloc, .calloc = calloc, .realloc = realloc, .free = free
+struct hashset_fval *hs_fval = &(struct hashset_fval){
+    .cmp = cmc_size_cmp, .cpy = NULL, .str = cmc_size_str, .free = NULL, .hash = cmc_size_hash, .pri = cmc_size_cmp
 };
+
+struct hashset_fval *hs_fval_counter = &(struct hashset_fval){
+    .cmp = v_c_cmp, .cpy = v_c_cpy, .str = v_c_str, .free = v_c_free, .hash = v_c_hash, .pri = v_c_pri
+};
+
+struct cmc_alloc_node *hs_alloc_node =
+    &(struct cmc_alloc_node){ .malloc = malloc, .calloc = calloc, .realloc = realloc, .free = free };
 
 CMC_CREATE_UNIT(HashSet, true, {
     CMC_CREATE_TEST(PFX##_new(), {
@@ -53,8 +46,7 @@ CMC_CREATE_UNIT(HashSet, true, {
     });
 
     CMC_CREATE_TEST(PFX##_new_custom(), {
-        struct hashset *set =
-            hs_new_custom(943722, 0.6, hs_fval, hs_alloc_node, callbacks);
+        struct hashset *set = hs_new_custom(943722, 0.6, hs_fval, hs_alloc_node, callbacks);
 
         cmc_assert_not_equals(ptr, NULL, set);
         cmc_assert_not_equals(ptr, NULL, set->buffer);
@@ -165,8 +157,7 @@ CMC_CREATE_UNIT(HashSet, true, {
         cmc_assert(hs_insert(set, capacity - 1));
         cmc_assert(hs_insert(set, capacity));
 
-        cmc_assert_equals(size_t, capacity - 1,
-                          set->buffer[capacity - 1].value);
+        cmc_assert_equals(size_t, capacity - 1, set->buffer[capacity - 1].value);
         cmc_assert_equals(size_t, capacity, set->buffer[0].value);
 
         hs_fval->hash = cmc_size_hash;
@@ -206,8 +197,7 @@ CMC_CREATE_UNIT(HashSet, true, {
         size_t capacity = hs_capacity(set);
 
         // Just to be sure, not part of the test
-        cmc_assert_equals(size_t, cmc_hashtable_primes[0] - 1,
-                          hashcapminus1(0));
+        cmc_assert_equals(size_t, cmc_hashtable_primes[0] - 1, hashcapminus1(0));
         cmc_assert_equals(size_t, capacity - 1, hashcapminus1(0));
 
         cmc_assert(hs_insert(set, 0));
@@ -451,8 +441,7 @@ CMC_CREATE_UNIT(HashSet, true, {
 
         cmc_assert_not_equals(ptr, NULL, set);
 
-        cmc_assert_greater_equals(size_t, (size_t)(2500 / 0.6),
-                                  hs_capacity(set));
+        cmc_assert_greater_equals(size_t, (size_t)(2500 / 0.6), hs_capacity(set));
 
         hs_free(set);
     });
@@ -625,13 +614,9 @@ CMC_CREATE_UNIT(HashSet, true, {
     });
 });
 
-struct hashset_fval *hs_fval_numhash =
-    &(struct hashset_fval){ .cmp = cmc_size_cmp,
-                            .cpy = NULL,
-                            .str = cmc_size_str,
-                            .free = NULL,
-                            .hash = numhash,
-                            .pri = cmc_size_cmp };
+struct hashset_fval *hs_fval_numhash = &(struct hashset_fval){
+    .cmp = cmc_size_cmp, .cpy = NULL, .str = cmc_size_str, .free = NULL, .hash = numhash, .pri = cmc_size_cmp
+};
 
 CMC_CREATE_UNIT(HashSetIter, true, {
     CMC_CREATE_TEST(PFX##_iter_start(), {
@@ -1042,12 +1027,10 @@ int main(void)
 {
     int result = HashSet() + HashSetIter();
 
-    printf(
-        " +---------------------------------------------------------------+");
+    printf(" +---------------------------------------------------------------+");
     printf("\n");
     printf(" | HashSet Suit : %-46s |\n", result == 0 ? "PASSED" : "FAILED");
-    printf(
-        " +---------------------------------------------------------------+");
+    printf(" +---------------------------------------------------------------+");
     printf("\n\n\n");
 
     return result;

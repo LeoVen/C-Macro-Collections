@@ -31,13 +31,11 @@ struct sortedlist_iter
     _Bool end;
 };
 struct sortedlist *sl_new(size_t capacity, struct sortedlist_fval *f_val);
-struct sortedlist *sl_new_custom(size_t capacity, struct sortedlist_fval *f_val,
-                                 struct cmc_alloc_node *alloc,
+struct sortedlist *sl_new_custom(size_t capacity, struct sortedlist_fval *f_val, struct cmc_alloc_node *alloc,
                                  struct cmc_callbacks *callbacks);
 void sl_clear(struct sortedlist *_list_);
 void sl_free(struct sortedlist *_list_);
-void sl_customize(struct sortedlist *_list_, struct cmc_alloc_node *alloc,
-                  struct cmc_callbacks *callbacks);
+void sl_customize(struct sortedlist *_list_, struct cmc_alloc_node *alloc, struct cmc_callbacks *callbacks);
 _Bool sl_insert(struct sortedlist *_list_, size_t value);
 _Bool sl_remove(struct sortedlist *_list_, size_t index);
 size_t sl_max(struct sortedlist *_list_);
@@ -69,14 +67,10 @@ _Bool sl_iter_rewind(struct sortedlist_iter *iter, size_t steps);
 _Bool sl_iter_go_to(struct sortedlist_iter *iter, size_t index);
 size_t sl_iter_value(struct sortedlist_iter *iter);
 size_t sl_iter_index(struct sortedlist_iter *iter);
-static size_t sl_impl_binary_search_first(struct sortedlist *_list_,
-                                          size_t value);
-static size_t sl_impl_binary_search_last(struct sortedlist *_list_,
-                                         size_t value);
-void sl_impl_sort_quicksort(size_t *array, int (*cmp)(size_t, size_t),
-                            size_t low, size_t high);
-void sl_impl_sort_insertion(size_t *array, int (*cmp)(size_t, size_t),
-                            size_t low, size_t high);
+static size_t sl_impl_binary_search_first(struct sortedlist *_list_, size_t value);
+static size_t sl_impl_binary_search_last(struct sortedlist *_list_, size_t value);
+void sl_impl_sort_quicksort(size_t *array, int (*cmp)(size_t, size_t), size_t low, size_t high);
+void sl_impl_sort_insertion(size_t *array, int (*cmp)(size_t, size_t), size_t low, size_t high);
 struct sortedlist *sl_new(size_t capacity, struct sortedlist_fval *f_val)
 {
     struct cmc_alloc_node *alloc = &cmc_alloc_node_default;
@@ -102,8 +96,7 @@ struct sortedlist *sl_new(size_t capacity, struct sortedlist_fval *f_val)
     _list_->callbacks = ((void *)0);
     return _list_;
 }
-struct sortedlist *sl_new_custom(size_t capacity, struct sortedlist_fval *f_val,
-                                 struct cmc_alloc_node *alloc,
+struct sortedlist *sl_new_custom(size_t capacity, struct sortedlist_fval *f_val, struct cmc_alloc_node *alloc,
                                  struct cmc_callbacks *callbacks)
 {
     if (capacity < 1)
@@ -149,8 +142,7 @@ void sl_free(struct sortedlist *_list_)
     _list_->alloc->free(_list_->buffer);
     _list_->alloc->free(_list_);
 }
-void sl_customize(struct sortedlist *_list_, struct cmc_alloc_node *alloc,
-                  struct cmc_callbacks *callbacks)
+void sl_customize(struct sortedlist *_list_, struct cmc_alloc_node *alloc, struct cmc_callbacks *callbacks)
 {
     if (!alloc)
         _list_->alloc = &cmc_alloc_node_default;
@@ -185,8 +177,7 @@ _Bool sl_remove(struct sortedlist *_list_, size_t index)
         _list_->flag = CMC_FLAG_RANGE;
         return 0;
     }
-    memmove(_list_->buffer + index, _list_->buffer + index + 1,
-            (_list_->count - index) * sizeof(size_t));
+    memmove(_list_->buffer + index, _list_->buffer + index + 1, (_list_->count - index) * sizeof(size_t));
     _list_->buffer[--_list_->count] = (size_t){ 0 };
     _list_->flag = CMC_FLAG_OK;
     if (_list_->callbacks && _list_->callbacks->delete)
@@ -288,8 +279,7 @@ _Bool sl_resize(struct sortedlist *_list_, size_t capacity)
         _list_->flag = CMC_FLAG_INVALID;
         return 0;
     }
-    size_t *new_buffer =
-        _list_->alloc->realloc(_list_->buffer, sizeof(size_t) * capacity);
+    size_t *new_buffer = _list_->alloc->realloc(_list_->buffer, sizeof(size_t) * capacity);
     if (!new_buffer)
     {
         _list_->flag = CMC_FLAG_ALLOC;
@@ -308,15 +298,13 @@ void sl_sort(struct sortedlist *_list_)
     _list_->flag = CMC_FLAG_OK;
     if (!_list_->is_sorted && _list_->count > 1)
     {
-        sl_impl_sort_quicksort(_list_->buffer, _list_->f_val->cmp, 0,
-                               _list_->count - 1);
+        sl_impl_sort_quicksort(_list_->buffer, _list_->f_val->cmp, 0, _list_->count - 1);
         _list_->is_sorted = 1;
     }
 }
 struct sortedlist *sl_copy_of(struct sortedlist *_list_)
 {
-    struct sortedlist *result = sl_new_custom(_list_->capacity, _list_->f_val,
-                                              _list_->alloc, _list_->callbacks);
+    struct sortedlist *result = sl_new_custom(_list_->capacity, _list_->f_val, _list_->alloc, _list_->callbacks);
     if (!result)
     {
         _list_->flag = CMC_FLAG_ERROR;
@@ -342,28 +330,6 @@ _Bool sl_equals(struct sortedlist *_list1_, struct sortedlist *_list2_)
     for (size_t i = 0; i < _list1_->count; i++)
     {
         if (_list1_->f_val->cmp(_list1_->buffer[i], _list2_->buffer[i]) != 0)
-            return 0;
-    }
-    return 1;
-}
-struct cmc_string sl_to_string(struct sortedlist *_list_)
-{
-    struct cmc_string str;
-    struct sortedlist *l_ = _list_;
-    int n =
-        snprintf(str.s, cmc_string_len, cmc_cmc_string_fmt_sortedlist,
-                 "CMC_PARAM_SNAME((sl, sortedlist, , , size_t))",
-                 "CMC_PARAM_V((sl, sortedlist, , , size_t))", l_, l_->buffer,
-                 l_->capacity, l_->count, l_->is_sorted ? "true" : "false",
-                 l_->flag, l_->f_val, l_->alloc, l_->callbacks);
-    return n >= 0 ? str : (struct cmc_string){ 0 };
-}
-_Bool sl_print(struct sortedlist *_list_, FILE *fptr)
-{
-    sl_sort(_list_);
-    for (size_t i = 0; i < _list_->count; i++)
-    {
-        if (!_list_->f_val->str(fptr, _list_->buffer[i]))
             return 0;
     }
     return 1;
@@ -496,8 +462,7 @@ size_t sl_iter_index(struct sortedlist_iter *iter)
 {
     return iter->cursor;
 }
-static size_t sl_impl_binary_search_first(struct sortedlist *_list_,
-                                          size_t value)
+static size_t sl_impl_binary_search_first(struct sortedlist *_list_, size_t value)
 {
     if (sl_empty(_list_))
         return 1;
@@ -515,8 +480,7 @@ static size_t sl_impl_binary_search_first(struct sortedlist *_list_,
         return L;
     return _list_->count;
 }
-static size_t sl_impl_binary_search_last(struct sortedlist *_list_,
-                                         size_t value)
+static size_t sl_impl_binary_search_last(struct sortedlist *_list_, size_t value)
 {
     if (sl_empty(_list_))
         return 1;
@@ -534,8 +498,7 @@ static size_t sl_impl_binary_search_last(struct sortedlist *_list_,
         return L - 1;
     return _list_->count;
 }
-void sl_impl_sort_quicksort(size_t *array, int (*cmp)(size_t, size_t),
-                            size_t low, size_t high)
+void sl_impl_sort_quicksort(size_t *array, int (*cmp)(size_t, size_t), size_t low, size_t high)
 {
     while (low < high)
     {
@@ -574,8 +537,7 @@ void sl_impl_sort_quicksort(size_t *array, int (*cmp)(size_t, size_t),
         }
     }
 }
-void sl_impl_sort_insertion(size_t *array, int (*cmp)(size_t, size_t),
-                            size_t low, size_t high)
+void sl_impl_sort_insertion(size_t *array, int (*cmp)(size_t, size_t), size_t low, size_t high)
 {
     for (size_t i = low + 1; i <= high; i++)
     {

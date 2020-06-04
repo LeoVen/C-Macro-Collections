@@ -4,12 +4,9 @@
 
 #include "../src/stack.c"
 
-struct stack_fval *s_fval = &(struct stack_fval){ .cmp = cmc_size_cmp,
-                                                  .cpy = NULL,
-                                                  .str = cmc_size_str,
-                                                  .free = NULL,
-                                                  .hash = cmc_size_hash,
-                                                  .pri = cmc_size_cmp };
+struct stack_fval *s_fval = &(struct stack_fval){
+    .cmp = cmc_size_cmp, .cpy = NULL, .str = cmc_size_str, .free = NULL, .hash = cmc_size_hash, .pri = cmc_size_cmp
+};
 
 CMC_CREATE_UNIT(Stack, true, {
     CMC_CREATE_TEST(new, {
@@ -838,12 +835,10 @@ int main(void)
 {
     int result = Stack() + StackIter();
 
-    printf(
-        " +---------------------------------------------------------------+");
+    printf(" +---------------------------------------------------------------+");
     printf("\n");
     printf(" | Stack Suit : %-48s |\n", result == 0 ? "PASSED" : "FAILED");
-    printf(
-        " +---------------------------------------------------------------+");
+    printf(" +---------------------------------------------------------------+");
     printf("\n\n\n");
 
     return result;

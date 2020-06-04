@@ -4,41 +4,24 @@
 
 #include "../src/hashmultimap.c"
 
-struct hashmultimap_fkey *hmm_fkey =
-    &(struct hashmultimap_fkey){ .cmp = cmc_size_cmp,
-                                 .cpy = NULL,
-                                 .str = cmc_size_str,
-                                 .free = NULL,
-                                 .hash = cmc_size_hash,
-                                 .pri = cmc_size_cmp };
-
-struct hashmultimap_fval *hmm_fval =
-    &(struct hashmultimap_fval){ .cmp = cmc_size_cmp,
-                                 .cpy = NULL,
-                                 .str = cmc_size_str,
-                                 .free = NULL,
-                                 .hash = cmc_size_hash,
-                                 .pri = cmc_size_cmp };
-
-struct hashmultimap_fkey *hmm_fkey_counter =
-    &(struct hashmultimap_fkey){ .cmp = k_c_cmp,
-                                 .cpy = k_c_cpy,
-                                 .str = k_c_str,
-                                 .free = k_c_free,
-                                 .hash = k_c_hash,
-                                 .pri = k_c_pri };
-
-struct hashmultimap_fval *hmm_fval_counter =
-    &(struct hashmultimap_fval){ .cmp = v_c_cmp,
-                                 .cpy = v_c_cpy,
-                                 .str = v_c_str,
-                                 .free = v_c_free,
-                                 .hash = v_c_hash,
-                                 .pri = v_c_pri };
-
-struct cmc_alloc_node *hmm_alloc_node = &(struct cmc_alloc_node){
-    .malloc = malloc, .calloc = calloc, .realloc = realloc, .free = free
+struct hashmultimap_fkey *hmm_fkey = &(struct hashmultimap_fkey){
+    .cmp = cmc_size_cmp, .cpy = NULL, .str = cmc_size_str, .free = NULL, .hash = cmc_size_hash, .pri = cmc_size_cmp
 };
+
+struct hashmultimap_fval *hmm_fval = &(struct hashmultimap_fval){
+    .cmp = cmc_size_cmp, .cpy = NULL, .str = cmc_size_str, .free = NULL, .hash = cmc_size_hash, .pri = cmc_size_cmp
+};
+
+struct hashmultimap_fkey *hmm_fkey_counter = &(struct hashmultimap_fkey){
+    .cmp = k_c_cmp, .cpy = k_c_cpy, .str = k_c_str, .free = k_c_free, .hash = k_c_hash, .pri = k_c_pri
+};
+
+struct hashmultimap_fval *hmm_fval_counter = &(struct hashmultimap_fval){
+    .cmp = v_c_cmp, .cpy = v_c_cpy, .str = v_c_str, .free = v_c_free, .hash = v_c_hash, .pri = v_c_pri
+};
+
+struct cmc_alloc_node *hmm_alloc_node =
+    &(struct cmc_alloc_node){ .malloc = malloc, .calloc = calloc, .realloc = realloc, .free = free };
 
 CMC_CREATE_UNIT(HashMultiMap, true, {
     CMC_CREATE_TEST(PFX##_new(), {
@@ -87,8 +70,7 @@ CMC_CREATE_UNIT(HashMultiMap, true, {
     });
 
     CMC_CREATE_TEST(PFX##_new_custom(), {
-        struct hashmultimap *map = hmm_new_custom(
-            943722, 0.6, hmm_fkey, hmm_fval, hmm_alloc_node, callbacks);
+        struct hashmultimap *map = hmm_new_custom(943722, 0.6, hmm_fkey, hmm_fval, hmm_alloc_node, callbacks);
 
         cmc_assert_not_equals(ptr, NULL, map);
         cmc_assert_not_equals(ptr, NULL, map->buffer);
@@ -123,8 +105,7 @@ CMC_CREATE_UNIT(HashMultiMap, true, {
     CMC_CREATE_TEST(PFX##_clear(), {
         k_total_free = 0;
         v_total_free = 0;
-        struct hashmultimap *map =
-            hmm_new(100, 0.6, hmm_fkey_counter, hmm_fval_counter);
+        struct hashmultimap *map = hmm_new(100, 0.6, hmm_fkey_counter, hmm_fval_counter);
 
         cmc_assert_not_equals(ptr, NULL, map);
 
@@ -149,8 +130,7 @@ CMC_CREATE_UNIT(HashMultiMap, true, {
     CMC_CREATE_TEST(PFX##_free(), {
         k_total_free = 0;
         v_total_free = 0;
-        struct hashmultimap *map =
-            hmm_new(100, 0.6, hmm_fkey_counter, hmm_fval_counter);
+        struct hashmultimap *map = hmm_new(100, 0.6, hmm_fkey_counter, hmm_fval_counter);
 
         cmc_assert_not_equals(ptr, NULL, map);
 
@@ -380,8 +360,7 @@ CMC_CREATE_UNIT(HashMultiMap, true, {
     });
 
     CMC_CREATE_TEST(callbacks, {
-        struct hashmultimap *map =
-            hmm_new_custom(100, 0.8, hmm_fkey, hmm_fval, NULL, callbacks);
+        struct hashmultimap *map = hmm_new_custom(100, 0.8, hmm_fkey, hmm_fval, NULL, callbacks);
 
         cmc_assert_not_equals(ptr, NULL, map);
 
@@ -481,18 +460,13 @@ CMC_CREATE_UNIT(HashMultiMap, true, {
     });
 });
 
-struct hashmultimap_fkey *hmm_fkey_numhash =
-    &(struct hashmultimap_fkey){ .cmp = cmc_size_cmp,
-                                 .cpy = NULL,
-                                 .str = cmc_size_str,
-                                 .free = NULL,
-                                 .hash = numhash,
-                                 .pri = cmc_size_cmp };
+struct hashmultimap_fkey *hmm_fkey_numhash = &(struct hashmultimap_fkey){
+    .cmp = cmc_size_cmp, .cpy = NULL, .str = cmc_size_str, .free = NULL, .hash = numhash, .pri = cmc_size_cmp
+};
 
 CMC_CREATE_UNIT(HashMultiMapIter, true, {
     CMC_CREATE_TEST(PFX##_iter_start(), {
-        struct hashmultimap *map =
-            hmm_new(100, 0.6, hmm_fkey_numhash, hmm_fval);
+        struct hashmultimap *map = hmm_new(100, 0.6, hmm_fkey_numhash, hmm_fval);
 
         cmc_assert_not_equals(ptr, NULL, map);
 
@@ -526,8 +500,7 @@ CMC_CREATE_UNIT(HashMultiMapIter, true, {
     });
 
     CMC_CREATE_TEST(PFX##_iter_end(), {
-        struct hashmultimap *map =
-            hmm_new(100, 0.6, hmm_fkey_numhash, hmm_fval);
+        struct hashmultimap *map = hmm_new(100, 0.6, hmm_fkey_numhash, hmm_fval);
 
         cmc_assert_not_equals(ptr, NULL, map);
 
@@ -607,8 +580,7 @@ CMC_CREATE_UNIT(HashMultiMapIter, true, {
     });
 
     CMC_CREATE_TEST(PFX##_iter_to_start(), {
-        struct hashmultimap *map =
-            hmm_new(100, 0.6, hmm_fkey_numhash, hmm_fval);
+        struct hashmultimap *map = hmm_new(100, 0.6, hmm_fkey_numhash, hmm_fval);
 
         cmc_assert_not_equals(ptr, NULL, map);
 
@@ -639,8 +611,7 @@ CMC_CREATE_UNIT(HashMultiMapIter, true, {
     });
 
     CMC_CREATE_TEST(PFX##_iter_to_end(), {
-        struct hashmultimap *map =
-            hmm_new(100, 0.6, hmm_fkey_numhash, hmm_fval);
+        struct hashmultimap *map = hmm_new(100, 0.6, hmm_fkey_numhash, hmm_fval);
 
         cmc_assert_not_equals(ptr, NULL, map);
 
@@ -681,8 +652,7 @@ CMC_CREATE_UNIT(HashMultiMapIter, true, {
             hmm_insert(map, i, i);
 
         size_t sum = 0;
-        for (it = hmm_iter_start(map); !hmm_iter_at_end(&it);
-             hmm_iter_next(&it))
+        for (it = hmm_iter_start(map); !hmm_iter_at_end(&it); hmm_iter_next(&it))
         {
             sum += hmm_iter_value(&it);
         }
@@ -715,8 +685,7 @@ CMC_CREATE_UNIT(HashMultiMapIter, true, {
             hmm_insert(map, i, i);
 
         size_t sum = 0;
-        for (it = hmm_iter_end(map); !hmm_iter_at_start(&it);
-             hmm_iter_prev(&it))
+        for (it = hmm_iter_end(map); !hmm_iter_at_start(&it); hmm_iter_prev(&it))
         {
             sum += hmm_iter_value(&it);
         }
@@ -737,8 +706,7 @@ CMC_CREATE_UNIT(HashMultiMapIter, true, {
     });
 
     CMC_CREATE_TEST(PFX##_iter_advance(), {
-        struct hashmultimap *map =
-            hmm_new(100, 0.6, hmm_fkey_numhash, hmm_fval);
+        struct hashmultimap *map = hmm_new(100, 0.6, hmm_fkey_numhash, hmm_fval);
 
         cmc_assert_not_equals(ptr, NULL, map);
 
@@ -772,8 +740,7 @@ CMC_CREATE_UNIT(HashMultiMapIter, true, {
     });
 
     CMC_CREATE_TEST(PFX##_iter_rewind(), {
-        struct hashmultimap *map =
-            hmm_new(100, 0.6, hmm_fkey_numhash, hmm_fval);
+        struct hashmultimap *map = hmm_new(100, 0.6, hmm_fkey_numhash, hmm_fval);
 
         cmc_assert_not_equals(ptr, NULL, map);
 
@@ -807,8 +774,7 @@ CMC_CREATE_UNIT(HashMultiMapIter, true, {
     });
 
     CMC_CREATE_TEST(PFX##_iter_go_to(), {
-        struct hashmultimap *map =
-            hmm_new(100, 0.6, hmm_fkey_numhash, hmm_fval);
+        struct hashmultimap *map = hmm_new(100, 0.6, hmm_fkey_numhash, hmm_fval);
 
         cmc_assert_not_equals(ptr, NULL, map);
 
@@ -944,13 +910,10 @@ int main(void)
 {
     int result = HashMultiMap() + HashMultiMapIter();
 
-    printf(
-        " +---------------------------------------------------------------+");
+    printf(" +---------------------------------------------------------------+");
     printf("\n");
-    printf(" | HashMultiMap Suit : %-41s |\n",
-           result == 0 ? "PASSED" : "FAILED");
-    printf(
-        " +---------------------------------------------------------------+");
+    printf(" | HashMultiMap Suit : %-41s |\n", result == 0 ? "PASSED" : "FAILED");
+    printf(" +---------------------------------------------------------------+");
     printf("\n\n\n");
 
     return result;

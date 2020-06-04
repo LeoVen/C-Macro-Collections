@@ -37,9 +37,7 @@ enum cmc_flags
  *
  * Maps the error codes to their character representation.
  */
-const char *cmc_flags_to_str[10] = { "OK",        "ALLOC",   "EMPTY",
-                                     "NOT_FOUND", "INVALID", "RANGE",
-                                     "DUPLICATE", "ERROR",   "THREAD",
-                                     "MUTEX" };
+const char *cmc_flags_to_str[10] = { "OK",    "ALLOC",     "EMPTY", "NOT_FOUND", "INVALID",
+                                     "RANGE", "DUPLICATE", "ERROR", "THREAD",    "MUTEX" };
 
 #endif /* CMC_COR_FLAGS_H */

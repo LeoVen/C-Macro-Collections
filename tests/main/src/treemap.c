@@ -51,17 +51,13 @@ struct treemap_iter
     _Bool end;
 };
 struct treemap *tm_new(struct treemap_fkey *f_key, struct treemap_fval *f_val);
-struct treemap *tm_new_custom(struct treemap_fkey *f_key,
-                              struct treemap_fval *f_val,
-                              struct cmc_alloc_node *alloc,
+struct treemap *tm_new_custom(struct treemap_fkey *f_key, struct treemap_fval *f_val, struct cmc_alloc_node *alloc,
                               struct cmc_callbacks *callbacks);
 void tm_clear(struct treemap *_map_);
 void tm_free(struct treemap *_map_);
-void tm_customize(struct treemap *_map_, struct cmc_alloc_node *alloc,
-                  struct cmc_callbacks *callbacks);
+void tm_customize(struct treemap *_map_, struct cmc_alloc_node *alloc, struct cmc_callbacks *callbacks);
 _Bool tm_insert(struct treemap *_map_, size_t key, size_t value);
-_Bool tm_update(struct treemap *_map_, size_t key, size_t new_value,
-                size_t *old_value);
+_Bool tm_update(struct treemap *_map_, size_t key, size_t new_value, size_t *old_value);
 _Bool tm_remove(struct treemap *_map_, size_t key, size_t *out_value);
 _Bool tm_max(struct treemap *_map_, size_t *key, size_t *value);
 _Bool tm_min(struct treemap *_map_, size_t *key, size_t *value);
@@ -90,8 +86,7 @@ size_t tm_iter_key(struct treemap_iter *iter);
 size_t tm_iter_value(struct treemap_iter *iter);
 size_t *tm_iter_rvalue(struct treemap_iter *iter);
 size_t tm_iter_index(struct treemap_iter *iter);
-static struct treemap_node *tm_impl_new_node(struct treemap *_map_, size_t key,
-                                             size_t value);
+static struct treemap_node *tm_impl_new_node(struct treemap *_map_, size_t key, size_t value);
 static struct treemap_node *tm_impl_get_node(struct treemap *_map_, size_t key);
 static unsigned char tm_impl_h(struct treemap_node *node);
 static unsigned char tm_impl_hupdate(struct treemap_node *node);
@@ -115,9 +110,7 @@ struct treemap *tm_new(struct treemap_fkey *f_key, struct treemap_fval *f_val)
     _map_->callbacks = ((void *)0);
     return _map_;
 }
-struct treemap *tm_new_custom(struct treemap_fkey *f_key,
-                              struct treemap_fval *f_val,
-                              struct cmc_alloc_node *alloc,
+struct treemap *tm_new_custom(struct treemap_fkey *f_key, struct treemap_fval *f_val, struct cmc_alloc_node *alloc,
                               struct cmc_callbacks *callbacks)
 {
     if (!f_key || !f_val)
@@ -198,8 +191,7 @@ void tm_free(struct treemap *_map_)
     tm_clear(_map_);
     _map_->alloc->free(_map_);
 }
-void tm_customize(struct treemap *_map_, struct cmc_alloc_node *alloc,
-                  struct cmc_callbacks *callbacks)
+void tm_customize(struct treemap *_map_, struct cmc_alloc_node *alloc, struct cmc_callbacks *callbacks)
 {
     if (!alloc)
         _map_->alloc = &cmc_alloc_node_default;
@@ -267,8 +259,7 @@ _Bool tm_insert(struct treemap *_map_, size_t key, size_t value)
         _map_->callbacks->create();
     return 1;
 }
-_Bool tm_update(struct treemap *_map_, size_t key, size_t new_value,
-                size_t *old_value)
+_Bool tm_update(struct treemap *_map_, size_t key, size_t new_value, size_t *old_value)
 {
     struct treemap_node *node = tm_impl_get_node(_map_, key);
     if (!node)
@@ -491,8 +482,7 @@ int tm_flag(struct treemap *_map_)
 }
 struct treemap *tm_copy_of(struct treemap *_map_)
 {
-    struct treemap *result =
-        tm_new_custom(_map_->f_key, _map_->f_val, _map_->alloc, ((void *)0));
+    struct treemap *result = tm_new_custom(_map_->f_key, _map_->f_val, _map_->alloc, ((void *)0));
     if (!result)
     {
         _map_->flag = CMC_FLAG_ERROR;
@@ -522,57 +512,11 @@ _Bool tm_equals(struct treemap *_map1_, struct treemap *_map2_)
     struct treemap_iter iter = tm_iter_start(_map1_);
     for (; !tm_iter_at_end(&iter); tm_iter_next(&iter))
     {
-        struct treemap_node *node =
-            tm_impl_get_node(_map2_, tm_iter_key(&iter));
+        struct treemap_node *node = tm_impl_get_node(_map2_, tm_iter_key(&iter));
         if (node == ((void *)0))
             return 0;
         if (_map1_->f_val->cmp(node->value, tm_iter_value(&iter)) != 0)
             return 0;
-    }
-    return 1;
-}
-struct cmc_string tm_to_string(struct treemap *_map_)
-{
-    struct cmc_string str;
-    struct treemap *m_ = _map_;
-    int n = snprintf(str.s, cmc_string_len, cmc_cmc_string_fmt_treemap,
-                     "CMC_PARAM_SNAME((tm, treemap, , size_t, size_t))",
-                     "CMC_PARAM_K((tm, treemap, , size_t, size_t))",
-                     "CMC_PARAM_V((tm, treemap, , size_t, size_t))", m_,
-                     m_->root, m_->count, m_->flag, m_->f_key, m_->f_val,
-                     m_->alloc, m_->callbacks);
-    return n >= 0 ? str : (struct cmc_string){ 0 };
-}
-_Bool tm_print(struct treemap *_map_, FILE *fptr)
-{
-    struct treemap_node *root = _map_->root;
-    _Bool left_done = 0;
-    while (root)
-    {
-        if (!left_done)
-        {
-            while (root->left)
-                root = root->left;
-        }
-        if (!_map_->f_key->str(fptr, root->key) &&
-            !_map_->f_val->str(fptr, root->value))
-            return 0;
-        left_done = 1;
-        if (root->right)
-        {
-            left_done = 0;
-            root = root->right;
-        }
-        else if (root->parent)
-        {
-            while (root->parent && root == root->parent->right)
-                root = root->parent;
-            if (!root->parent)
-                break;
-            root = root->parent;
-        }
-        else
-            break;
     }
     return 1;
 }
@@ -771,11 +715,9 @@ size_t tm_iter_index(struct treemap_iter *iter)
 {
     return iter->index;
 }
-static struct treemap_node *tm_impl_new_node(struct treemap *_map_, size_t key,
-                                             size_t value)
+static struct treemap_node *tm_impl_new_node(struct treemap *_map_, size_t key, size_t value)
 {
-    struct treemap_node *node =
-        _map_->alloc->malloc(sizeof(struct treemap_node));
+    struct treemap_node *node = _map_->alloc->malloc(sizeof(struct treemap_node));
     if (!node)
         return ((void *)0);
     node->key = key;

@@ -4,37 +4,24 @@
 
 #include "../src/hashmap.c"
 
-struct hashmap_fkey *hm_fkey = &(struct hashmap_fkey){ .cmp = cmc_size_cmp,
-                                                       .cpy = NULL,
-                                                       .str = cmc_size_str,
-                                                       .free = NULL,
-                                                       .hash = cmc_size_hash,
-                                                       .pri = cmc_size_cmp };
-
-struct hashmap_fval *hm_fval = &(struct hashmap_fval){ .cmp = cmc_size_cmp,
-                                                       .cpy = NULL,
-                                                       .str = cmc_size_str,
-                                                       .free = NULL,
-                                                       .hash = cmc_size_hash,
-                                                       .pri = cmc_size_cmp };
-
-struct hashmap_fkey *hm_fkey_counter = &(struct hashmap_fkey){ .cmp = k_c_cmp,
-                                                               .cpy = k_c_cpy,
-                                                               .str = k_c_str,
-                                                               .free = k_c_free,
-                                                               .hash = k_c_hash,
-                                                               .pri = k_c_pri };
-
-struct hashmap_fval *hm_fval_counter = &(struct hashmap_fval){ .cmp = v_c_cmp,
-                                                               .cpy = v_c_cpy,
-                                                               .str = v_c_str,
-                                                               .free = v_c_free,
-                                                               .hash = v_c_hash,
-                                                               .pri = v_c_pri };
-
-struct cmc_alloc_node *hm_alloc_node = &(struct cmc_alloc_node){
-    .malloc = malloc, .calloc = calloc, .realloc = realloc, .free = free
+struct hashmap_fkey *hm_fkey = &(struct hashmap_fkey){
+    .cmp = cmc_size_cmp, .cpy = NULL, .str = cmc_size_str, .free = NULL, .hash = cmc_size_hash, .pri = cmc_size_cmp
 };
+
+struct hashmap_fval *hm_fval = &(struct hashmap_fval){
+    .cmp = cmc_size_cmp, .cpy = NULL, .str = cmc_size_str, .free = NULL, .hash = cmc_size_hash, .pri = cmc_size_cmp
+};
+
+struct hashmap_fkey *hm_fkey_counter = &(struct hashmap_fkey){
+    .cmp = k_c_cmp, .cpy = k_c_cpy, .str = k_c_str, .free = k_c_free, .hash = k_c_hash, .pri = k_c_pri
+};
+
+struct hashmap_fval *hm_fval_counter = &(struct hashmap_fval){
+    .cmp = v_c_cmp, .cpy = v_c_cpy, .str = v_c_str, .free = v_c_free, .hash = v_c_hash, .pri = v_c_pri
+};
+
+struct cmc_alloc_node *hm_alloc_node =
+    &(struct cmc_alloc_node){ .malloc = malloc, .calloc = calloc, .realloc = realloc, .free = free };
 
 CMC_CREATE_UNIT(HashMap, true, {
     CMC_CREATE_TEST(PFX##_new(), {
@@ -71,8 +58,7 @@ CMC_CREATE_UNIT(HashMap, true, {
     });
 
     CMC_CREATE_TEST(PFX##_new_custom(), {
-        struct hashmap *map = hm_new_custom(943722, 0.6, hm_fkey, hm_fval,
-                                            hm_alloc_node, callbacks);
+        struct hashmap *map = hm_new_custom(943722, 0.6, hm_fkey, hm_fval, hm_alloc_node, callbacks);
 
         cmc_assert_not_equals(ptr, NULL, map);
         cmc_assert_not_equals(ptr, NULL, map->buffer);
@@ -172,8 +158,7 @@ CMC_CREATE_UNIT(HashMap, true, {
     CMC_CREATE_TEST(PFX##_clear(), {
         k_total_free = 0;
         v_total_free = 0;
-        struct hashmap *map =
-            hm_new(100, 0.6, hm_fkey_counter, hm_fval_counter);
+        struct hashmap *map = hm_new(100, 0.6, hm_fkey_counter, hm_fval_counter);
 
         cmc_assert_not_equals(ptr, NULL, map);
 
@@ -205,8 +190,7 @@ CMC_CREATE_UNIT(HashMap, true, {
     CMC_CREATE_TEST(PFX##_free(), {
         k_total_free = 0;
         v_total_free = 0;
-        struct hashmap *map =
-            hm_new(100, 0.6, hm_fkey_counter, hm_fval_counter);
+        struct hashmap *map = hm_new(100, 0.6, hm_fkey_counter, hm_fval_counter);
 
         cmc_assert_not_equals(ptr, NULL, map);
 
@@ -360,8 +344,7 @@ CMC_CREATE_UNIT(HashMap, true, {
         capacity = hm_capacity(map);
 
         // Just to be sure, not part of the test
-        cmc_assert_equals(size_t, cmc_hashtable_primes[0] - 1,
-                          hashcapminus1(0));
+        cmc_assert_equals(size_t, cmc_hashtable_primes[0] - 1, hashcapminus1(0));
         cmc_assert_equals(size_t, capacity - 1, hashcapminus1(0));
 
         cmc_assert(hm_insert(map, 0, 0));
@@ -636,8 +619,7 @@ CMC_CREATE_UNIT(HashMap, true, {
     });
 
     CMC_CREATE_TEST(PFX##_full(), {
-        struct hashmap *map =
-            hm_new(cmc_hashtable_primes[0], 0.99999, hm_fkey, hm_fval);
+        struct hashmap *map = hm_new(cmc_hashtable_primes[0], 0.99999, hm_fkey, hm_fval);
 
         cmc_assert_not_equals(ptr, NULL, map);
 
@@ -676,8 +658,7 @@ CMC_CREATE_UNIT(HashMap, true, {
 
         cmc_assert_not_equals(ptr, NULL, map);
 
-        cmc_assert_greater_equals(size_t, (size_t)(2500 / 0.6),
-                                  hm_capacity(map));
+        cmc_assert_greater_equals(size_t, (size_t)(2500 / 0.6), hm_capacity(map));
 
         hm_free(map);
 
@@ -811,8 +792,7 @@ CMC_CREATE_UNIT(HashMap, true, {
     });
 
     CMC_CREATE_TEST(callbacks, {
-        struct hashmap *map =
-            hm_new_custom(100, 0.6, hm_fkey, hm_fval, NULL, callbacks);
+        struct hashmap *map = hm_new_custom(100, 0.6, hm_fkey, hm_fval, NULL, callbacks);
 
         cmc_assert_not_equals(ptr, NULL, map);
 
@@ -890,13 +870,9 @@ CMC_CREATE_UNIT(HashMap, true, {
     });
 });
 
-struct hashmap_fkey *hm_fkey_numhash =
-    &(struct hashmap_fkey){ .cmp = cmc_size_cmp,
-                            .cpy = NULL,
-                            .str = cmc_size_str,
-                            .free = NULL,
-                            .hash = numhash,
-                            .pri = cmc_size_cmp };
+struct hashmap_fkey *hm_fkey_numhash = &(struct hashmap_fkey){
+    .cmp = cmc_size_cmp, .cpy = NULL, .str = cmc_size_str, .free = NULL, .hash = numhash, .pri = cmc_size_cmp
+};
 
 CMC_CREATE_UNIT(HashMapIter, true, {
     CMC_CREATE_TEST(PFX##_iter_start(), {
@@ -1344,12 +1320,10 @@ int main(void)
 {
     int result = HashMap() + HashMapIter();
 
-    printf(
-        " +---------------------------------------------------------------+");
+    printf(" +---------------------------------------------------------------+");
     printf("\n");
     printf(" | HashMap Suit : %-46s |\n", result == 0 ? "PASSED" : "FAILED");
-    printf(
-        " +---------------------------------------------------------------+");
+    printf(" +---------------------------------------------------------------+");
     printf("\n\n\n");
 
     return result;

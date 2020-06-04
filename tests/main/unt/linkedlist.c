@@ -4,13 +4,9 @@
 
 #include "../src/linkedlist.c"
 
-struct linkedlist_fval *ll_fval =
-    &(struct linkedlist_fval){ .cmp = cmc_size_cmp,
-                               .cpy = NULL,
-                               .str = cmc_size_str,
-                               .free = NULL,
-                               .hash = cmc_size_hash,
-                               .pri = cmc_size_cmp };
+struct linkedlist_fval *ll_fval = &(struct linkedlist_fval){
+    .cmp = cmc_size_cmp, .cpy = NULL, .str = cmc_size_str, .free = NULL, .hash = cmc_size_hash, .pri = cmc_size_cmp
+};
 
 CMC_CREATE_UNIT(LinkedList, true, {
     CMC_CREATE_TEST(new, {
@@ -804,12 +800,10 @@ int main(void)
 {
     int result = LinkedList() + LinkedListIter();
 
-    printf(
-        " +---------------------------------------------------------------+");
+    printf(" +---------------------------------------------------------------+");
     printf("\n");
     printf(" | LinkedList Suit : %-43s |\n", result == 0 ? "PASSED" : "FAILED");
-    printf(
-        " +---------------------------------------------------------------+");
+    printf(" +---------------------------------------------------------------+");
     printf("\n\n\n");
 
     return result;

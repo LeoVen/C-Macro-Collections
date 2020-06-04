@@ -31,13 +31,12 @@ CMC_CREATE_UNIT(ForEach, true, {
     // });
 
     CMC_CREATE_TEST(CMC<Deque>, {
-        struct deque *d =
-            d_new(10000, &(struct deque_fval){ .cmp = cmc_size_cmp,
-                                               .cpy = NULL,
-                                               .str = cmc_size_str,
-                                               .free = NULL,
-                                               .hash = cmc_size_hash,
-                                               .pri = cmc_size_cmp });
+        struct deque *d = d_new(10000, &(struct deque_fval){ .cmp = cmc_size_cmp,
+                                                             .cpy = NULL,
+                                                             .str = cmc_size_str,
+                                                             .free = NULL,
+                                                             .hash = cmc_size_hash,
+                                                             .pri = cmc_size_cmp });
 
         for (size_t i = 1; i <= 10000; i++)
             d_push_back(d, i);
@@ -81,20 +80,19 @@ CMC_CREATE_UNIT(ForEach, true, {
     // });
 
     CMC_CREATE_TEST(CMC<HashMap>, {
-        struct hashmap *hm =
-            hm_new(10000, 0.6,
-                   &(struct hashmap_fkey){ .cmp = cmc_size_cmp,
-                                           .cpy = NULL,
-                                           .str = cmc_size_str,
-                                           .free = NULL,
-                                           .hash = cmc_size_hash,
-                                           .pri = cmc_size_cmp },
-                   &(struct hashmap_fval){ .cmp = cmc_size_cmp,
-                                           .cpy = NULL,
-                                           .str = cmc_size_str,
-                                           .free = NULL,
-                                           .hash = cmc_size_hash,
-                                           .pri = cmc_size_cmp });
+        struct hashmap *hm = hm_new(10000, 0.6,
+                                    &(struct hashmap_fkey){ .cmp = cmc_size_cmp,
+                                                            .cpy = NULL,
+                                                            .str = cmc_size_str,
+                                                            .free = NULL,
+                                                            .hash = cmc_size_hash,
+                                                            .pri = cmc_size_cmp },
+                                    &(struct hashmap_fval){ .cmp = cmc_size_cmp,
+                                                            .cpy = NULL,
+                                                            .str = cmc_size_str,
+                                                            .free = NULL,
+                                                            .hash = cmc_size_hash,
+                                                            .pri = cmc_size_cmp });
 
         for (size_t i = 1; i <= 10000; i++)
             hm_insert(hm, i, i);
@@ -123,20 +121,19 @@ CMC_CREATE_UNIT(ForEach, true, {
     });
 
     CMC_CREATE_TEST(CMC<HashMultiMap>, {
-        struct hashmultimap *hmm =
-            hmm_new(10000, 0.6,
-                    &(struct hashmultimap_fkey){ .cmp = cmc_size_cmp,
-                                                 .cpy = NULL,
-                                                 .str = cmc_size_str,
-                                                 .free = NULL,
-                                                 .hash = cmc_size_hash,
-                                                 .pri = cmc_size_cmp },
-                    &(struct hashmultimap_fval){ .cmp = cmc_size_cmp,
-                                                 .cpy = NULL,
-                                                 .str = cmc_size_str,
-                                                 .free = NULL,
-                                                 .hash = cmc_size_hash,
-                                                 .pri = cmc_size_cmp });
+        struct hashmultimap *hmm = hmm_new(10000, 0.6,
+                                           &(struct hashmultimap_fkey){ .cmp = cmc_size_cmp,
+                                                                        .cpy = NULL,
+                                                                        .str = cmc_size_str,
+                                                                        .free = NULL,
+                                                                        .hash = cmc_size_hash,
+                                                                        .pri = cmc_size_cmp },
+                                           &(struct hashmultimap_fval){ .cmp = cmc_size_cmp,
+                                                                        .cpy = NULL,
+                                                                        .str = cmc_size_str,
+                                                                        .free = NULL,
+                                                                        .hash = cmc_size_hash,
+                                                                        .pri = cmc_size_cmp });
 
         for (size_t i = 1; i <= 10000; i++)
             hmm_insert(hmm, i, i);
@@ -165,14 +162,13 @@ CMC_CREATE_UNIT(ForEach, true, {
     });
 
     CMC_CREATE_TEST(CMC<HashMultiSet>, {
-        struct hashmultiset *hms =
-            hms_new(10000, 0.6,
-                    &(struct hashmultiset_fval){ .cmp = cmc_size_cmp,
-                                                 .cpy = NULL,
-                                                 .str = cmc_size_str,
-                                                 .free = NULL,
-                                                 .hash = cmc_size_hash,
-                                                 .pri = cmc_size_cmp });
+        struct hashmultiset *hms = hms_new(10000, 0.6,
+                                           &(struct hashmultiset_fval){ .cmp = cmc_size_cmp,
+                                                                        .cpy = NULL,
+                                                                        .str = cmc_size_str,
+                                                                        .free = NULL,
+                                                                        .hash = cmc_size_hash,
+                                                                        .pri = cmc_size_cmp });
 
         for (size_t i = 1; i <= 10000; i++)
             hms_insert_many(hms, i, i);
@@ -201,14 +197,13 @@ CMC_CREATE_UNIT(ForEach, true, {
     });
 
     CMC_CREATE_TEST(CMC<HashSet>, {
-        struct hashset *hs =
-            hs_new(10000, 0.6,
-                   &(struct hashset_fval){ .cmp = cmc_size_cmp,
-                                           .cpy = NULL,
-                                           .str = cmc_size_str,
-                                           .free = NULL,
-                                           .hash = cmc_size_hash,
-                                           .pri = cmc_size_cmp });
+        struct hashset *hs = hs_new(10000, 0.6,
+                                    &(struct hashset_fval){ .cmp = cmc_size_cmp,
+                                                            .cpy = NULL,
+                                                            .str = cmc_size_str,
+                                                            .free = NULL,
+                                                            .hash = cmc_size_hash,
+                                                            .pri = cmc_size_cmp });
 
         for (size_t i = 1; i <= 10000; i++)
             hs_insert(hs, i);
@@ -260,13 +255,12 @@ CMC_CREATE_UNIT(ForEach, true, {
     });
 
     CMC_CREATE_TEST(CMC<IntervalHeap>, {
-        struct intervalheap *ih =
-            ih_new(10000, &(struct intervalheap_fval){ .cmp = cmc_size_cmp,
-                                                       .cpy = NULL,
-                                                       .str = cmc_size_str,
-                                                       .free = NULL,
-                                                       .hash = cmc_size_hash,
-                                                       .pri = cmc_size_cmp });
+        struct intervalheap *ih = ih_new(10000, &(struct intervalheap_fval){ .cmp = cmc_size_cmp,
+                                                                             .cpy = NULL,
+                                                                             .str = cmc_size_str,
+                                                                             .free = NULL,
+                                                                             .hash = cmc_size_hash,
+                                                                             .pri = cmc_size_cmp });
 
         for (size_t i = 1; i <= 10000; i++)
             ih_insert(ih, i);
@@ -289,13 +283,12 @@ CMC_CREATE_UNIT(ForEach, true, {
     });
 
     CMC_CREATE_TEST(CMC<LinkedList>, {
-        struct linkedlist *ll =
-            ll_new(&(struct linkedlist_fval){ .cmp = cmc_size_cmp,
-                                              .cpy = NULL,
-                                              .str = cmc_size_str,
-                                              .free = NULL,
-                                              .hash = cmc_size_hash,
-                                              .pri = cmc_size_cmp });
+        struct linkedlist *ll = ll_new(&(struct linkedlist_fval){ .cmp = cmc_size_cmp,
+                                                                  .cpy = NULL,
+                                                                  .str = cmc_size_str,
+                                                                  .free = NULL,
+                                                                  .hash = cmc_size_hash,
+                                                                  .pri = cmc_size_cmp });
 
         for (size_t i = 1; i <= 10000; i++)
             ll_push_back(ll, i);
@@ -318,13 +311,12 @@ CMC_CREATE_UNIT(ForEach, true, {
     });
 
     CMC_CREATE_TEST(CMC<List>, {
-        struct list *l =
-            l_new(10000, &(struct list_fval){ .cmp = cmc_size_cmp,
-                                              .cpy = NULL,
-                                              .str = cmc_size_str,
-                                              .free = NULL,
-                                              .hash = cmc_size_hash,
-                                              .pri = cmc_size_cmp });
+        struct list *l = l_new(10000, &(struct list_fval){ .cmp = cmc_size_cmp,
+                                                           .cpy = NULL,
+                                                           .str = cmc_size_str,
+                                                           .free = NULL,
+                                                           .hash = cmc_size_hash,
+                                                           .pri = cmc_size_cmp });
 
         for (size_t i = 1; i <= 10000; i++)
             l_push_back(l, i);
@@ -347,13 +339,12 @@ CMC_CREATE_UNIT(ForEach, true, {
     });
 
     CMC_CREATE_TEST(CMC<Queue>, {
-        struct queue *q =
-            q_new(10000, &(struct queue_fval){ .cmp = cmc_size_cmp,
-                                               .cpy = NULL,
-                                               .str = cmc_size_str,
-                                               .free = NULL,
-                                               .hash = cmc_size_hash,
-                                               .pri = cmc_size_cmp });
+        struct queue *q = q_new(10000, &(struct queue_fval){ .cmp = cmc_size_cmp,
+                                                             .cpy = NULL,
+                                                             .str = cmc_size_str,
+                                                             .free = NULL,
+                                                             .hash = cmc_size_hash,
+                                                             .pri = cmc_size_cmp });
 
         for (size_t i = 1; i <= 10000; i++)
             q_enqueue(q, i);
@@ -376,13 +367,12 @@ CMC_CREATE_UNIT(ForEach, true, {
     });
 
     CMC_CREATE_TEST(CMC<SortedList>, {
-        struct sortedlist *sl =
-            sl_new(10000, &(struct sortedlist_fval){ .cmp = cmc_size_cmp,
-                                                     .cpy = NULL,
-                                                     .str = cmc_size_str,
-                                                     .free = NULL,
-                                                     .hash = cmc_size_hash,
-                                                     .pri = cmc_size_cmp });
+        struct sortedlist *sl = sl_new(10000, &(struct sortedlist_fval){ .cmp = cmc_size_cmp,
+                                                                         .cpy = NULL,
+                                                                         .str = cmc_size_str,
+                                                                         .free = NULL,
+                                                                         .hash = cmc_size_hash,
+                                                                         .pri = cmc_size_cmp });
 
         for (size_t i = 1; i <= 10000; i++)
             sl_insert(sl, i);
@@ -405,13 +395,12 @@ CMC_CREATE_UNIT(ForEach, true, {
     });
 
     CMC_CREATE_TEST(CMC<Stack>, {
-        struct stack *s =
-            s_new(10000, &(struct stack_fval){ .cmp = cmc_size_cmp,
-                                               .cpy = NULL,
-                                               .str = cmc_size_str,
-                                               .free = NULL,
-                                               .hash = cmc_size_hash,
-                                               .pri = cmc_size_cmp });
+        struct stack *s = s_new(10000, &(struct stack_fval){ .cmp = cmc_size_cmp,
+                                                             .cpy = NULL,
+                                                             .str = cmc_size_str,
+                                                             .free = NULL,
+                                                             .hash = cmc_size_hash,
+                                                             .pri = cmc_size_cmp });
 
         for (size_t i = 1; i <= 10000; i++)
             s_push(s, i);
@@ -434,19 +423,18 @@ CMC_CREATE_UNIT(ForEach, true, {
     });
 
     CMC_CREATE_TEST(CMC<TreeMap>, {
-        struct treemap *tm =
-            tm_new(&(struct treemap_fkey){ .cmp = cmc_size_cmp,
-                                           .cpy = NULL,
-                                           .str = cmc_size_str,
-                                           .free = NULL,
-                                           .hash = cmc_size_hash,
-                                           .pri = cmc_size_cmp },
-                   &(struct treemap_fval){ .cmp = cmc_size_cmp,
-                                           .cpy = NULL,
-                                           .str = cmc_size_str,
-                                           .free = NULL,
-                                           .hash = cmc_size_hash,
-                                           .pri = cmc_size_cmp });
+        struct treemap *tm = tm_new(&(struct treemap_fkey){ .cmp = cmc_size_cmp,
+                                                            .cpy = NULL,
+                                                            .str = cmc_size_str,
+                                                            .free = NULL,
+                                                            .hash = cmc_size_hash,
+                                                            .pri = cmc_size_cmp },
+                                    &(struct treemap_fval){ .cmp = cmc_size_cmp,
+                                                            .cpy = NULL,
+                                                            .str = cmc_size_str,
+                                                            .free = NULL,
+                                                            .hash = cmc_size_hash,
+                                                            .pri = cmc_size_cmp });
 
         for (size_t i = 1; i <= 10000; i++)
             tm_insert(tm, i, i);
@@ -475,13 +463,12 @@ CMC_CREATE_UNIT(ForEach, true, {
     });
 
     CMC_CREATE_TEST(CMC<TreeSet>, {
-        struct treeset *ts =
-            ts_new(&(struct treeset_fval){ .cmp = cmc_size_cmp,
-                                           .cpy = NULL,
-                                           .str = cmc_size_str,
-                                           .free = NULL,
-                                           .hash = cmc_size_hash,
-                                           .pri = cmc_size_cmp });
+        struct treeset *ts = ts_new(&(struct treeset_fval){ .cmp = cmc_size_cmp,
+                                                            .cpy = NULL,
+                                                            .str = cmc_size_str,
+                                                            .free = NULL,
+                                                            .hash = cmc_size_hash,
+                                                            .pri = cmc_size_cmp });
 
         for (size_t i = 1; i <= 10000; i++)
             ts_insert(ts, i);
@@ -509,12 +496,10 @@ int main(void)
 {
     int result = ForEach();
 
-    printf(
-        " +---------------------------------------------------------------+");
+    printf(" +---------------------------------------------------------------+");
     printf("\n");
     printf(" | ForEach Suit : %-46s |\n", result == 0 ? "PASSED" : "FAILED");
-    printf(
-        " +---------------------------------------------------------------+");
+    printf(" +---------------------------------------------------------------+");
     printf("\n\n\n");
 
     return result;

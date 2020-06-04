@@ -4,12 +4,9 @@
 
 #include "../src/list.c"
 
-struct list_fval *l_fval = &(struct list_fval){ .cmp = cmc_size_cmp,
-                                                .cpy = NULL,
-                                                .str = cmc_size_str,
-                                                .free = NULL,
-                                                .hash = cmc_size_hash,
-                                                .pri = cmc_size_cmp };
+struct list_fval *l_fval = &(struct list_fval){
+    .cmp = cmc_size_cmp, .cpy = NULL, .str = cmc_size_str, .free = NULL, .hash = cmc_size_hash, .pri = cmc_size_cmp
+};
 
 CMC_CREATE_UNIT(List, true, {
     CMC_CREATE_TEST(new, {
@@ -1070,12 +1067,10 @@ int main(void)
 {
     int result = List() + ListIter();
 
-    printf(
-        " +---------------------------------------------------------------+");
+    printf(" +---------------------------------------------------------------+");
     printf("\n");
     printf(" | List Suit : %-49s |\n", result == 0 ? "PASSED" : "FAILED");
-    printf(
-        " +---------------------------------------------------------------+");
+    printf(" +---------------------------------------------------------------+");
     printf("\n\n\n");
 
     return result;

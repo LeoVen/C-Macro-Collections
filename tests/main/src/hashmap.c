@@ -50,21 +50,15 @@ struct hashmap_iter
     _Bool start;
     _Bool end;
 };
-struct hashmap *hm_new(size_t capacity, double load, struct hashmap_fkey *f_key,
-                       struct hashmap_fval *f_val);
-struct hashmap *hm_new_custom(size_t capacity, double load,
-                              struct hashmap_fkey *f_key,
-                              struct hashmap_fval *f_val,
-                              struct cmc_alloc_node *alloc,
-                              struct cmc_callbacks *callbacks);
+struct hashmap *hm_new(size_t capacity, double load, struct hashmap_fkey *f_key, struct hashmap_fval *f_val);
+struct hashmap *hm_new_custom(size_t capacity, double load, struct hashmap_fkey *f_key, struct hashmap_fval *f_val,
+                              struct cmc_alloc_node *alloc, struct cmc_callbacks *callbacks);
 void hm_clear(struct hashmap *_map_);
 void hm_free(struct hashmap *_map_);
 void hm_release(struct hashmap _map_);
-void hm_customize(struct hashmap *_map_, struct cmc_alloc_node *alloc,
-                  struct cmc_callbacks *callbacks);
+void hm_customize(struct hashmap *_map_, struct cmc_alloc_node *alloc, struct cmc_callbacks *callbacks);
 _Bool hm_insert(struct hashmap *_map_, size_t key, size_t value);
-_Bool hm_update(struct hashmap *_map_, size_t key, size_t new_value,
-                size_t *old_value);
+_Bool hm_update(struct hashmap *_map_, size_t key, size_t new_value, size_t *old_value);
 _Bool hm_remove(struct hashmap *_map_, size_t key, size_t *out_value);
 _Bool hm_max(struct hashmap *_map_, size_t *key, size_t *value);
 _Bool hm_min(struct hashmap *_map_, size_t *key, size_t *value);
@@ -97,20 +91,14 @@ size_t hm_iter_key(struct hashmap_iter *iter);
 size_t hm_iter_value(struct hashmap_iter *iter);
 size_t *hm_iter_rvalue(struct hashmap_iter *iter);
 size_t hm_iter_index(struct hashmap_iter *iter);
-static struct hashmap_entry *hm_impl_get_entry(struct hashmap *_map_,
-                                               size_t key);
+static struct hashmap_entry *hm_impl_get_entry(struct hashmap *_map_, size_t key);
 static size_t hm_impl_calculate_size(size_t required);
-struct hashmap *hm_new(size_t capacity, double load, struct hashmap_fkey *f_key,
-                       struct hashmap_fval *f_val)
+struct hashmap *hm_new(size_t capacity, double load, struct hashmap_fkey *f_key, struct hashmap_fval *f_val)
 {
-    return hm_new_custom(capacity, load, f_key, f_val, ((void *)0),
-                         ((void *)0));
+    return hm_new_custom(capacity, load, f_key, f_val, ((void *)0), ((void *)0));
 }
-struct hashmap *hm_new_custom(size_t capacity, double load,
-                              struct hashmap_fkey *f_key,
-                              struct hashmap_fval *f_val,
-                              struct cmc_alloc_node *alloc,
-                              struct cmc_callbacks *callbacks)
+struct hashmap *hm_new_custom(size_t capacity, double load, struct hashmap_fkey *f_key, struct hashmap_fval *f_val,
+                              struct cmc_alloc_node *alloc, struct cmc_callbacks *callbacks)
 {
     if (capacity == 0 || load <= 0 || load >= 1)
         return ((void *)0);
@@ -197,8 +185,7 @@ void hm_release(struct hashmap _map_)
     }
     _map_.alloc->free(_map_.buffer);
 }
-void hm_customize(struct hashmap *_map_, struct cmc_alloc_node *alloc,
-                  struct cmc_callbacks *callbacks)
+void hm_customize(struct hashmap *_map_, struct cmc_alloc_node *alloc, struct cmc_callbacks *callbacks)
 {
     if (!alloc)
         _map_->alloc = &cmc_alloc_node_default;
@@ -236,8 +223,7 @@ _Bool hm_insert(struct hashmap *_map_, size_t key, size_t value)
         {
             pos++;
             target = &(_map_->buffer[pos % _map_->capacity]);
-            if (target->state == CMC_ES_EMPTY ||
-                target->state == CMC_ES_DELETED)
+            if (target->state == CMC_ES_EMPTY || target->state == CMC_ES_DELETED)
             {
                 target->key = key;
                 target->value = value;
@@ -265,8 +251,7 @@ _Bool hm_insert(struct hashmap *_map_, size_t key, size_t value)
         _map_->callbacks->create();
     return 1;
 }
-_Bool hm_update(struct hashmap *_map_, size_t key, size_t new_value,
-                size_t *old_value)
+_Bool hm_update(struct hashmap *_map_, size_t key, size_t new_value, size_t *old_value)
 {
     if (hm_empty(_map_))
     {
@@ -457,8 +442,7 @@ _Bool hm_resize(struct hashmap *_map_, size_t capacity)
         return 0;
     }
     struct hashmap *_new_map_ =
-        hm_new_custom(capacity, _map_->load, _map_->f_key, _map_->f_val,
-                      _map_->alloc, ((void *)0));
+        hm_new_custom(capacity, _map_->load, _map_->f_key, _map_->f_val, _map_->alloc, ((void *)0));
     if (!_new_map_)
     {
         _map_->flag = CMC_FLAG_ALLOC;
@@ -493,9 +477,8 @@ success:
 }
 struct hashmap *hm_copy_of(struct hashmap *_map_)
 {
-    struct hashmap *result =
-        hm_new_custom(_map_->capacity * _map_->load, _map_->load, _map_->f_key,
-                      _map_->f_val, _map_->alloc, _map_->callbacks);
+    struct hashmap *result = hm_new_custom(_map_->capacity * _map_->load, _map_->load, _map_->f_key, _map_->f_val,
+                                           _map_->alloc, _map_->callbacks);
     if (!result)
     {
         _map_->flag = CMC_FLAG_ERROR;
@@ -528,8 +511,7 @@ struct hashmap *hm_copy_of(struct hashmap *_map_)
         }
     }
     else
-        memcpy(result->buffer, _map_->buffer,
-               sizeof(struct hashmap_entry) * _map_->capacity);
+        memcpy(result->buffer, _map_->buffer, sizeof(struct hashmap_entry) * _map_->capacity);
     result->count = _map_->count;
     _map_->flag = CMC_FLAG_OK;
     return result;
@@ -543,8 +525,7 @@ _Bool hm_equals(struct hashmap *_map1_, struct hashmap *_map2_)
     struct hashmap_iter iter = hm_iter_start(_map1_);
     for (; !hm_iter_at_end(&iter); hm_iter_next(&iter))
     {
-        struct hashmap_entry *entry =
-            hm_impl_get_entry(_map2_, hm_iter_key(&iter));
+        struct hashmap_entry *entry = hm_impl_get_entry(_map2_, hm_iter_key(&iter));
         if (entry == ((void *)0))
             return 0;
         if (_map1_->f_val->cmp(entry->value, hm_iter_value(&iter)) != 0)
@@ -753,8 +734,7 @@ size_t hm_iter_index(struct hashmap_iter *iter)
 {
     return iter->index;
 }
-static struct hashmap_entry *hm_impl_get_entry(struct hashmap *_map_,
-                                               size_t key)
+static struct hashmap_entry *hm_impl_get_entry(struct hashmap *_map_, size_t key)
 {
     size_t hash = _map_->f_key->hash(key);
     size_t pos = hash % _map_->capacity;
@@ -770,8 +750,7 @@ static struct hashmap_entry *hm_impl_get_entry(struct hashmap *_map_,
 }
 static size_t hm_impl_calculate_size(size_t required)
 {
-    const size_t count =
-        sizeof(cmc_hashtable_primes) / sizeof(cmc_hashtable_primes[0]);
+    const size_t count = sizeof(cmc_hashtable_primes) / sizeof(cmc_hashtable_primes[0]);
     if (cmc_hashtable_primes[count - 1] < required)
         return required;
     size_t i = 0;

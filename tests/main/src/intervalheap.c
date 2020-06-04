@@ -31,14 +31,11 @@ struct intervalheap_iter
     _Bool end;
 };
 struct intervalheap *ih_new(size_t capacity, struct intervalheap_fval *f_val);
-struct intervalheap *ih_new_custom(size_t capacity,
-                                   struct intervalheap_fval *f_val,
-                                   struct cmc_alloc_node *alloc,
+struct intervalheap *ih_new_custom(size_t capacity, struct intervalheap_fval *f_val, struct cmc_alloc_node *alloc,
                                    struct cmc_callbacks *callbacks);
 void ih_clear(struct intervalheap *_heap_);
 void ih_free(struct intervalheap *_heap_);
-void ih_customize(struct intervalheap *_heap_, struct cmc_alloc_node *alloc,
-                  struct cmc_callbacks *callbacks);
+void ih_customize(struct intervalheap *_heap_, struct cmc_alloc_node *alloc, struct cmc_callbacks *callbacks);
 _Bool ih_insert(struct intervalheap *_heap_, size_t value);
 _Bool ih_remove_max(struct intervalheap *_heap_);
 _Bool ih_remove_min(struct intervalheap *_heap_);
@@ -100,9 +97,7 @@ struct intervalheap *ih_new(size_t capacity, struct intervalheap_fval *f_val)
     _heap_->callbacks = ((void *)0);
     return _heap_;
 }
-struct intervalheap *ih_new_custom(size_t capacity,
-                                   struct intervalheap_fval *f_val,
-                                   struct cmc_alloc_node *alloc,
+struct intervalheap *ih_new_custom(size_t capacity, struct intervalheap_fval *f_val, struct cmc_alloc_node *alloc,
                                    struct cmc_callbacks *callbacks)
 {
     if (capacity == 0 || capacity == 0xffffffffffffffffULL)
@@ -156,8 +151,7 @@ void ih_free(struct intervalheap *_heap_)
     _heap_->alloc->free(_heap_->buffer);
     _heap_->alloc->free(_heap_);
 }
-void ih_customize(struct intervalheap *_heap_, struct cmc_alloc_node *alloc,
-                  struct cmc_callbacks *callbacks)
+void ih_customize(struct intervalheap *_heap_, struct cmc_alloc_node *alloc, struct cmc_callbacks *callbacks)
 {
     if (!alloc)
         _heap_->alloc = &cmc_alloc_node_default;
@@ -405,8 +399,7 @@ _Bool ih_resize(struct intervalheap *_heap_, size_t capacity)
         return 0;
     }
     capacity += capacity % 2;
-    size_t(*new_buffer)[2] =
-        _heap_->alloc->realloc(_heap_->buffer, sizeof(size_t[2]) * capacity);
+    size_t(*new_buffer)[2] = _heap_->alloc->realloc(_heap_->buffer, sizeof(size_t[2]) * capacity);
     if (!new_buffer)
     {
         _heap_->flag = CMC_FLAG_ALLOC;
@@ -414,8 +407,7 @@ _Bool ih_resize(struct intervalheap *_heap_, size_t capacity)
     }
     if (capacity > _heap_->capacity)
     {
-        memset(new_buffer + _heap_->capacity, 0,
-               sizeof(size_t[2]) * (capacity - _heap_->capacity));
+        memset(new_buffer + _heap_->capacity, 0, sizeof(size_t[2]) * (capacity - _heap_->capacity));
     }
     _heap_->buffer = new_buffer;
     _heap_->capacity = capacity;
@@ -427,16 +419,14 @@ success:
 }
 struct intervalheap *ih_copy_of(struct intervalheap *_heap_)
 {
-    struct intervalheap *result =
-        _heap_->alloc->malloc(sizeof(struct intervalheap));
+    struct intervalheap *result = _heap_->alloc->malloc(sizeof(struct intervalheap));
     if (!result)
     {
         _heap_->flag = CMC_FLAG_ALLOC;
         return ((void *)0);
     }
     memcpy(result, _heap_, sizeof(struct intervalheap));
-    result->buffer =
-        _heap_->alloc->malloc(sizeof(size_t[2]) * _heap_->capacity);
+    result->buffer = _heap_->alloc->malloc(sizeof(size_t[2]) * _heap_->capacity);
     if (!result->buffer)
     {
         _heap_->alloc->free(result);
@@ -446,12 +436,10 @@ struct intervalheap *ih_copy_of(struct intervalheap *_heap_)
     if (_heap_->f_val->cpy)
     {
         for (size_t i = 0; i < _heap_->count; i++)
-            result->buffer[i / 2][i % 2] =
-                _heap_->f_val->cpy(_heap_->buffer[i / 2][i % 2]);
+            result->buffer[i / 2][i % 2] = _heap_->f_val->cpy(_heap_->buffer[i / 2][i % 2]);
     }
     else
-        memcpy(result->buffer, _heap_->buffer,
-               sizeof(size_t[2]) * _heap_->capacity);
+        memcpy(result->buffer, _heap_->buffer, sizeof(size_t[2]) * _heap_->capacity);
     result->capacity = _heap_->capacity;
     result->size = _heap_->size;
     result->count = _heap_->count;
@@ -666,11 +654,9 @@ static void ih_impl_float_down_max(struct intervalheap *_heap_)
             size_t(*L)[2] = &(_heap_->buffer[L_index]);
             size_t(*R)[2] = &(_heap_->buffer[R_index]);
             if (R_index == _heap_->size - 1 && _heap_->count % 2 != 0)
-                child = _heap_->f_val->cmp((*L)[1], (*R)[0]) > 0 ? L_index
-                                                                 : R_index;
+                child = _heap_->f_val->cmp((*L)[1], (*R)[0]) > 0 ? L_index : R_index;
             else
-                child = _heap_->f_val->cmp((*L)[1], (*R)[1]) > 0 ? L_index
-                                                                 : R_index;
+                child = _heap_->f_val->cmp((*L)[1], (*R)[1]) > 0 ? L_index : R_index;
         }
         else
             child = L_index;
@@ -716,8 +702,7 @@ static void ih_impl_float_down_min(struct intervalheap *_heap_)
         {
             size_t(*L)[2] = &(_heap_->buffer[L_index]);
             size_t(*R)[2] = &(_heap_->buffer[R_index]);
-            child =
-                _heap_->f_val->cmp((*L)[0], (*R)[0]) < 0 ? L_index : R_index;
+            child = _heap_->f_val->cmp((*L)[0], (*R)[0]) < 0 ? L_index : R_index;
         }
         else
             child = L_index;

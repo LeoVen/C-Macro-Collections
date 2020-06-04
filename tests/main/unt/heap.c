@@ -4,12 +4,9 @@
 
 #include "../src/heap.c"
 
-struct heap_fval *h_fval = &(struct heap_fval){ .cmp = cmc_size_cmp,
-                                                .cpy = NULL,
-                                                .str = cmc_size_str,
-                                                .free = NULL,
-                                                .hash = cmc_size_hash,
-                                                .pri = cmc_size_cmp };
+struct heap_fval *h_fval = &(struct heap_fval){
+    .cmp = cmc_size_cmp, .cpy = NULL, .str = cmc_size_str, .free = NULL, .hash = cmc_size_hash, .pri = cmc_size_cmp
+};
 
 CMC_CREATE_UNIT(Heap, true, {
     CMC_CREATE_TEST(new, {
@@ -222,8 +219,7 @@ CMC_CREATE_UNIT(Heap, true, {
     });
 
     CMC_CREATE_TEST(callbacks, {
-        struct heap *h =
-            h_new_custom(100, CMC_MAX_HEAP, h_fval, NULL, callbacks);
+        struct heap *h = h_new_custom(100, CMC_MAX_HEAP, h_fval, NULL, callbacks);
 
         cmc_assert_not_equals(ptr, NULL, h);
 
@@ -720,12 +716,10 @@ int main(void)
 {
     int result = Heap() + HeapIter();
 
-    printf(
-        " +---------------------------------------------------------------+");
+    printf(" +---------------------------------------------------------------+");
     printf("\n");
     printf(" | Heap Suit : %-49s |\n", result == 0 ? "PASSED" : "FAILED");
-    printf(
-        " +---------------------------------------------------------------+");
+    printf(" +---------------------------------------------------------------+");
     printf("\n\n\n");
 
     return result;
