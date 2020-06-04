@@ -1,7 +1,7 @@
 /**
  * ext/cmc/linkedlist.h
  *
- * Creation Date: 26/05/2020
+ * Creation Date: 03/06/2020
  *
  * Authors:
  * Leonardo Vencovsky (https://github.com/LeoVen)

@@ -11,6 +11,7 @@ C_MACRO_COLLECTIONS_ALL(CMC,      HASHSET, ( hs,      hashset, ,    , int))
 C_MACRO_COLLECTIONS_ALL(CMC,         HEAP, (  h,         heap, ,    , int))
 C_MACRO_COLLECTIONS_ALL(CMC, INTERVALHEAP, ( ih, intervalheap, ,    , int))
 C_MACRO_COLLECTIONS_ALL(CMC,   LINKEDLIST, ( ll,   linkedlist, ,    , int))
+C_MACRO_COLLECTIONS_ALL(CMC,         LIST, (  l,         list, ,    , int))
 
 struct
 {
@@ -37,6 +38,7 @@ int main(void)
     struct heap *h = h_new(100, CMC_MAX_HEAP, (struct heap_fval *)&int_ftab);
     struct intervalheap *ih = ih_new(100, (struct intervalheap_fval *)&int_ftab);
     struct linkedlist *ll = ll_new((struct linkedlist_fval *)&int_ftab);
+    struct list *l = l_new(100, (struct list_fval *)&int_ftab);
 
     d_to_string(d, stdout);
     d_print(d, stdout, "\n[ ", ", ", " ]\n");
@@ -54,6 +56,8 @@ int main(void)
     ih_print(ih, stdout, "\n[ ", ", ", " ]\n");
     ll_to_string(ll, stdout);
     ll_print(ll, stdout, "\n[ ", ", ", " ]\n");
+    l_to_string(l, stdout);
+    l_print(l, stdout, "\n[ ", ", ", " ]\n");
 
     fprintf(stdout, "\n");
 
@@ -65,6 +69,7 @@ int main(void)
     h_insert(h, 0);
     ih_insert(ih, 0);
     ll_push_back(ll, 0);
+    l_push_back(l, 0);
 
     d_to_string(d, stdout);
     d_print(d, stdout, "\n[ ", ", ", " ]\n");
@@ -82,6 +87,8 @@ int main(void)
     ih_print(ih, stdout, "\n[ ", ", ", " ]\n");
     ll_to_string(ll, stdout);
     ll_print(ll, stdout, "\n[ ", ", ", " ]\n");
+    l_to_string(l, stdout);
+    l_print(l, stdout, "\n[ ", ", ", " ]\n");
 
     for (int i = 1; i < 20; i++)
     {
@@ -93,6 +100,7 @@ int main(void)
         h_insert(h, i);
         ih_insert(ih, i);
         ll_push_back(ll, i);
+        l_push_back(l, i);
     }
 
     fprintf(stdout, "\n");
@@ -113,6 +121,8 @@ int main(void)
     ih_print(ih, stdout, "\n[ ", ", ", " ]\n");
     ll_to_string(ll, stdout);
     ll_print(ll, stdout, "\n[ ", ", ", " ]\n");
+    l_to_string(l, stdout);
+    l_print(l, stdout, "\n[ ", ", ", " ]\n");
 
     d_free(d);
     hm_free(hm);
@@ -121,6 +131,8 @@ int main(void)
     hs_free(hs);
     h_free(h);
     ih_free(ih);
+    ll_free(ll);
+    l_free(l);
 }
 
 // clang-format on
