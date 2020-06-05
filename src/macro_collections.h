@@ -62,6 +62,7 @@
 #include "ext/cmc/intervalheap.h" /* Added in 02/06/2020 */
 #include "ext/cmc/linkedlist.h"   /* Added in 03/06/2020 */
 #include "ext/cmc/list.h"         /* Added in 04/06/2020 */
+#include "ext/cmc/queue.h"        /* Added in 05/06/2020 */
 
 #include "utl/assert.h"           /* Added in 27/06/2019 */
 #include "utl/foreach.h"          /* Added in 25/02/2019 */

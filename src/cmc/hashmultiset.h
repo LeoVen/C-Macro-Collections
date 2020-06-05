@@ -171,7 +171,7 @@
 \
     struct SNAME *CMC_(PFX, _new)(size_t capacity, double load, struct CMC_DEF_FVAL(SNAME) * f_val) \
     { \
-        return CMC_(PFX, _new_custom)(capaccapacity, load, f_val, NULL, NULL); \
+        return CMC_(PFX, _new_custom)(capacity, load, f_val, NULL, NULL); \
     } \
 \
     struct SNAME *CMC_(PFX, _new_custom)(size_t capacity, double load, struct CMC_DEF_FVAL(SNAME) * f_val, \

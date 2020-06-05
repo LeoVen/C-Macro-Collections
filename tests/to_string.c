@@ -12,6 +12,7 @@ C_MACRO_COLLECTIONS_ALL(CMC,         HEAP, (  h,         heap, ,    , int))
 C_MACRO_COLLECTIONS_ALL(CMC, INTERVALHEAP, ( ih, intervalheap, ,    , int))
 C_MACRO_COLLECTIONS_ALL(CMC,   LINKEDLIST, ( ll,   linkedlist, ,    , int))
 C_MACRO_COLLECTIONS_ALL(CMC,         LIST, (  l,         list, ,    , int))
+C_MACRO_COLLECTIONS_ALL(CMC,        QUEUE, (  q,        queue, ,    , int))
 
 struct
 {
@@ -39,6 +40,7 @@ int main(void)
     struct intervalheap *ih = ih_new(100, (struct intervalheap_fval *)&int_ftab);
     struct linkedlist *ll = ll_new((struct linkedlist_fval *)&int_ftab);
     struct list *l = l_new(100, (struct list_fval *)&int_ftab);
+    struct queue *q = q_new(100, (struct queue_fval *)&int_ftab);
 
     d_to_string(d, stdout);
     d_print(d, stdout, "\n[ ", ", ", " ]\n");
@@ -58,6 +60,8 @@ int main(void)
     ll_print(ll, stdout, "\n[ ", ", ", " ]\n");
     l_to_string(l, stdout);
     l_print(l, stdout, "\n[ ", ", ", " ]\n");
+    q_to_string(q, stdout);
+    q_print(q, stdout, "\n[ ", ", ", " ]\n");
 
     fprintf(stdout, "\n");
 
@@ -70,6 +74,7 @@ int main(void)
     ih_insert(ih, 0);
     ll_push_back(ll, 0);
     l_push_back(l, 0);
+    q_enqueue(q, 0);
 
     d_to_string(d, stdout);
     d_print(d, stdout, "\n[ ", ", ", " ]\n");
@@ -89,6 +94,8 @@ int main(void)
     ll_print(ll, stdout, "\n[ ", ", ", " ]\n");
     l_to_string(l, stdout);
     l_print(l, stdout, "\n[ ", ", ", " ]\n");
+    q_to_string(q, stdout);
+    q_print(q, stdout, "\n[ ", ", ", " ]\n");
 
     for (int i = 1; i < 20; i++)
     {
@@ -101,6 +108,7 @@ int main(void)
         ih_insert(ih, i);
         ll_push_back(ll, i);
         l_push_back(l, i);
+        q_enqueue(q, i);
     }
 
     fprintf(stdout, "\n");
@@ -123,6 +131,8 @@ int main(void)
     ll_print(ll, stdout, "\n[ ", ", ", " ]\n");
     l_to_string(l, stdout);
     l_print(l, stdout, "\n[ ", ", ", " ]\n");
+    q_to_string(q, stdout);
+    q_print(q, stdout, "\n[ ", ", ", " ]\n");
 
     d_free(d);
     hm_free(hm);
@@ -133,6 +143,7 @@ int main(void)
     ih_free(ih);
     ll_free(ll);
     l_free(l);
+    q_free(q);
 }
 
 // clang-format on
