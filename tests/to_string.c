@@ -4,6 +4,7 @@
 
 // clang-format off
 C_MACRO_COLLECTIONS_ALL(CMC,        DEQUE, (  d,        deque, ,    , int))
+C_MACRO_COLLECTIONS_ALL(CMC,  HASHBIDIMAP, (hbm,  hashbidimap, , int, int))
 C_MACRO_COLLECTIONS_ALL(CMC,      HASHMAP, ( hm,      hashmap, , int, int))
 C_MACRO_COLLECTIONS_ALL(CMC, HASHMULTIMAP, (hmm, hashmultimap, , int, int))
 C_MACRO_COLLECTIONS_ALL(CMC, HASHMULTISET, (hms, hashmultiset, ,    , int))
@@ -27,6 +28,9 @@ struct
 int main(void)
 {
     struct deque *d = d_new(100, (struct deque_fval *)&int_ftab);
+    struct hashbidimap *hbm = hbm_new(100, 0.8,
+                                       (struct hashbidimap_fkey *)&int_ftab,
+                                       (struct hashbidimap_fval *)&int_ftab);
     struct hashmap *hm = hm_new(100, 0.6, (struct hashmap_fkey *)&int_ftab,
                                           (struct hashmap_fval *)&int_ftab);
     struct hashmultimap *hmm = hmm_new(100, 0.8,
@@ -44,6 +48,8 @@ int main(void)
 
     d_to_string(d, stdout);
     d_print(d, stdout, "\n[ ", ", ", " ]\n");
+    hbm_to_string(hbm, stdout);
+    hbm_print(hbm, stdout, "\n[ {", "}, {", "} ]\n", " : ");
     hm_to_string(hm, stdout);
     hm_print(hm, stdout, "\n[ {", "}, {", "} ]\n", " : ");
     hmm_to_string(hmm, stdout);
@@ -66,6 +72,7 @@ int main(void)
     fprintf(stdout, "\n");
 
     d_push_back(d, 0);
+    hbm_insert(hbm, 0, 0);
     hm_insert(hm, 0, 0);
     hmm_insert(hmm, 0, 0);
     hms_insert(hms, 0);
@@ -78,6 +85,8 @@ int main(void)
 
     d_to_string(d, stdout);
     d_print(d, stdout, "\n[ ", ", ", " ]\n");
+    hbm_to_string(hbm, stdout);
+    hbm_print(hbm, stdout, "\n[ {", "}, {", "} ]\n", " : ");
     hm_to_string(hm, stdout);
     hm_print(hm, stdout, "\n[ {", "}, {", "} ]\n", " : ");
     hmm_to_string(hmm, stdout);
@@ -100,6 +109,7 @@ int main(void)
     for (int i = 1; i < 20; i++)
     {
         d_push_back(d, i);
+        hbm_insert(hbm, i, i);
         hm_insert(hm, i, i);
         hmm_insert(hmm, i, i);
         hms_insert(hms, i);
@@ -115,6 +125,8 @@ int main(void)
 
     d_to_string(d, stdout);
     d_print(d, stdout, "\n[ ", ", ", " ]\n");
+    hbm_to_string(hbm, stdout);
+    hbm_print(hbm, stdout, "\n[ {", "}, {", "} ]\n", " : ");
     hm_to_string(hm, stdout);
     hm_print(hm, stdout, "\n[ {", "}, {", "} ]\n", " : ");
     hmm_to_string(hmm, stdout);
@@ -135,6 +147,7 @@ int main(void)
     q_print(q, stdout, "\n[ ", ", ", " ]\n");
 
     d_free(d);
+    hbm_free(hbm);
     hm_free(hm);
     hmm_free(hmm);
     hms_free(hms);

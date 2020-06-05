@@ -194,6 +194,8 @@
                                          struct CMC_DEF_FVAL(SNAME) * f_val, struct CMC_ALLOC_NODE_NAME * alloc, \
                                          struct CMC_CALLBACKS_NAME * callbacks) \
     { \
+        CMC_CALLBACKS_MAYBE_UNUSED(callbacks);\
+\
         if (capacity == 0 || load <= 0 || load >= 1) \
             return NULL; \
 \
@@ -283,6 +285,8 @@
     void CMC_(PFX, _customize)(struct SNAME * _map_, struct CMC_ALLOC_NODE_NAME * alloc, \
                                struct CMC_CALLBACKS_NAME * callbacks) \
     { \
+        CMC_CALLBACKS_MAYBE_UNUSED(callbacks);\
+\
         if (!alloc) \
             _map_->alloc = &cmc_alloc_node_default; \
         else \
@@ -356,8 +360,7 @@
         _map_->count++; \
         _map_->flag = CMC_FLAG_OK; \
 \
-        if (_map_->callbacks && _map_->callbacks->create) \
-            _map_->callbacks->create(); \
+        CMC_CALLBACKS_CALL(_map_, create); \
 \
         return true; \
     } \
@@ -385,8 +388,7 @@
 \
         _map_->flag = CMC_FLAG_OK; \
 \
-        if (_map_->callbacks && _map_->callbacks->update) \
-            _map_->callbacks->update(); \
+        CMC_CALLBACKS_CALL(_map_, update); \
 \
         return true; \
     } \
@@ -418,8 +420,7 @@
         _map_->count--; \
         _map_->flag = CMC_FLAG_OK; \
 \
-        if (_map_->callbacks && _map_->callbacks->delete) \
-            _map_->callbacks->delete (); \
+        CMC_CALLBACKS_CALL(_map_, delete); \
 \
         return true; \
     } \
@@ -463,8 +464,7 @@
         if (value) \
             *value = max_val; \
 \
-        if (_map_->callbacks && _map_->callbacks->read) \
-            _map_->callbacks->read(); \
+        CMC_CALLBACKS_CALL(_map_, read); \
 \
         return true; \
     } \
@@ -508,8 +508,7 @@
         if (value) \
             *value = min_val; \
 \
-        if (_map_->callbacks && _map_->callbacks->read) \
-            _map_->callbacks->read(); \
+        CMC_CALLBACKS_CALL(_map_, read); \
 \
         return true; \
     } \
@@ -532,8 +531,7 @@
 \
         _map_->flag = CMC_FLAG_OK; \
 \
-        if (_map_->callbacks && _map_->callbacks->read) \
-            _map_->callbacks->read(); \
+        CMC_CALLBACKS_CALL(_map_, read); \
 \
         return entry->value; \
     } \
@@ -556,8 +554,7 @@
 \
         _map_->flag = CMC_FLAG_OK; \
 \
-        if (_map_->callbacks && _map_->callbacks->read) \
-            _map_->callbacks->read(); \
+        CMC_CALLBACKS_CALL(_map_, read); \
 \
         return &(entry->value); \
     } \
@@ -568,8 +565,7 @@
 \
         bool result = CMC_(PFX, _impl_get_entry)(_map_, key) != NULL; \
 \
-        if (_map_->callbacks && _map_->callbacks->read) \
-            _map_->callbacks->read(); \
+        CMC_CALLBACKS_CALL(_map_, read); \
 \
         return result; \
     } \
@@ -678,8 +674,7 @@
 \
     success: \
 \
-        if (_map_->callbacks && _map_->callbacks->resize) \
-            _map_->callbacks->resize(); \
+        CMC_CALLBACKS_CALL(_map_, resize); \
 \
         return true; \
     } \

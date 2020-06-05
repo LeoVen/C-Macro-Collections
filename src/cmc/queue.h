@@ -181,6 +181,8 @@
     struct SNAME *CMC_(PFX, _new_custom)(size_t capacity, struct CMC_DEF_FVAL(SNAME) * f_val, \
                                          struct CMC_ALLOC_NODE_NAME * alloc, struct CMC_CALLBACKS_NAME * callbacks) \
     { \
+        CMC_CALLBACKS_MAYBE_UNUSED(callbacks);\
+\
         if (capacity < 1) \
             return NULL; \
 \
@@ -254,6 +256,8 @@
     void CMC_(PFX, _customize)(struct SNAME * _queue_, struct CMC_ALLOC_NODE_NAME * alloc, \
                                struct CMC_CALLBACKS_NAME * callbacks) \
     { \
+        CMC_CALLBACKS_MAYBE_UNUSED(callbacks);\
+\
         if (!alloc) \
             _queue_->alloc = &cmc_alloc_node_default; \
         else \
@@ -278,8 +282,7 @@
         _queue_->count++; \
         _queue_->flag = CMC_FLAG_OK; \
 \
-        if (_queue_->callbacks && _queue_->callbacks->create) \
-            _queue_->callbacks->create(); \
+        CMC_CALLBACKS_CALL(_queue_, create); \
 \
         return true; \
     } \
@@ -298,8 +301,7 @@
         _queue_->count--; \
         _queue_->flag = CMC_FLAG_OK; \
 \
-        if (_queue_->callbacks && _queue_->callbacks->delete) \
-            _queue_->callbacks->delete (); \
+        CMC_CALLBACKS_CALL(_queue_, delete); \
 \
         return true; \
     } \
@@ -314,8 +316,7 @@
 \
         _queue_->flag = CMC_FLAG_OK; \
 \
-        if (_queue_->callbacks && _queue_->callbacks->read) \
-            _queue_->callbacks->read(); \
+        CMC_CALLBACKS_CALL(_queue_, read); \
 \
         return _queue_->buffer[_queue_->front]; \
     } \
@@ -337,8 +338,7 @@
             i = (i + 1) % _queue_->capacity; \
         } \
 \
-        if (_queue_->callbacks && _queue_->callbacks->read) \
-            _queue_->callbacks->read(); \
+        CMC_CALLBACKS_CALL(_queue_, read); \
 \
         return result; \
     } \
@@ -405,8 +405,7 @@
 \
         _queue_->flag = CMC_FLAG_OK; \
 \
-        if (_queue_->callbacks && _queue_->callbacks->resize) \
-            _queue_->callbacks->resize(); \
+        CMC_CALLBACKS_CALL(_queue_, resize); \
 \
         return true; \
     } \

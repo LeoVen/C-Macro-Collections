@@ -193,6 +193,8 @@ static const char *cmc_cmc_string_fmt_stack = "struct %s<%s> "
     struct SNAME *CMC_(PFX, _new_custom)(size_t capacity, struct CMC_DEF_FVAL(SNAME) * f_val, \
                                          struct CMC_ALLOC_NODE_NAME * alloc, struct CMC_CALLBACKS_NAME * callbacks) \
     { \
+        CMC_CALLBACKS_MAYBE_UNUSED(callbacks);\
+\
         if (capacity < 1) \
             return NULL; \
         if (!f_val) \
@@ -253,6 +255,8 @@ static const char *cmc_cmc_string_fmt_stack = "struct %s<%s> "
     void CMC_(PFX, _customize)(struct SNAME * _stack_, struct CMC_ALLOC_NODE_NAME * alloc, \
                                struct CMC_CALLBACKS_NAME * callbacks) \
     { \
+        CMC_CALLBACKS_MAYBE_UNUSED(callbacks);\
+\
         if (!alloc) \
             _stack_->alloc = &cmc_alloc_node_default; \
         else \
@@ -275,8 +279,7 @@ static const char *cmc_cmc_string_fmt_stack = "struct %s<%s> "
 \
         _stack_->flag = CMC_FLAG_OK; \
 \
-        if (_stack_->callbacks && _stack_->callbacks->create) \
-            _stack_->callbacks->create(); \
+        CMC_CALLBACKS_CALL(_stack_, create); \
 \
         return true; \
     } \
@@ -293,8 +296,7 @@ static const char *cmc_cmc_string_fmt_stack = "struct %s<%s> "
 \
         _stack_->flag = CMC_FLAG_OK; \
 \
-        if (_stack_->callbacks && _stack_->callbacks->delete) \
-            _stack_->callbacks->delete (); \
+        CMC_CALLBACKS_CALL(_stack_, delete); \
 \
         return true; \
     } \
@@ -309,8 +311,7 @@ static const char *cmc_cmc_string_fmt_stack = "struct %s<%s> "
 \
         _stack_->flag = CMC_FLAG_OK; \
 \
-        if (_stack_->callbacks && _stack_->callbacks->read) \
-            _stack_->callbacks->read(); \
+        CMC_CALLBACKS_CALL(_stack_, read); \
 \
         return _stack_->buffer[_stack_->count - 1]; \
     } \
@@ -330,8 +331,7 @@ static const char *cmc_cmc_string_fmt_stack = "struct %s<%s> "
             } \
         } \
 \
-        if (_stack_->callbacks && _stack_->callbacks->read) \
-            _stack_->callbacks->read(); \
+        CMC_CALLBACKS_CALL(_stack_, read); \
 \
         return result; \
     } \
@@ -389,8 +389,7 @@ static const char *cmc_cmc_string_fmt_stack = "struct %s<%s> "
 \
         _stack_->flag = CMC_FLAG_OK; \
 \
-        if (_stack_->callbacks && _stack_->callbacks->resize) \
-            _stack_->callbacks->resize(); \
+        CMC_CALLBACKS_CALL(_stack_, resize); \
 \
         return true; \
     } \

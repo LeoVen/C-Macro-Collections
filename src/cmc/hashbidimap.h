@@ -36,22 +36,6 @@
  * ------------------------------------------------------------------------- */
 #include "../cor/hashtable.h"
 
-/* -------------------------------------------------------------------------
- * HashBidimap Specific
- * ------------------------------------------------------------------------- */
-/* to_string format */
-static const char *cmc_cmc_string_fmt_hashbidimap = "struct %s<%s, %s> "
-                                                    "at %p { "
-                                                    "buffer:%p, "
-                                                    "capacity:%" PRIuMAX ", "
-                                                    "count:%" PRIuMAX ", "
-                                                    "load:%lf, "
-                                                    "flag:%d, "
-                                                    "f_key:%p, "
-                                                    "f_val:%p, "
-                                                    "alloc:%p, "
-                                                    "callbacks:%p }";
-
 /**
  * Core HashBidiMap implementation
  */
@@ -235,8 +219,6 @@ static const char *cmc_cmc_string_fmt_hashbidimap = "struct %s<%s, %s> "
     bool CMC_(PFX, _resize)(struct SNAME * _map_, size_t capacity); \
     struct SNAME *CMC_(PFX, _copy_of)(struct SNAME * _map_); \
     bool CMC_(PFX, _equals)(struct SNAME * _map1_, struct SNAME * _map2_); \
-    struct cmc_string CMC_(PFX, _to_string)(struct SNAME * _map_); \
-    bool CMC_(PFX, _print)(struct SNAME * _map_, FILE * fptr); \
 \
     /* Iterator Functions */ \
     /* Iterator Allocation and Deallocation */ \
@@ -280,52 +262,15 @@ static const char *cmc_cmc_string_fmt_hashbidimap = "struct %s<%s, %s> "
     struct SNAME *CMC_(PFX, _new)(size_t capacity, double load, struct CMC_DEF_FKEY(SNAME) * f_key, \
                                   struct CMC_DEF_FVAL(SNAME) * f_val) \
     { \
-        struct CMC_ALLOC_NODE_NAME *alloc = &cmc_alloc_node_default; \
-\
-        if (capacity == 0 || load <= 0 || load >= 1) \
-            return NULL; \
-\
-        /* Prevent integer overflow */ \
-        if (capacity >= UINTMAX_MAX * load) \
-            return NULL; \
-\
-        if (!f_key || !f_val) \
-            return NULL; \
-\
-        size_t real_capacity = CMC_(PFX, _impl_calculate_size)(capacity / load); \
-\
-        struct SNAME *_map_ = alloc->malloc(sizeof(struct SNAME)); \
-\
-        if (!_map_) \
-            return NULL; \
-\
-        _map_->buffer = alloc->calloc(real_capacity, sizeof(struct CMC_DEF_ENTRY(SNAME) *[2])); \
-\
-        if (!_map_->buffer) \
-        { \
-            alloc->free(_map_->buffer); \
-            alloc->free(_map_); \
-            return NULL; \
-        } \
-\
-        _map_->count = 0; \
-        _map_->capacity = real_capacity; \
-        _map_->load = load; \
-        _map_->flag = CMC_FLAG_OK; \
-        _map_->f_key = f_key; \
-        _map_->f_val = f_val; \
-        _map_->alloc = alloc; \
-        CMC_CALLBACKS_ASSIGN(_map_, NULL); \
-        _map_->it_start = CMC_(PFX, _impl_it_start); \
-        _map_->it_end = CMC_(PFX, _impl_it_end); \
-\
-        return _map_; \
+        return CMC_(PFX, _new_custom)(capacity, load, f_key, f_val, NULL, NULL);\
     } \
 \
     struct SNAME *CMC_(PFX, _new_custom)(size_t capacity, double load, struct CMC_DEF_FKEY(SNAME) * f_key, \
                                          struct CMC_DEF_FVAL(SNAME) * f_val, struct CMC_ALLOC_NODE_NAME * alloc, \
                                          struct CMC_CALLBACKS_NAME * callbacks) \
     { \
+        CMC_CALLBACKS_MAYBE_UNUSED(callbacks);\
+\
         if (capacity == 0 || load <= 0 || load >= 1) \
             return NULL; \
 \
@@ -405,6 +350,8 @@ static const char *cmc_cmc_string_fmt_hashbidimap = "struct %s<%s, %s> "
     void CMC_(PFX, _customize)(struct SNAME * _map_, struct CMC_ALLOC_NODE_NAME * alloc, \
                                struct CMC_CALLBACKS_NAME * callbacks) \
     { \
+        CMC_CALLBACKS_MAYBE_UNUSED(callbacks);\
+\
         if (!alloc) \
             _map_->alloc = &cmc_alloc_node_default; \
         else \
@@ -452,8 +399,7 @@ static const char *cmc_cmc_string_fmt_hashbidimap = "struct %s<%s, %s> "
         _map_->count++; \
         _map_->flag = CMC_FLAG_OK; \
 \
-        if (_map_->callbacks && _map_->callbacks->create) \
-            _map_->callbacks->create(); \
+        CMC_CALLBACKS_CALL(_map_, create); \
 \
         return true; \
     } \
@@ -516,8 +462,7 @@ static const char *cmc_cmc_string_fmt_hashbidimap = "struct %s<%s, %s> "
 \
         _map_->flag = CMC_FLAG_OK; \
 \
-        if (_map_->callbacks && _map_->callbacks->update) \
-            _map_->callbacks->update(); \
+        CMC_CALLBACKS_CALL(_map_, update); \
 \
         return true; \
     } \
@@ -581,8 +526,7 @@ static const char *cmc_cmc_string_fmt_hashbidimap = "struct %s<%s, %s> "
 \
         _map_->flag = CMC_FLAG_OK; \
 \
-        if (_map_->callbacks && _map_->callbacks->update) \
-            _map_->callbacks->update(); \
+        CMC_CALLBACKS_CALL(_map_, update); \
 \
         return true; \
     } \
@@ -627,8 +571,7 @@ static const char *cmc_cmc_string_fmt_hashbidimap = "struct %s<%s, %s> "
         _map_->count--; \
         _map_->flag = CMC_FLAG_OK; \
 \
-        if (_map_->callbacks && _map_->callbacks->delete) \
-            _map_->callbacks->delete (); \
+        CMC_CALLBACKS_CALL(_map_, delete); \
 \
         return true; \
     } \
@@ -673,8 +616,7 @@ static const char *cmc_cmc_string_fmt_hashbidimap = "struct %s<%s, %s> "
         _map_->count--; \
         _map_->flag = CMC_FLAG_OK; \
 \
-        if (_map_->callbacks && _map_->callbacks->delete) \
-            _map_->callbacks->delete (); \
+        CMC_CALLBACKS_CALL(_map_, delete); \
 \
         return true; \
     } \
@@ -691,8 +633,7 @@ static const char *cmc_cmc_string_fmt_hashbidimap = "struct %s<%s, %s> "
 \
         _map_->flag = CMC_FLAG_OK; \
 \
-        if (_map_->callbacks && _map_->callbacks->read) \
-            _map_->callbacks->read(); \
+        CMC_CALLBACKS_CALL(_map_, read); \
 \
         return (*entry)->key; \
     } \
@@ -709,8 +650,7 @@ static const char *cmc_cmc_string_fmt_hashbidimap = "struct %s<%s, %s> "
 \
         _map_->flag = CMC_FLAG_OK; \
 \
-        if (_map_->callbacks && _map_->callbacks->read) \
-            _map_->callbacks->read(); \
+        CMC_CALLBACKS_CALL(_map_, read); \
 \
         return (*entry)->value; \
     } \
@@ -721,8 +661,7 @@ static const char *cmc_cmc_string_fmt_hashbidimap = "struct %s<%s, %s> "
 \
         bool result = CMC_(PFX, _impl_get_entry_by_key)(_map_, key) != NULL; \
 \
-        if (_map_->callbacks && _map_->callbacks->read) \
-            _map_->callbacks->read(); \
+        CMC_CALLBACKS_CALL(_map_, read); \
 \
         return result; \
     } \
@@ -733,8 +672,7 @@ static const char *cmc_cmc_string_fmt_hashbidimap = "struct %s<%s, %s> "
 \
         bool result = CMC_(PFX, _impl_get_entry_by_val)(_map_, val) != NULL; \
 \
-        if (_map_->callbacks && _map_->callbacks->read) \
-            _map_->callbacks->read(); \
+        CMC_CALLBACKS_CALL(_map_, read); \
 \
         return result; \
     } \
@@ -857,8 +795,7 @@ static const char *cmc_cmc_string_fmt_hashbidimap = "struct %s<%s, %s> "
 \
     success: \
 \
-        if (_map_->callbacks && _map_->callbacks->resize) \
-            _map_->callbacks->resize(); \
+        CMC_CALLBACKS_CALL(_map_, resize); \
 \
         return true; \
     } \
@@ -945,33 +882,6 @@ static const char *cmc_cmc_string_fmt_hashbidimap = "struct %s<%s, %s> "
                     return false; \
 \
                 if (_mapA_->f_val->cmp((*entry_B)->value, scan->value) != 0) \
-                    return false; \
-            } \
-        } \
-\
-        return true; \
-    } \
-\
-    struct cmc_string CMC_(PFX, _to_string)(struct SNAME * _map_) \
-    { \
-        struct cmc_string str; \
-        struct SNAME *m_ = _map_; \
-\
-        int n = snprintf(str.s, cmc_string_len, cmc_cmc_string_fmt_hashbidimap, #SNAME, #K, #V, m_, m_->buffer, \
-                         m_->capacity, m_->count, m_->load, m_->flag, m_->f_key, m_->f_val, m_->alloc, m_->callbacks); \
-\
-        return n >= 0 ? str : (struct cmc_string){ 0 }; \
-    } \
-\
-    bool CMC_(PFX, _print)(struct SNAME * _map_, FILE * fptr) \
-    { \
-        for (size_t i = 0; i < _map_->capacity; i++) \
-        { \
-            struct CMC_DEF_ENTRY(SNAME) *target = _map_->buffer[i][0]; \
-\
-            if (target && target != CMC_ENTRY_DELETED) \
-            { \
-                if (!_map_->f_key->str(fptr, target->key) || !_map_->f_val->str(fptr, target->value)) \
                     return false; \
             } \
         } \

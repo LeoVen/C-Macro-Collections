@@ -232,6 +232,8 @@ static const char *cmc_cmc_string_fmt_treeset = "struct %s<%s> "
     struct SNAME *CMC_(PFX, _new_custom)(struct CMC_DEF_FVAL(SNAME) * f_val, struct CMC_ALLOC_NODE_NAME * alloc, \
                                          struct CMC_CALLBACKS_NAME * callbacks) \
     { \
+        CMC_CALLBACKS_MAYBE_UNUSED(callbacks);\
+\
         if (!f_val) \
             return NULL; \
 \
@@ -325,6 +327,8 @@ static const char *cmc_cmc_string_fmt_treeset = "struct %s<%s> "
     void CMC_(PFX, _customize)(struct SNAME * _set_, struct CMC_ALLOC_NODE_NAME * alloc, \
                                struct CMC_CALLBACKS_NAME * callbacks) \
     { \
+        CMC_CALLBACKS_MAYBE_UNUSED(callbacks);\
+\
         if (!alloc) \
             _set_->alloc = &cmc_alloc_node_default; \
         else \
@@ -402,8 +406,7 @@ static const char *cmc_cmc_string_fmt_treeset = "struct %s<%s> "
         _set_->count++; \
         _set_->flag = CMC_FLAG_OK; \
 \
-        if (_set_->callbacks && _set_->callbacks->create) \
-            _set_->callbacks->create(); \
+        CMC_CALLBACKS_CALL(_set_, create); \
 \
         return true; \
     } \
@@ -536,8 +539,7 @@ static const char *cmc_cmc_string_fmt_treeset = "struct %s<%s> "
         _set_->count--; \
         _set_->flag = CMC_FLAG_OK; \
 \
-        if (_set_->callbacks && _set_->callbacks->delete) \
-            _set_->callbacks->delete (); \
+        CMC_CALLBACKS_CALL(_set_, delete); \
 \
         return true; \
     } \
@@ -560,8 +562,7 @@ static const char *cmc_cmc_string_fmt_treeset = "struct %s<%s> "
 \
         _set_->flag = CMC_FLAG_OK; \
 \
-        if (_set_->callbacks && _set_->callbacks->read) \
-            _set_->callbacks->read(); \
+        CMC_CALLBACKS_CALL(_set_, read); \
 \
         return true; \
     } \
@@ -584,8 +585,7 @@ static const char *cmc_cmc_string_fmt_treeset = "struct %s<%s> "
 \
         _set_->flag = CMC_FLAG_OK; \
 \
-        if (_set_->callbacks && _set_->callbacks->read) \
-            _set_->callbacks->read(); \
+        CMC_CALLBACKS_CALL(_set_, read); \
 \
         return true; \
     } \
@@ -594,8 +594,7 @@ static const char *cmc_cmc_string_fmt_treeset = "struct %s<%s> "
     { \
         bool result = CMC_(PFX, _impl_get_node)(_set_, value) != NULL; \
 \
-        if (_set_->callbacks && _set_->callbacks->read) \
-            _set_->callbacks->read(); \
+        CMC_CALLBACKS_CALL(_set_, read); \
 \
         return result; \
     } \

@@ -296,8 +296,7 @@
         _list_->count += size; \
         _list_->flag = CMC_FLAG_OK; \
 \
-        if (_list_->callbacks && _list_->callbacks->create) \
-            _list_->callbacks->create(); \
+        CMC_CALLBACKS_CALL(_list_, create); \
 \
         return true; \
     } \
@@ -334,8 +333,7 @@
         _list_->count += size; \
         _list_->flag = CMC_FLAG_OK; \
 \
-        if (_list_->callbacks && _list_->callbacks->create) \
-            _list_->callbacks->create(); \
+        CMC_CALLBACKS_CALL(_list_, create); \
 \
         return true; \
     } \
@@ -359,8 +357,7 @@
         _list_->count += size; \
         _list_->flag = CMC_FLAG_OK; \
 \
-        if (_list_->callbacks && _list_->callbacks->create) \
-            _list_->callbacks->create(); \
+        CMC_CALLBACKS_CALL(_list_, create); \
 \
         return true; \
     } \
@@ -388,8 +385,7 @@
         _list_->count -= to - from + 1; \
         _list_->flag = CMC_FLAG_OK; \
 \
-        if (_list_->callbacks && _list_->callbacks->delete) \
-            _list_->callbacks->delete (); \
+        CMC_CALLBACKS_CALL(_list_, delete); \
 \
         return true; \
     } \
@@ -410,7 +406,7 @@
 \
         size_t length = to - from + 1; \
 \
-        struct SNAME *result = CMC_(PFX, _new_custom)(length, _list_->f_val, _list_->alloc, _list_->callbacks); \
+        struct SNAME *result = CMC_(PFX, _new_custom)(length, _list_->f_val, _list_->alloc, CMC_CALLBACKS_GET(_list_)); \
 \
         if (!result) \
         { \
@@ -429,8 +425,7 @@
 \
         _list_->flag = CMC_FLAG_OK; \
 \
-        if (_list_->callbacks && _list_->callbacks->delete) \
-            _list_->callbacks->delete (); \
+        CMC_CALLBACKS_CALL(_list_, delete); \
 \
         return result; \
     }

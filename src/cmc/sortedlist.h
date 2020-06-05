@@ -197,6 +197,8 @@ static const char *cmc_cmc_string_fmt_sortedlist = "struct %s<%s> "
     struct SNAME *CMC_(PFX, _new_custom)(size_t capacity, struct CMC_DEF_FVAL(SNAME) * f_val, \
                                          struct CMC_ALLOC_NODE_NAME * alloc, struct CMC_CALLBACKS_NAME * callbacks) \
     { \
+        CMC_CALLBACKS_MAYBE_UNUSED(callbacks);\
+\
         if (capacity < 1) \
             return NULL; \
 \
@@ -256,6 +258,8 @@ static const char *cmc_cmc_string_fmt_sortedlist = "struct %s<%s> "
     void CMC_(PFX, _customize)(struct SNAME * _list_, struct CMC_ALLOC_NODE_NAME * alloc, \
                                struct CMC_CALLBACKS_NAME * callbacks) \
     { \
+        CMC_CALLBACKS_MAYBE_UNUSED(callbacks);\
+\
         if (!alloc) \
             _list_->alloc = &cmc_alloc_node_default; \
         else \
@@ -279,8 +283,7 @@ static const char *cmc_cmc_string_fmt_sortedlist = "struct %s<%s> "
         _list_->is_sorted = false; \
         _list_->flag = CMC_FLAG_OK; \
 \
-        if (_list_->callbacks && _list_->callbacks->create) \
-            _list_->callbacks->create(); \
+        CMC_CALLBACKS_CALL(_list_, create); \
 \
         return true; \
     } \
@@ -305,8 +308,7 @@ static const char *cmc_cmc_string_fmt_sortedlist = "struct %s<%s> "
 \
         _list_->flag = CMC_FLAG_OK; \
 \
-        if (_list_->callbacks && _list_->callbacks->delete) \
-            _list_->callbacks->delete (); \
+        CMC_CALLBACKS_CALL(_list_, delete); \
 \
         return true; \
     } \
@@ -323,8 +325,7 @@ static const char *cmc_cmc_string_fmt_sortedlist = "struct %s<%s> "
 \
         _list_->flag = CMC_FLAG_OK; \
 \
-        if (_list_->callbacks && _list_->callbacks->read) \
-            _list_->callbacks->read(); \
+        CMC_CALLBACKS_CALL(_list_, read); \
 \
         return _list_->buffer[_list_->count - 1]; \
     } \
@@ -341,8 +342,7 @@ static const char *cmc_cmc_string_fmt_sortedlist = "struct %s<%s> "
 \
         _list_->flag = CMC_FLAG_OK; \
 \
-        if (_list_->callbacks && _list_->callbacks->read) \
-            _list_->callbacks->read(); \
+        CMC_CALLBACKS_CALL(_list_, read); \
 \
         return _list_->buffer[0]; \
     } \
@@ -365,8 +365,7 @@ static const char *cmc_cmc_string_fmt_sortedlist = "struct %s<%s> "
 \
         _list_->flag = CMC_FLAG_OK; \
 \
-        if (_list_->callbacks && _list_->callbacks->read) \
-            _list_->callbacks->read(); \
+        CMC_CALLBACKS_CALL(_list_, read); \
 \
         return _list_->buffer[index]; \
     } \
@@ -377,8 +376,7 @@ static const char *cmc_cmc_string_fmt_sortedlist = "struct %s<%s> "
 \
         CMC_(PFX, _sort)(_list_); \
 \
-        if (_list_->callbacks && _list_->callbacks->read) \
-            _list_->callbacks->read(); \
+        CMC_CALLBACKS_CALL(_list_, read); \
 \
         if (from_start) \
         { \
@@ -397,8 +395,7 @@ static const char *cmc_cmc_string_fmt_sortedlist = "struct %s<%s> "
 \
         CMC_(PFX, _sort)(_list_); \
 \
-        if (_list_->callbacks && _list_->callbacks->read) \
-            _list_->callbacks->read(); \
+        CMC_CALLBACKS_CALL(_list_, read); \
 \
         return CMC_(PFX, _impl_binary_search_first)(_list_, value) < _list_->count; \
     } \
@@ -456,8 +453,7 @@ static const char *cmc_cmc_string_fmt_sortedlist = "struct %s<%s> "
 \
         _list_->flag = CMC_FLAG_OK; \
 \
-        if (_list_->callbacks && _list_->callbacks->resize) \
-            _list_->callbacks->resize(); \
+        CMC_CALLBACKS_CALL(_list_, resize); \
 \
         return true; \
     } \

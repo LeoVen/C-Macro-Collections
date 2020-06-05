@@ -54,6 +54,7 @@
 #include "cor/heap.h"             /* Added in 01/06/2020 */
 
 #include "ext/cmc/deque.h"        /* Added in 25/05/2020 */
+#include "ext/cmc/hashbidimap.h"  /* Added in 26/05/2020 */
 #include "ext/cmc/hashmap.h"      /* Added in 25/05/2020 */
 #include "ext/cmc/hashmultimap.h" /* Added in 29/05/2020 */
 #include "ext/cmc/hashmultiset.h" /* Added in 30/05/2020 */

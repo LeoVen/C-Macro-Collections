@@ -20,13 +20,15 @@
 #ifdef CMC_NO_CALLBACKS
 
 #define CMC_CALLBACKS_DECL
-#define CMC_CALLBACKS_GET(ds) NULL /* Placeholder for STR */
+#define CMC_CALLBACKS_MAYBE_UNUSED(param) ((void)param) /* Prevent -Wunused-parameter */
+#define CMC_CALLBACKS_GET(ds) NULL                      /* Helps with compatibility */
 #define CMC_CALLBACKS_ASSIGN(ds, cb)
 #define CMC_CALLBACKS_CALL(ds, cb)
 
 #else
 
 #define CMC_CALLBACKS_DECL struct CMC_CALLBACKS_NAME *callbacks
+#define CMC_CALLBACKS_MAYBE_UNUSED(param)
 #define CMC_CALLBACKS_GET(ds) (ds)->callbacks
 #define CMC_CALLBACKS_ASSIGN(ds, cb) CMC_CALLBACKS_GET(ds) = cb
 #define CMC_CALLBACKS_CALL(ds, cb) \

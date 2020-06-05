@@ -177,6 +177,8 @@
     struct SNAME *CMC_(PFX, _new_custom)(size_t capacity, double load, struct CMC_DEF_FVAL(SNAME) * f_val, \
                                          struct CMC_ALLOC_NODE_NAME * alloc, struct CMC_CALLBACKS_NAME * callbacks) \
     { \
+        CMC_CALLBACKS_MAYBE_UNUSED(callbacks);\
+\
         if (capacity == 0 || load <= 0 || load >= 1) \
             return NULL; \
 \
@@ -260,6 +262,8 @@
     void CMC_(PFX, _customize)(struct SNAME * _set_, struct CMC_ALLOC_NODE_NAME * alloc, \
                                struct CMC_CALLBACKS_NAME * callbacks) \
     { \
+        CMC_CALLBACKS_MAYBE_UNUSED(callbacks);\
+\
         if (!alloc) \
             _set_->alloc = &cmc_alloc_node_default; \
         else \
@@ -288,8 +292,7 @@
         _set_->cardinality++; \
         _set_->flag = CMC_FLAG_OK; \
 \
-        if (_set_->callbacks && _set_->callbacks->create) \
-            _set_->callbacks->create(); \
+        CMC_CALLBACKS_CALL(_set_, create); \
 \
         return true; \
     } \
@@ -320,8 +323,7 @@
 \
         _set_->flag = CMC_FLAG_OK; \
 \
-        if (_set_->callbacks && _set_->callbacks->create) \
-            _set_->callbacks->create(); \
+        CMC_CALLBACKS_CALL(_set_, create); \
 \
         return true; \
     } \
@@ -366,8 +368,7 @@
 \
         _set_->flag = CMC_FLAG_OK; \
 \
-        if (_set_->callbacks && _set_->callbacks->update) \
-            _set_->callbacks->update(); \
+        CMC_CALLBACKS_CALL(_set_, update); \
 \
         return true; \
     } \
@@ -403,8 +404,7 @@
         _set_->cardinality--; \
         _set_->flag = CMC_FLAG_OK; \
 \
-        if (_set_->callbacks && _set_->callbacks->delete) \
-            _set_->callbacks->delete (); \
+        CMC_CALLBACKS_CALL(_set_, delete); \
 \
         return true; \
     } \
@@ -436,8 +436,7 @@
         _set_->cardinality -= removed; \
         _set_->flag = CMC_FLAG_OK; \
 \
-        if (_set_->callbacks && _set_->callbacks->delete) \
-            _set_->callbacks->delete (); \
+        CMC_CALLBACKS_CALL(_set_, delete); \
 \
         return removed; \
     } \
@@ -470,8 +469,7 @@
 \
         _set_->flag = CMC_FLAG_OK; \
 \
-        if (_set_->callbacks && _set_->callbacks->read) \
-            _set_->callbacks->read(); \
+        CMC_CALLBACKS_CALL(_set_, read); \
 \
         return true; \
     } \
@@ -504,8 +502,7 @@
 \
         _set_->flag = CMC_FLAG_OK; \
 \
-        if (_set_->callbacks && _set_->callbacks->read) \
-            _set_->callbacks->read(); \
+        CMC_CALLBACKS_CALL(_set_, read); \
 \
         return true; \
     } \
@@ -516,8 +513,7 @@
 \
         _set_->flag = CMC_FLAG_OK; \
 \
-        if (_set_->callbacks && _set_->callbacks->read) \
-            _set_->callbacks->read(); \
+        CMC_CALLBACKS_CALL(_set_, read); \
 \
         if (!entry) \
             return 0; \
@@ -531,8 +527,7 @@
 \
         bool result = CMC_(PFX, _impl_get_entry)(_set_, value) != NULL; \
 \
-        if (_set_->callbacks && _set_->callbacks->read) \
-            _set_->callbacks->read(); \
+        CMC_CALLBACKS_CALL(_set_, read); \
 \
         return result; \
     } \
@@ -640,8 +635,7 @@
 \
     success: \
 \
-        if (_set_->callbacks && _set_->callbacks->resize) \
-            _set_->callbacks->resize(); \
+        CMC_CALLBACKS_CALL(_set_, resize); \
 \
         return true; \
     } \

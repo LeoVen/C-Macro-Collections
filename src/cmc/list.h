@@ -165,6 +165,8 @@
     struct SNAME *CMC_(PFX, _new_custom)(size_t capacity, struct CMC_DEF_FVAL(SNAME) * f_val, \
                                          struct CMC_ALLOC_NODE_NAME * alloc, struct CMC_CALLBACKS_NAME * callbacks) \
     { \
+        CMC_CALLBACKS_MAYBE_UNUSED(callbacks);\
+\
         if (capacity < 1) \
             return NULL; \
 \
@@ -226,6 +228,8 @@
     void CMC_(PFX, _customize)(struct SNAME * _list_, struct CMC_ALLOC_NODE_NAME * alloc, \
                                struct CMC_CALLBACKS_NAME * callbacks) \
     { \
+        CMC_CALLBACKS_MAYBE_UNUSED(callbacks);\
+\
         if (!alloc) \
             _list_->alloc = &cmc_alloc_node_default; \
         else \
@@ -254,8 +258,7 @@
         _list_->count++; \
         _list_->flag = CMC_FLAG_OK; \
 \
-        if (_list_->callbacks && _list_->callbacks->create) \
-            _list_->callbacks->create(); \
+        CMC_CALLBACKS_CALL(_list_, create); \
 \
         return true; \
     } \
@@ -280,8 +283,7 @@
         _list_->count++; \
         _list_->flag = CMC_FLAG_OK; \
 \
-        if (_list_->callbacks && _list_->callbacks->create) \
-            _list_->callbacks->create(); \
+        CMC_CALLBACKS_CALL(_list_, create); \
 \
         return true; \
     } \
@@ -297,8 +299,7 @@
         _list_->buffer[_list_->count++] = value; \
         _list_->flag = CMC_FLAG_OK; \
 \
-        if (_list_->callbacks && _list_->callbacks->create) \
-            _list_->callbacks->create(); \
+        CMC_CALLBACKS_CALL(_list_, create); \
 \
         return true; \
     } \
@@ -316,8 +317,7 @@
         _list_->buffer[--_list_->count] = (V){ 0 }; \
         _list_->flag = CMC_FLAG_OK; \
 \
-        if (_list_->callbacks && _list_->callbacks->delete) \
-            _list_->callbacks->delete (); \
+        CMC_CALLBACKS_CALL(_list_, delete); \
 \
         return true; \
     } \
@@ -341,8 +341,7 @@
         _list_->buffer[--_list_->count] = (V){ 0 }; \
         _list_->flag = CMC_FLAG_OK; \
 \
-        if (_list_->callbacks && _list_->callbacks->delete) \
-            _list_->callbacks->delete (); \
+        CMC_CALLBACKS_CALL(_list_, delete); \
 \
         return true; \
     } \
@@ -355,8 +354,7 @@
         _list_->buffer[--_list_->count] = (V){ 0 }; \
         _list_->flag = CMC_FLAG_OK; \
 \
-        if (_list_->callbacks && _list_->callbacks->delete) \
-            _list_->callbacks->delete (); \
+        CMC_CALLBACKS_CALL(_list_, delete); \
 \
         return true; \
     } \
@@ -371,8 +369,7 @@
 \
         _list_->flag = CMC_FLAG_OK; \
 \
-        if (_list_->callbacks && _list_->callbacks->read) \
-            _list_->callbacks->read(); \
+        CMC_CALLBACKS_CALL(_list_, read); \
 \
         return _list_->buffer[0]; \
     } \
@@ -393,8 +390,7 @@
 \
         _list_->flag = CMC_FLAG_OK; \
 \
-        if (_list_->callbacks && _list_->callbacks->read) \
-            _list_->callbacks->read(); \
+        CMC_CALLBACKS_CALL(_list_, read); \
 \
         return _list_->buffer[index]; \
     } \
@@ -415,8 +411,7 @@
 \
         _list_->flag = CMC_FLAG_OK; \
 \
-        if (_list_->callbacks && _list_->callbacks->read) \
-            _list_->callbacks->read(); \
+        CMC_CALLBACKS_CALL(_list_, read); \
 \
         return &(_list_->buffer[index]); \
     } \
@@ -431,8 +426,7 @@
 \
         _list_->flag = CMC_FLAG_OK; \
 \
-        if (_list_->callbacks && _list_->callbacks->read) \
-            _list_->callbacks->read(); \
+        CMC_CALLBACKS_CALL(_list_, read); \
 \
         return _list_->buffer[_list_->count - 1]; \
     } \
@@ -466,8 +460,7 @@
             } \
         } \
 \
-        if (_list_->callbacks && _list_->callbacks->read) \
-            _list_->callbacks->read(); \
+        CMC_CALLBACKS_CALL(_list_, read); \
 \
         return result; \
     } \
@@ -487,8 +480,7 @@
             } \
         } \
 \
-        if (_list_->callbacks && _list_->callbacks->read) \
-            _list_->callbacks->read(); \
+        CMC_CALLBACKS_CALL(_list_, read); \
 \
         return result; \
     } \
@@ -549,8 +541,7 @@
         _list_->buffer = new_buffer; \
         _list_->capacity = capacity; \
 \
-        if (_list_->callbacks && _list_->callbacks->resize) \
-            _list_->callbacks->resize(); \
+        CMC_CALLBACKS_CALL(_list_, resize); \
 \
         return true; \
     } \

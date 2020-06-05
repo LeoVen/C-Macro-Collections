@@ -124,7 +124,7 @@
     int CMC_(PFX, _flag)(struct SNAME * _heap_); \
     /* Collection Utility */ \
     bool CMC_(PFX, _resize)(struct SNAME * _heap_, size_t capacity); \
-    struct SNAME *CMC_(PFX, _copy_of)(struct SNAME * _set_); \
+    struct SNAME *CMC_(PFX, _copy_of)(struct SNAME * _heap_); \
     bool CMC_(PFX, _equals)(struct SNAME * _heap1_, struct SNAME * _heap2_);
 
 /* -------------------------------------------------------------------------
@@ -146,6 +146,8 @@
     struct SNAME *CMC_(PFX, _new_custom)(size_t capacity, struct CMC_DEF_FVAL(SNAME) * f_val, \
                                          struct CMC_ALLOC_NODE_NAME * alloc, struct CMC_CALLBACKS_NAME * callbacks) \
     { \
+        CMC_CALLBACKS_MAYBE_UNUSED(callbacks);\
+\
         if (capacity == 0 || capacity == UINTMAX_MAX) \
             return NULL; \
 \
@@ -216,6 +218,8 @@
     void CMC_(PFX, _customize)(struct SNAME * _heap_, struct CMC_ALLOC_NODE_NAME * alloc, \
                                struct CMC_CALLBACKS_NAME * callbacks) \
     { \
+        CMC_CALLBACKS_MAYBE_UNUSED(callbacks);\
+\
         if (!alloc) \
             _heap_->alloc = &cmc_alloc_node_default; \
         else \
@@ -277,8 +281,7 @@
             /* else no float up required */ \
         } \
 \
-        if (_heap_->callbacks && _heap_->callbacks->create) \
-            _heap_->callbacks->create(); \
+        CMC_CALLBACKS_CALL(_heap_, create); \
 \
         return true; \
     } \
@@ -330,8 +333,7 @@
 \
         _heap_->flag = CMC_FLAG_OK; \
 \
-        if (_heap_->callbacks && _heap_->callbacks->delete) \
-            _heap_->callbacks->delete (); \
+        CMC_CALLBACKS_CALL(_heap_, delete); \
 \
         return true; \
     } \
@@ -383,8 +385,7 @@
 \
         _heap_->flag = CMC_FLAG_OK; \
 \
-        if (_heap_->callbacks && _heap_->callbacks->delete) \
-            _heap_->callbacks->delete (); \
+        CMC_CALLBACKS_CALL(_heap_, delete); \
 \
         return true; \
     } \
@@ -420,8 +421,7 @@
 \
         _heap_->flag = CMC_FLAG_OK; \
 \
-        if (_heap_->callbacks && _heap_->callbacks->update) \
-            _heap_->callbacks->update(); \
+        CMC_CALLBACKS_CALL(_heap_, update); \
 \
         return true; \
     } \
@@ -457,8 +457,7 @@
 \
         _heap_->flag = CMC_FLAG_OK; \
 \
-        if (_heap_->callbacks && _heap_->callbacks->update) \
-            _heap_->callbacks->update(); \
+        CMC_CALLBACKS_CALL(_heap_, update); \
 \
         return true; \
     } \
@@ -473,8 +472,7 @@
 \
         _heap_->flag = CMC_FLAG_OK; \
 \
-        if (_heap_->callbacks && _heap_->callbacks->read) \
-            _heap_->callbacks->read(); \
+        CMC_CALLBACKS_CALL(_heap_, read); \
 \
         /* If there is only one element, then the maximum element is the */ \
         /* same as the one in the MinHeap */ \
@@ -494,8 +492,7 @@
 \
         _heap_->flag = CMC_FLAG_OK; \
 \
-        if (_heap_->callbacks && _heap_->callbacks->read) \
-            _heap_->callbacks->read(); \
+        CMC_CALLBACKS_CALL(_heap_, read); \
 \
         return _heap_->buffer[0][0]; \
     } \
@@ -515,8 +512,7 @@
             } \
         } \
 \
-        if (_heap_->callbacks && _heap_->callbacks->read) \
-            _heap_->callbacks->read(); \
+        CMC_CALLBACKS_CALL(_heap_, read); \
 \
         return result; \
     } \
@@ -587,8 +583,7 @@
 \
         _heap_->flag = CMC_FLAG_OK; \
 \
-        if (_heap_->callbacks && _heap_->callbacks->resize) \
-            _heap_->callbacks->resize(); \
+        CMC_CALLBACKS_CALL(_heap_, resize); \
 \
         return true; \
     } \
