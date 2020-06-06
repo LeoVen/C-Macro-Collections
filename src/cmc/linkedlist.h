@@ -158,7 +158,7 @@
     struct SNAME *CMC_(PFX, _new_custom)(struct CMC_DEF_FVAL(SNAME) * f_val, struct CMC_ALLOC_NODE_NAME * alloc, \
                                          struct CMC_CALLBACKS_NAME * callbacks) \
     { \
-        CMC_CALLBACKS_MAYBE_UNUSED(callbacks);\
+        CMC_CALLBACKS_MAYBE_UNUSED(callbacks); \
 \
         if (!f_val) \
             return NULL; \
@@ -216,7 +216,7 @@
     void CMC_(PFX, _customize)(struct SNAME * _list_, struct CMC_ALLOC_NODE_NAME * alloc, \
                                struct CMC_CALLBACKS_NAME * callbacks) \
     { \
-        CMC_CALLBACKS_MAYBE_UNUSED(callbacks);\
+        CMC_CALLBACKS_MAYBE_UNUSED(callbacks); \
 \
         if (!alloc) \
             _list_->alloc = &cmc_alloc_node_default; \

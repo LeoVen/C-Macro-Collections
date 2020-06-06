@@ -1,42 +1,42 @@
 /**
- * ext/cmc/list.h
+ * ext/cmc/sortedlist.h
  *
- * Creation Date: 04/06/2020
+ * Creation Date: 06/06/2020
  *
  * Authors:
  * Leonardo Vencovsky (https://github.com/LeoVen)
  *
  */
 
-#ifndef CMC_EXT_CMC_LIST_H
-#define CMC_EXT_CMC_LIST_H
+#ifndef CMC_EXT_CMC_SORTEDLIST_H
+#define CMC_EXT_CMC_SORTEDLIST_H
 
 #include "../../cor/core.h"
 
 /**
- * All the EXT parts of CMC List.
+ * All the EXT parts of CMC SortedList.
  */
-#define CMC_EXT_CMC_LIST_PARTS ITER, SEQ, STR
+#define CMC_EXT_CMC_SORTEDLIST_PARTS ITER, STR
 
 /**
  * ITER
  */
-#define CMC_EXT_CMC_LIST_ITER(PARAMS) \
-    CMC_EXT_CMC_LIST_ITER_HEADER(PARAMS) \
-    CMC_EXT_CMC_LIST_ITER_SOURCE(PARAMS)
+#define CMC_EXT_CMC_SORTEDLIST_ITER(PARAMS) \
+    CMC_EXT_CMC_SORTEDLIST_ITER_HEADER(PARAMS) \
+    CMC_EXT_CMC_SORTEDLIST_ITER_SOURCE(PARAMS)
 
-#define CMC_EXT_CMC_LIST_ITER_HEADER(PARAMS) \
-    CMC_EXT_CMC_LIST_ITER_HEADER_(CMC_PARAM_PFX(PARAMS), CMC_PARAM_SNAME(PARAMS), CMC_PARAM_V(PARAMS))
+#define CMC_EXT_CMC_SORTEDLIST_ITER_HEADER(PARAMS) \
+    CMC_EXT_CMC_SORTEDLIST_ITER_HEADER_(CMC_PARAM_PFX(PARAMS), CMC_PARAM_SNAME(PARAMS), CMC_PARAM_V(PARAMS))
 
-#define CMC_EXT_CMC_LIST_ITER_SOURCE(PARAMS) \
-    CMC_EXT_CMC_LIST_ITER_SOURCE_(CMC_PARAM_PFX(PARAMS), CMC_PARAM_SNAME(PARAMS), CMC_PARAM_V(PARAMS))
+#define CMC_EXT_CMC_SORTEDLIST_ITER_SOURCE(PARAMS) \
+    CMC_EXT_CMC_SORTEDLIST_ITER_SOURCE_(CMC_PARAM_PFX(PARAMS), CMC_PARAM_SNAME(PARAMS), CMC_PARAM_V(PARAMS))
 
-#define CMC_EXT_CMC_LIST_ITER_HEADER_(PFX, SNAME, V) \
+#define CMC_EXT_CMC_SORTEDLIST_ITER_HEADER_(PFX, SNAME, V) \
 \
     /* List Iterator */ \
     struct CMC_DEF_ITER(SNAME) \
     { \
-        /* Target List */ \
+        /* Target list */ \
         struct SNAME *target; \
 \
         /* Cursor's position (index) */ \
@@ -65,13 +65,14 @@
     bool CMC_(PFX, _iter_go_to)(struct CMC_DEF_ITER(SNAME) * iter, size_t index); \
     /* Iterator Access */ \
     V CMC_(PFX, _iter_value)(struct CMC_DEF_ITER(SNAME) * iter); \
-    V *CMC_(PFX, _iter_rvalue)(struct CMC_DEF_ITER(SNAME) * iter); \
     size_t CMC_(PFX, _iter_index)(struct CMC_DEF_ITER(SNAME) * iter);
 
-#define CMC_EXT_CMC_LIST_ITER_SOURCE_(PFX, SNAME, V) \
+#define CMC_EXT_CMC_SORTEDLIST_ITER_SOURCE_(PFX, SNAME, V) \
 \
     struct CMC_DEF_ITER(SNAME) CMC_(PFX, _iter_start)(struct SNAME * target) \
     { \
+        CMC_(PFX, _sort)(target); \
+\
         struct CMC_DEF_ITER(SNAME) iter; \
 \
         iter.target = target; \
@@ -84,6 +85,8 @@
 \
     struct CMC_DEF_ITER(SNAME) CMC_(PFX, _iter_end)(struct SNAME * target) \
     { \
+        CMC_(PFX, _sort)(target); \
+\
         struct CMC_DEF_ITER(SNAME) iter; \
 \
         iter.target = target; \
@@ -238,219 +241,31 @@
         return iter->target->buffer[iter->cursor]; \
     } \
 \
-    V *CMC_(PFX, _iter_rvalue)(struct CMC_DEF_ITER(SNAME) * iter) \
-    { \
-        if (CMC_(PFX, _empty)(iter->target)) \
-            return NULL; \
-\
-        return &(iter->target->buffer[iter->cursor]); \
-    } \
-\
     size_t CMC_(PFX, _iter_index)(struct CMC_DEF_ITER(SNAME) * iter) \
     { \
         return iter->cursor; \
     }
 
 /**
- * SEQ
- */
-#define CMC_EXT_CMC_LIST_SEQ(PARAMS) \
-    CMC_EXT_CMC_LIST_SEQ_HEADER(PARAMS) \
-    CMC_EXT_CMC_LIST_SEQ_SOURCE(PARAMS)
-
-#define CMC_EXT_CMC_LIST_SEQ_HEADER(PARAMS) \
-    CMC_EXT_CMC_LIST_SEQ_HEADER_(CMC_PARAM_PFX(PARAMS), CMC_PARAM_SNAME(PARAMS), CMC_PARAM_V(PARAMS))
-
-#define CMC_EXT_CMC_LIST_SEQ_SOURCE(PARAMS) \
-    CMC_EXT_CMC_LIST_SEQ_SOURCE_(CMC_PARAM_PFX(PARAMS), CMC_PARAM_SNAME(PARAMS), CMC_PARAM_V(PARAMS))
-
-#define CMC_EXT_CMC_LIST_SEQ_HEADER_(PFX, SNAME, V) \
-\
-    /* List Sequence Input and Output */ \
-    bool CMC_(PFX, _seq_push_front)(struct SNAME * _list_, V * values, size_t size); \
-    bool CMC_(PFX, _seq_push_at)(struct SNAME * _list_, V * values, size_t size, size_t index); \
-    bool CMC_(PFX, _seq_push_back)(struct SNAME * _list_, V * values, size_t size); \
-    bool CMC_(PFX, _seq_pop_at)(struct SNAME * _list_, size_t from, size_t to); \
-    struct SNAME *CMC_(PFX, _seq_sublist)(struct SNAME * _list_, size_t from, size_t to);
-
-#define CMC_EXT_CMC_LIST_SEQ_SOURCE_(PFX, SNAME, V) \
-\
-    bool CMC_(PFX, _seq_push_front)(struct SNAME * _list_, V * values, size_t size) \
-    { \
-        if (size == 0) \
-        { \
-            _list_->flag = CMC_FLAG_INVALID; \
-            return false; \
-        } \
-\
-        if (!CMC_(PFX, _fits)(_list_, size)) \
-        { \
-            if (!CMC_(PFX, _resize)(_list_, _list_->count + size)) \
-                return false; \
-        } \
-\
-        memmove(_list_->buffer + size, _list_->buffer, _list_->count * sizeof(V)); \
-\
-        memcpy(_list_->buffer, values, size * sizeof(V)); \
-\
-        _list_->count += size; \
-        _list_->flag = CMC_FLAG_OK; \
-\
-        CMC_CALLBACKS_CALL(_list_, create); \
-\
-        return true; \
-    } \
-\
-    bool CMC_(PFX, _seq_push_at)(struct SNAME * _list_, V * values, size_t size, size_t index) \
-    { \
-        if (size == 0) \
-        { \
-            _list_->flag = CMC_FLAG_INVALID; \
-            return false; \
-        } \
-\
-        if (index > _list_->count) \
-        { \
-            _list_->flag = CMC_FLAG_RANGE; \
-            return false; \
-        } \
-\
-        if (index == 0) \
-            return CMC_(PFX, _seq_push_front)(_list_, values, size); \
-        else if (index == _list_->count) \
-            return CMC_(PFX, _seq_push_back)(_list_, values, size); \
-\
-        if (!CMC_(PFX, _fits)(_list_, size)) \
-        { \
-            if (!CMC_(PFX, _resize)(_list_, _list_->count + size)) \
-                return false; \
-        } \
-\
-        memmove(_list_->buffer + index + size, _list_->buffer + index, (_list_->count - index) * sizeof(V)); \
-\
-        memcpy(_list_->buffer + index, values, size * sizeof(V)); \
-\
-        _list_->count += size; \
-        _list_->flag = CMC_FLAG_OK; \
-\
-        CMC_CALLBACKS_CALL(_list_, create); \
-\
-        return true; \
-    } \
-\
-    bool CMC_(PFX, _seq_push_back)(struct SNAME * _list_, V * values, size_t size) \
-    { \
-        if (size == 0) \
-        { \
-            _list_->flag = CMC_FLAG_INVALID; \
-            return false; \
-        } \
-\
-        if (!CMC_(PFX, _fits)(_list_, size)) \
-        { \
-            if (!CMC_(PFX, _resize)(_list_, _list_->count + size)) \
-                return false; \
-        } \
-\
-        memcpy(_list_->buffer + _list_->count, values, size * sizeof(V)); \
-\
-        _list_->count += size; \
-        _list_->flag = CMC_FLAG_OK; \
-\
-        CMC_CALLBACKS_CALL(_list_, create); \
-\
-        return true; \
-    } \
-\
-    bool CMC_(PFX, _seq_pop_at)(struct SNAME * _list_, size_t from, size_t to) \
-    { \
-        if (from > to) \
-        { \
-            _list_->flag = CMC_FLAG_INVALID; \
-            return false; \
-        } \
-\
-        if (to >= _list_->count) \
-        { \
-            _list_->flag = CMC_FLAG_RANGE; \
-            return false; \
-        } \
-\
-        size_t length = (to - from + 1); \
-\
-        memmove(_list_->buffer + from, _list_->buffer + to + 1, (_list_->count - to - 1) * sizeof(V)); \
-\
-        memset(_list_->buffer + _list_->count - length, 0, length * sizeof(V)); \
-\
-        _list_->count -= to - from + 1; \
-        _list_->flag = CMC_FLAG_OK; \
-\
-        CMC_CALLBACKS_CALL(_list_, delete); \
-\
-        return true; \
-    } \
-\
-    struct SNAME *CMC_(PFX, _seq_sublist)(struct SNAME * _list_, size_t from, size_t to) \
-    { \
-        if (from > to) \
-        { \
-            _list_->flag = CMC_FLAG_INVALID; \
-            return NULL; \
-        } \
-\
-        if (to >= _list_->count) \
-        { \
-            _list_->flag = CMC_FLAG_RANGE; \
-            return NULL; \
-        } \
-\
-        size_t length = to - from + 1; \
-\
-        struct SNAME *result = \
-            CMC_(PFX, _new_custom)(length, _list_->f_val, _list_->alloc, CMC_CALLBACKS_GET(_list_)); \
-\
-        if (!result) \
-        { \
-            _list_->flag = CMC_FLAG_ALLOC; \
-            return NULL; \
-        } \
-\
-        memcpy(result->buffer, _list_->buffer, length * sizeof(V)); \
-\
-        memmove(_list_->buffer + from, _list_->buffer + to + 1, (_list_->count - to - 1) * sizeof(V)); \
-\
-        memset(_list_->buffer + _list_->count - length, 0, length * sizeof(V)); \
-\
-        _list_->count -= length; \
-        result->count = length; \
-\
-        _list_->flag = CMC_FLAG_OK; \
-\
-        CMC_CALLBACKS_CALL(_list_, delete); \
-\
-        return result; \
-    }
-
-/**
  * STR
  */
-#define CMC_EXT_CMC_LIST_STR(PARAMS) \
-    CMC_EXT_CMC_LIST_STR_HEADER(PARAMS) \
-    CMC_EXT_CMC_LIST_STR_SOURCE(PARAMS)
+#define CMC_EXT_CMC_SORTEDLIST_STR(PARAMS) \
+    CMC_EXT_CMC_SORTEDLIST_STR_HEADER(PARAMS) \
+    CMC_EXT_CMC_SORTEDLIST_STR_SOURCE(PARAMS)
 
-#define CMC_EXT_CMC_LIST_STR_HEADER(PARAMS) \
-    CMC_EXT_CMC_LIST_STR_HEADER_(CMC_PARAM_PFX(PARAMS), CMC_PARAM_SNAME(PARAMS), CMC_PARAM_V(PARAMS))
+#define CMC_EXT_CMC_SORTEDLIST_STR_HEADER(PARAMS) \
+    CMC_EXT_CMC_SORTEDLIST_STR_HEADER_(CMC_PARAM_PFX(PARAMS), CMC_PARAM_SNAME(PARAMS), CMC_PARAM_V(PARAMS))
 
-#define CMC_EXT_CMC_LIST_STR_SOURCE(PARAMS) \
-    CMC_EXT_CMC_LIST_STR_SOURCE_(CMC_PARAM_PFX(PARAMS), CMC_PARAM_SNAME(PARAMS), CMC_PARAM_V(PARAMS))
+#define CMC_EXT_CMC_SORTEDLIST_STR_SOURCE(PARAMS) \
+    CMC_EXT_CMC_SORTEDLIST_STR_SOURCE_(CMC_PARAM_PFX(PARAMS), CMC_PARAM_SNAME(PARAMS), CMC_PARAM_V(PARAMS))
 
-#define CMC_EXT_CMC_LIST_STR_HEADER_(PFX, SNAME, V) \
+#define CMC_EXT_CMC_SORTEDLIST_STR_HEADER_(PFX, SNAME, V) \
 \
     bool CMC_(PFX, _to_string)(struct SNAME * _list_, FILE * fptr); \
     bool CMC_(PFX, _print)(struct SNAME * _list_, FILE * fptr, const char *start, const char *separator, \
                            const char *end);
 
-#define CMC_EXT_CMC_LIST_STR_SOURCE_(PFX, SNAME, V) \
+#define CMC_EXT_CMC_SORTEDLIST_STR_SOURCE_(PFX, SNAME, V) \
 \
     bool CMC_(PFX, _to_string)(struct SNAME * _list_, FILE * fptr) \
     { \
@@ -462,17 +277,20 @@
                             "buffer:%p, " \
                             "capacity:%" PRIuMAX ", " \
                             "count:%" PRIuMAX ", " \
+                            "is_sorted:%s, " \
                             "flag:%d, " \
                             "f_val:%p, " \
                             "alloc:%p, " \
                             "callbacks:%p }", \
-                            CMC_TO_STRING(SNAME), CMC_TO_STRING(V), l_, l_->buffer, l_->capacity, l_->count, l_->flag, \
-                            l_->f_val, l_->alloc, CMC_CALLBACKS_GET(l_)); \
+                            CMC_TO_STRING(SNAME), CMC_TO_STRING(V), l_, l_->buffer, l_->capacity, l_->count, \
+                            l_->is_sorted ? "true" : "false", l_->flag, l_->f_val, l_->alloc, CMC_CALLBACKS_GET(l_)); \
     } \
 \
     bool CMC_(PFX, _print)(struct SNAME * _list_, FILE * fptr, const char *start, const char *separator, \
                            const char *end) \
     { \
+        CMC_(PFX, _sort)(_list_); \
+\
         fprintf(fptr, "%s", start); \
 \
         for (size_t i = 0; i < _list_->count; i++) \
@@ -489,4 +307,4 @@
         return true; \
     }
 
-#endif /* CMC_EXT_CMC_LIST_H */
+#endif /* CMC_EXT_CMC_SORTEDLIST_H */

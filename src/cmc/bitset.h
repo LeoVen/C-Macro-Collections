@@ -206,7 +206,7 @@ static const char *cmc_cmc_string_fmt_bitset = "struct %s "
     struct SNAME CMC_(PFX, _init_custom)(size_t n_bits, struct CMC_ALLOC_NODE_NAME * alloc, \
                                          struct CMC_CALLBACKS_NAME * CMC_UNUSED(callbacks)) \
     { \
-        CMC_CALLBACKS_MAYBE_UNUSED(callbacks);\
+        CMC_CALLBACKS_MAYBE_UNUSED(callbacks); \
 \
         struct SNAME _bitset_ = { 0 }; \
 \
@@ -245,7 +245,7 @@ static const char *cmc_cmc_string_fmt_bitset = "struct %s "
     void CMC_(PFX, _customize)(struct SNAME * _bitset_, struct CMC_ALLOC_NODE_NAME * alloc, \
                                struct CMC_CALLBACKS_NAME * callbacks) \
     { \
-        CMC_CALLBACKS_MAYBE_UNUSED(callbacks);\
+        CMC_CALLBACKS_MAYBE_UNUSED(callbacks); \
 \
         if (!alloc) \
             _bitset_->alloc = &cmc_alloc_node_default; \

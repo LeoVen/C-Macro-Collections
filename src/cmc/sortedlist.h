@@ -27,21 +27,6 @@
  * ------------------------------------------------------------------------- */
 #include "../cor/core.h"
 
-/* -------------------------------------------------------------------------
- * SortedList specific
- * ------------------------------------------------------------------------- */
-/* to_string format */
-static const char *cmc_cmc_string_fmt_sortedlist = "struct %s<%s> "
-                                                   "at %p { "
-                                                   "buffer:%p, "
-                                                   "capacity:%" PRIuMAX ", "
-                                                   "count:%" PRIuMAX ", "
-                                                   "is_sorted:%s, "
-                                                   "flag:%d, "
-                                                   "f_val:%p, "
-                                                   "alloc:%p, "
-                                                   "callbacks:%p }";
-
 /**
  * Core SortedList implementation
  */
@@ -110,22 +95,6 @@ static const char *cmc_cmc_string_fmt_sortedlist = "struct %s<%s> "
         CMC_DEF_FTAB_PRI(V); \
     }; \
 \
-    /* List Iterator */ \
-    struct CMC_DEF_ITER(SNAME) \
-    { \
-        /* Target list */ \
-        struct SNAME *target; \
-\
-        /* Cursor's position (index) */ \
-        size_t cursor; \
-\
-        /* If the iterator has reached the start of the iteration */ \
-        bool start; \
-\
-        /* If the iterator has reached the end of the iteration */ \
-        bool end; \
-    }; \
-\
     /* Collection Functions */ \
     /* Collection Allocation and Deallocation */ \
     struct SNAME *CMC_(PFX, _new)(size_t capacity, struct CMC_DEF_FVAL(SNAME) * f_val); \
@@ -155,28 +124,7 @@ static const char *cmc_cmc_string_fmt_sortedlist = "struct %s<%s> "
     bool CMC_(PFX, _resize)(struct SNAME * _list_, size_t capacity); \
     void CMC_(PFX, _sort)(struct SNAME * _list_); \
     struct SNAME *CMC_(PFX, _copy_of)(struct SNAME * _list_); \
-    bool CMC_(PFX, _equals)(struct SNAME * _list1_, struct SNAME * _list2_); \
-    struct cmc_string CMC_(PFX, _to_string)(struct SNAME * _list_); \
-    bool CMC_(PFX, _print)(struct SNAME * _list_, FILE * fptr); \
-\
-    /* Iterator Functions */ \
-    /* Iterator Initialization */ \
-    struct CMC_DEF_ITER(SNAME) CMC_(PFX, _iter_start)(struct SNAME * target); \
-    struct CMC_DEF_ITER(SNAME) CMC_(PFX, _iter_end)(struct SNAME * target); \
-    /* Iterator State */ \
-    bool CMC_(PFX, _iter_at_start)(struct CMC_DEF_ITER(SNAME) * iter); \
-    bool CMC_(PFX, _iter_at_end)(struct CMC_DEF_ITER(SNAME) * iter); \
-    /* Iterator Movement */ \
-    bool CMC_(PFX, _iter_to_start)(struct CMC_DEF_ITER(SNAME) * iter); \
-    bool CMC_(PFX, _iter_to_end)(struct CMC_DEF_ITER(SNAME) * iter); \
-    bool CMC_(PFX, _iter_next)(struct CMC_DEF_ITER(SNAME) * iter); \
-    bool CMC_(PFX, _iter_prev)(struct CMC_DEF_ITER(SNAME) * iter); \
-    bool CMC_(PFX, _iter_advance)(struct CMC_DEF_ITER(SNAME) * iter, size_t steps); \
-    bool CMC_(PFX, _iter_rewind)(struct CMC_DEF_ITER(SNAME) * iter, size_t steps); \
-    bool CMC_(PFX, _iter_go_to)(struct CMC_DEF_ITER(SNAME) * iter, size_t index); \
-    /* Iterator Access */ \
-    V CMC_(PFX, _iter_value)(struct CMC_DEF_ITER(SNAME) * iter); \
-    size_t CMC_(PFX, _iter_index)(struct CMC_DEF_ITER(SNAME) * iter);
+    bool CMC_(PFX, _equals)(struct SNAME * _list1_, struct SNAME * _list2_);
 
 /* -------------------------------------------------------------------------
  * Source
@@ -197,7 +145,7 @@ static const char *cmc_cmc_string_fmt_sortedlist = "struct %s<%s> "
     struct SNAME *CMC_(PFX, _new_custom)(size_t capacity, struct CMC_DEF_FVAL(SNAME) * f_val, \
                                          struct CMC_ALLOC_NODE_NAME * alloc, struct CMC_CALLBACKS_NAME * callbacks) \
     { \
-        CMC_CALLBACKS_MAYBE_UNUSED(callbacks);\
+        CMC_CALLBACKS_MAYBE_UNUSED(callbacks); \
 \
         if (capacity < 1) \
             return NULL; \
@@ -258,7 +206,7 @@ static const char *cmc_cmc_string_fmt_sortedlist = "struct %s<%s> "
     void CMC_(PFX, _customize)(struct SNAME * _list_, struct CMC_ALLOC_NODE_NAME * alloc, \
                                struct CMC_CALLBACKS_NAME * callbacks) \
     { \
-        CMC_CALLBACKS_MAYBE_UNUSED(callbacks);\
+        CMC_CALLBACKS_MAYBE_UNUSED(callbacks); \
 \
         if (!alloc) \
             _list_->alloc = &cmc_alloc_node_default; \
@@ -513,208 +461,6 @@ static const char *cmc_cmc_string_fmt_sortedlist = "struct %s<%s> "
         } \
 \
         return true; \
-    } \
-\
-    struct cmc_string CMC_(PFX, _to_string)(struct SNAME * _list_) \
-    { \
-        struct cmc_string str; \
-        struct SNAME *l_ = _list_; \
-\
-        int n = \
-            snprintf(str.s, cmc_string_len, cmc_cmc_string_fmt_sortedlist, #SNAME, #V, l_, l_->buffer, l_->capacity, \
-                     l_->count, l_->is_sorted ? "true" : "false", l_->flag, l_->f_val, l_->alloc, l_->callbacks); \
-\
-        return n >= 0 ? str : (struct cmc_string){ 0 }; \
-    } \
-\
-    bool CMC_(PFX, _print)(struct SNAME * _list_, FILE * fptr) \
-    { \
-        CMC_(PFX, _sort)(_list_); \
-\
-        for (size_t i = 0; i < _list_->count; i++) \
-        { \
-            if (!_list_->f_val->str(fptr, _list_->buffer[i])) \
-                return false; \
-        } \
-\
-        return true; \
-    } \
-\
-    struct CMC_DEF_ITER(SNAME) CMC_(PFX, _iter_start)(struct SNAME * target) \
-    { \
-        CMC_(PFX, _sort)(target); \
-\
-        struct CMC_DEF_ITER(SNAME) iter; \
-\
-        iter.target = target; \
-        iter.cursor = 0; \
-        iter.start = true; \
-        iter.end = CMC_(PFX, _empty)(target); \
-\
-        return iter; \
-    } \
-\
-    struct CMC_DEF_ITER(SNAME) CMC_(PFX, _iter_end)(struct SNAME * target) \
-    { \
-        CMC_(PFX, _sort)(target); \
-\
-        struct CMC_DEF_ITER(SNAME) iter; \
-\
-        iter.target = target; \
-        iter.cursor = 0; \
-        iter.start = CMC_(PFX, _empty)(target); \
-        iter.end = true; \
-\
-        if (!CMC_(PFX, _empty)(target)) \
-            iter.cursor = target->count - 1; \
-\
-        return iter; \
-    } \
-\
-    bool CMC_(PFX, _iter_at_start)(struct CMC_DEF_ITER(SNAME) * iter) \
-    { \
-        return CMC_(PFX, _empty)(iter->target) || iter->start; \
-    } \
-\
-    bool CMC_(PFX, _iter_at_end)(struct CMC_DEF_ITER(SNAME) * iter) \
-    { \
-        return CMC_(PFX, _empty)(iter->target) || iter->end; \
-    } \
-\
-    bool CMC_(PFX, _iter_to_start)(struct CMC_DEF_ITER(SNAME) * iter) \
-    { \
-        if (!CMC_(PFX, _empty)(iter->target)) \
-        { \
-            iter->cursor = 0; \
-            iter->start = true; \
-            iter->end = CMC_(PFX, _empty)(iter->target); \
-\
-            return true; \
-        } \
-\
-        return false; \
-    } \
-\
-    bool CMC_(PFX, _iter_to_end)(struct CMC_DEF_ITER(SNAME) * iter) \
-    { \
-        if (!CMC_(PFX, _empty)(iter->target)) \
-        { \
-            iter->start = CMC_(PFX, _empty)(iter->target); \
-            iter->cursor = iter->target->count - 1; \
-            iter->end = true; \
-\
-            return true; \
-        } \
-\
-        return false; \
-    } \
-\
-    bool CMC_(PFX, _iter_next)(struct CMC_DEF_ITER(SNAME) * iter) \
-    { \
-        if (iter->end) \
-            return false; \
-\
-        if (iter->cursor + 1 == iter->target->count) \
-        { \
-            iter->end = true; \
-            return false; \
-        } \
-\
-        iter->start = CMC_(PFX, _empty)(iter->target); \
-\
-        iter->cursor++; \
-\
-        return true; \
-    } \
-\
-    bool CMC_(PFX, _iter_prev)(struct CMC_DEF_ITER(SNAME) * iter) \
-    { \
-        if (iter->start) \
-            return false; \
-\
-        if (iter->cursor == 0) \
-        { \
-            iter->start = true; \
-            return false; \
-        } \
-\
-        iter->end = CMC_(PFX, _empty)(iter->target); \
-\
-        iter->cursor--; \
-\
-        return true; \
-    } \
-\
-    /* Returns true only if the iterator moved */ \
-    bool CMC_(PFX, _iter_advance)(struct CMC_DEF_ITER(SNAME) * iter, size_t steps) \
-    { \
-        if (iter->end) \
-            return false; \
-\
-        if (iter->cursor + 1 == iter->target->count) \
-        { \
-            iter->end = true; \
-            return false; \
-        } \
-\
-        if (steps == 0 || iter->cursor + steps >= iter->target->count) \
-            return false; \
-\
-        iter->start = CMC_(PFX, _empty)(iter->target); \
-\
-        iter->cursor += steps; \
-\
-        return true; \
-    } \
-\
-    /* Returns true only if the iterator moved */ \
-    bool CMC_(PFX, _iter_rewind)(struct CMC_DEF_ITER(SNAME) * iter, size_t steps) \
-    { \
-        if (iter->start) \
-            return false; \
-\
-        if (iter->cursor == 0) \
-        { \
-            iter->start = true; \
-            return false; \
-        } \
-\
-        if (steps == 0 || iter->cursor < steps) \
-            return false; \
-\
-        iter->end = CMC_(PFX, _empty)(iter->target); \
-\
-        iter->cursor -= steps; \
-\
-        return true; \
-    } \
-\
-    /* Returns true only if the iterator was able to be positioned at the */ \
-    /* given index */ \
-    bool CMC_(PFX, _iter_go_to)(struct CMC_DEF_ITER(SNAME) * iter, size_t index) \
-    { \
-        if (index >= iter->target->count) \
-            return false; \
-\
-        if (iter->cursor > index) \
-            return CMC_(PFX, _iter_rewind)(iter, iter->cursor - index); \
-        else if (iter->cursor < index) \
-            return CMC_(PFX, _iter_advance)(iter, index - iter->cursor); \
-\
-        return true; \
-    } \
-\
-    V CMC_(PFX, _iter_value)(struct CMC_DEF_ITER(SNAME) * iter) \
-    { \
-        if (CMC_(PFX, _empty)(iter->target)) \
-            return (V){ 0 }; \
-\
-        return iter->target->buffer[iter->cursor]; \
-    } \
-\
-    size_t CMC_(PFX, _iter_index)(struct CMC_DEF_ITER(SNAME) * iter) \
-    { \
-        return iter->cursor; \
     } \
 \
     static size_t CMC_(PFX, _impl_binary_search_first)(struct SNAME * _list_, V value) \

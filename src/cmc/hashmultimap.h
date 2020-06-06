@@ -223,7 +223,7 @@
                                          struct CMC_DEF_FVAL(SNAME) * f_val, struct CMC_ALLOC_NODE_NAME * alloc, \
                                          struct CMC_CALLBACKS_NAME * callbacks) \
     { \
-        CMC_CALLBACKS_MAYBE_UNUSED(callbacks);\
+        CMC_CALLBACKS_MAYBE_UNUSED(callbacks); \
 \
         if (capacity == 0 || load <= 0) \
             return NULL; \
@@ -339,7 +339,7 @@
     void CMC_(PFX, _customize)(struct SNAME * _map_, struct CMC_ALLOC_NODE_NAME * alloc, \
                                struct CMC_CALLBACKS_NAME * callbacks) \
     { \
-        CMC_CALLBACKS_MAYBE_UNUSED(callbacks);\
+        CMC_CALLBACKS_MAYBE_UNUSED(callbacks); \
 \
         if (!alloc) \
             _map_->alloc = &cmc_alloc_node_default; \
