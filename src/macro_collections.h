@@ -65,6 +65,7 @@
 #include "ext/cmc/list.h"         /* Added in 04/06/2020 */
 #include "ext/cmc/queue.h"        /* Added in 05/06/2020 */
 #include "ext/cmc/sortedlist.h"   /* Added in 06/06/2020 */
+#include "ext/cmc/stack.h"        /* Added in 07/06/2020 */
 
 #include "utl/assert.h"           /* Added in 27/06/2019 */
 #include "utl/foreach.h"          /* Added in 25/02/2019 */
