@@ -24,19 +24,6 @@
  * ------------------------------------------------------------------------- */
 #include "../cor/core.h"
 
-/* -------------------------------------------------------------------------
- * TreeSet specific
- * ------------------------------------------------------------------------- */
-/* to_string format */
-static const char *cmc_cmc_string_fmt_treeset = "struct %s<%s> "
-                                                "at %p { "
-                                                "root:%p, "
-                                                "count:%" PRIuMAX ", "
-                                                "flag:%d, "
-                                                "f_val:%p, "
-                                                "alloc:%p, "
-                                                "callbacks:%p }";
-
 /**
  * Core TreeSet implementation
  */
@@ -167,8 +154,6 @@ static const char *cmc_cmc_string_fmt_treeset = "struct %s<%s> "
     /* Collection Utility */ \
     struct SNAME *CMC_(PFX, _copy_of)(struct SNAME * _set_); \
     bool CMC_(PFX, _equals)(struct SNAME * _set1_, struct SNAME * _set2_); \
-    struct cmc_string CMC_(PFX, _to_string)(struct SNAME * _set_); \
-    bool CMC_(PFX, _print)(struct SNAME * _set_, FILE * fptr); \
 \
     /* Set Operations */ \
     struct SNAME *CMC_(PFX, _union)(struct SNAME * _set1_, struct SNAME * _set2_); \
@@ -198,17 +183,7 @@ static const char *cmc_cmc_string_fmt_treeset = "struct %s<%s> "
     bool CMC_(PFX, _iter_go_to)(struct CMC_DEF_ITER(SNAME) * iter, size_t index); \
     /* Iterator Access */ \
     V CMC_(PFX, _iter_value)(struct CMC_DEF_ITER(SNAME) * iter); \
-    size_t CMC_(PFX, _iter_index)(struct CMC_DEF_ITER(SNAME) * iter); \
-\
-    /* Default Value */ \
-    static inline V CMC_(PFX, _impl_default_value)(void) \
-    { \
-        V _empty_value_; \
-\
-        memset(&_empty_value_, 0, sizeof(V)); \
-\
-        return _empty_value_; \
-    }
+    size_t CMC_(PFX, _iter_index)(struct CMC_DEF_ITER(SNAME) * iter);
 
 /* -------------------------------------------------------------------------
  * Source
@@ -658,58 +633,6 @@ static const char *cmc_cmc_string_fmt_treeset = "struct %s<%s> "
         { \
             if (CMC_(PFX, _impl_get_node)(_set2_, CMC_(PFX, _iter_value)(&iter)) == NULL) \
                 return false; \
-        } \
-\
-        return true; \
-    } \
-\
-    struct cmc_string CMC_(PFX, _to_string)(struct SNAME * _set_) \
-    { \
-        struct cmc_string str; \
-        struct SNAME *s_ = _set_; \
-\
-        int n = snprintf(str.s, cmc_string_len, cmc_cmc_string_fmt_treeset, #SNAME, #V, s_, s_->root, s_->count, \
-                         s_->flag, s_->f_val, s_->alloc, s_->callbacks); \
-\
-        return n >= 0 ? str : (struct cmc_string){ 0 }; \
-    } \
-\
-    bool CMC_(PFX, _print)(struct SNAME * _set_, FILE * fptr) \
-    { \
-        struct CMC_DEF_NODE(SNAME) *root = _set_->root; \
-\
-        bool left_done = false; \
-\
-        while (root) \
-        { \
-            if (!left_done) \
-            { \
-                while (root->left) \
-                    root = root->left; \
-            } \
-\
-            if (!_set_->f_val->str(fptr, root->value)) \
-                return false; \
-\
-            left_done = true; \
-\
-            if (root->right) \
-            { \
-                left_done = false; \
-                root = root->right; \
-            } \
-            else if (root->parent) \
-            { \
-                while (root->parent && root == root->parent->right) \
-                    root = root->parent; \
-\
-                if (!root->parent) \
-                    break; \
-\
-                root = root->parent; \
-            } \
-            else \
-                break; \
         } \
 \
         return true; \

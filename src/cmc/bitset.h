@@ -41,18 +41,6 @@
  * ------------------------------------------------------------------------- */
 #include "../cor/bitset.h"
 
-/* -------------------------------------------------------------------------
- * BitSet specific
- * ------------------------------------------------------------------------- */
-/* to_string format */
-static const char *cmc_cmc_string_fmt_bitset = "struct %s "
-                                               "at %p { "
-                                               "buffer:%p, "
-                                               "capacity:%" PRIuMAX ", "
-                                               "flag:%d, "
-                                               "alloc:%p, "
-                                               "callbacks:%p }";
-
 /**
  * Core BitSet implementation
  */
@@ -95,7 +83,7 @@ static const char *cmc_cmc_string_fmt_bitset = "struct %s "
         struct SNAME *target; \
 \
         /* Cursor's position (index) */ \
-        cmc_bitset_word cursor; \
+        size_t cursor; \
 \
         /* If the iterator has reached the start of the iteration */ \
         bool start; \

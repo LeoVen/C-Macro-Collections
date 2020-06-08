@@ -53,6 +53,7 @@
 #include "cor/hashtable.h"        /* Added in 17/03/2020 */
 #include "cor/heap.h"             /* Added in 01/06/2020 */
 
+#include "ext/cmc/bitset.h"       /* Added in 08/06/2020 */
 #include "ext/cmc/deque.h"        /* Added in 25/05/2020 */
 #include "ext/cmc/hashbidimap.h"  /* Added in 26/05/2020 */
 #include "ext/cmc/hashmap.h"      /* Added in 25/05/2020 */
@@ -66,6 +67,8 @@
 #include "ext/cmc/queue.h"        /* Added in 05/06/2020 */
 #include "ext/cmc/sortedlist.h"   /* Added in 06/06/2020 */
 #include "ext/cmc/stack.h"        /* Added in 07/06/2020 */
+#include "ext/cmc/treemap.h"      /* Added in 08/06/2020 */
+#include "ext/cmc/treeset.h"      /* Added in 08/06/2020 */
 
 #include "utl/assert.h"           /* Added in 27/06/2019 */
 #include "utl/foreach.h"          /* Added in 25/02/2019 */
