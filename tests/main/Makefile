@@ -1,6 +1,6 @@
 CC = gcc
 CFLAGS = -std=c11 -Wall -Wextra
-CFLAGS += -Wno-unused -Wno-missing-braces
+CFLAGS += -Wno-missing-braces
 DBFLAGS = -g3
 CVFLAGS = --coverage -O0
 INCLUDE = ../../src/

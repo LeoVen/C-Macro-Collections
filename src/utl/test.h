@@ -137,12 +137,6 @@ CMC_UNUSED static void cmc_test_log(const char *unit_name, const char *current_t
 \
         cmc_timer_stop(timer); \
 \
-    unittest_abort: \
-        if (tinfo.aborted) \
-        { \
-            cmc_test_log(unit_name, current_test, true, false); \
-        } \
-\
         tinfo.assert_total = cmc_assert_total - tinfo.assert_total; \
         tinfo.assert_failed = cmc_assert_failed - tinfo.assert_failed; \
 \
@@ -222,15 +216,6 @@ CMC_UNUSED static void cmc_test_log(const char *unit_name, const char *current_t
                 cmc_test_log(unit_name, current_test, false, true); \
             } \
         } \
-\
-    } while (0)
-
-#define CMC_TEST_ABORT() \
-    do \
-    { \
-        tinfo.aborted = true; \
-        tinfo.total -= 1; \
-        goto unittest_abort; \
 \
     } while (0)
 

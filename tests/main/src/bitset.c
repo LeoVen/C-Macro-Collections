@@ -14,7 +14,7 @@ struct bitset
 struct bitset_iter
 {
     struct bitset *target;
-    cmc_bitset_word cursor;
+    size_t cursor;
     _Bool start;
     _Bool end;
 };
@@ -70,15 +70,17 @@ struct bitset *bs_new_custom(size_t n_bits, struct cmc_alloc_node *alloc, struct
     _bitset_->capacity = capacity;
     _bitset_->flag = CMC_FLAG_OK;
     _bitset_->alloc = alloc;
-    _bitset_->callbacks = callbacks;
+    (_bitset_)->callbacks = callbacks;
     return _bitset_;
 }
 struct bitset bs_init(size_t n_bits)
 {
     return bs_init_custom(n_bits, ((void *)0), ((void *)0));
 }
-struct bitset bs_init_custom(size_t n_bits, struct cmc_alloc_node *alloc, struct cmc_callbacks *callbacks)
+struct bitset bs_init_custom(size_t n_bits, struct cmc_alloc_node *alloc,
+                             struct cmc_callbacks *__attribute__((__unused__)) (callbacks))
 {
+    ;
     struct bitset _bitset_ = { 0 };
     if (n_bits < 1)
         return _bitset_;
@@ -91,7 +93,7 @@ struct bitset bs_init_custom(size_t n_bits, struct cmc_alloc_node *alloc, struct
     _bitset_.capacity = capacity;
     _bitset_.flag = CMC_FLAG_OK;
     _bitset_.alloc = alloc;
-    _bitset_.callbacks = callbacks;
+    (&_bitset_)->callbacks = callbacks;
     return _bitset_;
 }
 void bs_free(struct bitset *_bitset_)
@@ -105,11 +107,12 @@ void bs_release(struct bitset _bitset_)
 }
 void bs_customize(struct bitset *_bitset_, struct cmc_alloc_node *alloc, struct cmc_callbacks *callbacks)
 {
+    ;
     if (!alloc)
         _bitset_->alloc = &cmc_alloc_node_default;
     else
         _bitset_->alloc = alloc;
-    _bitset_->callbacks = callbacks;
+    (_bitset_)->callbacks = callbacks;
     _bitset_->flag = CMC_FLAG_OK;
 }
 _Bool bs_set(struct bitset *_bitset_, size_t bit_index)
@@ -120,8 +123,9 @@ _Bool bs_set(struct bitset *_bitset_, size_t bit_index)
     size_t i = bs_bit_to_index(bit_index);
     _bitset_->buffer[i] |= ((cmc_bitset_word)1) << (bit_index % bits);
     _bitset_->flag = CMC_FLAG_OK;
-    if (_bitset_->callbacks && _bitset_->callbacks->create)
-        _bitset_->callbacks->create();
+    if ((_bitset_)->callbacks && (_bitset_)->callbacks->create)
+        (_bitset_)->callbacks->create();
+    ;
     return 1;
 }
 _Bool bs_set_range(struct bitset *_bitset_, size_t from, size_t to)
@@ -153,8 +157,9 @@ _Bool bs_set_range(struct bitset *_bitset_, size_t from, size_t to)
         _bitset_->buffer[end_index] |= end_mask;
     }
     _bitset_->flag = CMC_FLAG_OK;
-    if (_bitset_->callbacks && _bitset_->callbacks->create)
-        _bitset_->callbacks->create();
+    if ((_bitset_)->callbacks && (_bitset_)->callbacks->create)
+        (_bitset_)->callbacks->create();
+    ;
     return 1;
 }
 _Bool bs_clear(struct bitset *_bitset_, size_t bit_index)
@@ -165,8 +170,9 @@ _Bool bs_clear(struct bitset *_bitset_, size_t bit_index)
     size_t i = bs_bit_to_index(bit_index);
     _bitset_->buffer[i] &= ~(((cmc_bitset_word)1) << (bit_index % bits));
     _bitset_->flag = CMC_FLAG_OK;
-    if (_bitset_->callbacks && _bitset_->callbacks->delete)
-        _bitset_->callbacks->delete ();
+    if ((_bitset_)->callbacks && (_bitset_)->callbacks->delete)
+        (_bitset_)->callbacks->delete ();
+    ;
     return 1;
 }
 _Bool bs_clear_range(struct bitset *_bitset_, size_t from, size_t to)
@@ -198,8 +204,9 @@ _Bool bs_clear_range(struct bitset *_bitset_, size_t from, size_t to)
         _bitset_->buffer[end_index] &= ~end_mask;
     }
     _bitset_->flag = CMC_FLAG_OK;
-    if (_bitset_->callbacks && _bitset_->callbacks->delete)
-        _bitset_->callbacks->delete ();
+    if ((_bitset_)->callbacks && (_bitset_)->callbacks->delete)
+        (_bitset_)->callbacks->delete ();
+    ;
     return 1;
 }
 _Bool bs_flip(struct bitset *_bitset_, size_t bit_index)
@@ -210,8 +217,9 @@ _Bool bs_flip(struct bitset *_bitset_, size_t bit_index)
     size_t i = bs_bit_to_index(bit_index);
     _bitset_->buffer[i] ^= ((cmc_bitset_word)1) << (bit_index % bits);
     _bitset_->flag = CMC_FLAG_OK;
-    if (_bitset_->callbacks && _bitset_->callbacks->update)
-        _bitset_->callbacks->update();
+    if ((_bitset_)->callbacks && (_bitset_)->callbacks->update)
+        (_bitset_)->callbacks->update();
+    ;
     return 1;
 }
 _Bool bs_flip_range(struct bitset *_bitset_, size_t from, size_t to)
@@ -243,8 +251,9 @@ _Bool bs_flip_range(struct bitset *_bitset_, size_t from, size_t to)
         _bitset_->buffer[end_index] ^= end_mask;
     }
     _bitset_->flag = CMC_FLAG_OK;
-    if (_bitset_->callbacks && _bitset_->callbacks->update)
-        _bitset_->callbacks->update();
+    if ((_bitset_)->callbacks && (_bitset_)->callbacks->update)
+        (_bitset_)->callbacks->update();
+    ;
     return 1;
 }
 _Bool bs_put(struct bitset *_bitset_, size_t bit_index, _Bool state)
@@ -266,8 +275,9 @@ _Bool bs_set_all(struct bitset *_bitset_)
     for (size_t i = 0; i < _bitset_->capacity; i++)
         _bitset_->buffer[i] = ~((cmc_bitset_word)0);
     _bitset_->flag = CMC_FLAG_OK;
-    if (_bitset_->callbacks && _bitset_->callbacks->create)
-        _bitset_->callbacks->create();
+    if ((_bitset_)->callbacks && (_bitset_)->callbacks->create)
+        (_bitset_)->callbacks->create();
+    ;
     return 1;
 }
 _Bool bs_clear_all(struct bitset *_bitset_)
@@ -275,8 +285,9 @@ _Bool bs_clear_all(struct bitset *_bitset_)
     for (size_t i = 0; i < _bitset_->capacity; i++)
         _bitset_->buffer[i] = 0;
     _bitset_->flag = CMC_FLAG_OK;
-    if (_bitset_->callbacks && _bitset_->callbacks->delete)
-        _bitset_->callbacks->delete ();
+    if ((_bitset_)->callbacks && (_bitset_)->callbacks->delete)
+        (_bitset_)->callbacks->delete ();
+    ;
     return 1;
 }
 _Bool bs_flip_all(struct bitset *_bitset_)
@@ -284,8 +295,9 @@ _Bool bs_flip_all(struct bitset *_bitset_)
     for (size_t i = 0; i < _bitset_->capacity; i++)
         _bitset_->buffer[i] ^= ~((cmc_bitset_word)0);
     _bitset_->flag = CMC_FLAG_OK;
-    if (_bitset_->callbacks && _bitset_->callbacks->create)
-        _bitset_->callbacks->create();
+    if ((_bitset_)->callbacks && (_bitset_)->callbacks->create)
+        (_bitset_)->callbacks->create();
+    ;
     return 1;
 }
 _Bool bs_get(struct bitset *_bitset_, size_t bit_index)
@@ -318,8 +330,9 @@ _Bool bs_impl_resize(struct bitset *_bitset_, size_t n_bits, _Bool do_resize)
     if (_bitset_->capacity < words)
         memset(_bitset_->buffer + _bitset_->capacity, 0, (words - _bitset_->capacity) * sizeof(cmc_bitset_word));
     _bitset_->capacity = words;
-    if (_bitset_->callbacks && _bitset_->callbacks->resize)
-        _bitset_->callbacks->resize();
+    if ((_bitset_)->callbacks && (_bitset_)->callbacks->resize)
+        (_bitset_)->callbacks->resize();
+    ;
     _bitset_->flag = CMC_FLAG_OK;
     return 1;
 }

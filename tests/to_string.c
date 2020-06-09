@@ -16,6 +16,8 @@ C_MACRO_COLLECTIONS_ALL(CMC,         LIST, (  l,         list, ,    , int))
 C_MACRO_COLLECTIONS_ALL(CMC,        QUEUE, (  q,        queue, ,    , int))
 C_MACRO_COLLECTIONS_ALL(CMC,   SORTEDLIST, ( sl,   sortedlist, ,    , int))
 C_MACRO_COLLECTIONS_ALL(CMC,        STACK, (  s,        stack, ,    , int))
+C_MACRO_COLLECTIONS_ALL(CMC,      TREEMAP, ( tm,      treemap, , int, int))
+C_MACRO_COLLECTIONS_ALL(CMC,      TREESET, ( ts,      treeset, ,    , int))
 
 struct
 {
@@ -49,6 +51,9 @@ int main(void)
     struct queue *q = q_new(100, (struct queue_fval *)&int_ftab);
     struct sortedlist *sl = sl_new(100, (struct sortedlist_fval *)&int_ftab);
     struct stack *s = s_new(100, (struct stack_fval *)&int_ftab);
+    struct treemap *tm = tm_new((struct treemap_fkey *)&int_ftab,
+                                       (struct treemap_fval *)&int_ftab);
+    struct treeset *ts = ts_new((struct treeset_fval *)&int_ftab);
 
     d_to_string(d, stdout);
     d_print(d, stdout, "\n[ ", ", ", " ]\n");
@@ -76,6 +81,10 @@ int main(void)
     sl_print(sl, stdout, "\n[ ", ", ", " ]\n");
     s_to_string(s, stdout);
     s_print(s, stdout, "\n[ ", ", ", " ]\n");
+    tm_to_string(tm, stdout);
+    tm_print(tm, stdout, "\n[ {", "}, {", "} ]\n", " : ");
+    ts_to_string(ts, stdout);
+    ts_print(ts, stdout, "\n[ ", ", ", " ]\n");
 
     fprintf(stdout, "\n");
 
@@ -92,6 +101,8 @@ int main(void)
     q_enqueue(q, 0);
     sl_insert(sl, 0);
     s_push(s, 0);
+    tm_insert(tm, 0, 0);
+    ts_insert(ts, 0);
 
     d_to_string(d, stdout);
     d_print(d, stdout, "\n[ ", ", ", " ]\n");
@@ -119,6 +130,10 @@ int main(void)
     sl_print(sl, stdout, "\n[ ", ", ", " ]\n");
     s_to_string(s, stdout);
     s_print(s, stdout, "\n[ ", ", ", " ]\n");
+    tm_to_string(tm, stdout);
+    tm_print(tm, stdout, "\n[ {", "}, {", "} ]\n", " : ");
+    ts_to_string(ts, stdout);
+    ts_print(ts, stdout, "\n[ ", ", ", " ]\n");
 
     for (int i = 1; i < 20; i++)
     {
@@ -135,6 +150,8 @@ int main(void)
         q_enqueue(q, i);
         sl_insert(sl, i);
         s_push(s, i);
+        tm_insert(tm, i, i);
+        ts_insert(ts, i);
     }
 
     fprintf(stdout, "\n");
@@ -165,6 +182,10 @@ int main(void)
     sl_print(sl, stdout, "\n[ ", ", ", " ]\n");
     s_to_string(s, stdout);
     s_print(s, stdout, "\n[ ", ", ", " ]\n");
+    tm_to_string(tm, stdout);
+    tm_print(tm, stdout, "\n[ {", "}, {", "} ]\n", " : ");
+    ts_to_string(ts, stdout);
+    ts_print(ts, stdout, "\n[ ", ", ", " ]\n");
 
     d_free(d);
     hbm_free(hbm);
@@ -178,6 +199,9 @@ int main(void)
     l_free(l);
     q_free(q);
     sl_free(sl);
+    s_free(s);
+    tm_free(tm);
+    ts_free(ts);
 }
 
 // clang-format on

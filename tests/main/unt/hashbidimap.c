@@ -793,10 +793,13 @@ CMC_CREATE_UNIT(HashBidiMap, true, {
     });
 });
 
-CMC_CREATE_UNIT(HashBidiMapIter, true,
-                {
-
-                });
+CMC_CREATE_UNIT(HashBidiMapIter, true, {
+    CMC_CREATE_TEST(PFX##_iter_start, {
+        // WIP
+        cmc_assert(true);
+        cmc_assert(true);
+    });
+});
 
 #ifdef CMC_TEST_MAIN
 int main(void)

@@ -123,7 +123,6 @@ CMC_CREATE_UNIT(Heap, true, {
         for (size_t i = 1; i <= 100; i++)
             cmc_assert(h_insert(h, i));
 
-        size_t r;
         size_t i = 0;
         size_t arr[100];
         while (!h_empty(h))

@@ -78,8 +78,6 @@ int hbm_flag(struct hashbidimap *_map_);
 _Bool hbm_resize(struct hashbidimap *_map_, size_t capacity);
 struct hashbidimap *hbm_copy_of(struct hashbidimap *_map_);
 _Bool hbm_equals(struct hashbidimap *_map1_, struct hashbidimap *_map2_);
-struct cmc_string hbm_to_string(struct hashbidimap *_map_);
-_Bool hbm_print(struct hashbidimap *_map_, FILE *fptr);
 struct hashbidimap_iter *hbm_iter_new(struct hashbidimap *target);
 void hbm_iter_free(struct hashbidimap_iter *iter);
 void hbm_iter_init(struct hashbidimap_iter *iter, struct hashbidimap *target);
@@ -95,6 +93,9 @@ _Bool hbm_iter_go_to(struct hashbidimap_iter *iter, size_t index);
 size_t hbm_iter_key(struct hashbidimap_iter *iter);
 size_t hbm_iter_value(struct hashbidimap_iter *iter);
 size_t hbm_iter_index(struct hashbidimap_iter *iter);
+_Bool hbm_to_string(struct hashbidimap *_map_, FILE *fptr);
+_Bool hbm_print(struct hashbidimap *_map_, FILE *fptr, const char *start, const char *separator, const char *end,
+                const char *key_val_sep);
 static struct hashbidimap_entry *hbm_impl_new_entry(struct hashbidimap *_map_, size_t key, size_t value);
 static struct hashbidimap_entry **hbm_impl_get_entry_by_key(struct hashbidimap *_map_, size_t key);
 static struct hashbidimap_entry **hbm_impl_get_entry_by_val(struct hashbidimap *_map_, size_t val);
@@ -106,40 +107,13 @@ static struct hashbidimap_iter hbm_impl_it_end(struct hashbidimap *_map_);
 struct hashbidimap *hbm_new(size_t capacity, double load, struct hashbidimap_fkey *f_key,
                             struct hashbidimap_fval *f_val)
 {
-    struct cmc_alloc_node *alloc = &cmc_alloc_node_default;
-    if (capacity == 0 || load <= 0 || load >= 1)
-        return ((void *)0);
-    if (capacity >= 0xffffffffffffffffULL * load)
-        return ((void *)0);
-    if (!f_key || !f_val)
-        return ((void *)0);
-    size_t real_capacity = hbm_impl_calculate_size(capacity / load);
-    struct hashbidimap *_map_ = alloc->malloc(sizeof(struct hashbidimap));
-    if (!_map_)
-        return ((void *)0);
-    _map_->buffer = alloc->calloc(real_capacity, sizeof(struct hashbidimap_entry *[2]));
-    if (!_map_->buffer)
-    {
-        alloc->free(_map_->buffer);
-        alloc->free(_map_);
-        return ((void *)0);
-    }
-    _map_->count = 0;
-    _map_->capacity = real_capacity;
-    _map_->load = load;
-    _map_->flag = CMC_FLAG_OK;
-    _map_->f_key = f_key;
-    _map_->f_val = f_val;
-    _map_->alloc = alloc;
-    _map_->callbacks = ((void *)0);
-    _map_->it_start = hbm_impl_it_start;
-    _map_->it_end = hbm_impl_it_end;
-    return _map_;
+    return hbm_new_custom(capacity, load, f_key, f_val, ((void *)0), ((void *)0));
 }
 struct hashbidimap *hbm_new_custom(size_t capacity, double load, struct hashbidimap_fkey *f_key,
                                    struct hashbidimap_fval *f_val, struct cmc_alloc_node *alloc,
                                    struct cmc_callbacks *callbacks)
 {
+    ;
     if (capacity == 0 || load <= 0 || load >= 1)
         return ((void *)0);
     if (capacity >= 0xffffffffffffffffULL * load)
@@ -167,7 +141,7 @@ struct hashbidimap *hbm_new_custom(size_t capacity, double load, struct hashbidi
     _map_->f_val = f_val;
     _map_->flag = CMC_FLAG_OK;
     _map_->alloc = alloc;
-    _map_->callbacks = callbacks;
+    (_map_)->callbacks = callbacks;
     _map_->it_start = hbm_impl_it_start;
     _map_->it_end = hbm_impl_it_end;
     return _map_;
@@ -199,11 +173,12 @@ void hbm_free(struct hashbidimap *_map_)
 }
 void hbm_customize(struct hashbidimap *_map_, struct cmc_alloc_node *alloc, struct cmc_callbacks *callbacks)
 {
+    ;
     if (!alloc)
         _map_->alloc = &cmc_alloc_node_default;
     else
         _map_->alloc = alloc;
-    _map_->callbacks = callbacks;
+    (_map_)->callbacks = callbacks;
     _map_->flag = CMC_FLAG_OK;
 }
 _Bool hbm_insert(struct hashbidimap *_map_, size_t key, size_t value)
@@ -233,8 +208,9 @@ _Bool hbm_insert(struct hashbidimap *_map_, size_t key, size_t value)
     }
     _map_->count++;
     _map_->flag = CMC_FLAG_OK;
-    if (_map_->callbacks && _map_->callbacks->create)
-        _map_->callbacks->create();
+    if ((_map_)->callbacks && (_map_)->callbacks->create)
+        (_map_)->callbacks->create();
+    ;
     return 1;
 }
 _Bool hbm_update_key(struct hashbidimap *_map_, size_t val, size_t new_key)
@@ -277,8 +253,9 @@ _Bool hbm_update_key(struct hashbidimap *_map_, size_t val, size_t new_key)
     }
 success:
     _map_->flag = CMC_FLAG_OK;
-    if (_map_->callbacks && _map_->callbacks->update)
-        _map_->callbacks->update();
+    if ((_map_)->callbacks && (_map_)->callbacks->update)
+        (_map_)->callbacks->update();
+    ;
     return 1;
 }
 _Bool hbm_update_val(struct hashbidimap *_map_, size_t key, size_t new_val)
@@ -321,8 +298,9 @@ _Bool hbm_update_val(struct hashbidimap *_map_, size_t key, size_t new_val)
     }
 success:
     _map_->flag = CMC_FLAG_OK;
-    if (_map_->callbacks && _map_->callbacks->update)
-        _map_->callbacks->update();
+    if ((_map_)->callbacks && (_map_)->callbacks->update)
+        (_map_)->callbacks->update();
+    ;
     return 1;
 }
 _Bool hbm_remove_by_key(struct hashbidimap *_map_, size_t key, size_t *out_key, size_t *out_val)
@@ -354,8 +332,9 @@ _Bool hbm_remove_by_key(struct hashbidimap *_map_, size_t key, size_t *out_key, 
     *val_entry = ((void *)1);
     _map_->count--;
     _map_->flag = CMC_FLAG_OK;
-    if (_map_->callbacks && _map_->callbacks->delete)
-        _map_->callbacks->delete ();
+    if ((_map_)->callbacks && (_map_)->callbacks->delete)
+        (_map_)->callbacks->delete ();
+    ;
     return 1;
 }
 _Bool hbm_remove_by_val(struct hashbidimap *_map_, size_t val, size_t *out_key, size_t *out_val)
@@ -387,8 +366,9 @@ _Bool hbm_remove_by_val(struct hashbidimap *_map_, size_t val, size_t *out_key, 
     *val_entry = ((void *)1);
     _map_->count--;
     _map_->flag = CMC_FLAG_OK;
-    if (_map_->callbacks && _map_->callbacks->delete)
-        _map_->callbacks->delete ();
+    if ((_map_)->callbacks && (_map_)->callbacks->delete)
+        (_map_)->callbacks->delete ();
+    ;
     return 1;
 }
 size_t hbm_get_key(struct hashbidimap *_map_, size_t val)
@@ -400,8 +380,9 @@ size_t hbm_get_key(struct hashbidimap *_map_, size_t val)
         return (size_t){ 0 };
     }
     _map_->flag = CMC_FLAG_OK;
-    if (_map_->callbacks && _map_->callbacks->read)
-        _map_->callbacks->read();
+    if ((_map_)->callbacks && (_map_)->callbacks->read)
+        (_map_)->callbacks->read();
+    ;
     return (*entry)->key;
 }
 size_t hbm_get_val(struct hashbidimap *_map_, size_t key)
@@ -413,24 +394,27 @@ size_t hbm_get_val(struct hashbidimap *_map_, size_t key)
         return (size_t){ 0 };
     }
     _map_->flag = CMC_FLAG_OK;
-    if (_map_->callbacks && _map_->callbacks->read)
-        _map_->callbacks->read();
+    if ((_map_)->callbacks && (_map_)->callbacks->read)
+        (_map_)->callbacks->read();
+    ;
     return (*entry)->value;
 }
 _Bool hbm_contains_key(struct hashbidimap *_map_, size_t key)
 {
     _map_->flag = CMC_FLAG_OK;
     _Bool result = hbm_impl_get_entry_by_key(_map_, key) != ((void *)0);
-    if (_map_->callbacks && _map_->callbacks->read)
-        _map_->callbacks->read();
+    if ((_map_)->callbacks && (_map_)->callbacks->read)
+        (_map_)->callbacks->read();
+    ;
     return result;
 }
 _Bool hbm_contains_val(struct hashbidimap *_map_, size_t val)
 {
     _map_->flag = CMC_FLAG_OK;
     _Bool result = hbm_impl_get_entry_by_val(_map_, val) != ((void *)0);
-    if (_map_->callbacks && _map_->callbacks->read)
-        _map_->callbacks->read();
+    if ((_map_)->callbacks && (_map_)->callbacks->read)
+        (_map_)->callbacks->read();
+    ;
     return result;
 }
 _Bool hbm_empty(struct hashbidimap *_map_)
@@ -516,19 +500,21 @@ _Bool hbm_resize(struct hashbidimap *_map_, size_t capacity)
     _map_->alloc->free(tmp_buff);
     _map_->alloc->free(_new_map_);
 success:
-    if (_map_->callbacks && _map_->callbacks->resize)
-        _map_->callbacks->resize();
+    if ((_map_)->callbacks && (_map_)->callbacks->resize)
+        (_map_)->callbacks->resize();
+    ;
     return 1;
 }
 struct hashbidimap *hbm_copy_of(struct hashbidimap *_map_)
 {
     struct hashbidimap *result = hbm_new_custom(_map_->capacity * _map_->load, _map_->load, _map_->f_key, _map_->f_val,
-                                                _map_->alloc, _map_->callbacks);
+                                                _map_->alloc, ((void *)0));
     if (!result)
     {
         _map_->flag = CMC_FLAG_ERROR;
         return ((void *)0);
     }
+    (result)->callbacks = _map_->callbacks;
     for (size_t i = 0; i < _map_->capacity; i++)
     {
         struct hashbidimap_entry *scan = _map_->buffer[i][0];
@@ -607,8 +593,8 @@ void hbm_iter_init(struct hashbidimap_iter *iter, struct hashbidimap *target)
     {
         for (size_t i = 0; i < target->capacity; i++)
         {
-            struct hashbidimap_entry *tmp = target->buffer[i][0];
-            if (tmp != ((void *)0) && tmp != ((void *)1))
+            struct hashbidimap_entry *entry = target->buffer[i][0];
+            if (entry && entry != ((void *)1))
             {
                 iter->first = i;
                 break;
@@ -617,8 +603,8 @@ void hbm_iter_init(struct hashbidimap_iter *iter, struct hashbidimap *target)
         iter->cursor = iter->first;
         for (size_t i = target->capacity; i > 0; i--)
         {
-            struct hashbidimap_entry *tmp = target->buffer[i - 1][0];
-            if (tmp != ((void *)0) && tmp != ((void *)1))
+            struct hashbidimap_entry *entry = target->buffer[i - 1][0];
+            if (entry && entry != ((void *)1))
             {
                 iter->last = i - 1;
                 break;
@@ -909,6 +895,59 @@ static struct hashbidimap_iter hbm_impl_it_end(struct hashbidimap *_map_)
     hbm_iter_init(&iter, _map_);
     hbm_iter_to_end(&iter);
     return iter;
+}
+_Bool hbm_to_string(struct hashbidimap *_map_, FILE *fptr)
+{
+    struct hashbidimap *m_ = _map_;
+    return 0 <= fprintf(fptr,
+                        "struct %s<%s, %s> "
+                        "at %p { "
+                        "buffer:%p, "
+                        "capacity:%"
+                        "I64u"
+                        ", "
+                        "count:%"
+                        "I64u"
+                        ", "
+                        "load:%lf, "
+                        "flag:%d, "
+                        "f_key:%p, "
+                        "f_val:%p, "
+                        "alloc:%p, "
+                        "callbacks:%p }",
+                        "hashbidimap", "size_t", "size_t", m_, m_->buffer, m_->capacity, m_->count, m_->load, m_->flag,
+                        m_->f_key, m_->f_val, m_->alloc, (m_)->callbacks);
+}
+_Bool hbm_print(struct hashbidimap *_map_, FILE *fptr, const char *start, const char *separator, const char *end,
+                const char *key_val_sep)
+{
+    fprintf(fptr, "%s", start);
+    size_t last = 0;
+    for (size_t i = _map_->capacity; i > 0; i--)
+    {
+        struct hashbidimap_entry *entry = _map_->buffer[i - 1][0];
+        if (entry && entry != ((void *)1))
+        {
+            last = i - 1;
+            break;
+        }
+    }
+    for (size_t i = 0; i < _map_->capacity; i++)
+    {
+        struct hashbidimap_entry *entry = _map_->buffer[i][0];
+        if (entry && entry != ((void *)1))
+        {
+            if (!_map_->f_key->str(fptr, entry->key))
+                return 0;
+            fprintf(fptr, "%s", key_val_sep);
+            if (!_map_->f_val->str(fptr, entry->value))
+                return 0;
+            if (i + 1 < last)
+                fprintf(fptr, "%s", separator);
+        }
+    }
+    fprintf(fptr, "%s", end);
+    return 1;
 }
 
 #endif /* CMC_TEST_SRC_HASHBIDIMAP */

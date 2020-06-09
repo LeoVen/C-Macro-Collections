@@ -24,20 +24,11 @@ struct deque_fval
     size_t (*hash)(size_t);
     int (*pri)(size_t, size_t);
 };
-struct deque_iter
-{
-    struct deque *target;
-    size_t cursor;
-    size_t index;
-    _Bool start;
-    _Bool end;
-};
 struct deque *d_new(size_t capacity, struct deque_fval *f_val);
 struct deque *d_new_custom(size_t capacity, struct deque_fval *f_val, struct cmc_alloc_node *alloc,
                            struct cmc_callbacks *callbacks);
 void d_clear(struct deque *_deque_);
 void d_free(struct deque *_deque_);
-void d_release(struct deque _deque_);
 void d_customize(struct deque *_deque_, struct cmc_alloc_node *alloc, struct cmc_callbacks *callbacks);
 _Bool d_push_front(struct deque *_deque_, size_t value);
 _Bool d_push_back(struct deque *_deque_, size_t value);
@@ -54,8 +45,18 @@ int d_flag(struct deque *_deque_);
 _Bool d_resize(struct deque *_deque_, size_t capacity);
 struct deque *d_copy_of(struct deque *_deque_);
 _Bool d_equals(struct deque *_deque1_, struct deque *_deque2_);
-struct cmc_string d_to_string(struct deque *_deque_);
-_Bool d_print(struct deque *_deque_, FILE *fptr);
+struct deque d_init(size_t capacity, struct deque_fval *f_val);
+struct deque d_init_custom(size_t capacity, struct deque_fval *f_val, struct cmc_alloc_node *alloc,
+                           struct cmc_callbacks *callbacks);
+void d_release(struct deque _deque_);
+struct deque_iter
+{
+    struct deque *target;
+    size_t cursor;
+    size_t index;
+    _Bool start;
+    _Bool end;
+};
 struct deque_iter d_iter_start(struct deque *target);
 struct deque_iter d_iter_end(struct deque *target);
 _Bool d_iter_at_start(struct deque_iter *iter);
@@ -70,6 +71,8 @@ _Bool d_iter_go_to(struct deque_iter *iter, size_t index);
 size_t d_iter_value(struct deque_iter *iter);
 size_t *d_iter_rvalue(struct deque_iter *iter);
 size_t d_iter_index(struct deque_iter *iter);
+_Bool d_to_string(struct deque *_deque_, FILE *fptr);
+_Bool d_print(struct deque *_deque_, FILE *fptr, const char *start, const char *separator, const char *end);
 struct deque *d_new(size_t capacity, struct deque_fval *f_val)
 {
     return d_new_custom(capacity, f_val, ((void *)0), ((void *)0));
@@ -77,6 +80,7 @@ struct deque *d_new(size_t capacity, struct deque_fval *f_val)
 struct deque *d_new_custom(size_t capacity, struct deque_fval *f_val, struct cmc_alloc_node *alloc,
                            struct cmc_callbacks *callbacks)
 {
+    ;
     if (capacity < 1)
         return ((void *)0);
     if (!f_val)
@@ -99,7 +103,7 @@ struct deque *d_new_custom(size_t capacity, struct deque_fval *f_val, struct cmc
     _deque_->flag = CMC_FLAG_OK;
     _deque_->f_val = f_val;
     _deque_->alloc = alloc;
-    _deque_->callbacks = callbacks;
+    (_deque_)->callbacks = callbacks;
     return _deque_;
 }
 void d_clear(struct deque *_deque_)
@@ -131,25 +135,14 @@ void d_free(struct deque *_deque_)
     _deque_->alloc->free(_deque_->buffer);
     _deque_->alloc->free(_deque_);
 }
-void d_release(struct deque _deque_)
-{
-    if (_deque_.f_val->free)
-    {
-        for (size_t i = _deque_.front, j = 0; j < _deque_.count; j++)
-        {
-            _deque_.f_val->free(_deque_.buffer[i]);
-            i = (i + 1) % _deque_.capacity;
-        }
-    }
-    _deque_.alloc->free(_deque_.buffer);
-}
 void d_customize(struct deque *_deque_, struct cmc_alloc_node *alloc, struct cmc_callbacks *callbacks)
 {
+    ;
     if (!alloc)
         _deque_->alloc = &cmc_alloc_node_default;
     else
         _deque_->alloc = alloc;
-    _deque_->callbacks = callbacks;
+    (_deque_)->callbacks = callbacks;
     _deque_->flag = CMC_FLAG_OK;
 }
 _Bool d_push_front(struct deque *_deque_, size_t value)
@@ -163,8 +156,9 @@ _Bool d_push_front(struct deque *_deque_, size_t value)
     _deque_->buffer[_deque_->front] = value;
     _deque_->count++;
     _deque_->flag = CMC_FLAG_OK;
-    if (_deque_->callbacks && _deque_->callbacks->create)
-        _deque_->callbacks->create();
+    if ((_deque_)->callbacks && (_deque_)->callbacks->create)
+        (_deque_)->callbacks->create();
+    ;
     return 1;
 }
 _Bool d_push_back(struct deque *_deque_, size_t value)
@@ -178,8 +172,9 @@ _Bool d_push_back(struct deque *_deque_, size_t value)
     _deque_->back = (_deque_->back == _deque_->capacity - 1) ? 0 : _deque_->back + 1;
     _deque_->count++;
     _deque_->flag = CMC_FLAG_OK;
-    if (_deque_->callbacks && _deque_->callbacks->create)
-        _deque_->callbacks->create();
+    if ((_deque_)->callbacks && (_deque_)->callbacks->create)
+        (_deque_)->callbacks->create();
+    ;
     return 1;
 }
 _Bool d_pop_front(struct deque *_deque_)
@@ -193,8 +188,9 @@ _Bool d_pop_front(struct deque *_deque_)
     _deque_->front = (_deque_->front == _deque_->capacity - 1) ? 0 : _deque_->front + 1;
     _deque_->count--;
     _deque_->flag = CMC_FLAG_OK;
-    if (_deque_->callbacks && _deque_->callbacks->delete)
-        _deque_->callbacks->delete ();
+    if ((_deque_)->callbacks && (_deque_)->callbacks->delete)
+        (_deque_)->callbacks->delete ();
+    ;
     return 1;
 }
 _Bool d_pop_back(struct deque *_deque_)
@@ -208,8 +204,9 @@ _Bool d_pop_back(struct deque *_deque_)
     _deque_->buffer[_deque_->back] = (size_t){ 0 };
     _deque_->count--;
     _deque_->flag = CMC_FLAG_OK;
-    if (_deque_->callbacks && _deque_->callbacks->delete)
-        _deque_->callbacks->delete ();
+    if ((_deque_)->callbacks && (_deque_)->callbacks->delete)
+        (_deque_)->callbacks->delete ();
+    ;
     return 1;
 }
 size_t d_front(struct deque *_deque_)
@@ -220,8 +217,9 @@ size_t d_front(struct deque *_deque_)
         return (size_t){ 0 };
     }
     _deque_->flag = CMC_FLAG_OK;
-    if (_deque_->callbacks && _deque_->callbacks->read)
-        _deque_->callbacks->read();
+    if ((_deque_)->callbacks && (_deque_)->callbacks->read)
+        (_deque_)->callbacks->read();
+    ;
     return _deque_->buffer[_deque_->front];
 }
 size_t d_back(struct deque *_deque_)
@@ -232,8 +230,9 @@ size_t d_back(struct deque *_deque_)
         return (size_t){ 0 };
     }
     _deque_->flag = CMC_FLAG_OK;
-    if (_deque_->callbacks && _deque_->callbacks->read)
-        _deque_->callbacks->read();
+    if ((_deque_)->callbacks && (_deque_)->callbacks->read)
+        (_deque_)->callbacks->read();
+    ;
     return _deque_->buffer[(_deque_->back == 0) ? _deque_->capacity - 1 : _deque_->back - 1];
 }
 _Bool d_contains(struct deque *_deque_, size_t value)
@@ -249,8 +248,9 @@ _Bool d_contains(struct deque *_deque_, size_t value)
         }
         i = (i + 1) % _deque_->capacity;
     }
-    if (_deque_->callbacks && _deque_->callbacks->read)
-        _deque_->callbacks->read();
+    if ((_deque_)->callbacks && (_deque_)->callbacks->read)
+        (_deque_)->callbacks->read();
+    ;
     return result;
 }
 _Bool d_empty(struct deque *_deque_)
@@ -300,18 +300,20 @@ _Bool d_resize(struct deque *_deque_, size_t capacity)
     _deque_->front = 0;
     _deque_->back = _deque_->count;
 success:
-    if (_deque_->callbacks && _deque_->callbacks->resize)
-        _deque_->callbacks->resize();
+    if ((_deque_)->callbacks && (_deque_)->callbacks->resize)
+        (_deque_)->callbacks->resize();
+    ;
     return 1;
 }
 struct deque *d_copy_of(struct deque *_deque_)
 {
-    struct deque *result = d_new_custom(_deque_->capacity, _deque_->f_val, _deque_->alloc, _deque_->callbacks);
+    struct deque *result = d_new_custom(_deque_->capacity, _deque_->f_val, _deque_->alloc, ((void *)0));
     if (!result)
     {
         _deque_->flag = CMC_FLAG_ERROR;
         return ((void *)0);
     }
+    (result)->callbacks = _deque_->callbacks;
     if (_deque_->f_val->cpy)
     {
         for (size_t i = _deque_->front, j = 0; j < _deque_->count; j++)
@@ -349,6 +351,46 @@ _Bool d_equals(struct deque *_deque1_, struct deque *_deque2_)
         j = (j + 1) % _deque2_->capacity;
     }
     return 1;
+}
+struct deque d_init(size_t capacity, struct deque_fval *f_val)
+{
+    return d_init_custom(capacity, f_val, ((void *)0), ((void *)0));
+}
+struct deque d_init_custom(size_t capacity, struct deque_fval *f_val, struct cmc_alloc_node *alloc,
+                           struct cmc_callbacks *callbacks)
+{
+    ;
+    struct deque _deque_ = { 0 };
+    if (capacity < 1)
+        return _deque_;
+    if (!f_val)
+        return _deque_;
+    if (!alloc)
+        alloc = &cmc_alloc_node_default;
+    _deque_.buffer = alloc->calloc(capacity, sizeof(size_t));
+    if (!_deque_.buffer)
+        return _deque_;
+    _deque_.capacity = capacity;
+    _deque_.count = 0;
+    _deque_.front = 0;
+    _deque_.back = 0;
+    _deque_.flag = CMC_FLAG_OK;
+    _deque_.f_val = f_val;
+    _deque_.alloc = alloc;
+    (&_deque_)->callbacks = callbacks;
+    return _deque_;
+}
+void d_release(struct deque _deque_)
+{
+    if (_deque_.f_val->free)
+    {
+        for (size_t i = _deque_.front, j = 0; j < _deque_.count; j++)
+        {
+            _deque_.f_val->free(_deque_.buffer[i]);
+            i = (i + 1) % _deque_.capacity;
+        }
+    }
+    _deque_.alloc->free(_deque_.buffer);
 }
 struct deque_iter d_iter_start(struct deque *target)
 {
@@ -503,6 +545,46 @@ size_t *d_iter_rvalue(struct deque_iter *iter)
 size_t d_iter_index(struct deque_iter *iter)
 {
     return iter->index;
+}
+_Bool d_to_string(struct deque *_deque_, FILE *fptr)
+{
+    struct deque *d_ = _deque_;
+    return 0 <= fprintf(fptr,
+                        "struct %s<%s> "
+                        "at %p { "
+                        "buffer:%p, "
+                        "capacity:%"
+                        "I64u"
+                        ", "
+                        "count:%"
+                        "I64u"
+                        ", "
+                        "front:%"
+                        "I64u"
+                        ", "
+                        "back:%"
+                        "I64u"
+                        ", "
+                        "flag:%d, "
+                        "f_val:%p, "
+                        "alloc:%p, "
+                        "callbacks:%p }",
+                        "deque", "size_t", d_, d_->buffer, d_->capacity, d_->count, d_->front, d_->back, d_->flag,
+                        d_->f_val, d_->alloc, (d_)->callbacks);
+}
+_Bool d_print(struct deque *_deque_, FILE *fptr, const char *start, const char *separator, const char *end)
+{
+    fprintf(fptr, "%s", start);
+    for (size_t i = _deque_->front, j = 0; j < _deque_->count; j++)
+    {
+        if (!_deque_->f_val->str(fptr, _deque_->buffer[i]))
+            return 0;
+        i = (i + 1) % _deque_->capacity;
+        if (j + 1 < _deque_->count)
+            fprintf(fptr, "%s", separator);
+    }
+    fprintf(fptr, "%s", end);
+    return 1;
 }
 
 #endif /* CMC_TEST_SRC_DEQUE */

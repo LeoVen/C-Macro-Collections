@@ -29,16 +29,6 @@ struct hashset_fval
     size_t (*hash)(size_t);
     int (*pri)(size_t, size_t);
 };
-struct hashset_iter
-{
-    struct hashset *target;
-    size_t cursor;
-    size_t index;
-    size_t first;
-    size_t last;
-    _Bool start;
-    _Bool end;
-};
 struct hashset *hs_new(size_t capacity, double load, struct hashset_fval *f_val);
 struct hashset *hs_new_custom(size_t capacity, double load, struct hashset_fval *f_val, struct cmc_alloc_node *alloc,
                               struct cmc_callbacks *callbacks);
@@ -59,17 +49,16 @@ int hs_flag(struct hashset *_set_);
 _Bool hs_resize(struct hashset *_set_, size_t capacity);
 struct hashset *hs_copy_of(struct hashset *_set_);
 _Bool hs_equals(struct hashset *_set1_, struct hashset *_set2_);
-struct cmc_string hs_to_string(struct hashset *_set_);
-_Bool hs_print(struct hashset *_set_, FILE *fptr);
-struct hashset *hs_union(struct hashset *_set1_, struct hashset *_set2_);
-struct hashset *hs_intersection(struct hashset *_set1_, struct hashset *_set2_);
-struct hashset *hs_difference(struct hashset *_set1_, struct hashset *_set2_);
-struct hashset *hs_symmetric_difference(struct hashset *_set1_, struct hashset *_set2_);
-_Bool hs_is_subset(struct hashset *_set1_, struct hashset *_set2_);
-_Bool hs_is_superset(struct hashset *_set1_, struct hashset *_set2_);
-_Bool hs_is_proper_subset(struct hashset *_set1_, struct hashset *_set2_);
-_Bool hs_is_proper_superset(struct hashset *_set1_, struct hashset *_set2_);
-_Bool hs_is_disjointset(struct hashset *_set1_, struct hashset *_set2_);
+struct hashset_iter
+{
+    struct hashset *target;
+    size_t cursor;
+    size_t index;
+    size_t first;
+    size_t last;
+    _Bool start;
+    _Bool end;
+};
 struct hashset_iter hs_iter_start(struct hashset *target);
 struct hashset_iter hs_iter_end(struct hashset *target);
 _Bool hs_iter_at_start(struct hashset_iter *iter);
@@ -83,41 +72,27 @@ _Bool hs_iter_rewind(struct hashset_iter *iter, size_t steps);
 _Bool hs_iter_go_to(struct hashset_iter *iter, size_t index);
 size_t hs_iter_value(struct hashset_iter *iter);
 size_t hs_iter_index(struct hashset_iter *iter);
+struct hashset *hs_union(struct hashset *_set1_, struct hashset *_set2_);
+struct hashset *hs_intersection(struct hashset *_set1_, struct hashset *_set2_);
+struct hashset *hs_difference(struct hashset *_set1_, struct hashset *_set2_);
+struct hashset *hs_symmetric_difference(struct hashset *_set1_, struct hashset *_set2_);
+_Bool hs_is_subset(struct hashset *_set1_, struct hashset *_set2_);
+_Bool hs_is_superset(struct hashset *_set1_, struct hashset *_set2_);
+_Bool hs_is_proper_subset(struct hashset *_set1_, struct hashset *_set2_);
+_Bool hs_is_proper_superset(struct hashset *_set1_, struct hashset *_set2_);
+_Bool hs_is_disjointset(struct hashset *_set1_, struct hashset *_set2_);
+_Bool hs_to_string(struct hashset *_set_, FILE *fptr);
+_Bool hs_print(struct hashset *_set_, FILE *fptr, const char *start, const char *separator, const char *end);
 static struct hashset_entry *hs_impl_get_entry(struct hashset *_set_, size_t value);
 static size_t hs_impl_calculate_size(size_t required);
-static struct hashset_iter hs_impl_it_start(struct hashset *_set_);
-static struct hashset_iter hs_impl_it_end(struct hashset *_set_);
 struct hashset *hs_new(size_t capacity, double load, struct hashset_fval *f_val)
 {
-    struct cmc_alloc_node *alloc = &cmc_alloc_node_default;
-    if (capacity == 0 || load <= 0 || load >= 1)
-        return ((void *)0);
-    if (capacity >= 0xffffffffffffffffULL * load)
-        return ((void *)0);
-    if (!f_val)
-        return ((void *)0);
-    size_t real_capacity = hs_impl_calculate_size(capacity / load);
-    struct hashset *_set_ = alloc->malloc(sizeof(struct hashset));
-    if (!_set_)
-        return ((void *)0);
-    _set_->buffer = alloc->calloc(real_capacity, sizeof(struct hashset_entry));
-    if (!_set_->buffer)
-    {
-        alloc->free(_set_);
-        return ((void *)0);
-    }
-    _set_->count = 0;
-    _set_->capacity = real_capacity;
-    _set_->load = load;
-    _set_->flag = CMC_FLAG_OK;
-    _set_->f_val = f_val;
-    _set_->alloc = alloc;
-    _set_->callbacks = ((void *)0);
-    return _set_;
+    return hs_new_custom(capacity, load, f_val, ((void *)0), ((void *)0));
 }
 struct hashset *hs_new_custom(size_t capacity, double load, struct hashset_fval *f_val, struct cmc_alloc_node *alloc,
                               struct cmc_callbacks *callbacks)
 {
+    ;
     if (capacity == 0 || load <= 0 || load >= 1)
         return ((void *)0);
     if (capacity >= 0xffffffffffffffffULL * load)
@@ -142,7 +117,7 @@ struct hashset *hs_new_custom(size_t capacity, double load, struct hashset_fval 
     _set_->flag = CMC_FLAG_OK;
     _set_->f_val = f_val;
     _set_->alloc = alloc;
-    _set_->callbacks = callbacks;
+    (_set_)->callbacks = callbacks;
     return _set_;
 }
 void hs_clear(struct hashset *_set_)
@@ -180,11 +155,12 @@ void hs_free(struct hashset *_set_)
 }
 void hs_customize(struct hashset *_set_, struct cmc_alloc_node *alloc, struct cmc_callbacks *callbacks)
 {
+    ;
     if (!alloc)
         _set_->alloc = &cmc_alloc_node_default;
     else
         _set_->alloc = alloc;
-    _set_->callbacks = callbacks;
+    (_set_)->callbacks = callbacks;
     _set_->flag = CMC_FLAG_OK;
 }
 _Bool hs_insert(struct hashset *_set_, size_t value)
@@ -235,8 +211,9 @@ _Bool hs_insert(struct hashset *_set_, size_t value)
     }
     _set_->count++;
     _set_->flag = CMC_FLAG_OK;
-    if (_set_->callbacks && _set_->callbacks->create)
-        _set_->callbacks->create();
+    if ((_set_)->callbacks && (_set_)->callbacks->create)
+        (_set_)->callbacks->create();
+    ;
     return 1;
 }
 _Bool hs_remove(struct hashset *_set_, size_t value)
@@ -257,8 +234,9 @@ _Bool hs_remove(struct hashset *_set_, size_t value)
     result->state = CMC_ES_DELETED;
     _set_->count--;
     _set_->flag = CMC_FLAG_OK;
-    if (_set_->callbacks && _set_->callbacks->delete)
-        _set_->callbacks->delete ();
+    if ((_set_)->callbacks && (_set_)->callbacks->delete)
+        (_set_)->callbacks->delete ();
+    ;
     return 1;
 }
 _Bool hs_max(struct hashset *_set_, size_t *value)
@@ -282,8 +260,9 @@ _Bool hs_max(struct hashset *_set_, size_t *value)
     if (value)
         *value = max_value;
     _set_->flag = CMC_FLAG_OK;
-    if (_set_->callbacks && _set_->callbacks->read)
-        _set_->callbacks->read();
+    if ((_set_)->callbacks && (_set_)->callbacks->read)
+        (_set_)->callbacks->read();
+    ;
     return 1;
 }
 _Bool hs_min(struct hashset *_set_, size_t *value)
@@ -307,16 +286,18 @@ _Bool hs_min(struct hashset *_set_, size_t *value)
     if (value)
         *value = min_value;
     _set_->flag = CMC_FLAG_OK;
-    if (_set_->callbacks && _set_->callbacks->read)
-        _set_->callbacks->read();
+    if ((_set_)->callbacks && (_set_)->callbacks->read)
+        (_set_)->callbacks->read();
+    ;
     return 1;
 }
 _Bool hs_contains(struct hashset *_set_, size_t value)
 {
     _set_->flag = CMC_FLAG_OK;
     _Bool result = hs_impl_get_entry(_set_, value) != ((void *)0);
-    if (_set_->callbacks && _set_->callbacks->read)
-        _set_->callbacks->read();
+    if ((_set_)->callbacks && (_set_)->callbacks->read)
+        (_set_)->callbacks->read();
+    ;
     return result;
 }
 _Bool hs_empty(struct hashset *_set_)
@@ -388,19 +369,21 @@ _Bool hs_resize(struct hashset *_set_, size_t capacity)
     _new_set_->f_val = &(struct hashset_fval){ ((void *)0) };
     hs_free(_new_set_);
 success:
-    if (_set_->callbacks && _set_->callbacks->resize)
-        _set_->callbacks->resize();
+    if ((_set_)->callbacks && (_set_)->callbacks->resize)
+        (_set_)->callbacks->resize();
+    ;
     return 1;
 }
 struct hashset *hs_copy_of(struct hashset *_set_)
 {
     struct hashset *result =
-        hs_new_custom(_set_->capacity * _set_->load, _set_->load, _set_->f_val, _set_->alloc, _set_->callbacks);
+        hs_new_custom(_set_->capacity * _set_->load, _set_->load, _set_->f_val, _set_->alloc, ((void *)0));
     if (!result)
     {
         _set_->flag = CMC_FLAG_ERROR;
         return ((void *)0);
     }
+    (result)->callbacks = _set_->callbacks;
     if (_set_->f_val->cpy)
     {
         for (size_t i = 0; i < _set_->capacity; i++)
@@ -442,155 +425,29 @@ _Bool hs_equals(struct hashset *_set1_, struct hashset *_set2_)
     }
     return 1;
 }
-struct hashset *hs_union(struct hashset *_set1_, struct hashset *_set2_)
+static struct hashset_entry *hs_impl_get_entry(struct hashset *_set_, size_t value)
 {
-    struct hashset *_set_r_ = hs_new_custom(_set1_->capacity, _set1_->load, _set1_->f_val, _set1_->alloc, ((void *)0));
-    if (!_set_r_)
+    size_t hash = _set_->f_val->hash(value);
+    size_t pos = hash % _set_->capacity;
+    struct hashset_entry *target = &(_set_->buffer[pos]);
+    while (target->state == CMC_ES_FILLED || target->state == CMC_ES_DELETED)
     {
-        _set1_->flag = CMC_FLAG_ALLOC;
-        _set2_->flag = CMC_FLAG_ALLOC;
-        return ((void *)0);
+        if (_set_->f_val->cmp(target->value, value) == 0)
+            return target;
+        pos++;
+        target = &(_set_->buffer[pos % _set_->capacity]);
     }
-    struct hashset_iter iter1 = hs_iter_start(_set1_);
-    struct hashset_iter iter2 = hs_iter_start(_set2_);
-    for (; !hs_iter_at_end(&iter1); hs_iter_next(&iter1))
-    {
-        hs_insert(_set_r_, hs_iter_value(&iter1));
-    }
-    for (; !hs_iter_at_end(&iter2); hs_iter_next(&iter2))
-    {
-        hs_insert(_set_r_, hs_iter_value(&iter2));
-    }
-    _set_r_->callbacks = _set1_->callbacks;
-    return _set_r_;
+    return ((void *)0);
 }
-struct hashset *hs_intersection(struct hashset *_set1_, struct hashset *_set2_)
+static size_t hs_impl_calculate_size(size_t required)
 {
-    struct hashset *_set_r_ = hs_new_custom(_set1_->capacity, _set1_->load, _set1_->f_val, _set1_->alloc, ((void *)0));
-    if (!_set_r_)
-    {
-        _set1_->flag = CMC_FLAG_ALLOC;
-        _set2_->flag = CMC_FLAG_ALLOC;
-        return ((void *)0);
-    }
-    struct hashset *_set_A_ = _set1_->count < _set2_->count ? _set1_ : _set2_;
-    struct hashset *_set_B_ = _set_A_ == _set1_ ? _set2_ : _set1_;
-    struct hashset_iter iter = hs_iter_start(_set_A_);
-    for (; !hs_iter_at_end(&iter); hs_iter_next(&iter))
-    {
-        size_t value = hs_iter_value(&iter);
-        if (hs_impl_get_entry(_set_B_, value) != ((void *)0))
-            hs_insert(_set_r_, value);
-    }
-    _set_r_->callbacks = _set1_->callbacks;
-    return _set_r_;
-}
-struct hashset *hs_difference(struct hashset *_set1_, struct hashset *_set2_)
-{
-    struct hashset *_set_r_ = hs_new_custom(_set1_->capacity, _set1_->load, _set1_->f_val, _set1_->alloc, ((void *)0));
-    if (!_set_r_)
-    {
-        _set1_->flag = CMC_FLAG_ALLOC;
-        _set2_->flag = CMC_FLAG_ALLOC;
-        return ((void *)0);
-    }
-    struct hashset_iter iter = hs_iter_start(_set1_);
-    for (; !hs_iter_at_end(&iter); hs_iter_next(&iter))
-    {
-        size_t value = hs_iter_value(&iter);
-        if (hs_impl_get_entry(_set2_, value) == ((void *)0))
-            hs_insert(_set_r_, value);
-    }
-    _set_r_->callbacks = _set1_->callbacks;
-    return _set_r_;
-}
-struct hashset *hs_symmetric_difference(struct hashset *_set1_, struct hashset *_set2_)
-{
-    struct hashset *_set_r_ = hs_new_custom(_set1_->capacity, _set1_->load, _set1_->f_val, _set1_->alloc, ((void *)0));
-    if (!_set_r_)
-    {
-        _set1_->flag = CMC_FLAG_ALLOC;
-        _set2_->flag = CMC_FLAG_ALLOC;
-        return ((void *)0);
-    }
-    struct hashset_iter iter1 = hs_iter_start(_set1_);
-    struct hashset_iter iter2 = hs_iter_start(_set2_);
-    for (; !hs_iter_at_end(&iter1); hs_iter_next(&iter1))
-    {
-        size_t value = hs_iter_value(&iter1);
-        if (hs_impl_get_entry(_set2_, value) == ((void *)0))
-            hs_insert(_set_r_, value);
-    }
-    for (; !hs_iter_at_end(&iter2); hs_iter_next(&iter2))
-    {
-        size_t value = hs_iter_value(&iter2);
-        if (hs_impl_get_entry(_set1_, value) == ((void *)0))
-            hs_insert(_set_r_, value);
-    }
-    _set_r_->callbacks = _set1_->callbacks;
-    return _set_r_;
-}
-_Bool hs_is_subset(struct hashset *_set1_, struct hashset *_set2_)
-{
-    _set1_->flag = CMC_FLAG_OK;
-    _set2_->flag = CMC_FLAG_OK;
-    if (_set1_->count > _set2_->count)
-        return 0;
-    if (hs_empty(_set1_))
-        return 1;
-    struct hashset_iter iter = hs_iter_start(_set1_);
-    for (; !hs_iter_at_end(&iter); hs_iter_next(&iter))
-    {
-        size_t value = hs_iter_value(&iter);
-        if (hs_impl_get_entry(_set2_, value) == ((void *)0))
-            return 0;
-    }
-    return 1;
-}
-_Bool hs_is_superset(struct hashset *_set1_, struct hashset *_set2_)
-{
-    return hs_is_subset(_set2_, _set1_);
-}
-_Bool hs_is_proper_subset(struct hashset *_set1_, struct hashset *_set2_)
-{
-    _set1_->flag = CMC_FLAG_OK;
-    _set2_->flag = CMC_FLAG_OK;
-    if (_set1_->count >= _set2_->count)
-        return 0;
-    if (hs_empty(_set1_))
-    {
-        if (!hs_empty(_set2_))
-            return 1;
-        else
-            return 0;
-    }
-    struct hashset_iter iter = hs_iter_start(_set1_);
-    for (; !hs_iter_at_end(&iter); hs_iter_next(&iter))
-    {
-        size_t value = hs_iter_value(&iter);
-        if (hs_impl_get_entry(_set2_, value) == ((void *)0))
-            return 0;
-    }
-    return 1;
-}
-_Bool hs_is_proper_superset(struct hashset *_set1_, struct hashset *_set2_)
-{
-    return hs_is_proper_subset(_set2_, _set1_);
-}
-_Bool hs_is_disjointset(struct hashset *_set1_, struct hashset *_set2_)
-{
-    _set1_->flag = CMC_FLAG_OK;
-    _set2_->flag = CMC_FLAG_OK;
-    if (hs_empty(_set1_))
-        return 1;
-    struct hashset_iter iter = hs_iter_start(_set1_);
-    for (; !hs_iter_at_end(&iter); hs_iter_next(&iter))
-    {
-        size_t value = hs_iter_value(&iter);
-        if (hs_impl_get_entry(_set2_, value) != ((void *)0))
-            return 0;
-    }
-    return 1;
+    const size_t count = sizeof(cmc_hashtable_primes) / sizeof(cmc_hashtable_primes[0]);
+    if (cmc_hashtable_primes[count - 1] < required)
+        return required;
+    size_t i = 0;
+    while (cmc_hashtable_primes[i] < required)
+        i++;
+    return cmc_hashtable_primes[i];
 }
 struct hashset_iter hs_iter_start(struct hashset *target)
 {
@@ -781,29 +638,202 @@ size_t hs_iter_index(struct hashset_iter *iter)
 {
     return iter->index;
 }
-static struct hashset_entry *hs_impl_get_entry(struct hashset *_set_, size_t value)
+struct hashset *hs_union(struct hashset *_set1_, struct hashset *_set2_)
 {
-    size_t hash = _set_->f_val->hash(value);
-    size_t pos = hash % _set_->capacity;
-    struct hashset_entry *target = &(_set_->buffer[pos]);
-    while (target->state == CMC_ES_FILLED || target->state == CMC_ES_DELETED)
+    struct hashset *_set_r_ = hs_new_custom(_set1_->capacity, _set1_->load, _set1_->f_val, _set1_->alloc, ((void *)0));
+    if (!_set_r_)
     {
-        if (_set_->f_val->cmp(target->value, value) == 0)
-            return target;
-        pos++;
-        target = &(_set_->buffer[pos % _set_->capacity]);
+        _set1_->flag = CMC_FLAG_ALLOC;
+        _set2_->flag = CMC_FLAG_ALLOC;
+        return ((void *)0);
     }
-    return ((void *)0);
+    struct hashset_iter iter1 = hs_iter_start(_set1_);
+    struct hashset_iter iter2 = hs_iter_start(_set2_);
+    for (; !hs_iter_at_end(&iter1); hs_iter_next(&iter1))
+    {
+        hs_insert(_set_r_, hs_iter_value(&iter1));
+    }
+    for (; !hs_iter_at_end(&iter2); hs_iter_next(&iter2))
+    {
+        hs_insert(_set_r_, hs_iter_value(&iter2));
+    }
+    (_set_r_)->callbacks = _set1_->callbacks;
+    return _set_r_;
 }
-static size_t hs_impl_calculate_size(size_t required)
+struct hashset *hs_intersection(struct hashset *_set1_, struct hashset *_set2_)
 {
-    const size_t count = sizeof(cmc_hashtable_primes) / sizeof(cmc_hashtable_primes[0]);
-    if (cmc_hashtable_primes[count - 1] < required)
-        return required;
-    size_t i = 0;
-    while (cmc_hashtable_primes[i] < required)
-        i++;
-    return cmc_hashtable_primes[i];
+    struct hashset *_set_r_ = hs_new_custom(_set1_->capacity, _set1_->load, _set1_->f_val, _set1_->alloc, ((void *)0));
+    if (!_set_r_)
+    {
+        _set1_->flag = CMC_FLAG_ALLOC;
+        _set2_->flag = CMC_FLAG_ALLOC;
+        return ((void *)0);
+    }
+    struct hashset *_set_A_ = _set1_->count < _set2_->count ? _set1_ : _set2_;
+    struct hashset *_set_B_ = _set_A_ == _set1_ ? _set2_ : _set1_;
+    struct hashset_iter iter = hs_iter_start(_set_A_);
+    for (; !hs_iter_at_end(&iter); hs_iter_next(&iter))
+    {
+        size_t value = hs_iter_value(&iter);
+        if (hs_impl_get_entry(_set_B_, value) != ((void *)0))
+            hs_insert(_set_r_, value);
+    }
+    (_set_r_)->callbacks = _set1_->callbacks;
+    return _set_r_;
+}
+struct hashset *hs_difference(struct hashset *_set1_, struct hashset *_set2_)
+{
+    struct hashset *_set_r_ = hs_new_custom(_set1_->capacity, _set1_->load, _set1_->f_val, _set1_->alloc, ((void *)0));
+    if (!_set_r_)
+    {
+        _set1_->flag = CMC_FLAG_ALLOC;
+        _set2_->flag = CMC_FLAG_ALLOC;
+        return ((void *)0);
+    }
+    struct hashset_iter iter = hs_iter_start(_set1_);
+    for (; !hs_iter_at_end(&iter); hs_iter_next(&iter))
+    {
+        size_t value = hs_iter_value(&iter);
+        if (hs_impl_get_entry(_set2_, value) == ((void *)0))
+            hs_insert(_set_r_, value);
+    }
+    (_set_r_)->callbacks = _set1_->callbacks;
+    return _set_r_;
+}
+struct hashset *hs_symmetric_difference(struct hashset *_set1_, struct hashset *_set2_)
+{
+    struct hashset *_set_r_ = hs_new_custom(_set1_->capacity, _set1_->load, _set1_->f_val, _set1_->alloc, ((void *)0));
+    if (!_set_r_)
+    {
+        _set1_->flag = CMC_FLAG_ALLOC;
+        _set2_->flag = CMC_FLAG_ALLOC;
+        return ((void *)0);
+    }
+    struct hashset_iter iter1 = hs_iter_start(_set1_);
+    struct hashset_iter iter2 = hs_iter_start(_set2_);
+    for (; !hs_iter_at_end(&iter1); hs_iter_next(&iter1))
+    {
+        size_t value = hs_iter_value(&iter1);
+        if (hs_impl_get_entry(_set2_, value) == ((void *)0))
+            hs_insert(_set_r_, value);
+    }
+    for (; !hs_iter_at_end(&iter2); hs_iter_next(&iter2))
+    {
+        size_t value = hs_iter_value(&iter2);
+        if (hs_impl_get_entry(_set1_, value) == ((void *)0))
+            hs_insert(_set_r_, value);
+    }
+    (_set_r_)->callbacks = _set1_->callbacks;
+    return _set_r_;
+}
+_Bool hs_is_subset(struct hashset *_set1_, struct hashset *_set2_)
+{
+    _set1_->flag = CMC_FLAG_OK;
+    _set2_->flag = CMC_FLAG_OK;
+    if (_set1_->count > _set2_->count)
+        return 0;
+    if (hs_empty(_set1_))
+        return 1;
+    struct hashset_iter iter = hs_iter_start(_set1_);
+    for (; !hs_iter_at_end(&iter); hs_iter_next(&iter))
+    {
+        size_t value = hs_iter_value(&iter);
+        if (hs_impl_get_entry(_set2_, value) == ((void *)0))
+            return 0;
+    }
+    return 1;
+}
+_Bool hs_is_superset(struct hashset *_set1_, struct hashset *_set2_)
+{
+    return hs_is_subset(_set2_, _set1_);
+}
+_Bool hs_is_proper_subset(struct hashset *_set1_, struct hashset *_set2_)
+{
+    _set1_->flag = CMC_FLAG_OK;
+    _set2_->flag = CMC_FLAG_OK;
+    if (_set1_->count >= _set2_->count)
+        return 0;
+    if (hs_empty(_set1_))
+    {
+        if (!hs_empty(_set2_))
+            return 1;
+        else
+            return 0;
+    }
+    struct hashset_iter iter = hs_iter_start(_set1_);
+    for (; !hs_iter_at_end(&iter); hs_iter_next(&iter))
+    {
+        size_t value = hs_iter_value(&iter);
+        if (hs_impl_get_entry(_set2_, value) == ((void *)0))
+            return 0;
+    }
+    return 1;
+}
+_Bool hs_is_proper_superset(struct hashset *_set1_, struct hashset *_set2_)
+{
+    return hs_is_proper_subset(_set2_, _set1_);
+}
+_Bool hs_is_disjointset(struct hashset *_set1_, struct hashset *_set2_)
+{
+    _set1_->flag = CMC_FLAG_OK;
+    _set2_->flag = CMC_FLAG_OK;
+    if (hs_empty(_set1_))
+        return 1;
+    struct hashset_iter iter = hs_iter_start(_set1_);
+    for (; !hs_iter_at_end(&iter); hs_iter_next(&iter))
+    {
+        size_t value = hs_iter_value(&iter);
+        if (hs_impl_get_entry(_set2_, value) != ((void *)0))
+            return 0;
+    }
+    return 1;
+}
+_Bool hs_to_string(struct hashset *_set_, FILE *fptr)
+{
+    struct hashset *s_ = _set_;
+    return 0 <= fprintf(fptr,
+                        "struct %s<%s> "
+                        "at %p { "
+                        "buffer:%p, "
+                        "capacity:%"
+                        "I64u"
+                        ", "
+                        "count:%"
+                        "I64u"
+                        ", "
+                        "load:%lf, "
+                        "flag:%d, "
+                        "f_val:%p, "
+                        "alloc:%p, "
+                        "callbacks: %p }",
+                        "hashset", "size_t", s_, s_->buffer, s_->capacity, s_->count, s_->load, s_->flag, s_->f_val,
+                        s_->alloc, (s_)->callbacks);
+}
+_Bool hs_print(struct hashset *_set_, FILE *fptr, const char *start, const char *separator, const char *end)
+{
+    fprintf(fptr, "%s", start);
+    size_t last = 0;
+    for (size_t i = _set_->capacity; i > 0; i--)
+    {
+        if ((_set_->buffer[i - 1]).state == CMC_ES_FILLED)
+        {
+            last = i - 1;
+            break;
+        }
+    }
+    for (size_t i = 0; i < _set_->capacity; i++)
+    {
+        struct hashset_entry *entry = &(_set_->buffer[i]);
+        if (entry->state == CMC_ES_FILLED)
+        {
+            if (!_set_->f_val->str(fptr, entry->value))
+                return 0;
+            if (i + 1 < last)
+                fprintf(fptr, "%s", separator);
+        }
+    }
+    fprintf(fptr, "%s", end);
+    return 1;
 }
 
 #endif /* CMC_TEST_SRC_HASHSET */

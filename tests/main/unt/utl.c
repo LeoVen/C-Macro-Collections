@@ -16,16 +16,19 @@ size_t numhash(size_t a)
 
 size_t hashcapminus1(size_t a)
 {
+    (void)a;
     return cmc_hashtable_primes[0] - 1;
 }
 
 size_t hashcapminus4(size_t a)
 {
+    (void)a;
     return cmc_hashtable_primes[0] - 1;
 }
 
 size_t hash0(size_t a)
 {
+    (void)a;
     return 0;
 }
 
@@ -65,6 +68,7 @@ bool k_c_str(FILE *fptr, size_t a)
 
 void k_c_free(size_t a)
 {
+    (void)a;
     k_total_free++;
 }
 
@@ -103,6 +107,7 @@ bool v_c_str(FILE *fptr, size_t a)
 
 void v_c_free(size_t a)
 {
+    (void)a;
     v_total_free++;
 }
 

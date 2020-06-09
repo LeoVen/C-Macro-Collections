@@ -53,11 +53,11 @@ for data in collections:
 
     file.write(
     f'''
-    #include {data['h']}
+    #include "macro_collections.h"
 
     {UNIQUE_FLAG}
 
-    CMC_{data['LIB']}_{data['COLLECTION']}_CORE(({', '.join([data['PFX'], data['SNAME'], data['SIZE'], data['K'], data['V']])}))
+    C_MACRO_COLLECTIONS_ALL({data['LIB']}, {data['COLLECTION']}, ({', '.join([data['PFX'], data['SNAME'], data['SIZE'], data['K'], data['V']])}))
 
     {UNIQUE_FLAG}
     ''')

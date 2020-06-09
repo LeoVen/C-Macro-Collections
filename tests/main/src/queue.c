@@ -50,8 +50,6 @@ int q_flag(struct queue *_queue_);
 _Bool q_resize(struct queue *_queue_, size_t capacity);
 struct queue *q_copy_of(struct queue *_queue_);
 _Bool q_equals(struct queue *_queue1_, struct queue *_queue2_);
-struct cmc_string q_to_string(struct queue *_queue_);
-_Bool q_print(struct queue *_queue_, FILE *fptr);
 struct queue_iter q_iter_start(struct queue *target);
 struct queue_iter q_iter_end(struct queue *target);
 _Bool q_iter_at_start(struct queue_iter *iter);
@@ -66,35 +64,16 @@ _Bool q_iter_go_to(struct queue_iter *iter, size_t index);
 size_t q_iter_value(struct queue_iter *iter);
 size_t *q_iter_rvalue(struct queue_iter *iter);
 size_t q_iter_index(struct queue_iter *iter);
+_Bool q_to_string(struct queue *_queue_, FILE *fptr);
+_Bool q_print(struct queue *_queue_, FILE *fptr, const char *start, const char *separator, const char *end);
 struct queue *q_new(size_t capacity, struct queue_fval *f_val)
 {
-    struct cmc_alloc_node *alloc = &cmc_alloc_node_default;
-    if (capacity < 1)
-        return ((void *)0);
-    if (!f_val)
-        return ((void *)0);
-    struct queue *_queue_ = alloc->malloc(sizeof(struct queue));
-    if (!_queue_)
-        return ((void *)0);
-    _queue_->buffer = alloc->calloc(capacity, sizeof(size_t));
-    if (!_queue_->buffer)
-    {
-        alloc->free(_queue_);
-        return ((void *)0);
-    }
-    _queue_->capacity = capacity;
-    _queue_->count = 0;
-    _queue_->front = 0;
-    _queue_->back = 0;
-    _queue_->flag = CMC_FLAG_OK;
-    _queue_->f_val = f_val;
-    _queue_->alloc = alloc;
-    _queue_->callbacks = ((void *)0);
-    return _queue_;
+    return q_new_custom(capacity, f_val, ((void *)0), ((void *)0));
 }
 struct queue *q_new_custom(size_t capacity, struct queue_fval *f_val, struct cmc_alloc_node *alloc,
                            struct cmc_callbacks *callbacks)
 {
+    ;
     if (capacity < 1)
         return ((void *)0);
     if (!f_val)
@@ -117,7 +96,7 @@ struct queue *q_new_custom(size_t capacity, struct queue_fval *f_val, struct cmc
     _queue_->flag = CMC_FLAG_OK;
     _queue_->f_val = f_val;
     _queue_->alloc = alloc;
-    _queue_->callbacks = callbacks;
+    (_queue_)->callbacks = callbacks;
     return _queue_;
 }
 void q_clear(struct queue *_queue_)
@@ -151,11 +130,12 @@ void q_free(struct queue *_queue_)
 }
 void q_customize(struct queue *_queue_, struct cmc_alloc_node *alloc, struct cmc_callbacks *callbacks)
 {
+    ;
     if (!alloc)
         _queue_->alloc = &cmc_alloc_node_default;
     else
         _queue_->alloc = alloc;
-    _queue_->callbacks = callbacks;
+    (_queue_)->callbacks = callbacks;
     _queue_->flag = CMC_FLAG_OK;
 }
 _Bool q_enqueue(struct queue *_queue_, size_t value)
@@ -169,8 +149,9 @@ _Bool q_enqueue(struct queue *_queue_, size_t value)
     _queue_->back = (_queue_->back == _queue_->capacity - 1) ? 0 : _queue_->back + 1;
     _queue_->count++;
     _queue_->flag = CMC_FLAG_OK;
-    if (_queue_->callbacks && _queue_->callbacks->create)
-        _queue_->callbacks->create();
+    if ((_queue_)->callbacks && (_queue_)->callbacks->create)
+        (_queue_)->callbacks->create();
+    ;
     return 1;
 }
 _Bool q_dequeue(struct queue *_queue_)
@@ -184,8 +165,9 @@ _Bool q_dequeue(struct queue *_queue_)
     _queue_->front = (_queue_->front == _queue_->capacity - 1) ? 0 : _queue_->front + 1;
     _queue_->count--;
     _queue_->flag = CMC_FLAG_OK;
-    if (_queue_->callbacks && _queue_->callbacks->delete)
-        _queue_->callbacks->delete ();
+    if ((_queue_)->callbacks && (_queue_)->callbacks->delete)
+        (_queue_)->callbacks->delete ();
+    ;
     return 1;
 }
 size_t q_peek(struct queue *_queue_)
@@ -196,8 +178,9 @@ size_t q_peek(struct queue *_queue_)
         return (size_t){ 0 };
     }
     _queue_->flag = CMC_FLAG_OK;
-    if (_queue_->callbacks && _queue_->callbacks->read)
-        _queue_->callbacks->read();
+    if ((_queue_)->callbacks && (_queue_)->callbacks->read)
+        (_queue_)->callbacks->read();
+    ;
     return _queue_->buffer[_queue_->front];
 }
 _Bool q_contains(struct queue *_queue_, size_t value)
@@ -213,8 +196,9 @@ _Bool q_contains(struct queue *_queue_, size_t value)
         }
         i = (i + 1) % _queue_->capacity;
     }
-    if (_queue_->callbacks && _queue_->callbacks->read)
-        _queue_->callbacks->read();
+    if ((_queue_)->callbacks && (_queue_)->callbacks->read)
+        (_queue_)->callbacks->read();
+    ;
     return result;
 }
 _Bool q_empty(struct queue *_queue_)
@@ -264,18 +248,20 @@ _Bool q_resize(struct queue *_queue_, size_t capacity)
     _queue_->back = _queue_->count;
 success:
     _queue_->flag = CMC_FLAG_OK;
-    if (_queue_->callbacks && _queue_->callbacks->resize)
-        _queue_->callbacks->resize();
+    if ((_queue_)->callbacks && (_queue_)->callbacks->resize)
+        (_queue_)->callbacks->resize();
+    ;
     return 1;
 }
 struct queue *q_copy_of(struct queue *_queue_)
 {
-    struct queue *result = q_new_custom(_queue_->capacity, _queue_->f_val, _queue_->alloc, _queue_->callbacks);
+    struct queue *result = q_new_custom(_queue_->capacity, _queue_->f_val, _queue_->alloc, ((void *)0));
     if (!result)
     {
         _queue_->flag = CMC_FLAG_ERROR;
         return ((void *)0);
     }
+    (result)->callbacks = _queue_->callbacks;
     if (_queue_->f_val->cpy)
     {
         for (size_t i = _queue_->front, j = 0; j < _queue_->count; j++)
@@ -467,6 +453,46 @@ size_t *q_iter_rvalue(struct queue_iter *iter)
 size_t q_iter_index(struct queue_iter *iter)
 {
     return iter->index;
+}
+_Bool q_to_string(struct queue *_queue_, FILE *fptr)
+{
+    struct queue *q_ = _queue_;
+    return 0 <= fprintf(fptr,
+                        "struct %s<%s> "
+                        "at %p { "
+                        "buffer:%p, "
+                        "capacity:%"
+                        "I64u"
+                        ", "
+                        "count:%"
+                        "I64u"
+                        ", "
+                        "front:%"
+                        "I64u"
+                        ", "
+                        "back:%"
+                        "I64u"
+                        ", "
+                        "flag:%d, "
+                        "f_val:%p, "
+                        "alloc:%p, "
+                        "callbacks:%p }",
+                        "queue", "size_t", q_, q_->buffer, q_->capacity, q_->count, q_->front, q_->back, q_->flag,
+                        q_->f_val, q_->alloc, (q_)->callbacks);
+}
+_Bool q_print(struct queue *_queue_, FILE *fptr, const char *start, const char *separator, const char *end)
+{
+    fprintf(fptr, "%s", start);
+    for (size_t i = _queue_->front, j = 0; j < _queue_->count; j++)
+    {
+        if (!_queue_->f_val->str(fptr, _queue_->buffer[i]))
+            return 0;
+        i = (i + 1) % _queue_->capacity;
+        if (j + 1 < _queue_->count)
+            fprintf(fptr, "%s", separator);
+    }
+    fprintf(fptr, "%s", end);
+    return 1;
 }
 
 #endif /* CMC_TEST_SRC_QUEUE */

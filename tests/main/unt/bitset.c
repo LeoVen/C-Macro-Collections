@@ -8,7 +8,6 @@ struct cmc_alloc_node *bs_alloc_node =
     &(struct cmc_alloc_node){ .malloc = malloc, .calloc = calloc, .realloc = realloc, .free = free };
 
 CMC_CREATE_UNIT(BitSet, true, {
-    const size_t word_bytes = sizeof(cmc_bitset_word);
     const size_t word_bits = sizeof(cmc_bitset_word) * CHAR_BIT;
 
     printf("%s", cmc_test_color(5));
@@ -421,8 +420,8 @@ CMC_CREATE_UNIT(BitSet, true, {
 });
 
 CMC_CREATE_UNIT(BitSetIter, true, {
-    const size_t word_bytes = sizeof(cmc_bitset_word);
-    const size_t word_bits = sizeof(cmc_bitset_word) * CHAR_BIT;
+    // const size_t word_bytes = sizeof(cmc_bitset_word);
+    // const size_t word_bits = sizeof(cmc_bitset_word) * CHAR_BIT;
 
     printf("%s", cmc_test_color(5));
     printf("    BitSet<" CMC_TO_STRING(CMC_BITSET_WORD_TYPE) ">\n");

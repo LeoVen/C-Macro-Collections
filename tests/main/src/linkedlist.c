@@ -28,14 +28,6 @@ struct linkedlist_fval
     size_t (*hash)(size_t);
     int (*pri)(size_t, size_t);
 };
-struct linkedlist_iter
-{
-    struct linkedlist *target;
-    struct linkedlist_node *cursor;
-    size_t index;
-    _Bool start;
-    _Bool end;
-};
 struct linkedlist *ll_new(struct linkedlist_fval *f_val);
 struct linkedlist *ll_new_custom(struct linkedlist_fval *f_val, struct cmc_alloc_node *alloc,
                                  struct cmc_callbacks *callbacks);
@@ -58,20 +50,14 @@ size_t ll_count(struct linkedlist *_list_);
 int ll_flag(struct linkedlist *_list_);
 struct linkedlist *ll_copy_of(struct linkedlist *_list_);
 _Bool ll_equals(struct linkedlist *_list1_, struct linkedlist *_list2_);
-struct cmc_string ll_to_string(struct linkedlist *_list_);
-_Bool ll_print(struct linkedlist *_list_, FILE *fptr);
-struct linkedlist_node *ll_new_node(struct linkedlist *_list_, size_t value);
-void ll_free_node(struct linkedlist *_list_, struct linkedlist_node *_node_);
-struct linkedlist_node *ll_head(struct linkedlist *_list_);
-struct linkedlist_node *ll_get_node(struct linkedlist *_list_, size_t index);
-struct linkedlist_node *ll_tail(struct linkedlist *_list_);
-_Bool ll_add_next(struct linkedlist *_owner_, struct linkedlist_node *_node_, size_t value);
-_Bool ll_add_prev(struct linkedlist *_owner_, struct linkedlist_node *_node_, size_t value);
-_Bool ll_del_next(struct linkedlist *_owner_, struct linkedlist_node *_node_);
-_Bool ll_del_curr(struct linkedlist *_owner_, struct linkedlist_node *_node_);
-_Bool ll_del_prev(struct linkedlist *_owner_, struct linkedlist_node *_node_);
-struct linkedlist_node *ll_next_node(struct linkedlist_node *_node_);
-struct linkedlist_node *ll_prev_node(struct linkedlist_node *_node_);
+struct linkedlist_iter
+{
+    struct linkedlist *target;
+    struct linkedlist_node *cursor;
+    size_t index;
+    _Bool start;
+    _Bool end;
+};
 struct linkedlist_iter ll_iter_start(struct linkedlist *target);
 struct linkedlist_iter ll_iter_end(struct linkedlist *target);
 _Bool ll_iter_at_start(struct linkedlist_iter *iter);
@@ -87,26 +73,28 @@ size_t ll_iter_value(struct linkedlist_iter *iter);
 size_t *ll_iter_rvalue(struct linkedlist_iter *iter);
 size_t ll_iter_index(struct linkedlist_iter *iter);
 struct linkedlist_node *ll_iter_node(struct linkedlist_iter *iter);
+struct linkedlist_node *ll_new_node(struct linkedlist *_list_, size_t value);
+void ll_free_node(struct linkedlist *_list_, struct linkedlist_node *_node_);
+struct linkedlist_node *ll_head(struct linkedlist *_list_);
+struct linkedlist_node *ll_get_node(struct linkedlist *_list_, size_t index);
+struct linkedlist_node *ll_tail(struct linkedlist *_list_);
+_Bool ll_add_next(struct linkedlist *_owner_, struct linkedlist_node *_node_, size_t value);
+_Bool ll_add_prev(struct linkedlist *_owner_, struct linkedlist_node *_node_, size_t value);
+_Bool ll_del_next(struct linkedlist *_owner_, struct linkedlist_node *_node_);
+_Bool ll_del_curr(struct linkedlist *_owner_, struct linkedlist_node *_node_);
+_Bool ll_del_prev(struct linkedlist *_owner_, struct linkedlist_node *_node_);
+struct linkedlist_node *ll_next_node(struct linkedlist_node *_node_);
+struct linkedlist_node *ll_prev_node(struct linkedlist_node *_node_);
+_Bool ll_to_string(struct linkedlist *_list_, FILE *fptr);
+_Bool ll_print(struct linkedlist *_list_, FILE *fptr, const char *start, const char *separator, const char *end);
 struct linkedlist *ll_new(struct linkedlist_fval *f_val)
 {
-    if (!f_val)
-        return ((void *)0);
-    struct cmc_alloc_node *alloc = &cmc_alloc_node_default;
-    struct linkedlist *_list_ = alloc->malloc(sizeof(struct linkedlist));
-    if (!_list_)
-        return ((void *)0);
-    _list_->count = 0;
-    _list_->head = ((void *)0);
-    _list_->tail = ((void *)0);
-    _list_->flag = CMC_FLAG_OK;
-    _list_->f_val = f_val;
-    _list_->alloc = alloc;
-    _list_->callbacks = ((void *)0);
-    return _list_;
+    return ll_new_custom(f_val, ((void *)0), ((void *)0));
 }
 struct linkedlist *ll_new_custom(struct linkedlist_fval *f_val, struct cmc_alloc_node *alloc,
                                  struct cmc_callbacks *callbacks)
 {
+    ;
     if (!f_val)
         return ((void *)0);
     if (!alloc)
@@ -120,7 +108,7 @@ struct linkedlist *ll_new_custom(struct linkedlist_fval *f_val, struct cmc_alloc
     _list_->flag = CMC_FLAG_OK;
     _list_->f_val = f_val;
     _list_->alloc = alloc;
-    _list_->callbacks = callbacks;
+    (_list_)->callbacks = callbacks;
     return _list_;
 }
 void ll_clear(struct linkedlist *_list_)
@@ -148,11 +136,12 @@ void ll_free(struct linkedlist *_list_)
 }
 void ll_customize(struct linkedlist *_list_, struct cmc_alloc_node *alloc, struct cmc_callbacks *callbacks)
 {
+    ;
     if (!alloc)
         _list_->alloc = &cmc_alloc_node_default;
     else
         _list_->alloc = alloc;
-    _list_->callbacks = callbacks;
+    (_list_)->callbacks = callbacks;
     _list_->flag = CMC_FLAG_OK;
 }
 _Bool ll_push_front(struct linkedlist *_list_, size_t value)
@@ -173,8 +162,9 @@ _Bool ll_push_front(struct linkedlist *_list_, size_t value)
     }
     _list_->count++;
     _list_->flag = CMC_FLAG_OK;
-    if (_list_->callbacks && _list_->callbacks->create)
-        _list_->callbacks->create();
+    if ((_list_)->callbacks && (_list_)->callbacks->create)
+        (_list_)->callbacks->create();
+    ;
     return 1;
 }
 _Bool ll_push_at(struct linkedlist *_list_, size_t value, size_t index)
@@ -202,8 +192,9 @@ _Bool ll_push_at(struct linkedlist *_list_, size_t value, size_t index)
     _node_->prev->next = _node_;
     _list_->count++;
     _list_->flag = CMC_FLAG_OK;
-    if (_list_->callbacks && _list_->callbacks->create)
-        _list_->callbacks->create();
+    if ((_list_)->callbacks && (_list_)->callbacks->create)
+        (_list_)->callbacks->create();
+    ;
     return 1;
 }
 _Bool ll_push_back(struct linkedlist *_list_, size_t value)
@@ -224,8 +215,9 @@ _Bool ll_push_back(struct linkedlist *_list_, size_t value)
     }
     _list_->count++;
     _list_->flag = CMC_FLAG_OK;
-    if (_list_->callbacks && _list_->callbacks->create)
-        _list_->callbacks->create();
+    if ((_list_)->callbacks && (_list_)->callbacks->create)
+        (_list_)->callbacks->create();
+    ;
     return 1;
 }
 _Bool ll_pop_front(struct linkedlist *_list_)
@@ -244,8 +236,9 @@ _Bool ll_pop_front(struct linkedlist *_list_)
         _list_->head->prev = ((void *)0);
     _list_->count--;
     _list_->flag = CMC_FLAG_OK;
-    if (_list_->callbacks && _list_->callbacks->delete)
-        _list_->callbacks->delete ();
+    if ((_list_)->callbacks && (_list_)->callbacks->delete)
+        (_list_)->callbacks->delete ();
+    ;
     return 1;
 }
 _Bool ll_pop_at(struct linkedlist *_list_, size_t index)
@@ -276,8 +269,9 @@ _Bool ll_pop_at(struct linkedlist *_list_, size_t index)
     _list_->alloc->free(_node_);
     _list_->count--;
     _list_->flag = CMC_FLAG_OK;
-    if (_list_->callbacks && _list_->callbacks->delete)
-        _list_->callbacks->delete ();
+    if ((_list_)->callbacks && (_list_)->callbacks->delete)
+        (_list_)->callbacks->delete ();
+    ;
     return 1;
 }
 _Bool ll_pop_back(struct linkedlist *_list_)
@@ -296,8 +290,9 @@ _Bool ll_pop_back(struct linkedlist *_list_)
         _list_->tail->next = ((void *)0);
     _list_->count--;
     _list_->flag = CMC_FLAG_OK;
-    if (_list_->callbacks && _list_->callbacks->delete)
-        _list_->callbacks->delete ();
+    if ((_list_)->callbacks && (_list_)->callbacks->delete)
+        (_list_)->callbacks->delete ();
+    ;
     return 1;
 }
 size_t ll_front(struct linkedlist *_list_)
@@ -308,8 +303,9 @@ size_t ll_front(struct linkedlist *_list_)
         return (size_t){ 0 };
     }
     _list_->flag = CMC_FLAG_OK;
-    if (_list_->callbacks && _list_->callbacks->read)
-        _list_->callbacks->read();
+    if ((_list_)->callbacks && (_list_)->callbacks->read)
+        (_list_)->callbacks->read();
+    ;
     return _list_->head->value;
 }
 size_t ll_get(struct linkedlist *_list_, size_t index)
@@ -327,8 +323,9 @@ size_t ll_get(struct linkedlist *_list_, size_t index)
     struct linkedlist_node *scan = ll_get_node(_list_, index);
     if (scan == ((void *)0))
         return (size_t){ 0 };
-    if (_list_->callbacks && _list_->callbacks->read)
-        _list_->callbacks->read();
+    if ((_list_)->callbacks && (_list_)->callbacks->read)
+        (_list_)->callbacks->read();
+    ;
     return scan->value;
 }
 size_t *ll_get_ref(struct linkedlist *_list_, size_t index)
@@ -346,8 +343,9 @@ size_t *ll_get_ref(struct linkedlist *_list_, size_t index)
     struct linkedlist_node *scan = ll_get_node(_list_, index);
     if (scan == ((void *)0))
         return ((void *)0);
-    if (_list_->callbacks && _list_->callbacks->read)
-        _list_->callbacks->read();
+    if ((_list_)->callbacks && (_list_)->callbacks->read)
+        (_list_)->callbacks->read();
+    ;
     return &(scan->value);
 }
 size_t ll_back(struct linkedlist *_list_)
@@ -358,8 +356,9 @@ size_t ll_back(struct linkedlist *_list_)
         return (size_t){ 0 };
     }
     _list_->flag = CMC_FLAG_OK;
-    if (_list_->callbacks && _list_->callbacks->read)
-        _list_->callbacks->read();
+    if ((_list_)->callbacks && (_list_)->callbacks->read)
+        (_list_)->callbacks->read();
+    ;
     return _list_->tail->value;
 }
 _Bool ll_contains(struct linkedlist *_list_, size_t value)
@@ -376,8 +375,9 @@ _Bool ll_contains(struct linkedlist *_list_, size_t value)
         }
         scan = scan->next;
     }
-    if (_list_->callbacks && _list_->callbacks->read)
-        _list_->callbacks->read();
+    if ((_list_)->callbacks && (_list_)->callbacks->read)
+        (_list_)->callbacks->read();
+    ;
     return result;
 }
 _Bool ll_empty(struct linkedlist *_list_)
@@ -394,9 +394,10 @@ int ll_flag(struct linkedlist *_list_)
 }
 struct linkedlist *ll_copy_of(struct linkedlist *_list_)
 {
-    struct linkedlist *result = ll_new_custom(_list_->f_val, _list_->alloc, _list_->callbacks);
+    struct linkedlist *result = ll_new_custom(_list_->f_val, _list_->alloc, ((void *)0));
     if (!result)
         return ((void *)0);
+    (result)->callbacks = _list_->callbacks;
     struct linkedlist_node *scan = _list_->head;
     while (scan != ((void *)0))
     {
@@ -438,6 +439,152 @@ _Bool ll_equals(struct linkedlist *_list1_, struct linkedlist *_list2_)
         scan2 = scan2->next;
     }
     return 1;
+}
+struct linkedlist_iter ll_iter_start(struct linkedlist *target)
+{
+    struct linkedlist_iter iter;
+    iter.target = target;
+    iter.cursor = target->head;
+    iter.index = 0;
+    iter.start = 1;
+    iter.end = ll_empty(target);
+    return iter;
+}
+struct linkedlist_iter ll_iter_end(struct linkedlist *target)
+{
+    struct linkedlist_iter iter;
+    iter.target = target;
+    iter.cursor = target->tail;
+    iter.index = 0;
+    iter.start = ll_empty(target);
+    iter.end = 1;
+    if (!ll_empty(target))
+        iter.index = target->count - 1;
+    return iter;
+}
+_Bool ll_iter_at_start(struct linkedlist_iter *iter)
+{
+    return ll_empty(iter->target) || iter->start;
+}
+_Bool ll_iter_at_end(struct linkedlist_iter *iter)
+{
+    return ll_empty(iter->target) || iter->end;
+}
+_Bool ll_iter_to_start(struct linkedlist_iter *iter)
+{
+    if (!ll_empty(iter->target))
+    {
+        iter->cursor = iter->target->head;
+        iter->index = 0;
+        iter->start = 1;
+        iter->end = ll_empty(iter->target);
+        return 1;
+    }
+    return 0;
+}
+_Bool ll_iter_to_end(struct linkedlist_iter *iter)
+{
+    if (!ll_empty(iter->target))
+    {
+        iter->cursor = iter->target->tail;
+        iter->index = iter->target->count - 1;
+        iter->start = ll_empty(iter->target);
+        iter->end = 1;
+        return 1;
+    }
+    return 0;
+}
+_Bool ll_iter_next(struct linkedlist_iter *iter)
+{
+    if (iter->end)
+        return 0;
+    if (iter->cursor->next == ((void *)0))
+    {
+        iter->end = 1;
+        return 0;
+    }
+    iter->start = ll_empty(iter->target);
+    iter->cursor = iter->cursor->next;
+    iter->index++;
+    return 1;
+}
+_Bool ll_iter_prev(struct linkedlist_iter *iter)
+{
+    if (iter->start)
+        return 0;
+    if (iter->cursor->prev == ((void *)0))
+    {
+        iter->start = 1;
+        return 0;
+    }
+    iter->end = ll_empty(iter->target);
+    iter->cursor = iter->cursor->prev;
+    iter->index--;
+    return 1;
+}
+_Bool ll_iter_advance(struct linkedlist_iter *iter, size_t steps)
+{
+    if (iter->end)
+        return 0;
+    if (iter->cursor->next == ((void *)0))
+    {
+        iter->end = 1;
+        return 0;
+    }
+    if (steps == 0 || iter->index + steps >= iter->target->count)
+        return 0;
+    iter->start = ll_empty(iter->target);
+    iter->index += steps;
+    for (size_t i = 0; i < steps; i++)
+        iter->cursor = iter->cursor->next;
+    return 1;
+}
+_Bool ll_iter_rewind(struct linkedlist_iter *iter, size_t steps)
+{
+    if (iter->start)
+        return 0;
+    if (iter->cursor->prev == ((void *)0))
+    {
+        iter->start = 1;
+        return 0;
+    }
+    if (steps == 0 || iter->index < steps)
+        return 0;
+    iter->end = ll_empty(iter->target);
+    iter->index -= steps;
+    for (size_t i = 0; i < steps; i++)
+        iter->cursor = iter->cursor->prev;
+    return 1;
+}
+_Bool ll_iter_go_to(struct linkedlist_iter *iter, size_t index)
+{
+    if (index >= iter->target->count)
+        return 0;
+    if (iter->index > index)
+        return ll_iter_rewind(iter, iter->index - index);
+    else if (iter->index < index)
+        return ll_iter_advance(iter, index - iter->index);
+    return 1;
+}
+size_t ll_iter_value(struct linkedlist_iter *iter)
+{
+    if (ll_empty(iter->target))
+        return (size_t){ 0 };
+    return iter->cursor->value;
+}
+size_t *ll_iter_rvalue(struct linkedlist_iter *iter)
+{
+    if (ll_empty(iter->target))
+        return ((void *)0);
+    return &(iter->cursor->value);
+}
+size_t ll_iter_index(struct linkedlist_iter *iter)
+{
+    return iter->index;
+}
+struct linkedlist_node *ll_iter_node(struct linkedlist_iter *iter)
+{
+    return iter->cursor;
 }
 struct linkedlist_node *ll_new_node(struct linkedlist *_list_, size_t value)
 {
@@ -587,151 +734,38 @@ struct linkedlist_node *ll_prev_node(struct linkedlist_node *_node_)
 {
     return _node_->prev;
 }
-struct linkedlist_iter ll_iter_start(struct linkedlist *target)
+_Bool ll_to_string(struct linkedlist *_list_, FILE *fptr)
 {
-    struct linkedlist_iter iter;
-    iter.target = target;
-    iter.cursor = target->head;
-    iter.index = 0;
-    iter.start = 1;
-    iter.end = ll_empty(target);
-    return iter;
+    struct linkedlist *l_ = _list_;
+    return 0 <= fprintf(fptr,
+                        "struct %s<%s> "
+                        "at %p { "
+                        "count:%"
+                        "I64u"
+                        ", "
+                        "head:%p, "
+                        "tail:%p, "
+                        "flag:%d, "
+                        "f_val:%p, "
+                        "alloc:%p, "
+                        "callbacks:%p }",
+                        "linkedlist", "size_t", l_, l_->count, l_->head, l_->tail, l_->flag, l_->f_val, l_->alloc,
+                        (l_)->callbacks);
 }
-struct linkedlist_iter ll_iter_end(struct linkedlist *target)
+_Bool ll_print(struct linkedlist *_list_, FILE *fptr, const char *start, const char *separator, const char *end)
 {
-    struct linkedlist_iter iter;
-    iter.target = target;
-    iter.cursor = target->tail;
-    iter.index = 0;
-    iter.start = ll_empty(target);
-    iter.end = 1;
-    if (!ll_empty(target))
-        iter.index = target->count - 1;
-    return iter;
-}
-_Bool ll_iter_at_start(struct linkedlist_iter *iter)
-{
-    return ll_empty(iter->target) || iter->start;
-}
-_Bool ll_iter_at_end(struct linkedlist_iter *iter)
-{
-    return ll_empty(iter->target) || iter->end;
-}
-_Bool ll_iter_to_start(struct linkedlist_iter *iter)
-{
-    if (!ll_empty(iter->target))
+    fprintf(fptr, "%s", start);
+    struct linkedlist_node *scan = _list_->head;
+    while (scan != ((void *)0))
     {
-        iter->cursor = iter->target->head;
-        iter->index = 0;
-        iter->start = 1;
-        iter->end = ll_empty(iter->target);
-        return 1;
+        if (!_list_->f_val->str(fptr, scan->value))
+            return 0;
+        scan = scan->next;
+        if (scan)
+            fprintf(fptr, "%s", separator);
     }
-    return 0;
-}
-_Bool ll_iter_to_end(struct linkedlist_iter *iter)
-{
-    if (!ll_empty(iter->target))
-    {
-        iter->cursor = iter->target->tail;
-        iter->index = iter->target->count - 1;
-        iter->start = ll_empty(iter->target);
-        iter->end = 1;
-        return 1;
-    }
-    return 0;
-}
-_Bool ll_iter_next(struct linkedlist_iter *iter)
-{
-    if (iter->end)
-        return 0;
-    if (iter->cursor->next == ((void *)0))
-    {
-        iter->end = 1;
-        return 0;
-    }
-    iter->start = ll_empty(iter->target);
-    iter->cursor = iter->cursor->next;
-    iter->index++;
+    fprintf(fptr, "%s", end);
     return 1;
-}
-_Bool ll_iter_prev(struct linkedlist_iter *iter)
-{
-    if (iter->start)
-        return 0;
-    if (iter->cursor->prev == ((void *)0))
-    {
-        iter->start = 1;
-        return 0;
-    }
-    iter->end = ll_empty(iter->target);
-    iter->cursor = iter->cursor->prev;
-    iter->index--;
-    return 1;
-}
-_Bool ll_iter_advance(struct linkedlist_iter *iter, size_t steps)
-{
-    if (iter->end)
-        return 0;
-    if (iter->cursor->next == ((void *)0))
-    {
-        iter->end = 1;
-        return 0;
-    }
-    if (steps == 0 || iter->index + steps >= iter->target->count)
-        return 0;
-    iter->start = ll_empty(iter->target);
-    iter->index += steps;
-    for (size_t i = 0; i < steps; i++)
-        iter->cursor = iter->cursor->next;
-    return 1;
-}
-_Bool ll_iter_rewind(struct linkedlist_iter *iter, size_t steps)
-{
-    if (iter->start)
-        return 0;
-    if (iter->cursor->prev == ((void *)0))
-    {
-        iter->start = 1;
-        return 0;
-    }
-    if (steps == 0 || iter->index < steps)
-        return 0;
-    iter->end = ll_empty(iter->target);
-    iter->index -= steps;
-    for (size_t i = 0; i < steps; i++)
-        iter->cursor = iter->cursor->prev;
-    return 1;
-}
-_Bool ll_iter_go_to(struct linkedlist_iter *iter, size_t index)
-{
-    if (index >= iter->target->count)
-        return 0;
-    if (iter->index > index)
-        return ll_iter_rewind(iter, iter->index - index);
-    else if (iter->index < index)
-        return ll_iter_advance(iter, index - iter->index);
-    return 1;
-}
-size_t ll_iter_value(struct linkedlist_iter *iter)
-{
-    if (ll_empty(iter->target))
-        return (size_t){ 0 };
-    return iter->cursor->value;
-}
-size_t *ll_iter_rvalue(struct linkedlist_iter *iter)
-{
-    if (ll_empty(iter->target))
-        return ((void *)0);
-    return &(iter->cursor->value);
-}
-size_t ll_iter_index(struct linkedlist_iter *iter)
-{
-    return iter->index;
-}
-struct linkedlist_node *ll_iter_node(struct linkedlist_iter *iter)
-{
-    return iter->cursor;
 }
 
 #endif /* CMC_TEST_SRC_LINKEDLIST */

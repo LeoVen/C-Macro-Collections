@@ -453,8 +453,8 @@
             { \
                 if (_map_->f_key->cmp(_map_->buffer[i].key, max_key) > 0) \
                 { \
-                    max_key = _map_->buffer[first].key; \
-                    max_val = _map_->buffer[first].value; \
+                    max_key = _map_->buffer[i].key; \
+                    max_val = _map_->buffer[i].value; \
                 } \
             } \
         } \
@@ -495,10 +495,10 @@
         { \
             if (_map_->buffer[i].state == CMC_ES_FILLED) \
             { \
-                if (_map_->f_key->cmp(_map_->buffer[i].key, min_key) > 0) \
+                if (_map_->f_key->cmp(_map_->buffer[i].key, min_key) < 0) \
                 { \
-                    min_key = _map_->buffer[first].key; \
-                    min_val = _map_->buffer[first].value; \
+                    min_key = _map_->buffer[i].key; \
+                    min_val = _map_->buffer[i].value; \
                 } \
             } \
         } \

@@ -40,16 +40,6 @@ struct treemap_fval
     size_t (*hash)(size_t);
     int (*pri)(size_t, size_t);
 };
-struct treemap_iter
-{
-    struct treemap *target;
-    struct treemap_node *cursor;
-    struct treemap_node *first;
-    struct treemap_node *last;
-    size_t index;
-    _Bool start;
-    _Bool end;
-};
 struct treemap *tm_new(struct treemap_fkey *f_key, struct treemap_fval *f_val);
 struct treemap *tm_new_custom(struct treemap_fkey *f_key, struct treemap_fval *f_val, struct cmc_alloc_node *alloc,
                               struct cmc_callbacks *callbacks);
@@ -69,8 +59,16 @@ size_t tm_count(struct treemap *_map_);
 int tm_flag(struct treemap *_map_);
 struct treemap *tm_copy_of(struct treemap *_map_);
 _Bool tm_equals(struct treemap *_map1_, struct treemap *_map2_);
-struct cmc_string tm_to_string(struct treemap *_map_);
-_Bool tm_print(struct treemap *_map_, FILE *fptr);
+struct treemap_iter
+{
+    struct treemap *target;
+    struct treemap_node *cursor;
+    struct treemap_node *first;
+    struct treemap_node *last;
+    size_t index;
+    _Bool start;
+    _Bool end;
+};
 struct treemap_iter tm_iter_start(struct treemap *target);
 struct treemap_iter tm_iter_end(struct treemap *target);
 _Bool tm_iter_at_start(struct treemap_iter *iter);
@@ -86,6 +84,9 @@ size_t tm_iter_key(struct treemap_iter *iter);
 size_t tm_iter_value(struct treemap_iter *iter);
 size_t *tm_iter_rvalue(struct treemap_iter *iter);
 size_t tm_iter_index(struct treemap_iter *iter);
+_Bool tm_to_string(struct treemap *_map_, FILE *fptr);
+_Bool tm_print(struct treemap *_map_, FILE *fptr, const char *start, const char *separator, const char *end,
+               const char *key_val_sep);
 static struct treemap_node *tm_impl_new_node(struct treemap *_map_, size_t key, size_t value);
 static struct treemap_node *tm_impl_get_node(struct treemap *_map_, size_t key);
 static unsigned char tm_impl_h(struct treemap_node *node);
@@ -95,24 +96,12 @@ static void tm_impl_rotate_left(struct treemap_node **Z);
 static void tm_impl_rebalance(struct treemap *_map_, struct treemap_node *node);
 struct treemap *tm_new(struct treemap_fkey *f_key, struct treemap_fval *f_val)
 {
-    if (!f_key || !f_val)
-        return ((void *)0);
-    struct cmc_alloc_node *alloc = &cmc_alloc_node_default;
-    struct treemap *_map_ = alloc->malloc(sizeof(struct treemap));
-    if (!_map_)
-        return ((void *)0);
-    _map_->count = 0;
-    _map_->root = ((void *)0);
-    _map_->flag = CMC_FLAG_OK;
-    _map_->f_key = f_key;
-    _map_->f_val = f_val;
-    _map_->alloc = alloc;
-    _map_->callbacks = ((void *)0);
-    return _map_;
+    return tm_new_custom(f_key, f_val, ((void *)0), ((void *)0));
 }
 struct treemap *tm_new_custom(struct treemap_fkey *f_key, struct treemap_fval *f_val, struct cmc_alloc_node *alloc,
                               struct cmc_callbacks *callbacks)
 {
+    ;
     if (!f_key || !f_val)
         return ((void *)0);
     if (!alloc)
@@ -126,7 +115,7 @@ struct treemap *tm_new_custom(struct treemap_fkey *f_key, struct treemap_fval *f
     _map_->f_key = f_key;
     _map_->f_val = f_val;
     _map_->alloc = alloc;
-    _map_->callbacks = callbacks;
+    (_map_)->callbacks = callbacks;
     return _map_;
 }
 void tm_clear(struct treemap *_map_)
@@ -193,11 +182,12 @@ void tm_free(struct treemap *_map_)
 }
 void tm_customize(struct treemap *_map_, struct cmc_alloc_node *alloc, struct cmc_callbacks *callbacks)
 {
+    ;
     if (!alloc)
         _map_->alloc = &cmc_alloc_node_default;
     else
         _map_->alloc = alloc;
-    _map_->callbacks = callbacks;
+    (_map_)->callbacks = callbacks;
     _map_->flag = CMC_FLAG_OK;
 }
 _Bool tm_insert(struct treemap *_map_, size_t key, size_t value)
@@ -255,8 +245,9 @@ _Bool tm_insert(struct treemap *_map_, size_t key, size_t value)
     }
     _map_->count++;
     _map_->flag = CMC_FLAG_OK;
-    if (_map_->callbacks && _map_->callbacks->create)
-        _map_->callbacks->create();
+    if ((_map_)->callbacks && (_map_)->callbacks->create)
+        (_map_)->callbacks->create();
+    ;
     return 1;
 }
 _Bool tm_update(struct treemap *_map_, size_t key, size_t new_value, size_t *old_value)
@@ -271,8 +262,9 @@ _Bool tm_update(struct treemap *_map_, size_t key, size_t new_value, size_t *old
         *old_value = node->value;
     node->value = new_value;
     _map_->flag = CMC_FLAG_OK;
-    if (_map_->callbacks && _map_->callbacks->update)
-        _map_->callbacks->update();
+    if ((_map_)->callbacks && (_map_)->callbacks->update)
+        (_map_)->callbacks->update();
+    ;
     return 1;
 }
 _Bool tm_remove(struct treemap *_map_, size_t key, size_t *out_value)
@@ -383,8 +375,9 @@ _Bool tm_remove(struct treemap *_map_, size_t key, size_t *out_value)
         _map_->root = ((void *)0);
     _map_->count--;
     _map_->flag = CMC_FLAG_OK;
-    if (_map_->callbacks && _map_->callbacks->delete)
-        _map_->callbacks->delete ();
+    if ((_map_)->callbacks && (_map_)->callbacks->delete)
+        (_map_)->callbacks->delete ();
+    ;
     return 1;
 }
 _Bool tm_max(struct treemap *_map_, size_t *key, size_t *value)
@@ -402,8 +395,9 @@ _Bool tm_max(struct treemap *_map_, size_t *key, size_t *value)
     if (value)
         *value = scan->value;
     _map_->flag = CMC_FLAG_OK;
-    if (_map_->callbacks && _map_->callbacks->read)
-        _map_->callbacks->read();
+    if ((_map_)->callbacks && (_map_)->callbacks->read)
+        (_map_)->callbacks->read();
+    ;
     return 1;
 }
 _Bool tm_min(struct treemap *_map_, size_t *key, size_t *value)
@@ -421,8 +415,9 @@ _Bool tm_min(struct treemap *_map_, size_t *key, size_t *value)
     if (value)
         *value = scan->value;
     _map_->flag = CMC_FLAG_OK;
-    if (_map_->callbacks && _map_->callbacks->read)
-        _map_->callbacks->read();
+    if ((_map_)->callbacks && (_map_)->callbacks->read)
+        (_map_)->callbacks->read();
+    ;
     return 1;
 }
 size_t tm_get(struct treemap *_map_, size_t key)
@@ -439,8 +434,9 @@ size_t tm_get(struct treemap *_map_, size_t key)
         return (size_t){ 0 };
     }
     _map_->flag = CMC_FLAG_OK;
-    if (_map_->callbacks && _map_->callbacks->read)
-        _map_->callbacks->read();
+    if ((_map_)->callbacks && (_map_)->callbacks->read)
+        (_map_)->callbacks->read();
+    ;
     return node->value;
 }
 size_t *tm_get_ref(struct treemap *_map_, size_t key)
@@ -457,15 +453,17 @@ size_t *tm_get_ref(struct treemap *_map_, size_t key)
         return ((void *)0);
     }
     _map_->flag = CMC_FLAG_OK;
-    if (_map_->callbacks && _map_->callbacks->read)
-        _map_->callbacks->read();
+    if ((_map_)->callbacks && (_map_)->callbacks->read)
+        (_map_)->callbacks->read();
+    ;
     return &(node->value);
 }
 _Bool tm_contains(struct treemap *_map_, size_t key)
 {
     _Bool result = tm_impl_get_node(_map_, key) != ((void *)0);
-    if (_map_->callbacks && _map_->callbacks->read)
-        _map_->callbacks->read();
+    if ((_map_)->callbacks && (_map_)->callbacks->read)
+        (_map_)->callbacks->read();
+    ;
     return result;
 }
 _Bool tm_empty(struct treemap *_map_)
@@ -499,7 +497,7 @@ struct treemap *tm_copy_of(struct treemap *_map_)
             value = _map_->f_val->cpy(value);
         tm_insert(result, key, value);
     }
-    result->callbacks = _map_->callbacks;
+    (result)->callbacks = _map_->callbacks;
     _map_->flag = CMC_FLAG_OK;
     return result;
 }
@@ -519,6 +517,122 @@ _Bool tm_equals(struct treemap *_map1_, struct treemap *_map2_)
             return 0;
     }
     return 1;
+}
+static struct treemap_node *tm_impl_new_node(struct treemap *_map_, size_t key, size_t value)
+{
+    struct treemap_node *node = _map_->alloc->malloc(sizeof(struct treemap_node));
+    if (!node)
+        return ((void *)0);
+    node->key = key;
+    node->value = value;
+    node->right = ((void *)0);
+    node->left = ((void *)0);
+    node->parent = ((void *)0);
+    node->height = 0;
+    return node;
+}
+static struct treemap_node *tm_impl_get_node(struct treemap *_map_, size_t key)
+{
+    struct treemap_node *scan = _map_->root;
+    while (scan != ((void *)0))
+    {
+        if (_map_->f_key->cmp(scan->key, key) > 0)
+            scan = scan->left;
+        else if (_map_->f_key->cmp(scan->key, key) < 0)
+            scan = scan->right;
+        else
+            return scan;
+    }
+    return ((void *)0);
+}
+static unsigned char tm_impl_h(struct treemap_node *node)
+{
+    if (node == ((void *)0))
+        return 0;
+    return node->height;
+}
+static unsigned char tm_impl_hupdate(struct treemap_node *node)
+{
+    if (node == ((void *)0))
+        return 0;
+    unsigned char h_l = tm_impl_h(node->left);
+    unsigned char h_r = tm_impl_h(node->right);
+    return 1 + (h_l > h_r ? h_l : h_r);
+}
+static void tm_impl_rotate_right(struct treemap_node **Z)
+{
+    struct treemap_node *root = *Z;
+    struct treemap_node *new_root = root->left;
+    if (root->parent != ((void *)0))
+    {
+        if (root->parent->left == root)
+            root->parent->left = new_root;
+        else
+            root->parent->right = new_root;
+    }
+    new_root->parent = root->parent;
+    root->parent = new_root;
+    root->left = new_root->right;
+    if (root->left)
+        root->left->parent = root;
+    new_root->right = root;
+    root->height = tm_impl_hupdate(root);
+    new_root->height = tm_impl_hupdate(new_root);
+    *Z = new_root;
+}
+static void tm_impl_rotate_left(struct treemap_node **Z)
+{
+    struct treemap_node *root = *Z;
+    struct treemap_node *new_root = root->right;
+    if (root->parent != ((void *)0))
+    {
+        if (root->parent->right == root)
+            root->parent->right = new_root;
+        else
+            root->parent->left = new_root;
+    }
+    new_root->parent = root->parent;
+    root->parent = new_root;
+    root->right = new_root->left;
+    if (root->right)
+        root->right->parent = root;
+    new_root->left = root;
+    root->height = tm_impl_hupdate(root);
+    new_root->height = tm_impl_hupdate(new_root);
+    *Z = new_root;
+}
+static void tm_impl_rebalance(struct treemap *_map_, struct treemap_node *node)
+{
+    struct treemap_node *scan = node, *child = ((void *)0);
+    int balance;
+    _Bool is_root = 0;
+    while (scan != ((void *)0))
+    {
+        if (scan->parent == ((void *)0))
+            is_root = 1;
+        scan->height = tm_impl_hupdate(scan);
+        balance = tm_impl_h(scan->right) - tm_impl_h(scan->left);
+        if (balance >= 2)
+        {
+            child = scan->right;
+            if (tm_impl_h(child->right) < tm_impl_h(child->left))
+                tm_impl_rotate_right(&(scan->right));
+            tm_impl_rotate_left(&scan);
+        }
+        else if (balance <= -2)
+        {
+            child = scan->left;
+            if (tm_impl_h(child->left) < tm_impl_h(child->right))
+                tm_impl_rotate_left(&(scan->left));
+            tm_impl_rotate_right(&scan);
+        }
+        if (is_root)
+        {
+            _map_->root = scan;
+            is_root = 0;
+        }
+        scan = scan->parent;
+    }
 }
 struct treemap_iter tm_iter_start(struct treemap *target)
 {
@@ -715,121 +829,64 @@ size_t tm_iter_index(struct treemap_iter *iter)
 {
     return iter->index;
 }
-static struct treemap_node *tm_impl_new_node(struct treemap *_map_, size_t key, size_t value)
+_Bool tm_to_string(struct treemap *_map_, FILE *fptr)
 {
-    struct treemap_node *node = _map_->alloc->malloc(sizeof(struct treemap_node));
-    if (!node)
-        return ((void *)0);
-    node->key = key;
-    node->value = value;
-    node->right = ((void *)0);
-    node->left = ((void *)0);
-    node->parent = ((void *)0);
-    node->height = 0;
-    return node;
+    struct treemap *m_ = _map_;
+    return 0 <= fprintf(fptr,
+                        "struct %s<%s, %s> "
+                        "at %p { "
+                        "root:%p, "
+                        "count:%"
+                        "I64u"
+                        ", "
+                        "flag:%d, "
+                        "f_val:%p, "
+                        "f_key:%p, "
+                        "alloc:%p, "
+                        "callbacks:%p }",
+                        "treemap", "size_t", "size_t", m_, m_->root, m_->count, m_->flag, m_->f_key, m_->f_val,
+                        m_->alloc, (m_)->callbacks);
 }
-static struct treemap_node *tm_impl_get_node(struct treemap *_map_, size_t key)
+_Bool tm_print(struct treemap *_map_, FILE *fptr, const char *start, const char *separator, const char *end,
+               const char *key_val_sep)
 {
-    struct treemap_node *scan = _map_->root;
-    while (scan != ((void *)0))
+    fprintf(fptr, "%s", start);
+    struct treemap_node *root = _map_->root;
+    _Bool left_done = 0;
+    size_t i = 0;
+    while (root)
     {
-        if (_map_->f_key->cmp(scan->key, key) > 0)
-            scan = scan->left;
-        else if (_map_->f_key->cmp(scan->key, key) < 0)
-            scan = scan->right;
-        else
-            return scan;
-    }
-    return ((void *)0);
-}
-static unsigned char tm_impl_h(struct treemap_node *node)
-{
-    if (node == ((void *)0))
-        return 0;
-    return node->height;
-}
-static unsigned char tm_impl_hupdate(struct treemap_node *node)
-{
-    if (node == ((void *)0))
-        return 0;
-    unsigned char h_l = tm_impl_h(node->left);
-    unsigned char h_r = tm_impl_h(node->right);
-    return 1 + (h_l > h_r ? h_l : h_r);
-}
-static void tm_impl_rotate_right(struct treemap_node **Z)
-{
-    struct treemap_node *root = *Z;
-    struct treemap_node *new_root = root->left;
-    if (root->parent != ((void *)0))
-    {
-        if (root->parent->left == root)
-            root->parent->left = new_root;
-        else
-            root->parent->right = new_root;
-    }
-    new_root->parent = root->parent;
-    root->parent = new_root;
-    root->left = new_root->right;
-    if (root->left)
-        root->left->parent = root;
-    new_root->right = root;
-    root->height = tm_impl_hupdate(root);
-    new_root->height = tm_impl_hupdate(new_root);
-    *Z = new_root;
-}
-static void tm_impl_rotate_left(struct treemap_node **Z)
-{
-    struct treemap_node *root = *Z;
-    struct treemap_node *new_root = root->right;
-    if (root->parent != ((void *)0))
-    {
-        if (root->parent->right == root)
-            root->parent->right = new_root;
-        else
-            root->parent->left = new_root;
-    }
-    new_root->parent = root->parent;
-    root->parent = new_root;
-    root->right = new_root->left;
-    if (root->right)
-        root->right->parent = root;
-    new_root->left = root;
-    root->height = tm_impl_hupdate(root);
-    new_root->height = tm_impl_hupdate(new_root);
-    *Z = new_root;
-}
-static void tm_impl_rebalance(struct treemap *_map_, struct treemap_node *node)
-{
-    struct treemap_node *scan = node, *child = ((void *)0);
-    int balance;
-    _Bool is_root = 0;
-    while (scan != ((void *)0))
-    {
-        if (scan->parent == ((void *)0))
-            is_root = 1;
-        scan->height = tm_impl_hupdate(scan);
-        balance = tm_impl_h(scan->right) - tm_impl_h(scan->left);
-        if (balance >= 2)
+        if (!left_done)
         {
-            child = scan->right;
-            if (tm_impl_h(child->right) < tm_impl_h(child->left))
-                tm_impl_rotate_right(&(scan->right));
-            tm_impl_rotate_left(&scan);
+            while (root->left)
+                root = root->left;
         }
-        else if (balance <= -2)
+        if (!_map_->f_key->str(fptr, root->key))
+            return 0;
+        fprintf(fptr, "%s", key_val_sep);
+        if (!_map_->f_val->str(fptr, root->value))
+            return 0;
+        if (++i < _map_->count)
+            fprintf(fptr, "%s", separator);
+        left_done = 1;
+        if (root->right)
         {
-            child = scan->left;
-            if (tm_impl_h(child->left) < tm_impl_h(child->right))
-                tm_impl_rotate_left(&(scan->left));
-            tm_impl_rotate_right(&scan);
+            left_done = 0;
+            root = root->right;
         }
-        if (is_root)
+        else if (root->parent)
         {
-            _map_->root = scan;
-            is_root = 0;
+            while (root->parent && root == root->parent->right)
+                root = root->parent;
+            if (!root->parent)
+                break;
+            root = root->parent;
         }
-        scan = scan->parent;
+        else
+            break;
     }
+    fprintf(fptr, "%s", end);
+    return 1;
 }
 
 #endif /* CMC_TEST_SRC_TREEMAP */

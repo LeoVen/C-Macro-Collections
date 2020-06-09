@@ -23,13 +23,6 @@ struct heap_fval
     size_t (*hash)(size_t);
     int (*pri)(size_t, size_t);
 };
-struct heap_iter
-{
-    struct heap *target;
-    size_t cursor;
-    _Bool start;
-    _Bool end;
-};
 struct heap *h_new(size_t capacity, enum cmc_heap_order HO, struct heap_fval *f_val);
 struct heap *h_new_custom(size_t capacity, enum cmc_heap_order HO, struct heap_fval *f_val,
                           struct cmc_alloc_node *alloc, struct cmc_callbacks *callbacks);
@@ -48,8 +41,13 @@ int h_flag(struct heap *_heap_);
 _Bool h_resize(struct heap *_heap_, size_t capacity);
 struct heap *h_copy_of(struct heap *_heap_);
 _Bool h_equals(struct heap *_heap1_, struct heap *_heap2_);
-struct cmc_string h_to_string(struct heap *_heap_);
-_Bool h_print(struct heap *_heap_, FILE *fptr);
+struct heap_iter
+{
+    struct heap *target;
+    size_t cursor;
+    _Bool start;
+    _Bool end;
+};
 struct heap_iter h_iter_start(struct heap *target);
 struct heap_iter h_iter_end(struct heap *target);
 _Bool h_iter_at_start(struct heap_iter *iter);
@@ -63,38 +61,18 @@ _Bool h_iter_rewind(struct heap_iter *iter, size_t steps);
 _Bool h_iter_go_to(struct heap_iter *iter, size_t index);
 size_t h_iter_value(struct heap_iter *iter);
 size_t h_iter_index(struct heap_iter *iter);
+_Bool h_to_string(struct heap *_heap_, FILE *fptr);
+_Bool h_print(struct heap *_heap_, FILE *fptr, const char *start, const char *separator, const char *end);
 static void h_impl_float_up(struct heap *_heap_, size_t index);
 static void h_impl_float_down(struct heap *_heap_, size_t index);
 struct heap *h_new(size_t capacity, enum cmc_heap_order HO, struct heap_fval *f_val)
 {
-    struct cmc_alloc_node *alloc = &cmc_alloc_node_default;
-    if (capacity < 1)
-        return ((void *)0);
-    if (HO != CMC_MIN_HEAP && HO != CMC_MAX_HEAP)
-        return ((void *)0);
-    if (!f_val)
-        return ((void *)0);
-    struct heap *_heap_ = alloc->malloc(sizeof(struct heap));
-    if (!_heap_)
-        return ((void *)0);
-    _heap_->buffer = alloc->calloc(capacity, sizeof(size_t));
-    if (!_heap_->buffer)
-    {
-        alloc->free(_heap_);
-        return ((void *)0);
-    }
-    _heap_->capacity = capacity;
-    _heap_->count = 0;
-    _heap_->HO = HO;
-    _heap_->flag = CMC_FLAG_OK;
-    _heap_->f_val = f_val;
-    _heap_->alloc = alloc;
-    _heap_->callbacks = ((void *)0);
-    return _heap_;
+    return h_new_custom(capacity, HO, f_val, ((void *)0), ((void *)0));
 }
 struct heap *h_new_custom(size_t capacity, enum cmc_heap_order HO, struct heap_fval *f_val,
                           struct cmc_alloc_node *alloc, struct cmc_callbacks *callbacks)
 {
+    ;
     if (capacity < 1)
         return ((void *)0);
     if (HO != CMC_MIN_HEAP && HO != CMC_MAX_HEAP)
@@ -118,7 +96,7 @@ struct heap *h_new_custom(size_t capacity, enum cmc_heap_order HO, struct heap_f
     _heap_->flag = CMC_FLAG_OK;
     _heap_->f_val = f_val;
     _heap_->alloc = alloc;
-    _heap_->callbacks = callbacks;
+    (_heap_)->callbacks = callbacks;
     return _heap_;
 }
 void h_clear(struct heap *_heap_)
@@ -148,11 +126,12 @@ void h_free(struct heap *_heap_)
 }
 void h_customize(struct heap *_heap_, struct cmc_alloc_node *alloc, struct cmc_callbacks *callbacks)
 {
+    ;
     if (!alloc)
         _heap_->alloc = &cmc_alloc_node_default;
     else
         _heap_->alloc = alloc;
-    _heap_->callbacks = callbacks;
+    (_heap_)->callbacks = callbacks;
     _heap_->flag = CMC_FLAG_OK;
 }
 _Bool h_insert(struct heap *_heap_, size_t value)
@@ -168,8 +147,9 @@ _Bool h_insert(struct heap *_heap_, size_t value)
         h_impl_float_up(_heap_, _heap_->count - 1);
     }
     _heap_->flag = CMC_FLAG_OK;
-    if (_heap_->callbacks && _heap_->callbacks->create)
-        _heap_->callbacks->create();
+    if ((_heap_)->callbacks && (_heap_)->callbacks->create)
+        (_heap_)->callbacks->create();
+    ;
     return 1;
 }
 _Bool h_remove(struct heap *_heap_)
@@ -184,8 +164,9 @@ _Bool h_remove(struct heap *_heap_)
     _heap_->count--;
     h_impl_float_down(_heap_, 0);
     _heap_->flag = CMC_FLAG_OK;
-    if (_heap_->callbacks && _heap_->callbacks->delete)
-        _heap_->callbacks->delete ();
+    if ((_heap_)->callbacks && (_heap_)->callbacks->delete)
+        (_heap_)->callbacks->delete ();
+    ;
     return 1;
 }
 size_t h_peek(struct heap *_heap_)
@@ -196,8 +177,9 @@ size_t h_peek(struct heap *_heap_)
         return (size_t){ 0 };
     }
     _heap_->flag = CMC_FLAG_OK;
-    if (_heap_->callbacks && _heap_->callbacks->read)
-        _heap_->callbacks->read();
+    if ((_heap_)->callbacks && (_heap_)->callbacks->read)
+        (_heap_)->callbacks->read();
+    ;
     return _heap_->buffer[0];
 }
 _Bool h_contains(struct heap *_heap_, size_t value)
@@ -212,8 +194,9 @@ _Bool h_contains(struct heap *_heap_, size_t value)
             break;
         }
     }
-    if (_heap_->callbacks && _heap_->callbacks->read)
-        _heap_->callbacks->read();
+    if ((_heap_)->callbacks && (_heap_)->callbacks->read)
+        (_heap_)->callbacks->read();
+    ;
     return result;
 }
 _Bool h_empty(struct heap *_heap_)
@@ -255,18 +238,20 @@ _Bool h_resize(struct heap *_heap_, size_t capacity)
     _heap_->buffer = new_buffer;
     _heap_->capacity = capacity;
 success:
-    if (_heap_->callbacks && _heap_->callbacks->resize)
-        _heap_->callbacks->resize();
+    if ((_heap_)->callbacks && (_heap_)->callbacks->resize)
+        (_heap_)->callbacks->resize();
+    ;
     return 1;
 }
 struct heap *h_copy_of(struct heap *_heap_)
 {
-    struct heap *result = h_new_custom(_heap_->capacity, _heap_->HO, _heap_->f_val, _heap_->alloc, _heap_->callbacks);
+    struct heap *result = h_new_custom(_heap_->capacity, _heap_->HO, _heap_->f_val, _heap_->alloc, ((void *)0));
     if (!result)
     {
         _heap_->flag = CMC_FLAG_ERROR;
         return ((void *)0);
     }
+    (result)->callbacks = _heap_->callbacks;
     if (_heap_->f_val->cpy)
     {
         for (size_t i = 0; i < _heap_->count; i++)
@@ -290,6 +275,51 @@ _Bool h_equals(struct heap *_heap1_, struct heap *_heap2_)
             return 0;
     }
     return 1;
+}
+static void h_impl_float_up(struct heap *_heap_, size_t index)
+{
+    size_t C = index;
+    size_t child = _heap_->buffer[C];
+    size_t parent = _heap_->buffer[(index - 1) / 2];
+    int mod = _heap_->HO;
+    while (C > 0 && _heap_->f_val->cmp(child, parent) * mod > 0)
+    {
+        size_t tmp = _heap_->buffer[C];
+        _heap_->buffer[C] = _heap_->buffer[(C - 1) / 2];
+        _heap_->buffer[(C - 1) / 2] = tmp;
+        C = (C - 1) / 2;
+        if (C == 0)
+            break;
+        child = _heap_->buffer[C];
+        parent = _heap_->buffer[(C - 1) / 2];
+    }
+}
+static void h_impl_float_down(struct heap *_heap_, size_t index)
+{
+    int mod = _heap_->HO;
+    while (index < _heap_->count)
+    {
+        size_t L = 2 * index + 1;
+        size_t R = 2 * index + 2;
+        size_t C = index;
+        if (L < _heap_->count && _heap_->f_val->cmp(_heap_->buffer[L], _heap_->buffer[C]) * mod > 0)
+        {
+            C = L;
+        }
+        if (R < _heap_->count && _heap_->f_val->cmp(_heap_->buffer[R], _heap_->buffer[C]) * mod > 0)
+        {
+            C = R;
+        }
+        if (C != index)
+        {
+            size_t tmp = _heap_->buffer[index];
+            _heap_->buffer[index] = _heap_->buffer[C];
+            _heap_->buffer[C] = tmp;
+            index = C;
+        }
+        else
+            break;
+    }
 }
 struct heap_iter h_iter_start(struct heap *target)
 {
@@ -419,50 +449,40 @@ size_t h_iter_index(struct heap_iter *iter)
 {
     return iter->cursor;
 }
-static void h_impl_float_up(struct heap *_heap_, size_t index)
+_Bool h_to_string(struct heap *_heap_, FILE *fptr)
 {
-    size_t C = index;
-    size_t child = _heap_->buffer[C];
-    size_t parent = _heap_->buffer[(index - 1) / 2];
-    int mod = _heap_->HO;
-    while (C > 0 && _heap_->f_val->cmp(child, parent) * mod > 0)
-    {
-        size_t tmp = _heap_->buffer[C];
-        _heap_->buffer[C] = _heap_->buffer[(C - 1) / 2];
-        _heap_->buffer[(C - 1) / 2] = tmp;
-        C = (C - 1) / 2;
-        if (C == 0)
-            break;
-        child = _heap_->buffer[C];
-        parent = _heap_->buffer[(C - 1) / 2];
-    }
+    struct heap *h_ = _heap_;
+    const char *t = h_->HO == 1 ? "MaxHeap" : "MinHeap";
+    return 0 <= fprintf(fptr,
+                        "struct %s<%s> "
+                        "at %p { "
+                        "buffer:%p, "
+                        "capacity:%"
+                        "I64u"
+                        ", "
+                        "count:%"
+                        "I64u"
+                        ", "
+                        "type:%s, "
+                        "flag:%d, "
+                        "f_val:%p, "
+                        "alloc:%p, "
+                        "callbacks: %p}",
+                        "heap", "size_t", h_, h_->buffer, h_->capacity, h_->count, t, h_->flag, h_->f_val, h_->alloc,
+                        (h_)->callbacks);
 }
-static void h_impl_float_down(struct heap *_heap_, size_t index)
+_Bool h_print(struct heap *_heap_, FILE *fptr, const char *start, const char *separator, const char *end)
 {
-    int mod = _heap_->HO;
-    while (index < _heap_->count)
+    fprintf(fptr, "%s", start);
+    for (size_t i = 0; i < _heap_->count; i++)
     {
-        size_t L = 2 * index + 1;
-        size_t R = 2 * index + 2;
-        size_t C = index;
-        if (L < _heap_->count && _heap_->f_val->cmp(_heap_->buffer[L], _heap_->buffer[C]) * mod > 0)
-        {
-            C = L;
-        }
-        if (R < _heap_->count && _heap_->f_val->cmp(_heap_->buffer[R], _heap_->buffer[C]) * mod > 0)
-        {
-            C = R;
-        }
-        if (C != index)
-        {
-            size_t tmp = _heap_->buffer[index];
-            _heap_->buffer[index] = _heap_->buffer[C];
-            _heap_->buffer[C] = tmp;
-            index = C;
-        }
-        else
-            break;
+        if (!_heap_->f_val->str(fptr, _heap_->buffer[i]))
+            return 0;
+        if (i + 1 < _heap_->count)
+            fprintf(fptr, "%s", separator);
     }
+    fprintf(fptr, "%s", end);
+    return 1;
 }
 
 #endif /* CMC_TEST_SRC_HEAP */
