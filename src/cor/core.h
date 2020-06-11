@@ -98,13 +98,4 @@
 #define CMC_PARAM_K CMC_TUP_3
 #define CMC_PARAM_V CMC_TUP_4
 
-/**
- * Marks a function parameter used or unused depending on the expanded value of
- * MACRO. It need to expand to either TRUE or FALSE.
- */
-#define CMC_UNUSED_PARAM(MACRO, PARAM) CMC_(CMC_UNUSED_PARAM_, MACRO)(PARAM)
-
-#define CMC_UNUSED_PARAM_FALSE(PARAM) PARAM
-#define CMC_UNUSED_PARAM_TRUE(PARAM)
-
 #endif /* CMC_COR_CORE_H */

@@ -38,10 +38,34 @@
 
 /**
  * Core HashBidiMap implementation
+ *
+ * \param ACCESS Either PUBLIC or PRIVATE
+ * \param FILE   Either HEADER or SOURCE
+ * \param PARAMS A tuple of form (PFX, SNAME, SIZE, K, V)
  */
-#define CMC_CMC_HASHBIDIMAP_CORE(PARAMS) \
-    CMC_CMC_HASHBIDIMAP_CORE_HEADER(PARAMS) \
+#define CMC_CMC_HASHBIDIMAP_CORE(ACCESS, FILE, PARAMS) \
+    CMC_(CMC_(CMC_CMC_HASHBIDIMAP_CORE_, ACCESS), CMC_(_, FILE))(PARAMS)
+
+/* PRIVATE or PUBLIC solver */
+#define CMC_CMC_HASHBIDIMAP_CORE_PUBLIC_HEADER(PARAMS) \
+    CMC_CMC_HASHBIDIMAP_CORE_STRUCT(PARAMS) \
+    CMC_CMC_HASHBIDIMAP_CORE_HEADER(PARAMS)
+
+#define CMC_CMC_HASHBIDIMAP_CORE_PUBLIC_SOURCE(PARAMS) CMC_CMC_HASHBIDIMAP_CORE_SOURCE(PARAMS)
+
+#define CMC_CMC_HASHBIDIMAP_CORE_PRIVATE_HEADER(PARAMS) \
+    struct CMC_PARAM_SNAME(PARAMS); \
+    struct CMC_DEF_ENTRY(CMC_PARAM_SNAME(PARAMS)); \
+    CMC_CMC_HASHBIDIMAP_CORE_HEADER(PARAMS)
+
+#define CMC_CMC_HASHBIDIMAP_CORE_PRIVATE_SOURCE(PARAMS) \
+    CMC_CMC_HASHBIDIMAP_CORE_STRUCT(PARAMS) \
     CMC_CMC_HASHBIDIMAP_CORE_SOURCE(PARAMS)
+
+/* Lowest level API */
+#define CMC_CMC_HASHBIDIMAP_CORE_STRUCT(PARAMS) \
+    CMC_CMC_HASHBIDIMAP_CORE_STRUCT_(CMC_PARAM_PFX(PARAMS), CMC_PARAM_SNAME(PARAMS), CMC_PARAM_K(PARAMS), \
+                                     CMC_PARAM_V(PARAMS))
 
 #define CMC_CMC_HASHBIDIMAP_CORE_HEADER(PARAMS) \
     CMC_CMC_HASHBIDIMAP_CORE_HEADER_(CMC_PARAM_PFX(PARAMS), CMC_PARAM_SNAME(PARAMS), CMC_PARAM_K(PARAMS), \
@@ -52,9 +76,9 @@
                                      CMC_PARAM_V(PARAMS))
 
 /* -------------------------------------------------------------------------
- * Header
+ * Struct
  * ------------------------------------------------------------------------- */
-#define CMC_CMC_HASHBIDIMAP_CORE_HEADER_(PFX, SNAME, K, V) \
+#define CMC_CMC_HASHBIDIMAP_CORE_STRUCT_(PFX, SNAME, K, V) \
 \
     /* HashBidiMap Structure */ \
     struct SNAME \
@@ -114,7 +138,12 @@
         /* ref[0] is relative to K -> V */ \
         /* ref[1] is relative to V -> K */ \
         struct CMC_DEF_ENTRY(SNAME) * *ref[2]; \
-    }; \
+    };
+
+/* -------------------------------------------------------------------------
+ * Header
+ * ------------------------------------------------------------------------- */
+#define CMC_CMC_HASHBIDIMAP_CORE_HEADER_(PFX, SNAME, K, V) \
 \
     /* Key struct function table */ \
     struct CMC_DEF_FKEY(SNAME) \

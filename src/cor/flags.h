@@ -11,6 +11,8 @@
 #ifndef CMC_COR_FLAGS_H
 #define CMC_COR_FLAGS_H
 
+#include "core.h"
+
 /**
  * enum cmc_flags
  *
@@ -37,7 +39,7 @@ enum cmc_flags
  *
  * Maps the error codes to their character representation.
  */
-const char *cmc_flags_to_str[10] = { "OK",    "ALLOC",     "EMPTY", "NOT_FOUND", "INVALID",
-                                     "RANGE", "DUPLICATE", "ERROR", "THREAD",    "MUTEX" };
+CMC_UNUSED static const char *cmc_flags_to_str[10] = { "OK",    "ALLOC",     "EMPTY", "NOT_FOUND", "INVALID",
+                                                       "RANGE", "DUPLICATE", "ERROR", "THREAD",    "MUTEX" };
 
 #endif /* CMC_COR_FLAGS_H */

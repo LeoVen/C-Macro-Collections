@@ -43,19 +43,39 @@
 
 /**
  * Core BitSet implementation
+ *
+ * \param ACCESS Either PUBLIC or PRIVATE
+ * \param FILE   Either HEADER or SOURCE
+ * \param PARAMS A tuple of form (PFX, SNAME, SIZE, K, V)
  */
-#define CMC_CMC_BITSET_CORE(PARAMS) \
-    CMC_CMC_BITSET_CORE_HEADER(PARAMS) \
+#define CMC_CMC_BITSET_CORE(ACCESS, FILE, PARAMS) CMC_(CMC_(CMC_CMC_BITSET_CORE_, ACCESS), CMC_(_, FILE))(PARAMS)
+
+/* PRIVATE or PUBLIC solver */
+#define CMC_CMC_BITSET_CORE_PUBLIC_HEADER(PARAMS) \
+    CMC_CMC_BITSET_CORE_STRUCT(PARAMS) \
+    CMC_CMC_BITSET_CORE_HEADER(PARAMS)
+
+#define CMC_CMC_BITSET_CORE_PUBLIC_SOURCE(PARAMS) CMC_CMC_BITSET_CORE_SOURCE(PARAMS)
+
+#define CMC_CMC_BITSET_CORE_PRIVATE_HEADER(PARAMS) \
+    struct CMC_PARAM_SNAME(PARAMS); \
+    CMC_CMC_BITSET_CORE_HEADER(PARAMS)
+
+#define CMC_CMC_BITSET_CORE_PRIVATE_SOURCE(PARAMS) \
+    CMC_CMC_BITSET_CORE_STRUCT(PARAMS) \
     CMC_CMC_BITSET_CORE_SOURCE(PARAMS)
+
+/* Lowest level API */
+#define CMC_CMC_BITSET_CORE_STRUCT(PARAMS) CMC_CMC_BITSET_CORE_STRUCT_(CMC_PARAM_PFX(PARAMS), CMC_PARAM_SNAME(PARAMS))
 
 #define CMC_CMC_BITSET_CORE_HEADER(PARAMS) CMC_CMC_BITSET_CORE_HEADER_(CMC_PARAM_PFX(PARAMS), CMC_PARAM_SNAME(PARAMS))
 
 #define CMC_CMC_BITSET_CORE_SOURCE(PARAMS) CMC_CMC_BITSET_CORE_SOURCE_(CMC_PARAM_PFX(PARAMS), CMC_PARAM_SNAME(PARAMS))
 
 /* -------------------------------------------------------------------------
- * Header
+ * Struct
  * ------------------------------------------------------------------------- */
-#define CMC_CMC_BITSET_CORE_HEADER_(PFX, SNAME) \
+#define CMC_CMC_BITSET_CORE_STRUCT_(PFX, SNAME) \
 \
     /* BitSet Structure */ \
     struct SNAME \
@@ -74,7 +94,12 @@
 \
         /* Custom callback functions */ \
         CMC_CALLBACKS_DECL; \
-    }; \
+    };
+
+/* -------------------------------------------------------------------------
+ * Header
+ * ------------------------------------------------------------------------- */
+#define CMC_CMC_BITSET_CORE_HEADER_(PFX, SNAME) \
 \
     /* BitSet Iterator */ \
     struct CMC_DEF_ITER(SNAME) \
@@ -157,6 +182,8 @@
     struct SNAME *CMC_(PFX, _new_custom)(size_t n_bits, struct CMC_ALLOC_NODE_NAME * alloc, \
                                          struct CMC_CALLBACKS_NAME * callbacks) \
     { \
+        CMC_CALLBACKS_MAYBE_UNUSED(callbacks); \
+\
         if (n_bits < 1) \
             return NULL; \
 \

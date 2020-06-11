@@ -3,6 +3,7 @@
 #include "macro_collections.h"
 
 // clang-format off
+C_MACRO_COLLECTIONS_ALL(CMC,       BITSET, ( bs,       bitset, ,    ,    ))
 C_MACRO_COLLECTIONS_ALL(CMC,        DEQUE, (  d,        deque, ,    , int))
 C_MACRO_COLLECTIONS_ALL(CMC,  HASHBIDIMAP, (hbm,  hashbidimap, , int, int))
 C_MACRO_COLLECTIONS_ALL(CMC,      HASHMAP, ( hm,      hashmap, , int, int))
