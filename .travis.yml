@@ -12,7 +12,6 @@ addons:
 script:
   - sudo ln -s /usr/bin/gcc-6 /usr/local/bin/gcc
   - export CC=gcc-7
-#  - make -C ./tests/
-  - make -C ./tests/main/
+  - make coverage
 after_success:
   - bash <(curl -s https://codecov.io/bash)

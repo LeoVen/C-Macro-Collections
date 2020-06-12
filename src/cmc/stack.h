@@ -378,7 +378,7 @@
             return NULL; \
         } \
 \
-        CMC_CALLBACKS_ASSIGN(_stack_, callbacks); \
+        CMC_CALLBACKS_ASSIGN(result, _stack_->callbacks); \
 \
         if (_stack_->f_val->cpy) \
         { \

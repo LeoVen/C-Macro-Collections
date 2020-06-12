@@ -5,6 +5,11 @@ import sys
 import re
 import subprocess
 
+# Make sure we have the specified directory
+def assert_dir(dir):
+    if not os.path.exists(dir):
+        os.makedirs(dir)
+
 # Compiler settings
 CC = 'gcc'
 INCLUDE = '-I ./src'
@@ -22,10 +27,21 @@ UNIQUE_FLAG = '// C_MACRO_COLLECTIONS_CODE'
 TMP_FILE = './main.c'
 
 # Output directory
-OUTPUT_DIR = './tests/main/src'
+# In this directory it is assumed that the following files and folders are
+# included: main.c, unt folder
+OUTPUT_DIR = './tests'
+
+# All libraries
+ALL_LIBS = ['CMC', 'SAC', 'TSC']
+
+# Directory mapping
+DIR_MAP = {'HEADER': 'include', 'SOURCE': 'src'}
+
+# File extension mapping
+EXT_MAP = {'HEADER': 'h', 'SOURCE': 'c'}
 
 collections = [
-    # type, header, pfx, sname, key, val
+    # header, library, collection, pfx, sname, size, key, val
     {'h': '"cmc/bitset.h"',       'LIB': 'CMC', 'COLLECTION': 'BITSET',       'PFX': 'bs',  'SNAME': 'bitset',       'SIZE': '', 'K': '',       'V': ''      },
     {'h': '"cmc/deque.h"',        'LIB': 'CMC', 'COLLECTION': 'DEQUE',        'PFX': 'd',   'SNAME': 'deque',        'SIZE': '', 'K': '',       'V': 'size_t'},
     {'h': '"cmc/hashbidimap.h"',  'LIB': 'CMC', 'COLLECTION': 'HASHBIDIMAP',  'PFX': 'hbm', 'SNAME': 'hashbidimap',  'SIZE': '', 'K': 'size_t', 'V': 'size_t'},
@@ -45,55 +61,155 @@ collections = [
 ]
 
 # Create output directory
-if not os.path.exists(OUTPUT_DIR):
-    os.makedirs(OUTPUT_DIR)
+assert_dir(OUTPUT_DIR)
 
-for data in collections:
-    file = open(TMP_FILE, 'w')
+# include and src
+for dir in DIR_MAP.values():
+    assert_dir(f'{OUTPUT_DIR}/{dir}')
 
-    file.write(
-    f'''
-    #include "macro_collections.h"
+# For each library, create a folder for include and src
+for lib in ALL_LIBS:
+    for dir in DIR_MAP.values():
+        assert_dir(f'{OUTPUT_DIR}/{dir}/{lib.lower()}')
 
-    {UNIQUE_FLAG}
+# Generate Header and Source separately
+for ftype in ['HEADER', 'SOURCE']:
+    for data in collections:
+        file = open(TMP_FILE, 'w')
 
-    C_MACRO_COLLECTIONS_ALL({data['LIB']}, {data['COLLECTION']}, ({', '.join([data['PFX'], data['SNAME'], data['SIZE'], data['K'], data['V']])}))
+        file.write(
+        f'''
+        #include "macro_collections.h"
 
-    {UNIQUE_FLAG}
-    ''')
+        {UNIQUE_FLAG}
 
-    file.flush()
-    file.close()
+        C_MACRO_COLLECTIONS_ALL_{ftype}({data['LIB']}, {data['COLLECTION']}, ({', '.join([data['PFX'], data['SNAME'], data['SIZE'], data['K'], data['V']])}))
 
-    result = subprocess.getoutput(f'{CC} {FLAGS} {INCLUDE} {TMP_FILE}')
+        {UNIQUE_FLAG}
+        ''')
 
-    # (?s) makes '.' match anything, even '\n'
-    match = re.search(fr'(?s){UNIQUE_FLAG}(?P<code>.+){UNIQUE_FLAG}', result)
+        file.flush()
+        file.close()
 
-    if match is None:
-        os.remove(TMP_FILE)
-        print('Didn\'t match FLAG. Probably because compilation failed.', file=sys.stderr)
-        exit(1)
+        result = subprocess.getoutput(f'{CC} {FLAGS} {INCLUDE} {TMP_FILE}')
 
-    file = open(f'{OUTPUT_DIR}/{data["SNAME"]}.c', 'w')
+        # (?s) makes '.' match anything, even '\n'
+        match = re.search(fr'(?s){UNIQUE_FLAG}(?P<code>.+){UNIQUE_FLAG}', result)
 
-    file.write(
-    f'''#ifndef CMC_TEST_SRC_{data['COLLECTION']}
-        #define CMC_TEST_SRC_{data['COLLECTION']}
+        if match is None:
+            os.remove(TMP_FILE)
+            print('Didn\'t match FLAG. Probably because compilation failed.', file=sys.stderr)
+            exit(1)
 
-        #include {data["h"]}\n{match.group("code")}
+        file = open(f'{OUTPUT_DIR}/{DIR_MAP[ftype]}/{data["LIB"].lower()}/{data["SNAME"]}.{EXT_MAP[ftype]}', 'w')
 
-        #endif /* CMC_TEST_SRC_{data['COLLECTION']} */
-    ''')
+        if ftype == 'HEADER':
+            file.write(
+            f'''
+                #ifndef CMC_{data['LIB']}_{data['COLLECTION']}_TEST_H
+                #define CMC_{data['LIB']}_{data['COLLECTION']}_TEST_H
 
-    file.flush()
-    file.close()
+                #include "macro_collections.h"
+                {match.group('code')}
 
-    print(f'Generated {data["h"]: >20} -> {OUTPUT_DIR}/{data["SNAME"]}.c')
+                #endif /* CMC_{data['LIB']}_{data['COLLECTION']}_TEST_H */
+            ''')
+        else:
+            file.write(
+            f'''
+                #include {data["h"]}
+
+                {match.group("code")}
+            ''')
+
+        file.flush()
+        file.close()
+
+        print(f'Generated {data["h"]: >20} -> {OUTPUT_DIR}/{DIR_MAP[ftype]}/{data["LIB"].lower()}/{data["SNAME"]}.{EXT_MAP[ftype]}')
 
 os.remove(TMP_FILE)
 
 # Format all files
 print('Formating files...')
-subprocess.call(['clang-format', '--style=file', '-i', f'{OUTPUT_DIR}/*.c', '--verbose'])
+
+cmd = ['clang-format', '--style=file', '--verbose', '-i']
+dirs_to_format = [f'{OUTPUT_DIR}/{DIR_MAP[ftype]}/{lib.lower()}/*.{EXT_MAP[ftype]}' for ftype in DIR_MAP.keys() for lib in ALL_LIBS]
+
+cmd.extend(dirs_to_format)
+subprocess.call(cmd)
+
+# Makefile
+BUILD_DIR = f'{OUTPUT_DIR}/build'
+OBJ_DIR = f'{BUILD_DIR}/obj'
+INCLUDE_DIR = f"{OUTPUT_DIR}/{DIR_MAP['HEADER']}"
+SRC_DIR = f"{OUTPUT_DIR}/{DIR_MAP['SOURCE']}"
+
+assert_dir(BUILD_DIR)
+assert_dir(OBJ_DIR)
+
+for lib in ALL_LIBS:
+    assert_dir(f'{OBJ_DIR}/{lib.lower()}')
+
+file = open(f'Makefile', 'w')
+
+file.write(f'''# This file was generated by a Python script
+CC = {CC}
+CFLAGS = -std=c11 -Wall -Wextra
+CFLAGS += -Wno-missing-braces -DCMC_TEST_COLOR
+CVFLAGS = --coverage -O0 -g3
+INCLUDE = {INCLUDE_DIR} -I src
+
+# Runs the script to update tests, run all tests and code coverage
+all: script coverage
+
+tests: script build
+\t{OUTPUT_DIR}/main.exe
+
+# Like build but with coverage
+coverage: {' '.join([f'{OBJ_DIR}/{data["LIB"].lower()}/{data["SNAME"]}.o' for data in collections])} {OBJ_DIR}/main.o
+\t$(CC) $^ -o {OUTPUT_DIR}/main.exe $(CFLAGS) $(CVFLAGS)
+\t{OUTPUT_DIR}/main.exe
+\tgcov {OBJ_DIR}/main.o {' '.join([f'{OBJ_DIR}/{data["LIB"].lower()}/{data["SNAME"]}.o' for data in collections])}
+
+# Run without coverage
+run: build
+\t{OUTPUT_DIR}/main.exe
+
+script:
+\tpython autogen.py
+
+clean:
+\tfind {BUILD_DIR} -type f -delete
+\trm *.gcov
+
+# No coverage build
+build: {' '.join([f'{OBJ_DIR}/{data["LIB"].lower()}/{data["SNAME"]}.o' for data in collections])} {OBJ_DIR}/main.o
+\t$(CC) $^ -o {OUTPUT_DIR}/main.exe $(CFLAGS)
+
+{OBJ_DIR}/main.o: {OUTPUT_DIR}/main.c
+\t$(CC) -c $^ -o $@ -I $(INCLUDE) $(CFLAGS)
+''')
+
+# Code formatting
+file.write('''
+fmt_all: fmt_src fmt_tests
+
+fmt_src: FORCE
+	find ./src/ -iname *.h | xargs clang-format --style=file --verbose -i
+
+fmt_tests: FORCE
+	find ./tests/ -iname *.c -o -iname *.h | xargs clang-format --style=file --verbose -i
+
+.PHONY FORCE:
+
+''')
+
+for data in collections:
+    file.write(f'''
+{OBJ_DIR}/{data['LIB'].lower()}/{data['SNAME']}.o: {SRC_DIR}/{data['LIB'].lower()}/{data['SNAME']}.c {INCLUDE_DIR}/{data['LIB'].lower()}/{data['SNAME']}.h
+\t$(CC) -c $< -o $@ -I $(INCLUDE) $(CFLAGS) $(CVFLAGS)
+''')
+
+file.close()
+
 print('Done')
