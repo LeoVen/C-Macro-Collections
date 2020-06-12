@@ -21,6 +21,77 @@
 
 ## Table of Contents
 
+* Installation
+* Usage
+* Contributing
+* License
+* Features
+
+## Installation
+
+No installation is required. The entire library is made of header files and can be directly included into your project.
+
+## Usage
+
+The header `macro_collections.h` includes every feature from the library and comes with higher level APIs that help you generate collections from specific sub-libraries with specific extensions.
+
+```c
+// WIP
+#include "macro_collections.h"
+
+// A PARAM is a standard way to pass required parameters to the lower level API.
+// It is a tuple of form (PFX, SNAME, SIZE, K, V). In this case, not all of them
+// are used, so we can leave them empty.
+#define MY_LIST_PARAMS (si32, stacki32, , , int32_t)
+
+// High level API. Generate a LIST from the CMC library with the STR extension
+C_MACRO_COLLECTIONS_GEN(PUBLIC, CMC, LIST, MY_LIST_PARAMS, (STR))
+
+bool int_str(FILE *fptr, int val)
+{
+    return 0 <= fprintf(fptr, "%d", val);
+}
+
+int main(void)
+{
+    struct stack_int *stack = sint_new(100, &(struct stack_int_fval) { .str = int_str });
+
+    si32_free(stack);
+}
+
+```
+
+## Contributing
+
+## Features
+
+The C Macro Collections library is organized into many other sub-libraries. The following table is a quick overview.
+
+| Library | Name                             | Description                                                                                                                   |
+| :-----: | -------------------------------- | ----------------------------------------------------------------------------------------------------------------------------- |
+| CMC     | The main C Macro Collections     | The main library with variably-sized collections                                                                              |
+| COR     | Core                             | Core functionalities used by more than one collection, usually from different sub-libraries                                   |
+| EXT     | Extensions                       | Extension to collections from CMC, SAC and TSC libraries                                                                      |
+| INT     | Integrations                     | Macros that facilitate the creation of code that involves more than one type of collection, e.g. transforming a set to a list |
+| SAC     | Statically Allocated Collections | Collections with a fixed sized array that don't use any heap allocation                                                       |
+| TSC     | Thread-Safe Collections          | Collections that allow multiple operations from multiple threads                                                              |
+| UTL     | Utilities                        | Utilities for the library                                                                                                     |
+
+Every macro that generates code for a certain collection can be found with the following template. Some exceptions exist as certain collections don't have or can't have some features. One big example is the `UTL` library, which does not follow this pattern.
+
+```
+macro_name := CMC_[ lib ]_[ collection ]_[ part ]_[ file ]
+
+lib := CMC | COR | DEV | EXT | INT | SAC | TSC
+collection := BITSET | DEQUE | HASHBIDIMAP | HASHMAP | HASHMULTIMAP | HASHMULTISET | HASHSET | HEAP | INTERVALHEAP | LINKEDLIST | LIST | QUEUE | SORTEDLIST | STACK | TREEBIDIMAP | TREEMAP | TREEMULTIMAP | TREEMULTISET | TREESET
+part := CORE | ITER | INIT | SETF | NODE ...
+file := HEADER | SOURCE
+```
+
+__Some `collection`s might not be present in a certain `lib`. Check the documentation.__
+
+Every macro is suffixed by `CMC` and each section is separated by an underscore (`_`). The first section is the library (`lib`). The second is the collection name in all uppercase. Then the `part` (or which feature from it) that you wish to generate. And last, if it is code that should belong to a header file or code that should belong to a source file.
+
 * Project Structure
 * Available Collections
 * Features

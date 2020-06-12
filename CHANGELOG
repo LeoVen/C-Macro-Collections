@@ -1,5 +1,22 @@
 # RELEASE.MAJOR.MINOR
 
+0.24.0
+    A lot of breaking changes, with the library more modular now
+    Comeback of PUBLIC and PRIVATE for the CMC sub-library
+    Callbacks are now optional and can be turned off by defining CMC_NO_CALLBACKS
+    Added EXT library
+    New macro CMC_CAMEL_CASE can change the library's style where the default is snake case
+    Added:
+        ./cor/alloc.h
+        ./cor/callbacks.h
+        ./cor/heap.h
+    Complete rework of tests and code coverage
+    Removed cmc_flags, where now every flag is an enum (CMC_FLAGS_OK, CMC_FLAGS_ERROR, etc)
+    Different include guards
+    New way to generate code using PARAM
+    Code now completely changed by using the CMC_ macro to concatenate tokens
+    Token concatenation with SNAME now uses special macros that allow customization of the suffixes
+
 0.23.1
     Added ./cor/bitset.h
     Added foreach tests
@@ -8,6 +25,7 @@
 
 0.23.0
     Added ./cmc/bitset.h
+    Added ./cor/flags.h
     Added ./utl/futils.h
     Added ./utl/mutex.h
     Added ./utl/thread.h

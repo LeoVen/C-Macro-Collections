@@ -12,11 +12,11 @@ addons:
       - cmake
       - python3.8
 script:
-  - sudo ln -s /usr/bin/gcc-6 /usr/local/bin/gcc
-  - export CC=gcc-7
+  - sudo ln -s /usr/bin/gcc-9 /usr/local/bin/gcc
+  - sudo ln -s /usr/bin/python3.8 /usr/local/bin/python
+  - export CC=gcc-9
   - gcc --version
-  - python3 --version
-  - python3.8 autogen.py
-  - make coverage
+  - python --version
+  - make
 after_success:
   - bash <(curl -s https://codecov.io/bash)
