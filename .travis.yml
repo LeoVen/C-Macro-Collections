@@ -1,4 +1,4 @@
-dist: trusty
+dist: xenial
 os: linux
 language: c
 compiler: gcc
@@ -12,6 +12,7 @@ addons:
 script:
   - sudo ln -s /usr/bin/gcc-6 /usr/local/bin/gcc
   - export CC=gcc-7
-  - make
+  - python3 autogen.py
+  - make coverage
 after_success:
   - bash <(curl -s https://codecov.io/bash)
