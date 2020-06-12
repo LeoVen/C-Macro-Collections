@@ -1,4 +1,5 @@
-# A script that automatically expands the macros for code coverage
+# A script that automatically generates code for code coverage, updates tests
+# and Makefiles, and creates necessary directories
 
 import os
 import sys
@@ -130,15 +131,21 @@ for ftype in ['HEADER', 'SOURCE']:
 os.remove(TMP_FILE)
 
 # Format all files
-print('Formating files...')
+from shutil import which
 
-cmd = ['clang-format', '--style=file', '--verbose', '-i']
-dirs_to_format = [f'{OUTPUT_DIR}/{DIR_MAP[ftype]}/{lib.lower()}/*.{EXT_MAP[ftype]}' for ftype in DIR_MAP.keys() for lib in ALL_LIBS]
+if which('clang-format') is not None:
+    print('clang-format found. Formating files...')
 
-cmd.extend(dirs_to_format)
-subprocess.call(cmd)
+    cmd = ['clang-format', '--style=file', '--verbose', '-i']
+    dirs_to_format = [f'{OUTPUT_DIR}/{DIR_MAP[ftype]}/{lib.lower()}/*.{EXT_MAP[ftype]}' for ftype in DIR_MAP.keys() for lib in ALL_LIBS]
+
+    cmd.extend(dirs_to_format)
+    subprocess.call(cmd)
+else:
+    print('clang-format not found. Skipping code formatting...')
 
 # Makefile
+# Contains many usefull things dealing with tests, code coverage and formatting
 BUILD_DIR = f'{OUTPUT_DIR}/build'
 OBJ_DIR = f'{BUILD_DIR}/obj'
 INCLUDE_DIR = f"{OUTPUT_DIR}/{DIR_MAP['HEADER']}"
@@ -149,6 +156,8 @@ assert_dir(OBJ_DIR)
 
 for lib in ALL_LIBS:
     assert_dir(f'{OBJ_DIR}/{lib.lower()}')
+
+print('Updating Makefile...')
 
 file = open(f'Makefile', 'w')
 
@@ -212,4 +221,4 @@ for data in collections:
 
 file.close()
 
-print('Done')
+print('\nDone')
