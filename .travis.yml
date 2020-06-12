@@ -2,11 +2,21 @@ dist: xenial
 os: linux
 language: c
 compiler: gcc
-before_install:
-  - sudo apt-get -y update
-  - sudo apt-get -y install python3 gcc make
+addons:
+  apt:
+    sources:
+      - deadsnakes
+      - ubuntu-toolchain-r-test
+    packages:
+      - gcc-9
+      - cmake
+      - python3.8
 script:
-  - python3 autogen.py
+  - sudo ln -s /usr/bin/gcc-6 /usr/local/bin/gcc
+  - export CC=gcc-7
+  - gcc --version
+  - python3 --version
+  - python3.8 autogen.py
   - make coverage
 after_success:
   - bash <(curl -s https://codecov.io/bash)
