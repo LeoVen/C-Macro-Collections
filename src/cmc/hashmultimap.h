@@ -769,7 +769,7 @@
         if (CMC_(PFX, _empty)(_map_)) \
         { \
             _map_->flag = CMC_FLAG_EMPTY; \
-            return false; \
+            return (V){ 0 }; \
         } \
 \
         struct CMC_DEF_ENTRY(SNAME) *entry = CMC_(PFX, _impl_get_entry)(_map_, key); \
@@ -792,7 +792,7 @@
         if (CMC_(PFX, _empty)(_map_)) \
         { \
             _map_->flag = CMC_FLAG_EMPTY; \
-            return false; \
+            return NULL; \
         } \
 \
         struct CMC_DEF_ENTRY(SNAME) *entry = CMC_(PFX, _impl_get_entry)(_map_, key); \
