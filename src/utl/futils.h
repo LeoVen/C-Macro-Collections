@@ -323,7 +323,8 @@ static inline size_t cmc_float_hash(float e)
     if (e == 0.0)
         e = 0.0; // if e == -0.0, now it is 0.0
 
-    union {
+    union
+    {
         float a;
         size_t b;
     } x;
@@ -342,7 +343,8 @@ static inline size_t cmc_double_hash(double e)
     if (e == 0.0)
         e = 0.0; // if e == -0.0, now it is 0.0
 
-    union {
+    union
+    {
         double a;
         size_t b;
     } x;

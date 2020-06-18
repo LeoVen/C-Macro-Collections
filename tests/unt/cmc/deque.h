@@ -110,8 +110,7 @@ CMC_CREATE_UNIT(CMCDeque, true, {
     });
 
     CMC_CREATE_TEST(PFX##_init_custom(), {
-        struct deque d =
-            d_init_custom(1000000, d_fval, d_alloc_node, callbacks);
+        struct deque d = d_init_custom(1000000, d_fval, d_alloc_node, callbacks);
 
         cmc_assert_not_equals(ptr, NULL, d.buffer);
         cmc_assert_equals(size_t, 1000000, d.capacity);
@@ -247,8 +246,7 @@ CMC_CREATE_UNIT(CMCDeque, true, {
         cmc_assert_equals(size_t, 1000, d_count(&d));
 
         size_t sum = 0;
-        for (size_t i = d.front, j = 0; j < d.count;
-             i = (i + 1) % d.capacity, j++)
+        for (size_t i = d.front, j = 0; j < d.count; i = (i + 1) % d.capacity, j++)
             sum += d.buffer[i];
 
         cmc_assert_equals(size_t, 500500, sum);

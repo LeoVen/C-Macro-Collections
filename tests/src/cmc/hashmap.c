@@ -277,7 +277,7 @@ size_t hm_get(struct hashmap *_map_, size_t key)
     if (hm_empty(_map_))
     {
         _map_->flag = CMC_FLAG_EMPTY;
-        return 0;
+        return (size_t){ 0 };
     }
     struct hashmap_entry *entry = hm_impl_get_entry(_map_, key);
     if (!entry)
@@ -296,7 +296,7 @@ size_t *hm_get_ref(struct hashmap *_map_, size_t key)
     if (hm_empty(_map_))
     {
         _map_->flag = CMC_FLAG_EMPTY;
-        return 0;
+        return ((void *)0);
     }
     struct hashmap_entry *entry = hm_impl_get_entry(_map_, key);
     if (!entry)

@@ -130,8 +130,7 @@ CMC_CREATE_UNIT(CMCHashMap, true, {
     });
 
     CMC_CREATE_TEST(PFX##_init_custom(), {
-        struct hashmap map = hm_init_custom(943722, 0.6, hm_fkey, hm_fval,
-                                            hm_alloc_node, callbacks);
+        struct hashmap map = hm_init_custom(943722, 0.6, hm_fkey, hm_fval, hm_alloc_node, callbacks);
 
         cmc_assert_not_equals(ptr, NULL, map.buffer);
         cmc_assert_equals(size_t, 0, map.count);
@@ -227,8 +226,7 @@ CMC_CREATE_UNIT(CMCHashMap, true, {
     CMC_CREATE_TEST(PFX##_release(), {
         k_total_free = 0;
         v_total_free = 0;
-        struct hashmap map =
-            hm_init(100, 0.6, hm_fkey_counter, hm_fval_counter);
+        struct hashmap map = hm_init(100, 0.6, hm_fkey_counter, hm_fval_counter);
 
         cmc_assert_not_equals(ptr, NULL, map.buffer);
 

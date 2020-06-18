@@ -339,7 +339,7 @@ size_t tm_get(struct treemap *_map_, size_t key)
     if (tm_empty(_map_))
     {
         _map_->flag = CMC_FLAG_EMPTY;
-        return 0;
+        return (size_t){ 0 };
     }
     struct treemap_node *node = tm_impl_get_node(_map_, key);
     if (!node)
@@ -358,7 +358,7 @@ size_t *tm_get_ref(struct treemap *_map_, size_t key)
     if (tm_empty(_map_))
     {
         _map_->flag = CMC_FLAG_EMPTY;
-        return 0;
+        return ((void *)0);
     }
     struct treemap_node *node = tm_impl_get_node(_map_, key);
     if (!node)

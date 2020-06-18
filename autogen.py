@@ -1,47 +1,100 @@
 # A script that automatically generates code for code coverage, updates tests
 # and Makefiles, and creates necessary directories
 
+import argparse
 import os
-import sys
 import re
+import shutil
 import subprocess
+import sys
+from typing import List, Text
 
-# Make sure we have the specified directory
-def assert_dir(dir):
-    if not os.path.exists(dir):
-        os.makedirs(dir)
+# Config                 Script Configuration
+#   Directories          Names for directories
+#     Output             Where the outputted code is to be put
+#     Build              Where the build objects are to be located
+#   Compiler             Compiler Configurations
+#     Compilation        Tests, code coverage and flags
+#     Macro Expansion    Configuration for the code expansion
+#   Collections          All collections
+#
+# Variables marked as const are to not be modified
 
-# Compiler settings
+# Directories
+
+# Output directory
+# In this directory it is assumed that the following files and directories are
+# included: main.c, unt folder
+OUTPUT_DIR = './tests'
+# All libraries
+ALL_LIBS = ['CMC', 'SAC', 'TSC']
+# Directory mapping
+DIR_MAP = {'HEADER': 'include', 'SOURCE': 'src'}
+# File extension mapping
+EXT_MAP = {'HEADER': 'h', 'SOURCE': 'c'}
+# Where compilation objects will be outputted
+BUILD_DIR = f'{OUTPUT_DIR}/build'
+# const
+INCLUDE_DIR = f"{OUTPUT_DIR}/{DIR_MAP['HEADER']}"
+# const
+SRC_DIR = f"{OUTPUT_DIR}/{DIR_MAP['SOURCE']}"
+# Where object files .o go
+OBJ_DIR = f'{BUILD_DIR}/obj'
+# The name of the main test executable
+TEST_EXE = f'{OUTPUT_DIR}/main.exe'
+
+# Compiler
+
+# Compilation
 CC = 'gcc'
+# Compilation Flags
+CFLAGS = ['-Wall', '-Werror']
+# Coverage Flags
+CVFLAGS = ['--coverage', '-O0']
+# Include to the main Library
+# const
 INCLUDE = '-I ./src'
+# Include to the test file headers
+# const
+TINCLUDE = f'-I {INCLUDE_DIR}'
+
+# Macro expansion
+
 # -E  Only preprocessor
 # -P  No linemarkers
 # -C Keep comments, except those inside macros (for UNIQUE_FLAG)
-FLAGS = '-E -P -C'
-
-# Used to delimiter where the actual code starts and ends
-# Used by regex
-# Needs to be a valid C comment
+# const
+EXPAND_FLAGS = '-E -P -C'
+# Used to delimiter where the actual code starts and ends. Used by regex.
+# Needs to be a valid C comment.
 UNIQUE_FLAG = '// C_MACRO_COLLECTIONS_CODE'
-
 # Temporary file used to expand the macros
 TMP_FILE = './main.c'
 
-# Output directory
-# In this directory it is assumed that the following files and folders are
-# included: main.c, unt folder
-OUTPUT_DIR = './tests'
+# Just a realy helpfull overview
+CONFIG = f'''Directory Settings
+    OUTPUT_DIR = {OUTPUT_DIR}
+    ALL_LIBS = {ALL_LIBS}
+    DIR_MAP = {DIR_MAP}
+    EXT_MAP = {EXT_MAP}
+    BUILD_DIR = {BUILD_DIR}
+    INCLUDE_DIR = {INCLUDE_DIR}
+    SRC_DIR = {SRC_DIR}
+    OBJ_DIR = {OBJ_DIR}
+Compiler Settings
+    CC = {CC}
+    CFLAGS = {CFLAGS}
+    CVFLAGS = {CVFLAGS}
+    INCLUDE = {INCLUDE}
+    TINCLUDE = {TINCLUDE}
+Macro Expansion
+    EXPAND_FLAGS = {EXPAND_FLAGS}
+    UNIQUE_FLAG = {UNIQUE_FLAG}
+    TMP_FILE = {TMP_FILE}'''
 
-# All libraries
-ALL_LIBS = ['CMC', 'SAC', 'TSC']
 
-# Directory mapping
-DIR_MAP = {'HEADER': 'include', 'SOURCE': 'src'}
-
-# File extension mapping
-EXT_MAP = {'HEADER': 'h', 'SOURCE': 'c'}
-
-collections = [
+# All collections that can be used for testing
+COLLECTIONS = [
     # header, library, collection, pfx, sname, size, key, val
     {'h': '"cmc/bitset.h"',       'LIB': 'CMC', 'COLLECTION': 'BITSET',       'PFX': 'bs',  'SNAME': 'bitset',       'SIZE': '', 'K': '',       'V': ''      },
     {'h': '"cmc/deque.h"',        'LIB': 'CMC', 'COLLECTION': 'DEQUE',        'PFX': 'd',   'SNAME': 'deque',        'SIZE': '', 'K': '',       'V': 'size_t'},
@@ -61,164 +114,279 @@ collections = [
     {'h': '"cmc/treeset.h"',      'LIB': 'CMC', 'COLLECTION': 'TREESET',      'PFX': 'ts',  'SNAME': 'treeset',      'SIZE': '', 'K': '',       'V': 'size_t'}
 ]
 
-# Create output directory
-assert_dir(OUTPUT_DIR)
 
-# include and src
-for dir in DIR_MAP.values():
-    assert_dir(f'{OUTPUT_DIR}/{dir}')
+def execute_command(commands: List[Text]):
+    print(' '.join(commands))
+    subprocess.run(commands, shell=True)
 
-# For each library, create a folder for include and src
-for lib in ALL_LIBS:
+
+def assert_executable(program: Text):
+    '''
+        Asserts that a given program is installed and available in PATH
+    '''
+    if shutil.which(program) is None:
+        raise Exception(f'The required executable {program} was not found in your path')
+
+
+def assert_dir(dir: Text):
+    '''
+        Given a string 'dir' that is a path to a directory, make sure that it exists.
+    '''
+    if not os.path.exists(dir):
+        os.makedirs(dir)
+
+
+def assert_structure():
+    '''
+        Git might not commit some required directories. This function asserts that they exist.
+    '''
+    assert_dir(OUTPUT_DIR)
+
+    # include and src
     for dir in DIR_MAP.values():
-        assert_dir(f'{OUTPUT_DIR}/{dir}/{lib.lower()}')
+        assert_dir(f'{OUTPUT_DIR}/{dir}')
 
-# Generate Header and Source separately
-for ftype in ['HEADER', 'SOURCE']:
-    for data in collections:
-        file = open(TMP_FILE, 'w')
+    # For each library, create a directory for include and src
+    for lib in ALL_LIBS:
+        for dir in DIR_MAP.values():
+            assert_dir(f'{OUTPUT_DIR}/{dir}/{lib.lower()}')
 
-        file.write(
-        f'''
-        #include "macro_collections.h"
+    assert_dir(BUILD_DIR)
+    assert_dir(OBJ_DIR)
 
-        {UNIQUE_FLAG}
+    for lib in ALL_LIBS:
+        assert_dir(f'{OBJ_DIR}/{lib.lower()}')
 
-        C_MACRO_COLLECTIONS_ALL_{ftype}({data['LIB']}, {data['COLLECTION']}, ({', '.join([data['PFX'], data['SNAME'], data['SIZE'], data['K'], data['V']])}))
 
-        {UNIQUE_FLAG}
-        ''')
+def clean_build():
+    execute_command(['find', BUILD_DIR, '-type', 'f', '-delete'])
+    execute_command(['find', '.', '-iname', '*.gcov', '-type', 'f', '-delete'])
 
-        file.flush()
-        file.close()
 
-        result = subprocess.getoutput(f'{CC} {FLAGS} {INCLUDE} {TMP_FILE}')
+def expand_code():
+    # Generate Header and Source separately
+    for ftype in ['HEADER', 'SOURCE']:
+        for data in COLLECTIONS:
+            file = open(TMP_FILE, 'w')
 
-        # (?s) makes '.' match anything, even '\n'
-        match = re.search(fr'(?s){UNIQUE_FLAG}(?P<code>.+){UNIQUE_FLAG}', result)
-
-        if match is None:
-            os.remove(TMP_FILE)
-            print('Didn\'t match FLAG. Probably because compilation failed.', file=sys.stderr)
-            exit(1)
-
-        file = open(f'{OUTPUT_DIR}/{DIR_MAP[ftype]}/{data["LIB"].lower()}/{data["SNAME"]}.{EXT_MAP[ftype]}', 'w')
-
-        if ftype == 'HEADER':
             file.write(
             f'''
-                #ifndef CMC_{data['LIB']}_{data['COLLECTION']}_TEST_H
-                #define CMC_{data['LIB']}_{data['COLLECTION']}_TEST_H
-
                 #include "macro_collections.h"
-                {match.group('code')}
 
-                #endif /* CMC_{data['LIB']}_{data['COLLECTION']}_TEST_H */
-            ''')
-        else:
-            file.write(
-            f'''
-                #include {data["h"]}
+                {UNIQUE_FLAG}
 
-                {match.group("code")}
+                C_MACRO_COLLECTIONS_ALL_{ftype}({data['LIB']}, {data['COLLECTION']}, ({', '.join([data['PFX'], data['SNAME'], data['SIZE'], data['K'], data['V']])}))
+
+                {UNIQUE_FLAG}
             ''')
 
-        file.flush()
-        file.close()
+            file.flush()
+            file.close()
 
-        print(f'Generated {data["h"]: >20} -> {OUTPUT_DIR}/{DIR_MAP[ftype]}/{data["LIB"].lower()}/{data["SNAME"]}.{EXT_MAP[ftype]}')
+            result = subprocess.getoutput(f'{CC} {EXPAND_FLAGS} {INCLUDE} {TMP_FILE}')
 
-os.remove(TMP_FILE)
+            # (?s) makes '.' match anything, even '\n'
+            match = re.search(fr'(?s){UNIQUE_FLAG}(?P<code>.+){UNIQUE_FLAG}', result)
 
-# Format all files
-from shutil import which
+            if match is None:
+                os.remove(TMP_FILE)
+                print('Didn\'t match FLAG. Probably because compilation failed.', file=sys.stderr)
+                exit(1)
 
-if which('clang-format') is not None:
-    print('clang-format found. Formating files...')
+            file = open(f'{OUTPUT_DIR}/{DIR_MAP[ftype]}/{data["LIB"].lower()}/{data["SNAME"]}.{EXT_MAP[ftype]}', 'w')
 
+            if ftype == 'HEADER':
+                file.write(
+                f'''
+                    #ifndef CMC_{data['LIB']}_{data['COLLECTION']}_TEST_H
+                    #define CMC_{data['LIB']}_{data['COLLECTION']}_TEST_H
+
+                    #include "macro_collections.h"
+                    {match.group('code')}
+
+                    #endif /* CMC_{data['LIB']}_{data['COLLECTION']}_TEST_H */
+                ''')
+            else:
+                file.write(
+                f'''
+                    #include {data["h"]}
+
+                    {match.group("code")}
+                ''')
+
+            file.flush()
+            file.close()
+
+            print(f'Generated {data["h"]: >20} -> {OUTPUT_DIR}/{DIR_MAP[ftype]}/{data["LIB"].lower()}/{data["SNAME"]}.{EXT_MAP[ftype]}')
+
+    os.remove(TMP_FILE)
+
+
+def format_expand():
     cmd = ['clang-format', '--style=file', '--verbose', '-i']
     dirs_to_format = [f'{OUTPUT_DIR}/{DIR_MAP[ftype]}/{lib.lower()}/*.{EXT_MAP[ftype]}' for ftype in DIR_MAP.keys() for lib in ALL_LIBS]
-
     cmd.extend(dirs_to_format)
-    subprocess.call(cmd)
-else:
-    print('clang-format not found. Skipping code formatting...')
+    execute_command(cmd)
 
-# Makefile
-# Contains many usefull things dealing with tests, code coverage and formatting
-BUILD_DIR = f'{OUTPUT_DIR}/build'
-OBJ_DIR = f'{BUILD_DIR}/obj'
-INCLUDE_DIR = f"{OUTPUT_DIR}/{DIR_MAP['HEADER']}"
-SRC_DIR = f"{OUTPUT_DIR}/{DIR_MAP['SOURCE']}"
 
-assert_dir(BUILD_DIR)
-assert_dir(OBJ_DIR)
+def format_code(source: bool, tests: bool):
+    if source:
+        execute_command(['find', './src/', '-iname', '*.h', '|', 'xargs', 'clang-format', '--style=file', '--verbose', '-i'])
+    if tests:
+        execute_command(['find', './tests/', '-iname', '*.c', '-o', '-iname', '*.h', '|', 'xargs', 'clang-format', '--style=file', '--verbose', '-i'])
 
-for lib in ALL_LIBS:
-    assert_dir(f'{OBJ_DIR}/{lib.lower()}')
 
-print('Updating Makefile...')
+def build_tests(with_coverage: bool):
+    cflags = CFLAGS.copy()
 
-file = open(f'Makefile', 'w')
+    if with_coverage:
+        cflags += CVFLAGS
 
-file.write(f'''# This file was generated by a Python script
-CC = {CC}
-CFLAGS = -std=c11 -Wall -Wextra
-CFLAGS += -Wno-missing-braces -DCMC_TEST_COLOR
-CVFLAGS = --coverage -O0 -g3
-INCLUDE = {INCLUDE_DIR} -I src
+    print("WIP")
 
-# Runs the script to update tests, run all tests and code coverage
-all: script coverage
 
-tests: script build
-\t{OUTPUT_DIR}/main.exe
+def run_tests():
+    execute_command([TEST_EXE])
 
-# Like build but with coverage
-coverage: {' '.join([f'{OBJ_DIR}/{data["LIB"].lower()}/{data["SNAME"]}.o' for data in collections])} {OBJ_DIR}/main.o
-\t$(CC) $^ -o {OUTPUT_DIR}/main.exe $(CFLAGS) $(CVFLAGS)
-\t{OUTPUT_DIR}/main.exe
-\tgcov {OBJ_DIR}/main.o {' '.join([f'{OBJ_DIR}/{data["LIB"].lower()}/{data["SNAME"]}.o' for data in collections])}
 
-# Run without coverage
-run: build
-\t{OUTPUT_DIR}/main.exe
+def unused():
+    # Makefile
+    # Contains many usefull things dealing with tests, code coverage and formatting
 
-script:
-\tpython autogen.py
+    print('Updating Makefile...')
 
-clean:
-\tfind {BUILD_DIR} -type f -delete
-\trm *.gcov
+    file = open(f'Makefile', 'w')
 
-# No coverage build
-build: {' '.join([f'{OBJ_DIR}/{data["LIB"].lower()}/{data["SNAME"]}.o' for data in collections])} {OBJ_DIR}/main.o
-\t$(CC) $^ -o {OUTPUT_DIR}/main.exe $(CFLAGS)
+    file.write(f'''# This file was generated by a Python script
+    CC = {CC}
+    CFLAGS = -std=c11 -Wall -Wextra
+    CFLAGS += -Wno-missing-braces -DCMC_TEST_COLOR
+    CVFLAGS = --coverage -O0 -g3
+    INCLUDE = {INCLUDE_DIR} -I src
 
-{OBJ_DIR}/main.o: {OUTPUT_DIR}/main.c
-\t$(CC) -c $^ -o $@ -I $(INCLUDE) $(CFLAGS)
-''')
+    # Runs the script to update tests, run all tests and code coverage
+    all: script coverage
 
-# Code formatting
-file.write('''
-fmt_all: fmt_src fmt_tests
+    tests: script build
+    \t{OUTPUT_DIR}/main.exe
 
-fmt_src: FORCE
-	find ./src/ -iname *.h | xargs clang-format --style=file --verbose -i
+    # Like build but with coverage
+    coverage: {' '.join([f'{OBJ_DIR}/{data["LIB"].lower()}/{data["SNAME"]}.o' for data in COLLECTIONS])} {OBJ_DIR}/main.o
+    \t$(CC) $^ -o {OUTPUT_DIR}/main.exe $(CFLAGS) $(CVFLAGS)
+    \t{OUTPUT_DIR}/main.exe
+    \tgcov {OBJ_DIR}/main.o {' '.join([f'{OBJ_DIR}/{data["LIB"].lower()}/{data["SNAME"]}.o' for data in COLLECTIONS])}
 
-fmt_tests: FORCE
-	find ./tests/ -iname *.c -o -iname *.h | xargs clang-format --style=file --verbose -i
+    # Run without coverage
+    run: build
+    \t{OUTPUT_DIR}/main.exe
 
-.PHONY FORCE:
+    script:
+    \tpython autogen.py
 
-''')
+    clean:
+    \tfind {BUILD_DIR} -type f -delete
+    \trm *.gcov
 
-for data in collections:
-    file.write(f'''
-{OBJ_DIR}/{data['LIB'].lower()}/{data['SNAME']}.o: {SRC_DIR}/{data['LIB'].lower()}/{data['SNAME']}.c {INCLUDE_DIR}/{data['LIB'].lower()}/{data['SNAME']}.h
-\t$(CC) -c $< -o $@ -I $(INCLUDE) $(CFLAGS) $(CVFLAGS)
-''')
+    # No coverage build
+    build: {' '.join([f'{OBJ_DIR}/{data["LIB"].lower()}/{data["SNAME"]}.o' for data in COLLECTIONS])} {OBJ_DIR}/main.o
+    \t$(CC) $^ -o {OUTPUT_DIR}/main.exe $(CFLAGS)
 
-file.close()
+    {OBJ_DIR}/main.o: {OUTPUT_DIR}/main.c
+    \t$(CC) -c $^ -o $@ -I $(INCLUDE) $(CFLAGS)
+    ''')
 
-print('\nDone')
+    for data in COLLECTIONS:
+        file.write(f'''
+    {OBJ_DIR}/{data['LIB'].lower()}/{data['SNAME']}.o: {SRC_DIR}/{data['LIB'].lower()}/{data['SNAME']}.c {INCLUDE_DIR}/{data['LIB'].lower()}/{data['SNAME']}.h
+    \t$(CC) -c $< -o $@ -I $(INCLUDE) $(CFLAGS) $(CVFLAGS)
+    ''')
+
+    file.close()
+    print('\nDone')
+
+
+if __name__ == '__main__':
+    p = argparse.ArgumentParser('autogen.py', usage='%(prog)s [options]')
+
+    p.add_argument('-sc', '--show-config',
+                    help='Displays the current configuration',
+                    action='store_true',
+                    dest='config')
+
+    tests = p.add_argument_group('tests', 'For dealing with tests')
+
+    tests.add_argument('-c', '--clean',
+                        help='Cleans all build objects',
+                        default=False,
+                        action='store_true',
+                        dest='clean')
+    tests.add_argument('-e', '--expand',
+                       help='Expands the header and source files',
+                       default=False,
+                       action='store_true',
+                       dest='expand')
+    tests.add_argument('-nf', '--no-format',
+                       help='Does not format the output of expand. Can be used when you might not have clang-format',
+                       default=False,
+                       action='store_true',
+                       dest='noformat')
+    tests.add_argument('-r', '--run',
+                        help='Runs tests without code coverage',
+                        default=False,
+                        action='store_true',
+                        dest='run')
+    tests.add_argument('-cv', '--coverage',
+                        help='Compiles and runs tests with code coverage',
+                        default=False,
+                        action='store_true',
+                        dest='coverage')
+    tests.add_argument('-rr', '--rerun',
+                        help='Builds tests without code coverage and runs it',
+                        default=False,
+                        action='store_true',
+                        dest='rerun')
+
+    source = p.add_argument_group('source', 'For dealing with the source files and formatting')
+
+    source.add_argument('-fs', '--format-source',
+                        help='Format the source code',
+                        default=False,
+                        action='store_true',
+                        dest='fmt_source')
+    source.add_argument('-ft', '--format-tests',
+                        help='Format tests files',
+                        default=False,
+                        action='store_true',
+                        dest='fmt_tests')
+
+    args = p.parse_args()
+
+    if args.config:
+        print(CONFIG)
+        exit(0)
+
+    if args.clean:
+        clean_build()
+
+    assert_structure()
+    assert_executable(CC)
+
+    if args.expand:
+        expand_code()
+        if not args.noformat:
+            assert_executable('clang-format')
+            format_expand()
+
+    if args.fmt_source or args.fmt_tests:
+        assert_executable('find')
+        assert_executable('xargs')
+        format_code(args.fmt_source, args.fmt_tests)
+
+    if args.rerun:
+        build_tests(False)
+        run_tests()
+    elif args.run:
+        run_tests()
+    elif args.coverage:
+        build_tests(True)
+        run_tests()

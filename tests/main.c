@@ -1,5 +1,5 @@
-#include <stdio.h>
 #include <inttypes.h>
+#include <stdio.h>
 
 #include "unt/cmc/bitset.h"
 #include "unt/cmc/deque.h"
@@ -20,8 +20,8 @@
 
 #include "unt/utl/foreach.h"
 
-#include "utl/timer.h"
 #include "utl/assert.h"
+#include "utl/timer.h"
 
 #include "./unt/utl.h"
 

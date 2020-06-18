@@ -423,7 +423,7 @@ size_t hmm_get(struct hashmultimap *_map_, size_t key)
     if (hmm_empty(_map_))
     {
         _map_->flag = CMC_FLAG_EMPTY;
-        return 0;
+        return (size_t){ 0 };
     }
     struct hashmultimap_entry *entry = hmm_impl_get_entry(_map_, key);
     if (!entry)
@@ -442,7 +442,7 @@ size_t *hmm_get_ref(struct hashmultimap *_map_, size_t key)
     if (hmm_empty(_map_))
     {
         _map_->flag = CMC_FLAG_EMPTY;
-        return 0;
+        return ((void *)0);
     }
     struct hashmultimap_entry *entry = hmm_impl_get_entry(_map_, key);
     if (!entry)
