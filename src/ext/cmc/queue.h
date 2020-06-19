@@ -33,6 +33,25 @@
 
 #define CMC_EXT_CMC_QUEUE_ITER_HEADER_(PFX, SNAME, V) \
 \
+    /* Queue Iterator */ \
+    struct CMC_DEF_ITER(SNAME) \
+    { \
+        /* Target queue */ \
+        struct SNAME *target; \
+\
+        /* Cursor's position (index) */ \
+        size_t cursor; \
+\
+        /* Keeps track of relative index to the iteration of elements */ \
+        size_t index; \
+\
+        /* If the iterator has reached the start of the iteration */ \
+        bool start; \
+\
+        /* If the iterator has reached the end of the iteration */ \
+        bool end; \
+    }; \
+\
     /* Iterator Initialization */ \
     struct CMC_DEF_ITER(SNAME) CMC_(PFX, _iter_start)(struct SNAME * target); \
     struct CMC_DEF_ITER(SNAME) CMC_(PFX, _iter_end)(struct SNAME * target); \
