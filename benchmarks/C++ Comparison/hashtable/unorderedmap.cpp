@@ -2,15 +2,33 @@
 #error "Please define COUNT"
 #endif
 
+#include "murmurhash.h"
+
 #include <unordered_map>
-#include <cstdint>
+
+#include "../../util/twister.c"
+
+struct IntHasher
+{
+    std::size_t operator()(const uint64_t& k) const
+    {
+        static size_t seed = 211106232532969;
+        return MurMurHash(&k, sizeof(k), seed);
+    }
+};
 
 int main(void)
 {
-    std::unordered_map<int32_t, int32_t> map(COUNT);
+    mt_state tw;
+    twist_init(&tw, 50331653);
 
-    for (int32_t i = 0; i < COUNT; i++)
-        map.insert({i, i});
+    std::unordered_map<uint64_t, uint64_t, IntHasher> map(COUNT);
+
+    for (uint64_t i = 0; i < COUNT; i++)
+    {
+        uint64_t v = twist_uint64(&tw);
+        map.insert({v, v});
+    }
 
     return 0;
 }
