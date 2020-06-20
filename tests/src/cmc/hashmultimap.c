@@ -353,8 +353,8 @@ _Bool hmm_max(struct hashmultimap *_map_, size_t *key, size_t *value)
         _map_->flag = CMC_FLAG_EMPTY;
         return 0;
     }
-    size_t max_key;
-    size_t max_val;
+    size_t max_key = (size_t){ 0 };
+    size_t max_val = (size_t){ 0 };
     struct hashmultimap_iter iter = hmm_iter_start(_map_);
     for (; !hmm_iter_at_end(&iter); hmm_iter_next(&iter))
     {
@@ -389,8 +389,8 @@ _Bool hmm_min(struct hashmultimap *_map_, size_t *key, size_t *value)
         _map_->flag = CMC_FLAG_EMPTY;
         return 0;
     }
-    size_t min_key;
-    size_t min_val;
+    size_t min_key = (size_t){ 0 };
+    size_t min_val = (size_t){ 0 };
     struct hashmultimap_iter iter = hmm_iter_start(_map_);
     for (; !hmm_iter_at_end(&iter); hmm_iter_next(&iter))
     {

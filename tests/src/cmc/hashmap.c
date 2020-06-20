@@ -201,8 +201,8 @@ _Bool hm_max(struct hashmap *_map_, size_t *key, size_t *value)
         _map_->flag = CMC_FLAG_EMPTY;
         return 0;
     }
-    size_t max_key;
-    size_t max_val;
+    size_t max_key = (size_t){ 0 };
+    size_t max_val = (size_t){ 0 };
     size_t first = 0;
     for (; first < _map_->capacity; first++)
     {
@@ -240,8 +240,8 @@ _Bool hm_min(struct hashmap *_map_, size_t *key, size_t *value)
         _map_->flag = CMC_FLAG_EMPTY;
         return 0;
     }
-    size_t min_key;
-    size_t min_val;
+    size_t min_key = (size_t){ 0 };
+    size_t min_val = (size_t){ 0 };
     size_t first = 0;
     for (; first < _map_->capacity; first++)
     {

@@ -461,8 +461,8 @@
             return false; \
         } \
 \
-        K max_key; \
-        V max_val; \
+        K max_key = (K) { 0 }; \
+        V max_val = (V) { 0 }; \
         size_t first = 0; \
 \
         for (; first < _map_->capacity; first++) \
@@ -505,8 +505,8 @@
             return false; \
         } \
 \
-        K min_key; \
-        V min_val; \
+        K min_key = (K) { 0 }; \
+        V min_val = (V) { 0 }; \
         size_t first = 0; \
 \
         for (; first < _map_->capacity; first++) \

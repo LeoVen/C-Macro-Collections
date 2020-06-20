@@ -164,19 +164,19 @@ _Bool hs_max(struct hashset *_set_, size_t *value)
         _set_->flag = CMC_FLAG_EMPTY;
         return 0;
     }
-    size_t max_value;
+    size_t max_val = (size_t){ 0 };
     struct hashset_iter iter = hs_iter_start(_set_);
     for (; !hs_iter_at_end(&iter); hs_iter_next(&iter))
     {
         size_t result = hs_iter_value(&iter);
         size_t index = hs_iter_index(&iter);
         if (index == 0)
-            max_value = result;
-        else if (_set_->f_val->cmp(result, max_value) > 0)
-            max_value = result;
+            max_val = result;
+        else if (_set_->f_val->cmp(result, max_val) > 0)
+            max_val = result;
     }
     if (value)
-        *value = max_value;
+        *value = max_val;
     _set_->flag = CMC_FLAG_OK;
     if ((_set_)->callbacks && (_set_)->callbacks->read)
         (_set_)->callbacks->read();
@@ -190,19 +190,19 @@ _Bool hs_min(struct hashset *_set_, size_t *value)
         _set_->flag = CMC_FLAG_EMPTY;
         return 0;
     }
-    size_t min_value;
+    size_t min_val = (size_t){ 0 };
     struct hashset_iter iter = hs_iter_start(_set_);
     for (; !hs_iter_at_end(&iter); hs_iter_next(&iter))
     {
         size_t result = hs_iter_value(&iter);
         size_t index = hs_iter_index(&iter);
         if (index == 0)
-            min_value = result;
-        else if (_set_->f_val->cmp(result, min_value) < 0)
-            min_value = result;
+            min_val = result;
+        else if (_set_->f_val->cmp(result, min_val) < 0)
+            min_val = result;
     }
     if (value)
-        *value = min_value;
+        *value = min_val;
     _set_->flag = CMC_FLAG_OK;
     if ((_set_)->callbacks && (_set_)->callbacks->read)
         (_set_)->callbacks->read();

@@ -684,8 +684,8 @@
             return false; \
         } \
 \
-        K max_key; \
-        V max_val; \
+        K max_key = (K) { 0 }; \
+        V max_val = (V) { 0 }; \
 \
         struct CMC_DEF_ITER(SNAME) iter = CMC_(PFX, _iter_start)(_map_); \
 \
@@ -728,8 +728,8 @@
             return false; \
         } \
 \
-        K min_key; \
-        V min_val; \
+        K min_key = (K) { 0 }; \
+        V min_val = (V) { 0 }; \
 \
         struct CMC_DEF_ITER(SNAME) iter = CMC_(PFX, _iter_start)(_map_); \
 \

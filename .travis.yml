@@ -17,6 +17,6 @@ script:
   - export CC=gcc-9
   - gcc --version
   - python --version
-  - make
+  - python autogen.py -e -b -cv -r
 after_success:
   - bash <(curl -s https://codecov.io/bash)

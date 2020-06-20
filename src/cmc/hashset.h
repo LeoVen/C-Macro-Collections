@@ -378,7 +378,7 @@
             return false; \
         } \
 \
-        V max_value; \
+        V max_val = (V) { 0 }; \
         struct CMC_DEF_ITER(SNAME) iter = CMC_(PFX, _iter_start)(_set_); \
 \
         /* TODO turn this into a normal loop */ \
@@ -388,13 +388,13 @@
             size_t index = CMC_(PFX, _iter_index)(&iter); \
 \
             if (index == 0) \
-                max_value = result; \
-            else if (_set_->f_val->cmp(result, max_value) > 0) \
-                max_value = result; \
+                max_val = result; \
+            else if (_set_->f_val->cmp(result, max_val) > 0) \
+                max_val = result; \
         } \
 \
         if (value) \
-            *value = max_value; \
+            *value = max_val; \
 \
         _set_->flag = CMC_FLAG_OK; \
 \
@@ -411,7 +411,7 @@
             return false; \
         } \
 \
-        V min_value; \
+        V min_val = (V) { 0 }; \
         struct CMC_DEF_ITER(SNAME) iter = CMC_(PFX, _iter_start)(_set_); \
 \
         /* TODO turn this into a normal loop */ \
@@ -421,13 +421,13 @@
             size_t index = CMC_(PFX, _iter_index)(&iter); \
 \
             if (index == 0) \
-                min_value = result; \
-            else if (_set_->f_val->cmp(result, min_value) < 0) \
-                min_value = result; \
+                min_val = result; \
+            else if (_set_->f_val->cmp(result, min_val) < 0) \
+                min_val = result; \
         } \
 \
         if (value) \
-            *value = min_value; \
+            *value = min_val; \
 \
         _set_->flag = CMC_FLAG_OK; \
 \

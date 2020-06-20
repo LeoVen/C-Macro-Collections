@@ -218,7 +218,7 @@ _Bool hms_max(struct hashmultiset *_set_, size_t *value)
         _set_->flag = CMC_FLAG_EMPTY;
         return 0;
     }
-    size_t max_val;
+    size_t max_val = (size_t){ 0 };
     struct hashmultiset_iter iter = hms_iter_start(_set_);
     for (; !hms_iter_at_end(&iter); hms_iter_next(&iter))
     {
@@ -244,7 +244,7 @@ _Bool hms_min(struct hashmultiset *_set_, size_t *value)
         _set_->flag = CMC_FLAG_EMPTY;
         return 0;
     }
-    size_t min_val;
+    size_t min_val = (size_t){ 0 };
     struct hashmultiset_iter iter = hms_iter_start(_set_);
     for (; !hms_iter_at_end(&iter); hms_iter_next(&iter))
     {

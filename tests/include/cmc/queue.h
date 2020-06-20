@@ -25,14 +25,6 @@ struct queue_fval
     size_t (*hash)(size_t);
     int (*pri)(size_t, size_t);
 };
-struct queue_iter
-{
-    struct queue *target;
-    size_t cursor;
-    size_t index;
-    _Bool start;
-    _Bool end;
-};
 struct queue *q_new(size_t capacity, struct queue_fval *f_val);
 struct queue *q_new_custom(size_t capacity, struct queue_fval *f_val, struct cmc_alloc_node *alloc,
                            struct cmc_callbacks *callbacks);
@@ -51,6 +43,14 @@ int q_flag(struct queue *_queue_);
 _Bool q_resize(struct queue *_queue_, size_t capacity);
 struct queue *q_copy_of(struct queue *_queue_);
 _Bool q_equals(struct queue *_queue1_, struct queue *_queue2_);
+struct queue_iter
+{
+    struct queue *target;
+    size_t cursor;
+    size_t index;
+    _Bool start;
+    _Bool end;
+};
 struct queue_iter q_iter_start(struct queue *target);
 struct queue_iter q_iter_end(struct queue *target);
 _Bool q_iter_at_start(struct queue_iter *iter);
