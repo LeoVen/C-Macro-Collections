@@ -12,10 +12,12 @@ addons:
       - cmake
       - python3.8
 script:
+  - sudo rm gcc gcov python
   - sudo ln -s /usr/bin/gcc-9 /usr/local/bin/gcc
+  - sudo ln -s /usr/bin/gcov-9 /usr/local/bin/gcov
   - sudo ln -s /usr/bin/python3.8 /usr/local/bin/python
-  - export CC=gcc-9
   - gcc --version
+  - gcov --version
   - python --version
   - python autogen.py -e -b -cv -r -nf
 after_success:
