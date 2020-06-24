@@ -8,6 +8,7 @@ struct bitset
 {
     cmc_bitset_word *buffer;
     size_t capacity;
+    size_t count;
     int flag;
     struct cmc_alloc_node *alloc;
     struct cmc_callbacks *callbacks;
@@ -39,13 +40,5 @@ _Bool bs_clear_all(struct bitset *_bitset_);
 _Bool bs_flip_all(struct bitset *_bitset_);
 _Bool bs_get(struct bitset *_bitset_, size_t bit_index);
 _Bool bs_resize(struct bitset *_bitset_, size_t n_bits);
-static inline size_t bs_bit_to_index(size_t idx)
-{
-    static const size_t shift =
-        ((sizeof(cmc_bitset_word) * 8) >> 6) > 0
-            ? 6
-            : ((sizeof(cmc_bitset_word) * 8) >> 5) > 0 ? 5 : ((sizeof(cmc_bitset_word) * 8) >> 4) > 0 ? 4 : 3;
-    return idx >> shift;
-}
 
 #endif /* CMC_CMC_BITSET_TEST_H */

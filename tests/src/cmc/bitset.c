@@ -13,7 +13,7 @@ struct bitset *bs_new_custom(size_t n_bits, struct cmc_alloc_node *alloc, struct
         return ((void *)0);
     if (!alloc)
         alloc = &cmc_alloc_node_default;
-    size_t capacity = bs_bit_to_index(n_bits - 1) + 1;
+    size_t capacity = cmc_bidx_to_widx(n_bits - 1) + 1;
     struct bitset *_bitset_ = alloc->malloc(sizeof(struct bitset));
     if (!_bitset_)
         return ((void *)0);
@@ -42,7 +42,7 @@ struct bitset bs_init_custom(size_t n_bits, struct cmc_alloc_node *alloc,
         return _bitset_;
     if (!alloc)
         alloc = &cmc_alloc_node_default;
-    size_t capacity = bs_bit_to_index(n_bits - 1) + 1;
+    size_t capacity = cmc_bidx_to_widx(n_bits - 1) + 1;
     _bitset_.buffer = alloc->calloc(capacity, sizeof(cmc_bitset_word));
     if (!_bitset_.buffer)
         return _bitset_;
@@ -76,7 +76,7 @@ _Bool bs_set(struct bitset *_bitset_, size_t bit_index)
     if (!bs_impl_resize(_bitset_, bit_index + 1, 0))
         return 0;
     const cmc_bitset_word bits = sizeof(cmc_bitset_word) * 8;
-    size_t i = bs_bit_to_index(bit_index);
+    size_t i = cmc_bidx_to_widx(bit_index);
     _bitset_->buffer[i] |= ((cmc_bitset_word)1) << (bit_index % bits);
     _bitset_->flag = CMC_FLAG_OK;
     if ((_bitset_)->callbacks && (_bitset_)->callbacks->create)
@@ -93,8 +93,8 @@ _Bool bs_set_range(struct bitset *_bitset_, size_t from, size_t to)
     }
     if (!bs_impl_resize(_bitset_, to + 1, 0))
         return 0;
-    size_t start_index = bs_bit_to_index(from);
-    size_t end_index = bs_bit_to_index(to);
+    size_t start_index = cmc_bidx_to_widx(from);
+    size_t end_index = cmc_bidx_to_widx(to);
     const cmc_bitset_word bits = sizeof(cmc_bitset_word) * 8;
     const cmc_bitset_word ones = ~((cmc_bitset_word)0);
     cmc_bitset_word shift_start = from % bits;
@@ -123,7 +123,7 @@ _Bool bs_clear(struct bitset *_bitset_, size_t bit_index)
     if (!bs_impl_resize(_bitset_, bit_index + 1, 0))
         return 0;
     const cmc_bitset_word bits = sizeof(cmc_bitset_word) * 8;
-    size_t i = bs_bit_to_index(bit_index);
+    size_t i = cmc_bidx_to_widx(bit_index);
     _bitset_->buffer[i] &= ~(((cmc_bitset_word)1) << (bit_index % bits));
     _bitset_->flag = CMC_FLAG_OK;
     if ((_bitset_)->callbacks && (_bitset_)->callbacks->delete)
@@ -140,8 +140,8 @@ _Bool bs_clear_range(struct bitset *_bitset_, size_t from, size_t to)
     }
     if (!bs_impl_resize(_bitset_, to + 1, 0))
         return 0;
-    size_t start_index = bs_bit_to_index(from);
-    size_t end_index = bs_bit_to_index(to);
+    size_t start_index = cmc_bidx_to_widx(from);
+    size_t end_index = cmc_bidx_to_widx(to);
     const cmc_bitset_word bits = sizeof(cmc_bitset_word) * 8;
     const cmc_bitset_word ones = ~((cmc_bitset_word)0);
     cmc_bitset_word shift_start = from % bits;
@@ -170,7 +170,7 @@ _Bool bs_flip(struct bitset *_bitset_, size_t bit_index)
     if (!bs_impl_resize(_bitset_, bit_index + 1, 0))
         return 0;
     const cmc_bitset_word bits = sizeof(cmc_bitset_word) * 8;
-    size_t i = bs_bit_to_index(bit_index);
+    size_t i = cmc_bidx_to_widx(bit_index);
     _bitset_->buffer[i] ^= ((cmc_bitset_word)1) << (bit_index % bits);
     _bitset_->flag = CMC_FLAG_OK;
     if ((_bitset_)->callbacks && (_bitset_)->callbacks->update)
@@ -187,8 +187,8 @@ _Bool bs_flip_range(struct bitset *_bitset_, size_t from, size_t to)
     }
     if (!bs_impl_resize(_bitset_, to + 1, 0))
         return 0;
-    size_t start_index = bs_bit_to_index(from);
-    size_t end_index = bs_bit_to_index(to);
+    size_t start_index = cmc_bidx_to_widx(from);
+    size_t end_index = cmc_bidx_to_widx(to);
     const cmc_bitset_word bits = sizeof(cmc_bitset_word) * 8;
     const cmc_bitset_word ones = ~((cmc_bitset_word)0);
     cmc_bitset_word shift_start = from % bits;
@@ -259,7 +259,7 @@ _Bool bs_flip_all(struct bitset *_bitset_)
 _Bool bs_get(struct bitset *_bitset_, size_t bit_index)
 {
     const cmc_bitset_word bits = sizeof(cmc_bitset_word) * 8;
-    cmc_bitset_word w = _bitset_->buffer[bs_bit_to_index(bit_index)];
+    cmc_bitset_word w = _bitset_->buffer[cmc_bidx_to_widx(bit_index)];
     return w & ((cmc_bitset_word)1 << (bit_index % bits));
 }
 _Bool bs_resize(struct bitset *_bitset_, size_t n_bits)
@@ -273,7 +273,7 @@ _Bool bs_impl_resize(struct bitset *_bitset_, size_t n_bits, _Bool do_resize)
         _bitset_->flag = CMC_FLAG_INVALID;
         return 0;
     }
-    size_t words = bs_bit_to_index(n_bits - 1) + 1;
+    size_t words = cmc_bidx_to_widx(n_bits - 1) + 1;
     if (!do_resize && words <= _bitset_->capacity)
         return 1;
     cmc_bitset_word *new_buffer = realloc(_bitset_->buffer, words * sizeof(cmc_bitset_word));

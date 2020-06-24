@@ -86,6 +86,11 @@
         /* Current array capacity */ \
         size_t capacity; \
 \
+        /* Currently used bits */\
+        /* This should always be true: */\
+        /* capacity - count < sizeof(cmc_bitset_word) * CHAR_BIT */\
+        size_t count;\
+\
         /* Flags indicating errors or success */ \
         int flag; \
 \
@@ -152,19 +157,6 @@
     /* Iterator State */ \
     /* Iterator Movement */ \
     /* Iterator Access */ \
-\
-    /* Utility Methods */ \
-    /* Translates a bit index to a word index */ \
-    static inline size_t CMC_(PFX, _bit_to_index)(size_t idx) \
-    { \
-        /* Calculate how many shifts based on the size of cmc_bitset_word */ \
-        static const size_t shift = \
-            ((sizeof(cmc_bitset_word) * 8) >> 6) > 0 \
-                ? 6 \
-                : ((sizeof(cmc_bitset_word) * 8) >> 5) > 0 ? 5 : ((sizeof(cmc_bitset_word) * 8) >> 4) > 0 ? 4 : 3; \
-\
-        return idx >> shift; \
-    }
 
 /* -------------------------------------------------------------------------
  * Source
@@ -190,7 +182,7 @@
         if (!alloc) \
             alloc = &cmc_alloc_node_default; \
 \
-        size_t capacity = CMC_(PFX, _bit_to_index)(n_bits - 1) + 1; \
+        size_t capacity = cmc_bidx_to_widx(n_bits - 1) + 1; \
 \
         struct SNAME *_bitset_ = alloc->malloc(sizeof(struct SNAME)); \
 \
@@ -231,7 +223,7 @@
         if (!alloc) \
             alloc = &cmc_alloc_node_default; \
 \
-        size_t capacity = CMC_(PFX, _bit_to_index)(n_bits - 1) + 1; \
+        size_t capacity = cmc_bidx_to_widx(n_bits - 1) + 1; \
 \
         _bitset_.buffer = alloc->calloc(capacity, sizeof(cmc_bitset_word)); \
 \
@@ -280,7 +272,7 @@
         /* How many bits in a word */ \
         const cmc_bitset_word bits = sizeof(cmc_bitset_word) * CHAR_BIT; \
 \
-        size_t i = CMC_(PFX, _bit_to_index)(bit_index); \
+        size_t i = cmc_bidx_to_widx(bit_index); \
 \
         _bitset_->buffer[i] |= ((cmc_bitset_word)1) << (bit_index % bits); \
 \
@@ -302,8 +294,8 @@
         if (!CMC_(PFX, _impl_resize)(_bitset_, to + 1, false)) \
             return false; \
 \
-        size_t start_index = CMC_(PFX, _bit_to_index)(from); \
-        size_t end_index = CMC_(PFX, _bit_to_index)(to); \
+        size_t start_index = cmc_bidx_to_widx(from); \
+        size_t end_index = cmc_bidx_to_widx(to); \
 \
         /* How many bits in a word */ \
         const cmc_bitset_word bits = sizeof(cmc_bitset_word) * CHAR_BIT; \
@@ -346,7 +338,7 @@
         /* How many bits in a word */ \
         const cmc_bitset_word bits = sizeof(cmc_bitset_word) * CHAR_BIT; \
 \
-        size_t i = CMC_(PFX, _bit_to_index)(bit_index); \
+        size_t i = cmc_bidx_to_widx(bit_index); \
 \
         _bitset_->buffer[i] &= ~(((cmc_bitset_word)1) << (bit_index % bits)); \
 \
@@ -368,8 +360,8 @@
         if (!CMC_(PFX, _impl_resize)(_bitset_, to + 1, false)) \
             return false; \
 \
-        size_t start_index = CMC_(PFX, _bit_to_index)(from); \
-        size_t end_index = CMC_(PFX, _bit_to_index)(to); \
+        size_t start_index = cmc_bidx_to_widx(from); \
+        size_t end_index = cmc_bidx_to_widx(to); \
 \
         /* How many bits in a word */ \
         const cmc_bitset_word bits = sizeof(cmc_bitset_word) * CHAR_BIT; \
@@ -412,7 +404,7 @@
         /* How many bits in a word */ \
         const cmc_bitset_word bits = sizeof(cmc_bitset_word) * CHAR_BIT; \
 \
-        size_t i = CMC_(PFX, _bit_to_index)(bit_index); \
+        size_t i = cmc_bidx_to_widx(bit_index); \
 \
         _bitset_->buffer[i] ^= ((cmc_bitset_word)1) << (bit_index % bits); \
 \
@@ -434,8 +426,8 @@
         if (!CMC_(PFX, _impl_resize)(_bitset_, to + 1, false)) \
             return false; \
 \
-        size_t start_index = CMC_(PFX, _bit_to_index)(from); \
-        size_t end_index = CMC_(PFX, _bit_to_index)(to); \
+        size_t start_index = cmc_bidx_to_widx(from); \
+        size_t end_index = cmc_bidx_to_widx(to); \
 \
         /* How many bits in a word */ \
         const cmc_bitset_word bits = sizeof(cmc_bitset_word) * CHAR_BIT; \
@@ -527,7 +519,7 @@
         /* How many bits in a word */ \
         const cmc_bitset_word bits = sizeof(cmc_bitset_word) * CHAR_BIT; \
 \
-        cmc_bitset_word w = _bitset_->buffer[CMC_(PFX, _bit_to_index)(bit_index)]; \
+        cmc_bitset_word w = _bitset_->buffer[cmc_bidx_to_widx(bit_index)]; \
 \
         return w & ((cmc_bitset_word)1 << (bit_index % bits)); \
     } \
@@ -549,7 +541,7 @@
 \
         /* -1 because n_bits is 1-based and we need to pass a 0-based index */ \
         /* +1 to have a 1-based result */ \
-        size_t words = CMC_(PFX, _bit_to_index)(n_bits - 1) + 1; \
+        size_t words = cmc_bidx_to_widx(n_bits - 1) + 1; \
 \
         /* Be sure we are not always shrinking when we just want to make */ \
         /* sure that we have enough size for n_bits */ \
