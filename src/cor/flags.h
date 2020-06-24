@@ -22,15 +22,15 @@
 enum cmc_flags
 {
     CMC_FLAG_OK        =  0, // No errors
-    CMC_FLAG_ALLOC     =  2, // Allocation failed
-    CMC_FLAG_EMPTY     =  3, // The collection is empty when it should not
-    CMC_FLAG_NOT_FOUND =  4, // Key or value not found
-    CMC_FLAG_INVALID   =  5, // Invalid argument or operation
-    CMC_FLAG_RANGE     =  6, // Index out of range
-    CMC_FLAG_DUPLICATE =  7, // Duplicate key or value
-    CMC_FLAG_ERROR     =  8, // Generic error, usually caused by algorithm error
-    CMC_FLAG_THREAD    =  9, // Generic error regarding threads
-    CMC_FLAG_MUTEX     = 10  // Generic error regarding mutexes
+    CMC_FLAG_ALLOC     =  1, // Allocation failed
+    CMC_FLAG_EMPTY     =  2, // The collection is empty when it should not
+    CMC_FLAG_NOT_FOUND =  3, // Key or value not found
+    CMC_FLAG_INVALID   =  4, // Invalid argument or operation
+    CMC_FLAG_RANGE     =  5, // Index out of range
+    CMC_FLAG_DUPLICATE =  6, // Duplicate key or value
+    CMC_FLAG_ERROR     =  7, // Generic error, usually caused by algorithm error
+    CMC_FLAG_THREAD    =  8, // Generic error regarding threads
+    CMC_FLAG_MUTEX     =  9  // Generic error regarding mutexes
 };
 // clang-format on
 

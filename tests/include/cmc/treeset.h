@@ -30,16 +30,6 @@ struct treeset_fval
     size_t (*hash)(size_t);
     int (*pri)(size_t, size_t);
 };
-struct treeset_iter
-{
-    struct treeset *target;
-    struct treeset_node *cursor;
-    struct treeset_node *first;
-    struct treeset_node *last;
-    size_t index;
-    _Bool start;
-    _Bool end;
-};
 struct treeset *ts_new(struct treeset_fval *f_val);
 struct treeset *ts_new_custom(struct treeset_fval *f_val, struct cmc_alloc_node *alloc,
                               struct cmc_callbacks *callbacks);
@@ -56,15 +46,16 @@ size_t ts_count(struct treeset *_set_);
 int ts_flag(struct treeset *_set_);
 struct treeset *ts_copy_of(struct treeset *_set_);
 _Bool ts_equals(struct treeset *_set1_, struct treeset *_set2_);
-struct treeset *ts_union(struct treeset *_set1_, struct treeset *_set2_);
-struct treeset *ts_intersection(struct treeset *_set1_, struct treeset *_set2_);
-struct treeset *ts_difference(struct treeset *_set1_, struct treeset *_set2_);
-struct treeset *ts_symmetric_difference(struct treeset *_set1_, struct treeset *_set2_);
-_Bool ts_is_subset(struct treeset *_set1_, struct treeset *_set2_);
-_Bool ts_is_superset(struct treeset *_set1_, struct treeset *_set2_);
-_Bool ts_is_proper_subset(struct treeset *_set1_, struct treeset *_set2_);
-_Bool ts_is_proper_superset(struct treeset *_set1_, struct treeset *_set2_);
-_Bool ts_is_disjointset(struct treeset *_set1_, struct treeset *_set2_);
+struct treeset_iter
+{
+    struct treeset *target;
+    struct treeset_node *cursor;
+    struct treeset_node *first;
+    struct treeset_node *last;
+    size_t index;
+    _Bool start;
+    _Bool end;
+};
 struct treeset_iter ts_iter_start(struct treeset *target);
 struct treeset_iter ts_iter_end(struct treeset *target);
 _Bool ts_iter_at_start(struct treeset_iter *iter);
@@ -78,6 +69,15 @@ _Bool ts_iter_rewind(struct treeset_iter *iter, size_t steps);
 _Bool ts_iter_go_to(struct treeset_iter *iter, size_t index);
 size_t ts_iter_value(struct treeset_iter *iter);
 size_t ts_iter_index(struct treeset_iter *iter);
+struct treeset *ts_union(struct treeset *_set1_, struct treeset *_set2_);
+struct treeset *ts_intersection(struct treeset *_set1_, struct treeset *_set2_);
+struct treeset *ts_difference(struct treeset *_set1_, struct treeset *_set2_);
+struct treeset *ts_symmetric_difference(struct treeset *_set1_, struct treeset *_set2_);
+_Bool ts_is_subset(struct treeset *_set1_, struct treeset *_set2_);
+_Bool ts_is_superset(struct treeset *_set1_, struct treeset *_set2_);
+_Bool ts_is_proper_subset(struct treeset *_set1_, struct treeset *_set2_);
+_Bool ts_is_proper_superset(struct treeset *_set1_, struct treeset *_set2_);
+_Bool ts_is_disjointset(struct treeset *_set1_, struct treeset *_set2_);
 _Bool ts_to_string(struct treeset *_set_, FILE *fptr);
 _Bool ts_print(struct treeset *_set_, FILE *fptr, const char *start, const char *separator, const char *end);
 
