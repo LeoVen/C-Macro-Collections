@@ -1,5 +1,5 @@
-#include <math.h>
 #include "cmc/bitset.h"
+#include <math.h>
 
 CMC_CMC_BITSET_CORE(PUBLIC, HEADER, (bs, bitset))
 CMC_CMC_BITSET_CORE(PUBLIC, SOURCE, (bs, bitset))

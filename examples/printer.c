@@ -1,5 +1,6 @@
-#include <cmc/list.h>
-#include <utl/log.h>
+// Prints a file in the terminal separated by pages
+
+#include "macro_collections.h"
 
 #define TAB_SIZE 4
 #define ROW_INI_CAP DOC_LETTERS_IN_ROW
@@ -7,13 +8,11 @@
 #define DOC_ROWS_IN_PAGE 50
 #define DOC_MARGIN 4
 
-CMC_GENERATE_LIST(row, row, char)
-CMC_GENERATE_LIST(doc, document, struct row *)
+C_MACRO_COLLECTIONS_ALL(CMC, LIST, (row, row, , , char))
+C_MACRO_COLLECTIONS_ALL(CMC, LIST, (doc, document, , , struct row *))
 
-void row_deallocator(struct row *r)
-{
-    row_free(r, NULL);
-}
+struct row_fval *row_funcs = &(struct row_fval){ NULL };
+struct document_fval *doc_funcs = &(struct document_fval){ .free = row_free };
 
 struct document *document_load(const char *file_name);
 void document_empty_line(FILE *fptr);
@@ -31,9 +30,9 @@ struct document *document_load(const char *file_name)
         return NULL;
     }
 
-    struct row *initial_row = row_new(ROW_INI_CAP);
+    struct row *initial_row = row_new(ROW_INI_CAP, row_funcs);
 
-    struct document *doc = doc_new(100);
+    struct document *doc = doc_new(100, doc_funcs);
     doc_push_back(doc, initial_row);
 
     int ch;
@@ -46,7 +45,7 @@ struct document *document_load(const char *file_name)
 
         if (c == '\n')
         {
-            struct row *new_row = row_new(ROW_INI_CAP);
+            struct row *new_row = row_new(ROW_INI_CAP, row_funcs);
             doc_push_back(doc, new_row);
         }
         else if (c == '\t')
@@ -61,7 +60,7 @@ struct document *document_load(const char *file_name)
 
             if (left > 0)
             {
-                struct row *new_row = row_new(ROW_INI_CAP);
+                struct row *new_row = row_new(ROW_INI_CAP, row_funcs);
                 doc_push_back(doc, new_row);
 
                 while (left > 0)
@@ -73,7 +72,7 @@ struct document *document_load(const char *file_name)
         }
         else if (DOC_LETTERS_IN_ROW == row_count(current_row))
         {
-            struct row *new_row = row_new(ROW_INI_CAP);
+            struct row *new_row = row_new(ROW_INI_CAP, row_funcs);
             row_push_back(new_row, c);
             doc_push_back(doc, new_row);
         }
@@ -86,12 +85,12 @@ struct document *document_load(const char *file_name)
 
 void document_empty_line(FILE *fptr)
 {
-    fputs("|", fptr);
+    fputs("\t|", fptr);
     for (size_t i = 0; i < DOC_LETTERS_IN_ROW + DOC_MARGIN * 2; i++)
     {
         fputc(' ', fptr);
     }
-    fputs("|\n", fptr);
+    fputs("\t|\n", fptr);
 }
 
 void document_page_outline(FILE *fptr, int outline /* 0 - header, 1 - footer */)
@@ -102,7 +101,7 @@ void document_page_outline(FILE *fptr, int outline /* 0 - header, 1 - footer */)
 #ifdef DOC_PAGE_NUMBER
         static intmax_t page = 1;
 
-        fputs("|", fptr);
+        fputs("\t|", fptr);
         for (size_t i = 0; i < (DOC_LETTERS_IN_ROW + DOC_MARGIN) - 8; i++)
         {
             fputc(' ', fptr);
@@ -116,8 +115,8 @@ void document_page_outline(FILE *fptr, int outline /* 0 - header, 1 - footer */)
 #endif
     }
 
-    fputs("+", fptr);
-    for (size_t i = 0; i < DOC_LETTERS_IN_ROW + DOC_MARGIN * 2; i++)
+    fputs("\t+", fptr);
+    for (size_t i = 0; i < DOC_LETTERS_IN_ROW + DOC_MARGIN * 2 + 3; i++)
     {
         fputc('-', fptr);
     }
@@ -130,7 +129,7 @@ void document_page_outline(FILE *fptr, int outline /* 0 - header, 1 - footer */)
 void document_page_margin(FILE *fptr, int margin /* 0 - first margin, 1 - second margin */)
 {
     if (margin == 0)
-        fputs("|", fptr);
+        fputs("\t|", fptr);
 
     for (size_t i = 0; i < DOC_MARGIN; i++)
     {
@@ -138,7 +137,7 @@ void document_page_margin(FILE *fptr, int margin /* 0 - first margin, 1 - second
     }
 
     if (margin == 1)
-        fputs("|\n", fptr);
+        fputs("\t|\n", fptr);
 }
 
 void document_print(struct document *doc, FILE *fptr)
@@ -202,7 +201,7 @@ int main(int argc, char const *argv[])
 
     document_print(doc, stdout);
 
-    doc_free(doc, row_deallocator);
+    doc_free(doc);
 
     return 0;
 }
