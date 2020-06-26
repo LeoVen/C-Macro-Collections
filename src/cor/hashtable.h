@@ -1,5 +1,5 @@
 /**
- * hashtable.h
+ * cor/hashtable.h
  *
  * Creation Date: 17/03/2020
  *
@@ -12,8 +12,8 @@
  * Things commonly used by hashtable-based collections.
  */
 
-#ifndef CMC_IMPL_HASHTABLE_H
-#define CMC_IMPL_HASHTABLE_H
+#ifndef CMC_COR_HASHTABLE_H
+#define CMC_COR_HASHTABLE_H
 
 #include "core.h"
 
@@ -83,4 +83,4 @@ static const size_t cmc_hashtable_primes[] = {
 };
 // clang-format on
 
-#endif /* CMC_IMPL_HASHTABLE_H */
+#endif /* CMC_COR_HASHTABLE_H */

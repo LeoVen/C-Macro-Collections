@@ -1,5 +1,5 @@
 /**
- * thread.h
+ * utl/thread.h
  *
  * Creation Date: 14/05/2020
  *
@@ -20,8 +20,8 @@
  *  - cmc_thrd_join
  */
 
-#ifndef CMC_THREAD_H
-#define CMC_THREAD_H
+#ifndef CMC_UTL_THREAD_H
+#define CMC_UTL_THREAD_H
 
 #include <inttypes.h>
 #include <stdbool.h>
@@ -88,8 +88,7 @@ static void *cmc_thread_wrapper(void *arg)
  * \param args The arguments passed to the proc function.
  * \return True or false if the thread creation was successfull.
  */
-static inline bool cmc_thrd_create(struct cmc_thread *thr, cmc_thread_proc proc,
-                                   void *args)
+static inline bool cmc_thrd_create(struct cmc_thread *thr, cmc_thread_proc proc, void *args)
 {
 #if defined(CMC_THREAD_WINDOWS)
     thr->args = args;
@@ -97,21 +96,21 @@ static inline bool cmc_thrd_create(struct cmc_thread *thr, cmc_thread_proc proc,
     thr->thread = CreateThread(NULL, 0, cmc_thread_wrapper, thr, 0, NULL);
 
     if (!thr->thread)
-        thr->flag = cmc_flags.THREAD;
+        thr->flag = CMC_FLAG_THREAD;
     else
-        thr->flag = cmc_flags.OK;
+        thr->flag = CMC_FLAG_OK;
 
-    return thr->flag == cmc_flags.OK;
+    return thr->flag == CMC_FLAG_OK;
 
 #elif defined(CMC_THREAD_UNIX)
     thr->args = args;
     thr->process = proc;
     if (pthread_create(&(thr->thread), NULL, cmc_thread_wrapper, thr) != 0)
-        thr->flag = cmc_flags.THREAD;
+        thr->flag = CMC_FLAG_THREAD;
     else
-        thr->flag = cmc_flags.OK;
+        thr->flag = CMC_FLAG_OK;
 
-    return thr->flag == cmc_flags.OK;
+    return thr->flag == CMC_FLAG_OK;
 #endif
 }
 
@@ -127,7 +126,7 @@ static inline bool cmc_thrd_join(struct cmc_thread *thr, int *result)
 #if defined(CMC_THREAD_WINDOWS)
     if (WaitForSingleObject(thr->thread, INFINITE) == WAIT_FAILED)
     {
-        thr->flag = cmc_flags.THREAD;
+        thr->flag = CMC_FLAG_THREAD;
         return false;
     }
 
@@ -137,22 +136,22 @@ static inline bool cmc_thrd_join(struct cmc_thread *thr, int *result)
     {
         if (GetExitCodeThread(thr->thread, &exit_code) == 0)
         {
-            thr->flag = cmc_flags.THREAD;
+            thr->flag = CMC_FLAG_THREAD;
             return false;
         }
         else
             *result = (int)exit_code;
     }
 
-    thr->flag = cmc_flags.OK;
+    thr->flag = CMC_FLAG_OK;
 
     if (CloseHandle(thr->thread) == 0)
     {
-        thr->flag = cmc_flags.THREAD;
+        thr->flag = CMC_FLAG_THREAD;
         return false;
     }
 
-    thr->flag = cmc_flags.OK;
+    thr->flag = CMC_FLAG_OK;
     return true;
 
 #elif defined(CMC_THREAD_UNIX)
@@ -160,7 +159,7 @@ static inline bool cmc_thrd_join(struct cmc_thread *thr, int *result)
 
     if (pthread_join(thr->thread, &exit_value) != 0)
     {
-        thr->flag = cmc_flags.THREAD;
+        thr->flag = CMC_FLAG_THREAD;
         return false;
     }
 
@@ -169,10 +168,10 @@ static inline bool cmc_thrd_join(struct cmc_thread *thr, int *result)
         *result = (int)(intptr_t)exit_value;
     }
 
-    thr->flag = cmc_flags.OK;
+    thr->flag = CMC_FLAG_OK;
     return true;
 
 #endif
 }
 
-#endif /* CMC_THREAD_H */
+#endif /* CMC_UTL_THREAD_H */

@@ -1,5 +1,5 @@
 /**
- * mutex.h
+ * utl/mutex.h
  *
  * Creation Date: 14/05/2020
  *
@@ -22,8 +22,8 @@
  *  - cmc_mtx_trylock
  */
 
-#ifndef CMC_MUTEX_H
-#define CMC_MUTEX_H
+#ifndef CMC_UTL_MUTEX_H
+#define CMC_UTL_MUTEX_H
 
 #include <stdbool.h>
 
@@ -72,9 +72,9 @@ static inline bool cmc_mtx_init(struct cmc_mutex *mtx)
     mtx->mutex = CreateMutex(NULL, FALSE, NULL);
 
     if (mtx->mutex == NULL)
-        mtx->flag = cmc_flags.MUTEX;
+        mtx->flag = CMC_FLAG_MUTEX;
     else
-        mtx->flag = cmc_flags.OK;
+        mtx->flag = CMC_FLAG_OK;
 
     return mtx->mutex != NULL;
 
@@ -82,9 +82,9 @@ static inline bool cmc_mtx_init(struct cmc_mutex *mtx)
     int err = pthread_mutex_init(&(mtx->mutex), NULL);
 
     if (err != 0)
-        mtx->flag = cmc_flags.MUTEX;
+        mtx->flag = CMC_FLAG_MUTEX;
     else
-        mtx->flag = cmc_flags.OK;
+        mtx->flag = CMC_FLAG_OK;
 
     return err == 0;
 #endif
@@ -102,21 +102,21 @@ static inline bool cmc_mtx_destroy(struct cmc_mutex *mtx)
 #if defined(CMC_MUTEX_WINDOWS)
     if (!CloseHandle(mtx->mutex))
     {
-        mtx->flag = cmc_flags.MUTEX;
+        mtx->flag = CMC_FLAG_MUTEX;
         return false;
     }
 
-    mtx->flag = cmc_flags.OK;
+    mtx->flag = CMC_FLAG_OK;
     return true;
 
 #elif defined(CMC_MUTEX_UNIX)
     if (pthread_mutex_destroy(&(mtx->mutex)) != 0)
     {
-        mtx->flag = cmc_flags.MUTEX;
+        mtx->flag = CMC_FLAG_MUTEX;
         return false;
     }
 
-    mtx->flag = cmc_flags.OK;
+    mtx->flag = CMC_FLAG_OK;
     return true;
 #endif
 }
@@ -135,21 +135,21 @@ static inline bool cmc_mtx_lock(struct cmc_mutex *mtx)
 
     if (result == WAIT_FAILED || result == WAIT_ABANDONED)
     {
-        mtx->flag = cmc_flags.MUTEX;
+        mtx->flag = CMC_FLAG_MUTEX;
         return false;
     }
 
-    mtx->flag = cmc_flags.OK;
+    mtx->flag = CMC_FLAG_OK;
     return true;
 
 #elif defined(CMC_MUTEX_UNIX)
     if (pthread_mutex_lock(&mtx->mutex) != 0)
     {
-        mtx->flag = cmc_flags.MUTEX;
+        mtx->flag = CMC_FLAG_MUTEX;
         return false;
     }
 
-    mtx->flag = cmc_flags.OK;
+    mtx->flag = CMC_FLAG_OK;
     return true;
 #endif
 }
@@ -165,19 +165,19 @@ static inline bool cmc_mtx_unlock(struct cmc_mutex *mtx)
 {
 #if defined(CMC_MUTEX_WINDOWS)
     if (!ReleaseMutex(mtx->mutex))
-        mtx->flag = cmc_flags.MUTEX;
+        mtx->flag = CMC_FLAG_MUTEX;
     else
-        mtx->flag = cmc_flags.OK;
+        mtx->flag = CMC_FLAG_OK;
 
-    return mtx->flag == cmc_flags.OK;
+    return mtx->flag == CMC_FLAG_OK;
 
 #elif defined(CMC_MUTEX_UNIX)
     if (pthread_mutex_unlock(&mtx->mutex) != 0)
-        mtx->flag = cmc_flags.MUTEX;
+        mtx->flag = CMC_FLAG_MUTEX;
     else
-        mtx->flag = cmc_flags.OK;
+        mtx->flag = CMC_FLAG_OK;
 
-    return mtx->flag == cmc_flags.OK;
+    return mtx->flag == CMC_FLAG_OK;
 #endif
 }
 
@@ -195,23 +195,23 @@ static inline bool cmc_mtx_trylock(struct cmc_mutex *mtx)
 
     if (result == WAIT_FAILED || result == WAIT_ABANDONED)
     {
-        mtx->flag = cmc_flags.MUTEX;
+        mtx->flag = CMC_FLAG_MUTEX;
         return false;
     }
 
-    mtx->flag = cmc_flags.OK;
+    mtx->flag = CMC_FLAG_OK;
     return result != WAIT_TIMEOUT;
 
 #elif defined(CMC_MUTEX_UNIX)
     int err = pthread_mutex_trylock(&mtx->mutex);
 
     if (err == EINVAL || err == EFAULT)
-        mtx->flag = cmc_flags.MUTEX;
+        mtx->flag = CMC_FLAG_MUTEX;
     else
-        mtx->flag = cmc_flags.OK;
+        mtx->flag = CMC_FLAG_OK;
 
     return err == 0;
 #endif
 }
 
-#endif /* CMC_MUTEX_H */
+#endif /* CMC_UTL_MUTEX_H */

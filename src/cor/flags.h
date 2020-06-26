@@ -1,5 +1,5 @@
 /**
- * flags.h
+ * cor/flags.h
  *
  * Creation Date: 14/05/2020
  *
@@ -8,36 +8,38 @@
  *
  */
 
-#ifndef CMC_FLAGS_H
-#define CMC_FLAGS_H
+#ifndef CMC_COR_FLAGS_H
+#define CMC_COR_FLAGS_H
+
+#include "core.h"
 
 /**
- * cmc_flags
+ * enum cmc_flags
  *
  * Defines common error codes used by the entire library.
  */
-static struct
+// clang-format off
+enum cmc_flags
 {
-    int OK;        // No errors
-    int ALLOC;     // Allocation failed
-    int EMPTY;     // The collection is empty when it should not
-    int NOT_FOUND; // Key or value not found
-    int INVALID;   // Invalid argument or operation
-    int RANGE;     // Index out of range
-    int DUPLICATE; // Duplicate key or value
-    int ERROR;     // Generic error, usually caused by algorithm error
-    int THREAD;    // Generic error regarding threads
-    int MUTEX;     // Generic error regarding mutexes
-} cmc_flags = { 0, 1, 2, 3, 4, 5, 6, 7, 8, 9 };
+    CMC_FLAG_OK        =  0, // No errors
+    CMC_FLAG_ALLOC     =  1, // Allocation failed
+    CMC_FLAG_EMPTY     =  2, // The collection is empty when it should not
+    CMC_FLAG_NOT_FOUND =  3, // Key or value not found
+    CMC_FLAG_INVALID   =  4, // Invalid argument or operation
+    CMC_FLAG_RANGE     =  5, // Index out of range
+    CMC_FLAG_DUPLICATE =  6, // Duplicate key or value
+    CMC_FLAG_ERROR     =  7, // Generic error, usually caused by algorithm error
+    CMC_FLAG_THREAD    =  8, // Generic error regarding threads
+    CMC_FLAG_MUTEX     =  9  // Generic error regarding mutexes
+};
+// clang-format on
 
 /**
  * cmc_flags_to_str
  *
  * Maps the error codes to their character representation.
  */
-const char *cmc_flags_to_str[10] = { "OK",        "ALLOC",   "EMPTY",
-                                     "NOT_FOUND", "INVALID", "RANGE",
-                                     "DUPLICATE", "ERROR",   "THREAD",
-                                     "MUTEX" };
+CMC_UNUSED static const char *cmc_flags_to_str[10] = { "OK",    "ALLOC",     "EMPTY", "NOT_FOUND", "INVALID",
+                                                       "RANGE", "DUPLICATE", "ERROR", "THREAD",    "MUTEX" };
 
-#endif /* CMC_FLAGS_H */
+#endif /* CMC_COR_FLAGS_H */

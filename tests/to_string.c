@@ -1,84 +1,208 @@
 // A visual check for to_string methods
 
-#include "../src/macro_collections.h"
+#include "macro_collections.h"
 
-CMC_COLLECTION_GENERATE(BIDIMAP, bm, bmap, int, int)
-CMC_COLLECTION_GENERATE(DEQUE, d, deque, /* K */, int)
-CMC_COLLECTION_GENERATE(HASHMAP, hm, hmap, int, int)
-CMC_COLLECTION_GENERATE(HASHSET, hs, hset, /* K */, int)
-CMC_COLLECTION_GENERATE(HEAP, h, heap, /* K */, int)
-CMC_COLLECTION_GENERATE(INTERVALHEAP, ih, iheap, /* K */, int)
-CMC_COLLECTION_GENERATE(LINKEDLIST, ll, linked, /* K */, int)
-CMC_COLLECTION_GENERATE(LIST, l, list, /* K */, int)
-CMC_COLLECTION_GENERATE(MULTIMAP, mm, mmap, int, int)
-CMC_COLLECTION_GENERATE(MULTISET, ms, mset, /* K */, int)
-CMC_COLLECTION_GENERATE(QUEUE, q, queue, /* K */, int)
-CMC_COLLECTION_GENERATE(SORTEDLIST, sl, slist, /* K */, int)
-CMC_COLLECTION_GENERATE(STACK, s, stack, /* K */, int)
-CMC_COLLECTION_GENERATE(TREESET, ts, tset, /* K */, int)
-CMC_COLLECTION_GENERATE(TREEMAP, tm, tmap, int, int)
+// clang-format off
+C_MACRO_COLLECTIONS_ALL(CMC,       BITSET, ( bs,       bitset, ,    ,    ))
+C_MACRO_COLLECTIONS_ALL(CMC,        DEQUE, (  d,        deque, ,    , int))
+C_MACRO_COLLECTIONS_ALL(CMC,  HASHBIDIMAP, (hbm,  hashbidimap, , int, int))
+C_MACRO_COLLECTIONS_ALL(CMC,      HASHMAP, ( hm,      hashmap, , int, int))
+C_MACRO_COLLECTIONS_ALL(CMC, HASHMULTIMAP, (hmm, hashmultimap, , int, int))
+C_MACRO_COLLECTIONS_ALL(CMC, HASHMULTISET, (hms, hashmultiset, ,    , int))
+C_MACRO_COLLECTIONS_ALL(CMC,      HASHSET, ( hs,      hashset, ,    , int))
+C_MACRO_COLLECTIONS_ALL(CMC,         HEAP, (  h,         heap, ,    , int))
+C_MACRO_COLLECTIONS_ALL(CMC, INTERVALHEAP, ( ih, intervalheap, ,    , int))
+C_MACRO_COLLECTIONS_ALL(CMC,   LINKEDLIST, ( ll,   linkedlist, ,    , int))
+C_MACRO_COLLECTIONS_ALL(CMC,         LIST, (  l,         list, ,    , int))
+C_MACRO_COLLECTIONS_ALL(CMC,        QUEUE, (  q,        queue, ,    , int))
+C_MACRO_COLLECTIONS_ALL(CMC,   SORTEDLIST, ( sl,   sortedlist, ,    , int))
+C_MACRO_COLLECTIONS_ALL(CMC,        STACK, (  s,        stack, ,    , int))
+C_MACRO_COLLECTIONS_ALL(CMC,      TREEMAP, ( tm,      treemap, , int, int))
+C_MACRO_COLLECTIONS_ALL(CMC,      TREESET, ( ts,      treeset, ,    , int))
+
+struct
+{
+    CMC_DEF_FTAB_CMP(int);
+    CMC_DEF_FTAB_CPY(int);
+    CMC_DEF_FTAB_STR(int);
+    CMC_DEF_FTAB_FREE(int);
+    CMC_DEF_FTAB_HASH(int);
+    CMC_DEF_FTAB_PRI(int);
+} int_ftab = {cmc_i32_cmp, NULL, cmc_i32_str, NULL, cmc_i32_hash, cmc_i32_cmp};
 
 int main(void)
 {
-    struct bmap *bm = bm_new_custom(100, 0.7, &(struct bmap_ftab_key){ 0 },
-                                    &(struct bmap_ftab_val){ 0 }, NULL, NULL);
-    struct deque *d =
-        d_new_custom(100, &(struct deque_ftab_val){ 0 }, NULL, NULL);
-    struct hmap *hm = hm_new_custom(100, 0.6, &(struct hmap_ftab_key){ 0 },
-                                    &(struct hmap_ftab_val){ 0 }, NULL, NULL);
-    struct hset *hs =
-        hs_new_custom(100, 0.6, &(struct hset_ftab_val){ 0 }, NULL, NULL);
-    struct heap *h = h_new_custom(100, cmc_max_heap,
-                                  &(struct heap_ftab_val){ 0 }, NULL, NULL);
-    struct iheap *ih =
-        ih_new_custom(100, &(struct iheap_ftab_val){ 0 }, NULL, NULL);
-    struct linked *ll =
-        ll_new_custom(&(struct linked_ftab_val){ 0 }, NULL, NULL);
-    struct list *l =
-        l_new_custom(100, &(struct list_ftab_val){ 0 }, NULL, NULL);
-    struct mmap *mm = mm_new_custom(100, 0.8, &(struct mmap_ftab_key){ 0 },
-                                    &(struct mmap_ftab_val){ 0 }, NULL, NULL);
-    struct mset *ms =
-        ms_new_custom(100, 0.6, &(struct mset_ftab_val){ 0 }, NULL, NULL);
-    struct queue *q =
-        q_new_custom(100, &(struct queue_ftab_val){ 0 }, NULL, NULL);
-    struct slist *sl =
-        sl_new_custom(100, &(struct slist_ftab_val){ 0 }, NULL, NULL);
-    struct stack *s =
-        s_new_custom(100, &(struct stack_ftab_val){ 0 }, NULL, NULL);
-    struct tmap *tm = tm_new_custom(&(struct tmap_ftab_key){ 0 },
-                                    &(struct tmap_ftab_val){ 0 }, NULL, NULL);
-    struct tset *ts = ts_new_custom(&(struct tset_ftab_val){ 0 }, NULL, NULL);
+    struct deque *d = d_new(100, (struct deque_fval *)&int_ftab);
+    struct hashbidimap *hbm = hbm_new(100, 0.8,
+                                       (struct hashbidimap_fkey *)&int_ftab,
+                                       (struct hashbidimap_fval *)&int_ftab);
+    struct hashmap *hm = hm_new(100, 0.6, (struct hashmap_fkey *)&int_ftab,
+                                          (struct hashmap_fval *)&int_ftab);
+    struct hashmultimap *hmm = hmm_new(100, 0.8,
+                                       (struct hashmultimap_fkey *)&int_ftab,
+                                       (struct hashmultimap_fval *)&int_ftab);
+    struct hashmultiset *hms = hms_new(100, 0.6,
+                                       (struct hashmultiset_fval *)&int_ftab);
+    struct hashset *hs = hs_new(100, 0.6,
+                                (struct hashset_fval *)&int_ftab);
+    struct heap *h = h_new(100, CMC_MAX_HEAP, (struct heap_fval *)&int_ftab);
+    struct intervalheap *ih = ih_new(100, (struct intervalheap_fval *)&int_ftab);
+    struct linkedlist *ll = ll_new((struct linkedlist_fval *)&int_ftab);
+    struct list *l = l_new(100, (struct list_fval *)&int_ftab);
+    struct queue *q = q_new(100, (struct queue_fval *)&int_ftab);
+    struct sortedlist *sl = sl_new(100, (struct sortedlist_fval *)&int_ftab);
+    struct stack *s = s_new(100, (struct stack_fval *)&int_ftab);
+    struct treemap *tm = tm_new((struct treemap_fkey *)&int_ftab,
+                                       (struct treemap_fval *)&int_ftab);
+    struct treeset *ts = ts_new((struct treeset_fval *)&int_ftab);
 
-    printf("%s\n", bm_to_string(bm).s);
-    printf("%s\n", d_to_string(d).s);
-    printf("%s\n", hm_to_string(hm).s);
-    printf("%s\n", hs_to_string(hs).s);
-    printf("%s\n", h_to_string(h).s);
-    printf("%s\n", ih_to_string(ih).s);
-    printf("%s\n", ll_to_string(ll).s);
-    printf("%s\n", l_to_string(l).s);
-    printf("%s\n", mm_to_string(mm).s);
-    printf("%s\n", ms_to_string(ms).s);
-    printf("%s\n", q_to_string(q).s);
-    printf("%s\n", sl_to_string(sl).s);
-    printf("%s\n", s_to_string(s).s);
-    printf("%s\n", tm_to_string(tm).s);
-    printf("%s\n", ts_to_string(ts).s);
+    d_to_string(d, stdout);
+    d_print(d, stdout, "\n[ ", ", ", " ]\n");
+    hbm_to_string(hbm, stdout);
+    hbm_print(hbm, stdout, "\n[ {", "}, {", "} ]\n", " : ");
+    hm_to_string(hm, stdout);
+    hm_print(hm, stdout, "\n[ {", "}, {", "} ]\n", " : ");
+    hmm_to_string(hmm, stdout);
+    hmm_print(hmm, stdout, "\n[ {", "}, {", "} ]\n", " : ");
+    hms_to_string(hms, stdout);
+    hms_print(hms, stdout, "\n[ {", "}, {", "} ]\n", " : ");
+    hs_to_string(hs, stdout);
+    hs_print(hs, stdout, "\n[ ", ", ", " ]\n");
+    h_to_string(h, stdout);
+    h_print(h, stdout, "\n[ ", ", ", " ]\n");
+    ih_to_string(ih, stdout);
+    ih_print(ih, stdout, "\n[ ", ", ", " ]\n");
+    ll_to_string(ll, stdout);
+    ll_print(ll, stdout, "\n[ ", ", ", " ]\n");
+    l_to_string(l, stdout);
+    l_print(l, stdout, "\n[ ", ", ", " ]\n");
+    q_to_string(q, stdout);
+    q_print(q, stdout, "\n[ ", ", ", " ]\n");
+    sl_to_string(sl, stdout);
+    sl_print(sl, stdout, "\n[ ", ", ", " ]\n");
+    s_to_string(s, stdout);
+    s_print(s, stdout, "\n[ ", ", ", " ]\n");
+    tm_to_string(tm, stdout);
+    tm_print(tm, stdout, "\n[ {", "}, {", "} ]\n", " : ");
+    ts_to_string(ts, stdout);
+    ts_print(ts, stdout, "\n[ ", ", ", " ]\n");
 
-    bm_free(bm);
+    fprintf(stdout, "\n");
+
+    d_push_back(d, 0);
+    hbm_insert(hbm, 0, 0);
+    hm_insert(hm, 0, 0);
+    hmm_insert(hmm, 0, 0);
+    hms_insert(hms, 0);
+    hs_insert(hs, 0);
+    h_insert(h, 0);
+    ih_insert(ih, 0);
+    ll_push_back(ll, 0);
+    l_push_back(l, 0);
+    q_enqueue(q, 0);
+    sl_insert(sl, 0);
+    s_push(s, 0);
+    tm_insert(tm, 0, 0);
+    ts_insert(ts, 0);
+
+    d_to_string(d, stdout);
+    d_print(d, stdout, "\n[ ", ", ", " ]\n");
+    hbm_to_string(hbm, stdout);
+    hbm_print(hbm, stdout, "\n[ {", "}, {", "} ]\n", " : ");
+    hm_to_string(hm, stdout);
+    hm_print(hm, stdout, "\n[ {", "}, {", "} ]\n", " : ");
+    hmm_to_string(hmm, stdout);
+    hmm_print(hmm, stdout, "\n[ {", "}, {", "} ]\n", " : ");
+    hms_to_string(hms, stdout);
+    hms_print(hms, stdout, "\n[ {", "}, {", "} ]\n", " : ");
+    hs_to_string(hs, stdout);
+    hs_print(hs, stdout, "\n[ ", ", ", " ]\n");
+    h_to_string(h, stdout);
+    h_print(h, stdout, "\n[ ", ", ", " ]\n");
+    ih_to_string(ih, stdout);
+    ih_print(ih, stdout, "\n[ ", ", ", " ]\n");
+    ll_to_string(ll, stdout);
+    ll_print(ll, stdout, "\n[ ", ", ", " ]\n");
+    l_to_string(l, stdout);
+    l_print(l, stdout, "\n[ ", ", ", " ]\n");
+    q_to_string(q, stdout);
+    q_print(q, stdout, "\n[ ", ", ", " ]\n");
+    sl_to_string(sl, stdout);
+    sl_print(sl, stdout, "\n[ ", ", ", " ]\n");
+    s_to_string(s, stdout);
+    s_print(s, stdout, "\n[ ", ", ", " ]\n");
+    tm_to_string(tm, stdout);
+    tm_print(tm, stdout, "\n[ {", "}, {", "} ]\n", " : ");
+    ts_to_string(ts, stdout);
+    ts_print(ts, stdout, "\n[ ", ", ", " ]\n");
+
+    for (int i = 1; i < 20; i++)
+    {
+        d_push_back(d, i);
+        hbm_insert(hbm, i, i);
+        hm_insert(hm, i, i);
+        hmm_insert(hmm, i, i);
+        hms_insert(hms, i);
+        hs_insert(hs, i);
+        h_insert(h, i);
+        ih_insert(ih, i);
+        ll_push_back(ll, i);
+        l_push_back(l, i);
+        q_enqueue(q, i);
+        sl_insert(sl, i);
+        s_push(s, i);
+        tm_insert(tm, i, i);
+        ts_insert(ts, i);
+    }
+
+    fprintf(stdout, "\n");
+
+    d_to_string(d, stdout);
+    d_print(d, stdout, "\n[ ", ", ", " ]\n");
+    hbm_to_string(hbm, stdout);
+    hbm_print(hbm, stdout, "\n[ {", "}, {", "} ]\n", " : ");
+    hm_to_string(hm, stdout);
+    hm_print(hm, stdout, "\n[ {", "}, {", "} ]\n", " : ");
+    hmm_to_string(hmm, stdout);
+    hmm_print(hmm, stdout, "\n[ {", "}, {", "} ]\n", " : ");
+    hms_to_string(hms, stdout);
+    hms_print(hms, stdout, "\n[ {", "}, {", "} ]\n", " : ");
+    hs_to_string(hs, stdout);
+    hs_print(hs, stdout, "\n[ ", ", ", " ]\n");
+    h_to_string(h, stdout);
+    h_print(h, stdout, "\n[ ", ", ", " ]\n");
+    ih_to_string(ih, stdout);
+    ih_print(ih, stdout, "\n[ ", ", ", " ]\n");
+    ll_to_string(ll, stdout);
+    ll_print(ll, stdout, "\n[ ", ", ", " ]\n");
+    l_to_string(l, stdout);
+    l_print(l, stdout, "\n[ ", ", ", " ]\n");
+    q_to_string(q, stdout);
+    q_print(q, stdout, "\n[ ", ", ", " ]\n");
+    sl_to_string(sl, stdout);
+    sl_print(sl, stdout, "\n[ ", ", ", " ]\n");
+    s_to_string(s, stdout);
+    s_print(s, stdout, "\n[ ", ", ", " ]\n");
+    tm_to_string(tm, stdout);
+    tm_print(tm, stdout, "\n[ {", "}, {", "} ]\n", " : ");
+    ts_to_string(ts, stdout);
+    ts_print(ts, stdout, "\n[ ", ", ", " ]\n");
+
     d_free(d);
+    hbm_free(hbm);
     hm_free(hm);
+    hmm_free(hmm);
+    hms_free(hms);
     hs_free(hs);
     h_free(h);
     ih_free(ih);
     ll_free(ll);
     l_free(l);
-    mm_free(mm);
-    ms_free(ms);
     q_free(q);
     sl_free(sl);
     s_free(s);
     tm_free(tm);
     ts_free(ts);
 }
+
+// clang-format on

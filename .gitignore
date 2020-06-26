@@ -56,3 +56,6 @@ dkms.conf
 
 # Experimental folder
 experimental/
+
+# Test / Code Coverage build folder
+build

@@ -1,18 +1,23 @@
-dist: trusty
+dist: xenial
 os: linux
 language: c
 compiler: gcc
 addons:
   apt:
     sources:
+      - deadsnakes
       - ubuntu-toolchain-r-test
     packages:
-      - gcc-7
+      - gcc-9
       - cmake
+      - python3.8
 script:
-  - sudo ln -s /usr/bin/gcc-6 /usr/local/bin/gcc
-  - export CC=gcc-7
-#  - make -C ./tests/
-  - make -C ./tests/main/
+  - sudo ln -s /usr/bin/gcc-9 /usr/local/bin/gcc
+  - sudo ln -s /usr/bin/gcov-9 /usr/local/bin/gcov
+  - sudo ln -s /usr/bin/python3.8 /usr/local/bin/python
+  - gcc --version
+  - gcov --version
+  - python --version
+  - python autogen.py -e -b -cv -r -nf
 after_success:
   - bash <(curl -s https://codecov.io/bash)

@@ -1,5 +1,5 @@
 /**
- * futils.h
+ * utl/futils.h
  *
  * Creation Date: 15/04/2020
  *
@@ -13,8 +13,8 @@
  * another one every time.
  */
 
-#ifndef CMC_FUTILS_H
-#define CMC_FUTILS_H
+#ifndef CMC_UTL_FUTILS_H
+#define CMC_UTL_FUTILS_H
 
 #include <inttypes.h>
 #include <stdbool.h>
@@ -323,7 +323,8 @@ static inline size_t cmc_float_hash(float e)
     if (e == 0.0)
         e = 0.0; // if e == -0.0, now it is 0.0
 
-    union {
+    union
+    {
         float a;
         size_t b;
     } x;
@@ -342,7 +343,8 @@ static inline size_t cmc_double_hash(double e)
     if (e == 0.0)
         e = 0.0; // if e == -0.0, now it is 0.0
 
-    union {
+    union
+    {
         double a;
         size_t b;
     } x;
@@ -461,4 +463,4 @@ static inline size_t cmc_u64_hash_mix(uint64_t element)
 
 /* Can simply use cmp for basic data types */
 
-#endif /* CMC_FUTILS_H */
+#endif /* CMC_UTL_FUTILS_H */

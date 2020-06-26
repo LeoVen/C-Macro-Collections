@@ -1,14 +1,17 @@
-#include <cmc/stack.h>
-#include <utl/log.h>
+#include "macro_collections.h"
 
-CMC_GENERATE_STACK(stk, stack, int)
+#define MYSTACK (stk, stack, , , int)
+
+C_MACRO_COLLECTIONS(CMC, STACK, CORE, STRUCT, MYSTACK)
+C_MACRO_COLLECTIONS(CMC, STACK, CORE, HEADER, MYSTACK)
+C_MACRO_COLLECTIONS(CMC, STACK, CORE, SOURCE, MYSTACK)
 
 struct
 {
     struct stack *from;
     struct stack *aux;
     struct stack *to;
-} print_aux = {NULL};
+} print_aux = { NULL };
 
 void print_stacks()
 {
@@ -18,10 +21,7 @@ void print_stacks()
         int ib = print_aux.aux->buffer[i];
         int ic = print_aux.to->buffer[i];
 
-        printf("| %c | %c | %c |\n",
-               ia == 0 ? 32 : ia + 48,
-               ib == 0 ? 32 : ib + 48,
-               ic == 0 ? 32 : ic + 48);
+        printf("| %c | %c | %c |\n", ia == 0 ? 32 : ia + 48, ib == 0 ? 32 : ib + 48, ic == 0 ? 32 : ic + 48);
     }
 
     printf("+---+---+---+\n\n");
@@ -50,9 +50,9 @@ void hanoi(int n, struct stack *from, struct stack *aux, struct stack *to)
 
 int main(int argc, char const *argv[])
 {
-    struct stack *from = stk_new(10);
-    struct stack *to = stk_new(10);
-    struct stack *aux = stk_new(10);
+    struct stack *from = stk_new(10, &(struct stack_fval){ NULL });
+    struct stack *to = stk_new(10, &(struct stack_fval){ NULL });
+    struct stack *aux = stk_new(10, &(struct stack_fval){ NULL });
 
     for (int i = 4; i >= 1; i--)
         stk_push(from, i);
@@ -65,9 +65,9 @@ int main(int argc, char const *argv[])
 
     hanoi(stk_count(from), from, aux, to);
 
-    stk_free(from, NULL);
-    stk_free(to, NULL);
-    stk_free(aux, NULL);
+    stk_free(from);
+    stk_free(to);
+    stk_free(aux);
 
     return 0;
 }
