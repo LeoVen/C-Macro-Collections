@@ -557,7 +557,6 @@
         return true; \
     }
 
-
 /**
  * STR
  */

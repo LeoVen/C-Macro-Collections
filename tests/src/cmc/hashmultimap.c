@@ -48,7 +48,7 @@ void hmm_clear(struct hashmultimap *_map_)
     for (size_t i = 0; i < _map_->capacity; i++)
     {
         struct hashmultimap_entry *scan = _map_->buffer[i][0];
-        while (scan != ((void *)0))
+        while (scan)
         {
             struct hashmultimap_entry *next = scan->next;
             if (_map_->f_key->free)
@@ -69,7 +69,7 @@ void hmm_free(struct hashmultimap *_map_)
     while (index < _map_->capacity)
     {
         struct hashmultimap_entry *scan = _map_->buffer[index][0];
-        if (scan != ((void *)0))
+        if (scan)
         {
             if (scan->next == ((void *)0) && scan->prev == ((void *)0))
             {
@@ -81,7 +81,7 @@ void hmm_free(struct hashmultimap *_map_)
             }
             else
             {
-                while (scan != ((void *)0))
+                while (scan)
                 {
                     struct hashmultimap_entry *tmp = scan;
                     scan = scan->next;
@@ -188,7 +188,7 @@ size_t hmm_update_all(struct hashmultimap *_map_, size_t key, size_t new_value, 
         }
     }
     size_t index = 0;
-    while (entry != ((void *)0))
+    while (entry)
     {
         if (_map_->f_key->cmp(entry->key, key) == 0)
         {
@@ -239,7 +239,7 @@ _Bool hmm_remove(struct hashmultimap *_map_, size_t key, size_t *out_value)
     else
     {
         _Bool found = 0;
-        while (entry != ((void *)0))
+        while (entry)
         {
             if (_map_->f_key->cmp(entry->key, key) == 0)
             {
@@ -247,9 +247,9 @@ _Bool hmm_remove(struct hashmultimap *_map_, size_t key, size_t *out_value)
                     *head = entry->next;
                 if (*tail == entry)
                     *tail = entry->prev;
-                if (entry->prev != ((void *)0))
+                if (entry->prev)
                     entry->prev->next = entry->next;
-                if (entry->next != ((void *)0))
+                if (entry->next)
                     entry->next->prev = entry->prev;
                 if (out_value)
                     *out_value = entry->value;
@@ -316,7 +316,7 @@ size_t hmm_remove_all(struct hashmultimap *_map_, size_t key, size_t **out_value
     }
     else
     {
-        while (entry != ((void *)0))
+        while (entry)
         {
             if (_map_->f_key->cmp(entry->key, key) == 0)
             {
@@ -325,9 +325,9 @@ size_t hmm_remove_all(struct hashmultimap *_map_, size_t key, size_t **out_value
                 if (*tail == entry)
                     *tail = entry->prev;
                 struct hashmultimap_entry *next = entry->next;
-                if (entry->prev != ((void *)0))
+                if (entry->prev)
                     entry->prev->next = entry->next;
-                if (entry->next != ((void *)0))
+                if (entry->next)
                     entry->next->prev = entry->prev;
                 if (out_values)
                     (*out_values)[index] = entry->value;
@@ -353,23 +353,26 @@ _Bool hmm_max(struct hashmultimap *_map_, size_t *key, size_t *value)
         _map_->flag = CMC_FLAG_EMPTY;
         return 0;
     }
+    _Bool first = 1;
     size_t max_key = (size_t){ 0 };
     size_t max_val = (size_t){ 0 };
-    struct hashmultimap_iter iter = hmm_iter_start(_map_);
-    for (; !hmm_iter_at_end(&iter); hmm_iter_next(&iter))
+    for (size_t i = 0; i < _map_->capacity; i++)
     {
-        size_t result_key = hmm_iter_key(&iter);
-        size_t result_value = hmm_iter_value(&iter);
-        size_t index = hmm_iter_index(&iter);
-        if (index == 0)
+        struct hashmultimap_entry *scan = _map_->buffer[i][0];
+        while (scan)
         {
-            max_key = result_key;
-            max_val = result_value;
-        }
-        else if (_map_->f_key->cmp(result_key, max_key) > 0)
-        {
-            max_key = result_key;
-            max_val = result_value;
+            if (first)
+            {
+                max_key = scan->key;
+                max_val = scan->value;
+                first = 0;
+            }
+            else if (_map_->f_key->cmp(scan->key, max_key) > 0)
+            {
+                max_key = scan->key;
+                max_val = scan->value;
+            }
+            scan = scan->next;
         }
     }
     if (key)
@@ -389,23 +392,26 @@ _Bool hmm_min(struct hashmultimap *_map_, size_t *key, size_t *value)
         _map_->flag = CMC_FLAG_EMPTY;
         return 0;
     }
+    _Bool first = 1;
     size_t min_key = (size_t){ 0 };
     size_t min_val = (size_t){ 0 };
-    struct hashmultimap_iter iter = hmm_iter_start(_map_);
-    for (; !hmm_iter_at_end(&iter); hmm_iter_next(&iter))
+    for (size_t i = 0; i < _map_->capacity; i++)
     {
-        size_t result_key = hmm_iter_key(&iter);
-        size_t result_value = hmm_iter_value(&iter);
-        size_t index = hmm_iter_index(&iter);
-        if (index == 0)
+        struct hashmultimap_entry *scan = _map_->buffer[i][0];
+        while (scan)
         {
-            min_key = result_key;
-            min_val = result_value;
-        }
-        else if (_map_->f_key->cmp(result_key, min_key) < 0)
-        {
-            min_key = result_key;
-            min_val = result_value;
+            if (first)
+            {
+                min_key = scan->key;
+                min_val = scan->value;
+                first = 0;
+            }
+            else if (_map_->f_key->cmp(scan->key, min_key) < 0)
+            {
+                min_key = scan->key;
+                min_val = scan->value;
+            }
+            scan = scan->next;
         }
     }
     if (key)
@@ -518,12 +524,14 @@ _Bool hmm_resize(struct hashmultimap *_map_, size_t capacity)
         _map_->flag = CMC_FLAG_ALLOC;
         return 0;
     }
-    struct hashmultimap_iter iter = hmm_iter_start(_map_);
-    for (; !hmm_iter_at_end(&iter); hmm_iter_next(&iter))
+    for (size_t i = 0; i < _map_->capacity; i++)
     {
-        size_t key = hmm_iter_key(&iter);
-        size_t value = hmm_iter_value(&iter);
-        hmm_insert(_new_map_, key, value);
+        struct hashmultimap_entry *scan = _map_->buffer[i][0];
+        while (scan)
+        {
+            hmm_insert(_new_map_, scan->key, scan->value);
+            scan = scan->next;
+        }
     }
     if (_map_->count != _new_map_->count)
     {
@@ -555,18 +563,23 @@ struct hashmultimap *hmm_copy_of(struct hashmultimap *_map_)
         _map_->flag = CMC_FLAG_ERROR;
         return ((void *)0);
     }
-    struct hashmultimap_iter iter = hmm_iter_start(_map_);
-    if (!hmm_empty(_map_))
+    for (size_t i = 0; i < _map_->capacity; i++)
     {
-        for (; !hmm_iter_at_end(&iter); hmm_iter_next(&iter))
+        struct hashmultimap_entry *scan = _map_->buffer[i][0];
+        while (scan)
         {
-            size_t key = hmm_iter_key(&iter);
-            size_t value = hmm_iter_value(&iter);
+            size_t key;
+            size_t value;
             if (_map_->f_key->cpy)
-                key = _map_->f_key->cpy(key);
+                key = _map_->f_key->cpy(scan->key);
+            else
+                key = scan->key;
             if (_map_->f_val->cpy)
-                value = _map_->f_val->cpy(value);
+                value = _map_->f_val->cpy(scan->value);
+            else
+                value = scan->value;
             hmm_insert(result, key, value);
+            scan = scan->next;
         }
     }
     (result)->callbacks = _map_->callbacks;
@@ -579,12 +592,19 @@ _Bool hmm_equals(struct hashmultimap *_map1_, struct hashmultimap *_map2_)
     _map2_->flag = CMC_FLAG_OK;
     if (_map1_->count != _map2_->count)
         return 0;
-    struct hashmultimap_iter iter = hmm_iter_start(_map1_);
-    for (; !hmm_iter_at_end(&iter); hmm_iter_next(&iter))
+    struct hashmultimap *_map_a_;
+    struct hashmultimap *_map_b_;
+    _map_a_ = _map1_->capacity < _map2_->capacity ? _map1_ : _map2_;
+    _map_b_ = _map_a_ == _map1_ ? _map2_ : _map1_;
+    for (size_t i = 0; i < _map_a_->capacity; i++)
     {
-        size_t key = hmm_iter_key(&iter);
-        if (hmm_impl_key_count(_map1_, key) != hmm_impl_key_count(_map2_, key))
-            return 0;
+        struct hashmultimap_entry *scan = _map_a_->buffer[i][0];
+        while (scan)
+        {
+            if (hmm_impl_key_count(_map_a_, scan->key) != hmm_impl_key_count(_map_b_, scan->key))
+                return 0;
+            scan = scan->next;
+        }
     }
     return 1;
 }
@@ -603,7 +623,7 @@ struct hashmultimap_entry *hmm_impl_get_entry(struct hashmultimap *_map_, size_t
 {
     size_t hash = _map_->f_key->hash(key);
     struct hashmultimap_entry *entry = _map_->buffer[hash % _map_->capacity][0];
-    while (entry != ((void *)0))
+    while (entry)
     {
         if (_map_->f_key->cmp(entry->key, key) == 0)
             return entry;
@@ -618,7 +638,7 @@ size_t hmm_impl_key_count(struct hashmultimap *_map_, size_t key)
     size_t total_count = 0;
     if (!entry)
         return total_count;
-    while (entry != ((void *)0))
+    while (entry)
     {
         if (_map_->f_key->cmp(entry->key, key) == 0)
             total_count++;

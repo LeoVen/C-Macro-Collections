@@ -378,7 +378,7 @@
             return false; \
         } \
 \
-        V max_val = (V) { 0 }; \
+        V max_val = (V){ 0 }; \
         struct CMC_DEF_ITER(SNAME) iter = CMC_(PFX, _iter_start)(_set_); \
 \
         /* TODO turn this into a normal loop */ \
@@ -411,7 +411,7 @@
             return false; \
         } \
 \
-        V min_val = (V) { 0 }; \
+        V min_val = (V){ 0 }; \
         struct CMC_DEF_ITER(SNAME) iter = CMC_(PFX, _iter_start)(_set_); \
 \
         /* TODO turn this into a normal loop */ \

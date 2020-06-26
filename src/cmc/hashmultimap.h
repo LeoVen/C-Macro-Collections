@@ -300,7 +300,7 @@
         { \
             struct CMC_DEF_ENTRY(SNAME) *scan = _map_->buffer[i][0]; \
 \
-            while (scan != NULL) \
+            while (scan) \
             { \
                 struct CMC_DEF_ENTRY(SNAME) *next = scan->next; \
 \
@@ -329,7 +329,7 @@
         { \
             struct CMC_DEF_ENTRY(SNAME) *scan = _map_->buffer[index][0]; \
 \
-            if (scan != NULL) \
+            if (scan) \
             { \
                 if (scan->next == NULL && scan->prev == NULL) \
                 { \
@@ -342,7 +342,7 @@
                 } \
                 else \
                 { \
-                    while (scan != NULL) \
+                    while (scan) \
                     { \
                         struct CMC_DEF_ENTRY(SNAME) *tmp = scan; \
 \
@@ -481,7 +481,7 @@
 \
         size_t index = 0; \
 \
-        while (entry != NULL) \
+        while (entry) \
         { \
             if (_map_->f_key->cmp(entry->key, key) == 0) \
             { \
@@ -543,7 +543,7 @@
         { \
             bool found = false; \
 \
-            while (entry != NULL) \
+            while (entry) \
             { \
                 if (_map_->f_key->cmp(entry->key, key) == 0) \
                 { \
@@ -552,9 +552,9 @@
                     if (*tail == entry) \
                         *tail = entry->prev; \
 \
-                    if (entry->prev != NULL) \
+                    if (entry->prev) \
                         entry->prev->next = entry->next; \
-                    if (entry->next != NULL) \
+                    if (entry->next) \
                         entry->next->prev = entry->prev; \
 \
                     if (out_value) \
@@ -639,7 +639,7 @@
         } \
         else \
         { \
-            while (entry != NULL) \
+            while (entry) \
             { \
                 if (_map_->f_key->cmp(entry->key, key) == 0) \
                 { \
@@ -650,9 +650,9 @@
 \
                     struct CMC_DEF_ENTRY(SNAME) *next = entry->next; \
 \
-                    if (entry->prev != NULL) \
+                    if (entry->prev) \
                         entry->prev->next = entry->next; \
-                    if (entry->next != NULL) \
+                    if (entry->next) \
                         entry->next->prev = entry->prev; \
 \
                     if (out_values) \
@@ -684,27 +684,30 @@
             return false; \
         } \
 \
-        K max_key = (K) { 0 }; \
-        V max_val = (V) { 0 }; \
+        bool first = true; \
+        K max_key = (K){ 0 }; \
+        V max_val = (V){ 0 }; \
 \
-        struct CMC_DEF_ITER(SNAME) iter = CMC_(PFX, _iter_start)(_map_); \
-\
-        /* TODO Turn this into a normal loop */ \
-        for (; !CMC_(PFX, _iter_at_end)(&iter); CMC_(PFX, _iter_next)(&iter)) \
+        for (size_t i = 0; i < _map_->capacity; i++) \
         { \
-            K result_key = CMC_(PFX, _iter_key)(&iter); \
-            V result_value = CMC_(PFX, _iter_value)(&iter); \
-            size_t index = CMC_(PFX, _iter_index)(&iter); \
+            struct CMC_DEF_ENTRY(SNAME) *scan = _map_->buffer[i][0]; \
 \
-            if (index == 0) \
+            while (scan) \
             { \
-                max_key = result_key; \
-                max_val = result_value; \
-            } \
-            else if (_map_->f_key->cmp(result_key, max_key) > 0) \
-            { \
-                max_key = result_key; \
-                max_val = result_value; \
+                if (first) \
+                { \
+                    max_key = scan->key; \
+                    max_val = scan->value; \
+\
+                    first = false; \
+                } \
+                else if (_map_->f_key->cmp(scan->key, max_key) > 0) \
+                { \
+                    max_key = scan->key; \
+                    max_val = scan->value; \
+                } \
+\
+                scan = scan->next; \
             } \
         } \
 \
@@ -728,27 +731,30 @@
             return false; \
         } \
 \
-        K min_key = (K) { 0 }; \
-        V min_val = (V) { 0 }; \
+        bool first = true; \
+        K min_key = (K){ 0 }; \
+        V min_val = (V){ 0 }; \
 \
-        struct CMC_DEF_ITER(SNAME) iter = CMC_(PFX, _iter_start)(_map_); \
-\
-        /* TODO Turn this into a normal loop */ \
-        for (; !CMC_(PFX, _iter_at_end)(&iter); CMC_(PFX, _iter_next)(&iter)) \
+        for (size_t i = 0; i < _map_->capacity; i++) \
         { \
-            K result_key = CMC_(PFX, _iter_key)(&iter); \
-            V result_value = CMC_(PFX, _iter_value)(&iter); \
-            size_t index = CMC_(PFX, _iter_index)(&iter); \
+            struct CMC_DEF_ENTRY(SNAME) *scan = _map_->buffer[i][0]; \
 \
-            if (index == 0) \
+            while (scan) \
             { \
-                min_key = result_key; \
-                min_val = result_value; \
-            } \
-            else if (_map_->f_key->cmp(result_key, min_key) < 0) \
-            { \
-                min_key = result_key; \
-                min_val = result_value; \
+                if (first) \
+                { \
+                    min_key = scan->key; \
+                    min_val = scan->value; \
+\
+                    first = false; \
+                } \
+                else if (_map_->f_key->cmp(scan->key, min_key) < 0) \
+                { \
+                    min_key = scan->key; \
+                    min_val = scan->value; \
+                } \
+\
+                scan = scan->next; \
             } \
         } \
 \
@@ -893,16 +899,17 @@
             return false; \
         } \
 \
-        struct CMC_DEF_ITER(SNAME) iter = CMC_(PFX, _iter_start)(_map_); \
-\
-        /* TODO Turn this into a normal loop */ \
-        for (; !CMC_(PFX, _iter_at_end)(&iter); CMC_(PFX, _iter_next)(&iter)) \
+        for (size_t i = 0; i < _map_->capacity; i++) \
         { \
-            K key = CMC_(PFX, _iter_key)(&iter); \
-            V value = CMC_(PFX, _iter_value)(&iter); \
+            struct CMC_DEF_ENTRY(SNAME) *scan = _map_->buffer[i][0]; \
 \
-            /* TODO check for errors */ \
-            CMC_(PFX, _insert)(_new_map_, key, value); \
+            while (scan) \
+            { \
+                /* TODO check for errors */ \
+                CMC_(PFX, _insert)(_new_map_, scan->key, scan->value); \
+\
+                scan = scan->next; \
+            } \
         } \
 \
         if (_map_->count != _new_map_->count) \
@@ -946,23 +953,28 @@
             return NULL; \
         } \
 \
-        struct CMC_DEF_ITER(SNAME) iter = CMC_(PFX, _iter_start)(_map_); \
-\
-        if (!CMC_(PFX, _empty)(_map_)) \
+        for (size_t i = 0; i < _map_->capacity; i++) \
         { \
-            /* TODO Turn this into a normal loop */ \
-            for (; !CMC_(PFX, _iter_at_end)(&iter); CMC_(PFX, _iter_next)(&iter)) \
+            struct CMC_DEF_ENTRY(SNAME) *scan = _map_->buffer[i][0]; \
+\
+            while (scan) \
             { \
-                K key = CMC_(PFX, _iter_key)(&iter); \
-                V value = CMC_(PFX, _iter_value)(&iter); \
+                K key;\
+                V value;\
 \
                 if (_map_->f_key->cpy) \
-                    key = _map_->f_key->cpy(key); \
+                    key = _map_->f_key->cpy(scan->key); \
+                else\
+                    key = scan->key;\
                 if (_map_->f_val->cpy) \
-                    value = _map_->f_val->cpy(value); \
+                    value = _map_->f_val->cpy(scan->value); \
+                else\
+                    value = scan->value;\
 \
                 /* TODO check for errors */ \
                 CMC_(PFX, _insert)(result, key, value); \
+\
+                scan = scan->next; \
             } \
         } \
 \
@@ -980,15 +992,25 @@
         if (_map1_->count != _map2_->count) \
             return false; \
 \
-        struct CMC_DEF_ITER(SNAME) iter = CMC_(PFX, _iter_start)(_map1_); \
+        /* Optimize loop using the smallest hashtable */ \
+        struct SNAME *_map_a_; \
+        struct SNAME *_map_b_; \
 \
-        /* TODO Turn this into a normal loop */ \
-        for (; !CMC_(PFX, _iter_at_end)(&iter); CMC_(PFX, _iter_next)(&iter)) \
+        _map_a_ = _map1_->capacity < _map2_->capacity ? _map1_ : _map2_; \
+        _map_b_ = _map_a_ == _map1_ ? _map2_ : _map1_; \
+\
+        for (size_t i = 0; i < _map_a_->capacity; i++) \
         { \
-            K key = CMC_(PFX, _iter_key)(&iter); \
+            struct CMC_DEF_ENTRY(SNAME) *scan = _map_a_->buffer[i][0]; \
 \
-            if (CMC_(PFX, _impl_key_count)(_map1_, key) != CMC_(PFX, _impl_key_count)(_map2_, key)) \
-                return false; \
+            while (scan) \
+            { \
+                /* OPTIMIZE - This is calling key_count for repeating keys */\
+                if (CMC_(PFX, _impl_key_count)(_map_a_, scan->key) != CMC_(PFX, _impl_key_count)(_map_b_, scan->key))\
+                    return false;\
+\
+                scan = scan->next; \
+            } \
         } \
 \
         return true; \
@@ -1015,7 +1037,7 @@
 \
         struct CMC_DEF_ENTRY(SNAME) *entry = _map_->buffer[hash % _map_->capacity][0]; \
 \
-        while (entry != NULL) \
+        while (entry) \
         { \
             if (_map_->f_key->cmp(entry->key, key) == 0) \
                 return entry; \
@@ -1037,7 +1059,7 @@
         if (!entry) \
             return total_count; \
 \
-        while (entry != NULL) \
+        while (entry) \
         { \
             if (_map_->f_key->cmp(entry->key, key) == 0) \
                 total_count++; \

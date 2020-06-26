@@ -86,10 +86,10 @@
         /* Current array capacity */ \
         size_t capacity; \
 \
-        /* Currently used bits */\
-        /* This should always be true: */\
-        /* capacity - count < sizeof(cmc_bitset_word) * CHAR_BIT */\
-        size_t count;\
+        /* Currently used bits */ \
+        /* This should always be true: */ \
+        /* capacity - count < sizeof(cmc_bitset_word) * CHAR_BIT */ \
+        size_t count; \
 \
         /* Flags indicating errors or success */ \
         int flag; \
@@ -156,7 +156,7 @@
     /* Iterator Initialization */ \
     /* Iterator State */ \
     /* Iterator Movement */ \
-    /* Iterator Access */ \
+    /* Iterator Access */
 
 /* -------------------------------------------------------------------------
  * Source

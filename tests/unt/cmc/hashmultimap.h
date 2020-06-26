@@ -227,6 +227,103 @@ CMC_CREATE_UNIT(CMCHashMultiMap, true, {
         hmm_free(map);
     });
 
+    CMC_CREATE_TEST(PFX##_max(), {
+        struct hashmultimap *map = hmm_new(50, 0.8, hmm_fkey, hmm_fval);
+
+        size_t max_key;
+        size_t max_val;
+        cmc_assert(!hmm_max(map, &max_key, &max_val));
+        cmc_assert_equals(int32_t, CMC_FLAG_EMPTY, map->flag);
+
+        cmc_assert(hmm_insert(map, 1, 2));
+        cmc_assert(hmm_max(map, &max_key, &max_val));
+        cmc_assert_equals(size_t, 1, max_key);
+        cmc_assert_equals(size_t, 2, max_val);
+
+        cmc_assert(hmm_insert(map, 2, 3));
+        cmc_assert(hmm_insert(map, 0, 1));
+        cmc_assert(hmm_max(map, &max_key, &max_val));
+        cmc_assert_equals(size_t, 2, max_key);
+        cmc_assert_equals(size_t, 3, max_val);
+
+        for (size_t i = 3; i <= 100; i++)
+        {
+            cmc_assert(hmm_insert(map, i, i));
+        }
+
+        cmc_assert(hmm_max(map, &max_key, &max_val));
+        cmc_assert_equals(size_t, 100, max_key);
+        cmc_assert_equals(size_t, 100, max_val);
+
+        hmm_free(map);
+    });
+
+    CMC_CREATE_TEST(PFX##_min(), {
+        struct hashmultimap *map = hmm_new(50, 0.8, hmm_fkey, hmm_fval);
+
+        size_t min_key;
+        size_t min_val;
+        cmc_assert(!hmm_min(map, &min_key, &min_val));
+        cmc_assert_equals(int32_t, CMC_FLAG_EMPTY, map->flag);
+
+        cmc_assert(hmm_insert(map, 1, 2));
+        cmc_assert(hmm_min(map, &min_key, &min_val));
+        cmc_assert_equals(size_t, 1, min_key);
+        cmc_assert_equals(size_t, 2, min_val);
+
+        cmc_assert(hmm_insert(map, 2, 3));
+        cmc_assert(hmm_insert(map, 0, 1));
+        cmc_assert(hmm_min(map, &min_key, &min_val));
+        cmc_assert_equals(size_t, 0, min_key);
+        cmc_assert_equals(size_t, 1, min_val);
+
+        for (size_t i = 3; i <= 100; i++)
+        {
+            cmc_assert(hmm_insert(map, i, i));
+        }
+
+        cmc_assert(hmm_min(map, &min_key, &min_val));
+        cmc_assert_equals(size_t, 0, min_key);
+        cmc_assert_equals(size_t, 1, min_val);
+
+        hmm_free(map);
+    });
+
+    CMC_CREATE_TEST(PFX##_copy_of(), {
+        struct hashmultimap *map = hmm_new(100, 0.8, hmm_fkey, hmm_fval);
+
+        for (size_t i = 0; i < 1000; i++)
+            hmm_insert(map, i, i);
+
+        struct hashmultimap *map2 = hmm_copy_of(map);
+
+        cmc_assert_equals(size_t, map->count, map2->count);
+        cmc_assert(hmm_equals(map, map2));
+
+        hmm_free(map);
+    });
+
+    CMC_CREATE_TEST(PFX##_equals(), {
+        struct hashmultimap *map1 = hmm_new(100, 0.8, hmm_fkey, hmm_fval);
+        struct hashmultimap *map2 = hmm_new(100, 0.8, hmm_fkey, hmm_fval);
+
+        cmc_assert(hmm_equals(map1, map2));
+
+        cmc_assert(hmm_insert(map1, 1, 1));
+        cmc_assert(hmm_insert(map2, 1, 1));
+        cmc_assert(hmm_equals(map1, map2));
+
+        for (size_t i = 2; i < 200; i++)
+        {
+            cmc_assert(hmm_insert(map1, i, i) && hmm_insert(map2, i, i));
+        }
+
+        cmc_assert(hmm_equals(map1, map2));
+
+        hmm_free(map1);
+        hmm_free(map2);
+    });
+
     CMC_CREATE_TEST(key_count, {
         struct hashmultimap *map = hmm_new(50, 0.8, hmm_fkey, hmm_fval);
 
