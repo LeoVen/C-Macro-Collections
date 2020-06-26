@@ -13,7 +13,7 @@
 
 <p align="center">
     <a href="https://github.com/LeoVen/C-Macro-Collections/blob/master/LICENSE"><img src="https://img.shields.io/badge/License-MIT-blue.svg" alt="License"/></a>
-    <img src="https://img.shields.io/badge/Version-v0.23.1-orange.svg" alt="Version"/>
+    <img src="https://img.shields.io/badge/Version-v0.24.0-orange.svg" alt="Version"/>
     <a href="https://travis-ci.org/LeoVen/C-Macro-Collections"><img src="https://travis-ci.org/LeoVen/C-Macro-Collections.svg?branch=master" alt="travis-ci"/></a>
     <a href="https://codecov.io/gh/LeoVen/C-Macro-Collections"><img src="https://codecov.io/gh/LeoVen/C-Macro-Collections/branch/master/graph/badge.svg" alt="codecov"/></a>
     <img src="https://github.com/LeoVen/C-Macro-Collections/workflows/Test%20Suit/badge.svg?branch=master" alt="test_suit"/>
@@ -21,61 +21,118 @@
 
 ## Table of Contents
 
-* Installation
-* Usage
-* Contributing
-* License
-* Features
+* [Installation](#installation)
+* [Contributing](#contributing)
+* [Usage](#usage)
+* [Features](#features)
+* [Project Structure](#project-structure)
+* [Available Collections](#available-collections)
+* [Other Features](#other-features)
+* [Design Decisions](#design-decisions)
+* [What to use](#what-to-use)
+* [Code Review](#code-review)
 
 ## Installation
 
 No installation is required. The entire library is made of header files and can be directly included into your project.
 
+## Contributing
+
+There is a lot to be done. You can check the `TODO` file in the root of the repository or the issues in the github page. Also, tests and documentation are in constant development. Also check out the `STATUS` file for the status on the development of the library.
+
 ## Usage
 
 The header `macro_collections.h` includes every feature from the library and comes with higher level APIs that help you generate collections from specific sub-libraries with specific extensions.
 
+Below is a minimal example that makes use of some core functionalities. And a lot of explanation too!
+
 ```c
-// WIP
+// This is the master header. This will include every feature of the library.
+// This comes with many helper macros (high level API) and utility functions.
 #include "macro_collections.h"
 
 // A PARAM is a standard way to pass required parameters to the lower level API.
 // It is a tuple of form (PFX, SNAME, SIZE, K, V). In this case, not all of them
-// are used, so we can leave them empty.
-#define MY_LIST_PARAMS (si32, stacki32, , , int32_t)
+// are used, so we can leave them empty. We are creating a list of value int.
+#define MY_LIST_PARAMS (intl, int_list, , , int)
 
 // High level API. Generate a LIST from the CMC library with the STR extension
-C_MACRO_COLLECTIONS_GEN(PUBLIC, CMC, LIST, MY_LIST_PARAMS, (STR))
-
-bool int_str(FILE *fptr, int val)
-{
-    return 0 <= fprintf(fptr, "%d", val);
-}
+// using our previously defined PARAMs. Every collections has a CORE part that
+// needs to be generated first. Then, we can add other parts after. This macro
+// does all of that for us. The STR part will provide us with a function that
+// will be used later.
+C_MACRO_COLLECTIONS_GEN(CMC, LIST, MY_LIST_PARAMS, (STR))
 
 int main(void)
 {
-    struct stack_int *stack = sint_new(100, &(struct stack_int_fval) { .str = int_str });
+    // Our list type is defined by SNAME and all functions are prefixed by PFX
+    // (PFX can also be thought as the function's namespace). Also, nodes,
+    // entries, iterators and other structures are prefixed by SNAME. So PFX is
+    // for functions and SNAME is for structs, where the main one is simply
+    // 'struct SNAME'.
+    // To initialize a list we need to pass in an initial capacity and something
+    // that is called a function table for the V type.
+    // This function table is a struct with methods that will extract some
+    // (sometimes) necessary behaviour from your custom data type. Things like
+    // hash, comparison and printing. A list doesn't require any of these
+    // functions. That is, the CORE module doesn't use any of them.
+    // But since we are using the STR module, we will need to define the 'str'
+    // function. luckily, for the 'int' type, the library already provides such
+    // function (cmc_i32_str), provided by the /utl/futils.h header file.
+    struct int_list *list = intl_new(32, &(struct int_list_fval){ .str = cmc_i32_str, NULL });
 
-    si32_free(stack);
+    // Check if the list was successfully initialized. It could fail if the
+    // initial capacity is too big or if 'struct int_list_fval *' is NULL,
+    // because every data structure must have a valid function table.
+    if (!list)
+        return 1;
+
+    // Add some items to the list. The CMC data structures are all dynamically
+    // sized. So there can be as many items as you want as long as you have
+    // enough memory.
+    for (int i = 0; i < 100; i++)
+    {
+        // Try to add an element to the list. If it fails you can check what
+        // caused it by getting its flag.
+        if (!intl_push_back(list, i))
+        {
+            enum cmc_flags flag = intl_flag(list);
+            // Use cmc_flags_to_str to map the enum error to a string.
+            fprintf(stderr, "%s : push_back failed\n", cmc_flags_to_str[flag]);
+        }
+    }
+
+    // Now we will use the STR module, the _print() function. This is where the
+    // '.str' from the function table comes into play. If we haven't defined it,
+    // the program would've crashed. We also need to define to which file we
+    // will be printing the list's content. In this case, the terminal. Also,
+    // some strings need to be defined. They will be printed: before all elements,
+    // between each one, and after all elements. This is very usefull and can
+    // print a data structure very nicely.
+    intl_print(list, stdout, "[ ", ", ", " ]\n");
+
+    // You should see a nicely printed list in your terminal.
+
+    // Free all of its resources
+    intl_free(list);
 }
-
 ```
 
-## Contributing
+Now all you have to do is to compile the source code with `-I /path/to/library/src`. There is no required installation or pre-compilation.
 
 ## Features
 
 The C Macro Collections library is organized into many other sub-libraries. The following table is a quick overview.
 
-| Library | Name                             | Description                                                                                                                   |
-| :-----: | -------------------------------- | ----------------------------------------------------------------------------------------------------------------------------- |
-| CMC     | The main C Macro Collections     | The main library with variably-sized collections                                                                              |
-| COR     | Core                             | Core functionalities used by more than one collection, usually from different sub-libraries                                   |
-| EXT     | Extensions                       | Extension to collections from CMC, SAC and TSC libraries                                                                      |
-| INT     | Integrations                     | Macros that facilitate the creation of code that involves more than one type of collection, e.g. transforming a set to a list |
-| SAC     | Statically Allocated Collections | Collections with a fixed sized array that don't use any heap allocation                                                       |
-| TSC     | Thread-Safe Collections          | Collections that allow multiple operations from multiple threads                                                              |
-| UTL     | Utilities                        | Utilities for the library                                                                                                     |
+| Library | Name                             | Description                                                                                 |
+| :-----: | -------------------------------- | ------------------------------------------------------------------------------------------- |
+|   CMC   | Macro Collections                | The main library with dynamically-sized collections                                         |
+|   COR   | Core                             | Core functionalities used by more than one collection, usually from different sub-libraries |
+|   EXT   | Extensions                       | Extension to collections from CMC, SAC and TSC libraries                                    |
+|   INT   | Integrations                     | Macros that facilitate the creation of code that involves more than one type of collection  |
+|   SAC   | Statically Allocated Collections | Collections with a fixed sized array that don't use any heap allocation                     |
+|   TSC   | Thread-Safe Collections          | Collections that allow multiple operations from multiple threads                            |
+|   UTL   | Utilities                        | General utilities                                                                           |
 
 Every macro that generates code for a certain collection can be found with the following template. Some exceptions exist as certain collections don't have or can't have some features. One big example is the `UTL` library, which does not follow this pattern.
 
@@ -83,22 +140,14 @@ Every macro that generates code for a certain collection can be found with the f
 macro_name := CMC_[ lib ]_[ collection ]_[ part ]_[ file ]
 
 lib := CMC | COR | DEV | EXT | INT | SAC | TSC
-collection := BITSET | DEQUE | HASHBIDIMAP | HASHMAP | HASHMULTIMAP | HASHMULTISET | HASHSET | HEAP | INTERVALHEAP | LINKEDLIST | LIST | QUEUE | SORTEDLIST | STACK | TREEBIDIMAP | TREEMAP | TREEMULTIMAP | TREEMULTISET | TREESET
-part := CORE | ITER | INIT | SETF | NODE ...
+collection := BITSET | DEQUE | HASHBIDIMAP | ... | TREEMULTISET | TREESET
+part := CORE | ITER | INIT | ... | SETF | NODE
 file := HEADER | SOURCE
 ```
 
 __Some `collection`s might not be present in a certain `lib`. Check the documentation.__
 
-Every macro is suffixed by `CMC` and each section is separated by an underscore (`_`). The first section is the library (`lib`). The second is the collection name in all uppercase. Then the `part` (or which feature from it) that you wish to generate. And last, if it is code that should belong to a header file or code that should belong to a source file.
-
-* Project Structure
-* Available Collections
-* Features
-* Overall To-Do
-* Design Decisions
-* What to use
-* How to use
+Every macro is suffixed by `CMC` and each section is separated by an underscore (`_`). The first section is the library (`lib`). The second is the collection name in all uppercase. Then the `part` (or which module) that you wish to generate. And last, if it is code that should belong to a header file or code that should belong to a source file.
 
 ## Project Structure
 
@@ -109,53 +158,46 @@ Every macro is suffixed by `CMC` and each section is separated by an underscore 
 * __src__ - All headers part of the C Macro Collections Library
     * __cmc__ - The main C Macro Collections Library
     * __cor__ - Core includes in the C Macro Collections Library
-    * __dev__ - The main C Macro Collections Library for development (containing logging)
-    * __sac__ - Statically  Allocated Collections
-    * __utl__ - Utility like ForEach macros, logging, etc
+    * __ext__ - Extensions to the CMC, SAC and TSC collections
+    * __int__ - Integrations between Collections
+    * __sac__ - Statically Allocated Collections
+    * __tsc__ - Thread Safe Collections
+    * __utl__ - Utilities like ForEach macros, logging, etc
     * __macro\_collections.h__ - Master header containing all collections and utilities
 * __tests__ - Where all tests are hosted
 
 ## Available Collections
 
-* Linear Collections
-    * List, LinkedList, Deque, Stack, Queue, SortedList
-* Sets
-    * HashSet, TreeSet, HashMultiSet
-* Maps
-    * HashMap, TreeMap, HashMultiMap
-* Bidirectional Maps
-    * HashBidiMap
-* Heaps
-    * Heap, IntervalHeap
-* WIP
-    * BitSet, Matrix, TreeBidiMap, TreeMultiMap, TreeMultiSet
+Check out the STATUS file at the root of the project for more information.
 
 __The following table is an overview of all the currently available or upcoming data structures__:
 
-| Collection <img width=250/>        | Abstract Data Type <img width=250/> | Data Structure <img width=250/> | Details                               |
-| :--------------------------------: | :---------------------------------: | :-----------------------------: | :-----------------------------------: |
-| BitSet       <br> _bitset.h_       | Set                                 | Dynamic Array                   | A set of bits that can be individually modified and queried, each identified by a bit index                                                    |
-| Deque        <br> _deque.h_        | Double-Ended Queue                  | Dynamic Circular Array          | A circular array that allows `push` and `pop` on both ends (only) at constant time                                                             |
-| HashBidiMap  <br> _hashbidimap.h_  | Bidirectional Map                   | Two Hashtables                  | A bijection between two sets of unique keys and unique values `K <-> V` using two hashtables                                                   |
-| HashMap      <br> _hashmap.h_      | Map                                 | Flat Hashtable                  | A unique set of keys associated with a value `K -> V` with constant time look up using a hashtable with open addressing and robin hood hashing |
-| HashMultiMap <br> _hashmultimap.h_ | Multimap                            | Hashtable                       | A mapping of multiple keys with one node per key using a hashtable with separate chaining                                                      |
-| HashMultiSet <br> _hashmultiset.h_ | Multiset                            | Flat Hashtable                  | A mapping of a value and its multiplicity using a hashtable with open addressing and robin hood hashing                                        |
-| HashSet      <br> _hashset.h_      | Set                                 | Flat Hashtable                  | A unique set of values with constant time look up  using a hashtable with open addressing and robin hood hashing                               |
-| Heap         <br> _heap.h_         | Priority Queue                      | Dynamic Array                   | A binary heap as a dynamic array as an implicit data structure                                                                                 |
-| IntervalHeap <br> _intervalheap.h_ | Double-Ended Priority Queue         | Custom Dynamic Array            | A dynamic array of nodes, each hosting one value from the MinHeap and one from the MaxHeap                                                     |
-| LinkedList   <br> _linkedlist.h_   | List                                | Doubly-Linked List              | A default doubly-linked list                                                                                                                   |
-| List         <br> _list.h_         | List                                | Dynamic Array                   | A dynamic array with `push` and `pop` anywhere on the array                                                                                    |
-| Matrix       <br> _WIP_            | Regular Matrix                      | Dynamic Array of Dynamic Arrays | A regular matrix with arbitrary rows and columns                                                                                               |
-| Queue        <br> _queue.h_        | FIFO                                | Dynamic Circular Array          | A queue using a circular array with `enqueue` at the `back` index and `dequeue` at the `front` index                                           |
-| SortedList   <br> _sortedlist.h_   | Sorted List                         | Sorted Dynamic Array            | A lazily sorted dynamic array that is sorted only when necessary                                                                               |
-| Stack        <br> _stack.h_        | FILO                                | Dynamic Array                   | A stack with push and pop at the end of a dynamic array                                                                                        |
-| TreeBidiMap  <br> _WIP_            | Sorted Bidirectional Map            | Two AVL Trees                   | A sorted bijection between two sets of unique keys and unique values `K <-> V` using two AVL trees                                             |
-| TreeMap      <br> _treemap.h_      | Sorted Map                          | AVL Tree                        | A unique set of keys associated with a value `K -> V` using an AVL tree with `log(n)` look up and sorted iteration                             |
-| TreeMultiMap <br> _WIP_            | Sorted Multimap                     | AVL Tree                        | A sorted mapping of multiple keys with one node per key using an AVL Tree of linked-lists                                                      |
-| TreeMultiSet <br> _WIP_            | Sorted Multiset                     | AVL Tree                        | A sorted mapping of a value and its multiplicity using an AVL tree                                                                             |
-| TreeSet      <br> _treeset.h_      | Sorted Set                          | AVL Tree                        | A unique set of keys using an AVL tree with `log(n)` look up and sorted iteration                                                              |
+|    Collection <img width=250/>     | Abstract Data Type <img width=250/> | Data Structure <img width=250/> |                                                                    Details                                                                     |
+| :--------------------------------: | :---------------------------------: | :-----------------------------: | :--------------------------------------------------------------------------------------------------------------------------------------------: |
+|    BitSet       <br> _bitset.h_    |                 Set                 |          Dynamic Array          |                          A set of bits that can be individually modified and queried, each identified by a bit index                           |
+|    Deque        <br> _deque.h_     |         Double-Ended Queue          |     Dynamic Circular Array      |                               A circular array that allows `push` and `pop` on both ends (only) at constant time                               |
+| HashBidiMap  <br> _hashbidimap.h_  |          Bidirectional Map          |         Two Hashtables          |                          A bijection between two sets of unique keys and unique values `K <-> V` using two hashtables                          |
+|   HashMap      <br> _hashmap.h_    |                 Map                 |         Flat Hashtable          | A unique set of keys associated with a value `K -> V` with constant time look up using a hashtable with open addressing and robin hood hashing |
+| HashMultiMap <br> _hashmultimap.h_ |              Multimap               |            Hashtable            |                           A mapping of multiple keys with one node per key using a hashtable with separate chaining                            |
+| HashMultiSet <br> _hashmultiset.h_ |              Multiset               |         Flat Hashtable          |                    A mapping of a value and its multiplicity using a hashtable with open addressing and robin hood hashing                     |
+|   HashSet      <br> _hashset.h_    |                 Set                 |         Flat Hashtable          |                A unique set of values with constant time look up  using a hashtable with open addressing and robin hood hashing                |
+|     Heap         <br> _heap.h_     |           Priority Queue            |          Dynamic Array          |                                         A binary heap as a dynamic array as an implicit data structure                                         |
+| IntervalHeap <br> _intervalheap.h_ |     Double-Ended Priority Queue     |      Custom Dynamic Array       |                           A dynamic array of nodes, each hosting one value from the MinHeap and one from the MaxHeap                           |
+|  LinkedList   <br> _linkedlist.h_  |                List                 |       Doubly-Linked List        |                                                          A default doubly-linked list                                                          |
+|     List         <br> _list.h_     |                List                 |          Dynamic Array          |                                          A dynamic array with `push` and `pop` anywhere on the array                                           |
+|    Queue        <br> _queue.h_     |                FIFO                 |     Dynamic Circular Array      |                      A queue using a circular array with `enqueue` at the `back` index and `dequeue` at the `front` index                      |
+|     SkipList       <br> _WIP_      |             Sorted List             |            Skip List            |                              A sorted Linked List with average O(log n) search, insertion and deletion complexity                              |
+|  SortedList   <br> _sortedlist.h_  |             Sorted List             |      Sorted Dynamic Array       |                                        A lazily sorted dynamic array that is sorted only when necessary                                        |
+|    Stack        <br> _stack.h_     |                FILO                 |          Dynamic Array          |                                            A stack with push and pop at the end of a dynamic array                                             |
+|      TreeBidiMap  <br> _WIP_       |      Sorted Bidirectional Map       |          Two AVL Trees          |                       A sorted bijection between two sets of unique keys and unique values `K <-> V` using two AVL trees                       |
+|   TreeMap      <br> _treemap.h_    |             Sorted Map              |            AVL Tree             |               A unique set of keys associated with a value `K -> V` using an AVL tree with `log(n)` look up and sorted iteration               |
+|      TreeMultiMap <br> _WIP_       |           Sorted Multimap           |            AVL Tree             |                           A sorted mapping of multiple keys with one node per key using an AVL Tree of linked-lists                            |
+|      TreeMultiSet <br> _WIP_       |           Sorted Multiset           |            AVL Tree             |                                       A sorted mapping of a value and its multiplicity using an AVL tree                                       |
+|   TreeSet      <br> _treeset.h_    |             Sorted Set              |            AVL Tree             |                               A unique set of keys using an AVL tree with `log(n)` look up and sorted iteration                                |
 
-## Features
+## Other Features
+
+These are some features within the library that are implemented by all collections.
 
 ### Two-way iterators
 
@@ -207,8 +249,8 @@ A priority function works much like the comparator function except that it compa
 
 The following table shows which functions are required, optional or never used for each Collection:
 
-| Collection | CMP | CPY | STR | FREE | HASH | PRI |
-| ---------- | :-: | :-: | :-: | :--: | :--: | :-: |
+| Collection   |                           CMP                            |                           CPY                            |                           STR                            |                           FREE                           |                           HASH                           |                           PRI                            |
+| ------------ | :------------------------------------------------------: | :------------------------------------------------------: | :------------------------------------------------------: | :------------------------------------------------------: | :------------------------------------------------------: | :------------------------------------------------------: |
 | Deque        | ![#9f3b94](https://placehold.it/20/9f3b94/000000?text=+) | ![#9f3b94](https://placehold.it/20/9f3b94/000000?text=+) | ![#497edd](https://placehold.it/20/497edd/000000?text=+) | ![#00d3eb](https://placehold.it/20/00d3eb/000000?text=+) | ![#2ef625](https://placehold.it/20/2ef625/000000?text=+) | ![#2ef625](https://placehold.it/20/2ef625/000000?text=+) |
 | HashMap      | ![#b82b28](https://placehold.it/20/b82b28/000000?text=+) | ![#9f3b94](https://placehold.it/20/9f3b94/000000?text=+) | ![#497edd](https://placehold.it/20/497edd/000000?text=+) | ![#00d3eb](https://placehold.it/20/00d3eb/000000?text=+) | ![#b82b28](https://placehold.it/20/b82b28/000000?text=+) | ![#2ef625](https://placehold.it/20/2ef625/000000?text=+) |
 | HashBidiMap  | ![#b82b28](https://placehold.it/20/b82b28/000000?text=+) | ![#9f3b94](https://placehold.it/20/9f3b94/000000?text=+) | ![#497edd](https://placehold.it/20/497edd/000000?text=+) | ![#00d3eb](https://placehold.it/20/00d3eb/000000?text=+) | ![#b82b28](https://placehold.it/20/b82b28/000000?text=+) | ![#2ef625](https://placehold.it/20/2ef625/000000?text=+) |
@@ -225,23 +267,13 @@ The following table shows which functions are required, optional or never used f
 | TreeMap      | ![#b82b28](https://placehold.it/20/b82b28/000000?text=+) | ![#9f3b94](https://placehold.it/20/9f3b94/000000?text=+) | ![#497edd](https://placehold.it/20/497edd/000000?text=+) | ![#00d3eb](https://placehold.it/20/00d3eb/000000?text=+) | ![#2ef625](https://placehold.it/20/2ef625/000000?text=+) | ![#2ef625](https://placehold.it/20/2ef625/000000?text=+) |
 | TreeSet      | ![#b82b28](https://placehold.it/20/b82b28/000000?text=+) | ![#9f3b94](https://placehold.it/20/9f3b94/000000?text=+) | ![#497edd](https://placehold.it/20/497edd/000000?text=+) | ![#00d3eb](https://placehold.it/20/00d3eb/000000?text=+) | ![#2ef625](https://placehold.it/20/2ef625/000000?text=+) | ![#2ef625](https://placehold.it/20/2ef625/000000?text=+) |
 
-| Color | Label |
-| :---: | ----- |
-| ![#b82b28](https://placehold.it/20/b82b28/000000?text=+) | Required for basic functionality. |
-| ![#9f3b94](https://placehold.it/20/9f3b94/000000?text=+) | Required for specific functions. |
+|                          Color                           | Label                                     |
+| :------------------------------------------------------: | ----------------------------------------- |
+| ![#b82b28](https://placehold.it/20/b82b28/000000?text=+) | Required for basic functionality.         |
+| ![#9f3b94](https://placehold.it/20/9f3b94/000000?text=+) | Required for specific functions.          |
 | ![#497edd](https://placehold.it/20/497edd/000000?text=+) | Required for non-core specific functions. |
-| ![#00d3eb](https://placehold.it/20/00d3eb/000000?text=+) | Optional. |
-| ![#2ef625](https://placehold.it/20/2ef625/000000?text=+) | Not Used. |
-
-## Overall To-Do
-
-In the long term, these are the steps left for the completion of this library:
-
-* Complete the implementation of all the functions in the scope of the TODO file for the main collections;
-* Reorganize and complete all tests for the `cmc` collections;
-* Make an exact copy of all collections to `dev` with many logging utility, for them to be used under development;
-* Port all of these collections to be statically allocated and be part of the `sac` library;
-* Complete all tests for `sac`.
+| ![#00d3eb](https://placehold.it/20/00d3eb/000000?text=+) | Optional.                                 |
+| ![#2ef625](https://placehold.it/20/2ef625/000000?text=+) | Not Used.                                 |
 
 ## Design Decisions
 
@@ -269,6 +301,8 @@ Modifying a collection will possibly invalidate all iterators currently initiali
 
 ## What to use
 
+(Outdated)
+
 The following table shows how each collection is implemented and how well they do when using as common [abstract data types](https://en.wikipedia.org/wiki/Abstract_data_type).
 
 * **Ideal** - The collection implements correctly the abstract data type;
@@ -281,62 +315,14 @@ The following table shows how each collection is implemented and how well they d
 ![AverageColor](https://img.shields.io/badge/Not_Ideal_Implementation-%2363a4ff.svg)
 ![BadColor](https://img.shields.io/badge/Bad_Implementation-%23ff6659.svg)
 
-## How to use
+## Code Review
 
-To generate the collection, all you need to do is to include the necessary header files. You can include the containers you want to use individually or you can include the master header, `macro_collections.h`, that comes with the entire C-Macro-Collections library.
+Check out some code reviews that covers some parts the project. Most of them were posted a long time ago and are probably outdated.
 
-### Macros
-
-> Note here that `SNAME` represents the uppercase name of the collection.
-
-Every collection is separated by two parts:
-
-* `HEADER` - Contains all struct definitions and function definitions.
-* `SOURCE` - Contains all function implementations.
-
-All collections have three main macros:
-
-* `CMC_GENERATE_SNAME` - Generates `CMC_GENERATE_SNAME_HEADER` and `CMC_GENERATE_SNAME_SOURCE`.
-
-Or you can generate each part individually:
-
-* `CMC_GENERATE_SNAME_HEADER` - Generates all struct definitions and function definitions.
-* `CMC_GENERATE_SNAME_SOURCE` - Generates all function implementations.
-
-### Parameters
-
-When including `macro_collections.h` in your source code you gain access to a macro called `CMC_COLLECTION_GENERATE` with the following parameters:
-
-* __C__ - Container name in uppercase (*BIDIMAP*, *DEQUE*, *HASHMAP*, *HASHSET*, *HEAP*, *INTERVALHEAP*, *LINKEDLIST*, *LIST*, *MULTIMAP*, *MULTISET*, *QUEUE*, *SORTEDLIST*, *STACK*, *TREEMAP*, *TREESET*).
-* __PFX__ - Functions prefix or namespace.
-* __SNAME__ - Structure name (`struct SNAME`).
-* __K__ - Key type. Only used in *HASHMAP*, *TREEMAP*, *MULTIMAP* and *BIDIMAP*; ignored by others.
-* __V__ - Value type. Primary type for most collections, or value to be mapped by *HASHMAP*, *TREEMAP*, *MULTIMAP* and *BIDIMAP*.
-
-**In fact, all macros follow this pattern.** So whenever you see a macro with a bunch of parameters and you don't know what they are, you can check out the above list.
-
-### For Each
-
-There are 2 for-each macros:
-
-* `CMC_FOREACH` - Starts at the start of the collection towards the end.
-* `CMC_FOREACH_REV` - Starts at the end of the collection towards the start.
-
-* __PFX__ - Functions prefix or namespace.
-* __SNAME__ - Structure name.
-* __TARGET__ - The variable name of the collection you wish to iterate over.
-* __ITERNAME__ - Iterator variable name.
-
-For `CMC_FOREACH` and `CMC_FOREACH_REV` you will be able to name the iterator variable through the __ITERNAME__ parameter.
-
-<hr>
-
-Check out some code reviews that covers some parts the project:
-
-| About | Link |
-|-------|--------|
-| Unit Test *./utl/test.h* | [![Code Review](http://www.zomis.net/codereview/shield/?qid=222954)](http://codereview.stackexchange.com/q/222954/178948) |
+| About                                | Link                                                                                                                      |
+| ------------------------------------ | ------------------------------------------------------------------------------------------------------------------------- |
+| Unit Test *./utl/test.h*             | [![Code Review](http://www.zomis.net/codereview/shield/?qid=222954)](http://codereview.stackexchange.com/q/222954/178948) |
 | Interval Heap *./cmc/intervalheap.h* | [![Code Review](http://www.zomis.net/codereview/shield/?qid=223595)](http://codereview.stackexchange.com/q/223595/178948) |
-| Hash Set *./cmc/hashset.h* | [![Code Review](http://www.zomis.net/codereview/shield/?qid=217333)](http://codereview.stackexchange.com/q/217333/178948) |
-| Linked List *./cmc/linkedlist.h* | [![Code Review](http://www.zomis.net/codereview/shield/?qid=216737)](http://codereview.stackexchange.com/q/216737/178948) |
-| Others | [![Code Review](http://www.zomis.net/codereview/shield/?qid=213553)](http://codereview.stackexchange.com/q/213553/178948) |
+| Hash Set *./cmc/hashset.h*           | [![Code Review](http://www.zomis.net/codereview/shield/?qid=217333)](http://codereview.stackexchange.com/q/217333/178948) |
+| Linked List *./cmc/linkedlist.h*     | [![Code Review](http://www.zomis.net/codereview/shield/?qid=216737)](http://codereview.stackexchange.com/q/216737/178948) |
+| Others                               | [![Code Review](http://www.zomis.net/codereview/shield/?qid=213553)](http://codereview.stackexchange.com/q/213553/178948) |

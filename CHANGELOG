@@ -10,7 +10,7 @@
         ./cor/alloc.h
         ./cor/callbacks.h
         ./cor/heap.h
-    Complete rework of tests and code coverage
+    Complete rework of tests and code coverage using autogen.py
     Removed cmc_flags, where now every flag is an enum (CMC_FLAGS_OK, CMC_FLAGS_ERROR, etc)
     Different include guards
     New way to generate code using PARAM
