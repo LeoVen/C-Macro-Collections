@@ -1,0 +1,72 @@
+Approximate completion of the library
+
+[  99  ][  99 ][ 99 ] %
+[source][tests][docs]
+
+## - Finished
+
+[30][15][01] Library
+
+[91][45][01] CMC
+    [40][40][05] BitSet
+    [##][##][10] Deque
+    [80][70][00] HashBidiMap
+    [##][##][00] HashMap
+    [##][20][00] HashMultiMap
+    [##][20][00] HashMultiSet
+    [##][40][00] HashSet
+    [##][30][00] Heap
+    [##][40][00] IntervalHeap
+    [90][20][00] LinkedList
+    [90][30][00] List
+    [##][60][00] Queue
+    [00][00][00] SkipList
+    [80][20][00] SortedList
+    [95][90][00] Stack
+    [00][00][00] TreeBidiMap
+    [95][20][00] TreeMap
+    [00][00][00] TreeMultiMap
+    [00][00][00] TreeMultiSet
+    [95][20][00] TreeSet
+[00][00][00] SAC
+    [00][00][00] BitSet
+    [00][00][00] Deque
+    [00][00][00] HashBidiMap
+    [00][00][00] HashMap
+    [00][00][00] HashMultiMap
+    [00][00][00] HashMultiSet
+    [00][00][00] HashSet
+    [00][00][00] Heap
+    [00][00][00] IntervalHeap
+    [00][00][00] LinkedList
+    [00][00][00] List
+    [00][00][00] Queue
+    [00][00][00] SkipList
+    [00][00][00] SortedList
+    [00][00][00] Stack
+    [00][00][00] TreeBidiMap
+    [00][00][00] TreeMap
+    [00][00][00] TreeMultiMap
+    [00][00][00] TreeMultiSet
+    [00][00][00] TreeSet
+[00][00][00] TSC
+    [00][00][00] BitSet
+    [00][00][00] Deque
+    [00][00][00] HashBidiMap
+    [00][00][00] HashMap
+    [00][00][00] HashMultiMap
+    [00][00][00] HashMultiSet
+    [00][00][00] HashSet
+    [00][00][00] Heap
+    [00][00][00] IntervalHeap
+    [00][00][00] LinkedList
+    [00][00][00] List
+    [00][00][00] Queue
+    [00][00][00] SkipList
+    [00][00][00] SortedList
+    [00][00][00] Stack
+    [00][00][00] TreeBidiMap
+    [00][00][00] TreeMap
+    [00][00][00] TreeMultiMap
+    [00][00][00] TreeMultiSet
+    [00][00][00] TreeSet
