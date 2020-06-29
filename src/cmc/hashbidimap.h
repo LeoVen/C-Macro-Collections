@@ -515,7 +515,7 @@
         } \
 \
         /* The mapping key -> new_val is already true */ \
-        if (_map_->f_key->cmp(new_val, (*key_entry)->value) == 0) \
+        if (_map_->f_val->cmp(new_val, (*key_entry)->value) == 0) \
             goto success; \
 \
         if (CMC_(PFX, _impl_get_entry_by_val)(_map_, new_val) != NULL) \
@@ -657,7 +657,7 @@
         if (!entry) \
         { \
             _map_->flag = CMC_FLAG_NOT_FOUND; \
-            return (V){ 0 }; \
+            return (K){ 0 }; \
         } \
 \
         _map_->flag = CMC_FLAG_OK; \
