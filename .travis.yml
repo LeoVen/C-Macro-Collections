@@ -18,6 +18,6 @@ script:
   - gcc --version
   - gcov --version
   - python --version
-  - python autogen.py -e -b -cv -r -nf
+  - python autogen.py -e -b -cv -r -nf -nt
 after_success:
   - bash <(curl -s https://codecov.io/bash)

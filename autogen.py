@@ -359,6 +359,13 @@ def run_codecov():
     '''
     execute_command([full_path(f'{BIN_DIR}/{CODECOV}.exe')])
     execute_command(['gcov'] + GCOV_FLAGS + [f'{CODECOV}.gcda'])
+    execute_command(['rm', '*.h.gcov'])
+
+
+def tidy():
+    '''
+        Places files to their respective directory.
+    '''
     execute_command(['mv', '*.gcov', GCOV_DIR])
 
 
@@ -376,7 +383,7 @@ if __name__ == '__main__':
     expand = p.add_argument_group('expand', 'For dealing with code generation and formatting for tests')
 
     task = p.add_argument_group('task', 'Specify a task (mutually exclusive)')
-    task_ = task.add_mutually_exclusive_group(required=True)
+    task_ = task.add_mutually_exclusive_group()
 
     action = p.add_argument_group('action', 'Actions on task')
 
@@ -414,6 +421,11 @@ if __name__ == '__main__':
                        default=False,
                        action='store_true',
                        dest='noformat')
+    expand.add_argument('-nt', '--no-tidy',
+                        help='Don\'t move files around',
+                        default=False,
+                        action='store_true',
+                        dest='notidy')
 
     action.add_argument('-b', '--build',
                         help='Build task',
@@ -438,6 +450,8 @@ if __name__ == '__main__':
                         dest='fmt_tests')
 
     args = p.parse_args()
+
+    has_target = args.main or args.codecov or args.single
 
     if args.config:
         print(CONFIG)
@@ -490,3 +504,6 @@ if __name__ == '__main__':
     elif args.single:
         require_file(f'{OUTPUT_DIR}/{SINGLE}.c')
         # TODO
+
+    if not args.notidy and has_target:
+        tidy()
