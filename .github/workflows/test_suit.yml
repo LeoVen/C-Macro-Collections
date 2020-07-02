@@ -10,7 +10,13 @@ jobs:
     steps:
     - uses: actions/checkout@v2
     - name: Setup Environment
-      run: sudo apt install make valgrind gcc python
+      run: sudo apt install make valgrind gcc python3.8
+    - name: Versions
+      run: |
+        gcc --version \
+        make --version \
+        valgrind --version \
+        python --version \
     - name: Test Suite
       run: python autogen.py -e -b -r -nf
     # - name: Valgrind Test
