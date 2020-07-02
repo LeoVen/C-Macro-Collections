@@ -218,16 +218,22 @@ _Bool hms_max(struct hashmultiset *_set_, size_t *value)
         _set_->flag = CMC_FLAG_EMPTY;
         return 0;
     }
+    _Bool first = 1;
     size_t max_val = (size_t){ 0 };
-    struct hashmultiset_iter iter = hms_iter_start(_set_);
-    for (; !hms_iter_at_end(&iter); hms_iter_next(&iter))
+    for (size_t i = 0; i < _set_->capacity; i++)
     {
-        size_t result = hms_iter_value(&iter);
-        size_t index = hms_iter_index(&iter);
-        if (index == 0)
-            max_val = result;
-        else if (_set_->f_val->cmp(result, max_val) > 0)
-            max_val = result;
+        if (_set_->buffer[i].state == CMC_ES_FILLED)
+        {
+            if (first)
+            {
+                max_val = _set_->buffer[i].value;
+                first = 0;
+            }
+            else if (_set_->f_val->cmp(_set_->buffer[i].value, max_val) > 0)
+            {
+                max_val = _set_->buffer[i].value;
+            }
+        }
     }
     if (value)
         *value = max_val;
@@ -244,16 +250,22 @@ _Bool hms_min(struct hashmultiset *_set_, size_t *value)
         _set_->flag = CMC_FLAG_EMPTY;
         return 0;
     }
+    _Bool first = 1;
     size_t min_val = (size_t){ 0 };
-    struct hashmultiset_iter iter = hms_iter_start(_set_);
-    for (; !hms_iter_at_end(&iter); hms_iter_next(&iter))
+    for (size_t i = 0; i < _set_->capacity; i++)
     {
-        size_t result = hms_iter_value(&iter);
-        size_t index = hms_iter_index(&iter);
-        if (index == 0)
-            min_val = result;
-        else if (_set_->f_val->cmp(result, min_val) < 0)
-            min_val = result;
+        if (_set_->buffer[i].state == CMC_ES_FILLED)
+        {
+            if (first)
+            {
+                min_val = _set_->buffer[i].value;
+                first = 0;
+            }
+            else if (_set_->f_val->cmp(_set_->buffer[i].value, min_val) < 0)
+            {
+                min_val = _set_->buffer[i].value;
+            }
+        }
     }
     if (value)
         *value = min_val;
@@ -335,10 +347,15 @@ _Bool hms_resize(struct hashmultiset *_set_, size_t capacity)
         _set_->flag = CMC_FLAG_ERROR;
         return 0;
     }
-    struct hashmultiset_iter iter = hms_iter_start(_set_);
-    for (; !hms_iter_at_end(&iter); hms_iter_next(&iter))
+    for (size_t i = 0; i < _set_->capacity; i++)
     {
-        hms_insert_many(_new_set_, hms_iter_value(&iter), hms_iter_multiplicity(&iter));
+        if (_set_->buffer[i].state == CMC_ES_FILLED)
+        {
+            size_t value = _set_->buffer[i].value;
+            size_t multiplicity = _set_->buffer[i].multiplicity;
+            struct hashmultiset_entry *entry = hms_impl_insert_and_return(_new_set_, value, ((void *)0));
+            entry->multiplicity = multiplicity;
+        }
     }
     if (_set_->count != _new_set_->count)
     {
@@ -407,14 +424,21 @@ _Bool hms_equals(struct hashmultiset *_set1_, struct hashmultiset *_set2_)
         return 0;
     if (_set1_->count == 0)
         return 1;
-    struct hashmultiset_iter iter = hms_iter_start(_set1_);
-    for (; !hms_iter_at_end(&iter); hms_iter_next(&iter))
+    struct hashmultiset *_set_a_;
+    struct hashmultiset *_set_b_;
+    _set_a_ = _set1_->capacity < _set2_->capacity ? _set1_ : _set2_;
+    _set_b_ = _set_a_ == _set1_ ? _set2_ : _set1_;
+    for (size_t i = 0; i < _set_a_->capacity; i++)
     {
-        struct hashmultiset_entry *entry = hms_impl_get_entry(_set2_, hms_iter_value(&iter));
-        if (!entry)
-            return 0;
-        if (entry->multiplicity != hms_iter_multiplicity(&iter))
-            return 0;
+        if (_set_a_->buffer[i].state == CMC_ES_FILLED)
+        {
+            struct hashmultiset_entry *entry_a = &(_set_a_->buffer[i]);
+            struct hashmultiset_entry *entry_b = hms_impl_get_entry(_set_b_, entry_a->value);
+            if (!entry_b)
+                return 0;
+            if (entry_a->multiplicity != entry_b->multiplicity)
+                return 0;
+        }
     }
     return 1;
 }
@@ -427,11 +451,13 @@ static size_t hms_impl_multiplicity_of(struct hashmultiset *_set_, size_t value)
 }
 static struct hashmultiset_entry *hms_impl_insert_and_return(struct hashmultiset *_set_, size_t value, _Bool *new_node)
 {
-    *new_node = 0;
+    if (new_node)
+        *new_node = 0;
     struct hashmultiset_entry *entry = hms_impl_get_entry(_set_, value);
     if (entry != ((void *)0))
         return entry;
-    *new_node = 1;
+    if (new_node)
+        *new_node = 1;
     if (hms_full(_set_))
     {
         if (!hms_resize(_set_, _set_->capacity + 1))

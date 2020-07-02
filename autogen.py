@@ -505,5 +505,5 @@ if __name__ == '__main__':
         require_file(f'{OUTPUT_DIR}/{SINGLE}.c')
         # TODO
 
-    if not args.notidy and has_target:
+    if not args.notidy and args.codecov:
         tidy()

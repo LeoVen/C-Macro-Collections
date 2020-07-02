@@ -959,17 +959,17 @@
 \
             while (scan) \
             { \
-                K key;\
-                V value;\
+                K key; \
+                V value; \
 \
                 if (_map_->f_key->cpy) \
                     key = _map_->f_key->cpy(scan->key); \
-                else\
-                    key = scan->key;\
+                else \
+                    key = scan->key; \
                 if (_map_->f_val->cpy) \
                     value = _map_->f_val->cpy(scan->value); \
-                else\
-                    value = scan->value;\
+                else \
+                    value = scan->value; \
 \
                 /* TODO check for errors */ \
                 CMC_(PFX, _insert)(result, key, value); \
@@ -1005,9 +1005,9 @@
 \
             while (scan) \
             { \
-                /* OPTIMIZE - This is calling key_count for repeating keys */\
-                if (CMC_(PFX, _impl_key_count)(_map_a_, scan->key) != CMC_(PFX, _impl_key_count)(_map_b_, scan->key))\
-                    return false;\
+                /* OPTIMIZE - This is calling key_count for repeating keys */ \
+                if (CMC_(PFX, _impl_key_count)(_map_a_, scan->key) != CMC_(PFX, _impl_key_count)(_map_b_, scan->key)) \
+                    return false; \
 \
                 scan = scan->next; \
             } \

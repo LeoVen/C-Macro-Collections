@@ -461,25 +461,21 @@
             return false; \
         } \
 \
+        bool first = true; \
         K max_key = (K){ 0 }; \
         V max_val = (V){ 0 }; \
-        size_t first = 0; \
 \
-        for (; first < _map_->capacity; first++) \
-        { \
-            if (_map_->buffer[first].state == CMC_ES_FILLED) \
-            { \
-                max_key = _map_->buffer[first].key; \
-                max_val = _map_->buffer[first].value; \
-                break; \
-            } \
-        } \
-\
-        for (size_t i = first + 1; i < _map_->capacity; i++) \
+        for (size_t i = 0; i < _map_->capacity; i++) \
         { \
             if (_map_->buffer[i].state == CMC_ES_FILLED) \
             { \
-                if (_map_->f_key->cmp(_map_->buffer[i].key, max_key) > 0) \
+                if (first) \
+                { \
+                    max_key = _map_->buffer[i].key; \
+                    max_val = _map_->buffer[i].value; \
+                    first = false; \
+                } \
+                else if (_map_->f_key->cmp(_map_->buffer[i].key, max_key) > 0) \
                 { \
                     max_key = _map_->buffer[i].key; \
                     max_val = _map_->buffer[i].value; \
@@ -505,25 +501,21 @@
             return false; \
         } \
 \
+        bool first = true; \
         K min_key = (K){ 0 }; \
         V min_val = (V){ 0 }; \
-        size_t first = 0; \
 \
-        for (; first < _map_->capacity; first++) \
-        { \
-            if (_map_->buffer[first].state == CMC_ES_FILLED) \
-            { \
-                min_key = _map_->buffer[first].key; \
-                min_val = _map_->buffer[first].value; \
-                break; \
-            } \
-        } \
-\
-        for (size_t i = first + 1; i < _map_->capacity; i++) \
+        for (size_t i = 0; i < _map_->capacity; i++) \
         { \
             if (_map_->buffer[i].state == CMC_ES_FILLED) \
             { \
-                if (_map_->f_key->cmp(_map_->buffer[i].key, min_key) < 0) \
+                if (first) \
+                { \
+                    min_key = _map_->buffer[i].key; \
+                    min_val = _map_->buffer[i].value; \
+                    first = false; \
+                } \
+                else if (_map_->f_key->cmp(_map_->buffer[i].key, min_key) < 0) \
                 { \
                     min_key = _map_->buffer[i].key; \
                     min_val = _map_->buffer[i].value; \
@@ -780,7 +772,6 @@
             if (_map_a_->buffer[i].state == CMC_ES_FILLED) \
             { \
                 struct CMC_DEF_ENTRY(SNAME) *entry_a = &(_map_a_->buffer[i]); \
-\
                 struct CMC_DEF_ENTRY(SNAME) *entry_b = CMC_(PFX, _impl_get_entry)(_map_b_, entry_a->key); \
 \
                 if (!entry_b) \

@@ -477,19 +477,23 @@
             return false; \
         } \
 \
+        bool first = true; \
         V max_val = (V){ 0 }; \
-        struct CMC_DEF_ITER(SNAME) iter = CMC_(PFX, _iter_start)(_set_); \
 \
-        /* TODO transform this into a normal loop */ \
-        for (; !CMC_(PFX, _iter_at_end)(&iter); CMC_(PFX, _iter_next)(&iter)) \
+        for (size_t i = 0; i < _set_->capacity; i++) \
         { \
-            V result = CMC_(PFX, _iter_value)(&iter); \
-            size_t index = CMC_(PFX, _iter_index)(&iter); \
-\
-            if (index == 0) \
-                max_val = result; \
-            else if (_set_->f_val->cmp(result, max_val) > 0) \
-                max_val = result; \
+            if (_set_->buffer[i].state == CMC_ES_FILLED) \
+            { \
+                if (first) \
+                { \
+                    max_val = _set_->buffer[i].value; \
+                    first = false; \
+                } \
+                else if (_set_->f_val->cmp(_set_->buffer[i].value, max_val) > 0) \
+                { \
+                    max_val = _set_->buffer[i].value; \
+                } \
+            } \
         } \
 \
         if (value) \
@@ -510,19 +514,23 @@
             return false; \
         } \
 \
+        bool first = true; \
         V min_val = (V){ 0 }; \
-        struct CMC_DEF_ITER(SNAME) iter = CMC_(PFX, _iter_start)(_set_); \
 \
-        /* TODO transform this into a normal loop */ \
-        for (; !CMC_(PFX, _iter_at_end)(&iter); CMC_(PFX, _iter_next)(&iter)) \
+        for (size_t i = 0; i < _set_->capacity; i++) \
         { \
-            V result = CMC_(PFX, _iter_value)(&iter); \
-            size_t index = CMC_(PFX, _iter_index)(&iter); \
-\
-            if (index == 0) \
-                min_val = result; \
-            else if (_set_->f_val->cmp(result, min_val) < 0) \
-                min_val = result; \
+            if (_set_->buffer[i].state == CMC_ES_FILLED) \
+            { \
+                if (first) \
+                { \
+                    min_val = _set_->buffer[i].value; \
+                    first = false; \
+                } \
+                else if (_set_->f_val->cmp(_set_->buffer[i].value, min_val) < 0) \
+                { \
+                    min_val = _set_->buffer[i].value; \
+                } \
+            } \
         } \
 \
         if (value) \
@@ -631,13 +639,19 @@
             return false; \
         } \
 \
-        struct CMC_DEF_ITER(SNAME) iter = CMC_(PFX, _iter_start)(_set_); \
-\
-        /* TODO transform this into a normal loop */ \
-        for (; !CMC_(PFX, _iter_at_end)(&iter); CMC_(PFX, _iter_next)(&iter)) \
+        for (size_t i = 0; i < _set_->capacity; i++) \
         { \
-            CMC_(PFX, _insert_many) \
-            (_new_set_, CMC_(PFX, _iter_value)(&iter), CMC_(PFX, _iter_multiplicity)(&iter)); \
+            if (_set_->buffer[i].state == CMC_ES_FILLED) \
+            { \
+                V value = _set_->buffer[i].value; \
+                size_t multiplicity = _set_->buffer[i].multiplicity; \
+\
+                /* TODO check this for possible errors where entry == NULL */ \
+                struct CMC_DEF_ENTRY(SNAME) *entry = CMC_(PFX, _impl_insert_and_return)(_new_set_, value, NULL); \
+                \
+                entry->multiplicity = multiplicity;\
+                /* Setting cardinality not required, _new_set_ is temporary */\
+            } \
         } \
 \
         if (_set_->count != _new_set_->count) \
@@ -729,17 +743,26 @@
         if (_set1_->count == 0) \
             return true; \
 \
-        struct CMC_DEF_ITER(SNAME) iter = CMC_(PFX, _iter_start)(_set1_); \
+        /* Optimize loop using the smallest hashtable */ \
+        struct SNAME *_set_a_; \
+        struct SNAME *_set_b_; \
 \
-        for (; !CMC_(PFX, _iter_at_end)(&iter); CMC_(PFX, _iter_next)(&iter)) \
+        _set_a_ = _set1_->capacity < _set2_->capacity ? _set1_ : _set2_; \
+        _set_b_ = _set_a_ == _set1_ ? _set2_ : _set1_; \
+\
+        for (size_t i = 0; i < _set_a_->capacity; i++) \
         { \
-            struct CMC_DEF_ENTRY(SNAME) *entry = CMC_(PFX, _impl_get_entry)(_set2_, CMC_(PFX, _iter_value)(&iter)); \
+            if (_set_a_->buffer[i].state == CMC_ES_FILLED) \
+            { \
+                struct CMC_DEF_ENTRY(SNAME) *entry_a = &(_set_a_->buffer[i]); \
+                struct CMC_DEF_ENTRY(SNAME) *entry_b = CMC_(PFX, _impl_get_entry)(_set_b_, entry_a->value); \
 \
-            if (!entry) \
-                return false; \
+                if (!entry_b) \
+                    return false; \
 \
-            if (entry->multiplicity != CMC_(PFX, _iter_multiplicity)(&iter)) \
-                return false; \
+                if (entry_a->multiplicity != entry_b->multiplicity) \
+                    return false; \
+            } \
         } \
 \
         return true; \
@@ -762,14 +785,16 @@
         /* something with it. This function only guarantees that there is */ \
         /* a valid entry for a given value */ \
 \
-        *new_node = false; \
+        if (new_node)\
+            *new_node = false; \
 \
         struct CMC_DEF_ENTRY(SNAME) *entry = CMC_(PFX, _impl_get_entry)(_set_, value); \
 \
         if (entry != NULL) \
             return entry; \
 \
-        *new_node = true; \
+        if (new_node)\
+            *new_node = true; \
 \
         if (CMC_(PFX, _full)(_set_)) \
         { \
