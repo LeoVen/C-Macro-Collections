@@ -201,7 +201,7 @@ _Bool hm_max(struct hashmap *_map_, size_t *key, size_t *value)
         _map_->flag = CMC_FLAG_EMPTY;
         return 0;
     }
-    _Bool first = 0;
+    _Bool first = 1;
     size_t max_key = (size_t){ 0 };
     size_t max_val = (size_t){ 0 };
     for (size_t i = 0; i < _map_->capacity; i++)
@@ -225,6 +225,7 @@ _Bool hm_max(struct hashmap *_map_, size_t *key, size_t *value)
         *key = max_key;
     if (value)
         *value = max_val;
+    _map_->flag = CMC_FLAG_OK;
     if ((_map_)->callbacks && (_map_)->callbacks->read)
         (_map_)->callbacks->read();
     ;
@@ -261,6 +262,7 @@ _Bool hm_min(struct hashmap *_map_, size_t *key, size_t *value)
         *key = min_key;
     if (value)
         *value = min_val;
+    _map_->flag = CMC_FLAG_OK;
     if ((_map_)->callbacks && (_map_)->callbacks->read)
         (_map_)->callbacks->read();
     ;

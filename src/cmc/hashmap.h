@@ -488,6 +488,8 @@
         if (value) \
             *value = max_val; \
 \
+        _map_->flag = CMC_FLAG_OK; \
+\
         CMC_CALLBACKS_CALL(_map_, read); \
 \
         return true; \
@@ -527,6 +529,8 @@
             *key = min_key; \
         if (value) \
             *value = min_val; \
+\
+        _map_->flag = CMC_FLAG_OK; \
 \
         CMC_CALLBACKS_CALL(_map_, read); \
 \

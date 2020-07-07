@@ -164,16 +164,22 @@ _Bool hs_max(struct hashset *_set_, size_t *value)
         _set_->flag = CMC_FLAG_EMPTY;
         return 0;
     }
+    _Bool first = 1;
     size_t max_val = (size_t){ 0 };
-    struct hashset_iter iter = hs_iter_start(_set_);
-    for (; !hs_iter_at_end(&iter); hs_iter_next(&iter))
+    for (size_t i = 0; i < _set_->capacity; i++)
     {
-        size_t result = hs_iter_value(&iter);
-        size_t index = hs_iter_index(&iter);
-        if (index == 0)
-            max_val = result;
-        else if (_set_->f_val->cmp(result, max_val) > 0)
-            max_val = result;
+        if (_set_->buffer[i].state == CMC_ES_FILLED)
+        {
+            if (first)
+            {
+                max_val = _set_->buffer[i].value;
+                first = 0;
+            }
+            else if (_set_->f_val->cmp(_set_->buffer[i].value, max_val) > 0)
+            {
+                max_val = _set_->buffer[i].value;
+            }
+        }
     }
     if (value)
         *value = max_val;
@@ -190,16 +196,22 @@ _Bool hs_min(struct hashset *_set_, size_t *value)
         _set_->flag = CMC_FLAG_EMPTY;
         return 0;
     }
+    _Bool first = 1;
     size_t min_val = (size_t){ 0 };
-    struct hashset_iter iter = hs_iter_start(_set_);
-    for (; !hs_iter_at_end(&iter); hs_iter_next(&iter))
+    for (size_t i = 0; i < _set_->capacity; i++)
     {
-        size_t result = hs_iter_value(&iter);
-        size_t index = hs_iter_index(&iter);
-        if (index == 0)
-            min_val = result;
-        else if (_set_->f_val->cmp(result, min_val) < 0)
-            min_val = result;
+        if (_set_->buffer[i].state == CMC_ES_FILLED)
+        {
+            if (first)
+            {
+                min_val = _set_->buffer[i].value;
+                first = 0;
+            }
+            else if (_set_->f_val->cmp(_set_->buffer[i].value, min_val) < 0)
+            {
+                min_val = _set_->buffer[i].value;
+            }
+        }
     }
     if (value)
         *value = min_val;
@@ -266,11 +278,13 @@ _Bool hs_resize(struct hashset *_set_, size_t capacity)
         _set_->flag = CMC_FLAG_ALLOC;
         return 0;
     }
-    struct hashset_iter iter = hs_iter_start(_set_);
-    for (; !hs_iter_at_end(&iter); hs_iter_next(&iter))
+    for (size_t i = 0; i < _set_->capacity; i++)
     {
-        size_t value = hs_iter_value(&iter);
-        hs_insert(_new_set_, value);
+        if (_set_->buffer[i].state == CMC_ES_FILLED)
+        {
+            size_t value = _set_->buffer[i].value;
+            hs_insert(_new_set_, value);
+        }
     }
     if (_set_->count != _new_set_->count)
     {
@@ -333,13 +347,17 @@ _Bool hs_equals(struct hashset *_set1_, struct hashset *_set2_)
     _set2_->flag = CMC_FLAG_OK;
     if (_set1_->count != _set2_->count)
         return 0;
-    if (_set1_->count == 0)
-        return 1;
-    struct hashset_iter iter = hs_iter_start(_set1_);
-    for (; !hs_iter_at_end(&iter); hs_iter_next(&iter))
+    struct hashset *_set_a_;
+    struct hashset *_set_b_;
+    _set_a_ = _set1_->capacity < _set2_->capacity ? _set1_ : _set2_;
+    _set_b_ = _set_a_ == _set1_ ? _set2_ : _set1_;
+    for (size_t i = 0; i < _set_a_->capacity; i++)
     {
-        if (hs_impl_get_entry(_set2_, hs_iter_value(&iter)) == ((void *)0))
-            return 0;
+        if (_set_a_->buffer[i].state == CMC_ES_FILLED)
+        {
+            if (!hs_impl_get_entry(_set_b_, _set_a_->buffer[i].value))
+                return 0;
+        }
     }
     return 1;
 }

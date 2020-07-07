@@ -378,19 +378,23 @@
             return false; \
         } \
 \
+        bool first = true; \
         V max_val = (V){ 0 }; \
-        struct CMC_DEF_ITER(SNAME) iter = CMC_(PFX, _iter_start)(_set_); \
 \
-        /* TODO turn this into a normal loop */ \
-        for (; !CMC_(PFX, _iter_at_end)(&iter); CMC_(PFX, _iter_next)(&iter)) \
+        for (size_t i = 0; i < _set_->capacity; i++) \
         { \
-            V result = CMC_(PFX, _iter_value)(&iter); \
-            size_t index = CMC_(PFX, _iter_index)(&iter); \
-\
-            if (index == 0) \
-                max_val = result; \
-            else if (_set_->f_val->cmp(result, max_val) > 0) \
-                max_val = result; \
+            if (_set_->buffer[i].state == CMC_ES_FILLED) \
+            { \
+                if (first) \
+                { \
+                    max_val = _set_->buffer[i].value; \
+                    first = false; \
+                } \
+                else if (_set_->f_val->cmp(_set_->buffer[i].value, max_val) > 0) \
+                { \
+                    max_val = _set_->buffer[i].value; \
+                } \
+            } \
         } \
 \
         if (value) \
@@ -411,19 +415,23 @@
             return false; \
         } \
 \
+        bool first = true; \
         V min_val = (V){ 0 }; \
-        struct CMC_DEF_ITER(SNAME) iter = CMC_(PFX, _iter_start)(_set_); \
 \
-        /* TODO turn this into a normal loop */ \
-        for (; !CMC_(PFX, _iter_at_end)(&iter); CMC_(PFX, _iter_next)(&iter)) \
+        for (size_t i = 0; i < _set_->capacity; i++) \
         { \
-            V result = CMC_(PFX, _iter_value)(&iter); \
-            size_t index = CMC_(PFX, _iter_index)(&iter); \
-\
-            if (index == 0) \
-                min_val = result; \
-            else if (_set_->f_val->cmp(result, min_val) < 0) \
-                min_val = result; \
+            if (_set_->buffer[i].state == CMC_ES_FILLED) \
+            { \
+                if (first) \
+                { \
+                    min_val = _set_->buffer[i].value; \
+                    first = false; \
+                } \
+                else if (_set_->f_val->cmp(_set_->buffer[i].value, min_val) < 0) \
+                { \
+                    min_val = _set_->buffer[i].value; \
+                } \
+            } \
         } \
 \
         if (value) \
@@ -513,15 +521,15 @@
             return false; \
         } \
 \
-        struct CMC_DEF_ITER(SNAME) iter = CMC_(PFX, _iter_start)(_set_); \
-\
-        /* TODO turn this into a normal loop */ \
-        for (; !CMC_(PFX, _iter_at_end)(&iter); CMC_(PFX, _iter_next)(&iter)) \
+        for (size_t i = 0; i < _set_->capacity; i++) \
         { \
-            V value = CMC_(PFX, _iter_value)(&iter); \
+            if (_set_->buffer[i].state == CMC_ES_FILLED) \
+            { \
+                V value = _set_->buffer[i].value; \
 \
-            /* TODO check for error */ \
-            CMC_(PFX, _insert)(_new_set_, value); \
+                /* TODO check this for possible errors */ \
+                CMC_(PFX, _insert)(_new_set_, value); \
+            } \
         } \
 \
         /* Unlikely */ \
@@ -606,16 +614,21 @@
         if (_set1_->count != _set2_->count) \
             return false; \
 \
-        if (_set1_->count == 0) \
-            return true; \
+        /* Optimize loop using the smallest hashtable */ \
+        struct SNAME *_set_a_; \
+        struct SNAME *_set_b_; \
 \
-        struct CMC_DEF_ITER(SNAME) iter = CMC_(PFX, _iter_start)(_set1_); \
+        _set_a_ = _set1_->capacity < _set2_->capacity ? _set1_ : _set2_; \
+        _set_b_ = _set_a_ == _set1_ ? _set2_ : _set1_; \
 \
-        /* TODO optimize this loop */ \
-        for (; !CMC_(PFX, _iter_at_end)(&iter); CMC_(PFX, _iter_next)(&iter)) \
+        for (size_t i = 0; i < _set_a_->capacity; i++) \
         { \
-            if (CMC_(PFX, _impl_get_entry)(_set2_, CMC_(PFX, _iter_value)(&iter)) == NULL) \
-                return false; \
+            if (_set_a_->buffer[i].state == CMC_ES_FILLED) \
+            { \
+            \
+                if (!CMC_(PFX, _impl_get_entry)(_set_b_, _set_a_->buffer[i].value))\
+                    return false;\
+            } \
         } \
 \
         return true; \
