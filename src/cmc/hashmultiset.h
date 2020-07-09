@@ -648,9 +648,9 @@
 \
                 /* TODO check this for possible errors where entry == NULL */ \
                 struct CMC_DEF_ENTRY(SNAME) *entry = CMC_(PFX, _impl_insert_and_return)(_new_set_, value, NULL); \
-                \
-                entry->multiplicity = multiplicity;\
-                /* Setting cardinality not required, _new_set_ is temporary */\
+\
+                entry->multiplicity = multiplicity; \
+                /* Setting cardinality not required, _new_set_ is temporary */ \
             } \
         } \
 \
@@ -785,7 +785,7 @@
         /* something with it. This function only guarantees that there is */ \
         /* a valid entry for a given value */ \
 \
-        if (new_node)\
+        if (new_node) \
             *new_node = false; \
 \
         struct CMC_DEF_ENTRY(SNAME) *entry = CMC_(PFX, _impl_get_entry)(_set_, value); \
@@ -793,7 +793,7 @@
         if (entry != NULL) \
             return entry; \
 \
-        if (new_node)\
+        if (new_node) \
             *new_node = true; \
 \
         if (CMC_(PFX, _full)(_set_)) \

@@ -625,9 +625,9 @@
         { \
             if (_set_a_->buffer[i].state == CMC_ES_FILLED) \
             { \
-            \
-                if (!CMC_(PFX, _impl_get_entry)(_set_b_, _set_a_->buffer[i].value))\
-                    return false;\
+\
+                if (!CMC_(PFX, _impl_get_entry)(_set_b_, _set_a_->buffer[i].value)) \
+                    return false; \
             } \
         } \
 \

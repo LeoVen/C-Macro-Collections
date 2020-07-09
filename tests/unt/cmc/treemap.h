@@ -116,6 +116,9 @@ CMC_CREATE_UNIT(CMCTreeMap, true, {
         tm_get_ref(map, 1);
         cmc_assert_equals(int32_t, CMC_FLAG_EMPTY, tm_flag(map));
 
+        for (size_t i = 0; i < 100; i++)
+            cmc_assert(tm_insert(map, i, i));
+
         // copy_of
         map->flag = CMC_FLAG_ERROR;
         struct treemap *map2 = tm_copy_of(map);

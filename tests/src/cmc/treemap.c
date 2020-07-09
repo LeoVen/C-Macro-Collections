@@ -400,19 +400,45 @@ struct treemap *tm_copy_of(struct treemap *_map_)
         _map_->flag = CMC_FLAG_ERROR;
         return ((void *)0);
     }
-    struct treemap_iter iter = tm_iter_start(_map_);
-    for (; !tm_iter_at_end(&iter); tm_iter_next(&iter))
+    struct treemap_node *root = _map_->root;
+    _Bool left_done = 0;
+    while (root)
     {
-        size_t key = tm_iter_key(&iter);
-        size_t value = tm_iter_value(&iter);
+        if (!left_done)
+        {
+            while (root->left)
+                root = root->left;
+        }
+        size_t key;
+        size_t value;
         if (_map_->f_key->cpy)
-            key = _map_->f_key->cpy(key);
+            key = _map_->f_key->cpy(root->key);
+        else
+            key = root->key;
         if (_map_->f_val->cpy)
-            value = _map_->f_val->cpy(value);
+            value = _map_->f_val->cpy(root->value);
+        else
+            value = root->value;
         tm_insert(result, key, value);
+        left_done = 1;
+        if (root->right)
+        {
+            left_done = 0;
+            root = root->right;
+        }
+        else if (root->parent)
+        {
+            while (root->parent && root == root->parent->right)
+                root = root->parent;
+            if (!root->parent)
+                break;
+            root = root->parent;
+        }
+        else
+            break;
     }
-    (result)->callbacks = _map_->callbacks;
     _map_->flag = CMC_FLAG_OK;
+    (result)->callbacks = _map_->callbacks;
     return result;
 }
 _Bool tm_equals(struct treemap *_map1_, struct treemap *_map2_)
@@ -421,14 +447,36 @@ _Bool tm_equals(struct treemap *_map1_, struct treemap *_map2_)
     _map2_->flag = CMC_FLAG_OK;
     if (_map1_->count != _map2_->count)
         return 0;
-    struct treemap_iter iter = tm_iter_start(_map1_);
-    for (; !tm_iter_at_end(&iter); tm_iter_next(&iter))
+    struct treemap_node *root = _map1_->root;
+    _Bool left_done = 0;
+    while (root)
     {
-        struct treemap_node *node = tm_impl_get_node(_map2_, tm_iter_key(&iter));
+        if (!left_done)
+        {
+            while (root->left)
+                root = root->left;
+        }
+        struct treemap_node *node = tm_impl_get_node(_map2_, root->key);
         if (node == ((void *)0))
             return 0;
-        if (_map1_->f_val->cmp(node->value, tm_iter_value(&iter)) != 0)
+        if (_map1_->f_val->cmp(node->value, root->value) != 0)
             return 0;
+        left_done = 1;
+        if (root->right)
+        {
+            left_done = 0;
+            root = root->right;
+        }
+        else if (root->parent)
+        {
+            while (root->parent && root == root->parent->right)
+                root = root->parent;
+            if (!root->parent)
+                break;
+            root = root->parent;
+        }
+        else
+            break;
     }
     return 1;
 }

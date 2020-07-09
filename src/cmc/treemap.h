@@ -688,25 +688,57 @@
             return NULL; \
         } \
 \
-        /* TODO turn this into a normal loop */ \
-        struct CMC_DEF_ITER(SNAME) iter = CMC_(PFX, _iter_start)(_map_); \
+        struct CMC_DEF_NODE(SNAME) *root = _map_->root; \
 \
-        for (; !CMC_(PFX, _iter_at_end)(&iter); CMC_(PFX, _iter_next)(&iter)) \
+        bool left_done = false; \
+\
+        while (root) \
         { \
-            K key = CMC_(PFX, _iter_key)(&iter); \
-            V value = CMC_(PFX, _iter_value)(&iter); \
+            if (!left_done) \
+            { \
+                while (root->left) \
+                    root = root->left; \
+            } \
+\
+            K key; \
+            V value; \
 \
             if (_map_->f_key->cpy) \
-                key = _map_->f_key->cpy(key); \
+                key = _map_->f_key->cpy(root->key); \
+            else \
+                key = root->key; \
             if (_map_->f_val->cpy) \
-                value = _map_->f_val->cpy(value); \
+                value = _map_->f_val->cpy(root->value); \
+            else \
+                value = root->value; \
 \
             /* TODO check this for errors */ \
             CMC_(PFX, _insert)(result, key, value); \
+\
+            left_done = true; \
+\
+            if (root->right) \
+            { \
+                left_done = false; \
+                root = root->right; \
+            } \
+            else if (root->parent) \
+            { \
+                while (root->parent && root == root->parent->right) \
+                    root = root->parent; \
+\
+                if (!root->parent) \
+                    break; \
+\
+                root = root->parent; \
+            } \
+            else \
+                break; \
         } \
 \
-        CMC_CALLBACKS_ASSIGN(result, _map_->callbacks); \
         _map_->flag = CMC_FLAG_OK; \
+\
+        CMC_CALLBACKS_ASSIGN(result, _map_->callbacks); \
 \
         return result; \
     } \
@@ -719,18 +751,46 @@
         if (_map1_->count != _map2_->count) \
             return false; \
 \
-        /* TODO turn this into a normal loop */ \
-        struct CMC_DEF_ITER(SNAME) iter = CMC_(PFX, _iter_start)(_map1_); \
+        struct CMC_DEF_NODE(SNAME) *root = _map1_->root; \
 \
-        for (; !CMC_(PFX, _iter_at_end)(&iter); CMC_(PFX, _iter_next)(&iter)) \
+        bool left_done = false; \
+\
+        while (root) \
         { \
-            struct CMC_DEF_NODE(SNAME) *node = CMC_(PFX, _impl_get_node)(_map2_, CMC_(PFX, _iter_key)(&iter)); \
+            if (!left_done) \
+            { \
+                while (root->left) \
+                    root = root->left; \
+            } \
+\
+            /* TODO this can be optimized by doing two in-order traversals */\
+            struct CMC_DEF_NODE(SNAME) *node = CMC_(PFX, _impl_get_node)(_map2_, root->key); \
 \
             if (node == NULL) \
                 return false; \
 \
-            if (_map1_->f_val->cmp(node->value, CMC_(PFX, _iter_value)(&iter)) != 0) \
+            if (_map1_->f_val->cmp(node->value, root->value) != 0) \
                 return false; \
+\
+            left_done = true; \
+\
+            if (root->right) \
+            { \
+                left_done = false; \
+                root = root->right; \
+            } \
+            else if (root->parent) \
+            { \
+                while (root->parent && root == root->parent->right) \
+                    root = root->parent; \
+\
+                if (!root->parent) \
+                    break; \
+\
+                root = root->parent; \
+            } \
+            else \
+                break; \
         } \
 \
         return true; \
