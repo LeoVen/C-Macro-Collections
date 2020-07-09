@@ -12,6 +12,7 @@ addons:
       - cmake
       - python3.8
 script:
+  - sudo rm -f /usr/bin/gcc /usr/bin/gcov /usr/bin/python
   - sudo ln -s /usr/bin/gcc-9 /usr/bin/gcc
   - sudo ln -s /usr/bin/gcov-9 /usr/bin/gcov
   - sudo ln -s /usr/bin/python3.8 /usr/bin/python
