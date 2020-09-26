@@ -104,7 +104,7 @@ CMC_UNUSED static uintmax_t cmc_assert_failed = 0;
     } while (0)
 
 /**
- * dtype    : One of the data types listed at the beggining of this file.
+ * dtype    : One of the data types listed at the beginning of this file.
  * expected : Expected value for the assertion to pass.
  * actual   : Actual value tested against 'expected'.
  */
@@ -113,7 +113,7 @@ CMC_UNUSED static uintmax_t cmc_assert_failed = 0;
     (expected, actual)
 
 /**
- * dtype    : One of the data types listed at the beggining of this file.
+ * dtype    : One of the data types listed at the beginning of this file.
  * expected : Expected value for the assertion to pass.
  * actual   : Actual value tested against 'not_expected'.
  */
@@ -122,7 +122,7 @@ CMC_UNUSED static uintmax_t cmc_assert_failed = 0;
     (not_expected, actual)
 
 /**
- * dtype    : One of the data types listed at the beggining of this file
+ * dtype    : One of the data types listed at the beginning of this file
  * boundary : Expected lowest possible value (excluded).
  * actual   : Actual value tested against the given boundary.
  */
@@ -131,7 +131,7 @@ CMC_UNUSED static uintmax_t cmc_assert_failed = 0;
     (boundary, actual)
 
 /**
- * dtype    : One of the data types listed at the beggining of this file.
+ * dtype    : One of the data types listed at the beginning of this file.
  * boundary : Expected lowest possible value (included).
  * actual   : Actual value tested against the given boundary.
  */
@@ -140,7 +140,7 @@ CMC_UNUSED static uintmax_t cmc_assert_failed = 0;
     (boundary, actual)
 
 /**
- * dtype    : One of the data types listed at the beggining of this file.
+ * dtype    : One of the data types listed at the beginning of this file.
  * boundary : Expected highest possible value (excluded).
  * actual   : Actual value tested against the given boundary.
  */
@@ -149,7 +149,7 @@ CMC_UNUSED static uintmax_t cmc_assert_failed = 0;
     (boundary, actual)
 
 /**
- * dtype    : One of the data types listed at the beggining of this file.
+ * dtype    : One of the data types listed at the beginning of this file.
  * boundary : Expected highest possible value (included).
  * actual   : Actual value tested against the given boundary.
  */
@@ -158,7 +158,7 @@ CMC_UNUSED static uintmax_t cmc_assert_failed = 0;
     (boundary, actual)
 
 /**
- * dtype       : One of the data types listed at the beggining of this file.
+ * dtype       : One of the data types listed at the beginning of this file.
  * lower_bound : Smallest value of the expected range.
  * upper_bound : Highest value of the expected range.
  * actual      : Actual value tested against the given range.
@@ -170,7 +170,7 @@ CMC_UNUSED static uintmax_t cmc_assert_failed = 0;
     (lower_bound, upper_bound, actual)
 
 /**
- * dtype       : One of the data types listed at the beggining of this file.
+ * dtype       : One of the data types listed at the beginning of this file.
  * lower_bound : Smallest value of the not expected range.
  * upper_bound : Highest value of the not expected range.
  * actual      : Actual value tested against the given range.
