@@ -1,29 +1,29 @@
 #include <inttypes.h>
 #include <stdio.h>
 
-#include "unt/cmc/bitset.h"
-#include "unt/cmc/deque.h"
-#include "unt/cmc/hashbidimap.h"
-#include "unt/cmc/hashmap.h"
-#include "unt/cmc/hashmultimap.h"
-#include "unt/cmc/hashmultiset.h"
-#include "unt/cmc/hashset.h"
-#include "unt/cmc/heap.h"
-#include "unt/cmc/intervalheap.h"
-#include "unt/cmc/linkedlist.h"
-#include "unt/cmc/list.h"
-#include "unt/cmc/queue.h"
-#include "unt/cmc/sortedlist.h"
-#include "unt/cmc/stack.h"
-#include "unt/cmc/treemap.h"
-#include "unt/cmc/treeset.h"
+#include "unt_cmc_bitset.h"
+#include "unt_cmc_deque.h"
+#include "unt_cmc_hashbidimap.h"
+#include "unt_cmc_hashmap.h"
+#include "unt_cmc_hashmultimap.h"
+#include "unt_cmc_hashmultiset.h"
+#include "unt_cmc_hashset.h"
+#include "unt_cmc_heap.h"
+#include "unt_cmc_intervalheap.h"
+#include "unt_cmc_linkedlist.h"
+#include "unt_cmc_list.h"
+#include "unt_cmc_queue.h"
+#include "unt_cmc_sortedlist.h"
+#include "unt_cmc_stack.h"
+#include "unt_cmc_treemap.h"
+#include "unt_cmc_treeset.h"
 
-#include "unt/utl/foreach.h"
+#include "unt_utl_foreach.h"
 
-#include "utl/assert.h"
-#include "utl/timer.h"
+#include "utl_assert.h"
+#include "utl_timer.h"
 
-#include "./unt/utl.h"
+#include "utl.h"
 
 #define cmc_run(unit, unit_fails, test_fails) \
     do \

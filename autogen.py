@@ -24,8 +24,8 @@ from typing import List, Text
 # In this directory it is assumed that the following files and directories are
 # included: main.c, codecov.c, unt folder
 OUTPUT_DIR = './tests'
-# All libraries
-ALL_LIBS = ['CMC']
+# Where the unit test files are
+UNT_DIR = f'{OUTPUT_DIR}/unt'
 # Directory mapping
 DIR_MAP = {'HEADER': 'include', 'SOURCE': 'src'}
 # File extension mapping
@@ -70,10 +70,10 @@ GCOV_FLAGS = []
 INCLUDE = ['-I', './src']
 # Include to the test file headers
 # const
-TINCLUDE = ['-I', f'{INCLUDE_DIR}']
+TINCLUDE = ['-I', f'{INCLUDE_DIR}', '-I', f'{UNT_DIR}']
 # Include to code coverage
 # const
-CVINCLUDE = ['-I', INCLUDE_DIR, '-I', SRC_DIR]
+CVINCLUDE = ['-I', INCLUDE_DIR, '-I', SRC_DIR, '-I', f'{UNT_DIR}']
 
 # Macro Expansion
 
@@ -92,29 +92,29 @@ TMP_FILE = './main.c'
 # All collections that can be used for testing
 COLLECTIONS = [
     # header, library, collection, pfx, sname, size, key, val
-    {'h': '"cmc/bitset.h"',       'LIB': 'CMC', 'COLLECTION': 'BITSET',       'PFX': 'bs',  'SNAME': 'bitset',       'SIZE': '', 'K': '',       'V': ''      },
-    {'h': '"cmc/deque.h"',        'LIB': 'CMC', 'COLLECTION': 'DEQUE',        'PFX': 'd',   'SNAME': 'deque',        'SIZE': '', 'K': '',       'V': 'size_t'},
-    {'h': '"cmc/hashbidimap.h"',  'LIB': 'CMC', 'COLLECTION': 'HASHBIDIMAP',  'PFX': 'hbm', 'SNAME': 'hashbidimap',  'SIZE': '', 'K': 'size_t', 'V': 'size_t'},
-    {'h': '"cmc/hashmap.h"',      'LIB': 'CMC', 'COLLECTION': 'HASHMAP',      'PFX': 'hm',  'SNAME': 'hashmap',      'SIZE': '', 'K': 'size_t', 'V': 'size_t'},
-    {'h': '"cmc/hashmultimap.h"', 'LIB': 'CMC', 'COLLECTION': 'HASHMULTIMAP', 'PFX': 'hmm', 'SNAME': 'hashmultimap', 'SIZE': '', 'K': 'size_t', 'V': 'size_t'},
-    {'h': '"cmc/hashmultiset.h"', 'LIB': 'CMC', 'COLLECTION': 'HASHMULTISET', 'PFX': 'hms', 'SNAME': 'hashmultiset', 'SIZE': '', 'K': '',       'V': 'size_t'},
-    {'h': '"cmc/hashset.h"',      'LIB': 'CMC', 'COLLECTION': 'HASHSET',      'PFX': 'hs',  'SNAME': 'hashset',      'SIZE': '', 'K': '',       'V': 'size_t'},
-    {'h': '"cmc/heap.h"',         'LIB': 'CMC', 'COLLECTION': 'HEAP',         'PFX': 'h',   'SNAME': 'heap',         'SIZE': '', 'K': '',       'V': 'size_t'},
-    {'h': '"cmc/intervalheap.h"', 'LIB': 'CMC', 'COLLECTION': 'INTERVALHEAP', 'PFX': 'ih',  'SNAME': 'intervalheap', 'SIZE': '', 'K': '',       'V': 'size_t'},
-    {'h': '"cmc/linkedlist.h"',   'LIB': 'CMC', 'COLLECTION': 'LINKEDLIST',   'PFX': 'll',  'SNAME': 'linkedlist',   'SIZE': '', 'K': '',       'V': 'size_t'},
-    {'h': '"cmc/list.h"',         'LIB': 'CMC', 'COLLECTION': 'LIST',         'PFX': 'l',   'SNAME': 'list',         'SIZE': '', 'K': '',       'V': 'size_t'},
-    {'h': '"cmc/queue.h"',        'LIB': 'CMC', 'COLLECTION': 'QUEUE',        'PFX': 'q',   'SNAME': 'queue',        'SIZE': '', 'K': '',       'V': 'size_t'},
-    {'h': '"cmc/sortedlist.h"',   'LIB': 'CMC', 'COLLECTION': 'SORTEDLIST',   'PFX': 'sl',  'SNAME': 'sortedlist',   'SIZE': '', 'K': '',       'V': 'size_t'},
-    {'h': '"cmc/stack.h"',        'LIB': 'CMC', 'COLLECTION': 'STACK',        'PFX': 's',   'SNAME': 'stack',        'SIZE': '', 'K': '',       'V': 'size_t'},
-    {'h': '"cmc/treemap.h"',      'LIB': 'CMC', 'COLLECTION': 'TREEMAP',      'PFX': 'tm',  'SNAME': 'treemap',      'SIZE': '', 'K': 'size_t', 'V': 'size_t'},
-    {'h': '"cmc/treeset.h"',      'LIB': 'CMC', 'COLLECTION': 'TREESET',      'PFX': 'ts',  'SNAME': 'treeset',      'SIZE': '', 'K': '',       'V': 'size_t'}
+    {'h': '"cmc_bitset.h"',       'LIB': 'CMC', 'COLLECTION': 'BITSET',       'PFX': 'bs',  'SNAME': 'bitset',       'SIZE': '', 'K': '',       'V': ''      },
+    {'h': '"cmc_deque.h"',        'LIB': 'CMC', 'COLLECTION': 'DEQUE',        'PFX': 'd',   'SNAME': 'deque',        'SIZE': '', 'K': '',       'V': 'size_t'},
+    {'h': '"cmc_hashbidimap.h"',  'LIB': 'CMC', 'COLLECTION': 'HASHBIDIMAP',  'PFX': 'hbm', 'SNAME': 'hashbidimap',  'SIZE': '', 'K': 'size_t', 'V': 'size_t'},
+    {'h': '"cmc_hashmap.h"',      'LIB': 'CMC', 'COLLECTION': 'HASHMAP',      'PFX': 'hm',  'SNAME': 'hashmap',      'SIZE': '', 'K': 'size_t', 'V': 'size_t'},
+    {'h': '"cmc_hashmultimap.h"', 'LIB': 'CMC', 'COLLECTION': 'HASHMULTIMAP', 'PFX': 'hmm', 'SNAME': 'hashmultimap', 'SIZE': '', 'K': 'size_t', 'V': 'size_t'},
+    {'h': '"cmc_hashmultiset.h"', 'LIB': 'CMC', 'COLLECTION': 'HASHMULTISET', 'PFX': 'hms', 'SNAME': 'hashmultiset', 'SIZE': '', 'K': '',       'V': 'size_t'},
+    {'h': '"cmc_hashset.h"',      'LIB': 'CMC', 'COLLECTION': 'HASHSET',      'PFX': 'hs',  'SNAME': 'hashset',      'SIZE': '', 'K': '',       'V': 'size_t'},
+    {'h': '"cmc_heap.h"',         'LIB': 'CMC', 'COLLECTION': 'HEAP',         'PFX': 'h',   'SNAME': 'heap',         'SIZE': '', 'K': '',       'V': 'size_t'},
+    {'h': '"cmc_intervalheap.h"', 'LIB': 'CMC', 'COLLECTION': 'INTERVALHEAP', 'PFX': 'ih',  'SNAME': 'intervalheap', 'SIZE': '', 'K': '',       'V': 'size_t'},
+    {'h': '"cmc_linkedlist.h"',   'LIB': 'CMC', 'COLLECTION': 'LINKEDLIST',   'PFX': 'll',  'SNAME': 'linkedlist',   'SIZE': '', 'K': '',       'V': 'size_t'},
+    {'h': '"cmc_list.h"',         'LIB': 'CMC', 'COLLECTION': 'LIST',         'PFX': 'l',   'SNAME': 'list',         'SIZE': '', 'K': '',       'V': 'size_t'},
+    {'h': '"cmc_queue.h"',        'LIB': 'CMC', 'COLLECTION': 'QUEUE',        'PFX': 'q',   'SNAME': 'queue',        'SIZE': '', 'K': '',       'V': 'size_t'},
+    {'h': '"cmc_sortedlist.h"',   'LIB': 'CMC', 'COLLECTION': 'SORTEDLIST',   'PFX': 'sl',  'SNAME': 'sortedlist',   'SIZE': '', 'K': '',       'V': 'size_t'},
+    {'h': '"cmc_stack.h"',        'LIB': 'CMC', 'COLLECTION': 'STACK',        'PFX': 's',   'SNAME': 'stack',        'SIZE': '', 'K': '',       'V': 'size_t'},
+    {'h': '"cmc_treemap.h"',      'LIB': 'CMC', 'COLLECTION': 'TREEMAP',      'PFX': 'tm',  'SNAME': 'treemap',      'SIZE': '', 'K': 'size_t', 'V': 'size_t'},
+    {'h': '"cmc_treeset.h"',      'LIB': 'CMC', 'COLLECTION': 'TREESET',      'PFX': 'ts',  'SNAME': 'treeset',      'SIZE': '', 'K': '',       'V': 'size_t'}
 ]
 
 
 # Just a realy helpfull overview
 CONFIG = f'''Directory Settings
     OUTPUT_DIR = {OUTPUT_DIR}
-    ALL_LIBS = {ALL_LIBS}
+    UNT_DIR = {UNT_DIR}
     DIR_MAP = {DIR_MAP}
     EXT_MAP = {EXT_MAP}
     BUILD_DIR = {BUILD_DIR}
@@ -194,18 +194,10 @@ def assert_structure():
     for directory in DIR_MAP.values():
         assert_dir(f'{OUTPUT_DIR}/{directory}')
 
-    # For each library, create a directory for include and src
-    for lib in ALL_LIBS:
-        for directory in DIR_MAP.values():
-            assert_dir(f'{OUTPUT_DIR}/{directory}/{lib.lower()}')
-
     assert_dir(BUILD_DIR)
     assert_dir(OBJ_DIR)
     assert_dir(BIN_DIR)
     assert_dir(GCOV_DIR)
-
-    for lib in ALL_LIBS:
-        assert_dir(f'{OBJ_DIR}/{lib.lower()}')
 
 
 def format_code(source: bool, tests: bool):
@@ -223,9 +215,11 @@ def clean_build(cleanfull: bool):
         Removes all files generated by compilation and code coverage along with folders.
     '''
     # -f prevents 'rm' from failing
-    execute_command(['rm', '-r', '-f', f'{GCOV_DIR}/*.gcov'])
+    execute_command(['rm', '-r', '-f', f'./*.gcov'])
     execute_command(['rm', '-r', '-f', f'{OUTPUT_DIR}/*.exe'])
     execute_command(['rm', '-r', '-f', BUILD_DIR])
+    execute_command(['rm', '-f', './*.gcda'])
+    execute_command(['rm', '-f', './*.gcno'])
 
     if cleanfull:
         execute_command(['rm', '-r', SRC_DIR])
@@ -265,7 +259,7 @@ def expand_code():
                 print('Didn\'t match FLAG. Probably because compilation failed.', file=sys.stderr)
                 exit(1)
 
-            file = open(f'{OUTPUT_DIR}/{DIR_MAP[ftype]}/{data["LIB"].lower()}/{data["SNAME"]}.{EXT_MAP[ftype]}', 'w')
+            file = open(f'{OUTPUT_DIR}/{DIR_MAP[ftype]}/tst_{data["LIB"].lower()}_{data["SNAME"]}.{EXT_MAP[ftype]}', 'w')
 
             if ftype == 'HEADER':
                 file.write(
@@ -281,7 +275,7 @@ def expand_code():
             else:
                 file.write(
                 f'''
-                    #include {data["h"]}
+                    #include {'"tst_' + data["h"][1:]}
 
                     {match.group("code")}
                 ''')
@@ -289,7 +283,7 @@ def expand_code():
             file.flush()
             file.close()
 
-            print(f'Generated {data["h"]: >20} -> {OUTPUT_DIR}/{DIR_MAP[ftype]}/{data["LIB"].lower()}/{data["SNAME"]}.{EXT_MAP[ftype]}')
+            print(f'''Generated {'"tst_' + data["h"][1:]: >24} -> {OUTPUT_DIR}/{DIR_MAP[ftype]}/tst_{data["LIB"].lower()}_{data["SNAME"]}.{EXT_MAP[ftype]}''')
 
     os.remove(TMP_FILE)
 
@@ -299,7 +293,7 @@ def format_expand():
         Format the files outputted by 'expand_code'.
     '''
     cmd = ['clang-format', '--style=file', '--verbose', '-i']
-    dirs_to_format = [f'{OUTPUT_DIR}/{DIR_MAP[ftype]}/{lib.lower()}/*.{EXT_MAP[ftype]}' for ftype in DIR_MAP.keys() for lib in ALL_LIBS]
+    dirs_to_format = [f'{OUTPUT_DIR}/{DIR_MAP[ftype]}/*.{EXT_MAP[ftype]}' for ftype in DIR_MAP.keys()]
     cmd.extend(dirs_to_format)
     execute_command(cmd)
 
@@ -312,8 +306,8 @@ def build_main():
         cmd = [CC]
         cmd += TINCLUDE # This one needs to go first
         cmd += INCLUDE
-        cmd += ['-c', f"{SRC_DIR}/{data['LIB'].lower()}/{data['SNAME']}.c"]
-        cmd += ['-o', f"{OBJ_DIR}/{data['LIB'].lower()}/{data['SNAME']}.o"]
+        cmd += ['-c', f"{SRC_DIR}/tst_{data['LIB'].lower()}_{data['SNAME']}.c"]
+        cmd += ['-o', f"{OBJ_DIR}/tst_{data['LIB'].lower()}_{data['SNAME']}.o"]
         execute_command(cmd)
 
     # Build OUTPUT_DIR/main.c
@@ -329,7 +323,7 @@ def build_main():
     cmd += LFLAGS
     cmd += ['-o', f'{BIN_DIR}/{MAIN}.exe']
     cmd += [f'{OBJ_DIR}/main.o']
-    cmd += [f'{OBJ_DIR}/{data["LIB"].lower()}/{data["SNAME"]}.o' for data in COLLECTIONS]
+    cmd += [f'{OBJ_DIR}/tst_{data["LIB"].lower()}_{data["SNAME"]}.o' for data in COLLECTIONS]
     execute_command(cmd)
 
 
@@ -490,7 +484,6 @@ if __name__ == '__main__':
 
     if args.codecov:
         require_file(f'{OUTPUT_DIR}/{CODECOV}.c')
-        require_executable
         if args.build:
             build_codecov()
         if args.run:

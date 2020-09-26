@@ -6,11 +6,11 @@
 #include <stdbool.h>
 #include <stdlib.h>
 
-#include "cor/hashtable.h"
-#include "utl/assert.h"
-#include "utl/foreach.h"
-#include "utl/futils.h"
-#include "utl/test.h"
+#include "cor_hashtable.h"
+#include "utl_assert.h"
+#include "utl_foreach.h"
+#include "utl_futils.h"
+#include "utl_test.h"
 
 size_t numhash(size_t a)
 {
