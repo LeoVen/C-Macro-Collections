@@ -17,7 +17,7 @@
 #define CMC_ALLOC_NODE_NAME cmc_alloc_node
 #endif
 
-#include <stdlib.h>
+#include "cor_core.h"
 
 /**
  * struct cmc_alloc_node
@@ -32,6 +32,6 @@ static struct CMC_ALLOC_NODE_NAME
     void *(*calloc)(size_t, size_t);
     void *(*realloc)(void *, size_t);
     void (*free)(void *);
-} cmc_alloc_node_default = { malloc, calloc, realloc, free };
+} CMC_UNUSED cmc_alloc_node_default = { malloc, calloc, realloc, free };
 
 #endif /* CMC_COR_ALLOC_H */
