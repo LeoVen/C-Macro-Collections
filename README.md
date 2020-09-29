@@ -62,7 +62,7 @@ Below is a minimal example that makes use of some core functionalities. And a lo
 // needs to be generated first. Then, we can add other parts after. This macro
 // does all of that for us. The STR part will provide us with a function that
 // will be used later.
-C_MACRO_COLLECTIONS_GEN(CMC, LIST, MY_LIST_PARAMS, (STR))
+C_MACRO_COLLECTIONS_EXTENDED(CMC, LIST, MY_LIST_PARAMS, (STR))
 
 int main(void)
 {
@@ -138,11 +138,12 @@ The C Macro Collections library is organized into many other sub-libraries. The 
 Every macro that generates code for a certain collection can be found with the following template. Some exceptions exist as certain collections don't have or can't have some features. One big example is the `UTL` library, which does not follow this pattern.
 
 ```
-macro_name := CMC_[ lib ]_[ collection ]_[ part ]_[ file ]
+macro_name := CMC_[ lib ]_[ collection ]_[ part ]_[ access ]_[ file ]
 
 lib := CMC | COR | DEV | EXT | INT | SAC | TSC
 collection := BITSET | DEQUE | HASHBIDIMAP | ... | TREEMULTISET | TREESET
 part := CORE | ITER | INIT | ... | SETF | NODE
+access := PUBLIC | PRIVATE
 file := HEADER | SOURCE
 ```
 
@@ -157,13 +158,6 @@ Every macro is suffixed by `CMC` and each section is separated by an underscore 
 * __documentation__ - The markdowns used by [mdBook](https://github.com/rust-lang/mdBook) to generate the website
 * __examples__ - Examples using the C Macro Collections Library
 * __src__ - All headers part of the C Macro Collections Library
-    * __cmc__ - The main C Macro Collections Library
-    * __cor__ - Core includes in the C Macro Collections Library
-    * __ext__ - Extensions to the CMC, SAC and TSC collections
-    * __int__ - Integrations between Collections
-    * __sac__ - Statically Allocated Collections
-    * __tsc__ - Thread Safe Collections
-    * __utl__ - Utilities like ForEach macros, logging, etc
     * __macro\_collections.h__ - Master header containing all collections and utilities
 * __tests__ - Where all tests are hosted
 
