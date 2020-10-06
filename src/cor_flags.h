@@ -30,7 +30,8 @@ enum cmc_flags
     CMC_FLAG_DUPLICATE =  6, // Duplicate key or value
     CMC_FLAG_ERROR     =  7, // Generic error, usually caused by algorithm error
     CMC_FLAG_THREAD    =  8, // Generic error regarding threads
-    CMC_FLAG_MUTEX     =  9  // Generic error regarding mutexes
+    CMC_FLAG_MUTEX     =  9, // Generic error regarding mutexes
+    CMC_FLAG_FULL      = 10, // When a collection that doesn't resize is full
 };
 // clang-format on
 
@@ -39,7 +40,7 @@ enum cmc_flags
  *
  * Maps the error codes to their character representation.
  */
-CMC_UNUSED static const char *cmc_flags_to_str[10] = { "OK",    "ALLOC",     "EMPTY", "NOT_FOUND", "INVALID",
-                                                       "RANGE", "DUPLICATE", "ERROR", "THREAD",    "MUTEX" };
+CMC_UNUSED static const char *cmc_flags_to_str[11] = { "OK",    "ALLOC",     "EMPTY", "NOT_FOUND", "INVALID",
+                                                       "RANGE", "DUPLICATE", "ERROR", "THREAD",    "MUTEX", "FULL" };
 
 #endif /* CMC_COR_FLAGS_H */
