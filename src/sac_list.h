@@ -103,9 +103,6 @@
         /* Value function table */ \
         struct CMC_DEF_FVAL(SNAME) * f_val; \
 \
-        /* Custom allocation functions */ \
-        struct CMC_ALLOC_NODE_NAME *alloc; \
-\
         /* Custom callback functions */ \
         CMC_CALLBACKS_DECL; \
     };
@@ -139,10 +136,8 @@
 \
     /* Collection Functions */ \
     /* Collection Allocation and Deallocation */ \
-    struct SNAME *CMC_(PFX, _new)(struct CMC_DEF_FVAL(SNAME) * f_val); \
-    struct SNAME *CMC_(PFX, _new_custom)(struct CMC_DEF_FVAL(SNAME) * f_val, \
-                                         struct CMC_ALLOC_NODE_NAME * alloc, struct CMC_CALLBACKS_NAME * callbacks); \
-    void CMC_(PFX, _clear)(struct SNAME * _list_); \
+    struct SNAME CMC_(PFX, _new)(struct CMC_DEF_FVAL(SNAME) * f_val); \
+    struct SNAME CMC_(PFX, _new_custom)(struct CMC_DEF_FVAL(SNAME) * f_val, struct CMC_CALLBACKS_NAME * callbacks); \
     void CMC_(PFX, _free)(struct SNAME * _list_); \
     /* Customization of Allocation and Callbacks */ \
     void CMC_(PFX, _customize)(struct SNAME * _list_, \
@@ -169,7 +164,7 @@
     size_t CMC_(PFX, _capacity)(struct SNAME * _list_); \
     int CMC_(PFX, _flag)(struct SNAME * _list_); \
     /* Collection Utility */ \
-    struct SNAME *CMC_(PFX, _copy_of)(struct SNAME * _list_); \
+    struct SNAME CMC_(PFX, _copy_of)(struct SNAME * _list_); \
     bool CMC_(PFX, _equals)(struct SNAME * _list1_, struct SNAME * _list2_);
 
 /* -------------------------------------------------------------------------
@@ -180,37 +175,24 @@
     /* Implementation Detail Functions */ \
     /* None */ \
 \
-    struct SNAME *CMC_(PFX, _new)(struct CMC_DEF_FVAL(SNAME) * f_val) \
+    struct SNAME CMC_(PFX, _new)(struct CMC_DEF_FVAL(SNAME) * f_val) \
     { \
-        return CMC_(PFX, _new_custom)(f_val, NULL, NULL); \
+        return CMC_(PFX, _new_custom)(f_val, NULL); \
     } \
 \
-    struct SNAME *CMC_(PFX, _new_custom)(struct CMC_DEF_FVAL(SNAME) * f_val, \
-                                         struct CMC_ALLOC_NODE_NAME * alloc, struct CMC_CALLBACKS_NAME * callbacks) \
+    struct SNAME CMC_(PFX, _new_custom)(struct CMC_DEF_FVAL(SNAME) * f_val, struct CMC_CALLBACKS_NAME * callbacks) \
     { \
         CMC_CALLBACKS_MAYBE_UNUSED(callbacks); \
 \
         if (!f_val) \
-            return NULL; \
+            return (struct SNAME) { .flag = CMC_FLAG_ERROR, 0 }; \
 \
-        if (!alloc) \
-            alloc = &cmc_alloc_node_default; \
+        struct SNAME _list_ = { 0 }; \
 \
-        struct SNAME *_list_ = alloc->calloc(1, sizeof(struct SNAME)); \
-\
-        if (!_list_) \
-            return NULL; \
-\
-        _list_->f_val = f_val; \
-        _list_->alloc = alloc; \
-        CMC_CALLBACKS_ASSIGN(_list_, callbacks); \
+        _list_.f_val = f_val; \
+        CMC_CALLBACKS_ASSIGN(&_list_, callbacks); \
 \
         return _list_; \
-    } \
-\
-    void CMC_(PFX, _clear)(struct SNAME * _list_) \
-    { \
-        memset(_list_, 0, sizeof(struct SNAME)); \
     } \
 \
     void CMC_(PFX, _free)(struct SNAME * _list_) \
@@ -221,7 +203,7 @@
                 _list_->f_val->free(_list_->buffer[i]); \
         } \
 \
-        _list_->alloc->free(_list_); \
+        memset(_list_, 0, sizeof(struct SNAME)); \
     } \
 \
     void CMC_(PFX, _customize)(struct SNAME * _list_, \
@@ -512,28 +494,21 @@
         return _list_->flag; \
     } \
 \
-    struct SNAME *CMC_(PFX, _copy_of)(struct SNAME * _list_) \
+    struct SNAME CMC_(PFX, _copy_of)(struct SNAME * _list_) \
     { \
-        struct SNAME *result = CMC_(PFX, _new_custom)(_list_->f_val, _list_->alloc, NULL); \
+        struct SNAME result = CMC_(PFX, _new_custom)(_list_->f_val, NULL); \
 \
-        if (!result) \
-        { \
-            _list_->flag = CMC_FLAG_ALLOC; \
-            return NULL; \
-        } \
-\
-        CMC_CALLBACKS_ASSIGN(result, _list_->callbacks); \
+        CMC_CALLBACKS_ASSIGN(&result, _list_->callbacks); \
 \
         if (_list_->f_val->cpy) \
         { \
             for (size_t i = 0; i < _list_->count; i++) \
-                result->buffer[i] = _list_->f_val->cpy(_list_->buffer[i]); \
+                result.buffer[i] = _list_->f_val->cpy(_list_->buffer[i]); \
         } \
         else \
-            memcpy(result->buffer, _list_->buffer, sizeof(V) * _list_->count); \
+            memcpy(result.buffer, _list_->buffer, sizeof(V) * _list_->count); \
 \
-        result->count = _list_->count; \
-\
+        result.count = _list_->count; \
         _list_->flag = CMC_FLAG_OK; \
 \
         return result; \
