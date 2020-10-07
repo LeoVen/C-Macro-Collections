@@ -1,4 +1,28 @@
 /**
+ * Copyright (c) 2019 Leonardo Vencovsky
+ *
+ * This file is part of the C Macro Collections Libray.
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in all
+ * copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ * SOFTWARE.
+ */
+
+/**
  * macro_collections.h
  *
  * Creation Date: 11/02/2019
@@ -16,9 +40,10 @@
  * from any given sub-library. They are:
  *
  * - C_MACRO_COLLECTIONS
- * - C_MACRO_COLLECTIONS_GEN
- *     - C_MACRO_COLLECTIONS_GEN_HEADER
- *     - C_MACRO_COLLECTIONS_GEN_SOURCE
+ * - C_MACRO_COLLECTIONS_INLINE
+ * - C_MACRO_COLLECTIONS_EXTENDED
+ *     - C_MACRO_COLLECTIONS_EXTENDED_HEADER
+ *     - C_MACRO_COLLECTIONS_EXTENDED_SOURCE
  * - C_MACRO_COLLECTIONS_ALL
  *     - C_MACRO_COLLECTIONS_ALL_HEADER
  *     - C_MACRO_COLLECTIONS_ALL_SOURCE
@@ -27,57 +52,60 @@
 #define CMC_MACRO_COLLECTIONS_H
 
 // clang-format off
-#include "cmc/bitset.h"           /* Added in 30/04/2020 */
-#include "cmc/deque.h"            /* Added in 20/03/2019 */
-#include "cmc/hashbidimap.h"      /* Added in 26/09/2019 */
-#include "cmc/hashmap.h"          /* Added in 03/04/2019 */
-#include "cmc/hashmultimap.h"     /* Added in 26/04/2019 */
-#include "cmc/hashmultiset.h"     /* Added in 10/04/2019 */
-#include "cmc/hashset.h"          /* Added in 01/04/2019 */
-#include "cmc/heap.h"             /* Added in 25/03/2019 */
-#include "cmc/intervalheap.h"     /* Added in 06/07/2019 */
-#include "cmc/linkedlist.h"       /* Added in 22/03/2019 */
-#include "cmc/list.h"             /* Added in 12/02/2019 */
-#include "cmc/queue.h"            /* Added in 15/02/2019 */
-#include "cmc/sortedlist.h"       /* Added in 17/09/2019 */
-#include "cmc/stack.h"            /* Added in 14/02/2019 */
-#include "cmc/treemap.h"          /* Added in 28/03/2019 */
-#include "cmc/treeset.h"          /* Added in 27/03/2019 */
+#include "cmc_bitset.h"           /* Added in 30/04/2020 */
+#include "cmc_deque.h"            /* Added in 20/03/2019 */
+#include "cmc_hashbidimap.h"      /* Added in 26/09/2019 */
+#include "cmc_hashmap.h"          /* Added in 03/04/2019 */
+#include "cmc_hashmultimap.h"     /* Added in 26/04/2019 */
+#include "cmc_hashmultiset.h"     /* Added in 10/04/2019 */
+#include "cmc_hashset.h"          /* Added in 01/04/2019 */
+#include "cmc_heap.h"             /* Added in 25/03/2019 */
+#include "cmc_intervalheap.h"     /* Added in 06/07/2019 */
+#include "cmc_linkedlist.h"       /* Added in 22/03/2019 */
+#include "cmc_list.h"             /* Added in 12/02/2019 */
+#include "cmc_queue.h"            /* Added in 15/02/2019 */
+#include "cmc_sortedlist.h"       /* Added in 17/09/2019 */
+#include "cmc_stack.h"            /* Added in 14/02/2019 */
+#include "cmc_treemap.h"          /* Added in 28/03/2019 */
+#include "cmc_treeset.h"          /* Added in 27/03/2019 */
 
-#include "cor/alloc.h"            /* Added in 24/05/2020 */
-#include "cor/bitset.h"           /* Added in 20/05/2020 */
-#include "cor/callbacks.h"        /* Added in 24/05/2020 */
-#include "cor/core.h"             /* Added in 17/03/2020 */
-#include "cor/flags.h"            /* Added in 14/05/2020 */
-#include "cor/ftable.h"           /* Added in 27/05/2020 */
-#include "cor/hashtable.h"        /* Added in 17/03/2020 */
-#include "cor/heap.h"             /* Added in 01/06/2020 */
+#include "cor_alloc.h"            /* Added in 24/05/2020 */
+#include "cor_bitset.h"           /* Added in 20/05/2020 */
+#include "cor_callbacks.h"        /* Added in 24/05/2020 */
+#include "cor_core.h"             /* Added in 17/03/2020 */
+#include "cor_flags.h"            /* Added in 14/05/2020 */
+#include "cor_ftable.h"           /* Added in 27/05/2020 */
+#include "cor_hashtable.h"        /* Added in 17/03/2020 */
+#include "cor_heap.h"             /* Added in 01/06/2020 */
 
-#include "ext/cmc/bitset.h"       /* Added in 08/06/2020 */
-#include "ext/cmc/deque.h"        /* Added in 25/05/2020 */
-#include "ext/cmc/hashbidimap.h"  /* Added in 26/05/2020 */
-#include "ext/cmc/hashmap.h"      /* Added in 25/05/2020 */
-#include "ext/cmc/hashmultimap.h" /* Added in 29/05/2020 */
-#include "ext/cmc/hashmultiset.h" /* Added in 30/05/2020 */
-#include "ext/cmc/hashset.h"      /* Added in 31/05/2020 */
-#include "ext/cmc/heap.h"         /* Added in 01/06/2020 */
-#include "ext/cmc/intervalheap.h" /* Added in 02/06/2020 */
-#include "ext/cmc/linkedlist.h"   /* Added in 03/06/2020 */
-#include "ext/cmc/list.h"         /* Added in 04/06/2020 */
-#include "ext/cmc/queue.h"        /* Added in 05/06/2020 */
-#include "ext/cmc/sortedlist.h"   /* Added in 06/06/2020 */
-#include "ext/cmc/stack.h"        /* Added in 07/06/2020 */
-#include "ext/cmc/treemap.h"      /* Added in 08/06/2020 */
-#include "ext/cmc/treeset.h"      /* Added in 08/06/2020 */
+#include "ext_cmc_bitset.h"       /* Added in 08/06/2020 */
+#include "ext_cmc_deque.h"        /* Added in 25/05/2020 */
+#include "ext_cmc_hashbidimap.h"  /* Added in 26/05/2020 */
+#include "ext_cmc_hashmap.h"      /* Added in 25/05/2020 */
+#include "ext_cmc_hashmultimap.h" /* Added in 29/05/2020 */
+#include "ext_cmc_hashmultiset.h" /* Added in 30/05/2020 */
+#include "ext_cmc_hashset.h"      /* Added in 31/05/2020 */
+#include "ext_cmc_heap.h"         /* Added in 01/06/2020 */
+#include "ext_cmc_intervalheap.h" /* Added in 02/06/2020 */
+#include "ext_cmc_linkedlist.h"   /* Added in 03/06/2020 */
+#include "ext_cmc_list.h"         /* Added in 04/06/2020 */
+#include "ext_cmc_queue.h"        /* Added in 05/06/2020 */
+#include "ext_cmc_sortedlist.h"   /* Added in 06/06/2020 */
+#include "ext_cmc_stack.h"        /* Added in 07/06/2020 */
+#include "ext_cmc_treemap.h"      /* Added in 08/06/2020 */
+#include "ext_cmc_treeset.h"      /* Added in 08/06/2020 */
+#include "ext_sac_list.h"         /* Added in 08/06/2020 */
 
-#include "utl/assert.h"           /* Added in 27/06/2019 */
-#include "utl/foreach.h"          /* Added in 25/02/2019 */
-#include "utl/futils.h"           /* Added in 15/04/2020 */
-#include "utl/log.h"              /* Added in 21/06/2019 */
-#include "utl/mutex.h"            /* Added in 14/05/2020 */
-#include "utl/test.h"             /* Added in 26/06/2019 */
-#include "utl/thread.h"           /* Added in 14/05/2020 */
-#include "utl/timer.h"            /* Added in 12/04/2019 */
+#include "sac_list.h"             /* Added in 06/10/2020 */
+
+#include "utl_assert.h"           /* Added in 27/06/2019 */
+#include "utl_foreach.h"          /* Added in 25/02/2019 */
+#include "utl_futils.h"           /* Added in 15/04/2020 */
+#include "utl_log.h"              /* Added in 21/06/2019 */
+#include "utl_mutex.h"            /* Added in 14/05/2020 */
+#include "utl_test.h"             /* Added in 26/06/2019 */
+#include "utl_thread.h"           /* Added in 14/05/2020 */
+#include "utl_timer.h"            /* Added in 12/04/2019 */
 // clang-format on
 
 /**
@@ -88,15 +116,31 @@
  * \param LIB The collection's sub-library
  * \param COLLECTION The name of the collection in all uppercase
  * \param PART The part of the collection (either CORE or one available at EXT)
+ * \param ACCESS Either PUBLIC or PRIVATE
  * \param FILE Either HEADER or SOURCE
  * \param PARAMS A tuple of form (PFX, SNAME, SIZE, K, V)
  */
-#define C_MACRO_COLLECTIONS(LIB, COLLECTION, PART, FILE, PARAMS) \
-    C_MACRO_COLLECTIONS_(LIB, COLLECTION, PART, FILE)(PARAMS)
-#define C_MACRO_COLLECTIONS_(LIB, COLLECTION, PART, FILE) CMC_##LIB##_##COLLECTION##_##PART##_##FILE
+#define C_MACRO_COLLECTIONS(LIB, COLLECTION, PART, ACCESS, FILE, PARAMS) \
+    C_MACRO_COLLECTIONS_(LIB, COLLECTION, PART, ACCESS, FILE)(PARAMS)
+
+#define C_MACRO_COLLECTIONS_(LIB, COLLECTION, PART, ACCESS, FILE) CMC_##LIB##_##COLLECTION##_##PART##_##ACCESS##_##FILE
 
 /**
- * C_MACRO_COLLECTIONS_GEN
+ * C_MACRO_COLLECTIONS_INLINE
+ *
+ * Generates both HEADER and SOURCE one after the other of a certain PART of a certain LIB.
+ *
+ * \param LIB The collection's sub-library
+ * \param COLLECTION The name of the collection in all uppercase
+ * \param PART The part of the collection (either CORE or one available at EXT)
+ * \param PARAMS A tuple of form (PFX, SNAME, SIZE, K, V)
+ */
+#define C_MACRO_COLLECTIONS_INLINE(LIB, COLLECTION, PART, PARAMS) \
+    C_MACRO_COLLECTIONS(LIB, COLLECTION, PART, PUBLIC, HEADER, PARAMS) \
+    C_MACRO_COLLECTIONS(LIB, COLLECTION, PART, PUBLIC, SOURCE, PARAMS)
+
+/**
+ * C_MACRO_COLLECTIONS_EXTENDED
  *
  * Generate the CORE of a collection along with one or more part from EXT. The
  * headers are generated first, then the source code.
@@ -106,37 +150,39 @@
  * \param PARAMS A tuple of form (PFX, SNAME, SIZE, K, V)
  * \param PARTS A non-empty tuple of all desired EXT parts
  */
-#define C_MACRO_COLLECTIONS_GEN(LIB, COLLECTION, PARAMS, PARTS) \
-    C_MACRO_COLLECTIONS_GEN_HEADER(LIB, COLLECTION, PARAMS, PARTS) \
-    C_MACRO_COLLECTIONS_GEN_SOURCE(LIB, COLLECTION, PARAMS, PARTS)
+#define C_MACRO_COLLECTIONS_EXTENDED(LIB, COLLECTION, PARAMS, PARTS) \
+    C_MACRO_COLLECTIONS_EXTENDED_HEADER(LIB, COLLECTION, PUBLIC, PARAMS, PARTS) \
+    C_MACRO_COLLECTIONS_EXTENDED_SOURCE(LIB, COLLECTION, PUBLIC, PARAMS, PARTS)
 
 /**
- * C_MACRO_COLLECTIONS_GEN_HEADER
+ * C_MACRO_COLLECTIONS_EXTENDED_HEADER
  *
  * Generate all headers of CORE and the specified header parts of a collection.
  *
  * \param LIB The collection's sub-library
  * \param COLLECTION The name of the collection in all uppercase
+ * \param ACCESS Either PUBLIC or PRIVATE
  * \param PARAMS A tuple of form (PFX, SNAME, SIZE, K, V)
  * \param PARTS A non-empty tuple of all desired EXT parts
  */
-#define C_MACRO_COLLECTIONS_GEN_HEADER(LIB, COLLECTION, PARAMS, PARTS) \
-    C_MACRO_COLLECTIONS(LIB, COLLECTION, CORE_PUBLIC, HEADER, PARAMS) \
-    CMC_MAP(CMC_(EXT_, LIB), COLLECTION, HEADER, PARAMS, CMC_EVAL PARTS)
+#define C_MACRO_COLLECTIONS_EXTENDED_HEADER(LIB, COLLECTION, ACCESS, PARAMS, PARTS) \
+    C_MACRO_COLLECTIONS(LIB, COLLECTION, CORE, ACCESS, HEADER, PARAMS) \
+    CMC_MAP(CMC_(EXT_, LIB), COLLECTION, ACCESS, HEADER, PARAMS, CMC_EVAL PARTS)
 
 /**
- * C_MACRO_COLLECTIONS_GEN_SOURCE
+ * C_MACRO_COLLECTIONS_EXTENDED_SOURCE
  *
  * Generate all sources of CORE and the specified source parts of a collection.
  *
  * \param LIB The collection's sub-library
  * \param COLLECTION The name of the collection in all uppercase
+ * \param ACCESS Either PUBLIC or PRIVATE
  * \param PARAMS A tuple of form (PFX, SNAME, SIZE, K, V)
  * \param PARTS A non-empty tuple of all desired EXT parts
  */
-#define C_MACRO_COLLECTIONS_GEN_SOURCE(LIB, COLLECTION, PARAMS, PARTS) \
-    C_MACRO_COLLECTIONS(LIB, COLLECTION, CORE_PUBLIC, SOURCE, PARAMS) \
-    CMC_MAP(CMC_(EXT_, LIB), COLLECTION, SOURCE, PARAMS, CMC_EVAL PARTS)
+#define C_MACRO_COLLECTIONS_EXTENDED_SOURCE(LIB, COLLECTION, ACCESS, PARAMS, PARTS) \
+    C_MACRO_COLLECTIONS(LIB, COLLECTION, CORE, ACCESS, SOURCE, PARAMS) \
+    CMC_MAP(CMC_(EXT_, LIB), COLLECTION, ACCESS, SOURCE, PARAMS, CMC_EVAL PARTS)
 
 /**
  * C_MACRO_COLLECTIONS_ALL
@@ -146,11 +192,11 @@
  *
  * \param LIB The collection's library
  * \param COLLECTION The name of the collection in all uppercase
- * \param PARAMS A tuple of form (PFX, SNAME, SIZE, K, V
+ * \param PARAMS A tuple of form (PFX, SNAME, SIZE, K, V)
  */
 #define C_MACRO_COLLECTIONS_ALL(LIB, COLLECTION, PARAMS) \
-    C_MACRO_COLLECTIONS_ALL_HEADER(LIB, COLLECTION, PARAMS) \
-    C_MACRO_COLLECTIONS_ALL_SOURCE(LIB, COLLECTION, PARAMS)
+    C_MACRO_COLLECTIONS_ALL_HEADER(LIB, COLLECTION, PUBLIC, PARAMS) \
+    C_MACRO_COLLECTIONS_ALL_SOURCE(LIB, COLLECTION, PUBLIC, PARAMS)
 
 /**
  * C_MACRO_COLLECTIONS_ALL_HEADER
@@ -159,11 +205,12 @@
  *
  * \param LIB The collection's library
  * \param COLLECTION The name of the collection in all uppercase
- * \param PARAMS A tuple of form (PFX, SNAME, SIZE, K, V
+ * \param ACCESS Either PUBLIC or PRIVATE
+ * \param PARAMS A tuple of form (PFX, SNAME, SIZE, K, V)
  */
-#define C_MACRO_COLLECTIONS_ALL_HEADER(LIB, COLLECTION, PARAMS) \
-    C_MACRO_COLLECTIONS(LIB, COLLECTION, CORE_PUBLIC, HEADER, PARAMS) \
-    CMC_MAP(CMC_(EXT_, LIB), COLLECTION, HEADER, PARAMS, C_MACRO_COLLECTIONS_PARTS(LIB, COLLECTION))
+#define C_MACRO_COLLECTIONS_ALL_HEADER(LIB, COLLECTION, ACCESS, PARAMS) \
+    C_MACRO_COLLECTIONS(LIB, COLLECTION, CORE, ACCESS, HEADER, PARAMS) \
+    CMC_MAP(CMC_(EXT_, LIB), COLLECTION, ACCESS, HEADER, PARAMS, C_MACRO_COLLECTIONS_PARTS(LIB, COLLECTION))
 
 /**
  * C_MACRO_COLLECTIONS_ALL_SOURCE
@@ -172,11 +219,12 @@
  *
  * \param LIB The collection's library
  * \param COLLECTION The name of the collection in all uppercase
+ * \param ACCESS Either PUBLIC or PRIVATE
  * \param PARAMS A tuple of form (PFX, SNAME, SIZE, K, V
  */
-#define C_MACRO_COLLECTIONS_ALL_SOURCE(LIB, COLLECTION, PARAMS) \
-    C_MACRO_COLLECTIONS(LIB, COLLECTION, CORE_PUBLIC, SOURCE, PARAMS) \
-    CMC_MAP(CMC_(EXT_, LIB), COLLECTION, SOURCE, PARAMS, C_MACRO_COLLECTIONS_PARTS(LIB, COLLECTION))
+#define C_MACRO_COLLECTIONS_ALL_SOURCE(LIB, COLLECTION, ACCESS, PARAMS) \
+    C_MACRO_COLLECTIONS(LIB, COLLECTION, CORE, ACCESS, SOURCE, PARAMS) \
+    CMC_MAP(CMC_(EXT_, LIB), COLLECTION, ACCESS, SOURCE, PARAMS, C_MACRO_COLLECTIONS_PARTS(LIB, COLLECTION))
 
 /**
  * C_MACRO_COLLECTIONS_PARTS
@@ -209,40 +257,37 @@
         7, 6, 5, 4, 3, 2, 1, 0
 
 /* Generates the FILE for each part (__VA_ARGS__) of a collection */
-#define CMC_MAP(LIB, COLLECTION, FILE, PARAMS, ...) \
+#define CMC_MAP(LIB, COLLECTION, ACCESS, FILE, PARAMS, ...) \
     CMC_(CMC_MAP_, CMC_NARG(__VA_ARGS__)) \
-    (LIB, COLLECTION, FILE, PARAMS, __VA_ARGS__)
+    (LIB, COLLECTION, ACCESS, FILE, PARAMS, __VA_ARGS__)
 
-#define CMC_MAP_0(LIB, COLLECTION, FILE, PARAMS, PART, ...)
-#define CMC_MAP_1(LIB, COLLECTION, FILE, PARAMS, PART, ...) \
-    C_MACRO_COLLECTIONS(LIB, COLLECTION, PART, FILE, PARAMS) \
-    CMC_MAP_0(LIB, COLLECTION, FILE, PARAMS, __VA_ARGS__)
-#define CMC_MAP_2(LIB, COLLECTION, FILE, PARAMS, PART, ...) \
-    C_MACRO_COLLECTIONS(LIB, COLLECTION, PART, FILE, PARAMS) \
-    CMC_MAP_1(LIB, COLLECTION, FILE, PARAMS, __VA_ARGS__)
-#define CMC_MAP_3(LIB, COLLECTION, FILE, PARAMS, PART, ...) \
-    C_MACRO_COLLECTIONS(LIB, COLLECTION, PART, FILE, PARAMS) \
-    CMC_MAP_2(LIB, COLLECTION, FILE, PARAMS, __VA_ARGS__)
-#define CMC_MAP_4(LIB, COLLECTION, FILE, PARAMS, PART, ...) \
-    C_MACRO_COLLECTIONS(LIB, COLLECTION, PART, FILE, PARAMS) \
-    CMC_MAP_3(LIB, COLLECTION, FILE, PARAMS, __VA_ARGS__)
-#define CMC_MAP_5(LIB, COLLECTION, FILE, PARAMS, PART, ...) \
-    C_MACRO_COLLECTIONS(LIB, COLLECTION, PART, FILE, PARAMS) \
-    CMC_MAP_4(LIB, COLLECTION, FILE, PARAMS, __VA_ARGS__)
-#define CMC_MAP_6(LIB, COLLECTION, FILE, PARAMS, PART, ...) \
-    C_MACRO_COLLECTIONS(LIB, COLLECTION, PART, FILE, PARAMS) \
-    CMC_MAP_5(LIB, COLLECTION, FILE, PARAMS, __VA_ARGS__)
-#define CMC_MAP_7(LIB, COLLECTION, FILE, PARAMS, PART, ...) \
-    C_MACRO_COLLECTIONS(LIB, COLLECTION, PART, FILE, PARAMS) \
-    CMC_MAP_6(LIB, COLLECTION, FILE, PARAMS, __VA_ARGS__)
-#define CMC_MAP_8(LIB, COLLECTION, FILE, PARAMS, PART, ...) \
-    C_MACRO_COLLECTIONS(LIB, COLLECTION, PART, FILE, PARAMS) \
-    CMC_MAP_7(LIB, COLLECTION, FILE, PARAMS, __VA_ARGS__)
-#define CMC_MAP_9(LIB, COLLECTION, FILE, PARAMS, PART, ...) \
-    C_MACRO_COLLECTIONS(LIB, COLLECTION, PART, FILE, PARAMS) \
-    CMC_MAP_8(LIB, COLLECTION, FILE, PARAMS, __VA_ARGS__)
-#define CMC_MAP_10(LIB, COLLECTION, FILE, PARAMS, PART, ...) \
-    C_MACRO_COLLECTIONS(LIB, COLLECTION, PART, FILE, PARAMS) \
-    CMC_MAP_9(LIB, COLLECTION, FILE, PARAMS, __VA_ARGS__)
+#define CMC_MAP_9(LIB, COLLECTION, ACCESS, FILE, PARAMS, PART, ...) \
+    C_MACRO_COLLECTIONS(LIB, COLLECTION, PART, ACCESS, FILE, PARAMS) \
+    CMC_MAP_8(LIB, COLLECTION, ACCESS, FILE, PARAMS, __VA_ARGS__)
+#define CMC_MAP_8(LIB, COLLECTION, ACCESS, FILE, PARAMS, PART, ...) \
+    C_MACRO_COLLECTIONS(LIB, COLLECTION, PART, ACCESS, FILE, PARAMS) \
+    CMC_MAP_7(LIB, COLLECTION, ACCESS, FILE, PARAMS, __VA_ARGS__)
+#define CMC_MAP_7(LIB, COLLECTION, ACCESS, FILE, PARAMS, PART, ...) \
+    C_MACRO_COLLECTIONS(LIB, COLLECTION, PART, ACCESS, FILE, PARAMS) \
+    CMC_MAP_6(LIB, COLLECTION, ACCESS, FILE, PARAMS, __VA_ARGS__)
+#define CMC_MAP_6(LIB, COLLECTION, ACCESS, FILE, PARAMS, PART, ...) \
+    C_MACRO_COLLECTIONS(LIB, COLLECTION, PART, ACCESS, FILE, PARAMS) \
+    CMC_MAP_5(LIB, COLLECTION, ACCESS, FILE, PARAMS, __VA_ARGS__)
+#define CMC_MAP_5(LIB, COLLECTION, ACCESS, FILE, PARAMS, PART, ...) \
+    C_MACRO_COLLECTIONS(LIB, COLLECTION, PART, ACCESS, FILE, PARAMS) \
+    CMC_MAP_4(LIB, COLLECTION, ACCESS, FILE, PARAMS, __VA_ARGS__)
+#define CMC_MAP_4(LIB, COLLECTION, ACCESS, FILE, PARAMS, PART, ...) \
+    C_MACRO_COLLECTIONS(LIB, COLLECTION, PART, ACCESS, FILE, PARAMS) \
+    CMC_MAP_3(LIB, COLLECTION, ACCESS, FILE, PARAMS, __VA_ARGS__)
+#define CMC_MAP_3(LIB, COLLECTION, ACCESS, FILE, PARAMS, PART, ...) \
+    C_MACRO_COLLECTIONS(LIB, COLLECTION, PART, ACCESS, FILE, PARAMS) \
+    CMC_MAP_2(LIB, COLLECTION, ACCESS, FILE, PARAMS, __VA_ARGS__)
+#define CMC_MAP_2(LIB, COLLECTION, ACCESS, FILE, PARAMS, PART, ...) \
+    C_MACRO_COLLECTIONS(LIB, COLLECTION, PART, ACCESS, FILE, PARAMS) \
+    CMC_MAP_1(LIB, COLLECTION, ACCESS, FILE, PARAMS, __VA_ARGS__)
+#define CMC_MAP_1(LIB, COLLECTION, ACCESS, FILE, PARAMS, PART, ...) \
+    C_MACRO_COLLECTIONS(LIB, COLLECTION, PART, ACCESS, FILE, PARAMS) \
+    CMC_MAP_0(LIB, COLLECTION, ACCESS, FILE, PARAMS, __VA_ARGS__)
+#define CMC_MAP_0(LIB, COLLECTION, ACCESS, FILE, PARAMS, ...)
 
 #endif /* CMC_MACRO_COLLECTIONS_H */

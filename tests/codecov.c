@@ -1,5 +1,43 @@
+// Specifically used for code coverage
+
 #include <inttypes.h>
 #include <stdio.h>
+
+#include "macro_collections.h"
+
+#include "tst_cmc_bitset.h"
+#include "tst_cmc_deque.h"
+#include "tst_cmc_hashbidimap.h"
+#include "tst_cmc_hashmap.h"
+#include "tst_cmc_hashmultimap.h"
+#include "tst_cmc_hashmultiset.h"
+#include "tst_cmc_hashset.h"
+#include "tst_cmc_heap.h"
+#include "tst_cmc_intervalheap.h"
+#include "tst_cmc_linkedlist.h"
+#include "tst_cmc_list.h"
+#include "tst_cmc_queue.h"
+#include "tst_cmc_sortedlist.h"
+#include "tst_cmc_stack.h"
+#include "tst_cmc_treemap.h"
+#include "tst_cmc_treeset.h"
+
+#include "tst_cmc_bitset.c"
+#include "tst_cmc_deque.c"
+#include "tst_cmc_hashbidimap.c"
+#include "tst_cmc_hashmap.c"
+#include "tst_cmc_hashmultimap.c"
+#include "tst_cmc_hashmultiset.c"
+#include "tst_cmc_hashset.c"
+#include "tst_cmc_heap.c"
+#include "tst_cmc_intervalheap.c"
+#include "tst_cmc_linkedlist.c"
+#include "tst_cmc_list.c"
+#include "tst_cmc_queue.c"
+#include "tst_cmc_sortedlist.c"
+#include "tst_cmc_stack.c"
+#include "tst_cmc_treemap.c"
+#include "tst_cmc_treeset.c"
 
 #include "unt_cmc_bitset.h"
 #include "unt_cmc_deque.h"
@@ -40,7 +78,7 @@ int main(void)
     printf(" +---------------------------------------------------------------+\n");
     printf(" |                  C Macro Collections Library                  |\n");
     printf(" |                                                               |\n");
-    printf(" |                          Test Suite                           |\n");
+    printf(" |                      Code Coverage Suite                      |\n");
     printf(" |                                                               |\n");
     printf(" | https://github.com/LeoVen/C-Macro-Collections                 |\n");
     printf(" | Leonardo Vencovsky (leonardo.vencovsky@gmail.com)             |\n");

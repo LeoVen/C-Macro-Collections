@@ -12,7 +12,7 @@
 // needs to be generated first. Then, we can add other parts after. This macro
 // does all of that for us. The STR part will provide us with a function that
 // will be used later.
-C_MACRO_COLLECTIONS_GEN(CMC, LIST, MY_LIST_PARAMS, (STR))
+C_MACRO_COLLECTIONS_EXTENDED(CMC, LIST, MY_LIST_PARAMS, (STR))
 
 int main(void)
 {

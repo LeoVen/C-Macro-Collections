@@ -8,15 +8,16 @@
 
 <p align="center">
     <a href="https://github.com/LeoVen/C-Macro-Collections"><img src="https://img.shields.io/badge/GitHub-C%20Macro%20Collections-2195F3.svg?logo=github" alt="LinkToRepo"/></a>
+    <a href="https://github.com/LeoVen/C-Macro-Collections/stargazers"><img src="https://img.shields.io/github/stars/LeoVen/C-Macro-Collections?style=flat&color=ffa000" alt="Stars"/></a>
     <a href="https://leoven.github.io/C-Macro-Collections/"><img style="color: #ffffff;" src="https://img.shields.io/badge/Read%20the%20Docs-D13636.svg?logo=data%3Aimage%2Fsvg%2Bxml%3Bbase64%2CPHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHhtbG5zOnhsaW5rPSJodHRwOi8vd3d3LnczLm9yZy8xOTk5L3hsaW5rIiB3aWR0aD0iMTYiIGhlaWdodD0iMTYiIHN0eWxlPSIiPjxyZWN0IGlkPSJiYWNrZ3JvdW5kcmVjdCIgd2lkdGg9IjEwMCUiIGhlaWdodD0iMTAwJSIgeD0iMCIgeT0iMCIgZmlsbD0ibm9uZSIgc3Ryb2tlPSJub25lIi8%2BPHRpdGxlPmljbi9kb2MtdGV4dDwvdGl0bGU%2BPGcgY2xhc3M9ImN1cnJlbnRMYXllciIgc3R5bGU9IiI%2BPHRpdGxlPkxheWVyIDE8L3RpdGxlPjxwYXRoIGQ9Ik01IDFoNC4yNDRhMiAyIDAgMCAxIDEuNDM0LjYwNmwyLjc1NiAyLjgzNEEyIDIgMCAwIDEgMTQgNS44MzVWMTJhMyAzIDAgMCAxLTMgM0g1YTMgMyAwIDAgMS0zLTNWNGEzIDMgMCAwIDEgMy0zem0wIDJhMSAxIDAgMCAwLTEgMXY4YTEgMSAwIDAgMCAxIDFoNmExIDEgMCAwIDAgMS0xVjUuODM1TDkuMjQ0IDNINXptMS41IDdoM2EuNS41IDAgMSAxIDAgMWgtM2EuNS41IDAgMSAxIDAtMXptMC0yaDJhLjUuNSAwIDAgMSAwIDFoLTJhLjUuNSAwIDAgMSAwLTF6TTggMmwzIDEuOTk1TDEzIDdIOWExIDEgMCAwIDEtMS0xVjJ6IiBpZD0iYSIgY2xhc3M9IiIgZmlsbD0iI2ZmZmZmZiIgZmlsbC1vcGFjaXR5PSIxIi8%2BPC9nPjwvc3ZnPg%3D%3D" alt="LinkToDocs"/></a>
 </p>
 
 <p align="center">
     <a href="https://github.com/LeoVen/C-Macro-Collections/blob/master/LICENSE"><img src="https://img.shields.io/badge/License-MIT-blue.svg" alt="License"/></a>
-    <img src="https://img.shields.io/badge/Version-v0.24.0-orange.svg" alt="Version"/>
+    <a href="https://github.com/LeoVen/C-Macro-Collections/releases"><img src="https://img.shields.io/badge/Version-v0.25.0-orange.svg" alt="Version"/></a>
     <a href="https://travis-ci.org/LeoVen/C-Macro-Collections"><img src="https://travis-ci.org/LeoVen/C-Macro-Collections.svg?branch=master" alt="travis-ci"/></a>
     <a href="https://codecov.io/gh/LeoVen/C-Macro-Collections"><img src="https://codecov.io/gh/LeoVen/C-Macro-Collections/branch/master/graph/badge.svg" alt="codecov"/></a>
-    <img src="https://github.com/LeoVen/C-Macro-Collections/workflows/Test%20Suit/badge.svg?branch=master" alt="test_suit"/>
+    <a href="https://github.com/LeoVen/C-Macro-Collections/actions"><img src="https://github.com/LeoVen/C-Macro-Collections/workflows/Test%20Suit/badge.svg?branch=master" alt="test_suit"/></a>
 </p>
 
 ## Table of Contents
@@ -61,7 +62,7 @@ Below is a minimal example that makes use of some core functionalities. And a lo
 // needs to be generated first. Then, we can add other parts after. This macro
 // does all of that for us. The STR part will provide us with a function that
 // will be used later.
-C_MACRO_COLLECTIONS_GEN(CMC, LIST, MY_LIST_PARAMS, (STR))
+C_MACRO_COLLECTIONS_EXTENDED(CMC, LIST, MY_LIST_PARAMS, (STR))
 
 int main(void)
 {
@@ -137,11 +138,12 @@ The C Macro Collections library is organized into many other sub-libraries. The 
 Every macro that generates code for a certain collection can be found with the following template. Some exceptions exist as certain collections don't have or can't have some features. One big example is the `UTL` library, which does not follow this pattern.
 
 ```
-macro_name := CMC_[ lib ]_[ collection ]_[ part ]_[ file ]
+macro_name := CMC_[ lib ]_[ collection ]_[ part ]_[ access ]_[ file ]
 
 lib := CMC | COR | DEV | EXT | INT | SAC | TSC
 collection := BITSET | DEQUE | HASHBIDIMAP | ... | TREEMULTISET | TREESET
 part := CORE | ITER | INIT | ... | SETF | NODE
+access := PUBLIC | PRIVATE
 file := HEADER | SOURCE
 ```
 
@@ -156,13 +158,6 @@ Every macro is suffixed by `CMC` and each section is separated by an underscore 
 * __documentation__ - The markdowns used by [mdBook](https://github.com/rust-lang/mdBook) to generate the website
 * __examples__ - Examples using the C Macro Collections Library
 * __src__ - All headers part of the C Macro Collections Library
-    * __cmc__ - The main C Macro Collections Library
-    * __cor__ - Core includes in the C Macro Collections Library
-    * __ext__ - Extensions to the CMC, SAC and TSC collections
-    * __int__ - Integrations between Collections
-    * __sac__ - Statically Allocated Collections
-    * __tsc__ - Thread Safe Collections
-    * __utl__ - Utilities like ForEach macros, logging, etc
     * __macro\_collections.h__ - Master header containing all collections and utilities
 * __tests__ - Where all tests are hosted
 

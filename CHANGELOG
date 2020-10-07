@@ -1,5 +1,9 @@
 # RELEASE.MAJOR.MINOR
 
+0.25.0
+    New Project Architecture - Files are no longer separated in folders, but rather prefixed by their sub-library
+    Added sac_list.h
+
 0.24.0
     A lot of breaking changes, with the library more modular now
     Comeback of PUBLIC and PRIVATE for the CMC sub-library

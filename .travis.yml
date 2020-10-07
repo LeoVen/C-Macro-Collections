@@ -12,12 +12,13 @@ addons:
       - cmake
       - python3.8
 script:
-  - sudo ln -s /usr/bin/gcc-9 /usr/local/bin/gcc
-  - sudo ln -s /usr/bin/gcov-9 /usr/local/bin/gcov
-  - sudo ln -s /usr/bin/python3.8 /usr/local/bin/python
+  - sudo rm -f /usr/bin/gcc /usr/bin/gcov /usr/bin/python
+  - sudo ln -s /usr/bin/gcc-9 /usr/bin/gcc
+  - sudo ln -s /usr/bin/gcov-9 /usr/bin/gcov
+  - sudo ln -s /usr/bin/python3.8 /usr/bin/python
   - gcc --version
   - gcov --version
   - python --version
-  - python autogen.py -e -b -cv -r -nf
+  - python autogen.py -e -b -cv -r -nf -nt
 after_success:
   - bash <(curl -s https://codecov.io/bash)

@@ -8,7 +8,8 @@
 
 #include "../../util/twister.c"
 
-C_MACRO_COLLECTIONS_ALL(CMC, HASHMULTIMAP, (hmm, hashmultimap, , uint64_t, uint64_t))
+CMC_CMC_HASHMULTIMAP_CORE(PUBLIC, HEADER, (hmm, hashmultimap, , uint64_t, uint64_t))
+CMC_CMC_HASHMULTIMAP_CORE(PUBLIC, SOURCE, (hmm, hashmultimap, , uint64_t, uint64_t))
 
 int cmp(uint64_t a, uint64_t b)
 {
