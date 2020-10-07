@@ -241,7 +241,7 @@ def expand_code():
 
                 {UNIQUE_FLAG}
 
-                C_MACRO_COLLECTIONS_ALL_{ftype}({data['LIB']}, {data['COLLECTION']}, ({', '.join([data['PFX'], data['SNAME'], data['SIZE'], data['K'], data['V']])}))
+                C_MACRO_COLLECTIONS_ALL_{ftype}({data['LIB']}, {data['COLLECTION']}, PUBLIC, ({', '.join([data['PFX'], data['SNAME'], data['SIZE'], data['K'], data['V']])}))
 
                 {UNIQUE_FLAG}
             ''')
