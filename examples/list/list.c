@@ -26,7 +26,7 @@ int main(int argc, char const *argv[])
     //
     // - pop_front  (index: 0)         [Complexity: O(N)]
     // - pop        (index: given)     [Complexity: O(N)*]
-    // - push_back  (index: count - 1) [Complexity: O(1)]
+    // - pop_back  (index: count - 1) [Complexity: O(1)]
     //
     // *average
     //
