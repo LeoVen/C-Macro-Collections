@@ -4,7 +4,7 @@
     <img src="https://leoven.github.io/C-Macro-Collections/img/logo.png" alt="C Macro Collections Logo" width="300"/>
 </p>
 
-<p align="center">Easy to use, header only, macro generated, generic and type-safe Data Structures in C.</p>
+<p align="center">Easy to use, modular, header only, macro based, generic and type-safe Data Structures in C.</p>
 
 <p align="center">
     <a href="https://github.com/LeoVen/C-Macro-Collections"><img src="https://img.shields.io/badge/GitHub-C%20Macro%20Collections-2195F3.svg?logo=github" alt="LinkToRepo"/></a>
@@ -39,7 +39,7 @@ No installation is required. The entire library is made of header files and can 
 
 ## Contributing
 
-There is a lot to be done. You can check the `TODO` file in the root of the repository or the issues in the github page. Also, tests and documentation are in constant development. Also check out the `STATUS` file for the status on the development of the library.
+There is a lot to be done. You can check the `TODO` file in the root of the repository or the issues in the github page. Also, tests and documentation are in constant development.
 
 ## Usage
 
