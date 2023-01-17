@@ -2,7 +2,7 @@ name: Test Suit
 
 on:
   push:
-    branches: [ master ]
+    branches: [ master, dev ]
 
 jobs:
   main:
@@ -10,14 +10,16 @@ jobs:
     steps:
     - uses: actions/checkout@v2
     - name: Setup Environment
-      run: sudo apt install make valgrind gcc python3.8
+      run: sudo apt install make valgrind gcc
     - name: Versions
       run: |
         gcc --version \
         make --version \
         valgrind --version \
-        python --version \
     - name: Test Suite
-      run: python autogen.py -e -b -r -nf
-    # - name: Valgrind Test
-    #   run: make -C ./tests/main valgrind
+      run: cd tests && make
+    - name: Upload Coverage
+      uses: codecov/codecov-action@v3
+      with:
+        directory: ./tests/coverage
+        verbose: true

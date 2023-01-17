@@ -5,7 +5,9 @@ INCLUDE=-I ../src
 main:
 	$(CC) ./main.c $(INCLUDE) $(CFLAGS) -o $@.exe
 	valgrind --leak-check=yes ./$@.exe
-	gcov -p main.gcda
+	mkdir -p ./coverage
+	cd ./coverage && gcov -p ../main.gcda
 
 clean:
-	rm ./*.gcov ./*.gcda ./*.gcno ./*.exe -f
+	rm ./*.gcda ./*.gcno ./*.exe -f
+	rm ./coverage -rf
