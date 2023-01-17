@@ -30,8 +30,6 @@
 * [Available Collections](#available-collections)
 * [Other Features](#other-features)
 * [Design Decisions](#design-decisions)
-* [What to use](#what-to-use)
-* [Code Review](#code-review)
 
 ## Installation
 
@@ -158,12 +156,9 @@ Every macro is suffixed by `CMC` and each section is separated by an underscore 
 * __documentation__ - The markdowns used by [mdBook](https://github.com/rust-lang/mdBook) to generate the website
 * __examples__ - Examples using the C Macro Collections Library
 * __src__ - All headers part of the C Macro Collections Library
-    * __macro\_collections.h__ - Master header containing all collections and utilities
 * __tests__ - Where all tests are hosted
 
 ## Available Collections
-
-Check out the STATUS file at the root of the project for more information.
 
 __The following table is an overview of all the currently available or upcoming data structures__:
 
@@ -194,21 +189,21 @@ __The following table is an overview of all the currently available or upcoming 
 
 These are some features within the library that are implemented by all collections.
 
-### Two-way iterators
+## Two-way iterators
 
 All collections come with a two-way iterator. You can go back and forwards in constant time and access elements in constant time.
 
-### Custom Allocation
+## Custom Allocation
 
 All collections have a `cmc_alloc_node` which provides pointers to the four dynamic memory allocation functions in C: `malloc`, `calloc`, `realloc` and `free`. These pointers can be customized for each individual collection created or a default can be used, as specified in `cmc_alloc_node_default`.
 
-### Callbacks
+## Callbacks
 
 Every function that operates on a collection can be separated in 5 different types. Create, Read, Update, Delete and (an extra one besides CRUD) Resize. You can define one callback function for each operation. Check out the documentation to see when each callback function is called.
 
-### Functions Table
+## Functions Table
 
-Functions table is a `struct` of function pointers containing 'methods' for a custom data type. Some methods are optional and others are needed in order to a collection to operate. They are:
+Functions table is a `struct` of function pointers containing 'methods' for a custom data type. Some methods are optional and others are needed in order for a collection to operate. They are:
 
 #### CMP
 
@@ -293,31 +288,3 @@ You can use them as Stacks, Queues and Deques, but with modern memory hierarchy 
 ### You can't structurally modify a collection when iterating over it
 
 Modifying a collection will possibly invalidate all iterators currently initialized by it. Currently, the only collection that allows this is the LinkedList (using the node-based functions, not the iterator).
-
-## What to use
-
-(Outdated)
-
-The following table shows how each collection is implemented and how well they do when using as common [abstract data types](https://en.wikipedia.org/wiki/Abstract_data_type).
-
-* **Ideal** - The collection implements correctly the abstract data type;
-* **Not Ideal** - The implementation is fulfilled but some functionalities are either not part of the ADT or not present;
-* **Bad** - It can be done, but its a bad idea.
-
-![DataStructuresDiagram](https://i.imgur.com/hFqBSlC.png)
-
-![GoodColor](https://img.shields.io/badge/Ideal_Implementation-%236abf69.svg)
-![AverageColor](https://img.shields.io/badge/Not_Ideal_Implementation-%2363a4ff.svg)
-![BadColor](https://img.shields.io/badge/Bad_Implementation-%23ff6659.svg)
-
-## Code Review
-
-Check out some code reviews that covers some parts the project. Most of them were posted a long time ago and are probably outdated.
-
-| About                                | Link                                                                                                                      |
-| ------------------------------------ | ------------------------------------------------------------------------------------------------------------------------- |
-| Unit Test *./utl/test.h*             | [![Code Review](http://www.zomis.net/codereview/shield/?qid=222954)](http://codereview.stackexchange.com/q/222954/178948) |
-| Interval Heap *./cmc/intervalheap.h* | [![Code Review](http://www.zomis.net/codereview/shield/?qid=223595)](http://codereview.stackexchange.com/q/223595/178948) |
-| Hash Set *./cmc/hashset.h*           | [![Code Review](http://www.zomis.net/codereview/shield/?qid=217333)](http://codereview.stackexchange.com/q/217333/178948) |
-| Linked List *./cmc/linkedlist.h*     | [![Code Review](http://www.zomis.net/codereview/shield/?qid=216737)](http://codereview.stackexchange.com/q/216737/178948) |
-| Others                               | [![Code Review](http://www.zomis.net/codereview/shield/?qid=213553)](http://codereview.stackexchange.com/q/213553/178948) |

@@ -27,7 +27,7 @@
  *
  * List bi-directional iterator.
  */
-#ifdef CMC_EXT_DEQUE_ITER
+#ifdef CMC_EXT_LIST_ITER
 
 /* List Iterator */
 struct CMC_DEF_ITER(SNAME)
@@ -45,4 +45,4 @@ struct CMC_DEF_ITER(SNAME)
     bool end;
 };
 
-#endif /* CMC_EXT_DEQUE_ITER */
+#endif /* CMC_EXT_LIST_ITER */
