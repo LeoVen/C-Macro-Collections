@@ -8,6 +8,7 @@
 #define SNAME deque
 #define CMC_EXT_DEQUE_INIT
 #define CMC_EXT_DEQUE_ITER
+#define CMC_EXT_DEQUE_STR
 #include "cmc/deque.h"
 
 struct deque_fval *d_fval = &(struct deque_fval){

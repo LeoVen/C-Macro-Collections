@@ -23,7 +23,7 @@
  */
 
 /**
- * cmc_list.h
+ * list.h
  *
  * Creation Date: 12/02/2019
  *
@@ -85,11 +85,12 @@
 /**
  * Extensions
  *
+ * INIT - Initializes the struct on the stack
  * ITER - List iterator
  * SEQ - Push and pop sequence of items
  * STR - Print helper functions
  */
-#define CMC_EXT_CMC_LIST_PARTS INIT, ITER, SEQ, STR
+#define CMC_EXT_LIST_PARTS INIT, ITER, SEQ, STR
 /**/
 #include "cmc/list/ext/struct.h"
 /**/

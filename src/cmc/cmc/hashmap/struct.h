@@ -22,20 +22,39 @@
  * SOFTWARE.
  */
 
+/* HashMap Structure */
 struct SNAME
 {
-    /* Dynamic array of elements */
-    V *buffer;
+    /* Array of Entries */
+    struct CMC_DEF_ENTRY(SNAME) * buffer;
     /* Current array capacity */
     size_t capacity;
-    /* Current amount of elements */
+    /* Current amount of keys */
     size_t count;
+    /* Load factor in range (0.0, 1.0) */
+    double load;
     /* Flags indicating errors or success */
     int flag;
+    /* Key function table */
+    struct CMC_DEF_FKEY(SNAME) * f_key;
     /* Value function table */
     struct CMC_DEF_FVAL(SNAME) * f_val;
     /* Custom allocation functions */
     struct CMC_ALLOC_NODE_NAME *alloc;
     /* Custom callback functions */
     CMC_CALLBACKS_DECL;
+};
+
+/* HashMap Entry */
+struct CMC_DEF_ENTRY(SNAME)
+{
+    /* Entry Key */
+    K key;
+    /* Entry Value */
+    V value;
+    /* The distance of this node to its original position, used by */
+    /* robin-hood hashing */
+    size_t dist;
+    /* The sate of this node (DELETED, EMPTY, FILLED) */
+    enum cmc_entry_state state;
 };

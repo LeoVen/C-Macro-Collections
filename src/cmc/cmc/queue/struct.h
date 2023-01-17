@@ -24,12 +24,16 @@
 
 struct SNAME
 {
-    /* Dynamic array of elements */
+    /* Dynamic circular array of elements */
     V *buffer;
-    /* Current array capacity */
+    /* Current circular array capacity */
     size_t capacity;
     /* Current amount of elements */
     size_t count;
+    /* Index representing the front of the queue */
+    size_t front;
+    /* Index representing the back of the queue */
+    size_t back;
     /* Flags indicating errors or success */
     int flag;
     /* Value function table */

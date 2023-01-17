@@ -24,18 +24,46 @@
 
 struct SNAME
 {
-    /* Dynamic array of elements */
-    V *buffer;
-    /* Current array capacity */
+    /* Array 0 is K -> V and array 1 is V -> K */
+    struct CMC_DEF_ENTRY(SNAME) * (*buffer)[2];
+    /* Current arrays capacity */
     size_t capacity;
-    /* Current amount of elements */
+    /* Current amount of keys */
     size_t count;
+    /* Load factor in range (0.0, 1.0) */
+    double load;
     /* Flags indicating errors or success */
     int flag;
+    /* Key function table */
+    struct CMC_DEF_FKEY(SNAME) * f_key;
     /* Value function table */
     struct CMC_DEF_FVAL(SNAME) * f_val;
     /* Custom allocation functions */
     struct CMC_ALLOC_NODE_NAME *alloc;
     /* Custom callback functions */
     CMC_CALLBACKS_DECL;
+    /* Methods */
+    /* Returns an iterator to the start of the hashbidimap */
+    struct CMC_DEF_ITER(SNAME) (*it_start)(struct SNAME *);
+    /* Returns an iterator to the end of the hashbidimap */
+    struct CMC_DEF_ITER(SNAME) (*it_end)(struct SNAME *);
+};
+
+/* HashBidiMap Entry */
+struct CMC_DEF_ENTRY(SNAME)
+{
+    /* Entry Key */
+    K key;
+    /* Entry Value */
+    V value;
+    /* The distance of this node to its original position */
+    /* dist[0] is relative to K -> V */
+    /* dist[1] is relative to V -> K */
+    size_t dist[2];
+    /* References to this node in the hashbidimap buffer. Used to */
+    /* prevent searching for this node twice for update() and */
+    /* remove(). Increases memory overhead but reduces execution time */
+    /* ref[0] is relative to K -> V */
+    /* ref[1] is relative to V -> K */
+    struct CMC_DEF_ENTRY(SNAME) * *ref[2];
 };

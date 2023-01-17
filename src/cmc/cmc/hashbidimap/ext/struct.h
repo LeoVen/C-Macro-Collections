@@ -22,20 +22,30 @@
  * SOFTWARE.
  */
 
-struct SNAME
+/**
+ * ITER
+ *
+ * Hashbidimap bi-directional iterator.
+ */
+#ifdef CMC_EXT_HASHBIDIMAP_ITER
+
+/* HashBidiMap Iterator */
+struct CMC_DEF_ITER(SNAME)
 {
-    /* Dynamic array of elements */
-    V *buffer;
-    /* Current array capacity */
-    size_t capacity;
-    /* Current amount of elements */
-    size_t count;
-    /* Flags indicating errors or success */
-    int flag;
-    /* Value function table */
-    struct CMC_DEF_FVAL(SNAME) * f_val;
-    /* Custom allocation functions */
-    struct CMC_ALLOC_NODE_NAME *alloc;
-    /* Custom callback functions */
-    CMC_CALLBACKS_DECL;
+    /* Target hashbidimap */
+    struct SNAME *target;
+    /* Cursor's position (index) */
+    size_t cursor;
+    /* Keeps track of relative index to the iteration of elements */
+    size_t index;
+    /* The index of the first element */
+    size_t first;
+    /* The index of the last element */
+    size_t last;
+    /* If the iterator has reached the start of the iteration */
+    bool start;
+    /* If the iterator has reached the end of the iteration */
+    bool end;
 };
+
+#endif /* CMC_EXT_HASHBIDIMAP_ITER */

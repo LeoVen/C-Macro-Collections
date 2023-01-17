@@ -3,9 +3,9 @@
 
 // #include "unt_bitset.h"
 #include "unt_deque.h"
-// #include "unt_hashbidimap.h"
-// #include "unt_hashmap.h"
-// #include "unt_hashmultimap.h"
+#include "unt_hashbidimap.h"
+#include "unt_hashmap.h"
+#include "unt_hashmultimap.h"
 // #include "unt_hashmultiset.h"
 // #include "unt_hashset.h"
 // #include "unt_heap.h"
@@ -56,12 +56,12 @@ int main(void)
     // cmc_run(CMCBitSetIter, units, tests);
     cmc_run(CMCDeque, units, tests);
     cmc_run(CMCDequeIter, units, tests);
-    // cmc_run(CMCHashBidiMap, units, tests);
-    // cmc_run(CMCHashBidiMapIter, units, tests);
-    // cmc_run(CMCHashMap, units, tests);
-    // cmc_run(CMCHashMapIter, units, tests);
-    // cmc_run(CMCHashMultiMap, units, tests);
-    // cmc_run(CMCHashMultiMapIter, units, tests);
+    cmc_run(CMCHashBidiMap, units, tests);
+    cmc_run(CMCHashBidiMapIter, units, tests);
+    cmc_run(CMCHashMap, units, tests);
+    cmc_run(CMCHashMapIter, units, tests);
+    cmc_run(CMCHashMultiMap, units, tests);
+    cmc_run(CMCHashMultiMapIter, units, tests);
     // cmc_run(CMCHashMultiSet, units, tests);
     // cmc_run(CMCHashMultiSetIter, units, tests);
     // cmc_run(CMCHashSet, units, tests);

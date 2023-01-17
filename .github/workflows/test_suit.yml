@@ -17,9 +17,9 @@ jobs:
         make --version \
         valgrind --version \
     - name: Test Suite
-      run: cd tests && make
+      run: make tests
     - name: Upload Coverage
       uses: codecov/codecov-action@v3
       with:
-        directory: ./tests/coverage
+        directory: ./tests
         verbose: true

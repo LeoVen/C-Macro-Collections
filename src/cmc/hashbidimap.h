@@ -23,9 +23,9 @@
  */
 
 /**
- * deque.h
+ * hashbidimap.h
  *
- * Creation Date: 20/03/2019
+ * Creation Date: 26/09/2019
  *
  * Authors:
  * Leonardo Vencovsky (https://github.com/LeoVen)
@@ -33,56 +33,53 @@
  */
 
 /**
- * Deque
+ * HashBidiMap
  *
- * A Deque (double-ended queue) is a linear data structure that is able to add
- * or remove elements from both ends. It can also be thought of a double-ended
- * stack since you can push and pop elements from two ends. The Deque can also
- * be used as a Queue.
- *
- * There is no random access for a Deque. The only elements accessible are the
- * front element and the back.
+ * A bidirectional map is a map that allows you to create a bijection in both
+ * directions between two sets of elements (K <-> V). It is possible to retrieve
+ * the value using a key or retrieve a key using a value. The naming (key and
+ * value) is simply used to differentiate between one set of elements and the
+ * other set of elements.
  *
  * Implementation
  *
- * This implementation uses a circular buffer (ring buffer or cyclic buffer) in
- * order to operate on O(1) for push and pop on either ends (only case where it
- * takes longer than O(1) is when the buffer is reallocated). If it was
- * implemented as a regular array, adding or removing elements from the front
- * would take O(N) due to the need to shift all elements in the deque.
+ * This implementation uses two arrays of pointers to an entry containing both
+ * the key and the value.
  */
 
 #include "cor/core.h"
+#include "cor/hashtable.h"
 
 /**
  * Used values
- * V - deque data type
+ * K - hashbidimap key data type
+ * V - hashbidimap value data type
  * SNAME - struct name and prefix of other related structs
  * PFX - functions prefix
  */
 
 /* Structs definition */
-#include "cmc/deque/struct.h"
+#include "cmc/hashbidimap/struct.h"
 
 /* Function declaration */
-#include "cmc/deque/header.h"
+#include "cmc/hashbidimap/header.h"
 
 /* Function implementation */
-#include "cmc/deque/code.h"
+#include "cmc/hashbidimap/code.h"
 
 /**
  * Extensions
  *
  * INIT - Initializes the struct on the stack
- * ITER - Deque iterator
+ * ITER - Hashbidimap iterator
  * STR - Print helper functions
  */
-#define CMC_EXT_DEQUE_PARTS INIT, ITER, STR
+#define CMC_EXT_HASHBIDIMAP_PARTS INIT, ITER, STR
 /**/
-#include "cmc/deque/ext/struct.h"
+#include "cmc/hashbidimap/ext/struct.h"
 /**/
-#include "cmc/deque/ext/header.h"
+#include "cmc/hashbidimap/ext/header.h"
 /**/
-#include "cmc/deque/ext/code.h"
+#include "cmc/hashbidimap/ext/code.h"
 
 #include "cor/undef.h"

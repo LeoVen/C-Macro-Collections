@@ -43,19 +43,3 @@ struct SNAME
     /* Custom callback functions */
     CMC_CALLBACKS_DECL;
 };
-
-struct CMC_DEF_FVAL(SNAME)
-{
-    /* Comparator function */
-    CMC_DEF_FTAB_CMP(V);
-    /* Copy function */
-    CMC_DEF_FTAB_CPY(V);
-    /* To string function */
-    CMC_DEF_FTAB_STR(V);
-    /* Free from memory function */
-    CMC_DEF_FTAB_FREE(V);
-    /* Hash function */
-    CMC_DEF_FTAB_HASH(V);
-    /* Priority function */
-    CMC_DEF_FTAB_PRI(V);
-};

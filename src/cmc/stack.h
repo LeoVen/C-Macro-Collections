@@ -23,7 +23,7 @@
  */
 
 /**
- * cmc_stack.h
+ * stack.h
  *
  * Creation Date: 14/02/2019
  *
@@ -53,7 +53,7 @@
 
 /**
  * Used values
- * V - Stack data type
+ * V - stack data type
  * SNAME - struct name and prefix of other related structs
  * PFX - functions prefix
  */
@@ -73,7 +73,7 @@
  * ITER - Stack iterator
  * STR - Print helper functions
  */
-#define CMC_EXT_CMC_STACK_PARTS INIT, ITER, STR
+#define CMC_EXT_STACK_PARTS INIT, ITER, STR
 /**/
 #include "cmc/stack/ext/struct.h"
 /**/

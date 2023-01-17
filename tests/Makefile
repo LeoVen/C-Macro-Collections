@@ -3,11 +3,15 @@ CFLAGS=-Wall -fprofile-arcs -ftest-coverage -g -O0
 INCLUDE=-I ../src
 
 main:
-	$(CC) ./main.c $(INCLUDE) $(CFLAGS) -o $@.exe
-	valgrind --leak-check=yes ./$@.exe
+	mkdir -p ./out
+	$(CC) ./main.c $(INCLUDE) $(CFLAGS) -o ./out/$@.exe
+	valgrind --leak-check=yes ./out/$@.exe
+	gcov -p ./out/$@.gcda
+
+dev: main
 	mkdir -p ./coverage
-	cd ./coverage && gcov -p ../main.gcda
+	mv *.gcov ./coverage
 
 clean:
-	rm ./*.gcda ./*.gcno ./*.exe -f
-	rm ./coverage -rf
+	rm ./*.gcov ./*.gcda ./*.gcno ./*.exe -f
+	rm ./coverage ./out -rf

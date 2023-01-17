@@ -34,13 +34,10 @@ struct CMC_DEF_ITER(SNAME)
 {
     /* Target List */
     struct SNAME *target;
-
     /* Cursor's position (index) */
     size_t cursor;
-
     /* If the iterator has reached the start of the iteration */
     bool start;
-
     /* If the iterator has reached the end of the iteration */
     bool end;
 };

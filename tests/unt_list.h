@@ -9,6 +9,7 @@
 #define CMC_EXT_LIST_INIT
 #define CMC_EXT_LIST_ITER
 #define CMC_EXT_LIST_SEQ
+#define CMC_EXT_LIST_STR
 #include "cmc/list.h"
 
 struct list_fval *l_fval = &(struct list_fval){

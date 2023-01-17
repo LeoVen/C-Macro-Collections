@@ -22,6 +22,23 @@
  * SOFTWARE.
  */
 
+/* Value function table */
+struct CMC_DEF_FVAL(SNAME)
+{
+    /* Comparator function */
+    CMC_DEF_FTAB_CMP(V);
+    /* Copy function */
+    CMC_DEF_FTAB_CPY(V);
+    /* To string function */
+    CMC_DEF_FTAB_STR(V);
+    /* Free from memory function */
+    CMC_DEF_FTAB_FREE(V);
+    /* Hash function */
+    CMC_DEF_FTAB_HASH(V);
+    /* Priority function */
+    CMC_DEF_FTAB_PRI(V);
+};
+
 /* Collection Allocation and Deallocation */
 struct SNAME *CMC_(PFX, _new)(size_t capacity, struct CMC_DEF_FVAL(SNAME) * f_val);
 struct SNAME *CMC_(PFX, _new_custom)(size_t capacity, struct CMC_DEF_FVAL(SNAME) * f_val,

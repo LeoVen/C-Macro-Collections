@@ -43,33 +43,24 @@ struct CMC_DEF_FVAL(SNAME)
 struct SNAME *CMC_(PFX, _new)(size_t capacity, struct CMC_DEF_FVAL(SNAME) * f_val);
 struct SNAME *CMC_(PFX, _new_custom)(size_t capacity, struct CMC_DEF_FVAL(SNAME) * f_val,
                                      struct CMC_ALLOC_NODE_NAME *alloc, struct CMC_CALLBACKS_NAME *callbacks);
-void CMC_(PFX, _clear)(struct SNAME *_list_);
-void CMC_(PFX, _free)(struct SNAME *_list_);
+void CMC_(PFX, _clear)(struct SNAME *_queue_);
+void CMC_(PFX, _free)(struct SNAME *_queue_);
 /* Customization of Allocation and Callbacks */
-void CMC_(PFX, _customize)(struct SNAME *_list_, struct CMC_ALLOC_NODE_NAME *alloc,
+void CMC_(PFX, _customize)(struct SNAME *_queue_, struct CMC_ALLOC_NODE_NAME *alloc,
                            struct CMC_CALLBACKS_NAME *callbacks);
 /* Collection Input and Output */
-bool CMC_(PFX, _push_front)(struct SNAME *_list_, V value);
-bool CMC_(PFX, _push_at)(struct SNAME *_list_, V value, size_t index);
-bool CMC_(PFX, _push_back)(struct SNAME *_list_, V value);
-bool CMC_(PFX, _pop_front)(struct SNAME *_list_);
-bool CMC_(PFX, _pop_at)(struct SNAME *_list_, size_t index);
-bool CMC_(PFX, _pop_back)(struct SNAME *_list_);
+bool CMC_(PFX, _enqueue)(struct SNAME *_queue_, V value);
+bool CMC_(PFX, _dequeue)(struct SNAME *_queue_);
 /* Element Access */
-V CMC_(PFX, _front)(struct SNAME *_list_);
-V CMC_(PFX, _get)(struct SNAME *_list_, size_t index);
-V *CMC_(PFX, _get_ref)(struct SNAME *_list_, size_t index);
-V CMC_(PFX, _back)(struct SNAME *_list_);
-size_t CMC_(PFX, _index_of)(struct SNAME *_list_, V value, bool from_start);
+V CMC_(PFX, _peek)(struct SNAME *_queue_);
 /* Collection State */
-bool CMC_(PFX, _contains)(struct SNAME *_list_, V value);
-bool CMC_(PFX, _empty)(struct SNAME *_list_);
-bool CMC_(PFX, _full)(struct SNAME *_list_);
-size_t CMC_(PFX, _count)(struct SNAME *_list_);
-bool CMC_(PFX, _fits)(struct SNAME *_list_, size_t size);
-size_t CMC_(PFX, _capacity)(struct SNAME *_list_);
-int CMC_(PFX, _flag)(struct SNAME *_list_);
+bool CMC_(PFX, _contains)(struct SNAME *_queue_, V value);
+bool CMC_(PFX, _empty)(struct SNAME *_queue_);
+bool CMC_(PFX, _full)(struct SNAME *_queue_);
+size_t CMC_(PFX, _count)(struct SNAME *_queue_);
+size_t CMC_(PFX, _capacity)(struct SNAME *_queue_);
+int CMC_(PFX, _flag)(struct SNAME *_queue_);
 /* Collection Utility */
-bool CMC_(PFX, _resize)(struct SNAME *_list_, size_t capacity);
-struct SNAME *CMC_(PFX, _copy_of)(struct SNAME *_list_);
-bool CMC_(PFX, _equals)(struct SNAME *_list1_, struct SNAME *_list2_);
+bool CMC_(PFX, _resize)(struct SNAME *_queue_, size_t capacity);
+struct SNAME *CMC_(PFX, _copy_of)(struct SNAME *_queue_);
+bool CMC_(PFX, _equals)(struct SNAME *_queue1_, struct SNAME *_queue2_);

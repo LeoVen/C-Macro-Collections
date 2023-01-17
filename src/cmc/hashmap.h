@@ -22,20 +22,57 @@
  * SOFTWARE.
  */
 
-struct SNAME
-{
-    /* Dynamic array of elements */
-    V *buffer;
-    /* Current array capacity */
-    size_t capacity;
-    /* Current amount of elements */
-    size_t count;
-    /* Flags indicating errors or success */
-    int flag;
-    /* Value function table */
-    struct CMC_DEF_FVAL(SNAME) * f_val;
-    /* Custom allocation functions */
-    struct CMC_ALLOC_NODE_NAME *alloc;
-    /* Custom callback functions */
-    CMC_CALLBACKS_DECL;
-};
+/**
+ * hashmap.h
+ *
+ * Creation Date: 03/04/2019
+ *
+ * Authors:
+ * Leonardo Vencovsky (https://github.com/LeoVen)
+ *
+ */
+
+/**
+ * HashMap
+ *
+ * A HashMap is an implementation of a Map with unique keys, where every key is
+ * mapped to a value. The keys are not sorted. It is implemented as a flat
+ * hashtable with linear probing and robin hood hashing.
+ */
+
+#include "cor/core.h"
+#include "cor/hashtable.h"
+
+/**
+ * Used values
+ * K - hashmap key data type
+ * V - hashmap value data type
+ * SNAME - struct name and prefix of other related structs
+ * PFX - functions prefix
+ */
+
+/* Structs definition */
+#include "cmc/hashmap/struct.h"
+
+/* Function declaration */
+#include "cmc/hashmap/header.h"
+
+/* Function implementation */
+#include "cmc/hashmap/code.h"
+
+/**
+ * Extensions
+ *
+ * INIT - Initializes the struct on the stack
+ * ITER - hashmap iterator
+ * STR - Print helper functions
+ */
+#define CMC_EXT_HASHMAP_PARTS INIT, ITER, STR
+/**/
+#include "cmc/hashmap/ext/struct.h"
+/**/
+#include "cmc/hashmap/ext/header.h"
+/**/
+#include "cmc/hashmap/ext/code.h"
+
+#include "cor/undef.h"

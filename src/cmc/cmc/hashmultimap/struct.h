@@ -22,20 +22,38 @@
  * SOFTWARE.
  */
 
+/* HashMultimap Structure */
 struct SNAME
 {
-    /* Dynamic array of elements */
-    V *buffer;
+    /* Array of linked list to entries */
+    struct CMC_DEF_ENTRY(SNAME) * (*buffer)[2];
     /* Current array capacity */
     size_t capacity;
-    /* Current amount of elements */
+    /* Current amount of keys */
     size_t count;
+    /* Load factor in range (0.0, infinity) */
+    double load;
     /* Flags indicating errors or success */
     int flag;
+    /* Key function table */
+    struct CMC_DEF_FKEY(SNAME) * f_key;
     /* Value function table */
     struct CMC_DEF_FVAL(SNAME) * f_val;
     /* Custom allocation functions */
     struct CMC_ALLOC_NODE_NAME *alloc;
     /* Custom callback functions */
     CMC_CALLBACKS_DECL;
+};
+
+/* HashMultimap Entry */
+struct CMC_DEF_ENTRY(SNAME)
+{
+    /* Entry Key */
+    K key;
+    /* Entry Value */
+    V value;
+    /* Next entry on the linked list */
+    struct CMC_DEF_ENTRY(SNAME) * next;
+    /* Previous entry on the linked list */
+    struct CMC_DEF_ENTRY(SNAME) * prev;
 };

@@ -49,11 +49,21 @@
 #undef CMC_EXT_DEQUE_ITER
 #undef CMC_EXT_DEQUE_STR
 
+/* Hashbidimap */
+#undef CMC_EXT_HASHBIDIMAP_INIT
+#undef CMC_EXT_HASHBIDIMAP_ITER
+#undef CMC_EXT_HASHBIDIMAP_STR
+
 /* List */
 #undef CMC_EXT_LIST_INIT
 #undef CMC_EXT_LIST_ITER
 #undef CMC_EXT_LIST_SEQ
 #undef CMC_EXT_LIST_STR
+
+/* Queue */
+#undef CMC_EXT_QUEUE_INIT
+#undef CMC_EXT_QUEUE_ITER
+#undef CMC_EXT_QUEUE_STR
 
 /* Stack */
 #undef CMC_EXT_STACK_INIT
