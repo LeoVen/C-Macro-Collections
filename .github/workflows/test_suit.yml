@@ -17,7 +17,7 @@ jobs:
         make --version \
         valgrind --version \
     - name: Test Suite
-      run: make tests
+      run: make tests --always-make
     - name: Upload Coverage
       uses: codecov/codecov-action@v3
       with:

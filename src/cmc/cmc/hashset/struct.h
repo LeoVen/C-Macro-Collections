@@ -22,30 +22,34 @@
  * SOFTWARE.
  */
 
-/**
- * ITER
- *
- * Hashmap bi-directional iterator.
- */
-#ifdef CMC_EXT_HASHMAP_ITER
-
-/* HashMap Iterator */
-struct CMC_DEF_ITER(SNAME)
+/* Hashset Structure */
+struct SNAME
 {
-    /* Target hashmap */
-    struct SNAME *target;
-    /* Cursor's position (index) */
-    size_t cursor;
-    /* Keeps track of relative index to the iteration of elements */
-    size_t index;
-    /* The index of the first element */
-    size_t first;
-    /* The index of the last element */
-    size_t last;
-    /* If the iterator has reached the start of the iteration */
-    bool start;
-    /* If the iterator has reached the end of the iteration */
-    bool end;
+    /* Array of Entries */
+    struct CMC_DEF_ENTRY(SNAME) * buffer;
+    /* Current Array Capcity */
+    size_t capacity;
+    /* Current amount of elements */
+    size_t count;
+    /* Load factor in range (0.0, 1.0) */
+    double load;
+    /* Flags indicating errors or success */
+    int flag;
+    /* Value function table */
+    struct CMC_DEF_FVAL(SNAME) * f_val;
+    /* Custom allocation functions */
+    struct CMC_ALLOC_NODE_NAME *alloc;
+    /* Custom callback functions */
+    CMC_CALLBACKS_DECL;
 };
 
-#endif /* CMC_EXT_HASHMAP_ITER */
+struct CMC_DEF_ENTRY(SNAME)
+{
+    /* Entry value */
+    V value;
+    /* The distance of this node to its original position, used by */
+    /* robin-hood hashing */
+    size_t dist;
+    /* The sate of this node (DELETED, EMPTY, FILLED) */
+    enum cmc_entry_state state;
+};

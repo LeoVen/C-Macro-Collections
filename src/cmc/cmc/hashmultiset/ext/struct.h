@@ -25,27 +25,33 @@
 /**
  * ITER
  *
- * Hashmap bi-directional iterator.
+ * Hashmultiset bi-directional iterator.
  */
-#ifdef CMC_EXT_HASHMAP_ITER
+#ifdef CMC_EXT_HASHMULTISET_ITER
 
-/* HashMap Iterator */
+/* HashMultiSet Iterator */
 struct CMC_DEF_ITER(SNAME)
 {
-    /* Target hashmap */
+    /* Target HashMultiset */
     struct SNAME *target;
+
     /* Cursor's position (index) */
     size_t cursor;
+
     /* Keeps track of relative index to the iteration of elements */
     size_t index;
+
     /* The index of the first element */
     size_t first;
+
     /* The index of the last element */
     size_t last;
+
     /* If the iterator has reached the start of the iteration */
     bool start;
+
     /* If the iterator has reached the end of the iteration */
     bool end;
 };
 
-#endif /* CMC_EXT_HASHMAP_ITER */
+#endif /* CMC_EXT_HASHMULTISET_ITER */

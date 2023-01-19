@@ -23,29 +23,55 @@
  */
 
 /**
- * ITER
+ * hashset.h
  *
- * Hashmap bi-directional iterator.
+ * Creation Date: 01/04/2019
+ *
+ * Authors:
+ * Leonardo Vencovsky (https://github.com/LeoVen)
+ *
  */
-#ifdef CMC_EXT_HASHMAP_ITER
 
-/* HashMap Iterator */
-struct CMC_DEF_ITER(SNAME)
-{
-    /* Target hashmap */
-    struct SNAME *target;
-    /* Cursor's position (index) */
-    size_t cursor;
-    /* Keeps track of relative index to the iteration of elements */
-    size_t index;
-    /* The index of the first element */
-    size_t first;
-    /* The index of the last element */
-    size_t last;
-    /* If the iterator has reached the start of the iteration */
-    bool start;
-    /* If the iterator has reached the end of the iteration */
-    bool end;
-};
+/**
+ * HashSet
+ *
+ * A HashSet is an implementation of a Set with unique keys. The keys are not
+ * sorted. It is implemented as a flat hashtable with linear probing and robin
+ * hood hashing.
+ */
 
-#endif /* CMC_EXT_HASHMAP_ITER */
+#include "cor/core.h"
+#include "cor/hashtable.h"
+
+/**
+ * Used values
+ * V - hashset value data type
+ * SNAME - struct name and prefix of other related structs
+ * PFX - functions prefix
+ */
+
+/* Structs definition */
+#include "cmc/hashset/struct.h"
+
+/* Function declaration */
+#include "cmc/hashset/header.h"
+
+/* Function implementation */
+#include "cmc/hashset/code.h"
+
+/**
+ * Extensions
+ *
+ * INIT - Initializes the struct on the stack
+ * ITER - hashset iterator
+ * STR - Print helper functions
+ */
+#define CMC_EXT_HASHSET_PARTS ITER, SETF, STR
+/**/
+#include "cmc/hashset/ext/struct.h"
+/**/
+#include "cmc/hashset/ext/header.h"
+/**/
+#include "cmc/hashset/ext/code.h"
+
+#include "cor/undef.h"

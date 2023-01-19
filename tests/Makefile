@@ -1,5 +1,5 @@
 CC=gcc
-CFLAGS=-Wall -fprofile-arcs -ftest-coverage -g -O0
+CFLAGS=-Wall -Wextra -Werror -fprofile-arcs -ftest-coverage -g -O0
 INCLUDE=-I ../src
 
 main:

@@ -70,8 +70,8 @@
 
 /**
  * Used values
- * K - hashmap key data type
- * V - hashmap value data type
+ * K - hashmultimap key data type
+ * V - hashmultimap value data type
  * SNAME - struct name and prefix of other related structs
  * PFX - functions prefix
  */

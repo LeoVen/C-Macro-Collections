@@ -1,5 +1,5 @@
 INCLUDE=-I ../../../src
-CFLAGS=-O3 -Wall -DCOUNT=20000000 -DCMC_NO_CALLBACKS
+CFLAGS=-O3 -Wall -Wextra -Werror -DCOUNT=20000000 -DCMC_NO_CALLBACKS
 
 # Install hyperfine
 # https://github.com/sharkdp/hyperfine

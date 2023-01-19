@@ -6,8 +6,8 @@
 #include "unt_hashbidimap.h"
 #include "unt_hashmap.h"
 #include "unt_hashmultimap.h"
-// #include "unt_hashmultiset.h"
-// #include "unt_hashset.h"
+#include "unt_hashmultiset.h"
+#include "unt_hashset.h"
 // #include "unt_heap.h"
 // #include "unt_intervalheap.h"
 // #include "unt_linkedlist.h"
@@ -62,10 +62,10 @@ int main(void)
     cmc_run(CMCHashMapIter, units, tests);
     cmc_run(CMCHashMultiMap, units, tests);
     cmc_run(CMCHashMultiMapIter, units, tests);
-    // cmc_run(CMCHashMultiSet, units, tests);
-    // cmc_run(CMCHashMultiSetIter, units, tests);
-    // cmc_run(CMCHashSet, units, tests);
-    // cmc_run(CMCHashSetIter, units, tests);
+    cmc_run(CMCHashMultiSet, units, tests);
+    cmc_run(CMCHashMultiSetIter, units, tests);
+    cmc_run(CMCHashSet, units, tests);
+    cmc_run(CMCHashSetIter, units, tests);
     // cmc_run(CMCHeap, units, tests);
     // cmc_run(CMCHeapIter, units, tests);
     // cmc_run(CMCIntervalHeap, units, tests);
