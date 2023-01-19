@@ -1,12 +1,13 @@
 CC=gcc
 CFLAGS=-Wall -Wextra -Werror -fprofile-arcs -ftest-coverage -ftime-report -g -O0
 INCLUDE=-I ../src
+OUTDIR=out
 
 main:
-	mkdir -p ./out
-	$(CC) ./main.c $(INCLUDE) $(CFLAGS) -o ./out/$@.exe
-	valgrind --leak-check=yes ./out/$@.exe
-	gcov -p ./out/$@.gcda
+	mkdir -p ./$(OUTDIR)
+	$(CC) ./main.c $(INCLUDE) $(CFLAGS) -o ./$(OUTDIR)/$@.exe
+	valgrind --leak-check=yes ./$(OUTDIR)/$@.exe
+	gcov -p ./$(OUTDIR)/$@.gcda
 
 dev: main
 	mkdir -p ./coverage
@@ -14,4 +15,8 @@ dev: main
 
 clean:
 	rm ./*.gcov ./*.gcda ./*.gcno ./*.exe -f
-	rm ./coverage ./out -rf
+	rm ./coverage ./$(OUTDIR) -rf
+
+lcov: dev
+	lcov --capture --directory ./$(OUTDIR) --output-file ./$(OUTDIR)/coverage.info
+	genhtml ./$(OUTDIR)/coverage.info --output-directory out

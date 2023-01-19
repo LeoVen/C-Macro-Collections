@@ -28,6 +28,8 @@
 
 #include "unt_foreach.h"
 
+#include "unt_tostring.h"
+
 #include "cmc/utl/assert.h"
 #include "cmc/utl/timer.h"
 
@@ -105,6 +107,8 @@ int main(void)
     printf(" | Total Asserts Failed : %25" PRIuMAX " asserts      |\n", cmc_assert_failed);
     printf(" | Total Runtime        : %25.0lf milliseconds |\n", timer.result);
     printf(" +---------------------------------------------------------------+\n");
+
+    cmc_unt_tostring();
 
     return tests;
 }
