@@ -8,7 +8,6 @@
 
 <p align="center">
     <a href="https://github.com/LeoVen/C-Macro-Collections"><img src="https://img.shields.io/badge/GitHub-C%20Macro%20Collections-2195F3.svg?logo=github" alt="LinkToRepo"/></a>
-    <a href="https://github.com/LeoVen/C-Macro-Collections/stargazers"><img src="https://img.shields.io/github/stars/LeoVen/C-Macro-Collections?style=flat&color=ffa000" alt="Stars"/></a>
     <a href="https://leoven.github.io/C-Macro-Collections/"><img style="color: #ffffff;" src="https://img.shields.io/badge/Read%20the%20Docs-D13636.svg?logo=data%3Aimage%2Fsvg%2Bxml%3Bbase64%2CPHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHhtbG5zOnhsaW5rPSJodHRwOi8vd3d3LnczLm9yZy8xOTk5L3hsaW5rIiB3aWR0aD0iMTYiIGhlaWdodD0iMTYiIHN0eWxlPSIiPjxyZWN0IGlkPSJiYWNrZ3JvdW5kcmVjdCIgd2lkdGg9IjEwMCUiIGhlaWdodD0iMTAwJSIgeD0iMCIgeT0iMCIgZmlsbD0ibm9uZSIgc3Ryb2tlPSJub25lIi8%2BPHRpdGxlPmljbi9kb2MtdGV4dDwvdGl0bGU%2BPGcgY2xhc3M9ImN1cnJlbnRMYXllciIgc3R5bGU9IiI%2BPHRpdGxlPkxheWVyIDE8L3RpdGxlPjxwYXRoIGQ9Ik01IDFoNC4yNDRhMiAyIDAgMCAxIDEuNDM0LjYwNmwyLjc1NiAyLjgzNEEyIDIgMCAwIDEgMTQgNS44MzVWMTJhMyAzIDAgMCAxLTMgM0g1YTMgMyAwIDAgMS0zLTNWNGEzIDMgMCAwIDEgMy0zem0wIDJhMSAxIDAgMCAwLTEgMXY4YTEgMSAwIDAgMCAxIDFoNmExIDEgMCAwIDAgMS0xVjUuODM1TDkuMjQ0IDNINXptMS41IDdoM2EuNS41IDAgMSAxIDAgMWgtM2EuNS41IDAgMSAxIDAtMXptMC0yaDJhLjUuNSAwIDAgMSAwIDFoLTJhLjUuNSAwIDAgMSAwLTF6TTggMmwzIDEuOTk1TDEzIDdIOWExIDEgMCAwIDEtMS0xVjJ6IiBpZD0iYSIgY2xhc3M9IiIgZmlsbD0iI2ZmZmZmZiIgZmlsbC1vcGFjaXR5PSIxIi8%2BPC9nPjwvc3ZnPg%3D%3D" alt="LinkToDocs"/></a>
 </p>
 
@@ -18,6 +17,12 @@
     <a href="https://travis-ci.org/LeoVen/C-Macro-Collections"><img src="https://travis-ci.org/LeoVen/C-Macro-Collections.svg?branch=master" alt="travis-ci"/></a>
     <a href="https://codecov.io/gh/LeoVen/C-Macro-Collections"><img src="https://codecov.io/gh/LeoVen/C-Macro-Collections/branch/master/graph/badge.svg" alt="codecov"/></a>
     <a href="https://github.com/LeoVen/C-Macro-Collections/actions"><img src="https://github.com/LeoVen/C-Macro-Collections/workflows/Test%20Suit/badge.svg?branch=master" alt="test_suit"/></a>
+</p>
+
+<p align="center">
+    <a href="https://github.com/LeoVen/C-Macro-Collections/stargazers"><img src="https://img.shields.io/github/stars/LeoVen/C-Macro-Collections?style=flat&color=ffa000" alt="Stars"/></a>
+    <a href="https://github.com/XAMPPRocky/tokei"><img src="https://img.shields.io/badge/Lines%20of%20Code-20244-007596.svg" alt="loc"/></a>
+    <a href="https://github.com/XAMPPRocky/tokei"><img src="https://img.shields.io/badge/Files-107-961c00.svg" alt="loc"/></a>
 </p>
 
 ## Table of Contents
@@ -41,26 +46,24 @@ There is a lot to be done. You can check the `TODO` file in the root of the repo
 
 ## Usage
 
-The header `macro_collections.h` includes every feature from the library and comes with higher level APIs that help you generate collections from specific sub-libraries with specific extensions.
-
 Below is a minimal example that makes use of some core functionalities. And a lot of explanation too!
 
 ```c
-// This is the master header. This will include every feature of the library.
-// This comes with many helper macros (high level API) and utility functions.
-#include "macro_collections.h"
+// The C Macro Collections takes advantage of headers that can be included
+// multiple times. You can check the contents of src/cmc/list.h and there are no
+// include guards, meaning they can be included multiple times and this is what
+// generates the code.
+// Before including it though we need to define a few basic macros. You can
+// check the documentation to see which ones are required.
+#define V int          // list value data type
+#define PFX intl       // list function's prefix
+#define SNAME int_list // list struct name (struct int_list)
+#define CMC_EXT_STR    // Enables an extra functionality (STR) of the list
+#include "cmc/list.h"
 
-// A PARAM is a standard way to pass required parameters to the lower level API.
-// It is a tuple of form (PFX, SNAME, SIZE, K, V). In this case, not all of them
-// are used, so we can leave them empty. We are creating a list of value int.
-#define MY_LIST_PARAMS (intl, int_list, , , int)
-
-// High level API. Generate a LIST from the CMC library with the STR extension
-// using our previously defined PARAMs. Every collections has a CORE part that
-// needs to be generated first. Then, we can add other parts after. This macro
-// does all of that for us. The STR part will provide us with a function that
-// will be used later.
-C_MACRO_COLLECTIONS_EXTENDED(CMC, LIST, MY_LIST_PARAMS, (STR))
+// This header file includes a lot of functions that can be used as methods to
+// basic data types. In this case, cmc_i32_str is used
+#include "cmc/utl/futils.h"
 
 int main(void)
 {
@@ -76,8 +79,8 @@ int main(void)
     // hash, comparison and printing. A list doesn't require any of these
     // functions. That is, the CORE module doesn't use any of them.
     // But since we are using the STR module, we will need to define the 'str'
-    // function. luckily, for the 'int' type, the library already provides such
-    // function (cmc_i32_str), provided by the /utl/futils.h header file.
+    // function. Luckily, for the 'int' type, the library already provides such
+    // function (cmc_i32_str), provided by the cmc/utl/futils.h header file.
     struct int_list *list = intl_new(32, &(struct int_list_fval){ .str = cmc_i32_str, NULL });
 
     // Check if the list was successfully initialized. It could fail if the
@@ -96,7 +99,8 @@ int main(void)
         if (!intl_push_back(list, i))
         {
             enum cmc_flags flag = intl_flag(list);
-            // Use cmc_flags_to_str to map the enum error to a string.
+            // Use cmc_flags_to_str (global variable) to map the enum error to a
+            // string.
             fprintf(stderr, "%s : push_back failed\n", cmc_flags_to_str[flag]);
         }
     }
@@ -105,12 +109,10 @@ int main(void)
     // '.str' from the function table comes into play. If we haven't defined it,
     // the program would've crashed. We also need to define to which file we
     // will be printing the list's content. In this case, the terminal. Also,
-    // some strings need to be defined. They will be printed: before all elements,
-    // between each one, and after all elements. This is very usefull and can
-    // print a data structure very nicely.
+    // some strings need to be defined. They will be printed: before all
+    // elements, between each one, and after all elements. This is very useful
+    // for debugging.
     intl_print(list, stdout, "[ ", ", ", " ]\n");
-
-    // You should see a nicely printed list in your terminal.
 
     // Free all of its resources
     intl_free(list);
@@ -127,7 +129,7 @@ The C Macro Collections library is organized into many other sub-libraries. The 
 | :-----: | -------------------------------- | ------------------------------------------------------------------------------------------- |
 |   CMC   | Macro Collections                | The main library with dynamically-sized collections                                         |
 |   COR   | Core                             | Core functionalities used by more than one collection, usually from different sub-libraries |
-|   EXT   | Extensions                       | Extension to collections from CMC, SAC and TSC libraries                                    |
+|   EXT   | Extensions                       | Extension to collections                                                                    |
 |   INT   | Integrations                     | Macros that facilitate the creation of code that involves more than one type of collection  |
 |   SAC   | Statically Allocated Collections | Collections with a fixed sized array that don't use any heap allocation                     |
 |   TSC   | Thread-Safe Collections          | Collections that allow multiple operations from multiple threads                            |
@@ -239,8 +241,8 @@ A priority function works much like the comparator function except that it compa
 
 The following table shows which functions are required, optional or never used for each Collection:
 
-| Collection   |                           CMP                            |                           CPY                            |                           STR                            |                           FREE                           |                           HASH                           |                           PRI                            |
-| ------------ | :------------------------------------------------------: | :------------------------------------------------------: | :------------------------------------------------------: | :------------------------------------------------------: | :------------------------------------------------------: | :------------------------------------------------------: |
+| Collection   |                           CMP                                   |                           CPY                                   |                                  STR                            |                                  FREE                           |                                  HASH                           |                                  PRI                            |
+| ------------ | :-------------------------------------------------------=-----: | :-------------------------------------------------------------: | :-------------------------------------------------------------: | :-------------------------------------------------------------: | :-------------------------------------------------------------: | :-------------------------------------------------------------: |
 | Deque        | ![#9f3b94](https://via.placeholder.com/20/9f3b94/000000?text=+) | ![#9f3b94](https://via.placeholder.com/20/9f3b94/000000?text=+) | ![#497edd](https://via.placeholder.com/20/497edd/000000?text=+) | ![#00d3eb](https://via.placeholder.com/20/00d3eb/000000?text=+) | ![#2ef625](https://via.placeholder.com/20/2ef625/000000?text=+) | ![#2ef625](https://via.placeholder.com/20/2ef625/000000?text=+) |
 | HashMap      | ![#b82b28](https://via.placeholder.com/20/b82b28/000000?text=+) | ![#9f3b94](https://via.placeholder.com/20/9f3b94/000000?text=+) | ![#497edd](https://via.placeholder.com/20/497edd/000000?text=+) | ![#00d3eb](https://via.placeholder.com/20/00d3eb/000000?text=+) | ![#b82b28](https://via.placeholder.com/20/b82b28/000000?text=+) | ![#2ef625](https://via.placeholder.com/20/2ef625/000000?text=+) |
 | HashBidiMap  | ![#b82b28](https://via.placeholder.com/20/b82b28/000000?text=+) | ![#9f3b94](https://via.placeholder.com/20/9f3b94/000000?text=+) | ![#497edd](https://via.placeholder.com/20/497edd/000000?text=+) | ![#00d3eb](https://via.placeholder.com/20/00d3eb/000000?text=+) | ![#b82b28](https://via.placeholder.com/20/b82b28/000000?text=+) | ![#2ef625](https://via.placeholder.com/20/2ef625/000000?text=+) |
@@ -257,8 +259,8 @@ The following table shows which functions are required, optional or never used f
 | TreeMap      | ![#b82b28](https://via.placeholder.com/20/b82b28/000000?text=+) | ![#9f3b94](https://via.placeholder.com/20/9f3b94/000000?text=+) | ![#497edd](https://via.placeholder.com/20/497edd/000000?text=+) | ![#00d3eb](https://via.placeholder.com/20/00d3eb/000000?text=+) | ![#2ef625](https://via.placeholder.com/20/2ef625/000000?text=+) | ![#2ef625](https://via.placeholder.com/20/2ef625/000000?text=+) |
 | TreeSet      | ![#b82b28](https://via.placeholder.com/20/b82b28/000000?text=+) | ![#9f3b94](https://via.placeholder.com/20/9f3b94/000000?text=+) | ![#497edd](https://via.placeholder.com/20/497edd/000000?text=+) | ![#00d3eb](https://via.placeholder.com/20/00d3eb/000000?text=+) | ![#2ef625](https://via.placeholder.com/20/2ef625/000000?text=+) | ![#2ef625](https://via.placeholder.com/20/2ef625/000000?text=+) |
 
-|                          Color                           | Label                                     |
-| :------------------------------------------------------: | ----------------------------------------- |
+|                          Color                                  | Label                                     |
+| :-------------------------------------------------------------: | ----------------------------------------- |
 | ![#b82b28](https://via.placeholder.com/20/b82b28/000000?text=+) | Required for basic functionality.         |
 | ![#9f3b94](https://via.placeholder.com/20/9f3b94/000000?text=+) | Required for specific functions.          |
 | ![#497edd](https://via.placeholder.com/20/497edd/000000?text=+) | Required for non-core specific functions. |
@@ -291,5 +293,5 @@ Modifying a collection will possibly invalidate all iterators currently initiali
 
 ## Special Macros
 
-* `CMC_NO_ALLOC` - disables `"cor/alloc.h"`
+* `CMC_NO_ALLOC` - disables `"cor/alloc.h"`, useful for statically allocated collections (SAC)
 * `CMC_NO_IMPORTS` - disables all imports from the standard library at `"cor/core.h"`

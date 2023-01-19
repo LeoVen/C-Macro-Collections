@@ -6,9 +6,6 @@
 #define V size_t
 #define PFX s
 #define SNAME stack
-#define CMC_EXT_STACK_INIT
-#define CMC_EXT_STACK_ITER
-#define CMC_EXT_STACK_STR
 #include "cmc/stack.h"
 
 struct stack_fval *s_fval = &(struct stack_fval){

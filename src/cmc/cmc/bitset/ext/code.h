@@ -28,16 +28,16 @@
  * The part 'INIT' gives a new way of initializing a collection. The collection
  * struct is not heap allocated, only its internal structure (nodes, buffers).
  */
-#ifdef CMC_EXT_BITSET_INIT
+#ifdef CMC_EXT_INIT
 
-#endif /* CMC_EXT_BITSET_INIT */
+#endif /* CMC_EXT_INIT */
 
 /**
  * ITER
  *
  * Bitset bi-directional iterator.
  */
-#ifdef CMC_EXT_BITSET_ITER
+#ifdef CMC_EXT_ITER
 
 /* Iterator Functions */
 /* Iterator Initialization */
@@ -45,13 +45,13 @@
 /* Iterator Movement */
 /* Iterator Access */
 
-#endif /* CMC_EXT_BITSET_ITER */
+#endif /* CMC_EXT_ITER */
 
 /**
  * STR
  *
  * Print helper functions.
  */
-#ifdef CMC_EXT_BITSET_STR
+#ifdef CMC_EXT_STR
 
-#endif /* CMC_EXT_BITSET_STR */
+#endif /* CMC_EXT_STR */

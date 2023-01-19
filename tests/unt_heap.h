@@ -6,9 +6,6 @@
 #define V size_t
 #define PFX h
 #define SNAME heap
-#define CMC_EXT_HEAP_INIT
-#define CMC_EXT_HEAP_ITER
-#define CMC_EXT_HEAP_STR
 #include "cmc/heap.h"
 
 struct heap_fval *h_fval = &(struct heap_fval){

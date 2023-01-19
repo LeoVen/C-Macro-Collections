@@ -28,7 +28,7 @@
  * The part 'INIT' gives a new way of initializing a collection. The collection
  * struct is not heap allocated, only its internal structure (nodes, buffers).
  */
-#ifdef CMC_EXT_HASHMAP_INIT
+#ifdef CMC_EXT_INIT
 
 struct SNAME CMC_(PFX, _init)(size_t capacity, double load, struct CMC_DEF_FKEY(SNAME) * f_key,
                               struct CMC_DEF_FVAL(SNAME) * f_val)
@@ -97,14 +97,14 @@ void CMC_(PFX, _release)(struct SNAME _map_)
     _map_.alloc->free(_map_.buffer);
 }
 
-#endif /* CMC_EXT_HASHMAP_INIT */
+#endif /* CMC_EXT_INIT */
 
 /**
  * ITER
  *
  * Hashmap bi-directional iterator.
  */
-#ifdef CMC_EXT_HASHMAP_ITER
+#ifdef CMC_EXT_ITER
 
 struct CMC_DEF_ITER(SNAME) CMC_(PFX, _iter_start)(struct SNAME *target)
 {
@@ -367,14 +367,14 @@ size_t CMC_(PFX, _iter_index)(struct CMC_DEF_ITER(SNAME) * iter)
     return iter->index;
 }
 
-#endif /* CMC_EXT_HASHMAP_ITER */
+#endif /* CMC_EXT_ITER */
 
 /**
  * STR
  *
  * Print helper functions.
  */
-#ifdef CMC_EXT_HASHMAP_STR
+#ifdef CMC_EXT_STR
 
 bool CMC_(PFX, _to_string)(struct SNAME *_map_, FILE *fptr)
 {
@@ -435,4 +435,4 @@ bool CMC_(PFX, _print)(struct SNAME *_map_, FILE *fptr, const char *start, const
     return true;
 }
 
-#endif /* CMC_EXT_HASHMAP_STR */
+#endif /* CMC_EXT_STR */

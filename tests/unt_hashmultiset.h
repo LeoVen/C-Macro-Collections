@@ -6,10 +6,6 @@
 #define V size_t
 #define PFX hms
 #define SNAME hashmultiset
-#define CMC_EXT_HASHMULTISET_INIT
-#define CMC_EXT_HASHMULTISET_ITER
-#define CMC_EXT_HASHMULTISET_SETF
-#define CMC_EXT_HASHMULTISET_STR
 #include "cmc/hashmultiset.h"
 
 struct hashmultiset_fval *hms_fval = &(struct hashmultiset_fval){

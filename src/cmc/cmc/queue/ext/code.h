@@ -28,7 +28,7 @@
  * The part 'INIT' gives a new way of initializing a collection. The collection
  * struct is not heap allocated, only its internal structure (nodes, buffers).
  */
-#ifdef CMC_EXT_QUEUE_INIT
+#ifdef CMC_EXT_INIT
 
 struct SNAME CMC_(PFX, _init)(size_t capacity, struct CMC_DEF_FVAL(SNAME) * f_val)
 {
@@ -83,14 +83,14 @@ void CMC_(PFX, _release)(struct SNAME _queue_)
     _queue_.alloc->free(_queue_.buffer);
 }
 
-#endif /* CMC_EXT_QUEUE_INIT */
+#endif /* CMC_EXT_INIT */
 
 /**
  * ITER
  *
  * Queue bi-directional iterator.
  */
-#ifdef CMC_EXT_QUEUE_ITER
+#ifdef CMC_EXT_ITER
 
 struct CMC_DEF_ITER(SNAME) CMC_(PFX, _iter_start)(struct SNAME *target)
 {
@@ -302,14 +302,14 @@ size_t CMC_(PFX, _iter_index)(struct CMC_DEF_ITER(SNAME) * iter)
     return iter->index;
 }
 
-#endif /* CMC_EXT_QUEUE_ITER */
+#endif /* CMC_EXT_ITER */
 
 /**
  * STR
  *
  * Print helper functions.
  */
-#ifdef CMC_EXT_QUEUE_STR
+#ifdef CMC_EXT_STR
 
 bool CMC_(PFX, _to_string)(struct SNAME *_queue_, FILE *fptr)
 {
@@ -351,4 +351,4 @@ bool CMC_(PFX, _print)(struct SNAME *_queue_, FILE *fptr, const char *start, con
     return true;
 }
 
-#endif /* CMC_EXT_QUEUE_STR */
+#endif /* CMC_EXT_STR */

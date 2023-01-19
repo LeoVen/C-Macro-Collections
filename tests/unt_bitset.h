@@ -5,9 +5,6 @@
 
 #define PFX bs
 #define SNAME bitset
-#define CMC_EXT_BITSET_INIT
-#define CMC_EXT_BITSET_ITER
-#define CMC_EXT_BITSET_STR
 #include "cmc/bitset.h"
 
 struct cmc_alloc_node *bs_alloc_node =

@@ -44,7 +44,6 @@ Check out CHANGELOG
 #!! Patch ----------------------------------------------------------------------
 
 [ ] MultiSets replace existing value with the new added one
-[ ] Fix PUBLIC and PRIVATE incompatibility between CMC and EXT
 
 
 #!! Considerations -------------------------------------------------------------

@@ -1,6 +1,14 @@
 #include <inttypes.h>
 #include <stdio.h>
 
+#define CMC_EXT_FALLTHROUGH
+#define CMC_EXT_INIT
+#define CMC_EXT_ITER
+#define CMC_EXT_NODE
+#define CMC_EXT_SEQ
+#define CMC_EXT_SETF
+#define CMC_EXT_STR
+
 #include "unt_bitset.h"
 #include "unt_deque.h"
 #include "unt_hashbidimap.h"
@@ -10,15 +18,15 @@
 #include "unt_hashset.h"
 #include "unt_heap.h"
 #include "unt_intervalheap.h"
-// #include "unt_linkedlist.h"
+#include "unt_linkedlist.h"
 #include "unt_list.h"
 #include "unt_queue.h"
-// #include "unt_sortedlist.h"
+#include "unt_sortedlist.h"
 #include "unt_stack.h"
-// #include "unt_treemap.h"
-// #include "unt_treeset.h"
+#include "unt_treemap.h"
+#include "unt_treeset.h"
 
-// #include "unt_foreach.h"
+#include "unt_foreach.h"
 
 #include "cmc/utl/assert.h"
 #include "cmc/utl/timer.h"
@@ -70,22 +78,22 @@ int main(void)
     cmc_run(CMCHeapIter, units, tests);
     cmc_run(CMCIntervalHeap, units, tests);
     cmc_run(CMCIntervalHeapIter, units, tests);
-    // cmc_run(CMCLinkedList, units, tests);
-    // cmc_run(CMCLinkedListIter, units, tests);
+    cmc_run(CMCLinkedList, units, tests);
+    cmc_run(CMCLinkedListIter, units, tests);
     cmc_run(CMCList, units, tests);
     cmc_run(CMCListIter, units, tests);
     cmc_run(CMCQueue, units, tests);
     cmc_run(CMCQueueIter, units, tests);
-    // cmc_run(CMCSortedList, units, tests);
-    // cmc_run(CMCSortedListIter, units, tests);
+    cmc_run(CMCSortedList, units, tests);
+    cmc_run(CMCSortedListIter, units, tests);
     cmc_run(CMCStack, units, tests);
     cmc_run(CMCStackIter, units, tests);
-    // cmc_run(CMCTreeMap, units, tests);
-    // cmc_run(CMCTreeMapIter, units, tests);
-    // cmc_run(CMCTreeSet, units, tests);
-    // cmc_run(CMCTreeSetIter, units, tests);
+    cmc_run(CMCTreeMap, units, tests);
+    cmc_run(CMCTreeMapIter, units, tests);
+    cmc_run(CMCTreeSet, units, tests);
+    cmc_run(CMCTreeSetIter, units, tests);
 
-    // cmc_run(ForEach, units, tests);
+    cmc_run(ForEach, units, tests);
 
     cmc_timer_stop(timer);
 

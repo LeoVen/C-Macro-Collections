@@ -7,9 +7,6 @@
 #define K size_t
 #define PFX hmm
 #define SNAME hashmultimap
-#define CMC_EXT_HASHMULTIMAP_INIT
-#define CMC_EXT_HASHMULTIMAP_ITER
-#define CMC_EXT_HASHMULTIMAP_STR
 #include "cmc/hashmultimap.h"
 
 struct hashmultimap_fkey *hmm_fkey = &(struct hashmultimap_fkey){

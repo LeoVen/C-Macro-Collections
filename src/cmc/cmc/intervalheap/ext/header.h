@@ -28,16 +28,16 @@
  * The part 'INIT' gives a new way of initializing a collection. The collection
  * struct is not heap allocated, only its internal structure (nodes, buffers).
  */
-#ifdef CMC_EXT_INTERVALHEAP_INIT
+#ifdef CMC_EXT_INIT
 
-#endif /* CMC_EXT_INTERVALHEAP_INIT */
+#endif /* CMC_EXT_INIT */
 
 /**
  * ITER
  *
  * List bi-directional iterator.
  */
-#ifdef CMC_EXT_INTERVALHEAP_ITER
+#ifdef CMC_EXT_ITER
 
 /* IntervalHeap Iterator */
 struct CMC_DEF_ITER(SNAME)
@@ -73,16 +73,16 @@ bool CMC_(PFX, _iter_go_to)(struct CMC_DEF_ITER(SNAME) * iter, size_t index);
 V CMC_(PFX, _iter_value)(struct CMC_DEF_ITER(SNAME) * iter);
 size_t CMC_(PFX, _iter_index)(struct CMC_DEF_ITER(SNAME) * iter);
 
-#endif /* CMC_EXT_INTERVALHEAP_ITER */
+#endif /* CMC_EXT_ITER */
 
 /**
  * STR
  *
  * Print helper functions.
  */
-#ifdef CMC_EXT_INTERVALHEAP_STR
+#ifdef CMC_EXT_STR
 
 bool CMC_(PFX, _to_string)(struct SNAME *_heap_, FILE *fptr);
 bool CMC_(PFX, _print)(struct SNAME *_heap_, FILE *fptr, const char *start, const char *separator, const char *end);
 
-#endif /* CMC_EXT_INTERVALHEAP_STR */
+#endif /* CMC_EXT_STR */

@@ -7,9 +7,6 @@
 #define K size_t
 #define PFX hbm
 #define SNAME hashbidimap
-#define CMC_EXT_HASHBIDIMAP_INIT
-#define CMC_EXT_HASHBIDIMAP_ITER
-#define CMC_EXT_HASHBIDIMAP_STR
 #include "cmc/hashbidimap.h"
 
 struct hashbidimap_fkey *hbm_fkey = &(struct hashbidimap_fkey){

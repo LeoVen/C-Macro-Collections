@@ -28,16 +28,16 @@
  * The part 'INIT' gives a new way of initializing a collection. The collection
  * struct is not heap allocated, only its internal structure (nodes, buffers).
  */
-#ifdef CMC_EXT_HASHMULTIMAP_INIT
+#ifdef CMC_EXT_INIT
 
-#endif /* CMC_EXT_HASHMULTIMAP_INIT */
+#endif /* CMC_EXT_INIT */
 
 /**
  * ITER
  *
  * Hashmultimap bi-directional iterator.
  */
-#ifdef CMC_EXT_HASHMULTIMAP_ITER
+#ifdef CMC_EXT_ITER
 
 /* Iterator Initialization */
 struct CMC_DEF_ITER(SNAME) CMC_(PFX, _iter_start)(struct SNAME *target);
@@ -59,17 +59,17 @@ V CMC_(PFX, _iter_value)(struct CMC_DEF_ITER(SNAME) * iter);
 V *CMC_(PFX, _iter_rvalue)(struct CMC_DEF_ITER(SNAME) * iter);
 size_t CMC_(PFX, _iter_index)(struct CMC_DEF_ITER(SNAME) * iter);
 
-#endif /* CMC_EXT_HASHMULTIMAP_ITER */
+#endif /* CMC_EXT_ITER */
 
 /**
  * STR
  *
  * Print helper functions.
  */
-#ifdef CMC_EXT_HASHMULTIMAP_STR
+#ifdef CMC_EXT_STR
 
 bool CMC_(PFX, _to_string)(struct SNAME *_map_, FILE *fptr);
 bool CMC_(PFX, _print)(struct SNAME *_map_, FILE *fptr, const char *start, const char *separator, const char *end,
                        const char *key_val_sep);
 
-#endif /* CMC_EXT_HASHMULTIMAP_STR */
+#endif /* CMC_EXT_STR */

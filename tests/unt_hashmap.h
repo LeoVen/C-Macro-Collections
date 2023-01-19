@@ -7,9 +7,6 @@
 #define K size_t
 #define PFX hm
 #define SNAME hashmap
-#define CMC_EXT_HASHMAP_INIT
-#define CMC_EXT_HASHMAP_ITER
-#define CMC_EXT_HASHMAP_STR
 #include "cmc/hashmap.h"
 
 struct hashmap_fkey *hm_fkey = &(struct hashmap_fkey){

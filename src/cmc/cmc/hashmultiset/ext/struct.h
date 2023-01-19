@@ -27,7 +27,7 @@
  *
  * Hashmultiset bi-directional iterator.
  */
-#ifdef CMC_EXT_HASHMULTISET_ITER
+#ifdef CMC_EXT_ITER
 
 /* HashMultiSet Iterator */
 struct CMC_DEF_ITER(SNAME)
@@ -54,4 +54,4 @@ struct CMC_DEF_ITER(SNAME)
     bool end;
 };
 
-#endif /* CMC_EXT_HASHMULTISET_ITER */
+#endif /* CMC_EXT_ITER */

@@ -6,9 +6,6 @@
 #define V size_t
 #define PFX q
 #define SNAME queue
-#define CMC_EXT_QUEUE_INIT
-#define CMC_EXT_QUEUE_ITER
-#define CMC_EXT_QUEUE_STR
 #include "cmc/queue.h"
 
 struct queue_fval *q_fval = &(struct queue_fval){

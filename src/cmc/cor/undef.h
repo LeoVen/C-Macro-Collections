@@ -23,7 +23,7 @@
  */
 
 /**
- * prelude.h
+ * undef.h
  *
  * Creation Date: 12/01/2023
  *
@@ -36,60 +36,29 @@
  * Common undefs
  */
 
-#ifndef CMC_ARGS_FALLTHROUGH
-
-#undef V
-#undef K
+/* You never want these to fallthrough since they should be unique for each collection */
 #undef PFX
 #undef SNAME
+
+#ifndef CMC_ARGS_FALLTHROUGH
+
+#ifndef CMC_ARGS_KEY_FALLTHROUGH
+#undef K
+#endif
+
+#ifndef CMC_ARGS_VAL_FALLTHROUGH
+#undef V
+#endif
+
 #undef SIZE
 
-/* Deque */
-#undef CMC_EXT_DEQUE_INIT
-#undef CMC_EXT_DEQUE_ITER
-#undef CMC_EXT_DEQUE_STR
-
-/* Hashbidimap */
-#undef CMC_EXT_HASHBIDIMAP_INIT
-#undef CMC_EXT_HASHBIDIMAP_ITER
-#undef CMC_EXT_HASHBIDIMAP_STR
-
-/* Hashmap */
-#undef CMC_EXT_HASHMAP_INIT
-#undef CMC_EXT_HASHMAP_ITER
-#undef CMC_EXT_HASHMAP_STR
-
-/* Hashmultimap */
-#undef CMC_EXT_HASHMULTIMAP_INIT
-#undef CMC_EXT_HASHMULTIMAP_ITER
-#undef CMC_EXT_HASHMULTIMAP_STR
-
-/* Hashmultiset */
-#undef CMC_EXT_HASHMULTISET_INIT
-#undef CMC_EXT_HASHMULTISET_ITER
-#undef CMC_EXT_HASHMULTISET_SETF
-#undef CMC_EXT_HASHMULTISET_STR
-
-/* Hashset */
-#undef CMC_EXT_HASHMSET_INIT
-#undef CMC_EXT_HASHMSET_ITER
-#undef CMC_EXT_HASHMSET_SETF
-#undef CMC_EXT_HASHMSET_STR
-
-/* List */
-#undef CMC_EXT_LIST_INIT
-#undef CMC_EXT_LIST_ITER
-#undef CMC_EXT_LIST_SEQ
-#undef CMC_EXT_LIST_STR
-
-/* Queue */
-#undef CMC_EXT_QUEUE_INIT
-#undef CMC_EXT_QUEUE_ITER
-#undef CMC_EXT_QUEUE_STR
-
-/* Stack */
-#undef CMC_EXT_STACK_INIT
-#undef CMC_EXT_STACK_ITER
-#undef CMC_EXT_STACK_STR
+#ifndef CMC_EXT_FALLTHROUGH
+#undef CMC_EXT_INIT
+#undef CMC_EXT_ITER
+#undef CMC_EXT_NODE
+#undef CMC_EXT_SEQ
+#undef CMC_EXT_SETF
+#undef CMC_EXT_STR
+#endif
 
 #endif

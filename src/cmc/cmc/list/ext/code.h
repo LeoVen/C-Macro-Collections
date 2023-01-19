@@ -28,7 +28,7 @@
  * The part 'INIT' gives a new way of initializing a collection. The collection
  * struct is not heap allocated, only its internal structure (nodes, buffers).
  */
-#ifdef CMC_EXT_LIST_INIT
+#ifdef CMC_EXT_INIT
 
 struct SNAME CMC_(PFX, _init)(size_t capacity, struct CMC_DEF_FVAL(SNAME) * f_val)
 {
@@ -77,14 +77,14 @@ void CMC_(PFX, _release)(struct SNAME _list_)
     _list_.alloc->free(_list_.buffer);
 }
 
-#endif /* CMC_EXT_LIST_INIT */
+#endif /* CMC_EXT_INIT */
 
 /**
  * ITER
  *
  * List bi-directional iterator.
  */
-#ifdef CMC_EXT_LIST_ITER
+#ifdef CMC_EXT_ITER
 
 struct CMC_DEF_ITER(SNAME) CMC_(PFX, _iter_start)(struct SNAME *target)
 {
@@ -267,14 +267,14 @@ size_t CMC_(PFX, _iter_index)(struct CMC_DEF_ITER(SNAME) * iter)
     return iter->cursor;
 }
 
-#endif /* CMC_EXT_LIST_ITER */
+#endif /* CMC_EXT_ITER */
 
 /**
  * SEQ
  *
  * Push and pop sequence of items.
  */
-#ifdef CMC_EXT_LIST_SEQ
+#ifdef CMC_EXT_SEQ
 
 bool CMC_(PFX, _seq_push_front)(struct SNAME *_list_, V *values, size_t size)
 {
@@ -431,14 +431,14 @@ struct SNAME *CMC_(PFX, _seq_sublist)(struct SNAME *_list_, size_t from, size_t 
     return result;
 }
 
-#endif /* CMC_EXT_LIST_SEQ */
+#endif /* CMC_EXT_SEQ */
 
 /**
  * STR
  *
  * Print helper functions.
  */
-#ifdef CMC_EXT_LIST_STR
+#ifdef CMC_EXT_STR
 
 bool CMC_(PFX, _to_string)(struct SNAME *_list_, FILE *fptr)
 {
@@ -476,4 +476,4 @@ bool CMC_(PFX, _print)(struct SNAME *_list_, FILE *fptr, const char *start, cons
     return true;
 }
 
-#endif /* CMC_EXT_LIST_STR */
+#endif /* CMC_EXT_STR */

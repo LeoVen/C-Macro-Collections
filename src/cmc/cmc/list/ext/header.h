@@ -28,21 +28,21 @@
  * The part 'INIT' gives a new way of initializing a collection. The collection
  * struct is not heap allocated, only its internal structure (nodes, buffers).
  */
-#ifdef CMC_EXT_LIST_INIT
+#ifdef CMC_EXT_INIT
 
 struct SNAME CMC_(PFX, _init)(size_t capacity, struct CMC_DEF_FVAL(SNAME) * f_val);
 struct SNAME CMC_(PFX, _init_custom)(size_t capacity, struct CMC_DEF_FVAL(SNAME) * f_val,
                                      struct CMC_ALLOC_NODE_NAME *alloc, struct CMC_CALLBACKS_NAME *callbacks);
 void CMC_(PFX, _release)(struct SNAME _list_);
 
-#endif /* CMC_EXT_LIST_INIT */
+#endif /* CMC_EXT_INIT */
 
 /**
  * ITER
  *
  * List bi-directional iterator.
  */
-#ifdef CMC_EXT_LIST_ITER
+#ifdef CMC_EXT_ITER
 
 /* Iterator Initialization */
 struct CMC_DEF_ITER(SNAME) CMC_(PFX, _iter_start)(struct SNAME *target);
@@ -63,14 +63,14 @@ V CMC_(PFX, _iter_value)(struct CMC_DEF_ITER(SNAME) * iter);
 V *CMC_(PFX, _iter_rvalue)(struct CMC_DEF_ITER(SNAME) * iter);
 size_t CMC_(PFX, _iter_index)(struct CMC_DEF_ITER(SNAME) * iter);
 
-#endif /* CMC_EXT_LIST_ITER */
+#endif /* CMC_EXT_ITER */
 
 /**
  * SEQ
  *
  * Push and pop sequence of items.
  */
-#ifdef CMC_EXT_LIST_SEQ
+#ifdef CMC_EXT_SEQ
 
 /* List Sequence Input and Output */
 bool CMC_(PFX, _seq_push_front)(struct SNAME *_list_, V *values, size_t size);
@@ -79,18 +79,18 @@ bool CMC_(PFX, _seq_push_back)(struct SNAME *_list_, V *values, size_t size);
 bool CMC_(PFX, _seq_pop_at)(struct SNAME *_list_, size_t from, size_t to);
 struct SNAME *CMC_(PFX, _seq_sublist)(struct SNAME *_list_, size_t from, size_t to);
 
-#endif /* CMC_EXT_LIST_SEQ */
+#endif /* CMC_EXT_SEQ */
 
 /**
  * STR
  *
  * Print helper functions.
  */
-#ifdef CMC_EXT_LIST_STR
+#ifdef CMC_EXT_STR
 
 /* Debug prints the struct to fptr */
 bool CMC_(PFX, _to_string)(struct SNAME *_list_, FILE *fptr);
 /* Prints each item in the list as an array */
 bool CMC_(PFX, _print)(struct SNAME *_list_, FILE *fptr, const char *start, const char *separator, const char *end);
 
-#endif /* CMC_EXT_LIST_STR */
+#endif /* CMC_EXT_STR */

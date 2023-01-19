@@ -6,9 +6,6 @@
 #define V size_t
 #define PFX ih
 #define SNAME intervalheap
-#define CMC_EXT_INTERVALHEAP_INIT
-#define CMC_EXT_INTERVALHEAP_ITER
-#define CMC_EXT_INTERVALHEAP_STR
 #include "cmc/intervalheap.h"
 
 struct intervalheap_fval *ih_fval = &(struct intervalheap_fval){

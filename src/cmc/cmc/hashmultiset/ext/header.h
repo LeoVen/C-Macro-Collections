@@ -28,16 +28,16 @@
  * The part 'INIT' gives a new way of initializing a collection. The collection
  * struct is not heap allocated, only its internal structure (nodes, buffers).
  */
-#ifdef CMC_EXT_HASHMULTISET_INIT
+#ifdef CMC_EXT_INIT
 
-#endif /* CMC_EXT_HASHMULTISET_INIT */
+#endif /* CMC_EXT_INIT */
 
 /**
  * ITER
  *
  * List bi-directional iterator.
  */
-#ifdef CMC_EXT_HASHMULTISET_ITER
+#ifdef CMC_EXT_ITER
 
 /* Iterator Initialization */
 struct CMC_DEF_ITER(SNAME) CMC_(PFX, _iter_start)(struct SNAME *target);
@@ -58,14 +58,14 @@ V CMC_(PFX, _iter_value)(struct CMC_DEF_ITER(SNAME) * iter);
 size_t CMC_(PFX, _iter_multiplicity)(struct CMC_DEF_ITER(SNAME) * iter);
 size_t CMC_(PFX, _iter_index)(struct CMC_DEF_ITER(SNAME) * iter);
 
-#endif /* CMC_EXT_HASHMULTISET_ITER */
+#endif /* CMC_EXT_ITER */
 
 /**
  * SETF
  *
  * Set functions
  */
-#ifdef CMC_EXT_HASHMULTISET_SETF
+#ifdef CMC_EXT_SETF
 
 /* Set Operations */
 struct SNAME *CMC_(PFX, _union)(struct SNAME *_set1_, struct SNAME *_set2_);
@@ -79,17 +79,17 @@ bool CMC_(PFX, _is_proper_subset)(struct SNAME *_set1_, struct SNAME *_set2_);
 bool CMC_(PFX, _is_proper_superset)(struct SNAME *_set1_, struct SNAME *_set2_);
 bool CMC_(PFX, _is_disjointset)(struct SNAME *_set1_, struct SNAME *_set2_);
 
-#endif /* CMC_EXT_HASHMULTISET_SETF */
+#endif /* CMC_EXT_SETF */
 
 /**
  * STR
  *
  * Print helper functions.
  */
-#ifdef CMC_EXT_HASHMULTISET_STR
+#ifdef CMC_EXT_STR
 
 bool CMC_(PFX, _to_string)(struct SNAME *_set_, FILE *fptr);
 bool CMC_(PFX, _print)(struct SNAME *_set_, FILE *fptr, const char *start, const char *separator, const char *end,
                        const char *key_val_sep);
 
-#endif /* CMC_EXT_HASHMULTISET_STR */
+#endif /* CMC_EXT_STR */

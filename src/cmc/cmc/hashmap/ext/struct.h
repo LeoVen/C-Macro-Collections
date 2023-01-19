@@ -27,7 +27,7 @@
  *
  * Hashmap bi-directional iterator.
  */
-#ifdef CMC_EXT_HASHMAP_ITER
+#ifdef CMC_EXT_ITER
 
 /* HashMap Iterator */
 struct CMC_DEF_ITER(SNAME)
@@ -48,4 +48,4 @@ struct CMC_DEF_ITER(SNAME)
     bool end;
 };
 
-#endif /* CMC_EXT_HASHMAP_ITER */
+#endif /* CMC_EXT_ITER */
