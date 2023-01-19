@@ -288,3 +288,8 @@ You can use them as Stacks, Queues and Deques, but with modern memory hierarchy 
 ### You can't structurally modify a collection when iterating over it
 
 Modifying a collection will possibly invalidate all iterators currently initialized by it. Currently, the only collection that allows this is the LinkedList (using the node-based functions, not the iterator).
+
+## Special Macros
+
+* `CMC_NO_ALLOC` - disables `"cor/alloc.h"`
+* `CMC_NO_IMPORTS` - disables all imports from the standard library at `"cor/core.h"`

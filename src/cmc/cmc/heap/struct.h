@@ -22,44 +22,22 @@
  * SOFTWARE.
  */
 
-/**
- * alloc.h
- *
- * Creation Date: 24/05/2020
- *
- * Authors:
- * Leonardo Vencovsky (https://github.com/LeoVen)
- *
- */
-
-#ifndef CMC_COR_ALLOC_H
-#define CMC_COR_ALLOC_H
-
-#ifndef CMC_NO_ALLOC
-
-#ifdef CMC_CAMEL_CASE
-#define CMC_ALLOC_NODE_NAME CMCAllocNode
-#else
-#define CMC_ALLOC_NODE_NAME cmc_alloc_node
-#endif
-
-#include "core.h"
-
-/**
- * struct cmc_alloc_node
- *
- * Custom allocation node. Allows collections to use custom allocation
- * functions. The cmc_alloc_node_default is the default heap allocator provided
- * by the standard library.
- */
-static struct CMC_ALLOC_NODE_NAME
+struct SNAME
 {
-    void *(*malloc)(size_t);
-    void *(*calloc)(size_t, size_t);
-    void *(*realloc)(void *, size_t);
-    void (*free)(void *);
-} CMC_UNUSED cmc_alloc_node_default = { malloc, calloc, realloc, free };
-
-#endif /* CMC_NO_ALLOC */
-
-#endif /* CMC_COR_ALLOC_H */
+    /* Dynamic array of elements */
+    V *buffer;
+    /* Current array capacity */
+    size_t capacity;
+    /* Current amount of elements in the heap */
+    size_t count;
+    /* Heap order (MaxHeap or MinHeap) */
+    enum cmc_heap_order HO;
+    /* Flags indicating errors or success */
+    int flag;
+    /* Value function table */
+    struct CMC_DEF_FVAL(SNAME) * f_val;
+    /* Custom allocation functions */
+    struct CMC_ALLOC_NODE_NAME *alloc;
+    /* Custom callback functions */
+    CMC_CALLBACKS_DECL;
+};

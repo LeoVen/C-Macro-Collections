@@ -23,43 +23,58 @@
  */
 
 /**
- * alloc.h
+ * intervalheap.h
  *
- * Creation Date: 24/05/2020
+ * Creation Date: 06/07/2019
  *
  * Authors:
  * Leonardo Vencovsky (https://github.com/LeoVen)
  *
  */
 
-#ifndef CMC_COR_ALLOC_H
-#define CMC_COR_ALLOC_H
+/**
+ * Interval Heap
+ *
+ * An interval heap is a specialized heap with:
+ *
+ * - O(1) - Find Min
+ * - O(1) - Find Max
+ * - O(log n) - Insert
+ * - O(log n) - Remove Min
+ * - O(log n) - Remove Max
+ */
 
-#ifndef CMC_NO_ALLOC
-
-#ifdef CMC_CAMEL_CASE
-#define CMC_ALLOC_NODE_NAME CMCAllocNode
-#else
-#define CMC_ALLOC_NODE_NAME cmc_alloc_node
-#endif
-
-#include "core.h"
+#include "cor/core.h"
 
 /**
- * struct cmc_alloc_node
- *
- * Custom allocation node. Allows collections to use custom allocation
- * functions. The cmc_alloc_node_default is the default heap allocator provided
- * by the standard library.
+ * Used values
+ * V - intervalheap value data type
+ * SNAME - struct name and prefix of other related structs
+ * PFX - functions prefix
  */
-static struct CMC_ALLOC_NODE_NAME
-{
-    void *(*malloc)(size_t);
-    void *(*calloc)(size_t, size_t);
-    void *(*realloc)(void *, size_t);
-    void (*free)(void *);
-} CMC_UNUSED cmc_alloc_node_default = { malloc, calloc, realloc, free };
 
-#endif /* CMC_NO_ALLOC */
+/* Structs definition */
+#include "cmc/intervalheap/struct.h"
 
-#endif /* CMC_COR_ALLOC_H */
+/* Function declaration */
+#include "cmc/intervalheap/header.h"
+
+/* Function implementation */
+#include "cmc/intervalheap/code.h"
+
+/**
+ * Extensions
+ *
+ * INIT - Initializes the struct on the stack
+ * ITER - intervalheap iterator
+ * STR - Print helper functions
+ */
+#define CMC_EXT_HEAP_PARTS ITER, SETF, STR
+/**/
+#include "cmc/intervalheap/ext/struct.h"
+/**/
+#include "cmc/intervalheap/ext/header.h"
+/**/
+#include "cmc/intervalheap/ext/code.h"
+
+#include "cor/undef.h"

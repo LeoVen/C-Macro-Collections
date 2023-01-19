@@ -837,19 +837,4 @@ CMC_CREATE_UNIT(CMCStackIter, true, {
     });
 });
 
-#ifdef CMC_TEST_MAIN
-int main(void)
-{
-    int result = CMCStack() + CMCStackIter();
-
-    printf(" +---------------------------------------------------------------+");
-    printf("\n");
-    printf(" | CMCStack Suit : %-48s |\n", result == 0 ? "PASSED" : "FAILED");
-    printf(" +---------------------------------------------------------------+");
-    printf("\n\n\n");
-
-    return result;
-}
-#endif
-
 #endif /* CMC_TESTS_UNT_STACK_H */

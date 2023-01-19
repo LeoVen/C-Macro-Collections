@@ -39,7 +39,7 @@
 #ifndef CMC_COR_BITSET_H
 #define CMC_COR_BITSET_H
 
-#include <stdint.h>
+#include "core.h"
 
 /* Defines the underlaying data type for the bitset array */
 /* Possible values: uint64_t, uint32_t, uint16_t, uint8_t, size_t */

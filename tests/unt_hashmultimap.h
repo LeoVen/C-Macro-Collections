@@ -308,6 +308,7 @@ CMC_CREATE_UNIT(CMCHashMultiMap, true, {
         cmc_assert(hmm_equals(map, map2));
 
         hmm_free(map);
+        hmm_free(map2);
     });
 
     CMC_CREATE_TEST(PFX##_equals(), {
@@ -1012,20 +1013,5 @@ CMC_CREATE_UNIT(CMCHashMultiMapIter, true, {
         hmm_free(map);
     });
 });
-
-#ifdef CMC_TEST_MAIN
-int main(void)
-{
-    int result = CMCHashMultiMap() + CMCHashMultiMapIter();
-
-    printf(" +---------------------------------------------------------------+");
-    printf("\n");
-    printf(" | CMCHashMultiMap Suit : %-41s |\n", result == 0 ? "PASSED" : "FAILED");
-    printf(" +---------------------------------------------------------------+");
-    printf("\n\n\n");
-
-    return result;
-}
-#endif
 
 #endif /* CMC_TESTS_UNT_HASHMULTIMAP_H */

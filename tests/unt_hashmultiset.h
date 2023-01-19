@@ -853,19 +853,4 @@ CMC_CREATE_UNIT(CMCHashMultiSetIter, true, {
     });
 });
 
-#ifdef CMC_TEST_MAIN
-int main(void)
-{
-    int result = CMCHashMultiSet() + CMCHashMultiSetIter();
-
-    printf(" +---------------------------------------------------------------+");
-    printf("\n");
-    printf(" | CMCHashMultiSet Suit : %-41s |\n", result == 0 ? "PASSED" : "FAILED");
-    printf(" +---------------------------------------------------------------+");
-    printf("\n\n\n");
-
-    return result;
-}
-#endif
-
 #endif /* CMC_TESTS_UNT_HASHMULTISET_H */

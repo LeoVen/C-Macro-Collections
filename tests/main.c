@@ -1,18 +1,18 @@
 #include <inttypes.h>
 #include <stdio.h>
 
-// #include "unt_bitset.h"
+#include "unt_bitset.h"
 #include "unt_deque.h"
 #include "unt_hashbidimap.h"
 #include "unt_hashmap.h"
 #include "unt_hashmultimap.h"
 #include "unt_hashmultiset.h"
 #include "unt_hashset.h"
-// #include "unt_heap.h"
-// #include "unt_intervalheap.h"
+#include "unt_heap.h"
+#include "unt_intervalheap.h"
 // #include "unt_linkedlist.h"
 #include "unt_list.h"
-// #include "unt_queue.h"
+#include "unt_queue.h"
 // #include "unt_sortedlist.h"
 #include "unt_stack.h"
 // #include "unt_treemap.h"
@@ -52,8 +52,8 @@ int main(void)
     cmc_timer_start(timer);
     uintmax_t tests = 0, units = 0;
 
-    // cmc_run(CMCBitSet, units, tests);
-    // cmc_run(CMCBitSetIter, units, tests);
+    cmc_run(CMCBitSet, units, tests);
+    cmc_run(CMCBitSetIter, units, tests);
     cmc_run(CMCDeque, units, tests);
     cmc_run(CMCDequeIter, units, tests);
     cmc_run(CMCHashBidiMap, units, tests);
@@ -66,16 +66,16 @@ int main(void)
     cmc_run(CMCHashMultiSetIter, units, tests);
     cmc_run(CMCHashSet, units, tests);
     cmc_run(CMCHashSetIter, units, tests);
-    // cmc_run(CMCHeap, units, tests);
-    // cmc_run(CMCHeapIter, units, tests);
-    // cmc_run(CMCIntervalHeap, units, tests);
-    // cmc_run(CMCIntervalHeapIter, units, tests);
+    cmc_run(CMCHeap, units, tests);
+    cmc_run(CMCHeapIter, units, tests);
+    cmc_run(CMCIntervalHeap, units, tests);
+    cmc_run(CMCIntervalHeapIter, units, tests);
     // cmc_run(CMCLinkedList, units, tests);
     // cmc_run(CMCLinkedListIter, units, tests);
     cmc_run(CMCList, units, tests);
     cmc_run(CMCListIter, units, tests);
-    // cmc_run(CMCQueue, units, tests);
-    // cmc_run(CMCQueueIter, units, tests);
+    cmc_run(CMCQueue, units, tests);
+    cmc_run(CMCQueueIter, units, tests);
     // cmc_run(CMCSortedList, units, tests);
     // cmc_run(CMCSortedListIter, units, tests);
     cmc_run(CMCStack, units, tests);

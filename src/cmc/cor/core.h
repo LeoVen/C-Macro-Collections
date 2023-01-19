@@ -45,12 +45,17 @@
 #ifndef CMC_COR_CORE_H
 #define CMC_COR_CORE_H
 
+#ifndef CMC_NO_IMPORTS
+
 #include <inttypes.h>
 #include <limits.h>
 #include <stdbool.h>
+#include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+
+#endif /* CMC_NO_IMPORTS */
 
 #if defined(__GNUC__) || defined(__clang__)
 #define CMC_UNUSED __attribute__((__unused__))
