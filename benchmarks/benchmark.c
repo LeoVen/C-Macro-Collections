@@ -20,6 +20,8 @@
 
 #include "util/twister.c"
 
+#include "cmc/cor/hashtable.h"
+#include "cmc/cor/heap.h"
 #include "cmc/utl/foreach.h"
 #include "cmc/utl/futils.h"
 #include "cmc/utl/timer.h"
@@ -29,23 +31,6 @@
 
 // Percentage % macro
 #define PC(x) x * 100.0
-
-static int intcmp(int a, int b)
-{
-    return a - b;
-}
-
-static size_t inthash(int t)
-{
-    size_t a = t;
-    a += ~(a << 15);
-    a ^= (a >> 10);
-    a += (a << 3);
-    a ^= (a >> 6);
-    a += ~(a << 11);
-    a ^= (a >> 16);
-    return a;
-}
 
 size_t randsize(size_t min, size_t max, mt_state_ptr st)
 {
@@ -63,38 +48,82 @@ void shuffle(int *array, mt_state_ptr st)
     }
 }
 
-#define K int32_t
-#define V int32_t
-#define PFX d
+struct
+{
+    CMC_DEF_FTAB_CMP(size_t);
+    CMC_DEF_FTAB_CPY(size_t);
+    CMC_DEF_FTAB_STR(size_t);
+    CMC_DEF_FTAB_FREE(size_t);
+    CMC_DEF_FTAB_HASH(size_t);
+    CMC_DEF_FTAB_PRI(size_t);
+} int_ftab = { cmc_size_cmp, NULL, cmc_size_str, NULL, cmc_size_hash, cmc_size_cmp };
+
+#define CMC_ARGS_FALLTHROUGH
+#define V int
+#define K int
+#define CMC_EXT_ITER
+
+#define SNAME bitset
+#define PFX bs
+#include "cmc/bitset.h"
 #define SNAME deque
-#define CMC_EXT_DEQUE_ITER
+#define PFX d
 #include "cmc/deque.h"
+#define SNAME hashbidimap
+#define PFX hbm
+#include "cmc/hashbidimap.h"
+#define SNAME hashmap
+#define PFX hm
+#include "cmc/hashmap.h"
+#define SNAME hashmultimap
+#define PFX hmm
+#include "cmc/hashmultimap.h"
+#define SNAME hashmultiset
+#define PFX hms
+#include "cmc/hashmultiset.h"
+#define SNAME hashset
+#define PFX hs
+#include "cmc/hashset.h"
+#define SNAME heap
+#define PFX h
+#include "cmc/heap.h"
+#define SNAME intervalheap
+#define PFX ih
+#include "cmc/intervalheap.h"
+#define SNAME linkedlist
+#define PFX ll
+#include "cmc/linkedlist.h"
+#define SNAME list
+#define PFX l
+#include "cmc/list.h"
+#define SNAME queue
+#define PFX q
+#include "cmc/queue.h"
+#define SNAME sortedlist
+#define PFX sl
+#include "cmc/sortedlist.h"
+#define SNAME stack
+#define PFX s
+#include "cmc/stack.h"
+#define SNAME treemap
+#define PFX tm
+#include "cmc/treemap.h"
+#define SNAME treeset
+#define PFX ts
+#include "cmc/treeset.h"
 
-// CMC_COLLECTION_GENERATE(DEQUE, d, deque, /* K */, int)
-// CMC_COLLECTION_GENERATE(HASHMAP, hm, hmap, int, int)
-// CMC_COLLECTION_GENERATE(HASHSET, hs, hset, /* K */, int)
-// CMC_COLLECTION_GENERATE(HEAP, h, heap, /* K */, int)
-// CMC_COLLECTION_GENERATE(LINKEDLIST, ll, linked, /* K */, int)
-// CMC_COLLECTION_GENERATE(LIST, l, list, /* K */, int)
-// CMC_COLLECTION_GENERATE(QUEUE, q, queue, /* K */, int)
-// CMC_COLLECTION_GENERATE(STACK, s, stack, /* K */, int)
-// CMC_COLLECTION_GENERATE(TREEMAP, tm, tmap, int, int)
-// CMC_COLLECTION_GENERATE(TREESET, ts, tset, /* K */, int)
+#undef CMC_ARGS_FALLTHROUGH
+#include "cmc/cor/undef.h"
 
-// CMC_COLLECTION_GENERATE(INTERVALHEAP, ih, iheap, /* k */, int)
-// CMC_COLLECTION_GENERATE(MULTIMAP, mm, mmap, int, int)
-// CMC_COLLECTION_GENERATE(MULTISET, ms, mset, /* K */, int)
-
-#define BENCHMARK(NAME, PFX, sname, initfunc, insertbody, removebody, searchbody) \
+#define BENCHMARK(NAME, PFX, SNAME, initfunc, insertbody, removebody, searchbody) \
     void NAME##_io_benchmark(int *array, int *sarray, size_t s) \
     { \
         printf("+------------------------------------------------------------ %10s\n", #NAME); \
         printf("+------------------------------------------------------------ \n"); \
         struct cmc_timer timer, total; \
-        int r, k, v; \
-        size_t j; \
+        CMC_UNUSED int r; \
 \
-        struct sname *coll = initfunc; \
+        struct SNAME *coll = initfunc; \
 \
         cmc_timer_start(total); \
         cmc_timer_start(timer); \
@@ -127,7 +156,7 @@ void shuffle(int *array, mt_state_ptr st)
 \
         cmc_timer_start(timer); \
 \
-        CMC_FOREACH (PFX, sname, iter, coll) \
+        CMC_FOREACH (PFX, SNAME, iter, coll) \
         { \
         } \
 \
@@ -175,33 +204,34 @@ void shuffle(int *array, mt_state_ptr st)
         printf("+------------------------------------------------------------ %10s\n\n", #NAME); \
     }
 
-BENCHMARK(DEQUE, d, deque, d_new(NTOTAL, &(struct deque_fval){ .cmp = cmc_i32_cmp }), d_push_back(coll, array[i]),
-          d_pop_back(coll), d_contains(coll, sarray[i]))
-// BENCHMARK(HASHMAP, hm, hmap, hm_new(NTOTAL, 0.6, intcmp, inthash), hm_insert(coll, array[i], array[i]),
-//           hm_remove(coll, array[i], &r), hm_contains(coll, sarray[i]))
-// BENCHMARK(HASHSET, hs, hset, hs_new(NTOTAL, 0.6, intcmp, inthash), hs_insert(coll, array[i]), hs_remove(coll,
-// array[i]),
-//           hs_contains(coll, sarray[i]))
-// BENCHMARK(HEAP, h, heap, h_new(NTOTAL, cmc_min_heap, intcmp), h_insert(coll, array[i]), h_remove(coll, &r),
-//           h_contains(coll, sarray[i]))
-// BENCHMARK(LINKEDLIST, ll, linked, ll_new(), ll_push_back(coll, array[i]), ll_pop_back(coll),
-//           ll_contains(coll, sarray[i], intcmp))
-// BENCHMARK(LIST, l, list, l_new(NTOTAL), l_push_back(coll, array[i]), l_pop_back(coll),
-//           l_contains(coll, sarray[i], intcmp))
-// BENCHMARK(QUEUE, q, queue, q_new(NTOTAL), q_enqueue(coll, array[i]), q_dequeue(coll),
-//           q_contains(coll, sarray[i], intcmp))
-// BENCHMARK(STACK, s, stack, s_new(NTOTAL), s_push(coll, array[i]), s_pop(coll), s_contains(coll, sarray[i], intcmp))
-// BENCHMARK(TREEMAP, tm, tmap, tm_new(intcmp), tm_insert(coll, array[i], array[i]), tm_remove(coll, array[i], &r),
-//           tm_contains(coll, sarray[i]))
-// BENCHMARK(TREESET, ts, tset, ts_new(intcmp), ts_insert(coll, array[i]), ts_remove(coll, array[i]),
-//           ts_contains(coll, sarray[i]))
+BENCHMARK(DEQUE, d, deque, d_new(NTOTAL, (struct deque_fval *)&int_ftab), d_push_back(coll, array[i]), d_pop_back(coll),
+          d_contains(coll, sarray[i]))
+BENCHMARK(HASHMAP, hm, hashmap, hm_new(NTOTAL, 0.6, (struct hashmap_fkey *)&int_ftab, (struct hashmap_fval *)&int_ftab),
+          hm_insert(coll, array[i], array[i]), hm_remove(coll, array[i], &r), hm_contains(coll, sarray[i]))
+BENCHMARK(HASHSET, hs, hashset, hs_new(NTOTAL, 0.6, (struct hashset_fval *)&int_ftab), hs_insert(coll, array[i]),
+          hs_remove(coll, array[i]), hs_contains(coll, sarray[i]))
+BENCHMARK(HEAP, h, heap, h_new(NTOTAL, CMC_MIN_HEAP, (struct heap_fval *)&int_ftab), h_insert(coll, array[i]),
+          h_remove(coll), h_contains(coll, sarray[i]))
+BENCHMARK(LINKEDLIST, ll, linkedlist, ll_new((struct linkedlist_fval *)&int_ftab), ll_push_back(coll, array[i]),
+          ll_pop_back(coll), ll_contains(coll, sarray[i]))
+BENCHMARK(LIST, l, list, l_new(NTOTAL, (struct list_fval *)&int_ftab), l_push_back(coll, array[i]), l_pop_back(coll),
+          l_contains(coll, sarray[i]))
+BENCHMARK(QUEUE, q, queue, q_new(NTOTAL, (struct queue_fval *)&int_ftab), q_enqueue(coll, array[i]), q_dequeue(coll),
+          q_contains(coll, sarray[i]))
+BENCHMARK(STACK, s, stack, s_new(NTOTAL, (struct stack_fval *)&int_ftab), s_push(coll, array[i]), s_pop(coll),
+          s_contains(coll, sarray[i]))
+BENCHMARK(TREEMAP, tm, treemap, tm_new((struct treemap_fkey *)&int_ftab, (struct treemap_fval *)&int_ftab),
+          tm_insert(coll, array[i], array[i]), tm_remove(coll, array[i], &r), tm_contains(coll, sarray[i]))
+BENCHMARK(TREESET, ts, treeset, ts_new((struct treeset_fval *)&int_ftab), ts_insert(coll, array[i]),
+          ts_remove(coll, array[i]), ts_contains(coll, sarray[i]))
 
-// BENCHMARK(INTERVALHEAP, ih, iheap, ih_new(NTOTAL, intcmp), ih_insert(coll, array[i]), ih_remove_max(coll, &r),
-//           ih_contains(coll, sarray[i]))
-// BENCHMARK(MULTIMAP, mm, mmap, mm_new(NTOTAL, 0.8, intcmp, inthash), mm_insert(coll, array[i], array[i]),
-//           mm_remove(coll, array[i], &r), mm_contains(coll, sarray[i]))
-// BENCHMARK(MULTISET, ms, mset, ms_new(NTOTAL, 0.6, intcmp, inthash), ms_insert(coll, array[i]),
-//           ms_remove(coll, array[i]), ms_contains(coll, sarray[i]))
+BENCHMARK(INTERVALHEAP, ih, intervalheap, ih_new(NTOTAL, (struct intervalheap_fval *)&int_ftab),
+          ih_insert(coll, array[i]), ih_remove_max(coll), ih_contains(coll, sarray[i]))
+BENCHMARK(MULTIMAP, hmm, hashmultimap,
+          hmm_new(NTOTAL, 0.8, (struct hashmultimap_fkey *)&int_ftab, (struct hashmultimap_fval *)&int_ftab),
+          hmm_insert(coll, array[i], array[i]), hmm_remove(coll, array[i], &r), hmm_contains(coll, sarray[i]))
+BENCHMARK(MULTISET, hms, hashmultiset, hms_new(NTOTAL, 0.6, (struct hashmultiset_fval *)&int_ftab),
+          hms_insert(coll, array[i]), hms_remove(coll, array[i]), hms_contains(coll, sarray[i]))
 
 int main(void)
 {
@@ -239,19 +269,19 @@ int main(void)
     cmc_timer_start(timer);
 
     DEQUE_io_benchmark(array, sarray, NMIN);
-    // HASHMAP_io_benchmark(array, sarray, NTOTAL);
-    // HASHSET_io_benchmark(array, sarray, NTOTAL);
-    // HEAP_io_benchmark(array, sarray, NMIN);
-    // LINKEDLIST_io_benchmark(array, sarray, NMIN);
-    // LIST_io_benchmark(array, sarray, NMIN);
-    // QUEUE_io_benchmark(array, sarray, NMIN);
-    // STACK_io_benchmark(array, sarray, NMIN);
-    // TREEMAP_io_benchmark(array, sarray, NTOTAL);
-    // TREESET_io_benchmark(array, sarray, NTOTAL);
+    HASHMAP_io_benchmark(array, sarray, NTOTAL);
+    HASHSET_io_benchmark(array, sarray, NTOTAL);
+    HEAP_io_benchmark(array, sarray, NMIN);
+    LINKEDLIST_io_benchmark(array, sarray, NMIN);
+    LIST_io_benchmark(array, sarray, NMIN);
+    QUEUE_io_benchmark(array, sarray, NMIN);
+    STACK_io_benchmark(array, sarray, NMIN);
+    TREEMAP_io_benchmark(array, sarray, NTOTAL);
+    TREESET_io_benchmark(array, sarray, NTOTAL);
 
-    // INTERVALHEAP_io_benchmark(array, array, NMIN);
-    // MULTIMAP_io_benchmark(array, array, NTOTAL);
-    // MULTISET_io_benchmark(array, array, NTOTAL);
+    //     INTERVALHEAP_io_benchmark(array, array, NMIN);
+    //     MULTIMAP_io_benchmark(array, array, NTOTAL);
+    //     MULTISET_io_benchmark(array, array, NTOTAL);
 
     cmc_timer_stop(timer);
 

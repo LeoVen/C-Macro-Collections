@@ -23,7 +23,6 @@
  */
 
 /* Implementation Detail Functions */
-static size_t CMC_(PFX, _impl_multiplicity_of)(struct SNAME *_set_, V value);
 static struct CMC_DEF_ENTRY(SNAME) * CMC_(PFX, _impl_insert_and_return)(struct SNAME *_set_, V value, bool *new_node);
 static struct CMC_DEF_ENTRY(SNAME) * CMC_(PFX, _impl_get_entry)(struct SNAME *_set_, V value);
 static size_t CMC_(PFX, _impl_calculate_size)(size_t required);
@@ -596,16 +595,6 @@ bool CMC_(PFX, _equals)(struct SNAME *_set1_, struct SNAME *_set2_)
     }
 
     return true;
-}
-
-static size_t CMC_(PFX, _impl_multiplicity_of)(struct SNAME *_set_, V value)
-{
-    struct CMC_DEF_ENTRY(SNAME) *entry = CMC_(PFX, _impl_get_entry)(_set_, value);
-
-    if (!entry)
-        return 0;
-
-    return entry->multiplicity;
 }
 
 static struct CMC_DEF_ENTRY(SNAME) * CMC_(PFX, _impl_insert_and_return)(struct SNAME *_set_, V value, bool *new_node)

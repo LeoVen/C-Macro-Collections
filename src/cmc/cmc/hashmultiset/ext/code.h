@@ -301,6 +301,9 @@ size_t CMC_(PFX, _iter_index)(struct CMC_DEF_ITER(SNAME) * iter)
  */
 #ifdef CMC_EXT_SETF
 
+/* Implementation detail function */
+static size_t CMC_(PFX, _impl_multiplicity_of)(struct SNAME *_set_, V value);
+
 struct SNAME *CMC_(PFX, _union)(struct SNAME *_set1_, struct SNAME *_set2_)
 {
     /* Callbacks are added later */
@@ -548,6 +551,16 @@ bool CMC_(PFX, _is_disjointset)(struct SNAME *_set1_, struct SNAME *_set2_)
     }
 
     return true;
+}
+
+static size_t CMC_(PFX, _impl_multiplicity_of)(struct SNAME *_set_, V value)
+{
+    struct CMC_DEF_ENTRY(SNAME) *entry = CMC_(PFX, _impl_get_entry)(_set_, value);
+
+    if (!entry)
+        return 0;
+
+    return entry->multiplicity;
 }
 
 #endif /* CMC_EXT_SETF */

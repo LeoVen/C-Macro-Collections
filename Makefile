@@ -15,5 +15,4 @@ format:
 	- find ./ -name *.h -type f | xargs clang-format --style=file --verbose -i
 
 bench:
-	gcc ./benchmarks/benchmark.c -o ./benchmarks/benchmark.exe -I ./src -O3
-	./benchmarks/benchmark.exe
+	make -C ./benchmarks benchmark
