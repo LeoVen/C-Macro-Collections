@@ -22,7 +22,7 @@ lcov: dev
 	genhtml ./$(OUTDIR)/coverage.info --output-directory out
 
 types:
-	$(CC) ./types.c $(INCLUDE) -Wall -Wextra -O3 -o ./$(OUTDIR)/$@.exe
+	$(CC) ./types.c $(INCLUDE) -Wall -Wextra -O3 -ftime-report -o ./$(OUTDIR)/$@.exe
 	./$(OUTDIR)/$@.exe
 
 .PHONY: main dev clean lcov types
