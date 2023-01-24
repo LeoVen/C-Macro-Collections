@@ -20,3 +20,9 @@ clean:
 lcov: dev
 	lcov --capture --directory ./$(OUTDIR) --output-file ./$(OUTDIR)/coverage.info
 	genhtml ./$(OUTDIR)/coverage.info --output-directory out
+
+types:
+	$(CC) ./types.c $(INCLUDE) -Wall -Wextra -O3 -o ./$(OUTDIR)/$@.exe
+	./$(OUTDIR)/$@.exe
+
+.PHONY: main dev clean lcov types
