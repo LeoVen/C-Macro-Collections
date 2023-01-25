@@ -42,7 +42,7 @@ struct SNAME *CMC_(PFX, _new_custom)(size_t capacity, double load, struct CMC_DE
         return NULL;
 
     /* Prevent integer overflow */
-    if (capacity >= UINTMAX_MAX * load)
+    if (capacity >= (double)UINTMAX_MAX * load)
         return NULL;
 
     if (!f_key || !f_val)
@@ -448,7 +448,7 @@ bool CMC_(PFX, _resize)(struct SNAME *_map_, size_t capacity)
         goto success;
 
     /* Prevent integer overflow */
-    if (capacity >= UINTMAX_MAX * _map_->load)
+    if (capacity >= (double)UINTMAX_MAX * _map_->load)
     {
         _map_->flag = CMC_FLAG_ERROR;
         return false;
@@ -504,8 +504,8 @@ bool CMC_(PFX, _resize)(struct SNAME *_map_, size_t capacity)
     _new_map_->capacity = tmp_c;
 
     /* Prevent the map from freeing the data */
-    _new_map_->f_key = &(struct CMC_DEF_FKEY(SNAME)){ NULL };
-    _new_map_->f_val = &(struct CMC_DEF_FVAL(SNAME)){ NULL };
+    _new_map_->f_key = &(struct CMC_DEF_FKEY(SNAME)){ 0 };
+    _new_map_->f_val = &(struct CMC_DEF_FVAL(SNAME)){ 0 };
 
     CMC_(PFX, _free)(_new_map_);
 

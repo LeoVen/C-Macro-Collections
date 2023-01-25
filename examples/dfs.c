@@ -61,7 +61,7 @@ int main(void)
 
     printf("Stack:\n");
     fprintf(stdout, "[ ");
-    struct Stack *stack = stk_new(100, &(struct StackFVal){ NULL });
+    struct Stack *stack = stk_new(100, &(struct StackFVal){ 0 });
 
     struct BinaryTreeNode *node = tree->root;
 

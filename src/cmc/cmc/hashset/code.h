@@ -40,7 +40,7 @@ struct SNAME *CMC_(PFX, _new_custom)(size_t capacity, double load, struct CMC_DE
         return NULL;
 
     /* Prevent integer overflow */
-    if (capacity >= UINTMAX_MAX * load)
+    if (capacity >= (double)UINTMAX_MAX * load)
         return NULL;
 
     if (!f_val)
@@ -346,7 +346,7 @@ bool CMC_(PFX, _resize)(struct SNAME *_set_, size_t capacity)
         goto success;
 
     /* Prevent integer overflow */
-    if (capacity >= UINTMAX_MAX * _set_->load)
+    if (capacity >= (double)UINTMAX_MAX * _set_->load)
     {
         _set_->flag = CMC_FLAG_ERROR;
         return false;
@@ -400,7 +400,7 @@ bool CMC_(PFX, _resize)(struct SNAME *_set_, size_t capacity)
     _new_set_->capacity = tmp_c;
 
     /* Prevent the set from freeing the data */
-    _new_set_->f_val = &(struct CMC_DEF_FVAL(SNAME)){ NULL };
+    _new_set_->f_val = &(struct CMC_DEF_FVAL(SNAME)){ 0 };
 
     CMC_(PFX, _free)(_new_set_);
 

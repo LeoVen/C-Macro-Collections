@@ -11,7 +11,7 @@ struct
     struct stack *from;
     struct stack *aux;
     struct stack *to;
-} print_aux = { NULL };
+} print_aux = { 0 };
 
 void print_stacks()
 {
@@ -50,9 +50,9 @@ void hanoi(int n, struct stack *from, struct stack *aux, struct stack *to)
 
 int main()
 {
-    struct stack from = stk_init(10, &(struct stack_fval){ NULL });
-    struct stack to = stk_init(10, &(struct stack_fval){ NULL });
-    struct stack aux = stk_init(10, &(struct stack_fval){ NULL });
+    struct stack from = stk_init(10, &(struct stack_fval){ 0 });
+    struct stack to = stk_init(10, &(struct stack_fval){ 0 });
+    struct stack aux = stk_init(10, &(struct stack_fval){ 0 });
 
     for (int i = disks; i >= 1; i--)
         stk_push(&from, i);

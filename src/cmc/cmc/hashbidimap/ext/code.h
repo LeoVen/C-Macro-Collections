@@ -48,7 +48,7 @@ struct SNAME CMC_(PFX, _init_custom)(size_t capacity, double load, struct CMC_DE
         return _map_;
 
     /* Prevent integer overflow */
-    if (capacity >= UINTMAX_MAX * load)
+    if (capacity >= (double)UINTMAX_MAX * load)
         return _map_;
 
     if (!f_key || !f_val)
