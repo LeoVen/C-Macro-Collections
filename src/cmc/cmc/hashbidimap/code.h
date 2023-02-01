@@ -35,6 +35,10 @@ static size_t CMC_(PFX, _impl_calculate_size)(size_t required);
 struct SNAME *CMC_(PFX, _new)(size_t capacity, double load, struct CMC_DEF_FKEY(SNAME) * f_key,
                               struct CMC_DEF_FVAL(SNAME) * f_val)
 {
+#ifdef CMC_DEV
+    CMC_DEV_FCALL;
+#endif
+
     return CMC_(PFX, _new_custom)(capacity, load, f_key, f_val, NULL, NULL);
 }
 
@@ -42,6 +46,10 @@ struct SNAME *CMC_(PFX, _new_custom)(size_t capacity, double load, struct CMC_DE
                                      struct CMC_DEF_FVAL(SNAME) * f_val, struct CMC_ALLOC_NODE_NAME *alloc,
                                      struct CMC_CALLBACKS_NAME *callbacks)
 {
+#ifdef CMC_DEV
+    CMC_DEV_FCALL;
+#endif
+
     CMC_CALLBACKS_MAYBE_UNUSED(callbacks);
 
     if (capacity == 0 || load <= 0 || load >= 1)
@@ -88,6 +96,10 @@ struct SNAME *CMC_(PFX, _new_custom)(size_t capacity, double load, struct CMC_DE
 
 void CMC_(PFX, _clear)(struct SNAME *_map_)
 {
+#ifdef CMC_DEV
+    CMC_DEV_FCALL;
+#endif
+
     for (size_t i = 0; i < _map_->capacity; i++)
     {
         struct CMC_DEF_ENTRY(SNAME) *entry = _map_->buffer[i][0];
@@ -112,6 +124,10 @@ void CMC_(PFX, _clear)(struct SNAME *_map_)
 
 void CMC_(PFX, _free)(struct SNAME *_map_)
 {
+#ifdef CMC_DEV
+    CMC_DEV_FCALL;
+#endif
+
     CMC_(PFX, _clear)(_map_);
 
     _map_->alloc->free(_map_->buffer);
@@ -120,6 +136,10 @@ void CMC_(PFX, _free)(struct SNAME *_map_)
 
 void CMC_(PFX, _customize)(struct SNAME *_map_, struct CMC_ALLOC_NODE_NAME *alloc, struct CMC_CALLBACKS_NAME *callbacks)
 {
+#ifdef CMC_DEV
+    CMC_DEV_FCALL;
+#endif
+
     CMC_CALLBACKS_MAYBE_UNUSED(callbacks);
 
     if (!alloc)
@@ -134,6 +154,10 @@ void CMC_(PFX, _customize)(struct SNAME *_map_, struct CMC_ALLOC_NODE_NAME *allo
 
 bool CMC_(PFX, _insert)(struct SNAME *_map_, K key, V value)
 {
+#ifdef CMC_DEV
+    CMC_DEV_FCALL;
+#endif
+
     if (CMC_(PFX, _full)(_map_))
     {
         if (!CMC_(PFX, _resize)(_map_, _map_->capacity + 1))
@@ -176,6 +200,10 @@ bool CMC_(PFX, _insert)(struct SNAME *_map_, K key, V value)
 
 bool CMC_(PFX, _update_key)(struct SNAME *_map_, V val, K new_key)
 {
+#ifdef CMC_DEV
+    CMC_DEV_FCALL;
+#endif
+
     if (CMC_(PFX, _empty)(_map_))
     {
         _map_->flag = CMC_FLAG_EMPTY;
@@ -239,6 +267,10 @@ success:
 
 bool CMC_(PFX, _update_val)(struct SNAME *_map_, K key, V new_val)
 {
+#ifdef CMC_DEV
+    CMC_DEV_FCALL;
+#endif
+
     if (CMC_(PFX, _empty)(_map_))
     {
         _map_->flag = CMC_FLAG_EMPTY;
@@ -303,6 +335,10 @@ success:
 
 bool CMC_(PFX, _remove_by_key)(struct SNAME *_map_, K key, K *out_key, V *out_val)
 {
+#ifdef CMC_DEV
+    CMC_DEV_FCALL;
+#endif
+
     if (CMC_(PFX, _empty)(_map_))
     {
         _map_->flag = CMC_FLAG_EMPTY;
@@ -348,6 +384,10 @@ bool CMC_(PFX, _remove_by_key)(struct SNAME *_map_, K key, K *out_key, V *out_va
 
 bool CMC_(PFX, _remove_by_val)(struct SNAME *_map_, V val, K *out_key, V *out_val)
 {
+#ifdef CMC_DEV
+    CMC_DEV_FCALL;
+#endif
+
     if (CMC_(PFX, _empty)(_map_))
     {
         _map_->flag = CMC_FLAG_EMPTY;
@@ -393,6 +433,10 @@ bool CMC_(PFX, _remove_by_val)(struct SNAME *_map_, V val, K *out_key, V *out_va
 
 K CMC_(PFX, _get_key)(struct SNAME *_map_, V val)
 {
+#ifdef CMC_DEV
+    CMC_DEV_FCALL;
+#endif
+
     struct CMC_DEF_ENTRY(SNAME) **entry = CMC_(PFX, _impl_get_entry_by_val)(_map_, val);
 
     if (!entry)
@@ -410,6 +454,10 @@ K CMC_(PFX, _get_key)(struct SNAME *_map_, V val)
 
 V CMC_(PFX, _get_val)(struct SNAME *_map_, K key)
 {
+#ifdef CMC_DEV
+    CMC_DEV_FCALL;
+#endif
+
     struct CMC_DEF_ENTRY(SNAME) **entry = CMC_(PFX, _impl_get_entry_by_key)(_map_, key);
 
     if (!entry)
@@ -427,6 +475,10 @@ V CMC_(PFX, _get_val)(struct SNAME *_map_, K key)
 
 bool CMC_(PFX, _contains_key)(struct SNAME *_map_, K key)
 {
+#ifdef CMC_DEV
+    CMC_DEV_FCALL;
+#endif
+
     _map_->flag = CMC_FLAG_OK;
 
     bool result = CMC_(PFX, _impl_get_entry_by_key)(_map_, key) != NULL;
@@ -438,6 +490,10 @@ bool CMC_(PFX, _contains_key)(struct SNAME *_map_, K key)
 
 bool CMC_(PFX, _contains_val)(struct SNAME *_map_, V val)
 {
+#ifdef CMC_DEV
+    CMC_DEV_FCALL;
+#endif
+
     _map_->flag = CMC_FLAG_OK;
 
     bool result = CMC_(PFX, _impl_get_entry_by_val)(_map_, val) != NULL;
@@ -449,36 +505,64 @@ bool CMC_(PFX, _contains_val)(struct SNAME *_map_, V val)
 
 bool CMC_(PFX, _empty)(struct SNAME *_map_)
 {
+#ifdef CMC_DEV
+    CMC_DEV_FCALL;
+#endif
+
     return _map_->count == 0;
 }
 
 bool CMC_(PFX, _full)(struct SNAME *_map_)
 {
+#ifdef CMC_DEV
+    CMC_DEV_FCALL;
+#endif
+
     return (double)_map_->capacity * _map_->load <= (double)_map_->count;
 }
 
 size_t CMC_(PFX, _count)(struct SNAME *_map_)
 {
+#ifdef CMC_DEV
+    CMC_DEV_FCALL;
+#endif
+
     return _map_->count;
 }
 
 size_t CMC_(PFX, _capacity)(struct SNAME *_map_)
 {
+#ifdef CMC_DEV
+    CMC_DEV_FCALL;
+#endif
+
     return _map_->capacity;
 }
 
 double CMC_(PFX, _load)(struct SNAME *_map_)
 {
+#ifdef CMC_DEV
+    CMC_DEV_FCALL;
+#endif
+
     return _map_->load;
 }
 
 int CMC_(PFX, _flag)(struct SNAME *_map_)
 {
+#ifdef CMC_DEV
+    CMC_DEV_FCALL;
+#endif
+
     return _map_->flag;
 }
 
 bool CMC_(PFX, _resize)(struct SNAME *_map_, size_t capacity)
 {
+#ifdef CMC_DEV
+    CMC_DEV_FCALL;
+#endif
+
     _map_->flag = CMC_FLAG_OK;
 
     if (_map_->capacity == capacity)
@@ -572,6 +656,10 @@ success:
 
 struct SNAME *CMC_(PFX, _copy_of)(struct SNAME *_map_)
 {
+#ifdef CMC_DEV
+    CMC_DEV_FCALL;
+#endif
+
     /* TODO this function can be optimized */
     struct SNAME *result = CMC_(PFX, _new_custom)(_map_->capacity * _map_->load, _map_->load, _map_->f_key,
                                                   _map_->f_val, _map_->alloc, NULL);
@@ -620,6 +708,10 @@ struct SNAME *CMC_(PFX, _copy_of)(struct SNAME *_map_)
 
 bool CMC_(PFX, _equals)(struct SNAME *_map1_, struct SNAME *_map2_)
 {
+#ifdef CMC_DEV
+    CMC_DEV_FCALL;
+#endif
+
     _map1_->flag = CMC_FLAG_OK;
     _map2_->flag = CMC_FLAG_OK;
 
@@ -661,6 +753,10 @@ bool CMC_(PFX, _equals)(struct SNAME *_map1_, struct SNAME *_map2_)
 
 static struct CMC_DEF_ENTRY(SNAME) * CMC_(PFX, _impl_new_entry)(struct SNAME *_map_, K key, V value)
 {
+#ifdef CMC_DEV
+    CMC_DEV_FCALL;
+#endif
+
     struct CMC_DEF_ENTRY(SNAME) *entry = _map_->alloc->malloc(sizeof(struct CMC_DEF_ENTRY(SNAME)));
 
     if (!entry)
@@ -678,6 +774,10 @@ static struct CMC_DEF_ENTRY(SNAME) * CMC_(PFX, _impl_new_entry)(struct SNAME *_m
 
 static struct CMC_DEF_ENTRY(SNAME) * *CMC_(PFX, _impl_get_entry_by_key)(struct SNAME *_map_, K key)
 {
+#ifdef CMC_DEV
+    CMC_DEV_FCALL;
+#endif
+
     size_t hash = _map_->f_key->hash(key);
     size_t pos = hash % _map_->capacity;
 
@@ -697,6 +797,10 @@ static struct CMC_DEF_ENTRY(SNAME) * *CMC_(PFX, _impl_get_entry_by_key)(struct S
 
 static struct CMC_DEF_ENTRY(SNAME) * *CMC_(PFX, _impl_get_entry_by_val)(struct SNAME *_map_, V val)
 {
+#ifdef CMC_DEV
+    CMC_DEV_FCALL;
+#endif
+
     size_t hash = _map_->f_val->hash(val);
     size_t pos = hash % _map_->capacity;
 
@@ -717,6 +821,10 @@ static struct CMC_DEF_ENTRY(SNAME) * *CMC_(PFX, _impl_get_entry_by_val)(struct S
 static struct CMC_DEF_ENTRY(SNAME) *
     *CMC_(PFX, _impl_add_entry_to_key)(struct SNAME *_map_, struct CMC_DEF_ENTRY(SNAME) * entry)
 {
+#ifdef CMC_DEV
+    CMC_DEV_FCALL;
+#endif
+
     struct CMC_DEF_ENTRY(SNAME) **to_return = NULL;
 
     size_t hash = _map_->f_key->hash(entry->key);
@@ -775,6 +883,10 @@ static struct CMC_DEF_ENTRY(SNAME) *
 static struct CMC_DEF_ENTRY(SNAME) *
     *CMC_(PFX, _impl_add_entry_to_val)(struct SNAME *_map_, struct CMC_DEF_ENTRY(SNAME) * entry)
 {
+#ifdef CMC_DEV
+    CMC_DEV_FCALL;
+#endif
+
     struct CMC_DEF_ENTRY(SNAME) **to_return = NULL;
 
     size_t hash = _map_->f_val->hash(entry->value);
@@ -832,6 +944,10 @@ static struct CMC_DEF_ENTRY(SNAME) *
 
 static size_t CMC_(PFX, _impl_calculate_size)(size_t required)
 {
+#ifdef CMC_DEV
+    CMC_DEV_FCALL;
+#endif
+
     const size_t count = sizeof(cmc_hashtable_primes) / sizeof(cmc_hashtable_primes[0]);
 
     if (cmc_hashtable_primes[count - 1] < required)

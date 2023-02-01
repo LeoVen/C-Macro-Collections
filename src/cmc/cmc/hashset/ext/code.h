@@ -41,6 +41,10 @@
 
 struct CMC_DEF_ITER(SNAME) CMC_(PFX, _iter_start)(struct SNAME *target)
 {
+#ifdef CMC_DEV
+    CMC_DEV_FCALL;
+#endif
+
     struct CMC_DEF_ITER(SNAME) iter;
 
     iter.target = target;
@@ -79,6 +83,10 @@ struct CMC_DEF_ITER(SNAME) CMC_(PFX, _iter_start)(struct SNAME *target)
 
 struct CMC_DEF_ITER(SNAME) CMC_(PFX, _iter_end)(struct SNAME *target)
 {
+#ifdef CMC_DEV
+    CMC_DEV_FCALL;
+#endif
+
     struct CMC_DEF_ITER(SNAME) iter;
 
     iter.target = target;
@@ -118,16 +126,28 @@ struct CMC_DEF_ITER(SNAME) CMC_(PFX, _iter_end)(struct SNAME *target)
 
 bool CMC_(PFX, _iter_at_start)(struct CMC_DEF_ITER(SNAME) * iter)
 {
+#ifdef CMC_DEV
+    CMC_DEV_FCALL;
+#endif
+
     return CMC_(PFX, _empty)(iter->target) || iter->start;
 }
 
 bool CMC_(PFX, _iter_at_end)(struct CMC_DEF_ITER(SNAME) * iter)
 {
+#ifdef CMC_DEV
+    CMC_DEV_FCALL;
+#endif
+
     return CMC_(PFX, _empty)(iter->target) || iter->end;
 }
 
 bool CMC_(PFX, _iter_to_start)(struct CMC_DEF_ITER(SNAME) * iter)
 {
+#ifdef CMC_DEV
+    CMC_DEV_FCALL;
+#endif
+
     if (!CMC_(PFX, _empty)(iter->target))
     {
         iter->cursor = iter->first;
@@ -143,6 +163,10 @@ bool CMC_(PFX, _iter_to_start)(struct CMC_DEF_ITER(SNAME) * iter)
 
 bool CMC_(PFX, _iter_to_end)(struct CMC_DEF_ITER(SNAME) * iter)
 {
+#ifdef CMC_DEV
+    CMC_DEV_FCALL;
+#endif
+
     if (!CMC_(PFX, _empty)(iter->target))
     {
         iter->cursor = iter->last;
@@ -158,6 +182,10 @@ bool CMC_(PFX, _iter_to_end)(struct CMC_DEF_ITER(SNAME) * iter)
 
 bool CMC_(PFX, _iter_next)(struct CMC_DEF_ITER(SNAME) * iter)
 {
+#ifdef CMC_DEV
+    CMC_DEV_FCALL;
+#endif
+
     if (iter->end)
         return false;
 
@@ -187,6 +215,10 @@ bool CMC_(PFX, _iter_next)(struct CMC_DEF_ITER(SNAME) * iter)
 
 bool CMC_(PFX, _iter_prev)(struct CMC_DEF_ITER(SNAME) * iter)
 {
+#ifdef CMC_DEV
+    CMC_DEV_FCALL;
+#endif
+
     if (iter->start)
         return false;
 
@@ -217,6 +249,10 @@ bool CMC_(PFX, _iter_prev)(struct CMC_DEF_ITER(SNAME) * iter)
 /* Returns true only if the iterator moved */
 bool CMC_(PFX, _iter_advance)(struct CMC_DEF_ITER(SNAME) * iter, size_t steps)
 {
+#ifdef CMC_DEV
+    CMC_DEV_FCALL;
+#endif
+
     if (iter->end)
         return false;
 
@@ -238,6 +274,10 @@ bool CMC_(PFX, _iter_advance)(struct CMC_DEF_ITER(SNAME) * iter, size_t steps)
 /* Returns true only if the iterator moved */
 bool CMC_(PFX, _iter_rewind)(struct CMC_DEF_ITER(SNAME) * iter, size_t steps)
 {
+#ifdef CMC_DEV
+    CMC_DEV_FCALL;
+#endif
+
     if (iter->start)
         return false;
 
@@ -260,6 +300,10 @@ bool CMC_(PFX, _iter_rewind)(struct CMC_DEF_ITER(SNAME) * iter, size_t steps)
 /* given index */
 bool CMC_(PFX, _iter_go_to)(struct CMC_DEF_ITER(SNAME) * iter, size_t index)
 {
+#ifdef CMC_DEV
+    CMC_DEV_FCALL;
+#endif
+
     if (index >= iter->target->count)
         return false;
 
@@ -273,6 +317,10 @@ bool CMC_(PFX, _iter_go_to)(struct CMC_DEF_ITER(SNAME) * iter, size_t index)
 
 V CMC_(PFX, _iter_value)(struct CMC_DEF_ITER(SNAME) * iter)
 {
+#ifdef CMC_DEV
+    CMC_DEV_FCALL;
+#endif
+
     if (CMC_(PFX, _empty)(iter->target))
         return (V){ 0 };
 
@@ -281,6 +329,10 @@ V CMC_(PFX, _iter_value)(struct CMC_DEF_ITER(SNAME) * iter)
 
 size_t CMC_(PFX, _iter_index)(struct CMC_DEF_ITER(SNAME) * iter)
 {
+#ifdef CMC_DEV
+    CMC_DEV_FCALL;
+#endif
+
     return iter->index;
 }
 
@@ -295,6 +347,10 @@ size_t CMC_(PFX, _iter_index)(struct CMC_DEF_ITER(SNAME) * iter)
 
 struct SNAME *CMC_(PFX, _union)(struct SNAME *_set1_, struct SNAME *_set2_)
 {
+#ifdef CMC_DEV
+    CMC_DEV_FCALL;
+#endif
+
     /* Callbacks are added later */
     struct SNAME *_set_r_ = CMC_(PFX, _new_custom)(_set1_->capacity, _set1_->load, _set1_->f_val, _set1_->alloc, NULL);
 
@@ -326,6 +382,10 @@ struct SNAME *CMC_(PFX, _union)(struct SNAME *_set1_, struct SNAME *_set2_)
 
 struct SNAME *CMC_(PFX, _intersection)(struct SNAME *_set1_, struct SNAME *_set2_)
 {
+#ifdef CMC_DEV
+    CMC_DEV_FCALL;
+#endif
+
     /* Callbacks are added later */
     struct SNAME *_set_r_ = CMC_(PFX, _new_custom)(_set1_->capacity, _set1_->load, _set1_->f_val, _set1_->alloc, NULL);
 
@@ -356,6 +416,10 @@ struct SNAME *CMC_(PFX, _intersection)(struct SNAME *_set1_, struct SNAME *_set2
 
 struct SNAME *CMC_(PFX, _difference)(struct SNAME *_set1_, struct SNAME *_set2_)
 {
+#ifdef CMC_DEV
+    CMC_DEV_FCALL;
+#endif
+
     /* Callbacks are added later */
     struct SNAME *_set_r_ = CMC_(PFX, _new_custom)(_set1_->capacity, _set1_->load, _set1_->f_val, _set1_->alloc, NULL);
 
@@ -383,6 +447,10 @@ struct SNAME *CMC_(PFX, _difference)(struct SNAME *_set1_, struct SNAME *_set2_)
 
 struct SNAME *CMC_(PFX, _symmetric_difference)(struct SNAME *_set1_, struct SNAME *_set2_)
 {
+#ifdef CMC_DEV
+    CMC_DEV_FCALL;
+#endif
+
     /* Callbacks are added later */
     struct SNAME *_set_r_ = CMC_(PFX, _new_custom)(_set1_->capacity, _set1_->load, _set1_->f_val, _set1_->alloc, NULL);
 
@@ -422,6 +490,10 @@ struct SNAME *CMC_(PFX, _symmetric_difference)(struct SNAME *_set1_, struct SNAM
 /* If X is a subset of Y, then Y is a superset of X */
 bool CMC_(PFX, _is_subset)(struct SNAME *_set1_, struct SNAME *_set2_)
 {
+#ifdef CMC_DEV
+    CMC_DEV_FCALL;
+#endif
+
     _set1_->flag = CMC_FLAG_OK;
     _set2_->flag = CMC_FLAG_OK;
 
@@ -452,6 +524,10 @@ bool CMC_(PFX, _is_subset)(struct SNAME *_set1_, struct SNAME *_set2_)
 /* If X is a superset of Y, then Y is a subset of X */
 bool CMC_(PFX, _is_superset)(struct SNAME *_set1_, struct SNAME *_set2_)
 {
+#ifdef CMC_DEV
+    CMC_DEV_FCALL;
+#endif
+
     return CMC_(PFX, _is_subset)(_set2_, _set1_);
 }
 
@@ -460,6 +536,10 @@ bool CMC_(PFX, _is_superset)(struct SNAME *_set1_, struct SNAME *_set2_)
 /* If X is a proper subset of Y, then Y is a proper superset of X */
 bool CMC_(PFX, _is_proper_subset)(struct SNAME *_set1_, struct SNAME *_set2_)
 {
+#ifdef CMC_DEV
+    CMC_DEV_FCALL;
+#endif
+
     _set1_->flag = CMC_FLAG_OK;
     _set2_->flag = CMC_FLAG_OK;
 
@@ -498,6 +578,10 @@ bool CMC_(PFX, _is_proper_subset)(struct SNAME *_set1_, struct SNAME *_set2_)
 /* If X is a proper superset of Y, then Y is a proper subset of X */
 bool CMC_(PFX, _is_proper_superset)(struct SNAME *_set1_, struct SNAME *_set2_)
 {
+#ifdef CMC_DEV
+    CMC_DEV_FCALL;
+#endif
+
     return CMC_(PFX, _is_proper_subset)(_set2_, _set1_);
 }
 
@@ -506,6 +590,10 @@ bool CMC_(PFX, _is_proper_superset)(struct SNAME *_set1_, struct SNAME *_set2_)
 /* that is, if there are no elements in common between the two */
 bool CMC_(PFX, _is_disjointset)(struct SNAME *_set1_, struct SNAME *_set2_)
 {
+#ifdef CMC_DEV
+    CMC_DEV_FCALL;
+#endif
+
     _set1_->flag = CMC_FLAG_OK;
     _set2_->flag = CMC_FLAG_OK;
 
@@ -538,6 +626,10 @@ bool CMC_(PFX, _is_disjointset)(struct SNAME *_set1_, struct SNAME *_set2_)
 
 bool CMC_(PFX, _to_string)(struct SNAME *_set_, FILE *fptr)
 {
+#ifdef CMC_DEV
+    CMC_DEV_FCALL;
+#endif
+
     struct SNAME *s_ = _set_;
 
     return 0 <= fprintf(fptr,
@@ -557,6 +649,10 @@ bool CMC_(PFX, _to_string)(struct SNAME *_set_, FILE *fptr)
 
 bool CMC_(PFX, _print)(struct SNAME *_set_, FILE *fptr, const char *start, const char *separator, const char *end)
 {
+#ifdef CMC_DEV
+    CMC_DEV_FCALL;
+#endif
+
     fprintf(fptr, "%s", start);
 
     size_t last = 0;

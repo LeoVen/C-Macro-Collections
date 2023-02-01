@@ -42,6 +42,10 @@
 
 #include "cor/core.h"
 
+#ifdef CMC_DEV
+#include "utl/log.h"
+#endif
+
 /**
  * Used values
  * K - treemap key data type

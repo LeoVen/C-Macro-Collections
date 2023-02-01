@@ -28,12 +28,20 @@ struct CMC_DEF_NODE(SNAME) * CMC_(PFX, _impl_new_node)(struct SNAME *_list_, V v
 
 struct SNAME *CMC_(PFX, _new)(struct CMC_DEF_FVAL(SNAME) * f_val)
 {
+#ifdef CMC_DEV
+    CMC_DEV_FCALL;
+#endif
+
     return CMC_(PFX, _new_custom)(f_val, NULL, NULL);
 }
 
 struct SNAME *CMC_(PFX, _new_custom)(struct CMC_DEF_FVAL(SNAME) * f_val, struct CMC_ALLOC_NODE_NAME *alloc,
                                      struct CMC_CALLBACKS_NAME *callbacks)
 {
+#ifdef CMC_DEV
+    CMC_DEV_FCALL;
+#endif
+
     CMC_CALLBACKS_MAYBE_UNUSED(callbacks);
 
     if (!f_val)
@@ -60,6 +68,10 @@ struct SNAME *CMC_(PFX, _new_custom)(struct CMC_DEF_FVAL(SNAME) * f_val, struct 
 
 void CMC_(PFX, _clear)(struct SNAME *_list_)
 {
+#ifdef CMC_DEV
+    CMC_DEV_FCALL;
+#endif
+
     struct CMC_DEF_NODE(SNAME) *scan = _list_->head;
 
     while (_list_->head != NULL)
@@ -84,6 +96,10 @@ void CMC_(PFX, _clear)(struct SNAME *_list_)
 
 void CMC_(PFX, _free)(struct SNAME *_list_)
 {
+#ifdef CMC_DEV
+    CMC_DEV_FCALL;
+#endif
+
     CMC_(PFX, _clear)(_list_);
 
     _list_->alloc->free(_list_);
@@ -92,6 +108,10 @@ void CMC_(PFX, _free)(struct SNAME *_list_)
 void CMC_(PFX, _customize)(struct SNAME *_list_, struct CMC_ALLOC_NODE_NAME *alloc,
                            struct CMC_CALLBACKS_NAME *callbacks)
 {
+#ifdef CMC_DEV
+    CMC_DEV_FCALL;
+#endif
+
     CMC_CALLBACKS_MAYBE_UNUSED(callbacks);
 
     if (!alloc)
@@ -106,6 +126,10 @@ void CMC_(PFX, _customize)(struct SNAME *_list_, struct CMC_ALLOC_NODE_NAME *all
 
 bool CMC_(PFX, _push_front)(struct SNAME *_list_, V value)
 {
+#ifdef CMC_DEV
+    CMC_DEV_FCALL;
+#endif
+
     struct CMC_DEF_NODE(SNAME) *_node_ = CMC_(PFX, _impl_new_node)(_list_, value);
 
     if (!_node_)
@@ -133,6 +157,10 @@ bool CMC_(PFX, _push_front)(struct SNAME *_list_, V value)
 
 bool CMC_(PFX, _push_at)(struct SNAME *_list_, V value, size_t index)
 {
+#ifdef CMC_DEV
+    CMC_DEV_FCALL;
+#endif
+
     if (index > _list_->count)
     {
         _list_->flag = CMC_FLAG_RANGE;
@@ -170,6 +198,10 @@ bool CMC_(PFX, _push_at)(struct SNAME *_list_, V value, size_t index)
 
 bool CMC_(PFX, _push_back)(struct SNAME *_list_, V value)
 {
+#ifdef CMC_DEV
+    CMC_DEV_FCALL;
+#endif
+
     struct CMC_DEF_NODE(SNAME) *_node_ = CMC_(PFX, _impl_new_node)(_list_, value);
 
     if (!_node_)
@@ -197,6 +229,10 @@ bool CMC_(PFX, _push_back)(struct SNAME *_list_, V value)
 
 bool CMC_(PFX, _pop_front)(struct SNAME *_list_)
 {
+#ifdef CMC_DEV
+    CMC_DEV_FCALL;
+#endif
+
     if (CMC_(PFX, _empty)(_list_))
     {
         _list_->flag = CMC_FLAG_EMPTY;
@@ -223,6 +259,10 @@ bool CMC_(PFX, _pop_front)(struct SNAME *_list_)
 
 bool CMC_(PFX, _pop_at)(struct SNAME *_list_, size_t index)
 {
+#ifdef CMC_DEV
+    CMC_DEV_FCALL;
+#endif
+
     if (CMC_(PFX, _empty)(_list_))
     {
         _list_->flag = CMC_FLAG_EMPTY;
@@ -264,6 +304,10 @@ bool CMC_(PFX, _pop_at)(struct SNAME *_list_, size_t index)
 
 bool CMC_(PFX, _pop_back)(struct SNAME *_list_)
 {
+#ifdef CMC_DEV
+    CMC_DEV_FCALL;
+#endif
+
     if (CMC_(PFX, _empty)(_list_))
     {
         _list_->flag = CMC_FLAG_EMPTY;
@@ -290,6 +334,10 @@ bool CMC_(PFX, _pop_back)(struct SNAME *_list_)
 
 V CMC_(PFX, _front)(struct SNAME *_list_)
 {
+#ifdef CMC_DEV
+    CMC_DEV_FCALL;
+#endif
+
     if (CMC_(PFX, _empty)(_list_))
     {
         _list_->flag = CMC_FLAG_EMPTY;
@@ -305,6 +353,10 @@ V CMC_(PFX, _front)(struct SNAME *_list_)
 
 V CMC_(PFX, _get)(struct SNAME *_list_, size_t index)
 {
+#ifdef CMC_DEV
+    CMC_DEV_FCALL;
+#endif
+
     if (CMC_(PFX, _empty)(_list_))
     {
         _list_->flag = CMC_FLAG_EMPTY;
@@ -329,6 +381,10 @@ V CMC_(PFX, _get)(struct SNAME *_list_, size_t index)
 
 V *CMC_(PFX, _get_ref)(struct SNAME *_list_, size_t index)
 {
+#ifdef CMC_DEV
+    CMC_DEV_FCALL;
+#endif
+
     if (CMC_(PFX, _empty)(_list_))
     {
         _list_->flag = CMC_FLAG_EMPTY;
@@ -353,6 +409,10 @@ V *CMC_(PFX, _get_ref)(struct SNAME *_list_, size_t index)
 
 V CMC_(PFX, _back)(struct SNAME *_list_)
 {
+#ifdef CMC_DEV
+    CMC_DEV_FCALL;
+#endif
+
     if (CMC_(PFX, _empty)(_list_))
     {
         _list_->flag = CMC_FLAG_EMPTY;
@@ -368,6 +428,10 @@ V CMC_(PFX, _back)(struct SNAME *_list_)
 
 bool CMC_(PFX, _contains)(struct SNAME *_list_, V value)
 {
+#ifdef CMC_DEV
+    CMC_DEV_FCALL;
+#endif
+
     _list_->flag = CMC_FLAG_OK;
 
     bool result = false;
@@ -392,21 +456,37 @@ bool CMC_(PFX, _contains)(struct SNAME *_list_, V value)
 
 bool CMC_(PFX, _empty)(struct SNAME *_list_)
 {
+#ifdef CMC_DEV
+    CMC_DEV_FCALL;
+#endif
+
     return _list_->count == 0;
 }
 
 size_t CMC_(PFX, _count)(struct SNAME *_list_)
 {
+#ifdef CMC_DEV
+    CMC_DEV_FCALL;
+#endif
+
     return _list_->count;
 }
 
 int CMC_(PFX, _flag)(struct SNAME *_list_)
 {
+#ifdef CMC_DEV
+    CMC_DEV_FCALL;
+#endif
+
     return _list_->flag;
 }
 
 struct SNAME *CMC_(PFX, _copy_of)(struct SNAME *_list_)
 {
+#ifdef CMC_DEV
+    CMC_DEV_FCALL;
+#endif
+
     struct SNAME *result = CMC_(PFX, _new_custom)(_list_->f_val, _list_->alloc, NULL);
 
     if (!result)
@@ -451,6 +531,10 @@ struct SNAME *CMC_(PFX, _copy_of)(struct SNAME *_list_)
 
 bool CMC_(PFX, _equals)(struct SNAME *_list1_, struct SNAME *_list2_)
 {
+#ifdef CMC_DEV
+    CMC_DEV_FCALL;
+#endif
+
     _list1_->flag = CMC_FLAG_OK;
     _list2_->flag = CMC_FLAG_OK;
 
@@ -474,6 +558,10 @@ bool CMC_(PFX, _equals)(struct SNAME *_list1_, struct SNAME *_list2_)
 
 struct CMC_DEF_NODE(SNAME) * CMC_(PFX, _impl_new_node)(struct SNAME *_list_, V value)
 {
+#ifdef CMC_DEV
+    CMC_DEV_FCALL;
+#endif
+
     struct CMC_DEF_NODE(SNAME) *_node_ = _list_->alloc->malloc(sizeof(struct CMC_DEF_NODE(SNAME)));
 
     if (!_node_)
@@ -491,6 +579,10 @@ struct CMC_DEF_NODE(SNAME) * CMC_(PFX, _impl_new_node)(struct SNAME *_list_, V v
 
 struct CMC_DEF_NODE(SNAME) * CMC_(PFX, _impl_get_node)(struct SNAME *_list_, size_t index)
 {
+#ifdef CMC_DEV
+    CMC_DEV_FCALL;
+#endif
+
     if (CMC_(PFX, _empty)(_list_))
     {
         _list_->flag = CMC_FLAG_EMPTY;

@@ -23,59 +23,22 @@
  */
 
 /**
- * treeset.h
+ * dev.h
  *
- * Creation Date: 27/03/2019
+ * Creation Date: 24/05/2020
  *
  * Authors:
  * Leonardo Vencovsky (https://github.com/LeoVen)
  *
  */
 
-/**
- * TreeSet
- *
- * A TreeSet is an implementation of a Set that keeps its elements sorted. Like
- * a Set it has only unique keys. This implementation uses a balanced binary
- * tree called AVL Tree that uses the height of nodes to keep its keys balanced.
- */
-
-#include "cor/core.h"
-
-#ifdef CMC_DEV
-#include "utl/log.h"
-#endif
+#ifndef CMC_COR_DEV_H
+#define CMC_COR_DEV_H
 
 /**
- * Used values
- * V - treeset value data type
- * SNAME - struct name and prefix of other related structs
- * PFX - functions prefix
+ * Macros for tracing and debugging data structures when CMC_DEV is enabled
  */
 
-/* Structs definition */
-#include "cmc/treeset/struct.h"
+#define CMC_DEV_FCALL cmc_log_trace("fcall")
 
-/* Function declaration */
-#include "cmc/treeset/header.h"
-
-/* Function implementation */
-#include "cmc/treeset/code.h"
-
-/**
- * Extensions
- *
- * INIT - Initializes the struct on the stack
- * ITER - treeset iterator
- * SETF - Set functions
- * STR - Print helper functions
- */
-#define CMC_EXT_TREESET_PARTS INIT, ITER, SETF, STR
-/**/
-#include "cmc/treeset/ext/struct.h"
-/**/
-#include "cmc/treeset/ext/header.h"
-/**/
-#include "cmc/treeset/ext/code.h"
-
-#include "cor/undef.h"
+#endif /* CMC_COR_DEV_H */

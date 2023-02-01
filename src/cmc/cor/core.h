@@ -71,6 +71,7 @@
 
 #include "alloc.h"
 #include "callbacks.h"
+#include "dev.h"
 #include "flags.h"
 #include "ftable.h"
 

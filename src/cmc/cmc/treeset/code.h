@@ -33,12 +33,20 @@ static void CMC_(PFX, _impl_rebalance)(struct SNAME *_set_, struct CMC_DEF_NODE(
 
 struct SNAME *CMC_(PFX, _new)(struct CMC_DEF_FVAL(SNAME) * f_val)
 {
+#ifdef CMC_DEV
+    CMC_DEV_FCALL;
+#endif
+
     return CMC_(PFX, _new_custom)(f_val, NULL, NULL);
 }
 
 struct SNAME *CMC_(PFX, _new_custom)(struct CMC_DEF_FVAL(SNAME) * f_val, struct CMC_ALLOC_NODE_NAME *alloc,
                                      struct CMC_CALLBACKS_NAME *callbacks)
 {
+#ifdef CMC_DEV
+    CMC_DEV_FCALL;
+#endif
+
     CMC_CALLBACKS_MAYBE_UNUSED(callbacks);
 
     if (!f_val)
@@ -64,6 +72,10 @@ struct SNAME *CMC_(PFX, _new_custom)(struct CMC_DEF_FVAL(SNAME) * f_val, struct 
 
 void CMC_(PFX, _clear)(struct SNAME *_set_)
 {
+#ifdef CMC_DEV
+    CMC_DEV_FCALL;
+#endif
+
     struct CMC_DEF_NODE(SNAME) *scan = _set_->root;
     struct CMC_DEF_NODE(SNAME) *up = NULL;
 
@@ -126,6 +138,10 @@ void CMC_(PFX, _clear)(struct SNAME *_set_)
 
 void CMC_(PFX, _free)(struct SNAME *_set_)
 {
+#ifdef CMC_DEV
+    CMC_DEV_FCALL;
+#endif
+
     CMC_(PFX, _clear)(_set_);
 
     _set_->alloc->free(_set_);
@@ -133,6 +149,10 @@ void CMC_(PFX, _free)(struct SNAME *_set_)
 
 void CMC_(PFX, _customize)(struct SNAME *_set_, struct CMC_ALLOC_NODE_NAME *alloc, struct CMC_CALLBACKS_NAME *callbacks)
 {
+#ifdef CMC_DEV
+    CMC_DEV_FCALL;
+#endif
+
     CMC_CALLBACKS_MAYBE_UNUSED(callbacks);
 
     if (!alloc)
@@ -147,6 +167,10 @@ void CMC_(PFX, _customize)(struct SNAME *_set_, struct CMC_ALLOC_NODE_NAME *allo
 
 bool CMC_(PFX, _insert)(struct SNAME *_set_, V value)
 {
+#ifdef CMC_DEV
+    CMC_DEV_FCALL;
+#endif
+
     if (CMC_(PFX, _empty)(_set_))
     {
         _set_->root = CMC_(PFX, _impl_new_node)(_set_, value);
@@ -219,6 +243,10 @@ bool CMC_(PFX, _insert)(struct SNAME *_set_, V value)
 
 bool CMC_(PFX, _remove)(struct SNAME *_set_, V value)
 {
+#ifdef CMC_DEV
+    CMC_DEV_FCALL;
+#endif
+
     if (CMC_(PFX, _empty)(_set_))
     {
         _set_->flag = CMC_FLAG_EMPTY;
@@ -352,6 +380,10 @@ bool CMC_(PFX, _remove)(struct SNAME *_set_, V value)
 
 bool CMC_(PFX, _max)(struct SNAME *_set_, V *value)
 {
+#ifdef CMC_DEV
+    CMC_DEV_FCALL;
+#endif
+
     if (CMC_(PFX, _empty)(_set_))
     {
         _set_->flag = CMC_FLAG_EMPTY;
@@ -375,6 +407,10 @@ bool CMC_(PFX, _max)(struct SNAME *_set_, V *value)
 
 bool CMC_(PFX, _min)(struct SNAME *_set_, V *value)
 {
+#ifdef CMC_DEV
+    CMC_DEV_FCALL;
+#endif
+
     if (CMC_(PFX, _empty)(_set_))
     {
         _set_->flag = CMC_FLAG_EMPTY;
@@ -398,6 +434,10 @@ bool CMC_(PFX, _min)(struct SNAME *_set_, V *value)
 
 bool CMC_(PFX, _contains)(struct SNAME *_set_, V value)
 {
+#ifdef CMC_DEV
+    CMC_DEV_FCALL;
+#endif
+
     bool result = CMC_(PFX, _impl_get_node)(_set_, value) != NULL;
 
     CMC_CALLBACKS_CALL(_set_, read);
@@ -407,21 +447,37 @@ bool CMC_(PFX, _contains)(struct SNAME *_set_, V value)
 
 bool CMC_(PFX, _empty)(struct SNAME *_set_)
 {
+#ifdef CMC_DEV
+    CMC_DEV_FCALL;
+#endif
+
     return _set_->count == 0;
 }
 
 size_t CMC_(PFX, _count)(struct SNAME *_set_)
 {
+#ifdef CMC_DEV
+    CMC_DEV_FCALL;
+#endif
+
     return _set_->count;
 }
 
 int CMC_(PFX, _flag)(struct SNAME *_set_)
 {
+#ifdef CMC_DEV
+    CMC_DEV_FCALL;
+#endif
+
     return _set_->flag;
 }
 
 struct SNAME *CMC_(PFX, _copy_of)(struct SNAME *_set_)
 {
+#ifdef CMC_DEV
+    CMC_DEV_FCALL;
+#endif
+
     /* Callback will be added later */
     struct SNAME *result = CMC_(PFX, _new_custom)(_set_->f_val, _set_->alloc, NULL);
 
@@ -483,6 +539,10 @@ struct SNAME *CMC_(PFX, _copy_of)(struct SNAME *_set_)
 
 bool CMC_(PFX, _equals)(struct SNAME *_set1_, struct SNAME *_set2_)
 {
+#ifdef CMC_DEV
+    CMC_DEV_FCALL;
+#endif
+
     _set1_->flag = CMC_FLAG_OK;
     _set2_->flag = CMC_FLAG_OK;
 
@@ -533,6 +593,10 @@ bool CMC_(PFX, _equals)(struct SNAME *_set1_, struct SNAME *_set2_)
 
 static struct CMC_DEF_NODE(SNAME) * CMC_(PFX, _impl_new_node)(struct SNAME *_set_, V value)
 {
+#ifdef CMC_DEV
+    CMC_DEV_FCALL;
+#endif
+
     struct CMC_DEF_NODE(SNAME) *node = _set_->alloc->malloc(sizeof(struct CMC_DEF_NODE(SNAME)));
 
     if (!node)
@@ -549,6 +613,10 @@ static struct CMC_DEF_NODE(SNAME) * CMC_(PFX, _impl_new_node)(struct SNAME *_set
 
 static struct CMC_DEF_NODE(SNAME) * CMC_(PFX, _impl_get_node)(struct SNAME *_set_, V value)
 {
+#ifdef CMC_DEV
+    CMC_DEV_FCALL;
+#endif
+
     struct CMC_DEF_NODE(SNAME) *scan = _set_->root;
 
     while (scan != NULL)
@@ -566,6 +634,10 @@ static struct CMC_DEF_NODE(SNAME) * CMC_(PFX, _impl_get_node)(struct SNAME *_set
 
 static unsigned char CMC_(PFX, _impl_h)(struct CMC_DEF_NODE(SNAME) * node)
 {
+#ifdef CMC_DEV
+    CMC_DEV_FCALL;
+#endif
+
     if (node == NULL)
         return 0;
 
@@ -574,6 +646,10 @@ static unsigned char CMC_(PFX, _impl_h)(struct CMC_DEF_NODE(SNAME) * node)
 
 static unsigned char CMC_(PFX, _impl_hupdate)(struct CMC_DEF_NODE(SNAME) * node)
 {
+#ifdef CMC_DEV
+    CMC_DEV_FCALL;
+#endif
+
     if (node == NULL)
         return 0;
 
@@ -585,6 +661,10 @@ static unsigned char CMC_(PFX, _impl_hupdate)(struct CMC_DEF_NODE(SNAME) * node)
 
 static void CMC_(PFX, _impl_rotate_right)(struct CMC_DEF_NODE(SNAME) * *Z)
 {
+#ifdef CMC_DEV
+    CMC_DEV_FCALL;
+#endif
+
     struct CMC_DEF_NODE(SNAME) *root = *Z;
     struct CMC_DEF_NODE(SNAME) *new_root = root->left;
 
@@ -614,6 +694,10 @@ static void CMC_(PFX, _impl_rotate_right)(struct CMC_DEF_NODE(SNAME) * *Z)
 
 static void CMC_(PFX, _impl_rotate_left)(struct CMC_DEF_NODE(SNAME) * *Z)
 {
+#ifdef CMC_DEV
+    CMC_DEV_FCALL;
+#endif
+
     struct CMC_DEF_NODE(SNAME) *root = *Z;
     struct CMC_DEF_NODE(SNAME) *new_root = root->right;
 
@@ -643,6 +727,10 @@ static void CMC_(PFX, _impl_rotate_left)(struct CMC_DEF_NODE(SNAME) * *Z)
 
 static void CMC_(PFX, _impl_rebalance)(struct SNAME *_set_, struct CMC_DEF_NODE(SNAME) * node)
 {
+#ifdef CMC_DEV
+    CMC_DEV_FCALL;
+#endif
+
     struct CMC_DEF_NODE(SNAME) *scan = node, *child = NULL;
 
     int balance;

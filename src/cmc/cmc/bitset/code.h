@@ -27,12 +27,20 @@ bool CMC_(PFX, _impl_resize)(struct SNAME *_bitset_, size_t n_bits, bool do_resi
 
 struct SNAME *CMC_(PFX, _new)(size_t n_bits)
 {
+#ifdef CMC_DEV
+    CMC_DEV_FCALL;
+#endif
+
     return CMC_(PFX, _new_custom)(n_bits, NULL, NULL);
 }
 
 struct SNAME *CMC_(PFX, _new_custom)(size_t n_bits, struct CMC_ALLOC_NODE_NAME *alloc,
                                      struct CMC_CALLBACKS_NAME *callbacks)
 {
+#ifdef CMC_DEV
+    CMC_DEV_FCALL;
+#endif
+
     CMC_CALLBACKS_MAYBE_UNUSED(callbacks);
 
     if (n_bits < 1)
@@ -66,12 +74,20 @@ struct SNAME *CMC_(PFX, _new_custom)(size_t n_bits, struct CMC_ALLOC_NODE_NAME *
 
 struct SNAME CMC_(PFX, _init)(size_t n_bits)
 {
+#ifdef CMC_DEV
+    CMC_DEV_FCALL;
+#endif
+
     return CMC_(PFX, _init_custom)(n_bits, NULL, NULL);
 }
 
 struct SNAME CMC_(PFX, _init_custom)(size_t n_bits, struct CMC_ALLOC_NODE_NAME *alloc,
                                      struct CMC_CALLBACKS_NAME *CMC_UNUSED(callbacks))
 {
+#ifdef CMC_DEV
+    CMC_DEV_FCALL;
+#endif
+
     CMC_CALLBACKS_MAYBE_UNUSED(callbacks);
 
     struct SNAME _bitset_ = { 0 };
@@ -99,18 +115,30 @@ struct SNAME CMC_(PFX, _init_custom)(size_t n_bits, struct CMC_ALLOC_NODE_NAME *
 
 void CMC_(PFX, _free)(struct SNAME *_bitset_)
 {
+#ifdef CMC_DEV
+    CMC_DEV_FCALL;
+#endif
+
     free(_bitset_->buffer);
     free(_bitset_);
 }
 
 void CMC_(PFX, _release)(struct SNAME _bitset_)
 {
+#ifdef CMC_DEV
+    CMC_DEV_FCALL;
+#endif
+
     free(_bitset_.buffer);
 }
 
 void CMC_(PFX, _customize)(struct SNAME *_bitset_, struct CMC_ALLOC_NODE_NAME *alloc,
                            struct CMC_CALLBACKS_NAME *callbacks)
 {
+#ifdef CMC_DEV
+    CMC_DEV_FCALL;
+#endif
+
     CMC_CALLBACKS_MAYBE_UNUSED(callbacks);
 
     if (!alloc)
@@ -125,6 +153,10 @@ void CMC_(PFX, _customize)(struct SNAME *_bitset_, struct CMC_ALLOC_NODE_NAME *a
 
 bool CMC_(PFX, _set)(struct SNAME *_bitset_, size_t bit_index)
 {
+#ifdef CMC_DEV
+    CMC_DEV_FCALL;
+#endif
+
     if (!CMC_(PFX, _impl_resize)(_bitset_, bit_index + 1, false))
         return false;
 
@@ -144,6 +176,10 @@ bool CMC_(PFX, _set)(struct SNAME *_bitset_, size_t bit_index)
 
 bool CMC_(PFX, _set_range)(struct SNAME *_bitset_, size_t from, size_t to)
 {
+#ifdef CMC_DEV
+    CMC_DEV_FCALL;
+#endif
+
     if (to < from)
     {
         _bitset_->flag = CMC_FLAG_INVALID;
@@ -191,6 +227,10 @@ bool CMC_(PFX, _set_range)(struct SNAME *_bitset_, size_t from, size_t to)
 
 bool CMC_(PFX, _clear)(struct SNAME *_bitset_, size_t bit_index)
 {
+#ifdef CMC_DEV
+    CMC_DEV_FCALL;
+#endif
+
     if (!CMC_(PFX, _impl_resize)(_bitset_, bit_index + 1, false))
         return false;
 
@@ -210,6 +250,10 @@ bool CMC_(PFX, _clear)(struct SNAME *_bitset_, size_t bit_index)
 
 bool CMC_(PFX, _clear_range)(struct SNAME *_bitset_, size_t from, size_t to)
 {
+#ifdef CMC_DEV
+    CMC_DEV_FCALL;
+#endif
+
     if (to < from)
     {
         _bitset_->flag = CMC_FLAG_INVALID;
@@ -257,6 +301,10 @@ bool CMC_(PFX, _clear_range)(struct SNAME *_bitset_, size_t from, size_t to)
 
 bool CMC_(PFX, _flip)(struct SNAME *_bitset_, size_t bit_index)
 {
+#ifdef CMC_DEV
+    CMC_DEV_FCALL;
+#endif
+
     if (!CMC_(PFX, _impl_resize)(_bitset_, bit_index + 1, false))
         return false;
 
@@ -276,6 +324,10 @@ bool CMC_(PFX, _flip)(struct SNAME *_bitset_, size_t bit_index)
 
 bool CMC_(PFX, _flip_range)(struct SNAME *_bitset_, size_t from, size_t to)
 {
+#ifdef CMC_DEV
+    CMC_DEV_FCALL;
+#endif
+
     if (to < from)
     {
         _bitset_->flag = CMC_FLAG_INVALID;
@@ -323,6 +375,10 @@ bool CMC_(PFX, _flip_range)(struct SNAME *_bitset_, size_t from, size_t to)
 
 bool CMC_(PFX, _put)(struct SNAME *_bitset_, size_t bit_index, bool state)
 {
+#ifdef CMC_DEV
+    CMC_DEV_FCALL;
+#endif
+
     if (state)
         return CMC_(PFX, _set)(_bitset_, bit_index);
     else
@@ -331,6 +387,10 @@ bool CMC_(PFX, _put)(struct SNAME *_bitset_, size_t bit_index, bool state)
 
 bool CMC_(PFX, _put_range)(struct SNAME *_bitset_, size_t from, size_t to, bool state)
 {
+#ifdef CMC_DEV
+    CMC_DEV_FCALL;
+#endif
+
     if (state)
         return CMC_(PFX, _set_range)(_bitset_, from, to);
     else
@@ -339,6 +399,10 @@ bool CMC_(PFX, _put_range)(struct SNAME *_bitset_, size_t from, size_t to, bool 
 
 bool CMC_(PFX, _set_all)(struct SNAME *_bitset_)
 {
+#ifdef CMC_DEV
+    CMC_DEV_FCALL;
+#endif
+
     for (size_t i = 0; i < _bitset_->capacity; i++)
         _bitset_->buffer[i] = ~((cmc_bitset_word)0);
 
@@ -351,6 +415,10 @@ bool CMC_(PFX, _set_all)(struct SNAME *_bitset_)
 
 bool CMC_(PFX, _clear_all)(struct SNAME *_bitset_)
 {
+#ifdef CMC_DEV
+    CMC_DEV_FCALL;
+#endif
+
     for (size_t i = 0; i < _bitset_->capacity; i++)
         _bitset_->buffer[i] = 0;
 
@@ -363,6 +431,10 @@ bool CMC_(PFX, _clear_all)(struct SNAME *_bitset_)
 
 bool CMC_(PFX, _flip_all)(struct SNAME *_bitset_)
 {
+#ifdef CMC_DEV
+    CMC_DEV_FCALL;
+#endif
+
     for (size_t i = 0; i < _bitset_->capacity; i++)
         _bitset_->buffer[i] ^= ~((cmc_bitset_word)0);
 
@@ -375,6 +447,10 @@ bool CMC_(PFX, _flip_all)(struct SNAME *_bitset_)
 
 bool CMC_(PFX, _get)(struct SNAME *_bitset_, size_t bit_index)
 {
+#ifdef CMC_DEV
+    CMC_DEV_FCALL;
+#endif
+
     /* How many bits in a word */
     const cmc_bitset_word bits = sizeof(cmc_bitset_word) * CHAR_BIT;
 
@@ -385,6 +461,10 @@ bool CMC_(PFX, _get)(struct SNAME *_bitset_, size_t bit_index)
 
 bool CMC_(PFX, _resize)(struct SNAME *_bitset_, size_t n_bits)
 {
+#ifdef CMC_DEV
+    CMC_DEV_FCALL;
+#endif
+
     return CMC_(PFX, _impl_resize)(_bitset_, n_bits, true);
 }
 
@@ -392,6 +472,10 @@ bool CMC_(PFX, _resize)(struct SNAME *_bitset_, size_t n_bits)
 /* can accommodate n_bits */
 bool CMC_(PFX, _impl_resize)(struct SNAME *_bitset_, size_t n_bits, bool do_resize)
 {
+#ifdef CMC_DEV
+    CMC_DEV_FCALL;
+#endif
+
     if (n_bits == 0)
     {
         _bitset_->flag = CMC_FLAG_INVALID;

@@ -41,6 +41,10 @@
 
 struct CMC_DEF_ITER(SNAME) CMC_(PFX, _iter_start)(struct SNAME *target)
 {
+#ifdef CMC_DEV
+    CMC_DEV_FCALL;
+#endif
+
     CMC_(PFX, _sort)(target);
 
     struct CMC_DEF_ITER(SNAME) iter;
@@ -55,6 +59,10 @@ struct CMC_DEF_ITER(SNAME) CMC_(PFX, _iter_start)(struct SNAME *target)
 
 struct CMC_DEF_ITER(SNAME) CMC_(PFX, _iter_end)(struct SNAME *target)
 {
+#ifdef CMC_DEV
+    CMC_DEV_FCALL;
+#endif
+
     CMC_(PFX, _sort)(target);
 
     struct CMC_DEF_ITER(SNAME) iter;
@@ -72,16 +80,28 @@ struct CMC_DEF_ITER(SNAME) CMC_(PFX, _iter_end)(struct SNAME *target)
 
 bool CMC_(PFX, _iter_at_start)(struct CMC_DEF_ITER(SNAME) * iter)
 {
+#ifdef CMC_DEV
+    CMC_DEV_FCALL;
+#endif
+
     return CMC_(PFX, _empty)(iter->target) || iter->start;
 }
 
 bool CMC_(PFX, _iter_at_end)(struct CMC_DEF_ITER(SNAME) * iter)
 {
+#ifdef CMC_DEV
+    CMC_DEV_FCALL;
+#endif
+
     return CMC_(PFX, _empty)(iter->target) || iter->end;
 }
 
 bool CMC_(PFX, _iter_to_start)(struct CMC_DEF_ITER(SNAME) * iter)
 {
+#ifdef CMC_DEV
+    CMC_DEV_FCALL;
+#endif
+
     if (!CMC_(PFX, _empty)(iter->target))
     {
         iter->cursor = 0;
@@ -96,6 +116,10 @@ bool CMC_(PFX, _iter_to_start)(struct CMC_DEF_ITER(SNAME) * iter)
 
 bool CMC_(PFX, _iter_to_end)(struct CMC_DEF_ITER(SNAME) * iter)
 {
+#ifdef CMC_DEV
+    CMC_DEV_FCALL;
+#endif
+
     if (!CMC_(PFX, _empty)(iter->target))
     {
         iter->start = CMC_(PFX, _empty)(iter->target);
@@ -110,6 +134,10 @@ bool CMC_(PFX, _iter_to_end)(struct CMC_DEF_ITER(SNAME) * iter)
 
 bool CMC_(PFX, _iter_next)(struct CMC_DEF_ITER(SNAME) * iter)
 {
+#ifdef CMC_DEV
+    CMC_DEV_FCALL;
+#endif
+
     if (iter->end)
         return false;
 
@@ -128,6 +156,10 @@ bool CMC_(PFX, _iter_next)(struct CMC_DEF_ITER(SNAME) * iter)
 
 bool CMC_(PFX, _iter_prev)(struct CMC_DEF_ITER(SNAME) * iter)
 {
+#ifdef CMC_DEV
+    CMC_DEV_FCALL;
+#endif
+
     if (iter->start)
         return false;
 
@@ -147,6 +179,10 @@ bool CMC_(PFX, _iter_prev)(struct CMC_DEF_ITER(SNAME) * iter)
 /* Returns true only if the iterator moved */
 bool CMC_(PFX, _iter_advance)(struct CMC_DEF_ITER(SNAME) * iter, size_t steps)
 {
+#ifdef CMC_DEV
+    CMC_DEV_FCALL;
+#endif
+
     if (iter->end)
         return false;
 
@@ -169,6 +205,10 @@ bool CMC_(PFX, _iter_advance)(struct CMC_DEF_ITER(SNAME) * iter, size_t steps)
 /* Returns true only if the iterator moved */
 bool CMC_(PFX, _iter_rewind)(struct CMC_DEF_ITER(SNAME) * iter, size_t steps)
 {
+#ifdef CMC_DEV
+    CMC_DEV_FCALL;
+#endif
+
     if (iter->start)
         return false;
 
@@ -192,6 +232,10 @@ bool CMC_(PFX, _iter_rewind)(struct CMC_DEF_ITER(SNAME) * iter, size_t steps)
 /* given index */
 bool CMC_(PFX, _iter_go_to)(struct CMC_DEF_ITER(SNAME) * iter, size_t index)
 {
+#ifdef CMC_DEV
+    CMC_DEV_FCALL;
+#endif
+
     if (index >= iter->target->count)
         return false;
 
@@ -205,6 +249,10 @@ bool CMC_(PFX, _iter_go_to)(struct CMC_DEF_ITER(SNAME) * iter, size_t index)
 
 V CMC_(PFX, _iter_value)(struct CMC_DEF_ITER(SNAME) * iter)
 {
+#ifdef CMC_DEV
+    CMC_DEV_FCALL;
+#endif
+
     if (CMC_(PFX, _empty)(iter->target))
         return (V){ 0 };
 
@@ -213,6 +261,10 @@ V CMC_(PFX, _iter_value)(struct CMC_DEF_ITER(SNAME) * iter)
 
 size_t CMC_(PFX, _iter_index)(struct CMC_DEF_ITER(SNAME) * iter)
 {
+#ifdef CMC_DEV
+    CMC_DEV_FCALL;
+#endif
+
     return iter->cursor;
 }
 
@@ -227,6 +279,10 @@ size_t CMC_(PFX, _iter_index)(struct CMC_DEF_ITER(SNAME) * iter)
 
 bool CMC_(PFX, _to_string)(struct SNAME *_list_, FILE *fptr)
 {
+#ifdef CMC_DEV
+    CMC_DEV_FCALL;
+#endif
+
     struct SNAME *l_ = _list_;
 
     return 0 <= fprintf(fptr,
@@ -246,6 +302,10 @@ bool CMC_(PFX, _to_string)(struct SNAME *_list_, FILE *fptr)
 
 bool CMC_(PFX, _print)(struct SNAME *_list_, FILE *fptr, const char *start, const char *separator, const char *end)
 {
+#ifdef CMC_DEV
+    CMC_DEV_FCALL;
+#endif
+
     CMC_(PFX, _sort)(_list_);
 
     fprintf(fptr, "%s", start);

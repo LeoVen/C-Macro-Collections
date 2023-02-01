@@ -50,6 +50,10 @@
 #include "cor/core.h"
 #include "cor/hashtable.h"
 
+#ifdef CMC_DEV
+#include "utl/log.h"
+#endif
+
 /**
  * Used values
  * V - hashmultiset value data type

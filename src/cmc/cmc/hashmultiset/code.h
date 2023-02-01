@@ -29,12 +29,20 @@ static size_t CMC_(PFX, _impl_calculate_size)(size_t required);
 
 struct SNAME *CMC_(PFX, _new)(size_t capacity, double load, struct CMC_DEF_FVAL(SNAME) * f_val)
 {
+#ifdef CMC_DEV
+    CMC_DEV_FCALL;
+#endif
+
     return CMC_(PFX, _new_custom)(capacity, load, f_val, NULL, NULL);
 }
 
 struct SNAME *CMC_(PFX, _new_custom)(size_t capacity, double load, struct CMC_DEF_FVAL(SNAME) * f_val,
                                      struct CMC_ALLOC_NODE_NAME *alloc, struct CMC_CALLBACKS_NAME *callbacks)
 {
+#ifdef CMC_DEV
+    CMC_DEV_FCALL;
+#endif
+
     CMC_CALLBACKS_MAYBE_UNUSED(callbacks);
 
     if (capacity == 0 || load <= 0 || load >= 1)
@@ -79,6 +87,10 @@ struct SNAME *CMC_(PFX, _new_custom)(size_t capacity, double load, struct CMC_DE
 
 void CMC_(PFX, _clear)(struct SNAME *_set_)
 {
+#ifdef CMC_DEV
+    CMC_DEV_FCALL;
+#endif
+
     if (_set_->f_val->free)
     {
         for (size_t i = 0; i < _set_->capacity; i++)
@@ -100,6 +112,10 @@ void CMC_(PFX, _clear)(struct SNAME *_set_)
 
 void CMC_(PFX, _free)(struct SNAME *_set_)
 {
+#ifdef CMC_DEV
+    CMC_DEV_FCALL;
+#endif
+
     if (_set_->f_val->free)
     {
         for (size_t i = 0; i < _set_->capacity; i++)
@@ -119,6 +135,10 @@ void CMC_(PFX, _free)(struct SNAME *_set_)
 
 void CMC_(PFX, _customize)(struct SNAME *_set_, struct CMC_ALLOC_NODE_NAME *alloc, struct CMC_CALLBACKS_NAME *callbacks)
 {
+#ifdef CMC_DEV
+    CMC_DEV_FCALL;
+#endif
+
     CMC_CALLBACKS_MAYBE_UNUSED(callbacks);
 
     if (!alloc)
@@ -133,6 +153,10 @@ void CMC_(PFX, _customize)(struct SNAME *_set_, struct CMC_ALLOC_NODE_NAME *allo
 
 bool CMC_(PFX, _insert)(struct SNAME *_set_, V value)
 {
+#ifdef CMC_DEV
+    CMC_DEV_FCALL;
+#endif
+
     bool new_node;
 
     struct CMC_DEF_ENTRY(SNAME) *entry = CMC_(PFX, _impl_insert_and_return)(_set_, value, &new_node);
@@ -156,6 +180,10 @@ bool CMC_(PFX, _insert)(struct SNAME *_set_, V value)
 
 bool CMC_(PFX, _insert_many)(struct SNAME *_set_, V value, size_t count)
 {
+#ifdef CMC_DEV
+    CMC_DEV_FCALL;
+#endif
+
     if (count == 0)
         goto success;
 
@@ -187,6 +215,10 @@ success:
 
 bool CMC_(PFX, _update)(struct SNAME *_set_, V value, size_t multiplicity)
 {
+#ifdef CMC_DEV
+    CMC_DEV_FCALL;
+#endif
+
     if (multiplicity == 0)
     {
         /* Effectively delete the entry */
@@ -232,6 +264,10 @@ success:
 
 bool CMC_(PFX, _remove)(struct SNAME *_set_, V value)
 {
+#ifdef CMC_DEV
+    CMC_DEV_FCALL;
+#endif
+
     if (CMC_(PFX, _empty)(_set_))
     {
         _set_->flag = CMC_FLAG_EMPTY;
@@ -268,6 +304,10 @@ bool CMC_(PFX, _remove)(struct SNAME *_set_, V value)
 
 size_t CMC_(PFX, _remove_all)(struct SNAME *_set_, V value)
 {
+#ifdef CMC_DEV
+    CMC_DEV_FCALL;
+#endif
+
     if (CMC_(PFX, _empty)(_set_))
     {
         _set_->flag = CMC_FLAG_EMPTY;
@@ -300,6 +340,10 @@ size_t CMC_(PFX, _remove_all)(struct SNAME *_set_, V value)
 
 bool CMC_(PFX, _max)(struct SNAME *_set_, V *value)
 {
+#ifdef CMC_DEV
+    CMC_DEV_FCALL;
+#endif
+
     if (CMC_(PFX, _empty)(_set_))
     {
         _set_->flag = CMC_FLAG_EMPTY;
@@ -337,6 +381,10 @@ bool CMC_(PFX, _max)(struct SNAME *_set_, V *value)
 
 bool CMC_(PFX, _min)(struct SNAME *_set_, V *value)
 {
+#ifdef CMC_DEV
+    CMC_DEV_FCALL;
+#endif
+
     if (CMC_(PFX, _empty)(_set_))
     {
         _set_->flag = CMC_FLAG_EMPTY;
@@ -374,6 +422,10 @@ bool CMC_(PFX, _min)(struct SNAME *_set_, V *value)
 
 size_t CMC_(PFX, _multiplicity_of)(struct SNAME *_set_, V value)
 {
+#ifdef CMC_DEV
+    CMC_DEV_FCALL;
+#endif
+
     struct CMC_DEF_ENTRY(SNAME) *entry = CMC_(PFX, _impl_get_entry)(_set_, value);
 
     _set_->flag = CMC_FLAG_OK;
@@ -388,6 +440,10 @@ size_t CMC_(PFX, _multiplicity_of)(struct SNAME *_set_, V value)
 
 bool CMC_(PFX, _contains)(struct SNAME *_set_, V value)
 {
+#ifdef CMC_DEV
+    CMC_DEV_FCALL;
+#endif
+
     _set_->flag = CMC_FLAG_OK;
 
     bool result = CMC_(PFX, _impl_get_entry)(_set_, value) != NULL;
@@ -399,41 +455,73 @@ bool CMC_(PFX, _contains)(struct SNAME *_set_, V value)
 
 bool CMC_(PFX, _empty)(struct SNAME *_set_)
 {
+#ifdef CMC_DEV
+    CMC_DEV_FCALL;
+#endif
+
     return _set_->count == 0;
 }
 
 bool CMC_(PFX, _full)(struct SNAME *_set_)
 {
+#ifdef CMC_DEV
+    CMC_DEV_FCALL;
+#endif
+
     return (double)_set_->capacity * _set_->load <= (double)_set_->count;
 }
 
 size_t CMC_(PFX, _count)(struct SNAME *_set_)
 {
+#ifdef CMC_DEV
+    CMC_DEV_FCALL;
+#endif
+
     return _set_->count;
 }
 
 size_t CMC_(PFX, _cardinality)(struct SNAME *_set_)
 {
+#ifdef CMC_DEV
+    CMC_DEV_FCALL;
+#endif
+
     return _set_->cardinality;
 }
 
 size_t CMC_(PFX, _capacity)(struct SNAME *_set_)
 {
+#ifdef CMC_DEV
+    CMC_DEV_FCALL;
+#endif
+
     return _set_->capacity;
 }
 
 double CMC_(PFX, _load)(struct SNAME *_set_)
 {
+#ifdef CMC_DEV
+    CMC_DEV_FCALL;
+#endif
+
     return _set_->load;
 }
 
 int CMC_(PFX, _flag)(struct SNAME *_set_)
 {
+#ifdef CMC_DEV
+    CMC_DEV_FCALL;
+#endif
+
     return _set_->flag;
 }
 
 bool CMC_(PFX, _resize)(struct SNAME *_set_, size_t capacity)
 {
+#ifdef CMC_DEV
+    CMC_DEV_FCALL;
+#endif
+
     _set_->flag = CMC_FLAG_OK;
 
     if (_set_->capacity == capacity)
@@ -513,6 +601,10 @@ success:
 
 struct SNAME *CMC_(PFX, _copy_of)(struct SNAME *_set_)
 {
+#ifdef CMC_DEV
+    CMC_DEV_FCALL;
+#endif
+
     struct SNAME *result =
         CMC_(PFX, _new_custom)(_set_->capacity * _set_->load, _set_->load, _set_->f_val, _set_->alloc, NULL);
 
@@ -560,6 +652,10 @@ struct SNAME *CMC_(PFX, _copy_of)(struct SNAME *_set_)
 
 bool CMC_(PFX, _equals)(struct SNAME *_set1_, struct SNAME *_set2_)
 {
+#ifdef CMC_DEV
+    CMC_DEV_FCALL;
+#endif
+
     _set1_->flag = CMC_FLAG_OK;
     _set2_->flag = CMC_FLAG_OK;
 
@@ -599,6 +695,10 @@ bool CMC_(PFX, _equals)(struct SNAME *_set1_, struct SNAME *_set2_)
 
 static struct CMC_DEF_ENTRY(SNAME) * CMC_(PFX, _impl_insert_and_return)(struct SNAME *_set_, V value, bool *new_node)
 {
+#ifdef CMC_DEV
+    CMC_DEV_FCALL;
+#endif
+
     /* If the entry already exists simply return it as we might do */
     /* something with it. This function only guarantees that there is */
     /* a valid entry for a given value */
@@ -685,6 +785,10 @@ static struct CMC_DEF_ENTRY(SNAME) * CMC_(PFX, _impl_insert_and_return)(struct S
 
 static struct CMC_DEF_ENTRY(SNAME) * CMC_(PFX, _impl_get_entry)(struct SNAME *_set_, V value)
 {
+#ifdef CMC_DEV
+    CMC_DEV_FCALL;
+#endif
+
     size_t hash = _set_->f_val->hash(value);
     size_t pos = hash % _set_->capacity;
 
@@ -704,6 +808,10 @@ static struct CMC_DEF_ENTRY(SNAME) * CMC_(PFX, _impl_get_entry)(struct SNAME *_s
 
 static size_t CMC_(PFX, _impl_calculate_size)(size_t required)
 {
+#ifdef CMC_DEV
+    CMC_DEV_FCALL;
+#endif
+
     const size_t count = sizeof(cmc_hashtable_primes) / sizeof(cmc_hashtable_primes[0]);
 
     if (cmc_hashtable_primes[count - 1] < required)

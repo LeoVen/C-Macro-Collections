@@ -51,6 +51,10 @@
 
 #include "cor/core.h"
 
+#ifdef CMC_DEV
+#include "utl/log.h"
+#endif
+
 /**
  * Used values
  * V - linkedlist data type

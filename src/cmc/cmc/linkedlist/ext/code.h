@@ -41,6 +41,10 @@
 
 struct CMC_DEF_ITER(SNAME) CMC_(PFX, _iter_start)(struct SNAME *target)
 {
+#ifdef CMC_DEV
+    CMC_DEV_FCALL;
+#endif
+
     struct CMC_DEF_ITER(SNAME) iter;
 
     iter.target = target;
@@ -54,6 +58,10 @@ struct CMC_DEF_ITER(SNAME) CMC_(PFX, _iter_start)(struct SNAME *target)
 
 struct CMC_DEF_ITER(SNAME) CMC_(PFX, _iter_end)(struct SNAME *target)
 {
+#ifdef CMC_DEV
+    CMC_DEV_FCALL;
+#endif
+
     struct CMC_DEF_ITER(SNAME) iter;
 
     iter.target = target;
@@ -70,16 +78,28 @@ struct CMC_DEF_ITER(SNAME) CMC_(PFX, _iter_end)(struct SNAME *target)
 
 bool CMC_(PFX, _iter_at_start)(struct CMC_DEF_ITER(SNAME) * iter)
 {
+#ifdef CMC_DEV
+    CMC_DEV_FCALL;
+#endif
+
     return CMC_(PFX, _empty)(iter->target) || iter->start;
 }
 
 bool CMC_(PFX, _iter_at_end)(struct CMC_DEF_ITER(SNAME) * iter)
 {
+#ifdef CMC_DEV
+    CMC_DEV_FCALL;
+#endif
+
     return CMC_(PFX, _empty)(iter->target) || iter->end;
 }
 
 bool CMC_(PFX, _iter_to_start)(struct CMC_DEF_ITER(SNAME) * iter)
 {
+#ifdef CMC_DEV
+    CMC_DEV_FCALL;
+#endif
+
     if (!CMC_(PFX, _empty)(iter->target))
     {
         iter->cursor = iter->target->head;
@@ -95,6 +115,10 @@ bool CMC_(PFX, _iter_to_start)(struct CMC_DEF_ITER(SNAME) * iter)
 
 bool CMC_(PFX, _iter_to_end)(struct CMC_DEF_ITER(SNAME) * iter)
 {
+#ifdef CMC_DEV
+    CMC_DEV_FCALL;
+#endif
+
     if (!CMC_(PFX, _empty)(iter->target))
     {
         iter->cursor = iter->target->tail;
@@ -110,6 +134,10 @@ bool CMC_(PFX, _iter_to_end)(struct CMC_DEF_ITER(SNAME) * iter)
 
 bool CMC_(PFX, _iter_next)(struct CMC_DEF_ITER(SNAME) * iter)
 {
+#ifdef CMC_DEV
+    CMC_DEV_FCALL;
+#endif
+
     if (iter->end)
         return false;
 
@@ -129,6 +157,10 @@ bool CMC_(PFX, _iter_next)(struct CMC_DEF_ITER(SNAME) * iter)
 
 bool CMC_(PFX, _iter_prev)(struct CMC_DEF_ITER(SNAME) * iter)
 {
+#ifdef CMC_DEV
+    CMC_DEV_FCALL;
+#endif
+
     if (iter->start)
         return false;
 
@@ -149,6 +181,10 @@ bool CMC_(PFX, _iter_prev)(struct CMC_DEF_ITER(SNAME) * iter)
 /* Returns true only if the iterator moved */
 bool CMC_(PFX, _iter_advance)(struct CMC_DEF_ITER(SNAME) * iter, size_t steps)
 {
+#ifdef CMC_DEV
+    CMC_DEV_FCALL;
+#endif
+
     if (iter->end)
         return false;
 
@@ -174,6 +210,10 @@ bool CMC_(PFX, _iter_advance)(struct CMC_DEF_ITER(SNAME) * iter, size_t steps)
 /* Returns true only if the iterator moved */
 bool CMC_(PFX, _iter_rewind)(struct CMC_DEF_ITER(SNAME) * iter, size_t steps)
 {
+#ifdef CMC_DEV
+    CMC_DEV_FCALL;
+#endif
+
     if (iter->start)
         return false;
 
@@ -200,6 +240,10 @@ bool CMC_(PFX, _iter_rewind)(struct CMC_DEF_ITER(SNAME) * iter, size_t steps)
 /* given index */
 bool CMC_(PFX, _iter_go_to)(struct CMC_DEF_ITER(SNAME) * iter, size_t index)
 {
+#ifdef CMC_DEV
+    CMC_DEV_FCALL;
+#endif
+
     if (index >= iter->target->count)
         return false;
 
@@ -213,6 +257,10 @@ bool CMC_(PFX, _iter_go_to)(struct CMC_DEF_ITER(SNAME) * iter, size_t index)
 
 V CMC_(PFX, _iter_value)(struct CMC_DEF_ITER(SNAME) * iter)
 {
+#ifdef CMC_DEV
+    CMC_DEV_FCALL;
+#endif
+
     if (CMC_(PFX, _empty)(iter->target))
         return (V){ 0 };
 
@@ -221,6 +269,10 @@ V CMC_(PFX, _iter_value)(struct CMC_DEF_ITER(SNAME) * iter)
 
 V *CMC_(PFX, _iter_rvalue)(struct CMC_DEF_ITER(SNAME) * iter)
 {
+#ifdef CMC_DEV
+    CMC_DEV_FCALL;
+#endif
+
     if (CMC_(PFX, _empty)(iter->target))
         return NULL;
 
@@ -229,11 +281,19 @@ V *CMC_(PFX, _iter_rvalue)(struct CMC_DEF_ITER(SNAME) * iter)
 
 size_t CMC_(PFX, _iter_index)(struct CMC_DEF_ITER(SNAME) * iter)
 {
+#ifdef CMC_DEV
+    CMC_DEV_FCALL;
+#endif
+
     return iter->index;
 }
 
 struct CMC_DEF_NODE(SNAME) * CMC_(PFX, _iter_node)(struct CMC_DEF_ITER(SNAME) * iter)
 {
+#ifdef CMC_DEV
+    CMC_DEV_FCALL;
+#endif
+
     return iter->cursor;
 }
 
@@ -248,6 +308,10 @@ struct CMC_DEF_NODE(SNAME) * CMC_(PFX, _iter_node)(struct CMC_DEF_ITER(SNAME) * 
 
 struct CMC_DEF_NODE(SNAME) * CMC_(PFX, _new_node)(struct SNAME *_list_, V value)
 {
+#ifdef CMC_DEV
+    CMC_DEV_FCALL;
+#endif
+
     struct CMC_DEF_NODE(SNAME) *_node_ = _list_->alloc->malloc(sizeof(struct CMC_DEF_NODE(SNAME)));
 
     if (!_node_)
@@ -265,16 +329,28 @@ struct CMC_DEF_NODE(SNAME) * CMC_(PFX, _new_node)(struct SNAME *_list_, V value)
 
 void CMC_(PFX, _free_node)(struct SNAME *_list_, struct CMC_DEF_NODE(SNAME) * _node_)
 {
+#ifdef CMC_DEV
+    CMC_DEV_FCALL;
+#endif
+
     _list_->alloc->free(_node_);
 }
 
 struct CMC_DEF_NODE(SNAME) * CMC_(PFX, _head)(struct SNAME *_list_)
 {
+#ifdef CMC_DEV
+    CMC_DEV_FCALL;
+#endif
+
     return _list_->head;
 }
 
 struct CMC_DEF_NODE(SNAME) * CMC_(PFX, _get_node)(struct SNAME *_list_, size_t index)
 {
+#ifdef CMC_DEV
+    CMC_DEV_FCALL;
+#endif
+
     if (CMC_(PFX, _empty)(_list_))
     {
         _list_->flag = CMC_FLAG_EMPTY;
@@ -313,11 +389,19 @@ struct CMC_DEF_NODE(SNAME) * CMC_(PFX, _get_node)(struct SNAME *_list_, size_t i
 
 struct CMC_DEF_NODE(SNAME) * CMC_(PFX, _tail)(struct SNAME *_list_)
 {
+#ifdef CMC_DEV
+    CMC_DEV_FCALL;
+#endif
+
     return _list_->tail;
 }
 
 bool CMC_(PFX, _add_next)(struct SNAME *_owner_, struct CMC_DEF_NODE(SNAME) * _node_, V value)
 {
+#ifdef CMC_DEV
+    CMC_DEV_FCALL;
+#endif
+
     struct CMC_DEF_NODE(SNAME) *new_node = CMC_(PFX, _new_node)(_owner_, value);
 
     if (!new_node)
@@ -341,6 +425,10 @@ bool CMC_(PFX, _add_next)(struct SNAME *_owner_, struct CMC_DEF_NODE(SNAME) * _n
 
 bool CMC_(PFX, _add_prev)(struct SNAME *_owner_, struct CMC_DEF_NODE(SNAME) * _node_, V value)
 {
+#ifdef CMC_DEV
+    CMC_DEV_FCALL;
+#endif
+
     struct CMC_DEF_NODE(SNAME) *new_node = CMC_(PFX, _new_node)(_owner_, value);
 
     if (!new_node)
@@ -364,6 +452,10 @@ bool CMC_(PFX, _add_prev)(struct SNAME *_owner_, struct CMC_DEF_NODE(SNAME) * _n
 
 bool CMC_(PFX, _del_next)(struct SNAME *_owner_, struct CMC_DEF_NODE(SNAME) * _node_)
 {
+#ifdef CMC_DEV
+    CMC_DEV_FCALL;
+#endif
+
     if (_node_->next == NULL)
     {
         _owner_->flag = CMC_FLAG_INVALID;
@@ -389,6 +481,10 @@ bool CMC_(PFX, _del_next)(struct SNAME *_owner_, struct CMC_DEF_NODE(SNAME) * _n
 
 bool CMC_(PFX, _del_curr)(struct SNAME *_owner_, struct CMC_DEF_NODE(SNAME) * _node_)
 {
+#ifdef CMC_DEV
+    CMC_DEV_FCALL;
+#endif
+
     if (_node_->prev != NULL)
         _node_->prev->next = _node_->next;
     else
@@ -409,6 +505,10 @@ bool CMC_(PFX, _del_curr)(struct SNAME *_owner_, struct CMC_DEF_NODE(SNAME) * _n
 
 bool CMC_(PFX, _del_prev)(struct SNAME *_owner_, struct CMC_DEF_NODE(SNAME) * _node_)
 {
+#ifdef CMC_DEV
+    CMC_DEV_FCALL;
+#endif
+
     if (_node_->prev == NULL)
     {
         _owner_->flag = CMC_FLAG_INVALID;
@@ -434,11 +534,19 @@ bool CMC_(PFX, _del_prev)(struct SNAME *_owner_, struct CMC_DEF_NODE(SNAME) * _n
 
 struct CMC_DEF_NODE(SNAME) * CMC_(PFX, _next_node)(struct CMC_DEF_NODE(SNAME) * _node_)
 {
+#ifdef CMC_DEV
+    CMC_DEV_FCALL;
+#endif
+
     return _node_->next;
 }
 
 struct CMC_DEF_NODE(SNAME) * CMC_(PFX, _prev_node)(struct CMC_DEF_NODE(SNAME) * _node_)
 {
+#ifdef CMC_DEV
+    CMC_DEV_FCALL;
+#endif
+
     return _node_->prev;
 }
 
@@ -453,6 +561,10 @@ struct CMC_DEF_NODE(SNAME) * CMC_(PFX, _prev_node)(struct CMC_DEF_NODE(SNAME) * 
 
 bool CMC_(PFX, _to_string)(struct SNAME *_list_, FILE *fptr)
 {
+#ifdef CMC_DEV
+    CMC_DEV_FCALL;
+#endif
+
     struct SNAME *l_ = _list_;
 
     return 0 <= fprintf(fptr,
@@ -471,6 +583,10 @@ bool CMC_(PFX, _to_string)(struct SNAME *_list_, FILE *fptr)
 
 bool CMC_(PFX, _print)(struct SNAME *_list_, FILE *fptr, const char *start, const char *separator, const char *end)
 {
+#ifdef CMC_DEV
+    CMC_DEV_FCALL;
+#endif
+
     fprintf(fptr, "%s", start);
 
     struct CMC_DEF_NODE(SNAME) *scan = _list_->head;

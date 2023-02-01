@@ -30,12 +30,20 @@ static void CMC_(PFX, _impl_float_down_min)(struct SNAME *_heap_);
 
 struct SNAME *CMC_(PFX, _new)(size_t capacity, struct CMC_DEF_FVAL(SNAME) * f_val)
 {
+#ifdef CMC_DEV
+    CMC_DEV_FCALL;
+#endif
+
     return CMC_(PFX, _new_custom)(capacity, f_val, NULL, NULL);
 }
 
 struct SNAME *CMC_(PFX, _new_custom)(size_t capacity, struct CMC_DEF_FVAL(SNAME) * f_val,
                                      struct CMC_ALLOC_NODE_NAME *alloc, struct CMC_CALLBACKS_NAME *callbacks)
 {
+#ifdef CMC_DEV
+    CMC_DEV_FCALL;
+#endif
+
     CMC_CALLBACKS_MAYBE_UNUSED(callbacks);
 
     if (capacity == 0 || capacity == UINTMAX_MAX)
@@ -75,6 +83,10 @@ struct SNAME *CMC_(PFX, _new_custom)(size_t capacity, struct CMC_DEF_FVAL(SNAME)
 
 void CMC_(PFX, _clear)(struct SNAME *_heap_)
 {
+#ifdef CMC_DEV
+    CMC_DEV_FCALL;
+#endif
+
     if (_heap_->f_val->free)
     {
         for (size_t i = 0; i < _heap_->count; i++)
@@ -92,6 +104,10 @@ void CMC_(PFX, _clear)(struct SNAME *_heap_)
 
 void CMC_(PFX, _free)(struct SNAME *_heap_)
 {
+#ifdef CMC_DEV
+    CMC_DEV_FCALL;
+#endif
+
     if (_heap_->f_val->free)
     {
         for (size_t i = 0; i < _heap_->count; i++)
@@ -108,6 +124,10 @@ void CMC_(PFX, _free)(struct SNAME *_heap_)
 void CMC_(PFX, _customize)(struct SNAME *_heap_, struct CMC_ALLOC_NODE_NAME *alloc,
                            struct CMC_CALLBACKS_NAME *callbacks)
 {
+#ifdef CMC_DEV
+    CMC_DEV_FCALL;
+#endif
+
     CMC_CALLBACKS_MAYBE_UNUSED(callbacks);
 
     if (!alloc)
@@ -122,6 +142,10 @@ void CMC_(PFX, _customize)(struct SNAME *_heap_, struct CMC_ALLOC_NODE_NAME *all
 
 bool CMC_(PFX, _insert)(struct SNAME *_heap_, V value)
 {
+#ifdef CMC_DEV
+    CMC_DEV_FCALL;
+#endif
+
     if (CMC_(PFX, _full)(_heap_))
     {
         if (!CMC_(PFX, _resize)(_heap_, _heap_->capacity * 4))
@@ -178,6 +202,10 @@ bool CMC_(PFX, _insert)(struct SNAME *_heap_, V value)
 
 bool CMC_(PFX, _remove_max)(struct SNAME *_heap_)
 {
+#ifdef CMC_DEV
+    CMC_DEV_FCALL;
+#endif
+
     if (CMC_(PFX, _empty)(_heap_))
     {
         _heap_->flag = CMC_FLAG_EMPTY;
@@ -230,6 +258,10 @@ success:
 
 bool CMC_(PFX, _remove_min)(struct SNAME *_heap_)
 {
+#ifdef CMC_DEV
+    CMC_DEV_FCALL;
+#endif
+
     if (CMC_(PFX, _empty)(_heap_))
     {
         _heap_->flag = CMC_FLAG_EMPTY;
@@ -282,6 +314,10 @@ success:
 
 bool CMC_(PFX, _update_max)(struct SNAME *_heap_, V value)
 {
+#ifdef CMC_DEV
+    CMC_DEV_FCALL;
+#endif
+
     if (CMC_(PFX, _empty)(_heap_))
     {
         _heap_->flag = CMC_FLAG_EMPTY;
@@ -318,6 +354,10 @@ bool CMC_(PFX, _update_max)(struct SNAME *_heap_, V value)
 
 bool CMC_(PFX, _update_min)(struct SNAME *_heap_, V value)
 {
+#ifdef CMC_DEV
+    CMC_DEV_FCALL;
+#endif
+
     if (CMC_(PFX, _empty)(_heap_))
     {
         _heap_->flag = CMC_FLAG_EMPTY;
@@ -354,6 +394,10 @@ bool CMC_(PFX, _update_min)(struct SNAME *_heap_, V value)
 
 V CMC_(PFX, _max)(struct SNAME *_heap_)
 {
+#ifdef CMC_DEV
+    CMC_DEV_FCALL;
+#endif
+
     if (CMC_(PFX, _empty)(_heap_))
     {
         _heap_->flag = CMC_FLAG_EMPTY;
@@ -374,6 +418,10 @@ V CMC_(PFX, _max)(struct SNAME *_heap_)
 
 V CMC_(PFX, _min)(struct SNAME *_heap_)
 {
+#ifdef CMC_DEV
+    CMC_DEV_FCALL;
+#endif
+
     if (CMC_(PFX, _empty)(_heap_))
     {
         _heap_->flag = CMC_FLAG_EMPTY;
@@ -389,6 +437,10 @@ V CMC_(PFX, _min)(struct SNAME *_heap_)
 
 bool CMC_(PFX, _contains)(struct SNAME *_heap_, V value)
 {
+#ifdef CMC_DEV
+    CMC_DEV_FCALL;
+#endif
+
     _heap_->flag = CMC_FLAG_OK;
 
     bool result = false;
@@ -409,32 +461,56 @@ bool CMC_(PFX, _contains)(struct SNAME *_heap_, V value)
 
 bool CMC_(PFX, _empty)(struct SNAME *_heap_)
 {
+#ifdef CMC_DEV
+    CMC_DEV_FCALL;
+#endif
+
     return _heap_->count == 0;
 }
 
 bool CMC_(PFX, _full)(struct SNAME *_heap_)
 {
+#ifdef CMC_DEV
+    CMC_DEV_FCALL;
+#endif
+
     /* The heap is full if all nodes are completely filled */
     return _heap_->size >= _heap_->capacity && _heap_->count % 2 == 0;
 }
 
 size_t CMC_(PFX, _count)(struct SNAME *_heap_)
 {
+#ifdef CMC_DEV
+    CMC_DEV_FCALL;
+#endif
+
     return _heap_->count;
 }
 
 size_t CMC_(PFX, _capacity)(struct SNAME *_heap_)
 {
+#ifdef CMC_DEV
+    CMC_DEV_FCALL;
+#endif
+
     return _heap_->capacity;
 }
 
 int CMC_(PFX, _flag)(struct SNAME *_heap_)
 {
+#ifdef CMC_DEV
+    CMC_DEV_FCALL;
+#endif
+
     return _heap_->flag;
 }
 
 bool CMC_(PFX, _resize)(struct SNAME *_heap_, size_t capacity)
 {
+#ifdef CMC_DEV
+    CMC_DEV_FCALL;
+#endif
+
     if (_heap_->capacity == capacity)
         goto success;
 
@@ -480,6 +556,10 @@ success:
 
 struct SNAME *CMC_(PFX, _copy_of)(struct SNAME *_heap_)
 {
+#ifdef CMC_DEV
+    CMC_DEV_FCALL;
+#endif
+
     struct SNAME *result = _heap_->alloc->malloc(sizeof(struct SNAME));
 
     if (!result)
@@ -522,6 +602,10 @@ struct SNAME *CMC_(PFX, _copy_of)(struct SNAME *_heap_)
 
 bool CMC_(PFX, _equals)(struct SNAME *_heap1_, struct SNAME *_heap2_)
 {
+#ifdef CMC_DEV
+    CMC_DEV_FCALL;
+#endif
+
     _heap1_->flag = CMC_FLAG_OK;
     _heap2_->flag = CMC_FLAG_OK;
 
@@ -542,6 +626,10 @@ bool CMC_(PFX, _equals)(struct SNAME *_heap1_, struct SNAME *_heap2_)
 
 static void CMC_(PFX, _impl_float_up_max)(struct SNAME *_heap_)
 {
+#ifdef CMC_DEV
+    CMC_DEV_FCALL;
+#endif
+
     size_t index = _heap_->size - 1;
 
     V(*curr_node)[2] = &(_heap_->buffer[index]);
@@ -589,6 +677,10 @@ static void CMC_(PFX, _impl_float_up_max)(struct SNAME *_heap_)
 
 static void CMC_(PFX, _impl_float_up_min)(struct SNAME *_heap_)
 {
+#ifdef CMC_DEV
+    CMC_DEV_FCALL;
+#endif
+
     size_t index = _heap_->size - 1;
 
     V(*curr_node)[2] = &(_heap_->buffer[index]);
@@ -617,6 +709,10 @@ static void CMC_(PFX, _impl_float_up_min)(struct SNAME *_heap_)
 
 static void CMC_(PFX, _impl_float_down_max)(struct SNAME *_heap_)
 {
+#ifdef CMC_DEV
+    CMC_DEV_FCALL;
+#endif
+
     /* Floats Down from the MaxHeap */
     size_t index = 0;
 
@@ -700,6 +796,10 @@ static void CMC_(PFX, _impl_float_down_max)(struct SNAME *_heap_)
 
 static void CMC_(PFX, _impl_float_down_min)(struct SNAME *_heap_)
 {
+#ifdef CMC_DEV
+    CMC_DEV_FCALL;
+#endif
+
     /* Floats Down from the MinHeap */
     size_t index = 0;
 

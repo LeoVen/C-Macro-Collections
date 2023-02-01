@@ -42,6 +42,9 @@
 
 #ifndef CMC_ARGS_FALLTHROUGH
 
+#undef CMC_DEV
+#undef CMC_SAC
+
 #ifndef CMC_ARGS_KEY_FALLTHROUGH
 #undef K
 #endif

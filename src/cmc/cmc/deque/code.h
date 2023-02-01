@@ -27,12 +27,20 @@
 
 struct SNAME *CMC_(PFX, _new)(size_t capacity, struct CMC_DEF_FVAL(SNAME) * f_val)
 {
+#ifdef CMC_DEV
+    CMC_DEV_FCALL;
+#endif
+
     return CMC_(PFX, _new_custom)(capacity, f_val, NULL, NULL);
 }
 
 struct SNAME *CMC_(PFX, _new_custom)(size_t capacity, struct CMC_DEF_FVAL(SNAME) * f_val,
                                      struct CMC_ALLOC_NODE_NAME *alloc, struct CMC_CALLBACKS_NAME *callbacks)
 {
+#ifdef CMC_DEV
+    CMC_DEV_FCALL;
+#endif
+
     CMC_CALLBACKS_MAYBE_UNUSED(callbacks);
 
     if (capacity < 1)
@@ -71,6 +79,10 @@ struct SNAME *CMC_(PFX, _new_custom)(size_t capacity, struct CMC_DEF_FVAL(SNAME)
 
 void CMC_(PFX, _clear)(struct SNAME *_deque_)
 {
+#ifdef CMC_DEV
+    CMC_DEV_FCALL;
+#endif
+
     if (_deque_->f_val->free)
     {
         for (size_t i = _deque_->front, j = 0; j < _deque_->count; j++)
@@ -92,6 +104,10 @@ void CMC_(PFX, _clear)(struct SNAME *_deque_)
 
 void CMC_(PFX, _free)(struct SNAME *_deque_)
 {
+#ifdef CMC_DEV
+    CMC_DEV_FCALL;
+#endif
+
     if (_deque_->f_val->free)
     {
         for (size_t i = _deque_->front, j = 0; j < _deque_->count; j++)
@@ -109,6 +125,10 @@ void CMC_(PFX, _free)(struct SNAME *_deque_)
 void CMC_(PFX, _customize)(struct SNAME *_deque_, struct CMC_ALLOC_NODE_NAME *alloc,
                            struct CMC_CALLBACKS_NAME *callbacks)
 {
+#ifdef CMC_DEV
+    CMC_DEV_FCALL;
+#endif
+
     CMC_CALLBACKS_MAYBE_UNUSED(callbacks);
 
     if (!alloc)
@@ -123,6 +143,10 @@ void CMC_(PFX, _customize)(struct SNAME *_deque_, struct CMC_ALLOC_NODE_NAME *al
 
 bool CMC_(PFX, _push_front)(struct SNAME *_deque_, V value)
 {
+#ifdef CMC_DEV
+    CMC_DEV_FCALL;
+#endif
+
     if (CMC_(PFX, _full)(_deque_))
     {
         if (!CMC_(PFX, _resize)(_deque_, _deque_->capacity * 2))
@@ -143,6 +167,10 @@ bool CMC_(PFX, _push_front)(struct SNAME *_deque_, V value)
 
 bool CMC_(PFX, _push_back)(struct SNAME *_deque_, V value)
 {
+#ifdef CMC_DEV
+    CMC_DEV_FCALL;
+#endif
+
     if (CMC_(PFX, _full)(_deque_))
     {
         if (!CMC_(PFX, _resize)(_deque_, _deque_->capacity * 2))
@@ -163,6 +191,10 @@ bool CMC_(PFX, _push_back)(struct SNAME *_deque_, V value)
 
 bool CMC_(PFX, _pop_front)(struct SNAME *_deque_)
 {
+#ifdef CMC_DEV
+    CMC_DEV_FCALL;
+#endif
+
     if (CMC_(PFX, _empty)(_deque_))
     {
         _deque_->flag = CMC_FLAG_EMPTY;
@@ -183,6 +215,10 @@ bool CMC_(PFX, _pop_front)(struct SNAME *_deque_)
 
 bool CMC_(PFX, _pop_back)(struct SNAME *_deque_)
 {
+#ifdef CMC_DEV
+    CMC_DEV_FCALL;
+#endif
+
     if (CMC_(PFX, _empty)(_deque_))
     {
         _deque_->flag = CMC_FLAG_EMPTY;
@@ -203,6 +239,10 @@ bool CMC_(PFX, _pop_back)(struct SNAME *_deque_)
 
 V CMC_(PFX, _front)(struct SNAME *_deque_)
 {
+#ifdef CMC_DEV
+    CMC_DEV_FCALL;
+#endif
+
     if (CMC_(PFX, _empty)(_deque_))
     {
         _deque_->flag = CMC_FLAG_EMPTY;
@@ -218,6 +258,10 @@ V CMC_(PFX, _front)(struct SNAME *_deque_)
 
 V CMC_(PFX, _back)(struct SNAME *_deque_)
 {
+#ifdef CMC_DEV
+    CMC_DEV_FCALL;
+#endif
+
     if (CMC_(PFX, _empty)(_deque_))
     {
         _deque_->flag = CMC_FLAG_EMPTY;
@@ -233,6 +277,10 @@ V CMC_(PFX, _back)(struct SNAME *_deque_)
 
 bool CMC_(PFX, _contains)(struct SNAME *_deque_, V value)
 {
+#ifdef CMC_DEV
+    CMC_DEV_FCALL;
+#endif
+
     _deque_->flag = CMC_FLAG_OK;
 
     bool result = false;
@@ -255,31 +303,55 @@ bool CMC_(PFX, _contains)(struct SNAME *_deque_, V value)
 
 bool CMC_(PFX, _empty)(struct SNAME *_deque_)
 {
+#ifdef CMC_DEV
+    CMC_DEV_FCALL;
+#endif
+
     return _deque_->count == 0;
 }
 
 bool CMC_(PFX, _full)(struct SNAME *_deque_)
 {
+#ifdef CMC_DEV
+    CMC_DEV_FCALL;
+#endif
+
     return _deque_->count >= _deque_->capacity;
 }
 
 size_t CMC_(PFX, _count)(struct SNAME *_deque_)
 {
+#ifdef CMC_DEV
+    CMC_DEV_FCALL;
+#endif
+
     return _deque_->count;
 }
 
 size_t CMC_(PFX, _capacity)(struct SNAME *_deque_)
 {
+#ifdef CMC_DEV
+    CMC_DEV_FCALL;
+#endif
+
     return _deque_->capacity;
 }
 
 int CMC_(PFX, _flag)(struct SNAME *_deque_)
 {
+#ifdef CMC_DEV
+    CMC_DEV_FCALL;
+#endif
+
     return _deque_->flag;
 }
 
 bool CMC_(PFX, _resize)(struct SNAME *_deque_, size_t capacity)
 {
+#ifdef CMC_DEV
+    CMC_DEV_FCALL;
+#endif
+
     _deque_->flag = CMC_FLAG_OK;
 
     if (_deque_->capacity == capacity)
@@ -322,6 +394,10 @@ success:
 
 struct SNAME *CMC_(PFX, _copy_of)(struct SNAME *_deque_)
 {
+#ifdef CMC_DEV
+    CMC_DEV_FCALL;
+#endif
+
     struct SNAME *result = CMC_(PFX, _new_custom)(_deque_->capacity, _deque_->f_val, _deque_->alloc, NULL);
 
     if (!result)
@@ -362,6 +438,10 @@ struct SNAME *CMC_(PFX, _copy_of)(struct SNAME *_deque_)
 
 bool CMC_(PFX, _equals)(struct SNAME *_deque1_, struct SNAME *_deque2_)
 {
+#ifdef CMC_DEV
+    CMC_DEV_FCALL;
+#endif
+
     _deque1_->flag = CMC_FLAG_OK;
     _deque2_->flag = CMC_FLAG_OK;
 

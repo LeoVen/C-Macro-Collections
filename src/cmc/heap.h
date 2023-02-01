@@ -54,6 +54,10 @@
 #include "cor/core.h"
 #include "cor/heap.h"
 
+#ifdef CMC_DEV
+#include "utl/log.h"
+#endif
+
 /**
  * Used values
  * V - heap value data type

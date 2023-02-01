@@ -30,12 +30,20 @@ void CMC_(PFX, _impl_sort_insertion)(V *array, int (*cmp)(V, V), size_t low, siz
 
 struct SNAME *CMC_(PFX, _new)(size_t capacity, struct CMC_DEF_FVAL(SNAME) * f_val)
 {
+#ifdef CMC_DEV
+    CMC_DEV_FCALL;
+#endif
+
     return CMC_(PFX, _new_custom)(capacity, f_val, NULL, NULL);
 }
 
 struct SNAME *CMC_(PFX, _new_custom)(size_t capacity, struct CMC_DEF_FVAL(SNAME) * f_val,
                                      struct CMC_ALLOC_NODE_NAME *alloc, struct CMC_CALLBACKS_NAME *callbacks)
 {
+#ifdef CMC_DEV
+    CMC_DEV_FCALL;
+#endif
+
     CMC_CALLBACKS_MAYBE_UNUSED(callbacks);
 
     if (capacity < 1)
@@ -70,6 +78,10 @@ struct SNAME *CMC_(PFX, _new_custom)(size_t capacity, struct CMC_DEF_FVAL(SNAME)
 
 void CMC_(PFX, _clear)(struct SNAME *_list_)
 {
+#ifdef CMC_DEV
+    CMC_DEV_FCALL;
+#endif
+
     if (_list_->f_val->free)
     {
         for (size_t i = 0; i < _list_->count; i++)
@@ -84,6 +96,10 @@ void CMC_(PFX, _clear)(struct SNAME *_list_)
 
 void CMC_(PFX, _free)(struct SNAME *_list_)
 {
+#ifdef CMC_DEV
+    CMC_DEV_FCALL;
+#endif
+
     if (_list_->f_val->free)
     {
         for (size_t i = 0; i < _list_->count; i++)
@@ -97,6 +113,10 @@ void CMC_(PFX, _free)(struct SNAME *_list_)
 void CMC_(PFX, _customize)(struct SNAME *_list_, struct CMC_ALLOC_NODE_NAME *alloc,
                            struct CMC_CALLBACKS_NAME *callbacks)
 {
+#ifdef CMC_DEV
+    CMC_DEV_FCALL;
+#endif
+
     CMC_CALLBACKS_MAYBE_UNUSED(callbacks);
 
     if (!alloc)
@@ -111,6 +131,10 @@ void CMC_(PFX, _customize)(struct SNAME *_list_, struct CMC_ALLOC_NODE_NAME *all
 
 bool CMC_(PFX, _insert)(struct SNAME *_list_, V value)
 {
+#ifdef CMC_DEV
+    CMC_DEV_FCALL;
+#endif
+
     if (CMC_(PFX, _full)(_list_))
     {
         if (!CMC_(PFX, _resize)(_list_, _list_->capacity * 2))
@@ -129,6 +153,10 @@ bool CMC_(PFX, _insert)(struct SNAME *_list_, V value)
 
 bool CMC_(PFX, _remove)(struct SNAME *_list_, size_t index)
 {
+#ifdef CMC_DEV
+    CMC_DEV_FCALL;
+#endif
+
     if (CMC_(PFX, _empty)(_list_))
     {
         _list_->flag = CMC_FLAG_EMPTY;
@@ -154,6 +182,10 @@ bool CMC_(PFX, _remove)(struct SNAME *_list_, size_t index)
 
 V CMC_(PFX, _max)(struct SNAME *_list_)
 {
+#ifdef CMC_DEV
+    CMC_DEV_FCALL;
+#endif
+
     if (CMC_(PFX, _empty)(_list_))
     {
         _list_->flag = CMC_FLAG_EMPTY;
@@ -171,6 +203,10 @@ V CMC_(PFX, _max)(struct SNAME *_list_)
 
 V CMC_(PFX, _min)(struct SNAME *_list_)
 {
+#ifdef CMC_DEV
+    CMC_DEV_FCALL;
+#endif
+
     if (CMC_(PFX, _empty)(_list_))
     {
         _list_->flag = CMC_FLAG_EMPTY;
@@ -188,6 +224,10 @@ V CMC_(PFX, _min)(struct SNAME *_list_)
 
 V CMC_(PFX, _get)(struct SNAME *_list_, size_t index)
 {
+#ifdef CMC_DEV
+    CMC_DEV_FCALL;
+#endif
+
     if (CMC_(PFX, _empty)(_list_))
     {
         _list_->flag = CMC_FLAG_EMPTY;
@@ -211,6 +251,10 @@ V CMC_(PFX, _get)(struct SNAME *_list_, size_t index)
 
 size_t CMC_(PFX, _index_of)(struct SNAME *_list_, V value, bool from_start)
 {
+#ifdef CMC_DEV
+    CMC_DEV_FCALL;
+#endif
+
     _list_->flag = CMC_FLAG_OK;
 
     CMC_(PFX, _sort)(_list_);
@@ -227,6 +271,10 @@ size_t CMC_(PFX, _index_of)(struct SNAME *_list_, V value, bool from_start)
 
 bool CMC_(PFX, _contains)(struct SNAME *_list_, V value)
 {
+#ifdef CMC_DEV
+    CMC_DEV_FCALL;
+#endif
+
     _list_->flag = CMC_FLAG_OK;
 
     if (CMC_(PFX, _empty)(_list_))
@@ -241,31 +289,55 @@ bool CMC_(PFX, _contains)(struct SNAME *_list_, V value)
 
 bool CMC_(PFX, _empty)(struct SNAME *_list_)
 {
+#ifdef CMC_DEV
+    CMC_DEV_FCALL;
+#endif
+
     return _list_->count == 0;
 }
 
 bool CMC_(PFX, _full)(struct SNAME *_list_)
 {
+#ifdef CMC_DEV
+    CMC_DEV_FCALL;
+#endif
+
     return _list_->count >= _list_->capacity;
 }
 
 size_t CMC_(PFX, _count)(struct SNAME *_list_)
 {
+#ifdef CMC_DEV
+    CMC_DEV_FCALL;
+#endif
+
     return _list_->count;
 }
 
 size_t CMC_(PFX, _capacity)(struct SNAME *_list_)
 {
+#ifdef CMC_DEV
+    CMC_DEV_FCALL;
+#endif
+
     return _list_->capacity;
 }
 
 int CMC_(PFX, _flag)(struct SNAME *_list_)
 {
+#ifdef CMC_DEV
+    CMC_DEV_FCALL;
+#endif
+
     return _list_->flag;
 }
 
 bool CMC_(PFX, _resize)(struct SNAME *_list_, size_t capacity)
 {
+#ifdef CMC_DEV
+    CMC_DEV_FCALL;
+#endif
+
     if (_list_->capacity == capacity)
         goto success;
 
@@ -299,6 +371,10 @@ success:
 
 void CMC_(PFX, _sort)(struct SNAME *_list_)
 {
+#ifdef CMC_DEV
+    CMC_DEV_FCALL;
+#endif
+
     _list_->flag = CMC_FLAG_OK;
 
     if (!_list_->is_sorted && _list_->count > 1)
@@ -312,6 +388,10 @@ void CMC_(PFX, _sort)(struct SNAME *_list_)
 
 struct SNAME *CMC_(PFX, _copy_of)(struct SNAME *_list_)
 {
+#ifdef CMC_DEV
+    CMC_DEV_FCALL;
+#endif
+
     struct SNAME *result = CMC_(PFX, _new_custom)(_list_->capacity, _list_->f_val, _list_->alloc, NULL);
 
     if (!result)
@@ -339,6 +419,10 @@ struct SNAME *CMC_(PFX, _copy_of)(struct SNAME *_list_)
 
 bool CMC_(PFX, _equals)(struct SNAME *_list1_, struct SNAME *_list2_)
 {
+#ifdef CMC_DEV
+    CMC_DEV_FCALL;
+#endif
+
     if (_list1_->count != _list2_->count)
         return false;
 
@@ -356,6 +440,10 @@ bool CMC_(PFX, _equals)(struct SNAME *_list1_, struct SNAME *_list2_)
 
 static size_t CMC_(PFX, _impl_binary_search_first)(struct SNAME *_list_, V value)
 {
+#ifdef CMC_DEV
+    CMC_DEV_FCALL;
+#endif
+
     if (CMC_(PFX, _empty)(_list_))
         return 1;
 
@@ -381,6 +469,10 @@ static size_t CMC_(PFX, _impl_binary_search_first)(struct SNAME *_list_, V value
 
 static size_t CMC_(PFX, _impl_binary_search_last)(struct SNAME *_list_, V value)
 {
+#ifdef CMC_DEV
+    CMC_DEV_FCALL;
+#endif
+
     if (CMC_(PFX, _empty)(_list_))
         return 1;
 
@@ -410,6 +502,10 @@ static size_t CMC_(PFX, _impl_binary_search_last)(struct SNAME *_list_, V value)
 /* - Tail recursion: minimize recursion depth */
 void CMC_(PFX, _impl_sort_quicksort)(V *array, int (*cmp)(V, V), size_t low, size_t high)
 {
+#ifdef CMC_DEV
+    CMC_DEV_FCALL;
+#endif
+
     while (low < high)
     {
         /* Quicksort performs poorly for smaller arrays so let */
@@ -463,6 +559,10 @@ void CMC_(PFX, _impl_sort_quicksort)(V *array, int (*cmp)(V, V), size_t low, siz
 
 void CMC_(PFX, _impl_sort_insertion)(V *array, int (*cmp)(V, V), size_t low, size_t high)
 {
+#ifdef CMC_DEV
+    CMC_DEV_FCALL;
+#endif
+
     for (size_t i = low + 1; i <= high; i++)
     {
         V _tmp_ = array[i];

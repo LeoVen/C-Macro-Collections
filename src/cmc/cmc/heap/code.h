@@ -28,12 +28,20 @@ static void CMC_(PFX, _impl_float_down)(struct SNAME *_heap_, size_t index);
 
 struct SNAME *CMC_(PFX, _new)(size_t capacity, enum cmc_heap_order HO, struct CMC_DEF_FVAL(SNAME) * f_val)
 {
+#ifdef CMC_DEV
+    CMC_DEV_FCALL;
+#endif
+
     return CMC_(PFX, _new_custom)(capacity, HO, f_val, NULL, NULL);
 }
 
 struct SNAME *CMC_(PFX, _new_custom)(size_t capacity, enum cmc_heap_order HO, struct CMC_DEF_FVAL(SNAME) * f_val,
                                      struct CMC_ALLOC_NODE_NAME *alloc, struct CMC_CALLBACKS_NAME *callbacks)
 {
+#ifdef CMC_DEV
+    CMC_DEV_FCALL;
+#endif
+
     CMC_CALLBACKS_MAYBE_UNUSED(callbacks);
 
     if (capacity < 1)
@@ -74,6 +82,10 @@ struct SNAME *CMC_(PFX, _new_custom)(size_t capacity, enum cmc_heap_order HO, st
 
 void CMC_(PFX, _clear)(struct SNAME *_heap_)
 {
+#ifdef CMC_DEV
+    CMC_DEV_FCALL;
+#endif
+
     if (_heap_->f_val->free)
     {
         for (size_t i = 0; i < _heap_->count; i++)
@@ -90,6 +102,10 @@ void CMC_(PFX, _clear)(struct SNAME *_heap_)
 
 void CMC_(PFX, _free)(struct SNAME *_heap_)
 {
+#ifdef CMC_DEV
+    CMC_DEV_FCALL;
+#endif
+
     if (_heap_->f_val->free)
     {
         for (size_t i = 0; i < _heap_->count; i++)
@@ -105,6 +121,10 @@ void CMC_(PFX, _free)(struct SNAME *_heap_)
 void CMC_(PFX, _customize)(struct SNAME *_heap_, struct CMC_ALLOC_NODE_NAME *alloc,
                            struct CMC_CALLBACKS_NAME *callbacks)
 {
+#ifdef CMC_DEV
+    CMC_DEV_FCALL;
+#endif
+
     CMC_CALLBACKS_MAYBE_UNUSED(callbacks);
 
     if (!alloc)
@@ -119,6 +139,10 @@ void CMC_(PFX, _customize)(struct SNAME *_heap_, struct CMC_ALLOC_NODE_NAME *all
 
 bool CMC_(PFX, _insert)(struct SNAME *_heap_, V value)
 {
+#ifdef CMC_DEV
+    CMC_DEV_FCALL;
+#endif
+
     if (CMC_(PFX, _full)(_heap_))
     {
         if (!CMC_(PFX, _resize)(_heap_, _heap_->count * 2))
@@ -141,6 +165,10 @@ bool CMC_(PFX, _insert)(struct SNAME *_heap_, V value)
 
 bool CMC_(PFX, _remove)(struct SNAME *_heap_)
 {
+#ifdef CMC_DEV
+    CMC_DEV_FCALL;
+#endif
+
     if (CMC_(PFX, _empty)(_heap_))
     {
         _heap_->flag = CMC_FLAG_EMPTY;
@@ -163,6 +191,10 @@ bool CMC_(PFX, _remove)(struct SNAME *_heap_)
 
 V CMC_(PFX, _peek)(struct SNAME *_heap_)
 {
+#ifdef CMC_DEV
+    CMC_DEV_FCALL;
+#endif
+
     if (CMC_(PFX, _empty)(_heap_))
     {
         _heap_->flag = CMC_FLAG_EMPTY;
@@ -178,6 +210,10 @@ V CMC_(PFX, _peek)(struct SNAME *_heap_)
 
 bool CMC_(PFX, _contains)(struct SNAME *_heap_, V value)
 {
+#ifdef CMC_DEV
+    CMC_DEV_FCALL;
+#endif
+
     _heap_->flag = CMC_FLAG_OK;
 
     bool result = false;
@@ -198,31 +234,55 @@ bool CMC_(PFX, _contains)(struct SNAME *_heap_, V value)
 
 bool CMC_(PFX, _empty)(struct SNAME *_heap_)
 {
+#ifdef CMC_DEV
+    CMC_DEV_FCALL;
+#endif
+
     return _heap_->count == 0;
 }
 
 bool CMC_(PFX, _full)(struct SNAME *_heap_)
 {
+#ifdef CMC_DEV
+    CMC_DEV_FCALL;
+#endif
+
     return _heap_->count >= _heap_->capacity;
 }
 
 size_t CMC_(PFX, _count)(struct SNAME *_heap_)
 {
+#ifdef CMC_DEV
+    CMC_DEV_FCALL;
+#endif
+
     return _heap_->count;
 }
 
 size_t CMC_(PFX, _capacity)(struct SNAME *_heap_)
 {
+#ifdef CMC_DEV
+    CMC_DEV_FCALL;
+#endif
+
     return _heap_->capacity;
 }
 
 int CMC_(PFX, _flag)(struct SNAME *_heap_)
 {
+#ifdef CMC_DEV
+    CMC_DEV_FCALL;
+#endif
+
     return _heap_->flag;
 }
 
 bool CMC_(PFX, _resize)(struct SNAME *_heap_, size_t capacity)
 {
+#ifdef CMC_DEV
+    CMC_DEV_FCALL;
+#endif
+
     _heap_->flag = CMC_FLAG_OK;
 
     if (_heap_->capacity == capacity)
@@ -256,6 +316,10 @@ success:
 
 struct SNAME *CMC_(PFX, _copy_of)(struct SNAME *_heap_)
 {
+#ifdef CMC_DEV
+    CMC_DEV_FCALL;
+#endif
+
     struct SNAME *result = CMC_(PFX, _new_custom)(_heap_->capacity, _heap_->HO, _heap_->f_val, _heap_->alloc, NULL);
 
     if (!result)
@@ -283,6 +347,10 @@ struct SNAME *CMC_(PFX, _copy_of)(struct SNAME *_heap_)
 
 bool CMC_(PFX, _equals)(struct SNAME *_heap1_, struct SNAME *_heap2_)
 {
+#ifdef CMC_DEV
+    CMC_DEV_FCALL;
+#endif
+
     _heap1_->flag = CMC_FLAG_OK;
     _heap2_->flag = CMC_FLAG_OK;
 
@@ -300,6 +368,10 @@ bool CMC_(PFX, _equals)(struct SNAME *_heap1_, struct SNAME *_heap2_)
 
 static void CMC_(PFX, _impl_float_up)(struct SNAME *_heap_, size_t index)
 {
+#ifdef CMC_DEV
+    CMC_DEV_FCALL;
+#endif
+
     /* Current index */
     size_t C = index;
     V child = _heap_->buffer[C];
@@ -328,6 +400,10 @@ static void CMC_(PFX, _impl_float_up)(struct SNAME *_heap_, size_t index)
 
 static void CMC_(PFX, _impl_float_down)(struct SNAME *_heap_, size_t index)
 {
+#ifdef CMC_DEV
+    CMC_DEV_FCALL;
+#endif
+
     int mod = _heap_->HO;
 
     while (index < _heap_->count)

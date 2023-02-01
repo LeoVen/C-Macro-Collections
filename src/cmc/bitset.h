@@ -55,6 +55,10 @@
 #include "cor/bitset.h"
 #include "cor/core.h"
 
+#ifdef CMC_DEV
+#include "utl/log.h"
+#endif
+
 /**
  * Used values
  * SNAME - struct name and prefix of other related structs
