@@ -24,10 +24,14 @@
 
 struct SNAME
 {
+#ifdef CMC_SAC
+    V buffer[SIZE];
+#else
     /* Dynamic array of elements */
     V *buffer;
     /* Current array capacity */
     size_t capacity;
+#endif
     /* Current amount of elements */
     size_t count;
     /* Flags indicating errors or success */

@@ -40,9 +40,15 @@ struct CMC_DEF_FVAL(SNAME)
 };
 
 /* Collection Allocation and Deallocation */
+#ifdef CMC_SAC
+struct SNAME *CMC_(PFX, _new)(struct CMC_DEF_FVAL(SNAME) * f_val);
+struct SNAME *CMC_(PFX, _new_custom)(struct CMC_DEF_FVAL(SNAME) * f_val, struct CMC_ALLOC_NODE_NAME *alloc,
+                                     struct CMC_CALLBACKS_NAME *callbacks);
+#else
 struct SNAME *CMC_(PFX, _new)(size_t capacity, struct CMC_DEF_FVAL(SNAME) * f_val);
 struct SNAME *CMC_(PFX, _new_custom)(size_t capacity, struct CMC_DEF_FVAL(SNAME) * f_val,
                                      struct CMC_ALLOC_NODE_NAME *alloc, struct CMC_CALLBACKS_NAME *callbacks);
+#endif
 void CMC_(PFX, _clear)(struct SNAME *_list_);
 void CMC_(PFX, _free)(struct SNAME *_list_);
 /* Customization of Allocation and Callbacks */

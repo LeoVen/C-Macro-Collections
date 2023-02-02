@@ -44,8 +44,8 @@
 #ifdef CMC_NO_CALLBACKS
 
 #define CMC_CALLBACKS_DECL
-#define CMC_CALLBACKS_MAYBE_UNUSED(param) ((void)param) /* Prevent -Wunused-parameter */
-#define CMC_CALLBACKS_GET(ds) NULL                      /* Helps with compatibility */
+#define CMC_CALLBACKS_MAYBE_UNUSED(param) CMC_UNUSED_PARAM(param) /* Prevent -Wunused-parameter */
+#define CMC_CALLBACKS_GET(ds) NULL                                /* Helps with compatibility */
 #define CMC_CALLBACKS_ASSIGN(ds, cb)
 #define CMC_CALLBACKS_CALL(ds, cb)
 

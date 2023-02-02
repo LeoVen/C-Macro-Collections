@@ -70,6 +70,10 @@
 #include "utl/log.h"
 #endif
 
+#if defined(CMC_SAC) && !defined(SIZE)
+#error "When using CMC_SAC, please also define SIZE"
+#endif
+
 /**
  * Used values
  * V - list data type

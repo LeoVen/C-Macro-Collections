@@ -63,6 +63,8 @@
 #define CMC_UNUSED
 #endif
 
+#define CMC_UNUSED_PARAM(param) ((void)param)
+
 #define CMC__(A, B) A##B
 #define CMC_(A, B) CMC__(A, B)
 

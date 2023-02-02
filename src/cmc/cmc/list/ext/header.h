@@ -30,9 +30,15 @@
  */
 #ifdef CMC_EXT_INIT
 
+#ifdef CMC_SAC
+struct SNAME CMC_(PFX, _init)(struct CMC_DEF_FVAL(SNAME) * f_val);
+struct SNAME CMC_(PFX, _init_custom)(struct CMC_DEF_FVAL(SNAME) * f_val, struct CMC_ALLOC_NODE_NAME *alloc,
+                                     struct CMC_CALLBACKS_NAME *callbacks);
+#else
 struct SNAME CMC_(PFX, _init)(size_t capacity, struct CMC_DEF_FVAL(SNAME) * f_val);
 struct SNAME CMC_(PFX, _init_custom)(size_t capacity, struct CMC_DEF_FVAL(SNAME) * f_val,
                                      struct CMC_ALLOC_NODE_NAME *alloc, struct CMC_CALLBACKS_NAME *callbacks);
+#endif
 void CMC_(PFX, _release)(struct SNAME _list_);
 
 #endif /* CMC_EXT_INIT */

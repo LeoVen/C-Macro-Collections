@@ -30,17 +30,30 @@
  */
 #ifdef CMC_EXT_INIT
 
+#ifdef CMC_SAC
+struct SNAME CMC_(PFX, _init)(struct CMC_DEF_FVAL(SNAME) * f_val)
+#else
 struct SNAME CMC_(PFX, _init)(size_t capacity, struct CMC_DEF_FVAL(SNAME) * f_val)
+#endif
 {
 #ifdef CMC_DEV
     CMC_DEV_FCALL;
 #endif
 
+#ifdef CMC_SAC
+    return CMC_(PFX, _init_custom)(f_val, NULL, NULL);
+#else
     return CMC_(PFX, _init_custom)(capacity, f_val, NULL, NULL);
+#endif
 }
 
+#ifdef CMC_SAC
+struct SNAME CMC_(PFX, _init_custom)(struct CMC_DEF_FVAL(SNAME) * f_val, struct CMC_ALLOC_NODE_NAME *alloc,
+                                     struct CMC_CALLBACKS_NAME *callbacks)
+#else
 struct SNAME CMC_(PFX, _init_custom)(size_t capacity, struct CMC_DEF_FVAL(SNAME) * f_val,
                                      struct CMC_ALLOC_NODE_NAME *alloc, struct CMC_CALLBACKS_NAME *callbacks)
+#endif
 {
 #ifdef CMC_DEV
     CMC_DEV_FCALL;
@@ -50,8 +63,10 @@ struct SNAME CMC_(PFX, _init_custom)(size_t capacity, struct CMC_DEF_FVAL(SNAME)
 
     struct SNAME _list_ = { 0 };
 
+#ifndef CMC_SAC
     if (capacity < 1)
         return _list_;
+#endif
 
     if (!f_val)
         return _list_;
@@ -59,12 +74,18 @@ struct SNAME CMC_(PFX, _init_custom)(size_t capacity, struct CMC_DEF_FVAL(SNAME)
     if (!alloc)
         alloc = &cmc_alloc_node_default;
 
+#ifdef CMC_SAC
+    memset(_list_.buffer, 0, sizeof(V) * SIZE);
+#else
     _list_.buffer = alloc->calloc(capacity, sizeof(V));
+#endif
 
     if (!_list_.buffer)
         return _list_;
 
+#ifndef CMC_SAC
     _list_.capacity = capacity;
+#endif
     _list_.count = 0;
     _list_.flag = CMC_FLAG_OK;
     _list_.f_val = f_val;
@@ -86,7 +107,9 @@ void CMC_(PFX, _release)(struct SNAME _list_)
             _list_.f_val->free(_list_.buffer[i]);
     }
 
+#ifndef CMC_SAC
     _list_.alloc->free(_list_.buffer);
+#endif
 }
 
 #endif /* CMC_EXT_INIT */
@@ -358,8 +381,13 @@ bool CMC_(PFX, _seq_push_front)(struct SNAME *_list_, V *values, size_t size)
 
     if (!CMC_(PFX, _fits)(_list_, size))
     {
+#ifdef CMC_SAC
+        _list_->flag = CMC_FLAG_FULL;
+        return false;
+#else
         if (!CMC_(PFX, _resize)(_list_, _list_->count + size))
             return false;
+#endif
     }
 
     memmove(_list_->buffer + size, _list_->buffer, _list_->count * sizeof(V));
@@ -399,8 +427,13 @@ bool CMC_(PFX, _seq_push_at)(struct SNAME *_list_, V *values, size_t size, size_
 
     if (!CMC_(PFX, _fits)(_list_, size))
     {
+#ifdef CMC_SAC
+        _list_->flag = CMC_FLAG_FULL;
+        return false;
+#else
         if (!CMC_(PFX, _resize)(_list_, _list_->count + size))
             return false;
+#endif
     }
 
     memmove(_list_->buffer + index + size, _list_->buffer + index, (_list_->count - index) * sizeof(V));
@@ -429,8 +462,13 @@ bool CMC_(PFX, _seq_push_back)(struct SNAME *_list_, V *values, size_t size)
 
     if (!CMC_(PFX, _fits)(_list_, size))
     {
+#ifdef CMC_SAC
+        _list_->flag = CMC_FLAG_FULL;
+        return false;
+#else
         if (!CMC_(PFX, _resize)(_list_, _list_->count + size))
             return false;
+#endif
     }
 
     memcpy(_list_->buffer + _list_->count, values, size * sizeof(V));
@@ -495,7 +533,11 @@ struct SNAME *CMC_(PFX, _seq_sublist)(struct SNAME *_list_, size_t from, size_t 
 
     size_t length = to - from + 1;
 
+#ifdef CMC_SAC
+    struct SNAME *result = CMC_(PFX, _new_custom)(_list_->f_val, _list_->alloc, CMC_CALLBACKS_GET(_list_));
+#else
     struct SNAME *result = CMC_(PFX, _new_custom)(length, _list_->f_val, _list_->alloc, CMC_CALLBACKS_GET(_list_));
+#endif
 
     if (!result)
     {
@@ -546,8 +588,14 @@ bool CMC_(PFX, _to_string)(struct SNAME *_list_, FILE *fptr)
                         "f_val:%p, "
                         "alloc:%p, "
                         "callbacks:%p }",
-                        CMC_TO_STRING(SNAME), CMC_TO_STRING(V), l_, l_->buffer, l_->capacity, l_->count, l_->flag,
-                        l_->f_val, l_->alloc, CMC_CALLBACKS_GET(l_));
+                        CMC_TO_STRING(SNAME), CMC_TO_STRING(V), l_, l_->buffer,
+#ifdef CMC_SAC
+                        (size_t)SIZE
+#else
+                        l_->capacity
+#endif
+                        ,
+                        l_->count, l_->flag, l_->f_val, l_->alloc, CMC_CALLBACKS_GET(l_));
 }
 
 bool CMC_(PFX, _print)(struct SNAME *_list_, FILE *fptr, const char *start, const char *separator, const char *end)
