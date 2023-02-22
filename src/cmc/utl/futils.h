@@ -43,6 +43,7 @@
 #include <inttypes.h>
 #include <stdbool.h>
 #include <stdio.h>
+#include <stdlib.h>
 #include <string.h>
 
 /**
@@ -123,6 +124,11 @@ static inline int cmc_double_cmp(double x1, double x2)
 }
 
 // String
+
+static inline int cmc_chr_cmp(char ch1, char ch2)
+{
+    return (ch1 > ch2) - (ch1 < ch2);
+}
 
 static inline int cmc_str_cmp(char *ch1, char *ch2)
 {
@@ -226,6 +232,11 @@ static inline bool cmc_double_str(FILE *file, double element)
 }
 
 // String
+
+static inline bool cmc_chr_chr(FILE *file, char element)
+{
+    return fprintf(file, "%c", element) > 0;
+}
 
 static inline bool cmc_str_str(FILE *file, char *element)
 {
@@ -379,6 +390,11 @@ static inline size_t cmc_double_hash(double e)
 }
 
 // String
+
+static inline size_t cmc_chr_hash(char e)
+{
+    return cmc_u8_hash((uint8_t)e);
+}
 
 // Both djb2 and java are based on a Linear Congruential Generator
 // https://en.wikipedia.org/wiki/Linear_congruential_generator

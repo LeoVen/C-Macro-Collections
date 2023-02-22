@@ -13,6 +13,10 @@ dev: main
 	mkdir -p ./coverage
 	mv *.gcov ./coverage
 
+single:
+	$(CC) ./single.c $(INCLUDE) $(CFLAGS) -o ./$(OUTDIR)/$@.exe -DTEST=$(TEST)
+	./$(OUTDIR)/$@.exe
+
 clean:
 	rm ./*.gcov ./*.gcda ./*.gcno ./*.exe -f
 	rm ./coverage ./$(OUTDIR) -rf
