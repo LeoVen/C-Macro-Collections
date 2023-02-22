@@ -4,7 +4,7 @@
     <img src="https://leoven.github.io/C-Macro-Collections/img/logo.png" alt="C Macro Collections Logo" width="300"/>
 </p>
 
-<p align="center">Easy to use, modular, header only, macro based, generic and type-safe Data Structures in C.</p>
+<p align="center">Easy to use, modular, header only, macro based, generic and type-safe Data Structures in C</p>
 
 <p align="center">
     <a href="https://github.com/LeoVen/C-Macro-Collections"><img src="https://img.shields.io/badge/GitHub-C%20Macro%20Collections-2195F3.svg?logo=github" alt="LinkToRepo"/></a>
@@ -13,7 +13,7 @@
 
 <p align="center">
     <a href="https://github.com/LeoVen/C-Macro-Collections/blob/master/LICENSE"><img src="https://img.shields.io/badge/License-MIT-blue.svg" alt="License"/></a>
-    <a href="https://github.com/LeoVen/C-Macro-Collections/releases"><img src="https://img.shields.io/badge/Version-v0.25.0-orange.svg" alt="Version"/></a>
+    <a href="https://github.com/LeoVen/C-Macro-Collections/releases"><img src="https://img.shields.io/badge/Version-v0.26.0-orange.svg" alt="Version"/></a>
     <a href="https://travis-ci.org/LeoVen/C-Macro-Collections"><img src="https://travis-ci.org/LeoVen/C-Macro-Collections.svg?branch=master" alt="travis-ci"/></a>
     <a href="https://codecov.io/gh/LeoVen/C-Macro-Collections"><img src="https://codecov.io/gh/LeoVen/C-Macro-Collections/branch/master/graph/badge.svg" alt="codecov"/></a>
     <a href="https://github.com/LeoVen/C-Macro-Collections/actions"><img src="https://github.com/LeoVen/C-Macro-Collections/workflows/Test%20Suit/badge.svg?branch=master" alt="test_suit"/></a>
@@ -21,8 +21,8 @@
 
 <p align="center">
     <a href="https://github.com/LeoVen/C-Macro-Collections/stargazers"><img src="https://img.shields.io/github/stars/LeoVen/C-Macro-Collections?style=flat&color=ffa000" alt="Stars"/></a>
-    <a href="https://github.com/XAMPPRocky/tokei"><img src="https://img.shields.io/badge/Lines%20of%20Code-20244-007596.svg" alt="loc"/></a>
-    <a href="https://github.com/XAMPPRocky/tokei"><img src="https://img.shields.io/badge/Files-107-961c00.svg" alt="loc"/></a>
+    <a href="https://github.com/XAMPPRocky/tokei"><img src="https://img.shields.io/badge/Lines%20of%20Code-28513-007596.svg" alt="loc"/></a>
+    <a href="https://github.com/XAMPPRocky/tokei"><img src="https://img.shields.io/badge/Files-130-961c00.svg" alt="loc"/></a>
 </p>
 
 ## Table of Contents
@@ -130,26 +130,9 @@ The C Macro Collections library is organized into many other sub-libraries. The 
 |   CMC   | Macro Collections                | The main library with dynamically-sized collections                                         |
 |   COR   | Core                             | Core functionalities used by more than one collection, usually from different sub-libraries |
 |   EXT   | Extensions                       | Extension to collections                                                                    |
-|   INT   | Integrations                     | Macros that facilitate the creation of code that involves more than one type of collection  |
 |   SAC   | Statically Allocated Collections | Collections with a fixed sized array that don't use any heap allocation                     |
 |   TSC   | Thread-Safe Collections          | Collections that allow multiple operations from multiple threads                            |
 |   UTL   | Utilities                        | General utilities                                                                           |
-
-Every macro that generates code for a certain collection can be found with the following template. Some exceptions exist as certain collections don't have or can't have some features. One big example is the `UTL` library, which does not follow this pattern.
-
-```
-macro_name := CMC_[ lib ]_[ collection ]_[ part ]_[ access ]_[ file ]
-
-lib := CMC | COR | DEV | EXT | INT | SAC | TSC
-collection := BITSET | DEQUE | HASHBIDIMAP | ... | TREEMULTISET | TREESET
-part := CORE | ITER | INIT | ... | SETF | NODE
-access := PUBLIC | PRIVATE
-file := HEADER | SOURCE
-```
-
-__Some `collection`s might not be present in a certain `lib`. Check the documentation.__
-
-Every macro is suffixed by `CMC` and each section is separated by an underscore (`_`). The first section is the library (`lib`). The second is the collection name in all uppercase. Then the `part` (or which module) that you wish to generate. And last, if it is code that should belong to a header file or code that should belong to a source file.
 
 ## Project Structure
 

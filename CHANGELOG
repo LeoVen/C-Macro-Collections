@@ -1,5 +1,8 @@
 # RELEASE.MAJOR.MINOR
 
+0.26.0
+    Complete refactor of the library, using a different approach to code generation
+
 0.25.0
     New Project Architecture - Files are no longer separated in folders, but rather prefixed by their sub-library
     Added sac_list.h

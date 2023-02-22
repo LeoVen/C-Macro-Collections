@@ -3,7 +3,11 @@ help:
 	@echo Welcome to the C Macro Collections Library. Targets:
 	@echo
 	@echo - tests: run tests
+	@echo - tests_dev: run tests for dev
 	@echo - format: formats the entire project
+	@echo - bench: runs benchmarks
+	@echo - docbuild: builds documentation to ./docs
+	@echo - docserve: serves mdbook docs
 
 tests:
 	make -C ./tests
@@ -16,3 +20,9 @@ format:
 
 bench:
 	make -C ./benchmarks benchmark
+
+docbuild:
+	mdbook build -d ../docs documentation
+
+docserve:
+	mdbook serve documentation

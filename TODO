@@ -13,14 +13,11 @@ Check out CHANGELOG
 
 #!! Next Patch -----------------------------------------------------------------
 
-[ ] Fix BitSet, using capacity vs. counter
-[ ] #12 - Fix the collections that depend on ITER
 
 
 #!! Major ----------------------------------------------------------------------
 
 [ ] Stabilize the library
-[ ] Add INT library
 [ ] Add SAC library
 [ ] Add TSC library
 [ ] Separate inner Data Structure implementation from the Collection's one
@@ -31,8 +28,8 @@ Check out CHANGELOG
 
 #!! Minor ----------------------------------------------------------------------
 
+[ ] Fix BitSet, using capacity vs. counter
 [ ] #13 - Properly implement HashBidiMap iterator
-[ ] #10 - Fix Benchmarks and Examples
 [ ] More SortedList functions
 [ ] BidiMap's _is_mapping() to check if a mapping K <=> V exists
 [ ] New asserts - _array_int(), _array_not_in() and str
@@ -103,3 +100,5 @@ Check out CHANGELOG
 [X] Replace IntervalHeap node by a simple buffer of two pointers (V (*buffer)[2])
 [X] PUBLIC and PRIVATE is back (opaque data structures)
 [X] Add EXT library
+[X] #12 - Fix the collections that depend on ITER
+[X] #10 - Fix Benchmarks and Examples

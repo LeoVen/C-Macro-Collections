@@ -1,0 +1,6 @@
+[book]
+authors = ["Leonardo Vencovsky"]
+language = "en"
+multilingual = false
+src = "src"
+title = "CMC Docs"

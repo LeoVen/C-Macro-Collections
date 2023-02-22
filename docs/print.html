@@ -3,16 +3,17 @@
     <head>
         <!-- Book generated using mdBook -->
         <meta charset="UTF-8">
-        <title>C Macro Collections</title>
-        
+        <title>CMC Docs</title>
         <meta name="robots" content="noindex" />
-        
 
-        <meta content="text/html; charset=utf-8" http-equiv="Content-Type">
+
+        <!-- Custom HTML head -->
+        
         <meta name="description" content="">
         <meta name="viewport" content="width=device-width, initial-scale=1">
         <meta name="theme-color" content="#ffffff" />
 
+        <link rel="icon" href="favicon.svg">
         <link rel="shortcut icon" href="favicon.png">
         <link rel="stylesheet" href="css/variables.css">
         <link rel="stylesheet" href="css/general.css">
@@ -21,8 +22,7 @@
 
         <!-- Fonts -->
         <link rel="stylesheet" href="FontAwesome/css/font-awesome.css">
-        <link href="https://fonts.googleapis.com/css?family=Open+Sans:300italic,400italic,600italic,700italic,800italic,400,300,600,700,800" rel="stylesheet" type="text/css">
-        <link href="https://fonts.googleapis.com/css?family=Source+Code+Pro:500" rel="stylesheet" type="text/css">
+        <link rel="stylesheet" href="fonts/fonts.css">
 
         <!-- Highlight.js Stylesheets -->
         <link rel="stylesheet" href="highlight.css">
@@ -30,19 +30,18 @@
         <link rel="stylesheet" href="ayu-highlight.css">
 
         <!-- Custom theme stylesheets -->
-        
 
-        
     </head>
     <body>
+    <div id="body-container">
         <!-- Provide site root to javascript -->
-        <script type="text/javascript">
+        <script>
             var path_to_root = "";
-            var default_theme = window.matchMedia("(prefers-color-scheme: dark)").matches ? "light" : "light";
+            var default_theme = window.matchMedia("(prefers-color-scheme: dark)").matches ? "navy" : "light";
         </script>
 
         <!-- Work around some values being stored in localStorage wrapped in quotes -->
-        <script type="text/javascript">
+        <script>
             try {
                 var theme = localStorage.getItem('mdbook-theme');
                 var sidebar = localStorage.getItem('mdbook-sidebar');
@@ -58,7 +57,7 @@
         </script>
 
         <!-- Set the theme before any content is loaded, prevents flash -->
-        <script type="text/javascript">
+        <script>
             var theme;
             try { theme = localStorage.getItem('mdbook-theme'); } catch(e) { }
             if (theme === null || theme === undefined) { theme = default_theme; }
@@ -70,7 +69,7 @@
         </script>
 
         <!-- Hide / unhide sidebar before it is displayed -->
-        <script type="text/javascript">
+        <script>
             var html = document.querySelector('html');
             var sidebar = 'hidden';
             if (document.body.clientWidth >= 1080) {
@@ -82,8 +81,8 @@
         </script>
 
         <nav id="sidebar" class="sidebar" aria-label="Table of contents">
-            <div id="sidebar-scrollbox" class="sidebar-scrollbox">
-                <ol class="chapter"><li class="expanded "><a href="Introduction/introduction.html"><strong aria-hidden="true">1.</strong> Introduction</a></li><li><ol class="section"><li class="expanded "><a href="Introduction/why_this_library.html"><strong aria-hidden="true">1.1.</strong> Why this library</a></li><li class="expanded "><a href="Introduction/how_to_install.html"><strong aria-hidden="true">1.2.</strong> How to install</a></li><li class="expanded "><a href="Introduction/library_structure.html"><strong aria-hidden="true">1.3.</strong> Library structure</a></li><li class="expanded "><a href="Introduction/understanding_the_library.html"><strong aria-hidden="true">1.4.</strong> Understanding the library</a></li><li class="expanded "><a href="Introduction/how_to_use_the_library.html"><strong aria-hidden="true">1.5.</strong> How to use the library</a></li></ol></li><li class="expanded "><a href="Overview/index.html"><strong aria-hidden="true">2.</strong> Overview</a></li><li><ol class="section"><li class="expanded "><a href="Overview/collections_overview.html"><strong aria-hidden="true">2.1.</strong> Collections Overview</a></li><li class="expanded "><a href="Overview/features_overview.html"><strong aria-hidden="true">2.2.</strong> Features Overview</a></li><li class="expanded "><a href="Overview/files_overview.html"><strong aria-hidden="true">2.3.</strong> Files Overview</a></li></ol></li><li class="expanded "><a href="cor/index.html"><strong aria-hidden="true">3.</strong> cor</a></li><li><ol class="section"><li class="expanded "><a href="cor/callbacks/index.html"><strong aria-hidden="true">3.1.</strong> Callbacks</a></li><li class="expanded "><a href="cor/custom_allocation/index.html"><strong aria-hidden="true">3.2.</strong> Custom allocation</a></li><li class="expanded "><a href="cor/error_codes/index.html"><strong aria-hidden="true">3.3.</strong> Error Codes</a></li><li class="expanded "><a href="cor/functions_table/index.html"><strong aria-hidden="true">3.4.</strong> Functions Table</a></li><li class="expanded "><a href="cor/iterators/index.html"><strong aria-hidden="true">3.5.</strong> Iterators</a></li></ol></li><li class="expanded "><a href="cmc/index.html"><strong aria-hidden="true">4.</strong> cmc</a></li><li><ol class="section"><li class="expanded "><a href="cmc/bitset.h/index.html"><strong aria-hidden="true">4.1.</strong> bitset.h</a></li><li class="expanded "><a href="cmc/deque.h/index.html"><strong aria-hidden="true">4.2.</strong> deque.h</a></li><li><ol class="section"><li class="expanded "><a href="cmc/deque.h/functions.html"><strong aria-hidden="true">4.2.1.</strong> Functions.h</a></li></ol></li></ol></li><li class="expanded "><a href="dev/index.html"><strong aria-hidden="true">5.</strong> dev</a></li><li class="expanded "><a href="sac/index.html"><strong aria-hidden="true">6.</strong> sac</a></li><li class="expanded "><a href="utl/index.html"><strong aria-hidden="true">7.</strong> utl</a></li><li><ol class="section"><li class="expanded "><a href="utl/assert.h/index.html"><strong aria-hidden="true">7.1.</strong> assert.h</a></li><li><ol class="section"><li class="expanded "><a href="utl/assert.h/overview.html"><strong aria-hidden="true">7.1.1.</strong> Overview</a></li><li class="expanded "><a href="utl/assert.h/valued_assertions.html"><strong aria-hidden="true">7.1.2.</strong> Valued Assertions</a></li><li class="expanded "><a href="utl/assert.h/generic_assertions.html"><strong aria-hidden="true">7.1.3.</strong> Generic Assertions</a></li></ol></li><li class="expanded "><a href="utl/foreach.h/index.html"><strong aria-hidden="true">7.2.</strong> foreach.h</a></li><li class="expanded "><a href="utl/futils.h/index.html"><strong aria-hidden="true">7.3.</strong> futils.h</a></li><li class="expanded "><a href="utl/log.h/index.html"><strong aria-hidden="true">7.4.</strong> log.h</a></li><li><ol class="section"><li class="expanded "><a href="utl/log.h/log_functions.html"><strong aria-hidden="true">7.4.1.</strong> Log Functions</a></li><li class="expanded "><a href="utl/log.h/configuration.html"><strong aria-hidden="true">7.4.2.</strong> Configuration</a></li><li class="expanded "><a href="utl/log.h/meanings.html"><strong aria-hidden="true">7.4.3.</strong> Meanings</a></li></ol></li><li class="expanded "><a href="utl/test.h/index.html"><strong aria-hidden="true">7.5.</strong> test.h</a></li><li class="expanded "><a href="utl/timer.h/index.html"><strong aria-hidden="true">7.6.</strong> timer.h</a></li></ol></li><li class="expanded "><a href="Examples/examples.html"><strong aria-hidden="true">8.</strong> Examples</a></li></ol>
+            <div class="sidebar-scrollbox">
+                <ol class="chapter"><li class="chapter-item expanded "><a href="Introduction/introduction.html"><strong aria-hidden="true">1.</strong> Introduction</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="Introduction/why_this_library.html"><strong aria-hidden="true">1.1.</strong> Why this library</a></li><li class="chapter-item expanded "><a href="Introduction/how_to_install.html"><strong aria-hidden="true">1.2.</strong> How to install</a></li><li class="chapter-item expanded "><a href="Introduction/library_structure.html"><strong aria-hidden="true">1.3.</strong> Library structure</a></li><li class="chapter-item expanded "><a href="Introduction/understanding_the_library.html"><strong aria-hidden="true">1.4.</strong> Understanding the library</a></li><li class="chapter-item expanded "><a href="Introduction/how_to_use_the_library.html"><strong aria-hidden="true">1.5.</strong> How to use the library</a></li></ol></li><li class="chapter-item expanded "><a href="Overview/index.html"><strong aria-hidden="true">2.</strong> Overview</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="Overview/collections_overview.html"><strong aria-hidden="true">2.1.</strong> Collections Overview</a></li><li class="chapter-item expanded "><a href="Overview/features_overview.html"><strong aria-hidden="true">2.2.</strong> Features Overview</a></li><li class="chapter-item expanded "><a href="Overview/files_overview.html"><strong aria-hidden="true">2.3.</strong> Files Overview</a></li></ol></li><li class="chapter-item expanded "><a href="cor/index.html"><strong aria-hidden="true">3.</strong> cor</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="cor/callbacks/index.html"><strong aria-hidden="true">3.1.</strong> Callbacks</a></li><li class="chapter-item expanded "><a href="cor/custom_allocation/index.html"><strong aria-hidden="true">3.2.</strong> Custom allocation</a></li><li class="chapter-item expanded "><a href="cor/error_codes/index.html"><strong aria-hidden="true">3.3.</strong> Error Codes</a></li><li class="chapter-item expanded "><a href="cor/functions_table/index.html"><strong aria-hidden="true">3.4.</strong> Functions Table</a></li><li class="chapter-item expanded "><a href="cor/iterators/index.html"><strong aria-hidden="true">3.5.</strong> Iterators</a></li></ol></li><li class="chapter-item expanded "><a href="cmc/index.html"><strong aria-hidden="true">4.</strong> cmc</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="cmc/bitset.h/index.html"><strong aria-hidden="true">4.1.</strong> bitset.h</a></li><li class="chapter-item expanded "><a href="cmc/deque.h/index.html"><strong aria-hidden="true">4.2.</strong> deque.h</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="cmc/deque.h/functions.html"><strong aria-hidden="true">4.2.1.</strong> Functions.h</a></li></ol></li></ol></li><li class="chapter-item expanded "><a href="dev/index.html"><strong aria-hidden="true">5.</strong> dev</a></li><li class="chapter-item expanded "><a href="sac/index.html"><strong aria-hidden="true">6.</strong> sac</a></li><li class="chapter-item expanded "><a href="utl/index.html"><strong aria-hidden="true">7.</strong> utl</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="utl/assert.h/index.html"><strong aria-hidden="true">7.1.</strong> assert.h</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="utl/assert.h/overview.html"><strong aria-hidden="true">7.1.1.</strong> Overview</a></li><li class="chapter-item expanded "><a href="utl/assert.h/valued_assertions.html"><strong aria-hidden="true">7.1.2.</strong> Valued Assertions</a></li><li class="chapter-item expanded "><a href="utl/assert.h/generic_assertions.html"><strong aria-hidden="true">7.1.3.</strong> Generic Assertions</a></li></ol></li><li class="chapter-item expanded "><a href="utl/foreach.h/index.html"><strong aria-hidden="true">7.2.</strong> foreach.h</a></li><li class="chapter-item expanded "><a href="utl/futils.h/index.html"><strong aria-hidden="true">7.3.</strong> futils.h</a></li><li class="chapter-item expanded "><a href="utl/log.h/index.html"><strong aria-hidden="true">7.4.</strong> log.h</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="utl/log.h/log_functions.html"><strong aria-hidden="true">7.4.1.</strong> Log Functions</a></li><li class="chapter-item expanded "><a href="utl/log.h/configuration.html"><strong aria-hidden="true">7.4.2.</strong> Configuration</a></li><li class="chapter-item expanded "><a href="utl/log.h/meanings.html"><strong aria-hidden="true">7.4.3.</strong> Meanings</a></li></ol></li><li class="chapter-item expanded "><a href="utl/test.h/index.html"><strong aria-hidden="true">7.5.</strong> test.h</a></li><li class="chapter-item expanded "><a href="utl/timer.h/index.html"><strong aria-hidden="true">7.6.</strong> timer.h</a></li></ol></li><li class="chapter-item expanded "><a href="Examples/examples.html"><strong aria-hidden="true">8.</strong> Examples</a></li></ol>
             </div>
             <div id="sidebar-resize-handle" class="sidebar-resize-handle"></div>
         </nav>
@@ -91,45 +90,40 @@
         <div id="page-wrapper" class="page-wrapper">
 
             <div class="page">
-                
-                <div id="menu-bar" class="menu-bar">
-                    <div id="menu-bar-sticky-container">
-                        <div class="left-buttons">
-                            <button id="sidebar-toggle" class="icon-button" type="button" title="Toggle Table of Contents" aria-label="Toggle Table of Contents" aria-controls="sidebar">
-                                <i class="fa fa-bars"></i>
-                            </button>
-                            <button id="theme-toggle" class="icon-button" type="button" title="Change theme" aria-label="Change theme" aria-haspopup="true" aria-expanded="false" aria-controls="theme-list">
-                                <i class="fa fa-paint-brush"></i>
-                            </button>
-                            <ul id="theme-list" class="theme-popup" aria-label="Themes" role="menu">
-                                <li role="none"><button role="menuitem" class="theme" id="light">Light (default)</button></li>
-                                <li role="none"><button role="menuitem" class="theme" id="rust">Rust</button></li>
-                                <li role="none"><button role="menuitem" class="theme" id="coal">Coal</button></li>
-                                <li role="none"><button role="menuitem" class="theme" id="navy">Navy</button></li>
-                                <li role="none"><button role="menuitem" class="theme" id="ayu">Ayu</button></li>
-                            </ul>
-                            
-                            <button id="search-toggle" class="icon-button" type="button" title="Search. (Shortkey: s)" aria-label="Toggle Searchbar" aria-expanded="false" aria-keyshortcuts="S" aria-controls="searchbar">
-                                <i class="fa fa-search"></i>
-                            </button>
-                            
-                        </div>
+                                <div id="menu-bar-hover-placeholder"></div>
+                <div id="menu-bar" class="menu-bar sticky bordered">
+                    <div class="left-buttons">
+                        <button id="sidebar-toggle" class="icon-button" type="button" title="Toggle Table of Contents" aria-label="Toggle Table of Contents" aria-controls="sidebar">
+                            <i class="fa fa-bars"></i>
+                        </button>
+                        <button id="theme-toggle" class="icon-button" type="button" title="Change theme" aria-label="Change theme" aria-haspopup="true" aria-expanded="false" aria-controls="theme-list">
+                            <i class="fa fa-paint-brush"></i>
+                        </button>
+                        <ul id="theme-list" class="theme-popup" aria-label="Themes" role="menu">
+                            <li role="none"><button role="menuitem" class="theme" id="light">Light</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="rust">Rust</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="coal">Coal</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="navy">Navy</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="ayu">Ayu</button></li>
+                        </ul>
+                        <button id="search-toggle" class="icon-button" type="button" title="Search. (Shortkey: s)" aria-label="Toggle Searchbar" aria-expanded="false" aria-keyshortcuts="S" aria-controls="searchbar">
+                            <i class="fa fa-search"></i>
+                        </button>
+                    </div>
 
-                        <h1 class="menu-title">C Macro Collections</h1>
+                    <h1 class="menu-title">CMC Docs</h1>
 
-                        <div class="right-buttons">
-                            <a href="print.html" title="Print this book" aria-label="Print this book">
-                                <i id="print-button" class="fa fa-print"></i>
-                            </a>
-                            
-                        </div>
+                    <div class="right-buttons">
+                        <a href="print.html" title="Print this book" aria-label="Print this book">
+                            <i id="print-button" class="fa fa-print"></i>
+                        </a>
+
                     </div>
                 </div>
 
-                
                 <div id="search-wrapper" class="hidden">
                     <form id="searchbar-outer" class="searchbar-outer">
-                        <input type="search" name="search" id="searchbar" name="searchbar" placeholder="Search this book ..." aria-controls="searchresults-outer" aria-describedby="searchresults-header">
+                        <input type="search" id="searchbar" name="searchbar" placeholder="Search this book ..." aria-controls="searchresults-outer" aria-describedby="searchresults-header">
                     </form>
                     <div id="searchresults-outer" class="searchresults-outer hidden">
                         <div id="searchresults-header" class="searchresults-header"></div>
@@ -137,10 +131,9 @@
                         </ul>
                     </div>
                 </div>
-                
 
                 <!-- Apply ARIA attributes after the sidebar and the sidebar toggle button are added to the DOM -->
-                <script type="text/javascript">
+                <script>
                     document.getElementById('sidebar-toggle').setAttribute('aria-expanded', sidebar === 'visible');
                     document.getElementById('sidebar').setAttribute('aria-hidden', sidebar !== 'visible');
                     Array.from(document.querySelectorAll('#sidebar a')).forEach(function(link) {
@@ -150,25 +143,30 @@
 
                 <div id="content" class="content">
                     <main>
-                        <h1><a class="header" href="#introduction" id="introduction">Introduction</a></h1>
+                        <h1 id="introduction"><a class="header" href="#introduction">Introduction</a></h1>
 <p align="center">
     <img src="Introduction/img/logo.png" alt="C Macro Collections Logo" width="300"/>
 </p>
-<p align="center">Header only, macro generated, generic and type-safe Collections in C.</p>
+<p align="center">Easy to use, modular, header only, macro based, generic and type-safe Data Structures in C</p>
 <p align="center">
     <a href="https://github.com/LeoVen/C-Macro-Collections"><img src="https://img.shields.io/badge/GitHub-C%20Macro%20Collections-2195F3.svg?logo=github" alt="LinkToRepo"/></a>
     <a href="https://leoven.github.io/C-Macro-Collections/"><img style="color: #ffffff;" src="https://img.shields.io/badge/Read%20the%20Docs-D13636.svg?logo=data%3Aimage%2Fsvg%2Bxml%3Bbase64%2CPHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHhtbG5zOnhsaW5rPSJodHRwOi8vd3d3LnczLm9yZy8xOTk5L3hsaW5rIiB3aWR0aD0iMTYiIGhlaWdodD0iMTYiIHN0eWxlPSIiPjxyZWN0IGlkPSJiYWNrZ3JvdW5kcmVjdCIgd2lkdGg9IjEwMCUiIGhlaWdodD0iMTAwJSIgeD0iMCIgeT0iMCIgZmlsbD0ibm9uZSIgc3Ryb2tlPSJub25lIi8%2BPHRpdGxlPmljbi9kb2MtdGV4dDwvdGl0bGU%2BPGcgY2xhc3M9ImN1cnJlbnRMYXllciIgc3R5bGU9IiI%2BPHRpdGxlPkxheWVyIDE8L3RpdGxlPjxwYXRoIGQ9Ik01IDFoNC4yNDRhMiAyIDAgMCAxIDEuNDM0LjYwNmwyLjc1NiAyLjgzNEEyIDIgMCAwIDEgMTQgNS44MzVWMTJhMyAzIDAgMCAxLTMgM0g1YTMgMyAwIDAgMS0zLTNWNGEzIDMgMCAwIDEgMy0zem0wIDJhMSAxIDAgMCAwLTEgMXY4YTEgMSAwIDAgMCAxIDFoNmExIDEgMCAwIDAgMS0xVjUuODM1TDkuMjQ0IDNINXptMS41IDdoM2EuNS41IDAgMSAxIDAgMWgtM2EuNS41IDAgMSAxIDAtMXptMC0yaDJhLjUuNSAwIDAgMSAwIDFoLTJhLjUuNSAwIDAgMSAwLTF6TTggMmwzIDEuOTk1TDEzIDdIOWExIDEgMCAwIDEtMS0xVjJ6IiBpZD0iYSIgY2xhc3M9IiIgZmlsbD0iI2ZmZmZmZiIgZmlsbC1vcGFjaXR5PSIxIi8%2BPC9nPjwvc3ZnPg%3D%3D" alt="LinkToDocs"/></a>
 </p>
 <p align="center">
     <a href="https://github.com/LeoVen/C-Macro-Collections/blob/master/LICENSE"><img src="https://img.shields.io/badge/License-MIT-blue.svg" alt="License"/></a>
-    <img src="https://img.shields.io/badge/Version-v0.23.1-orange.svg" alt="Version"/>
+    <a href="https://github.com/LeoVen/C-Macro-Collections/releases"><img src="https://img.shields.io/badge/Version-v0.26.0-orange.svg" alt="Version"/></a>
     <a href="https://travis-ci.org/LeoVen/C-Macro-Collections"><img src="https://travis-ci.org/LeoVen/C-Macro-Collections.svg?branch=master" alt="travis-ci"/></a>
     <a href="https://codecov.io/gh/LeoVen/C-Macro-Collections"><img src="https://codecov.io/gh/LeoVen/C-Macro-Collections/branch/master/graph/badge.svg" alt="codecov"/></a>
-    <img src="https://github.com/LeoVen/C-Macro-Collections/workflows/Test%20Suit/badge.svg?branch=master" alt="test_suit"/>
+    <a href="https://github.com/LeoVen/C-Macro-Collections/actions"><img src="https://github.com/LeoVen/C-Macro-Collections/workflows/Test%20Suit/badge.svg?branch=master" alt="test_suit"/></a>
+</p>
+<p align="center">
+    <a href="https://github.com/LeoVen/C-Macro-Collections/stargazers"><img src="https://img.shields.io/github/stars/LeoVen/C-Macro-Collections?style=flat&color=ffa000" alt="Stars"/></a>
+    <a href="https://github.com/XAMPPRocky/tokei"><img src="https://img.shields.io/badge/Lines%20of%20Code-28513-007596.svg" alt="loc"/></a>
+    <a href="https://github.com/XAMPPRocky/tokei"><img src="https://img.shields.io/badge/Files-130-961c00.svg" alt="loc"/></a>
 </p>
 <p>The C Macro Collections Library is a compilation of macros that can be used to generate common data structures for any desired type. These data structures are <a href="https://en.wikipedia.org/wiki/Type_safety">type safe</a> and are powered with many features (see Features section).</p>
 <p>The documentation is currently being written in hopes that in the future it can be used to help you get to know better this amazing C library.</p>
-<h1><a class="header" href="#why-this-library" id="why-this-library">Why this library</a></h1>
+<div style="break-before: page; page-break-before: always;"></div><h1 id="why-this-library"><a class="header" href="#why-this-library">Why this library</a></h1>
 <p>C is a low level language and lacks all the data structures that we commonly use. Many high level languages already come with these collections so that we don't have to implement everything ourselves. A lot of third party libraries that implement these missing data structures for the C language usually make use of a void pointers and a lot of macros. <strong>This is why the C Macro Collections Library was created.</strong> All you need to do is to write down one macro and which data type you wish to work with. The library currently provides many data structures, such as:</p>
 <ul>
 <li><strong>Linear Collections</strong> : List, LinkedList, Deque, Stack, Queue, SortedList</li>
@@ -185,7 +183,7 @@
 <li><strong>One macro to rule them all</strong> - Only one macro to generate everything and that's it.</li>
 </ul>
 <p>and many other powerful features (see <a href="Introduction/../Overview/features_overview.html">Features</a>).</p>
-<h1><a class="header" href="#how-to-install" id="how-to-install">How to install</a></h1>
+<div style="break-before: page; page-break-before: always;"></div><h1 id="how-to-install"><a class="header" href="#how-to-install">How to install</a></h1>
 <p>To start using the library you need first to download the source code. You can either fork the repository or download a zip file containing everything. Either way, after you unzip everything you will end up with the root folder (probably something called <code>C-Macro-Collections</code>) and inside it is the <code>src</code> folder.</p>
 <p>With the <code>src</code> folder you can start including the library headers to your project with <code>-I path/to/library/src</code>.</p>
 <p>The library has no external dependencies other than the C standard library.</p>
@@ -199,7 +197,7 @@
 #include &lt;deque.h&gt;  // dev or cmc?
 #include &lt;assert.h&gt; // this will import from the standard library
 </code></pre>
-<h1><a class="header" href="#library-structure" id="library-structure">Library Structure</a></h1>
+<div style="break-before: page; page-break-before: always;"></div><h1 id="library-structure"><a class="header" href="#library-structure">Library Structure</a></h1>
 <p>The <code>src</code> folder is subdivided in 5 other folders and one file:</p>
 <ul>
 <li><strong>cmc</strong> - The main C Macro Collections Library</li>
@@ -208,20 +206,20 @@
 <li><strong>utl</strong> - Utility like ForEach macros, logging, etc</li>
 <li><strong>macro_collections.h</strong> - Master header containing all collections and utilities</li>
 </ul>
-<h2><a class="header" href="#cmc" id="cmc">cmc</a></h2>
+<h2 id="cmc"><a class="header" href="#cmc">cmc</a></h2>
 <p>This is where the C Macro Collections are hosted.</p>
-<h2><a class="header" href="#dev" id="dev">dev</a></h2>
+<h2 id="dev"><a class="header" href="#dev">dev</a></h2>
 <p>In this folder is an exact copy of the <code>cmc</code> Collections with the added logging utility (<code>./utl/log.h</code>). These are useful to debug your code because everything that is happening inside the data structure can be seen.</p>
-<h2><a class="header" href="#sac" id="sac">sac</a></h2>
+<h2 id="sac"><a class="header" href="#sac">sac</a></h2>
 <p>This is where the Statically Allocated Collections are hosted. These collections are just like the <code>cmc</code> Collections but they have a constant size, a C array, instead of a dynamically allocated array (yes, even for Linked List).</p>
-<h2><a class="header" href="#utl" id="utl">utl</a></h2>
+<h2 id="utl"><a class="header" href="#utl">utl</a></h2>
 <p>Utility. Here you will find things like assert macros, foreach macros, logging utility, unit test and timer.</p>
-<h2><a class="header" href="#macro_collectionsh" id="macro_collectionsh">macro_collections.h</a></h2>
+<h2 id="macro_collectionsh"><a class="header" href="#macro_collectionsh">macro_collections.h</a></h2>
 <p>This is the master header. Include this big boy and all functionalities of the library will be in your hands.</p>
-<h1><a class="header" href="#understanding-the-library" id="understanding-the-library">Understanding the Library</a></h1>
+<div style="break-before: page; page-break-before: always;"></div><h1 id="understanding-the-library"><a class="header" href="#understanding-the-library">Understanding the Library</a></h1>
 <p>Every macro within the library is prefixed by <code>CMC</code> or <code>cmc</code>. If you have <a href="https://code.visualstudio.com/docs/editor/intellisense">intellisense</a> you can easily check all the features of the library once you include the necessary headers.</p>
 <p>When you generate code for a certain collection you will need to pass four very important parameters: <code>SNAME</code>, <code>PFX</code>, <code>K</code> and <code>V</code>.</p>
-<h2><a class="header" href="#sname" id="sname">SNAME</a></h2>
+<h2 id="sname"><a class="header" href="#sname">SNAME</a></h2>
 <p><code>SNAME</code> is short for struct name. This parameter will define your collection so that its type name becomes:</p>
 <pre><code class="language-c">struct SNAME;
 </code></pre>
@@ -231,7 +229,7 @@
 struct SNAME##_node;
 </code></pre>
 <p>Note that the <code>##</code> is a <a href="https://en.wikipedia.org/wiki/C_preprocessor#Token_concatenation">Token Pasting Operator</a>.</p>
-<h2><a class="header" href="#pfx" id="pfx">PFX</a></h2>
+<h2 id="pfx"><a class="header" href="#pfx">PFX</a></h2>
 <p><code>PFX</code> is a short for prefix. <strong>Every function generated will be within this namespace</strong>. When using <a href="https://code.visualstudio.com/docs/editor/intellisense">Intellisense</a>, write whichever prefix you gave to your functions and everything will be in there.</p>
 <p>Functions that are part of the implementation and shouldn't be called directly are prefixed by <code>PFX</code> and then by <code>_impl_</code>. Every iterator function will be prefixed by <code>PFX</code> and then by <code>_iter_</code>. For example:</p>
 <pre><code class="language-c">// A function that you shouldn't use directly
@@ -240,101 +238,97 @@ size_t PFX##_impl_quick_sort(struct SNAME *list);
 <pre><code class="language-c">// A function that is associated with the iterator
 struct SNAME##_iter *PFX##_iter_new(struct SNAME *target);
 </code></pre>
-<h2><a class="header" href="#k" id="k">K</a></h2>
+<h2 id="k"><a class="header" href="#k">K</a></h2>
 <p><code>K</code>, short for Key, is the data type that is only used by associative collections to map a key to a value.</p>
-<h2><a class="header" href="#v" id="v">V</a></h2>
+<h2 id="v"><a class="header" href="#v">V</a></h2>
 <p><code>V</code>, short for Value, is the primary data type for most collections.</p>
-<h2><a class="header" href="#summarizing" id="summarizing">Summarizing</a></h2>
+<h2 id="summarizing"><a class="header" href="#summarizing">Summarizing</a></h2>
 <p>With <code>SNAME</code> and <code>PFX</code> a common function definition looks like:</p>
 <p><code>size_t PFX##_count(struct SNAME *list);</code></p>
 <p>So if input <code>SNAME</code> as <code>i32list</code> and <code>PFX</code> as <code>i32l</code> you will have the following function definition:</p>
 <p><code>size_t i32l_count(struct i32list *list);</code></p>
-<h1><a class="header" href="#how-to-use-the-library" id="how-to-use-the-library">How to Use the Library</a></h1>
+<div style="break-before: page; page-break-before: always;"></div><h1 id="how-to-use-the-library"><a class="header" href="#how-to-use-the-library">How to Use the Library</a></h1>
 <p>The C Macro Collections Library comes with very powerful data structures and they are only one macro away from you.</p>
 <p>TODO</p>
-<h1><a class="header" href="#overview" id="overview">Overview</a></h1>
+<div style="break-before: page; page-break-before: always;"></div><h1 id="overview"><a class="header" href="#overview">Overview</a></h1>
 <p>In this section you will be able to quickly glance at what are the core functionalities that the C Macro Collections library can bring you.</p>
-<h1><a class="header" href="#collections-overview" id="collections-overview">Collections Overview</a></h1>
-<table><thead><tr><th align="center">Collection</th><th align="center">Abstract Data Type</th><th align="center">Data Structure</th><th align="center">Details</th></tr></thead><tbody>
-<tr><td align="center">BidiMap      <br> <em>bidimap.h</em></td><td align="center">Bidirectional Map</td><td align="center">Two Hashtables</td><td align="center">A bijection between two sets of unique keys and unique values <code>K &lt;-&gt; V</code> using two hashtables</td></tr>
-<tr><td align="center">Deque        <br> <em>deque.h</em></td><td align="center">Double-Ended Queue</td><td align="center">Dynamic Circular Array</td><td align="center">A circular array that allows <code>push</code> and <code>pop</code> on both ends (only) at constant time</td></tr>
-<tr><td align="center">HashMap      <br> <em>hashmap.h</em></td><td align="center">Map</td><td align="center">Hashtable</td><td align="center">A unique set of keys associated with a value <code>K -&gt; V</code> with constant time look up using a hashtable with open addressing and robin hood hashing</td></tr>
-<tr><td align="center">HashSet      <br> <em>hashset.h</em></td><td align="center">Set</td><td align="center">Hashtable</td><td align="center">A unique set of values with constant time look up  using a hashtable with open addressing and robin hood hashing</td></tr>
-<tr><td align="center">Heap         <br> <em>heap.h</em></td><td align="center">Priority Queue</td><td align="center">Dynamic Array</td><td align="center">A binary heap as a dynamic array as an implicit data structure</td></tr>
-<tr><td align="center">IntervalHeap <br> <em>intervalheap.h</em></td><td align="center">Double-Ended Priority Queue</td><td align="center">Custom Dynamic Array</td><td align="center">A dynamic array of nodes, each hosting one value from the MinHeap and one from the MaxHeap</td></tr>
-<tr><td align="center">LinkedList   <br> <em>linkedlist.h</em></td><td align="center">List</td><td align="center">Doubly-Linked List</td><td align="center">A default doubly-linked list</td></tr>
-<tr><td align="center">List         <br> <em>list.h</em></td><td align="center">List</td><td align="center">Dynamic Array</td><td align="center">A dynamic array with <code>push</code> and <code>pop</code> anywhere on the array</td></tr>
-<tr><td align="center">MultiMap     <br> <em>multimap.h</em></td><td align="center">Multimap</td><td align="center">Custom Hashtable</td><td align="center">A mapping of multiple keys with one node per key using a hashtable with separate chaining</td></tr>
-<tr><td align="center">Multiset     <br> <em>multiset.h</em></td><td align="center">Multiset</td><td align="center">Hashtable</td><td align="center">A mapping of a value and its multiplicity using a hashtable with open addressing and robin hood hashing</td></tr>
-<tr><td align="center">Queue        <br> <em>queue.h</em></td><td align="center">FIFO</td><td align="center">Dynamic Circular Array</td><td align="center">A queue using a circular array with <code>enqueue</code> at the <code>back</code> index and <code>dequeue</code> at the <code>front</code> index</td></tr>
-<tr><td align="center">SortedList   <br> <em>sortedlist.h</em></td><td align="center">Sorted List</td><td align="center">Sorted Dynamic Array</td><td align="center">A lazily sorted dynamic array that is sorted only when necessary</td></tr>
-<tr><td align="center">Stack        <br> <em>stack.h</em></td><td align="center">FILO</td><td align="center">Dynamic Array</td><td align="center">A stack with push and pop at the end of a dynamic array</td></tr>
-<tr><td align="center">TreeMap      <br> <em>treemap.h</em></td><td align="center">Sorted Map</td><td align="center">AVL Tree</td><td align="center">A unique set of keys associated with a value <code>K -&gt; V</code> using an AVL tree with <code>log(n)</code> look up and sorted iteration</td></tr>
-<tr><td align="center">TreeSet      <br> <em>treeset.h</em></td><td align="center">Sorted Set</td><td align="center">AVL Tree</td><td align="center">A unique set of keys using an AVL tree with <code>log(n)</code> look up and sorted iteration</td></tr>
+<div style="break-before: page; page-break-before: always;"></div><h1 id="collections-overview"><a class="header" href="#collections-overview">Collections Overview</a></h1>
+<div class="table-wrapper"><table><thead><tr><th style="text-align: center">Collection</th><th style="text-align: center">Abstract Data Type</th><th style="text-align: center">Data Structure</th><th style="text-align: center">Details</th></tr></thead><tbody>
+<tr><td style="text-align: center">BidiMap      <br> <em>bidimap.h</em></td><td style="text-align: center">Bidirectional Map</td><td style="text-align: center">Two Hashtables</td><td style="text-align: center">A bijection between two sets of unique keys and unique values <code>K &lt;-&gt; V</code> using two hashtables</td></tr>
+<tr><td style="text-align: center">Deque        <br> <em>deque.h</em></td><td style="text-align: center">Double-Ended Queue</td><td style="text-align: center">Dynamic Circular Array</td><td style="text-align: center">A circular array that allows <code>push</code> and <code>pop</code> on both ends (only) at constant time</td></tr>
+<tr><td style="text-align: center">HashMap      <br> <em>hashmap.h</em></td><td style="text-align: center">Map</td><td style="text-align: center">Hashtable</td><td style="text-align: center">A unique set of keys associated with a value <code>K -&gt; V</code> with constant time look up using a hashtable with open addressing and robin hood hashing</td></tr>
+<tr><td style="text-align: center">HashSet      <br> <em>hashset.h</em></td><td style="text-align: center">Set</td><td style="text-align: center">Hashtable</td><td style="text-align: center">A unique set of values with constant time look up  using a hashtable with open addressing and robin hood hashing</td></tr>
+<tr><td style="text-align: center">Heap         <br> <em>heap.h</em></td><td style="text-align: center">Priority Queue</td><td style="text-align: center">Dynamic Array</td><td style="text-align: center">A binary heap as a dynamic array as an implicit data structure</td></tr>
+<tr><td style="text-align: center">IntervalHeap <br> <em>intervalheap.h</em></td><td style="text-align: center">Double-Ended Priority Queue</td><td style="text-align: center">Custom Dynamic Array</td><td style="text-align: center">A dynamic array of nodes, each hosting one value from the MinHeap and one from the MaxHeap</td></tr>
+<tr><td style="text-align: center">LinkedList   <br> <em>linkedlist.h</em></td><td style="text-align: center">List</td><td style="text-align: center">Doubly-Linked List</td><td style="text-align: center">A default doubly-linked list</td></tr>
+<tr><td style="text-align: center">List         <br> <em>list.h</em></td><td style="text-align: center">List</td><td style="text-align: center">Dynamic Array</td><td style="text-align: center">A dynamic array with <code>push</code> and <code>pop</code> anywhere on the array</td></tr>
+<tr><td style="text-align: center">MultiMap     <br> <em>multimap.h</em></td><td style="text-align: center">Multimap</td><td style="text-align: center">Custom Hashtable</td><td style="text-align: center">A mapping of multiple keys with one node per key using a hashtable with separate chaining</td></tr>
+<tr><td style="text-align: center">Multiset     <br> <em>multiset.h</em></td><td style="text-align: center">Multiset</td><td style="text-align: center">Hashtable</td><td style="text-align: center">A mapping of a value and its multiplicity using a hashtable with open addressing and robin hood hashing</td></tr>
+<tr><td style="text-align: center">Queue        <br> <em>queue.h</em></td><td style="text-align: center">FIFO</td><td style="text-align: center">Dynamic Circular Array</td><td style="text-align: center">A queue using a circular array with <code>enqueue</code> at the <code>back</code> index and <code>dequeue</code> at the <code>front</code> index</td></tr>
+<tr><td style="text-align: center">SortedList   <br> <em>sortedlist.h</em></td><td style="text-align: center">Sorted List</td><td style="text-align: center">Sorted Dynamic Array</td><td style="text-align: center">A lazily sorted dynamic array that is sorted only when necessary</td></tr>
+<tr><td style="text-align: center">Stack        <br> <em>stack.h</em></td><td style="text-align: center">FILO</td><td style="text-align: center">Dynamic Array</td><td style="text-align: center">A stack with push and pop at the end of a dynamic array</td></tr>
+<tr><td style="text-align: center">TreeMap      <br> <em>treemap.h</em></td><td style="text-align: center">Sorted Map</td><td style="text-align: center">AVL Tree</td><td style="text-align: center">A unique set of keys associated with a value <code>K -&gt; V</code> using an AVL tree with <code>log(n)</code> look up and sorted iteration</td></tr>
+<tr><td style="text-align: center">TreeSet      <br> <em>treeset.h</em></td><td style="text-align: center">Sorted Set</td><td style="text-align: center">AVL Tree</td><td style="text-align: center">A unique set of keys using an AVL tree with <code>log(n)</code> look up and sorted iteration</td></tr>
 </tbody></table>
-<h1><a class="header" href="#features-overview" id="features-overview">Features Overview</a></h1>
+</div><div style="break-before: page; page-break-before: always;"></div><h1 id="features-overview"><a class="header" href="#features-overview">Features Overview</a></h1>
 <p>The C Macro Collections library comes with some core features available to all collections.</p>
-<table><thead><tr><th>Feature</th><th>Description</th></tr></thead><tbody>
+<div class="table-wrapper"><table><thead><tr><th>Feature</th><th>Description</th></tr></thead><tbody>
 <tr><td><a href="Overview/../cor/callbacks/index.html">Callbacks</a></td><td>Callbacks are functions that are called when an operation is successful. These operations are divided in 5 categories (create, read, update, delete, resize).</td></tr>
 <tr><td><a href="Overview/../cor/custom_allocation/index.html">Custom Allocation</a></td><td>Allows you to use your own custom dynamic memory allocation functions inside the collections.</td></tr>
 <tr><td><a href="Overview/../cor/error_codes/index.html">Error Codes</a></td><td>Error codes that can be used to treat certain common errors when operating on a collection.</td></tr>
 <tr><td><a href="Overview/../cor/functions_table/index.html">Functions Table</a></td><td>A standard way to access required behaviors from the custom data types. Things like hash, comparison, freeing from memory if needed, etc.</td></tr>
 <tr><td><a href="Overview/../cor/iterators/index.html">Iterators</a></td><td>Iterators are a simplified access to the values of a collection.</td></tr>
 </tbody></table>
-<h1><a class="header" href="#files-overview" id="files-overview">Files Overview</a></h1>
+</div><div style="break-before: page; page-break-before: always;"></div><h1 id="files-overview"><a class="header" href="#files-overview">Files Overview</a></h1>
 <p>An overview of the source files (all <code>.h</code>) of the C Macro Collections library.</p>
 <ul>
-<li><code>./cmc</code> - The main C Macro Collections library
+<li><code>cmc</code> - The main C Macro Collections library</li>
+<li><code>cor</code> - Core functionalities of the C Macro Collections libraries
 <ul>
-<li><code>./bidimap.h</code> - A bi-directional map based on a hash table</li>
-<li><code>./deque.h</code> - A double-ended queue</li>
-<li><code>./hashmap.h</code> - A map based on a hash table</li>
-<li><code>./hashset.h</code> - A set based on a hash table</li>
-<li><code>./heap.h</code> - A binary heap based on a dynamic array</li>
-<li><code>./intervalheap.h</code> - A heap that is both Min and Max based on a dynamic array</li>
-<li><code>./linkedlist.h</code> - A doubly-linked list</li>
-<li><code>./list.h</code> - A dynamic array</li>
-<li><code>./multimap.h</code> - A map that accepts multiple keys based on a hash table</li>
-<li><code>./multiset.h</code> - A multiset based on a hash table</li>
-<li><code>./queue.h</code> - A FIFO based on a circular dynamic array</li>
-<li><code>./sortedlist.h</code> - A sorted list based on a dynamic array</li>
-<li><code>./stack.h</code> - A LIFO based on a dynamic array</li>
-<li><code>./treemap.h</code> - A sorted map based on an AVL tree</li>
-<li><code>./treeset.h</code> - A sorted set based on an AVL tree</li>
+<li><code>core.h</code> - Core functionalities of the library</li>
+<li><code>hashtable.h</code> - Common things used by hash table based collections</li>
 </ul>
 </li>
-<li><code>./cor</code> - Core functionalities of the C Macro Collections libraries
+<li><code>utl</code> - Utilities
 <ul>
-<li><code>./core.h</code> - Core functionalities of the library</li>
-<li><code>./hashtable.h</code> - Common things used by hash table based collections</li>
+<li><code>assert.h</code> - Non-abortive assert macros</li>
+<li><code>foreach.h</code> - For Each macros</li>
+<li><code>futils.h</code> - Common functions used by Functions Table</li>
+<li><code>log.h</code> - Logging utility with levels of severity</li>
+<li><code>test.h</code> - Simple Unit Test building with macros</li>
+<li><code>test.h</code> - Timing code execution utility</li>
 </ul>
 </li>
-<li><code>./dev</code> - A mirror of the main library to be used during development</li>
-<li><code>./sac</code> - Statically Allocated Collections that don't use dynamic allocation</li>
-<li><code>./utl</code> - Utilities
-<ul>
-<li><code>./assert.h</code> - Non-abortive assert macros</li>
-<li><code>./foreach.h</code> - For Each macros</li>
-<li><code>./futils.h</code> - Common functions used by Functions Table</li>
-<li><code>./log.h</code> - Logging utility with levels of severity</li>
-<li><code>./test.h</code> - Simple Unit Test building with macros</li>
-<li><code>./test.h</code> - Timing code execution utility</li>
+<li><code>bidimap.h</code> - A bi-directional map based on a hash table</li>
+<li><code>deque.h</code> - A double-ended queue</li>
+<li><code>hashmap.h</code> - A map based on a hash table</li>
+<li><code>hashset.h</code> - A set based on a hash table</li>
+<li><code>heap.h</code> - A binary heap based on a dynamic array</li>
+<li><code>intervalheap.h</code> - A heap that is both Min and Max based on a dynamic array</li>
+<li><code>linkedlist.h</code> - A doubly-linked list</li>
+<li><code>list.h</code> - A dynamic array</li>
+<li><code>multimap.h</code> - A map that accepts multiple keys based on a hash table</li>
+<li><code>multiset.h</code> - A multiset based on a hash table</li>
+<li><code>queue.h</code> - A FIFO based on a circular dynamic array</li>
+<li><code>sortedlist.h</code> - A sorted list based on a dynamic array</li>
+<li><code>stack.h</code> - A LIFO based on a dynamic array</li>
+<li><code>treemap.h</code> - A sorted map based on an AVL tree</li>
+<li><code>treeset.h</code> - A sorted set based on an AVL tree</li>
 </ul>
-</li>
-</ul>
-<h1><a class="header" href="#cor" id="cor">COR</a></h1>
+<div style="break-before: page; page-break-before: always;"></div><h1 id="cor"><a class="header" href="#cor">COR</a></h1>
 <p>Core functionalities of the C Macro Collections Library.</p>
-<h1><a class="header" href="#callbacks" id="callbacks">Callbacks</a></h1>
+<div style="break-before: page; page-break-before: always;"></div><h1 id="callbacks"><a class="header" href="#callbacks">Callbacks</a></h1>
 <p>Every collection can have an optional callback node. In this node there are five functions:</p>
-<table><thead><tr><th>Callback</th><th>Description</th></tr></thead><tbody>
+<div class="table-wrapper"><table><thead><tr><th>Callback</th><th>Description</th></tr></thead><tbody>
 <tr><td><code>create</code></td><td>Is called when an element was successfully added to the collection</td></tr>
 <tr><td><code>read</code></td><td>Is called when the collection was successfully queried about an element</td></tr>
 <tr><td><code>update</code></td><td>Is called when an element in the collection was successfully updated</td></tr>
 <tr><td><code>delete</code></td><td>Is called when an element was successfully removed from the collection</td></tr>
 <tr><td><code>resize</code></td><td>Is called when the collection was full and successfully resized</td></tr>
 </tbody></table>
+</div>
 <p>Check the documentation for each collection to see which functions call which callbacks.</p>
-<h2><a class="header" href="#cmc_callbacks" id="cmc_callbacks">cmc_callbacks</a></h2>
+<h2 id="cmc_callbacks"><a class="header" href="#cmc_callbacks">cmc_callbacks</a></h2>
 <p>Every collection has a pointer to this <code>struct</code>. If it is <code>NULL</code> then the collection has no callbacks. Also, individual callbacks can be optional if set to <code>NULL</code>.</p>
 <pre><code class="language-c">struct cmc_callbacks
 {
@@ -345,7 +339,7 @@ struct SNAME##_iter *PFX##_iter_new(struct SNAME *target);
     void (*resize)(void);
 };
 </code></pre>
-<h2><a class="header" href="#example" id="example">Example</a></h2>
+<h2 id="example"><a class="header" href="#example">Example</a></h2>
 <pre><code class="language-c">#include &quot;cmc/heap.h&quot;
 #include &quot;utl/futils.h&quot; // cmc_i32_cmp
 
@@ -374,9 +368,9 @@ int main(void)
     i32h_free(heap);
 }
 </code></pre>
-<h1><a class="header" href="#custom-allocation" id="custom-allocation">Custom Allocation</a></h1>
+<div style="break-before: page; page-break-before: always;"></div><h1 id="custom-allocation"><a class="header" href="#custom-allocation">Custom Allocation</a></h1>
 <p>All collections have an allocation node. This node can be modified so that every allocation and de-allocation can be done with custom functions. Every custom allocation function must follow the same prototype of the <code>stdlib.h</code> functions.</p>
-<h2><a class="header" href="#cmc_alloc_node" id="cmc_alloc_node">cmc_alloc_node</a></h2>
+<h2 id="cmc_alloc_node"><a class="header" href="#cmc_alloc_node">cmc_alloc_node</a></h2>
 <pre><code class="language-c">struct cmc_alloc_node
 {
     void *(*malloc)(size_t);
@@ -385,12 +379,12 @@ int main(void)
     void (*free)(void *);
 };
 </code></pre>
-<h2><a class="header" href="#cmc_alloc_node_default" id="cmc_alloc_node_default">cmc_alloc_node_default</a></h2>
+<h2 id="cmc_alloc_node_default"><a class="header" href="#cmc_alloc_node_default">cmc_alloc_node_default</a></h2>
 <p>The default allocation node. If a collections is not initialized with a custom allocation node, this will be the default one using the functions from the C standard library.</p>
 <pre><code class="language-c">static struct cmc_alloc_node cmc_alloc_node_default = { malloc, calloc,
                                                         realloc, free };
 </code></pre>
-<h2><a class="header" href="#example-1" id="example-1">Example</a></h2>
+<h2 id="example-1"><a class="header" href="#example-1">Example</a></h2>
 <pre><code class="language-c">#include &quot;cmc/heap.h&quot;
 #include &quot;utl/futils.h&quot; // cmc_i32_cmp
 
@@ -454,12 +448,12 @@ int main(void)
     printf(&quot;Total bytes allocated : %&quot; PRIuMAX &quot;\n&quot;, total);
 }
 </code></pre>
-<h1><a class="header" href="#error-codes" id="error-codes">Error Codes</a></h1>
+<div style="break-before: page; page-break-before: always;"></div><h1 id="error-codes"><a class="header" href="#error-codes">Error Codes</a></h1>
 <p>Error codes are ways to signal errors or success. It is accessed through the <code>flag</code> component of a <code>struct</code> or through a function that is present in every collection:</p>
 <pre><code class="language-c">int PFX##_flag(struct SNAME *_collection_);
 </code></pre>
 <p>Some functions have a return type of <code>bool</code> indicating if it exited successfully or not. These error codes can be used for further error handling.</p>
-<h2><a class="header" href="#cmc_flags" id="cmc_flags">cmc_flags</a></h2>
+<h2 id="cmc_flags"><a class="header" href="#cmc_flags">cmc_flags</a></h2>
 <p>It is a global <code>struct</code> with default values for error codes.</p>
 <pre><code class="language-c">static struct
 {
@@ -483,13 +477,13 @@ int main(void)
 <li><code>DUPLICATE</code> - Duplicate key or value.</li>
 <li><code>ERROR</code> - Generic error. Usually caused by algorithm errors.</li>
 </ul>
-<h2><a class="header" href="#cmc_flags_to_str" id="cmc_flags_to_str">cmc_flags_to_str</a></h2>
+<h2 id="cmc_flags_to_str"><a class="header" href="#cmc_flags_to_str">cmc_flags_to_str</a></h2>
 <p>Maps the integer representation of error codes to their character representation.</p>
 <pre><code class="language-c">const char *cmc_flags_to_str[8] = { &quot;OK&quot;,        &quot;ALLOC&quot;,   &quot;EMPTY&quot;,
                                     &quot;NOT_FOUND&quot;, &quot;INVALID&quot;, &quot;RANGE&quot;,
                                     &quot;DUPLICATE&quot;, &quot;ERROR&quot; };
 </code></pre>
-<h2><a class="header" href="#example-2" id="example-2">Example</a></h2>
+<h2 id="example-2"><a class="header" href="#example-2">Example</a></h2>
 <pre><code class="language-c">#include &quot;cmc/treeset.h&quot;
 #include &quot;utl/futils.h&quot; // cmc_i32_cmp
 
@@ -516,7 +510,7 @@ int main(void)
     tset_free(set);
 }
 </code></pre>
-<h1><a class="header" href="#functions-table" id="functions-table">Functions Table</a></h1>
+<div style="break-before: page; page-break-before: always;"></div><h1 id="functions-table"><a class="header" href="#functions-table">Functions Table</a></h1>
 <p>Functions Table is a <code>struct</code> with function pointers that are used to extract behavior from a custom data type. This exists because an <code>int</code> or a <code>char *</code> or <code>struct my_data_type</code> don't have default hash functions or ways to compare between them. This could be achieved with <a href="https://en.wikipedia.org/wiki/Operator_overloading">operator overloading</a> but C doesn't have that. Hence, Functions Table was created to provide a single access point to extract these behaviors for <strong>any</strong> data type.</p>
 <p>Some functions are optional and others are needed in order for a collection to operate. Say you want a HashMap. There are two required functions: <code>hash</code> and <code>cmp</code> (comparator). Without them it is impossible to know how to hash your custom that type (it could be anything). This means you can also customize the collection by using different hash functions.</p>
 <p>Many required functions are simply mundane. Like a comparator function between integers or between floats. The header <a href="cor/functions_table/../../utl/futils.h/index.html"><code>utl/futils.h</code></a> defines many of these functions for basic C data types.</p>
@@ -549,7 +543,7 @@ struct SNAME##_fkey                  \
 };                                   \
                                      \
 </code></pre>
-<h3><a class="header" href="#cmp" id="cmp">CMP</a></h3>
+<h3 id="cmp"><a class="header" href="#cmp">CMP</a></h3>
 <ul>
 <li><code>K</code> - <code>int (*cmp)(K, K)</code></li>
 <li><code>V</code> - <code>int (*cmp)(V, V)</code></li>
@@ -561,33 +555,33 @@ struct SNAME##_fkey                  \
 <li>Return <code>-1</code> if the first argument is less than the second.</li>
 </ul>
 <p>Note that certain collections require a total ordering of its elements (sorted collections) while others only require to know if one data equals another. Check out the documentation for each collection to know more.</p>
-<h3><a class="header" href="#cpy" id="cpy">CPY</a></h3>
+<h3 id="cpy"><a class="header" href="#cpy">CPY</a></h3>
 <ul>
 <li><code>K</code> - <code>K (*cpy)(K)</code></li>
 <li><code>V</code> - <code>V (*cpy)(V)</code></li>
 </ul>
 <p>A copy function is used when a collection is being copied. It can be used to make a deep copy of of your custom data type. It must take a single parameter and return a new copy of that same data type. If this function is absent (<code>NULL</code>) the data type will be copied by assignment (for pointers this is a shallow copy).</p>
 <p>Note that it doesn't makes sense to define a <code>cpy</code> function for data types that are not pointers. This function is useful for deep copies of a pointer in case you don't want two collections holding the same reference to the data.</p>
-<h3><a class="header" href="#str" id="str">STR</a></h3>
+<h3 id="str"><a class="header" href="#str">STR</a></h3>
 <ul>
 <li><code>K</code> - <code>bool (*str)(FILE *, K)</code></li>
 <li><code>V</code> - <code>bool (*str)(FILE *, V)</code></li>
 </ul>
 <p>A string function is responsible for taking a <code>FILE</code> pointer and a custom data type and outputting the string representation of that data returning a <code>bool</code> indication success or failure. It is useful for debugging and doesn't necessarily needs to print all the data that the specific type holds.</p>
-<h3><a class="header" href="#free" id="free">FREE</a></h3>
+<h3 id="free"><a class="header" href="#free">FREE</a></h3>
 <ul>
 <li><code>K</code> - <code>void (*free)(K)</code></li>
 <li><code>V</code> - <code>void (*free)(V)</code></li>
 </ul>
 <p>The free function is called when a collection is cleared (all elements removed) or freed (all elements removed and the collection is freed from memory) and it is responsible for completely freeing all resources that are usually acquired by your data type.</p>
 <p>This function only makes sense to be used when the data type has dynamically allocated memory. It is the only completely optional function.</p>
-<h3><a class="header" href="#hash" id="hash">HASH</a></h3>
+<h3 id="hash"><a class="header" href="#hash">HASH</a></h3>
 <ul>
 <li><code>K</code> - <code>size_t (*hash)(K)</code></li>
 <li><code>V</code> - <code>size_t (*hash)(V)</code></li>
 </ul>
 <p>This function receives a custom data type as parameter and returns a <code>size_t</code> <a href="https://en.wikipedia.org/wiki/Hash_function">hash</a> that represents that data. Used by collections with an underlying hash tables.</p>
-<h3><a class="header" href="#pri" id="pri">PRI</a></h3>
+<h3 id="pri"><a class="header" href="#pri">PRI</a></h3>
 <ul>
 <li><code>K</code> - <code>int (*cmp)(K, K)</code></li>
 <li><code>V</code> - <code>int (*cmp)(V, V)</code></li>
@@ -600,39 +594,39 @@ struct SNAME##_fkey                  \
 </ul>
 <p>Why use both <code>cmp</code> and <code>pri</code>? Heaps have their internal structure based in the priority of elements. This priority is not necessarily how each element is compared to each other. Maybe their equality is defined differently for an equality of priorities. Maybe the rules for their priorities is different for when comparing an element against another.</p>
 <p>The following table shows which functions are required, optional or never used for each Collection:</p>
-<table><thead><tr><th>Collection</th><th align="center">CMP</th><th align="center">CPY</th><th align="center">STR</th><th align="center">FREE</th><th align="center">HASH</th><th align="center">PRI</th></tr></thead><tbody>
-<tr><td>BidiMap</td><td align="center"><img src="https://placehold.it/20/b82b28/000000?text=+" alt="#b82b28" /></td><td align="center"><img src="https://placehold.it/20/9f3b94/000000?text=+" alt="#9f3b94" /></td><td align="center"><img src="https://placehold.it/20/497edd/000000?text=+" alt="#497edd" /></td><td align="center"><img src="https://placehold.it/20/00d3eb/000000?text=+" alt="#00d3eb" /></td><td align="center"><img src="https://placehold.it/20/b82b28/000000?text=+" alt="#b82b28" /></td><td align="center"><img src="https://placehold.it/20/2ef625/000000?text=+" alt="#2ef625" /></td></tr>
-<tr><td>Deque</td><td align="center"><img src="https://placehold.it/20/9f3b94/000000?text=+" alt="#9f3b94" /></td><td align="center"><img src="https://placehold.it/20/9f3b94/000000?text=+" alt="#9f3b94" /></td><td align="center"><img src="https://placehold.it/20/497edd/000000?text=+" alt="#497edd" /></td><td align="center"><img src="https://placehold.it/20/00d3eb/000000?text=+" alt="#00d3eb" /></td><td align="center"><img src="https://placehold.it/20/2ef625/000000?text=+" alt="#2ef625" /></td><td align="center"><img src="https://placehold.it/20/2ef625/000000?text=+" alt="#2ef625" /></td></tr>
-<tr><td>HashMap</td><td align="center"><img src="https://placehold.it/20/b82b28/000000?text=+" alt="#b82b28" /></td><td align="center"><img src="https://placehold.it/20/9f3b94/000000?text=+" alt="#9f3b94" /></td><td align="center"><img src="https://placehold.it/20/497edd/000000?text=+" alt="#497edd" /></td><td align="center"><img src="https://placehold.it/20/00d3eb/000000?text=+" alt="#00d3eb" /></td><td align="center"><img src="https://placehold.it/20/b82b28/000000?text=+" alt="#b82b28" /></td><td align="center"><img src="https://placehold.it/20/2ef625/000000?text=+" alt="#2ef625" /></td></tr>
-<tr><td>HashSet</td><td align="center"><img src="https://placehold.it/20/b82b28/000000?text=+" alt="#b82b28" /></td><td align="center"><img src="https://placehold.it/20/9f3b94/000000?text=+" alt="#9f3b94" /></td><td align="center"><img src="https://placehold.it/20/497edd/000000?text=+" alt="#497edd" /></td><td align="center"><img src="https://placehold.it/20/00d3eb/000000?text=+" alt="#00d3eb" /></td><td align="center"><img src="https://placehold.it/20/b82b28/000000?text=+" alt="#b82b28" /></td><td align="center"><img src="https://placehold.it/20/2ef625/000000?text=+" alt="#2ef625" /></td></tr>
-<tr><td>Heap</td><td align="center"><img src="https://placehold.it/20/9f3b94/000000?text=+" alt="#9f3b94" /></td><td align="center"><img src="https://placehold.it/20/9f3b94/000000?text=+" alt="#9f3b94" /></td><td align="center"><img src="https://placehold.it/20/497edd/000000?text=+" alt="#497edd" /></td><td align="center"><img src="https://placehold.it/20/00d3eb/000000?text=+" alt="#00d3eb" /></td><td align="center"><img src="https://placehold.it/20/2ef625/000000?text=+" alt="#2ef625" /></td><td align="center"><img src="https://placehold.it/20/b82b28/000000?text=+" alt="#b82b28" /></td></tr>
-<tr><td>IntervalHeap</td><td align="center"><img src="https://placehold.it/20/9f3b94/000000?text=+" alt="#9f3b94" /></td><td align="center"><img src="https://placehold.it/20/9f3b94/000000?text=+" alt="#9f3b94" /></td><td align="center"><img src="https://placehold.it/20/497edd/000000?text=+" alt="#497edd" /></td><td align="center"><img src="https://placehold.it/20/00d3eb/000000?text=+" alt="#00d3eb" /></td><td align="center"><img src="https://placehold.it/20/2ef625/000000?text=+" alt="#2ef625" /></td><td align="center"><img src="https://placehold.it/20/b82b28/000000?text=+" alt="#b82b28" /></td></tr>
-<tr><td>List</td><td align="center"><img src="https://placehold.it/20/9f3b94/000000?text=+" alt="#9f3b94" /></td><td align="center"><img src="https://placehold.it/20/9f3b94/000000?text=+" alt="#9f3b94" /></td><td align="center"><img src="https://placehold.it/20/497edd/000000?text=+" alt="#497edd" /></td><td align="center"><img src="https://placehold.it/20/00d3eb/000000?text=+" alt="#00d3eb" /></td><td align="center"><img src="https://placehold.it/20/2ef625/000000?text=+" alt="#2ef625" /></td><td align="center"><img src="https://placehold.it/20/2ef625/000000?text=+" alt="#2ef625" /></td></tr>
-<tr><td>LinkedList</td><td align="center"><img src="https://placehold.it/20/9f3b94/000000?text=+" alt="#9f3b94" /></td><td align="center"><img src="https://placehold.it/20/9f3b94/000000?text=+" alt="#9f3b94" /></td><td align="center"><img src="https://placehold.it/20/497edd/000000?text=+" alt="#497edd" /></td><td align="center"><img src="https://placehold.it/20/00d3eb/000000?text=+" alt="#00d3eb" /></td><td align="center"><img src="https://placehold.it/20/2ef625/000000?text=+" alt="#2ef625" /></td><td align="center"><img src="https://placehold.it/20/2ef625/000000?text=+" alt="#2ef625" /></td></tr>
-<tr><td>MultiMap</td><td align="center"><img src="https://placehold.it/20/b82b28/000000?text=+" alt="#b82b28" /></td><td align="center"><img src="https://placehold.it/20/9f3b94/000000?text=+" alt="#9f3b94" /></td><td align="center"><img src="https://placehold.it/20/497edd/000000?text=+" alt="#497edd" /></td><td align="center"><img src="https://placehold.it/20/00d3eb/000000?text=+" alt="#00d3eb" /></td><td align="center"><img src="https://placehold.it/20/b82b28/000000?text=+" alt="#b82b28" /></td><td align="center"><img src="https://placehold.it/20/2ef625/000000?text=+" alt="#2ef625" /></td></tr>
-<tr><td>MultiSet</td><td align="center"><img src="https://placehold.it/20/b82b28/000000?text=+" alt="#b82b28" /></td><td align="center"><img src="https://placehold.it/20/9f3b94/000000?text=+" alt="#9f3b94" /></td><td align="center"><img src="https://placehold.it/20/497edd/000000?text=+" alt="#497edd" /></td><td align="center"><img src="https://placehold.it/20/00d3eb/000000?text=+" alt="#00d3eb" /></td><td align="center"><img src="https://placehold.it/20/b82b28/000000?text=+" alt="#b82b28" /></td><td align="center"><img src="https://placehold.it/20/2ef625/000000?text=+" alt="#2ef625" /></td></tr>
-<tr><td>Queue</td><td align="center"><img src="https://placehold.it/20/9f3b94/000000?text=+" alt="#9f3b94" /></td><td align="center"><img src="https://placehold.it/20/9f3b94/000000?text=+" alt="#9f3b94" /></td><td align="center"><img src="https://placehold.it/20/497edd/000000?text=+" alt="#497edd" /></td><td align="center"><img src="https://placehold.it/20/00d3eb/000000?text=+" alt="#00d3eb" /></td><td align="center"><img src="https://placehold.it/20/2ef625/000000?text=+" alt="#2ef625" /></td><td align="center"><img src="https://placehold.it/20/2ef625/000000?text=+" alt="#2ef625" /></td></tr>
-<tr><td>SortedList</td><td align="center"><img src="https://placehold.it/20/b82b28/000000?text=+" alt="#b82b28" /></td><td align="center"><img src="https://placehold.it/20/9f3b94/000000?text=+" alt="#9f3b94" /></td><td align="center"><img src="https://placehold.it/20/497edd/000000?text=+" alt="#497edd" /></td><td align="center"><img src="https://placehold.it/20/00d3eb/000000?text=+" alt="#00d3eb" /></td><td align="center"><img src="https://placehold.it/20/2ef625/000000?text=+" alt="#2ef625" /></td><td align="center"><img src="https://placehold.it/20/2ef625/000000?text=+" alt="#2ef625" /></td></tr>
-<tr><td>Stack</td><td align="center"><img src="https://placehold.it/20/9f3b94/000000?text=+" alt="#9f3b94" /></td><td align="center"><img src="https://placehold.it/20/9f3b94/000000?text=+" alt="#9f3b94" /></td><td align="center"><img src="https://placehold.it/20/497edd/000000?text=+" alt="#497edd" /></td><td align="center"><img src="https://placehold.it/20/00d3eb/000000?text=+" alt="#00d3eb" /></td><td align="center"><img src="https://placehold.it/20/2ef625/000000?text=+" alt="#2ef625" /></td><td align="center"><img src="https://placehold.it/20/2ef625/000000?text=+" alt="#2ef625" /></td></tr>
-<tr><td>TreeMap</td><td align="center"><img src="https://placehold.it/20/b82b28/000000?text=+" alt="#b82b28" /></td><td align="center"><img src="https://placehold.it/20/9f3b94/000000?text=+" alt="#9f3b94" /></td><td align="center"><img src="https://placehold.it/20/497edd/000000?text=+" alt="#497edd" /></td><td align="center"><img src="https://placehold.it/20/00d3eb/000000?text=+" alt="#00d3eb" /></td><td align="center"><img src="https://placehold.it/20/2ef625/000000?text=+" alt="#2ef625" /></td><td align="center"><img src="https://placehold.it/20/2ef625/000000?text=+" alt="#2ef625" /></td></tr>
-<tr><td>TreeSet</td><td align="center"><img src="https://placehold.it/20/b82b28/000000?text=+" alt="#b82b28" /></td><td align="center"><img src="https://placehold.it/20/9f3b94/000000?text=+" alt="#9f3b94" /></td><td align="center"><img src="https://placehold.it/20/497edd/000000?text=+" alt="#497edd" /></td><td align="center"><img src="https://placehold.it/20/00d3eb/000000?text=+" alt="#00d3eb" /></td><td align="center"><img src="https://placehold.it/20/2ef625/000000?text=+" alt="#2ef625" /></td><td align="center"><img src="https://placehold.it/20/2ef625/000000?text=+" alt="#2ef625" /></td></tr>
+<div class="table-wrapper"><table><thead><tr><th>Collection</th><th style="text-align: center">CMP</th><th style="text-align: center">CPY</th><th style="text-align: center">STR</th><th style="text-align: center">FREE</th><th style="text-align: center">HASH</th><th style="text-align: center">PRI</th></tr></thead><tbody>
+<tr><td>BidiMap</td><td style="text-align: center"><img src="https://placehold.it/20/b82b28/000000?text=+" alt="#b82b28" /></td><td style="text-align: center"><img src="https://placehold.it/20/9f3b94/000000?text=+" alt="#9f3b94" /></td><td style="text-align: center"><img src="https://placehold.it/20/497edd/000000?text=+" alt="#497edd" /></td><td style="text-align: center"><img src="https://placehold.it/20/00d3eb/000000?text=+" alt="#00d3eb" /></td><td style="text-align: center"><img src="https://placehold.it/20/b82b28/000000?text=+" alt="#b82b28" /></td><td style="text-align: center"><img src="https://placehold.it/20/2ef625/000000?text=+" alt="#2ef625" /></td></tr>
+<tr><td>Deque</td><td style="text-align: center"><img src="https://placehold.it/20/9f3b94/000000?text=+" alt="#9f3b94" /></td><td style="text-align: center"><img src="https://placehold.it/20/9f3b94/000000?text=+" alt="#9f3b94" /></td><td style="text-align: center"><img src="https://placehold.it/20/497edd/000000?text=+" alt="#497edd" /></td><td style="text-align: center"><img src="https://placehold.it/20/00d3eb/000000?text=+" alt="#00d3eb" /></td><td style="text-align: center"><img src="https://placehold.it/20/2ef625/000000?text=+" alt="#2ef625" /></td><td style="text-align: center"><img src="https://placehold.it/20/2ef625/000000?text=+" alt="#2ef625" /></td></tr>
+<tr><td>HashMap</td><td style="text-align: center"><img src="https://placehold.it/20/b82b28/000000?text=+" alt="#b82b28" /></td><td style="text-align: center"><img src="https://placehold.it/20/9f3b94/000000?text=+" alt="#9f3b94" /></td><td style="text-align: center"><img src="https://placehold.it/20/497edd/000000?text=+" alt="#497edd" /></td><td style="text-align: center"><img src="https://placehold.it/20/00d3eb/000000?text=+" alt="#00d3eb" /></td><td style="text-align: center"><img src="https://placehold.it/20/b82b28/000000?text=+" alt="#b82b28" /></td><td style="text-align: center"><img src="https://placehold.it/20/2ef625/000000?text=+" alt="#2ef625" /></td></tr>
+<tr><td>HashSet</td><td style="text-align: center"><img src="https://placehold.it/20/b82b28/000000?text=+" alt="#b82b28" /></td><td style="text-align: center"><img src="https://placehold.it/20/9f3b94/000000?text=+" alt="#9f3b94" /></td><td style="text-align: center"><img src="https://placehold.it/20/497edd/000000?text=+" alt="#497edd" /></td><td style="text-align: center"><img src="https://placehold.it/20/00d3eb/000000?text=+" alt="#00d3eb" /></td><td style="text-align: center"><img src="https://placehold.it/20/b82b28/000000?text=+" alt="#b82b28" /></td><td style="text-align: center"><img src="https://placehold.it/20/2ef625/000000?text=+" alt="#2ef625" /></td></tr>
+<tr><td>Heap</td><td style="text-align: center"><img src="https://placehold.it/20/9f3b94/000000?text=+" alt="#9f3b94" /></td><td style="text-align: center"><img src="https://placehold.it/20/9f3b94/000000?text=+" alt="#9f3b94" /></td><td style="text-align: center"><img src="https://placehold.it/20/497edd/000000?text=+" alt="#497edd" /></td><td style="text-align: center"><img src="https://placehold.it/20/00d3eb/000000?text=+" alt="#00d3eb" /></td><td style="text-align: center"><img src="https://placehold.it/20/2ef625/000000?text=+" alt="#2ef625" /></td><td style="text-align: center"><img src="https://placehold.it/20/b82b28/000000?text=+" alt="#b82b28" /></td></tr>
+<tr><td>IntervalHeap</td><td style="text-align: center"><img src="https://placehold.it/20/9f3b94/000000?text=+" alt="#9f3b94" /></td><td style="text-align: center"><img src="https://placehold.it/20/9f3b94/000000?text=+" alt="#9f3b94" /></td><td style="text-align: center"><img src="https://placehold.it/20/497edd/000000?text=+" alt="#497edd" /></td><td style="text-align: center"><img src="https://placehold.it/20/00d3eb/000000?text=+" alt="#00d3eb" /></td><td style="text-align: center"><img src="https://placehold.it/20/2ef625/000000?text=+" alt="#2ef625" /></td><td style="text-align: center"><img src="https://placehold.it/20/b82b28/000000?text=+" alt="#b82b28" /></td></tr>
+<tr><td>List</td><td style="text-align: center"><img src="https://placehold.it/20/9f3b94/000000?text=+" alt="#9f3b94" /></td><td style="text-align: center"><img src="https://placehold.it/20/9f3b94/000000?text=+" alt="#9f3b94" /></td><td style="text-align: center"><img src="https://placehold.it/20/497edd/000000?text=+" alt="#497edd" /></td><td style="text-align: center"><img src="https://placehold.it/20/00d3eb/000000?text=+" alt="#00d3eb" /></td><td style="text-align: center"><img src="https://placehold.it/20/2ef625/000000?text=+" alt="#2ef625" /></td><td style="text-align: center"><img src="https://placehold.it/20/2ef625/000000?text=+" alt="#2ef625" /></td></tr>
+<tr><td>LinkedList</td><td style="text-align: center"><img src="https://placehold.it/20/9f3b94/000000?text=+" alt="#9f3b94" /></td><td style="text-align: center"><img src="https://placehold.it/20/9f3b94/000000?text=+" alt="#9f3b94" /></td><td style="text-align: center"><img src="https://placehold.it/20/497edd/000000?text=+" alt="#497edd" /></td><td style="text-align: center"><img src="https://placehold.it/20/00d3eb/000000?text=+" alt="#00d3eb" /></td><td style="text-align: center"><img src="https://placehold.it/20/2ef625/000000?text=+" alt="#2ef625" /></td><td style="text-align: center"><img src="https://placehold.it/20/2ef625/000000?text=+" alt="#2ef625" /></td></tr>
+<tr><td>MultiMap</td><td style="text-align: center"><img src="https://placehold.it/20/b82b28/000000?text=+" alt="#b82b28" /></td><td style="text-align: center"><img src="https://placehold.it/20/9f3b94/000000?text=+" alt="#9f3b94" /></td><td style="text-align: center"><img src="https://placehold.it/20/497edd/000000?text=+" alt="#497edd" /></td><td style="text-align: center"><img src="https://placehold.it/20/00d3eb/000000?text=+" alt="#00d3eb" /></td><td style="text-align: center"><img src="https://placehold.it/20/b82b28/000000?text=+" alt="#b82b28" /></td><td style="text-align: center"><img src="https://placehold.it/20/2ef625/000000?text=+" alt="#2ef625" /></td></tr>
+<tr><td>MultiSet</td><td style="text-align: center"><img src="https://placehold.it/20/b82b28/000000?text=+" alt="#b82b28" /></td><td style="text-align: center"><img src="https://placehold.it/20/9f3b94/000000?text=+" alt="#9f3b94" /></td><td style="text-align: center"><img src="https://placehold.it/20/497edd/000000?text=+" alt="#497edd" /></td><td style="text-align: center"><img src="https://placehold.it/20/00d3eb/000000?text=+" alt="#00d3eb" /></td><td style="text-align: center"><img src="https://placehold.it/20/b82b28/000000?text=+" alt="#b82b28" /></td><td style="text-align: center"><img src="https://placehold.it/20/2ef625/000000?text=+" alt="#2ef625" /></td></tr>
+<tr><td>Queue</td><td style="text-align: center"><img src="https://placehold.it/20/9f3b94/000000?text=+" alt="#9f3b94" /></td><td style="text-align: center"><img src="https://placehold.it/20/9f3b94/000000?text=+" alt="#9f3b94" /></td><td style="text-align: center"><img src="https://placehold.it/20/497edd/000000?text=+" alt="#497edd" /></td><td style="text-align: center"><img src="https://placehold.it/20/00d3eb/000000?text=+" alt="#00d3eb" /></td><td style="text-align: center"><img src="https://placehold.it/20/2ef625/000000?text=+" alt="#2ef625" /></td><td style="text-align: center"><img src="https://placehold.it/20/2ef625/000000?text=+" alt="#2ef625" /></td></tr>
+<tr><td>SortedList</td><td style="text-align: center"><img src="https://placehold.it/20/b82b28/000000?text=+" alt="#b82b28" /></td><td style="text-align: center"><img src="https://placehold.it/20/9f3b94/000000?text=+" alt="#9f3b94" /></td><td style="text-align: center"><img src="https://placehold.it/20/497edd/000000?text=+" alt="#497edd" /></td><td style="text-align: center"><img src="https://placehold.it/20/00d3eb/000000?text=+" alt="#00d3eb" /></td><td style="text-align: center"><img src="https://placehold.it/20/2ef625/000000?text=+" alt="#2ef625" /></td><td style="text-align: center"><img src="https://placehold.it/20/2ef625/000000?text=+" alt="#2ef625" /></td></tr>
+<tr><td>Stack</td><td style="text-align: center"><img src="https://placehold.it/20/9f3b94/000000?text=+" alt="#9f3b94" /></td><td style="text-align: center"><img src="https://placehold.it/20/9f3b94/000000?text=+" alt="#9f3b94" /></td><td style="text-align: center"><img src="https://placehold.it/20/497edd/000000?text=+" alt="#497edd" /></td><td style="text-align: center"><img src="https://placehold.it/20/00d3eb/000000?text=+" alt="#00d3eb" /></td><td style="text-align: center"><img src="https://placehold.it/20/2ef625/000000?text=+" alt="#2ef625" /></td><td style="text-align: center"><img src="https://placehold.it/20/2ef625/000000?text=+" alt="#2ef625" /></td></tr>
+<tr><td>TreeMap</td><td style="text-align: center"><img src="https://placehold.it/20/b82b28/000000?text=+" alt="#b82b28" /></td><td style="text-align: center"><img src="https://placehold.it/20/9f3b94/000000?text=+" alt="#9f3b94" /></td><td style="text-align: center"><img src="https://placehold.it/20/497edd/000000?text=+" alt="#497edd" /></td><td style="text-align: center"><img src="https://placehold.it/20/00d3eb/000000?text=+" alt="#00d3eb" /></td><td style="text-align: center"><img src="https://placehold.it/20/2ef625/000000?text=+" alt="#2ef625" /></td><td style="text-align: center"><img src="https://placehold.it/20/2ef625/000000?text=+" alt="#2ef625" /></td></tr>
+<tr><td>TreeSet</td><td style="text-align: center"><img src="https://placehold.it/20/b82b28/000000?text=+" alt="#b82b28" /></td><td style="text-align: center"><img src="https://placehold.it/20/9f3b94/000000?text=+" alt="#9f3b94" /></td><td style="text-align: center"><img src="https://placehold.it/20/497edd/000000?text=+" alt="#497edd" /></td><td style="text-align: center"><img src="https://placehold.it/20/00d3eb/000000?text=+" alt="#00d3eb" /></td><td style="text-align: center"><img src="https://placehold.it/20/2ef625/000000?text=+" alt="#2ef625" /></td><td style="text-align: center"><img src="https://placehold.it/20/2ef625/000000?text=+" alt="#2ef625" /></td></tr>
 </tbody></table>
-<br>
-<table><thead><tr><th align="center">Color</th><th>Label</th></tr></thead><tbody>
-<tr><td align="center"><img src="https://placehold.it/20/b82b28/000000?text=+" alt="#b82b28" /></td><td>Required for basic functionality.</td></tr>
-<tr><td align="center"><img src="https://placehold.it/20/9f3b94/000000?text=+" alt="#9f3b94" /></td><td>Required for specific functions.</td></tr>
-<tr><td align="center"><img src="https://placehold.it/20/497edd/000000?text=+" alt="#497edd" /></td><td>Required for non-core specific functions.</td></tr>
-<tr><td align="center"><img src="https://placehold.it/20/00d3eb/000000?text=+" alt="#00d3eb" /></td><td>Optional.</td></tr>
-<tr><td align="center"><img src="https://placehold.it/20/2ef625/000000?text=+" alt="#2ef625" /></td><td>Not Used.</td></tr>
+</div><br>
+<div class="table-wrapper"><table><thead><tr><th style="text-align: center">Color</th><th>Label</th></tr></thead><tbody>
+<tr><td style="text-align: center"><img src="https://placehold.it/20/b82b28/000000?text=+" alt="#b82b28" /></td><td>Required for basic functionality.</td></tr>
+<tr><td style="text-align: center"><img src="https://placehold.it/20/9f3b94/000000?text=+" alt="#9f3b94" /></td><td>Required for specific functions.</td></tr>
+<tr><td style="text-align: center"><img src="https://placehold.it/20/497edd/000000?text=+" alt="#497edd" /></td><td>Required for non-core specific functions.</td></tr>
+<tr><td style="text-align: center"><img src="https://placehold.it/20/00d3eb/000000?text=+" alt="#00d3eb" /></td><td>Optional.</td></tr>
+<tr><td style="text-align: center"><img src="https://placehold.it/20/2ef625/000000?text=+" alt="#2ef625" /></td><td>Not Used.</td></tr>
 </tbody></table>
-<h1><a class="header" href="#iterators" id="iterators">Iterators</a></h1>
+</div><div style="break-before: page; page-break-before: always;"></div><h1 id="iterators"><a class="header" href="#iterators">Iterators</a></h1>
 <p>Every collection comes with an interface of iterators where you can easily access the elements of a collection. These can move at any direction, can start at any 'end' of a collection and can move any amount of steps per iteration. Every collection generated comes with an iterator.</p>
 <p>By design choice these iterators do not support modifications to the collection. If a collection is modified, all iterators that have been initialized will most likely be invalidated and may cause undefined behavior if used afterwards.</p>
-<h1><a class="header" href="#cmc-1" id="cmc-1">CMC</a></h1>
+<div style="break-before: page; page-break-before: always;"></div><h1 id="cmc-1"><a class="header" href="#cmc-1">CMC</a></h1>
 <p>The main C Macro Collections.</p>
 <p>The C Macro Collections library was created out of necessity. To create powerful data structures of any type without the constant use of macros and <code>void *</code> pointers, but at the same time being <a href="https://en.wikipedia.org/wiki/Type_safety">type-safe</a>. These collections are generated by macros containing a template. These templates allow for some much needed customizations including the data type you wish to handle.</p>
 <p>In the <code>cmc</code> folder is the default implementation of all collections. There is also a <code>dev</code> folder that pretty much has the same macros that expand to the same code, except that they have an extensive use of logging that might be useful for debugging or getting to know what is happening in your program. There is also the <code>sac</code> collections that are statically allocated (have a fixed sized buffer).</p>
-<h2><a class="header" href="#quick-example" id="quick-example">Quick Example</a></h2>
+<h2 id="quick-example"><a class="header" href="#quick-example">Quick Example</a></h2>
 <p>Let's say you need a HashMap mapping keys of type <code>char *</code> to <code>int</code>. All you need to do is:</p>
 <pre><code class="language-c">#include &quot;cmc/hashmap&quot;
 
@@ -647,47 +641,51 @@ int main(void)
 }
 </code></pre>
 <p>You can customize the functions prefix (<code>PFX</code>) and the <code>struct</code> name (<code>SNAME</code>). The macro <code>CMC_GENERATE_HASHMAP</code> will expand to all the code that you will need to operate on a HashMap with <code>char *</code> keys and <code>int</code> values. The only thing left to do is to define a hash function and a comparator functions for the keys of this map. In case of <code>char *</code> you can find these functions in <code>utl/futils.h</code> or make your own. To know which collections require which functions check out <a href="cmc/../cor/functions_table/index.html">Functions Table</a> or the documentation for each collection.</p>
-<h1><a class="header" href="#bitseth" id="bitseth">bitset.h</a></h1>
+<div style="break-before: page; page-break-before: always;"></div><h1 id="bitseth"><a class="header" href="#bitseth">bitset.h</a></h1>
 <p>A Bit Set is an array where each bit can be individually modified and queried by using bitwise operators such as <code>|</code>, <code>&amp;</code>, <code>^</code>, <code>~</code>, <code>&gt;&gt;</code> and <code>&lt;&lt;</code> (<code>or</code>, <code>and</code>, <code>xor</code>, <code>not</code>, <code>right shift</code>, <code>left shift</code> respectively).</p>
-<h2><a class="header" href="#bitset-implementation" id="bitset-implementation">BitSet Implementation</a></h2>
+<h2 id="bitset-implementation"><a class="header" href="#bitset-implementation">BitSet Implementation</a></h2>
 <p>This BitSet implementation uses an array of type <code>cmc_bitset_word</code> which can be <code>typedef</code>ed to any unsigned type such as <code>uint8_t</code>, <code>uint16_t</code>, <code>uint32_t</code>, <code>uint64_t</code>, <code>size_t</code>, etc. The BitSet does not make use of <code>K</code> or <code>V</code>. Because of that, it also doesn't have Functions Tables.</p>
 <p>The BitSet is initialized with a custom capacity but, if a bit index accessed is greater than the total capacity, the BitSet will resize. This means that the BitSet will try to guarantee that every bit index is accessible, as long as there is enough memory.</p>
-<h2><a class="header" href="#bitset-generation-macros" id="bitset-generation-macros">BitSet Generation Macros</a></h2>
+<h2 id="bitset-generation-macros"><a class="header" href="#bitset-generation-macros">BitSet Generation Macros</a></h2>
 <ul>
 <li><code>CMC_GENERATE_BITSET(PFX, SNAME)</code> - Generate full definition.</li>
 <li><code>CMC_GENERATE_BITSET_HEADER(PFX, SNAME)</code> - Generate only the header portion</li>
 <li><code>CMC_GENERATE_BITSET_SOURCE(PFX, SNAME)</code> - Generate only the source portion</li>
 </ul>
-<table><thead><tr><th>Parameter</th><th>Description</th></tr></thead><tbody>
+<div class="table-wrapper"><table><thead><tr><th>Parameter</th><th>Description</th></tr></thead><tbody>
 <tr><td><code>PFX</code></td><td>Functions namespace or prefix</td></tr>
 <tr><td><code>SNAME</code></td><td>Structure name</td></tr>
 </tbody></table>
-<h2><a class="header" href="#bitset-structures" id="bitset-structures">BitSet Structures</a></h2>
-<table><thead><tr><th>Declared structs</th><th>Description</th></tr></thead><tbody>
+</div>
+<h2 id="bitset-structures"><a class="header" href="#bitset-structures">BitSet Structures</a></h2>
+<div class="table-wrapper"><table><thead><tr><th>Declared structs</th><th>Description</th></tr></thead><tbody>
 <tr><td><code>struct SNAME</code></td><td>A bit set data structure</td></tr>
 <tr><td><code>struct SNAME##_iter</code></td><td>A bit set iterator</td></tr>
 </tbody></table>
-<h2><a class="header" href="#struct-sname" id="struct-sname">struct SNAME</a></h2>
-<table><thead><tr><th><code>struct SNAME</code></th><th>Description</th></tr></thead><tbody>
+</div>
+<h2 id="struct-sname"><a class="header" href="#struct-sname">struct SNAME</a></h2>
+<div class="table-wrapper"><table><thead><tr><th><code>struct SNAME</code></th><th>Description</th></tr></thead><tbody>
 <tr><td><code>cmc_bitset_word *buffer</code></td><td>Dynamic array of bits.</td></tr>
 <tr><td><code>size_t capacity</code></td><td>Current array capacity         .</td></tr>
 <tr><td><code>int flag</code></td><td>Flag indicating errors or success.</td></tr>
 <tr><td><code>struct cmc_alloc_node *alloc</code></td><td>Custom allocation functions.</td></tr>
 <tr><td><code>struct cmc_callbacks *callbacks</code></td><td>Callback functions.</td></tr>
 </tbody></table>
-<h2><a class="header" href="#struct-sname_iter" id="struct-sname_iter">struct SNAME##_iter</a></h2>
-<table><thead><tr><th><code>struct SNAME##_iter</code></th><th>Description</th></tr></thead><tbody>
+</div>
+<h2 id="struct-sname_iter"><a class="header" href="#struct-sname_iter">struct SNAME##_iter</a></h2>
+<div class="table-wrapper"><table><thead><tr><th><code>struct SNAME##_iter</code></th><th>Description</th></tr></thead><tbody>
 <tr><td><code>struct SNAME *target</code></td><td>BitSet being iterated over.</td></tr>
 <tr><td><code>size_t cursor</code></td><td>Cursor's current position (index).</td></tr>
 <tr><td><code>bool start</code></td><td>If the iterator reached the start of the iteration.</td></tr>
 <tr><td><code>bool end</code></td><td>If the iterator reached the end of iteration.</td></tr>
 </tbody></table>
-<h2><a class="header" href="#cmc_bitset_word" id="cmc_bitset_word">cmc_bitset_word</a></h2>
+</div>
+<h2 id="cmc_bitset_word"><a class="header" href="#cmc_bitset_word">cmc_bitset_word</a></h2>
 <p>The <code>typedef</code>ed data type o the underlying bit set buffer.</p>
 <pre><code class="language-c">typedef uint32_t cmc_bitset_word;
 </code></pre>
 <p>This <code>typedef</code> can be changed to any unsigned integer data type and the bit set will still work properly.</p>
-<h2><a class="header" href="#callbacks-1" id="callbacks-1">Callbacks</a></h2>
+<h2 id="callbacks-1"><a class="header" href="#callbacks-1">Callbacks</a></h2>
 <p>This list associates which functions calls which callbacks.</p>
 <ul>
 <li><code>create</code>
@@ -710,34 +708,36 @@ int main(void)
 </ul>
 </li>
 </ul>
-<h2><a class="header" href="#functions-table-1" id="functions-table-1">Functions Table</a></h2>
-<table><thead><tr><th align="center">CMP</th><th align="center">CPY</th><th align="center">STR</th><th align="center">FREE</th><th align="center">HASH</th><th align="center">PRI</th></tr></thead><tbody>
-<tr><td align="center"><img src="https://placehold.it/20/2ef625/000000?text=+" alt="#2ef625" /></td><td align="center"><img src="https://placehold.it/20/2ef625/000000?text=+" alt="#2ef625" /></td><td align="center"><img src="https://placehold.it/20/2ef625/000000?text=+" alt="#2ef625" /></td><td align="center"><img src="https://placehold.it/20/2ef625/000000?text=+" alt="#2ef625" /></td><td align="center"><img src="https://placehold.it/20/2ef625/000000?text=+" alt="#2ef625" /></td><td align="center"><img src="https://placehold.it/20/2ef625/000000?text=+" alt="#2ef625" /></td></tr>
+<h2 id="functions-table-1"><a class="header" href="#functions-table-1">Functions Table</a></h2>
+<div class="table-wrapper"><table><thead><tr><th style="text-align: center">CMP</th><th style="text-align: center">CPY</th><th style="text-align: center">STR</th><th style="text-align: center">FREE</th><th style="text-align: center">HASH</th><th style="text-align: center">PRI</th></tr></thead><tbody>
+<tr><td style="text-align: center"><img src="https://placehold.it/20/2ef625/000000?text=+" alt="#2ef625" /></td><td style="text-align: center"><img src="https://placehold.it/20/2ef625/000000?text=+" alt="#2ef625" /></td><td style="text-align: center"><img src="https://placehold.it/20/2ef625/000000?text=+" alt="#2ef625" /></td><td style="text-align: center"><img src="https://placehold.it/20/2ef625/000000?text=+" alt="#2ef625" /></td><td style="text-align: center"><img src="https://placehold.it/20/2ef625/000000?text=+" alt="#2ef625" /></td><td style="text-align: center"><img src="https://placehold.it/20/2ef625/000000?text=+" alt="#2ef625" /></td></tr>
 </tbody></table>
-<h1><a class="header" href="#dequeh" id="dequeh">deque.h</a></h1>
+</div><div style="break-before: page; page-break-before: always;"></div><h1 id="dequeh"><a class="header" href="#dequeh">deque.h</a></h1>
 <p>A Deque, also known as a double-ended queue, is a linear data structure that is able to add and remove elements from both ends. It can also be thought of a double-ended stack since you can push and pop elements from two ends. The Deque can also be used as a Queue. The only elements accessible from a Deque ar the two elements at its ends (front element and back element).</p>
-<h2><a class="header" href="#deque-implementation" id="deque-implementation">Deque Implementation</a></h2>
+<h2 id="deque-implementation"><a class="header" href="#deque-implementation">Deque Implementation</a></h2>
 <p>This implementation uses a circular buffer (ring buffer or cyclic buffer) in order to operate on O(1) for push and pop on either ends. The only case where it takes longer than O(1) is when the buffer is reallocated. If it was implemented as a regular array, adding or removing elements from the front would take O(N) due to the need to shift all elements in the Deque.</p>
 <p>Two indices are kept track of. The <code>front</code> index and the <code>rear</code> index. These represent the both ends of the Deque. If an index reaches one end of the real buffer, they wrap around to the other end and an element is added there. This abstracts the real buffer as a circular buffer with the cost os constantly checking for boundaries and using the modulo operator.</p>
-<h2><a class="header" href="#deque-generation-macros" id="deque-generation-macros">Deque Generation Macros</a></h2>
+<h2 id="deque-generation-macros"><a class="header" href="#deque-generation-macros">Deque Generation Macros</a></h2>
 <ul>
 <li><code>CMC_GENERATE_DEQUE(PFX, SNAME, V)</code> - Generate full definition.</li>
 <li><code>CMC_GENERATE_DEQUE_HEADER(PFX, SNAME, V)</code> - Generate only the header portion</li>
 <li><code>CMC_GENERATE_DEQUE_SOURCE(PFX, SNAME, V)</code> - Generate only the source portion</li>
 </ul>
-<table><thead><tr><th>Parameter</th><th>Description</th></tr></thead><tbody>
+<div class="table-wrapper"><table><thead><tr><th>Parameter</th><th>Description</th></tr></thead><tbody>
 <tr><td><code>PFX</code></td><td>Functions namespace or prefix</td></tr>
 <tr><td><code>SNAME</code></td><td>Structure name</td></tr>
 <tr><td><code>V</code></td><td>Value type</td></tr>
 </tbody></table>
-<h2><a class="header" href="#deque-structures" id="deque-structures">Deque Structures</a></h2>
-<table><thead><tr><th>Declared structs</th><th>Description</th></tr></thead><tbody>
+</div>
+<h2 id="deque-structures"><a class="header" href="#deque-structures">Deque Structures</a></h2>
+<div class="table-wrapper"><table><thead><tr><th>Declared structs</th><th>Description</th></tr></thead><tbody>
 <tr><td><code>struct SNAME</code></td><td>A double-ended queue data structure</td></tr>
 <tr><td><code>struct SNAME##_fval</code></td><td>A function table for the <code>V</code> type</td></tr>
 <tr><td><code>struct SNAME##_iter</code></td><td>A double-ended queue iterator</td></tr>
 </tbody></table>
-<h2><a class="header" href="#struct-sname-1" id="struct-sname-1">struct SNAME</a></h2>
-<table><thead><tr><th><code>struct SNAME</code></th><th>Description</th></tr></thead><tbody>
+</div>
+<h2 id="struct-sname-1"><a class="header" href="#struct-sname-1">struct SNAME</a></h2>
+<div class="table-wrapper"><table><thead><tr><th><code>struct SNAME</code></th><th>Description</th></tr></thead><tbody>
 <tr><td><code>V *buffer</code></td><td>Dynamic circular array of elements.</td></tr>
 <tr><td><code>size_t capacity</code></td><td>Current circular array capacity.</td></tr>
 <tr><td><code>size_t count</code></td><td>Current amount of elements.</td></tr>
@@ -748,17 +748,19 @@ int main(void)
 <tr><td><code>struct cmc_alloc_node *alloc</code></td><td>Custom allocation functions.</td></tr>
 <tr><td><code>struct cmc_callbacks *callbacks</code></td><td>Callback functions.</td></tr>
 </tbody></table>
-<h2><a class="header" href="#struct-sname_fval" id="struct-sname_fval">struct SNAME##_fval</a></h2>
+</div>
+<h2 id="struct-sname_fval"><a class="header" href="#struct-sname_fval">struct SNAME##_fval</a></h2>
 <p>The Functions Table for <code>V</code>. Check out the Functions Table documentation <a href="cmc/deque.h/../../cor/functions_table/index.html">here</a>.</p>
-<h2><a class="header" href="#struct-sname_iter-1" id="struct-sname_iter-1">struct SNAME##_iter</a></h2>
-<table><thead><tr><th><code>struct SNAME##_iter</code></th><th>Description</th></tr></thead><tbody>
+<h2 id="struct-sname_iter-1"><a class="header" href="#struct-sname_iter-1">struct SNAME##_iter</a></h2>
+<div class="table-wrapper"><table><thead><tr><th><code>struct SNAME##_iter</code></th><th>Description</th></tr></thead><tbody>
 <tr><td><code>struct SNAME *target</code></td><td>Deque being iterated over.</td></tr>
 <tr><td><code>size_t cursor</code></td><td>Cursor's current position (index).</td></tr>
 <tr><td><code>size_t index</code></td><td>Relative index to all elements in the iteration.</td></tr>
 <tr><td><code>bool start</code></td><td>If the iterator reached the start of the iteration.</td></tr>
 <tr><td><code>bool end</code></td><td>If the iterator reached the end of iteration.</td></tr>
 </tbody></table>
-<h2><a class="header" href="#callbacks-2" id="callbacks-2">Callbacks</a></h2>
+</div>
+<h2 id="callbacks-2"><a class="header" href="#callbacks-2">Callbacks</a></h2>
 <p>This list associates which functions calls which callbacks.</p>
 <ul>
 <li><code>create</code>
@@ -787,11 +789,11 @@ int main(void)
 </ul>
 </li>
 </ul>
-<h2><a class="header" href="#functions-table-2" id="functions-table-2">Functions Table</a></h2>
-<table><thead><tr><th align="center">CMP</th><th align="center">CPY</th><th align="center">STR</th><th align="center">FREE</th><th align="center">HASH</th><th align="center">PRI</th></tr></thead><tbody>
-<tr><td align="center"><img src="https://placehold.it/20/9f3b94/000000?text=+" alt="#9f3b94" /></td><td align="center"><img src="https://placehold.it/20/9f3b94/000000?text=+" alt="#9f3b94" /></td><td align="center"><img src="https://placehold.it/20/497edd/000000?text=+" alt="#497edd" /></td><td align="center"><img src="https://placehold.it/20/00d3eb/000000?text=+" alt="#00d3eb" /></td><td align="center"><img src="https://placehold.it/20/2ef625/000000?text=+" alt="#2ef625" /></td><td align="center"><img src="https://placehold.it/20/2ef625/000000?text=+" alt="#2ef625" /></td></tr>
+<h2 id="functions-table-2"><a class="header" href="#functions-table-2">Functions Table</a></h2>
+<div class="table-wrapper"><table><thead><tr><th style="text-align: center">CMP</th><th style="text-align: center">CPY</th><th style="text-align: center">STR</th><th style="text-align: center">FREE</th><th style="text-align: center">HASH</th><th style="text-align: center">PRI</th></tr></thead><tbody>
+<tr><td style="text-align: center"><img src="https://placehold.it/20/9f3b94/000000?text=+" alt="#9f3b94" /></td><td style="text-align: center"><img src="https://placehold.it/20/9f3b94/000000?text=+" alt="#9f3b94" /></td><td style="text-align: center"><img src="https://placehold.it/20/497edd/000000?text=+" alt="#497edd" /></td><td style="text-align: center"><img src="https://placehold.it/20/00d3eb/000000?text=+" alt="#00d3eb" /></td><td style="text-align: center"><img src="https://placehold.it/20/2ef625/000000?text=+" alt="#2ef625" /></td><td style="text-align: center"><img src="https://placehold.it/20/2ef625/000000?text=+" alt="#2ef625" /></td></tr>
 </tbody></table>
-<h1><a class="header" href="#index" id="index">Index</a></h1>
+</div><div style="break-before: page; page-break-before: always;"></div><h1 id="index"><a class="header" href="#index">Index</a></h1>
 <p><strong>Deque</strong></p>
 <ul>
 <li><a href="cmc/deque.h/functions.html#_new"><code>_new()</code></a></li>
@@ -818,42 +820,45 @@ int main(void)
 </ul>
 <p><strong>Deque Iterator</strong></p>
 <p>WIP.</p>
-<h2><a class="header" href="#a-hrefcmcdequehfunctionshtmlindexspan-id_new-_new-spana" id="a-hrefcmcdequehfunctionshtmlindexspan-id_new-_new-spana"><a href="cmc/deque.h/functions.html#index"><span id="_new"> _new() </span></a></a></h2>
+<h2 id="_new"><a class="header" href="#_new"><a href="cmc/deque.h/functions.html#index"><span id="_new"> _new() </span></a></a></h2>
 <p>Allocates on the heap and returns a new Deque with an internal capacity of the specified value. The Deque will be empty, using the default allocator <code>cmc_alloc_node_default</code> and no callbacks will be set, that is, <code>callbacks</code> will be set to <code>NULL</code>. Its <code>flag</code> will be initially <code>cmc_flags.OK</code>.</p>
 <p><strong>Declaration</strong></p>
 <p><code>struct SNAME *PFX##_new(size_t capacity, struct SNAME##_fval *f_val);</code></p>
 <p><strong>Parameters</strong></p>
-<table><thead><tr><th>Parameter</th><th>Required</th><th>Description</th></tr></thead><tbody>
+<div class="table-wrapper"><table><thead><tr><th>Parameter</th><th>Required</th><th>Description</th></tr></thead><tbody>
 <tr><td><code>size_t capacity</code></td><td>Yes</td><td>The initial Deque capacity</td></tr>
 <tr><td><code>struct SNAME##_fval *f_val</code></td><td>Yes</td><td>A Functions Table for <code>V</code></td></tr>
 </tbody></table>
+</div>
 <p><strong>Returns</strong></p>
-<table><thead><tr><th>Returns</th><th>When</th></tr></thead><tbody>
+<div class="table-wrapper"><table><thead><tr><th>Returns</th><th>When</th></tr></thead><tbody>
 <tr><td><code>struct SNAME *</code></td><td>If operation was successful</td></tr>
 <tr><td><code>NULL</code></td><td>If allocation failed, if capacity is <code>0</code> or if <code>f_val</code> is <code>NULL</code></td></tr>
 </tbody></table>
-<h2><a class="header" href="#a-hrefcmcdequehfunctionshtmlindexspan-id_new_custom-_new_custom-spana" id="a-hrefcmcdequehfunctionshtmlindexspan-id_new_custom-_new_custom-spana"><a href="cmc/deque.h/functions.html#index"><span id="_new_custom"> _new_custom() </span></a></a></h2>
+</div>
+<h2 id="_new_custom"><a class="header" href="#_new_custom"><a href="cmc/deque.h/functions.html#index"><span id="_new_custom"> _new_custom() </span></a></a></h2>
 <p>Like <a href="cmc/deque.h/functions.html#_new">_new()</a> but allows for custom allocation node and callbacks. The allocation node is optional. If present, the function will immediately use it to allocate the new Deque. If <code>NULL</code>, <code>cmc_alloc_node_default</code> will instead be used.</p>
 <p><strong>Declaration</strong></p>
 <pre><code>struct SNAME *PFX##_new_custom(size_t capacity, struct SNAME##_fval *f_val, struct cmc_alloc_node *alloc, struct cmc_callbacks *callbacks);
 </code></pre>
 <p><strong>Parameters</strong></p>
-<table><thead><tr><th>Parameter</th><th>Required</th><th>Description</th></tr></thead><tbody>
+<div class="table-wrapper"><table><thead><tr><th>Parameter</th><th>Required</th><th>Description</th></tr></thead><tbody>
 <tr><td><code>size_t capacity</code></td><td>Yes</td><td>The initial Deque capacity</td></tr>
 <tr><td><code>struct SNAME##_fval *f_val</code></td><td>Yes</td><td>A Functions Table for <code>V</code></td></tr>
 <tr><td><code>struct cmc_alloc_node *alloc</code></td><td>No</td><td>A custom allocation node</td></tr>
 <tr><td><code>struct cmc_callbacks *callbacks</code></td><td>No</td><td>A custom callbacks struct</td></tr>
 </tbody></table>
+</div>
 <p><strong>Returns</strong></p>
-<table><thead><tr><th>Returns</th><th>When</th></tr></thead><tbody>
+<div class="table-wrapper"><table><thead><tr><th>Returns</th><th>When</th></tr></thead><tbody>
 <tr><td><code>struct SNAME *</code></td><td>If operation was successful</td></tr>
 <tr><td><code>NULL</code></td><td>If allocation failed, if capacity is <code>0</code> or if <code>f_val</code> is <code>NULL</code></td></tr>
 </tbody></table>
-<h1><a class="header" href="#dev-1" id="dev-1">DEV</a></h1>
+</div><div style="break-before: page; page-break-before: always;"></div><h1 id="dev-1"><a class="header" href="#dev-1">DEV</a></h1>
 <p>The development collections. These collections are an exact copy of the <code>cmc</code> collections but they come with many logging throughout the generated code. Useful for debugging or during development.</p>
-<h1><a class="header" href="#sac-1" id="sac-1">SAC</a></h1>
+<div style="break-before: page; page-break-before: always;"></div><h1 id="sac-1"><a class="header" href="#sac-1">SAC</a></h1>
 <p>The Statically Allocated Collections. These collections have a fixed size. Its size is one of the parameters during macro expansion, producing a C array.</p>
-<h2><a class="header" href="#cmc-vs-sac" id="cmc-vs-sac">CMC vs. SAC</a></h2>
+<h2 id="cmc-vs-sac"><a class="header" href="#cmc-vs-sac">CMC vs. SAC</a></h2>
 <p>The <code>cmc</code> collections hold their data either with nodes or a buffer that can be reallocated. The <code>sac</code> collections only have an array with fixed size and don't perform any allocation on the heap.</p>
 <pre><code class="language-c">// A CMC List
 struct List
@@ -869,9 +874,9 @@ struct List
     /* Other fields */
 };
 </code></pre>
-<h1><a class="header" href="#utl-1" id="utl-1">UTL</a></h1>
+<div style="break-before: page; page-break-before: always;"></div><h1 id="utl-1"><a class="header" href="#utl-1">UTL</a></h1>
 <p>Inside the <code>./utl/</code> folder there are many utility functions and macros that can be extensively used with the C Macro Collections library. Most of these utilities can be used without the main library.</p>
-<h2><a class="header" href="#contents" id="contents">Contents</a></h2>
+<h2 id="contents"><a class="header" href="#contents">Contents</a></h2>
 <ul>
 <li><a href="utl/assert.h/index.html">assert.h</a> - Non-abortive assert macros</li>
 <li><a href="utl/foreach.h/index.html">foreach.h</a> - For Each macros</li>
@@ -880,14 +885,14 @@ struct List
 <li><a href="utl/test.h/index.html">test.h</a> - Simple Unit Test building with macros</li>
 <li><a href="utl/timer.h/index.html">timer.h</a> - Timing code execution utility</li>
 </ul>
-<h1><a class="header" href="#asserth" id="asserth">assert.h</a></h1>
+<div style="break-before: page; page-break-before: always;"></div><h1 id="asserth"><a class="header" href="#asserth">assert.h</a></h1>
 <p>Definition of many typed non-abortive assertions. Every assertion that fails will print a message to <code>stderr</code> but will not abort the program execution. The macro parameters are first assigned to a temporary variable of the specified <code>dtype</code> in order to generate warnings from the compiler in case of type mismatch.</p>
 <p>The advantage of these typed macros is that when an assertion fails, it is possible to print to <code>stderr</code> the actual value that was passed to the function and check the expected result(s) all in one message.</p>
 <p>There are assertions that work with <a href="utl/assert.h/valued_assertions.html">predefined values</a> and others that work with <a href="utl/assert.h/generic_assertions.html">generic values</a>. Valued assertions work with a selected list of <code>dtype</code> (see further below), while the generic assertions work with any data type.</p>
 <p>The macro parameters can be an <em>lvalue</em> or an <em>rvalue</em> because the parameters will be first assigned to local variables of the selected data type. Then, these local variables will be tested for whichever test that needs to be checked.</p>
 <p>Assigning the macro parameter to a local variable can be useful. These local variables will be of type <code>dtype</code> and if the parameters don't match that type a warning will pop up.</p>
 <p>Ever assertion is inside a block of <code>do { } while (0)</code>.</p>
-<h2><a class="header" href="#printed-messages" id="printed-messages">Printed Messages</a></h2>
+<h2 id="printed-messages"><a class="header" href="#printed-messages">Printed Messages</a></h2>
 <p>Whenever an assertion fails, a message will be printed to <code>stderr</code>. The message will look something like this:</p>
 <pre><code>Assertion Failed at FILE:FUNCTION:LINE for { ACTUAL }: DETAILS
 </code></pre>
@@ -909,12 +914,12 @@ int main(void)
 </code></pre>
 <p>This will print the following message:</p>
 <p><code>Assertion Failed at main.c:is_one_hundred:5 for { variable }: Expected: 100 Actual: 9</code></p>
-<h2><a class="header" href="#cmc_assert_state" id="cmc_assert_state">cmc_assert_state</a></h2>
+<h2 id="cmc_assert_state"><a class="header" href="#cmc_assert_state">cmc_assert_state</a></h2>
 <p>This is a global variable that can be used to test if all assertions passed. If any assertion fails, this variable will be set to <code>false</code>. If an assertion passes this variable will <strong>not</strong> be set back to <code>true</code>. If you wish to, you can set the state back to <code>true</code> manually.</p>
 <pre><code class="language-c">static bool cmc_assert_state = true;
 </code></pre>
 <p>This variable is used in <a href="utl/assert.h/../test.h/index.html">test.h</a> utility to automatically pass or fail a unit test. Once the unit test finishes, this variable is set back to <code>true</code> so that another unit test may follow.</p>
-<h2><a class="header" href="#dtype" id="dtype">dtype</a></h2>
+<h2 id="dtype"><a class="header" href="#dtype">dtype</a></h2>
 <p>These are the data types supported by the Valued Assertion macros:</p>
 <ul>
 <li><code>int8_t</code></li>
@@ -938,8 +943,8 @@ int main(void)
 </ul>
 <p>Note that <code>ptr</code> is used for any pointers. They are first casted to <code>void *</code> and then their address is compared.</p>
 <p>Note that bool will be expanded to <code>_Bool</code>.</p>
-<h1><a class="header" href="#overview-1" id="overview-1">Overview</a></h1>
-<h2><a class="header" href="#single-value-assertion-macros" id="single-value-assertion-macros">Single Value Assertion Macros</a></h2>
+<div style="break-before: page; page-break-before: always;"></div><h1 id="overview-1"><a class="header" href="#overview-1">Overview</a></h1>
+<h2 id="single-value-assertion-macros"><a class="header" href="#single-value-assertion-macros">Single Value Assertion Macros</a></h2>
 <ul>
 <li><strong>cmc_assert</strong> - Asserts that an expression evaluates to true;</li>
 <li><strong>cmc_assert_equals</strong> - Asserts that a value from type <code>dtype</code> equals another;</li>
@@ -951,15 +956,15 @@ int main(void)
 <li><strong>cmc_assert_in_range</strong> - Asserts that a value from type <code>dtpype</code> is within a certain range;</li>
 <li><strong>cmc_assert_not_in_range</strong> - Asserts that a value from type <code>dtpype</code> is outside of a certain range.</li>
 </ul>
-<h2><a class="header" href="#array-assertion-macros" id="array-assertion-macros">Array Assertion Macros</a></h2>
+<h2 id="array-assertion-macros"><a class="header" href="#array-assertion-macros">Array Assertion Macros</a></h2>
 <ul>
 <li><strong>cmc_assert_array_equals_any</strong> - Assert that two arrays are equal element by element;</li>
 <li><strong>cmc_assert_array_within_any</strong> - Assert that each element in the array are within a bounds;</li>
 <li><strong>cmc_assert_array_outside_any</strong> - Assert that each element in the array are out of bounds;</li>
 <li><strong>cmc_assert_array_sorted_any</strong> - Assert that the array is sorted.</li>
 </ul>
-<h1><a class="header" href="#valued-assertion-macros" id="valued-assertion-macros">Valued Assertion Macros</a></h1>
-<h2><a class="header" href="#contents-1" id="contents-1">Contents</a></h2>
+<div style="break-before: page; page-break-before: always;"></div><h1 id="valued-assertion-macros"><a class="header" href="#valued-assertion-macros">Valued Assertion Macros</a></h1>
+<h2 id="contents-1"><a class="header" href="#contents-1">Contents</a></h2>
 <ul>
 <li><a href="utl/assert.h/valued_assertions.html#cmc_assert">cmc_assert</a></li>
 <li><a href="utl/assert.h/valued_assertions.html#cmc_assert_equals">cmc_assert_equals</a></li>
@@ -971,7 +976,7 @@ int main(void)
 <li><a href="utl/assert.h/valued_assertions.html#cmc_assert_in_range">cmc_assert_in_range</a></li>
 <li><a href="utl/assert.h/valued_assertions.html#cmc_assert_not_in_range">cmc_assert_not_in_range</a></li>
 </ul>
-<h2><a class="header" href="#cmc_assert" id="cmc_assert">cmc_assert</a></h2>
+<h2 id="cmc_assert"><a class="header" href="#cmc_assert">cmc_assert</a></h2>
 <p>Asserts that an <code>expression</code> evaluates to <code>true</code>.</p>
 <pre><code class="language-c">#define cmc_assert(expression)
 </code></pre>
@@ -979,7 +984,7 @@ int main(void)
 <ul>
 <li><code>expression</code> - An expression that needs to be evaluated to true.</li>
 </ul>
-<h2><a class="header" href="#cmc_assert_equals" id="cmc_assert_equals">cmc_assert_equals</a></h2>
+<h2 id="cmc_assert_equals"><a class="header" href="#cmc_assert_equals">cmc_assert_equals</a></h2>
 <p>Asserts that a value equals another expected value.</p>
 <pre><code class="language-c">#define cmc_assert_equals(dtype, expected, actual)
 </code></pre>
@@ -989,7 +994,7 @@ int main(void)
 <li><code>expected</code> - The expected value for this assertion</li>
 <li><code>actual</code> - A variant that is checked against the expected value</li>
 </ul>
-<h2><a class="header" href="#cmc_assert_not_equals" id="cmc_assert_not_equals">cmc_assert_not_equals</a></h2>
+<h2 id="cmc_assert_not_equals"><a class="header" href="#cmc_assert_not_equals">cmc_assert_not_equals</a></h2>
 <p>Asserts that a value does not equal another.</p>
 <pre><code class="language-c">#define cmc_assert_not_equals(dtype, not_expected, actual)
 </code></pre>
@@ -999,7 +1004,7 @@ int main(void)
 <li><code>not_expected</code> - The value that is not expected for this assertion</li>
 <li><code>actual</code> - A variant that is checked against the not expected value</li>
 </ul>
-<h2><a class="header" href="#cmc_assert_greater" id="cmc_assert_greater">cmc_assert_greater</a></h2>
+<h2 id="cmc_assert_greater"><a class="header" href="#cmc_assert_greater">cmc_assert_greater</a></h2>
 <p>Asserts that a value is above a certain lower boundary.</p>
 <pre><code class="language-c">#define cmc_assert_greater(dtype, boundary, actual)
 </code></pre>
@@ -1008,7 +1013,7 @@ int main(void)
 <li><code>boundary</code> - The expected lowest possible value (excluded)</li>
 <li><code>actual</code> - A variant that is checked against the boundary value</li>
 </ul>
-<h2><a class="header" href="#cmc_assert_greater_equals" id="cmc_assert_greater_equals">cmc_assert_greater_equals</a></h2>
+<h2 id="cmc_assert_greater_equals"><a class="header" href="#cmc_assert_greater_equals">cmc_assert_greater_equals</a></h2>
 <p>Asserts that a value is above a certain lower boundary or equal to it.</p>
 <pre><code class="language-c">#define cmc_assert_greater_equals(dtype, boundary, actual)
 </code></pre>
@@ -1017,7 +1022,7 @@ int main(void)
 <li><code>boundary</code> - The expected lowest possible value (included)</li>
 <li><code>actual</code> - A variant that is checked against the boundary value</li>
 </ul>
-<h2><a class="header" href="#cmc_assert_lesser" id="cmc_assert_lesser">cmc_assert_lesser</a></h2>
+<h2 id="cmc_assert_lesser"><a class="header" href="#cmc_assert_lesser">cmc_assert_lesser</a></h2>
 <p>Asserts that a value is below a certain upper boundary.</p>
 <pre><code class="language-c">#define cmc_assert_lesser(dtype, boundary, actual)
 </code></pre>
@@ -1026,7 +1031,7 @@ int main(void)
 <li><code>boundary</code> - The expected highest possible value (excluded)</li>
 <li><code>actual</code> - A variant that is checked against the boundary value</li>
 </ul>
-<h2><a class="header" href="#cmc_assert_lesser_equals" id="cmc_assert_lesser_equals">cmc_assert_lesser_equals</a></h2>
+<h2 id="cmc_assert_lesser_equals"><a class="header" href="#cmc_assert_lesser_equals">cmc_assert_lesser_equals</a></h2>
 <p>Asserts that a value is below a certain upper boundary or equal to it.</p>
 <pre><code class="language-c">#define cmc_assert_lesser_equals(dtype, boundary, actual)
 </code></pre>
@@ -1035,7 +1040,7 @@ int main(void)
 <li><code>boundary</code> - The expected highest possible value (excluded)</li>
 <li><code>actual</code> - A variant that is checked against the boundary value</li>
 </ul>
-<h2><a class="header" href="#cmc_assert_in_range" id="cmc_assert_in_range">cmc_assert_in_range</a></h2>
+<h2 id="cmc_assert_in_range"><a class="header" href="#cmc_assert_in_range">cmc_assert_in_range</a></h2>
 <p>Asserts that a value is within a certain range. Range is inclusive on both ends.</p>
 <pre><code class="language-c">#define cmc_assert_in_range(dtype, lower_bound, upper_bound, actual)
 </code></pre>
@@ -1045,7 +1050,7 @@ int main(void)
 <li><code>upper_bound</code> - Highest value of the expected range</li>
 <li><code>actual</code> - A variant that is checked against lower and upper boundaries value</li>
 </ul>
-<h2><a class="header" href="#cmc_assert_not_in_range" id="cmc_assert_not_in_range">cmc_assert_not_in_range</a></h2>
+<h2 id="cmc_assert_not_in_range"><a class="header" href="#cmc_assert_not_in_range">cmc_assert_not_in_range</a></h2>
 <p>Asserts that a value is not within a certain range. Range is inclusive on both ends.</p>
 <pre><code class="language-c">#define cmc_assert_not_in_range(dtype, lower_bound, upper_bound, actual)
 </code></pre>
@@ -1055,15 +1060,15 @@ int main(void)
 <li><code>upper_bound</code> - Highest value of the not expected range</li>
 <li><code>actual</code> - A variant that is checked against lower and upper boundaries value</li>
 </ul>
-<h1><a class="header" href="#generic-assertion-macros" id="generic-assertion-macros">Generic Assertion Macros</a></h1>
-<h2><a class="header" href="#contents-2" id="contents-2">Contents</a></h2>
+<div style="break-before: page; page-break-before: always;"></div><h1 id="generic-assertion-macros"><a class="header" href="#generic-assertion-macros">Generic Assertion Macros</a></h1>
+<h2 id="contents-2"><a class="header" href="#contents-2">Contents</a></h2>
 <ul>
 <li><a href="utl/assert.h/generic_assertions.html#cmc_assert_array_equals_any">cmc_assert_array_equals_any</a></li>
 <li><a href="utl/assert.h/generic_assertions.html#cmc_assert_array_within_any">cmc_assert_array_within_any</a></li>
 <li><a href="utl/assert.h/generic_assertions.html#cmc_assert_array_outside_any">cmc_assert_array_outside_any</a></li>
 <li><a href="utl/assert.h/generic_assertions.html#cmc_assert_array_sorted_any">cmc_assert_array_sorted_any</a></li>
 </ul>
-<h2><a class="header" href="#cmc_assert_array_equals_any" id="cmc_assert_array_equals_any">cmc_assert_array_equals_any</a></h2>
+<h2 id="cmc_assert_array_equals_any"><a class="header" href="#cmc_assert_array_equals_any">cmc_assert_array_equals_any</a></h2>
 <p>Assert that two arrays are equal element by element. <code>from_index</code> and <code>to_index</code> are both inclusive.</p>
 <pre><code class="language-c">#define cmc_assert_array_equals_any(dtype, array1, array2, comparator, \
                                     from_index, to_index)
@@ -1076,7 +1081,7 @@ int main(void)
 <li><code>from_index</code> - First index from both arrays to compare (inclusive)</li>
 <li><code>to_index</code> - Last index from both arrays to compare (inclusive)</li>
 </ul>
-<h2><a class="header" href="#cmc_assert_array_within_any" id="cmc_assert_array_within_any">cmc_assert_array_within_any</a></h2>
+<h2 id="cmc_assert_array_within_any"><a class="header" href="#cmc_assert_array_within_any">cmc_assert_array_within_any</a></h2>
 <p>Assert that each element in the array are within a certain boundary. Both ends are inclusive.</p>
 <pre><code class="language-c">#define cmc_assert_array_within_any(dtype, array, comparator, lower_bound, \
                                     upper_bound, from_index, to_index)
@@ -1090,7 +1095,7 @@ int main(void)
 <li><code>from_index</code> - First index from the array to compare (inclusive)</li>
 <li><code>to_index</code> - Last index from the array to compare (inclusive)</li>
 </ul>
-<h2><a class="header" href="#cmc_assert_array_outside_any" id="cmc_assert_array_outside_any">cmc_assert_array_outside_any</a></h2>
+<h2 id="cmc_assert_array_outside_any"><a class="header" href="#cmc_assert_array_outside_any">cmc_assert_array_outside_any</a></h2>
 <p>Assert that each element in the array are outside of a certain boundary. Both ends are inclusive.</p>
 <pre><code class="language-c">#define cmc_assert_array_outside_any(dtype, array, comparator, lower_bound, \
                                      upper_bound, from_index, to_index)
@@ -1104,7 +1109,7 @@ int main(void)
 <li><code>from_index</code> - First index from the array to compare (inclusive)</li>
 <li><code>to_index</code> - Last index from the array to compare (inclusive)</li>
 </ul>
-<h2><a class="header" href="#cmc_assert_array_sorted_any" id="cmc_assert_array_sorted_any">cmc_assert_array_sorted_any</a></h2>
+<h2 id="cmc_assert_array_sorted_any"><a class="header" href="#cmc_assert_array_sorted_any">cmc_assert_array_sorted_any</a></h2>
 <p>Asserts that an array is sorted.</p>
 <pre><code class="language-c">#define cmc_assert_array_sorted_any(dtype, array, comparator, from_index, \
                                     to_index)
@@ -1116,13 +1121,13 @@ int main(void)
 <li><code>from_index</code> - First index from the array to compare (inclusive)</li>
 <li><code>to_index</code> - Last index from the array to compare (inclusive)</li>
 </ul>
-<h1><a class="header" href="#foreachh" id="foreachh">foreach.h</a></h1>
+<div style="break-before: page; page-break-before: always;"></div><h1 id="foreachh"><a class="header" href="#foreachh">foreach.h</a></h1>
 <p>For-Each macros. Since doing a for loop with iterators can be a lot to write, these macros solve that problem. There are two of them:</p>
 <ul>
 <li><code>CMC_FOREACH</code> - Goes from the beginning of a Collection to the end</li>
 <li><code>CMC_FOREAC_REV</code> - Goes from the end of a Collection to the beginning</li>
 </ul>
-<h2><a class="header" href="#cmc_foreach" id="cmc_foreach">CMC_FOREACH</a></h2>
+<h2 id="cmc_foreach"><a class="header" href="#cmc_foreach">CMC_FOREACH</a></h2>
 <pre><code class="language-c">#define CMC_FOREACH(PFX, SNAME, ITERNAME, TARGET)
 </code></pre>
 <ul>
@@ -1131,7 +1136,7 @@ int main(void)
 <li><code>ITERNAME</code> - Iterator variable name</li>
 <li><code>TARGET</code> - Target collection variable name</li>
 </ul>
-<h2><a class="header" href="#cmc_foreach_rev" id="cmc_foreach_rev">CMC_FOREACH_REV</a></h2>
+<h2 id="cmc_foreach_rev"><a class="header" href="#cmc_foreach_rev">CMC_FOREACH_REV</a></h2>
 <pre><code class="language-c">#define CMC_FOREACH_REV(PFX, SNAME, ITERNAME, TARGET)
 </code></pre>
 <ul>
@@ -1140,7 +1145,7 @@ int main(void)
 <li><code>ITERNAME</code> - Iterator variable name</li>
 <li><code>TARGET</code> - Target collection variable name</li>
 </ul>
-<h2><a class="header" href="#example-3" id="example-3">Example</a></h2>
+<h2 id="example-3"><a class="header" href="#example-3">Example</a></h2>
 <pre><code class="language-c">#include &quot;cmc/list.h&quot;
 #include &quot;utl/foreach.h&quot;
 
@@ -1169,10 +1174,10 @@ int main(void)
     i32l_free(list);
 }
 </code></pre>
-<h1><a class="header" href="#futilsh" id="futilsh">futils.h</a></h1>
+<div style="break-before: page; page-break-before: always;"></div><h1 id="futilsh"><a class="header" href="#futilsh">futils.h</a></h1>
 <p>Contains common functions that can be used by Functions Table, instead of writing another one every time.</p>
 <p>A quick list of functions present in this file:</p>
-<table><thead><tr><th>cmp</th></tr></thead><tbody>
+<div class="table-wrapper"><table><thead><tr><th>cmp</th></tr></thead><tbody>
 <tr><td><code>static inline int cmc_i64_cmp(int64_t x1, int64_t x2);</code></td></tr>
 <tr><td><code>static inline int cmc_i32_cmp(int32_t x1, int32_t x2);</code></td></tr>
 <tr><td><code>static inline int cmc_i16_cmp(int16_t x1, int16_t x2);</code></td></tr>
@@ -1188,14 +1193,14 @@ int main(void)
 <tr><td><code>static inline int cmc_double_cmp(double x1, double x2);</code></td></tr>
 <tr><td><code>static inline int cmc_str_cmp(char *ch1, char *ch2);</code></td></tr>
 </tbody></table>
+</div><br>
 <br>
-<br>
-<table><thead><tr><th>cpy</th></tr></thead><tbody>
+<div class="table-wrapper"><table><thead><tr><th>cpy</th></tr></thead><tbody>
 <tr><td><code>static inline char *cmc_str_cpy(char *str);</code></td></tr>
 </tbody></table>
+</div><br>
 <br>
-<br>
-<table><thead><tr><th>str</th></tr></thead><tbody>
+<div class="table-wrapper"><table><thead><tr><th>str</th></tr></thead><tbody>
 <tr><td><code>static inline bool cmc_i8_str(FILE *file, int8_t element);</code></td></tr>
 <tr><td><code>static inline bool cmc_i16_str(FILE *file, int16_t element);</code></td></tr>
 <tr><td><code>static inline bool cmc_i32_str(FILE *file, int32_t element);</code></td></tr>
@@ -1211,13 +1216,13 @@ int main(void)
 <tr><td><code>static inline bool cmc_double_str(FILE *file, double element);</code></td></tr>
 <tr><td><code>static inline bool cmc_str_str(FILE *file, char *element);</code></td></tr>
 </tbody></table>
+</div><br>
 <br>
-<br>
-<table><thead><tr><th>free</th></tr></thead><tbody>
+<div class="table-wrapper"><table><thead><tr><th>free</th></tr></thead><tbody>
 </tbody></table>
+</div><br>
 <br>
-<br>
-<table><thead><tr><th>hash</th></tr></thead><tbody>
+<div class="table-wrapper"><table><thead><tr><th>hash</th></tr></thead><tbody>
 <tr><td><code>static inline size_t cmc_i64_hash(int64_t e);</code></td></tr>
 <tr><td><code>static inline size_t cmc_i32_hash(int32_t e);</code></td></tr>
 <tr><td><code>static inline size_t cmc_i16_hash(int16_t e);</code></td></tr>
@@ -1239,13 +1244,13 @@ int main(void)
 <tr><td><code>static inline size_t cmc_i64_hash_mix(int64_t element);</code></td></tr>
 <tr><td><code>static inline size_t cmc_u64_hash_mix(uint64_t element);</code></td></tr>
 </tbody></table>
+</div><br>
 <br>
-<br>
-<table><thead><tr><th>pri</th></tr></thead><tbody>
+<div class="table-wrapper"><table><thead><tr><th>pri</th></tr></thead><tbody>
 </tbody></table>
-<h1><a class="header" href="#logh" id="logh">log.h</a></h1>
+</div><div style="break-before: page; page-break-before: always;"></div><h1 id="logh"><a class="header" href="#logh">log.h</a></h1>
 <p>Simple and customizable logging macros. Messages can have a custom logging level and a custom file output. This customization can be done via the global variable <a href="utl/log.h/configuration.html#cmc_log_config"><code>cmc_log_config</code></a>. Logs are outputted to <code>stderr</code>.</p>
-<h2><a class="header" href="#cmc_log_type" id="cmc_log_type">cmc_log_type</a></h2>
+<h2 id="cmc_log_type"><a class="header" href="#cmc_log_type">cmc_log_type</a></h2>
 <p>Defines the possible Log Levels. These are used to categorize log messages. The higher the number, the more severe or important that message is. Check out <a href="utl/log.h/meanings.html">here</a></p>
 <pre><code class="language-c">enum cmc_log_type
 {
@@ -1257,10 +1262,10 @@ int main(void)
     CMC_LOG_FATAL = 6
 };
 </code></pre>
-<h2><a class="header" href="#cmc_log_color" id="cmc_log_color">CMC_LOG_COLOR</a></h2>
+<h2 id="cmc_log_color"><a class="header" href="#cmc_log_color">CMC_LOG_COLOR</a></h2>
 <p>If this macro is defined, logging will be outputted with <a href="https://en.wikipedia.org/wiki/ANSI_escape_code#Colors">ANSI color escape codes</a>. If you are logging into a file, these escape codes are not printed.</p>
-<h1><a class="header" href="#log-functions" id="log-functions">Log Functions</a></h1>
-<h2><a class="header" href="#cmc_log_trace" id="cmc_log_trace">cmc_log_trace</a></h2>
+<div style="break-before: page; page-break-before: always;"></div><h1 id="log-functions"><a class="header" href="#log-functions">Log Functions</a></h1>
+<h2 id="cmc_log_trace"><a class="header" href="#cmc_log_trace">cmc_log_trace</a></h2>
 <p>Defines a message with a Log Level of <code>CMC_LOG_TRACE</code>.</p>
 <pre><code class="language-c">#define cmc_log_trace(fmt, ...)
 </code></pre>
@@ -1268,7 +1273,7 @@ int main(void)
 <li><code>fmt</code> - A string that contains a text to be written that may contain format specifiers</li>
 <li><code>...</code> - Optional. Values to be formatted into the string that will be printed</li>
 </ul>
-<h2><a class="header" href="#cmc_log_debug" id="cmc_log_debug">cmc_log_debug</a></h2>
+<h2 id="cmc_log_debug"><a class="header" href="#cmc_log_debug">cmc_log_debug</a></h2>
 <p>Defines a message with a Log Level of <code>CMC_LOG_DEBUG</code>.</p>
 <pre><code class="language-c">#define cmc_log_debug(fmt, ...)
 </code></pre>
@@ -1276,7 +1281,7 @@ int main(void)
 <li><code>fmt</code> - A string that contains a text to be written that may contain format specifiers</li>
 <li><code>...</code> - Optional. Values to be formatted into the string that will be printed</li>
 </ul>
-<h2><a class="header" href="#cmc_log_info" id="cmc_log_info">cmc_log_info</a></h2>
+<h2 id="cmc_log_info"><a class="header" href="#cmc_log_info">cmc_log_info</a></h2>
 <p>Defines a message with a Log Level of <code>CMC_LOG_INFO</code>.</p>
 <pre><code class="language-c">#define cmc_log_info(fmt, ...)
 </code></pre>
@@ -1284,7 +1289,7 @@ int main(void)
 <li><code>fmt</code> - A string that contains a text to be written that may contain format specifiers</li>
 <li><code>...</code> - Optional. Values to be formatted into the string that will be printed</li>
 </ul>
-<h2><a class="header" href="#cmc_log_warn" id="cmc_log_warn">cmc_log_warn</a></h2>
+<h2 id="cmc_log_warn"><a class="header" href="#cmc_log_warn">cmc_log_warn</a></h2>
 <p>Defines a message with a Log Level of <code>CMC_LOG_WARN</code>.</p>
 <pre><code class="language-c">#define cmc_log_warn(fmt, ...)
 </code></pre>
@@ -1292,7 +1297,7 @@ int main(void)
 <li><code>fmt</code> - A string that contains a text to be written that may contain format specifiers</li>
 <li><code>...</code> - Optional. Values to be formatted into the string that will be printed</li>
 </ul>
-<h2><a class="header" href="#cmc_log_error" id="cmc_log_error">cmc_log_error</a></h2>
+<h2 id="cmc_log_error"><a class="header" href="#cmc_log_error">cmc_log_error</a></h2>
 <p>Defines a message with a Log Level of <code>CMC_LOG_ERROR</code>.</p>
 <pre><code class="language-c">#define cmc_log_error(fmt, ...)
 </code></pre>
@@ -1300,7 +1305,7 @@ int main(void)
 <li><code>fmt</code> - A string that contains a text to be written that may contain format specifiers</li>
 <li><code>...</code> - Optional. Values to be formatted into the string that will be printed</li>
 </ul>
-<h2><a class="header" href="#cmc_log_fatal" id="cmc_log_fatal">cmc_log_fatal</a></h2>
+<h2 id="cmc_log_fatal"><a class="header" href="#cmc_log_fatal">cmc_log_fatal</a></h2>
 <p>Defines a message with a Log Level of <code>CMC_LOG_FATAL</code>.</p>
 <pre><code class="language-c">#define cmc_log_fatal(fmt, ...)
 </code></pre>
@@ -1308,8 +1313,8 @@ int main(void)
 <li><code>fmt</code> - A string that contains a text to be written that may contain format specifiers</li>
 <li><code>...</code> - Optional. Values to be formatted into the string that will be printed</li>
 </ul>
-<h1><a class="header" href="#configuration" id="configuration">Configuration</a></h1>
-<h2><a class="header" href="#cmc_log_config" id="cmc_log_config">cmc_log_config</a></h2>
+<div style="break-before: page; page-break-before: always;"></div><h1 id="configuration"><a class="header" href="#configuration">Configuration</a></h1>
+<h2 id="cmc_log_config"><a class="header" href="#cmc_log_config">cmc_log_config</a></h2>
 <p>This is an anonymous static <code>struct</code> that can be directly modified to change logging levels, enable or disable output or change file output.</p>
 <pre><code class="language-c">static struct
 {
@@ -1331,7 +1336,7 @@ int main(void)
 <li><code>FILE *file</code> - File for output</li>
 </ul>
 <p>This configuration is global to every log. The <code>FILE</code> pointer is not handled by the API and needs to be able to write to the file.</p>
-<h2><a class="header" href="#log-level" id="log-level">Log Level</a></h2>
+<h2 id="log-level"><a class="header" href="#log-level">Log Level</a></h2>
 <p>By tuning <code>tlevel</code> and <code>flevel</code> (both accessed from <code>cmc_log_config</code>) you can filter which log messages are printed or not.</p>
 <ul>
 <li>If the log level is <code>0</code>, all logs are enabled</li>
@@ -1369,7 +1374,7 @@ int main(void)
 <li>Log Level &gt; 0: &quot;Allow all log levels that are greater than this, including it&quot;</li>
 <li>Log Level &lt; 0: &quot;Allow all log levels that are smaller than this, including it&quot;</li>
 </ul>
-<h1><a class="header" href="#meanings" id="meanings">Meanings</a></h1>
+<div style="break-before: page; page-break-before: always;"></div><h1 id="meanings"><a class="header" href="#meanings">Meanings</a></h1>
 <p>What does each Log Level means? It depends on the application. In here you will read more about how the C Macro Collections library uses each of these Log Levels, but this does not mean you should use them like described.</p>
 <ul>
 <li><strong>TRACE</strong> - Trace is used to describe the inner workings of a function or an algorithm. These messages can be used extensively, meaning that their content is probably not very useful, even for debugging.</li>
@@ -1379,7 +1384,7 @@ int main(void)
 <li><strong>ERROR</strong> - Something really bad happened. Your program will not crash yet but depending on what comes next, it will. This might be attributed to pointers that shouldn't be null because later functions might use it.</li>
 <li><strong>FATAL</strong> - This will probably be the last logging message before your program crashes or goes into madness. Fatal errors are commonly attributed to dereferencing NULL pointers.</li>
 </ul>
-<h1><a class="header" href="#testh" id="testh">test.h</a></h1>
+<div style="break-before: page; page-break-before: always;"></div><h1 id="testh"><a class="header" href="#testh">test.h</a></h1>
 <p>A simple <a href="https://en.wikipedia.org/wiki/Unit_testing">Unit Test</a> utility used by the C Macro Collections Library. It has two main components: a Unit and a Test.</p>
 <p>This utility uses two other libraries defined in the C Macro Collections library:</p>
 <ul>
@@ -1388,7 +1393,7 @@ int main(void)
 </ul>
 <p>When a test is created inside a unit, it will first set the global variable <a href="utl/test.h/../assert.h/index.html#cmc_assert_state"><code>cmc_assert_state</code></a> to <code>true</code>. Then, inside the test you can use the assertions provided by the <code>assert.h</code> library to pass or fail a unit test automatically. By the end of a test the variable will be checked. If <code>false</code> it means that a certain assertion failed.</p>
 <p>The runtime of each Unit Test is calculated using the <code>timer.h</code> library.</p>
-<h2><a class="header" href="#cmc_create_unit" id="cmc_create_unit">CMC_CREATE_UNIT</a></h2>
+<h2 id="cmc_create_unit"><a class="header" href="#cmc_create_unit">CMC_CREATE_UNIT</a></h2>
 <p>Creates a Unit that can contain tests.</p>
 <pre><code class="language-c">#define CMC_CREATE_UNIT(UNAME, VERBOSE, BODY)
 </code></pre>
@@ -1397,7 +1402,7 @@ int main(void)
 <li><code>VERBOSE</code> - Either <code>true</code> or <code>false</code>. If <code>true</code>, prints every message of <code>PASSED</code> or <code>FAILED</code> from each test</li>
 <li><code>BODY</code> - A block of code containing tests</li>
 </ul>
-<h2><a class="header" href="#cmc_create_test" id="cmc_create_test">CMC_CREATE_TEST</a></h2>
+<h2 id="cmc_create_test"><a class="header" href="#cmc_create_test">CMC_CREATE_TEST</a></h2>
 <p>Creates a test within a unit. This macro can only be used inside the <code>BODY</code> of a <code>CMC_CREATE_UNIT</code> since it uses local variables allocated by the latter.</p>
 <pre><code class="language-c">#define CMC_CREATE_TEST(TNAME, BODY)
 </code></pre>
@@ -1406,11 +1411,11 @@ int main(void)
 <li><code>BODY</code> - A block of code containing the test itself</li>
 </ul>
 <p>Inside a test you can use the assertions from <code>assert.h</code> to automatically pass or fail a test.</p>
-<h2><a class="header" href="#cmc_test_abort" id="cmc_test_abort">CMC_TEST_ABORT</a></h2>
+<h2 id="cmc_test_abort"><a class="header" href="#cmc_test_abort">CMC_TEST_ABORT</a></h2>
 <p>Aborts a unit test. This will jump to a <code>goto</code> located at the end of the Unit Test. Must be called inside a <code>CMC_CREATE_TEST</code>.</p>
 <pre><code class="language-c">#define CMC_TEST_ABORT()
 </code></pre>
-<h2><a class="header" href="#cmc_test_info" id="cmc_test_info">cmc_test_info</a></h2>
+<h2 id="cmc_test_info"><a class="header" href="#cmc_test_info">cmc_test_info</a></h2>
 <p>Contains information about a Unit Test. Used internally.</p>
 <pre><code class="language-c">struct cmc_test_info
 {
@@ -1432,9 +1437,9 @@ int main(void)
 <li><code>bool aborted</code> - If the unit test was aborted</li>
 <li><code>bool verbose</code> - Information about each test is displayed</li>
 </ul>
-<h2><a class="header" href="#cmc_test_color" id="cmc_test_color">CMC_TEST_COLOR</a></h2>
+<h2 id="cmc_test_color"><a class="header" href="#cmc_test_color">CMC_TEST_COLOR</a></h2>
 <p>Define this macro if you wish to have color output from the messages printed by each test. Note that a Unit Test need to have <code>VERBOSE</code> equal to <code>true</code>.</p>
-<h2><a class="header" href="#example-4" id="example-4">Example</a></h2>
+<h2 id="example-4"><a class="header" href="#example-4">Example</a></h2>
 <pre><code class="language-c">#include &quot;utl/test.h&quot;
 
 CMC_CREATE_UNIT(check_math, true, {
@@ -1475,9 +1480,9 @@ int main(void)
     return check_math();
 }
 </code></pre>
-<h1><a class="header" href="#timerh" id="timerh">timer.h</a></h1>
+<div style="break-before: page; page-break-before: always;"></div><h1 id="timerh"><a class="header" href="#timerh">timer.h</a></h1>
 <p>A very simple library that encapsulates <code>clock()</code> from <code>&lt;time.h&gt;</code>, making life easier.</p>
-<h2><a class="header" href="#cmc_timer" id="cmc_timer">cmc_timer</a></h2>
+<h2 id="cmc_timer"><a class="header" href="#cmc_timer">cmc_timer</a></h2>
 <pre><code class="language-c">struct cmc_timer
 {
     clock_t start;
@@ -1490,21 +1495,21 @@ int main(void)
 <li><code>clock_t stop</code> - End of timing</li>
 <li><code>double result</code> - Result in milliseconds</li>
 </ul>
-<h2><a class="header" href="#cmc_timer_start" id="cmc_timer_start">cmc_timer_start</a></h2>
+<h2 id="cmc_timer_start"><a class="header" href="#cmc_timer_start">cmc_timer_start</a></h2>
 <p>Starts the timer by setting <code>start</code> with <code>clock()</code>.</p>
 <pre><code class="language-c">#define cmc_timer_start(timer)
 </code></pre>
 <ul>
 <li><code>timer</code> - A <code>struct cmc_timer</code> variable</li>
 </ul>
-<h2><a class="header" href="#cmc_timer_stop" id="cmc_timer_stop">cmc_timer_stop</a></h2>
+<h2 id="cmc_timer_stop"><a class="header" href="#cmc_timer_stop">cmc_timer_stop</a></h2>
 <p>Sets the <code>stop</code> variable with <code>clock()</code> and calculates the <code>result</code> in milliseconds.</p>
 <pre><code class="language-c">#define cmc_timer_start(timer)
 </code></pre>
 <ul>
 <li><code>timer</code> - A <code>struct cmc_timer</code> variable</li>
 </ul>
-<h2><a class="header" href="#example-5" id="example-5">Example</a></h2>
+<h2 id="example-5"><a class="header" href="#example-5">Example</a></h2>
 <pre><code class="language-c">#include &lt;stdio.h&gt;
 
 #include &quot;utl/timer.h&quot;
@@ -1525,27 +1530,27 @@ int main(void)
     printf(&quot;Sum took %.0lf milliseconds to calculate\n&quot;, t.result);
 }
 </code></pre>
-<h1><a class="header" href="#minimal-example" id="minimal-example">Minimal Example</a></h1>
+<div style="break-before: page; page-break-before: always;"></div><h1 id="minimal-example"><a class="header" href="#minimal-example">Minimal Example</a></h1>
 <p>(TODO this example is currently outdated)</p>
 <p>Lets create a list of type <code>int</code>, add some elements to it and get the sum of all the elements printed on the screen.</p>
-<h3><a class="header" href="#include-headers" id="include-headers">Include headers</a></h3>
+<h3 id="include-headers"><a class="header" href="#include-headers">Include headers</a></h3>
 <pre><code class="language-c">#include &lt;cmc/list.h&gt;
 </code></pre>
 <p>First you need to include only the necessary headers. It is not recommended that you include everything with <code>macro_collections.h</code>, only in cases where you might be using almost all features from the library.</p>
-<h3><a class="header" href="#generating-a-list" id="generating-a-list">Generating a list</a></h3>
+<h3 id="generating-a-list"><a class="header" href="#generating-a-list">Generating a list</a></h3>
 <pre><code class="language-c">// CMC_GENERATE_LIST(PFX, SNAME, V)
 CMC_GENERATE_LIST(il, int_list, int)
 </code></pre>
 <p>The List is also known as <code>vector</code>, <code>ArrayList</code> and dynamic array. In fact the latter is the best description for this collection. It is a dynamic array that can grow and shrink as needed. To generate it we can simply call the macro <code>CMC_GENERATE_LIST</code> after our includes. It has three parameters:</p>
-<table><thead><tr><th align="center">Parameter name</th><th>Purpose</th></tr></thead><tbody>
-<tr><td align="center"><strong>PFX</strong></td><td>Functions prefix (namespace)</td></tr>
-<tr><td align="center"><strong>SNAME</strong></td><td>Struct name</td></tr>
-<tr><td align="center"><strong>V</strong></td><td>The list value type (can be any valid data type)</td></tr>
+<div class="table-wrapper"><table><thead><tr><th style="text-align: center">Parameter name</th><th>Purpose</th></tr></thead><tbody>
+<tr><td style="text-align: center"><strong>PFX</strong></td><td>Functions prefix (namespace)</td></tr>
+<tr><td style="text-align: center"><strong>SNAME</strong></td><td>Struct name</td></tr>
+<tr><td style="text-align: center"><strong>V</strong></td><td>The list value type (can be any valid data type)</td></tr>
 </tbody></table>
-<aside class="notice">
+</div><aside class="notice">
 All collections can be generated by using the macro CMC_GENERATE_ and then the name of the include (in this case list.h) but in uppercase without the `.h`.
 </aside>
-<h3><a class="header" href="#initializing-and-adding-elements" id="initializing-and-adding-elements">Initializing and adding elements</a></h3>
+<h3 id="initializing-and-adding-elements"><a class="header" href="#initializing-and-adding-elements">Initializing and adding elements</a></h3>
 <pre><code class="language-c">// Allocate an int_list with an initial capacity of 100
 int_list *list = il_new(100);
 
@@ -1564,7 +1569,7 @@ for (int i = 0; i &lt;= 1000; i++)
 <p>Which expands to:</p>
 <p><code>typedef struct int_list_s int_list</code></p>
 <p>To add elements to the back of a list we can use <code>il_push_back</code>. This function will first check if the list has enough space for a new element. If not, reallocate the internal buffer with doubled size and then add the new element.</p>
-<h3><a class="header" href="#iteration" id="iteration">Iteration</a></h3>
+<h3 id="iteration"><a class="header" href="#iteration">Iteration</a></h3>
 <blockquote>
 <p>It is recommended that the iterator is allocated on the stack</p>
 </blockquote>
@@ -1586,22 +1591,23 @@ for (il_iter_init(&amp;it, list); !il_iter_end(&amp;it); il_iter_next(&amp;it))
 printf(&quot;%d\n&quot;, sum);
 </code></pre>
 <p>There are 6 (2 optional) steps to iterate over the elements of any collection:</p>
-<table><thead><tr><th align="center">Step</th><th>Description</th><th>Function</th></tr></thead><tbody>
-<tr><td align="center">1</td><td>Allocate the iterator (optional)</td><td><code>il_iter_new</code></td></tr>
-<tr><td align="center">2</td><td>Initialize the iterator given a target list</td><td><code>il_iter_init</code></td></tr>
-<tr><td align="center">3</td><td>Access the iterator's elements (value, index, etc)</td><td><code>il_iter_value</code></td></tr>
-<tr><td align="center">4</td><td>Go to the next element</td><td><code>il_iter_next</code></td></tr>
-<tr><td align="center">5</td><td>Check if we haven't reached the end of the list</td><td><code>il_iter_end</code></td></tr>
-<tr><td align="center">6</td><td>Free the iterator if it was allocated on the heap</td><td><code>il_iter_free</code></td></tr>
+<div class="table-wrapper"><table><thead><tr><th style="text-align: center">Step</th><th>Description</th><th>Function</th></tr></thead><tbody>
+<tr><td style="text-align: center">1</td><td>Allocate the iterator (optional)</td><td><code>il_iter_new</code></td></tr>
+<tr><td style="text-align: center">2</td><td>Initialize the iterator given a target list</td><td><code>il_iter_init</code></td></tr>
+<tr><td style="text-align: center">3</td><td>Access the iterator's elements (value, index, etc)</td><td><code>il_iter_value</code></td></tr>
+<tr><td style="text-align: center">4</td><td>Go to the next element</td><td><code>il_iter_next</code></td></tr>
+<tr><td style="text-align: center">5</td><td>Check if we haven't reached the end of the list</td><td><code>il_iter_end</code></td></tr>
+<tr><td style="text-align: center">6</td><td>Free the iterator if it was allocated on the heap</td><td><code>il_iter_free</code></td></tr>
 </tbody></table>
+</div>
 <p>Note that all iterator functions are prefixed by the user defined prefix and then by <code>iter</code> (<code>il + iter = il_iter</code>). Also, the steps <strong>1</strong> and <strong>6</strong> are optional so <code>il_iter_new</code> and <code>il_iter_free</code> are not used in the example.</p>
 <p>By the end of the example we have the variable <code>sum</code> with the sum of all integers inside our list. We can then print it and this example is almost done.</p>
-<h3><a class="header" href="#freeing-resources" id="freeing-resources">Freeing resources</a></h3>
+<h3 id="freeing-resources"><a class="header" href="#freeing-resources">Freeing resources</a></h3>
 <pre><code class="language-c">// void il_free(int_list *_list_, void(*deallocator)(int))
 il_free(list, NULL);
 </code></pre>
 <p>The list is currently allocated in memory. To deallocate it we call <code>il_free</code>. This function takes a pointer to the allocated list and a pointer to a <code>deallocator</code> function that will be responsible for deallocating each element in the list. This last parameter is optional and we won't be using it since our data type <code>int</code> is not allocated in the heap. This optional parameter can be set to <code>NULL</code> to be ignored by the <code>il_free</code> function.</p>
-<h3><a class="header" href="#compile-and-run" id="compile-and-run">Compile and run</a></h3>
+<h3 id="compile-and-run"><a class="header" href="#compile-and-run">Compile and run</a></h3>
 <blockquote>
 <p>source.c</p>
 </blockquote>
@@ -1638,16 +1644,14 @@ int main(void)
 </code></pre>
 <p>If the source file is <code>source.c</code>, all you have to do is to include the <code>src</code> folder to the include path and compile. The following example uses <code>gcc</code>:</p>
 <p><code>gcc source.c -I path/to/library/src</code></p>
-<h3><a class="header" href="#conclusion" id="conclusion">Conclusion</a></h3>
+<h3 id="conclusion"><a class="header" href="#conclusion">Conclusion</a></h3>
 <p>The C Macro Collections Library is prepared to accept any data type and is highly customizable. It is also very easy to integrate and no previous compilation is required. The library also comes with many utilities in the <code>utl</code> folder that are designed to work well with all collections.</p>
 
                     </main>
 
                     <nav class="nav-wrapper" aria-label="Page navigation">
                         <!-- Mobile navigation buttons -->
-                        
 
-                        
 
                         <div style="clear: both"></div>
                     </nav>
@@ -1655,49 +1659,35 @@ int main(void)
             </div>
 
             <nav class="nav-wide-wrapper" aria-label="Page navigation">
-                
 
-                
             </nav>
 
         </div>
 
-        
 
-        
 
-        
-        
-        
-        <script type="text/javascript">
-            window.playpen_copyable = true;
+
+        <script>
+            window.playground_copyable = true;
         </script>
-        
 
-        
 
-        
-        <script src="elasticlunr.min.js" type="text/javascript" charset="utf-8"></script>
-        <script src="mark.min.js" type="text/javascript" charset="utf-8"></script>
-        <script src="searcher.js" type="text/javascript" charset="utf-8"></script>
-        
+        <script src="elasticlunr.min.js"></script>
+        <script src="mark.min.js"></script>
+        <script src="searcher.js"></script>
 
-        <script src="clipboard.min.js" type="text/javascript" charset="utf-8"></script>
-        <script src="highlight.js" type="text/javascript" charset="utf-8"></script>
-        <script src="book.js" type="text/javascript" charset="utf-8"></script>
+        <script src="clipboard.min.js"></script>
+        <script src="highlight.js"></script>
+        <script src="book.js"></script>
 
         <!-- Custom JS scripts -->
-        
 
-        
-        
-        <script type="text/javascript">
+        <script>
         window.addEventListener('load', function() {
             window.setTimeout(window.print, 100);
         });
         </script>
-        
-        
 
+    </div>
     </body>
 </html>
