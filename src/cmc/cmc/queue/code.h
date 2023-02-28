@@ -34,8 +34,8 @@ struct SNAME *CMC_(PFX, _new)(size_t capacity, struct CMC_DEF_FVAL(SNAME) * f_va
     return CMC_(PFX, _new_custom)(capacity, f_val, NULL, NULL);
 }
 
-struct SNAME *CMC_(PFX, _new_custom)(size_t capacity, struct CMC_DEF_FVAL(SNAME) * f_val,
-                                     struct CMC_ALLOC_NODE_NAME *alloc, struct CMC_CALLBACKS_NAME *callbacks)
+struct SNAME *CMC_(PFX, _new_custom)(size_t capacity, struct CMC_DEF_FVAL(SNAME) * f_val, CMC_ALLOC_TYPE *alloc,
+                                     CMC_CALLBACK_TYPE callbacks)
 {
 #ifdef CMC_DEV
     CMC_DEV_FCALL;
@@ -121,8 +121,7 @@ void CMC_(PFX, _free)(struct SNAME *_queue_)
     _queue_->alloc->free(_queue_);
 }
 
-void CMC_(PFX, _customize)(struct SNAME *_queue_, struct CMC_ALLOC_NODE_NAME *alloc,
-                           struct CMC_CALLBACKS_NAME *callbacks)
+void CMC_(PFX, _customize)(struct SNAME *_queue_, CMC_ALLOC_TYPE *alloc, CMC_CALLBACK_TYPE callbacks)
 {
 #ifdef CMC_DEV
     CMC_DEV_FCALL;
@@ -158,7 +157,7 @@ bool CMC_(PFX, _enqueue)(struct SNAME *_queue_, V value)
     _queue_->count++;
     _queue_->flag = CMC_FLAG_OK;
 
-    CMC_CALLBACKS_CALL(_queue_, create);
+    CMC_CALLBACKS_CALL(_queue_);
 
     return true;
 }
@@ -181,7 +180,7 @@ bool CMC_(PFX, _dequeue)(struct SNAME *_queue_)
     _queue_->count--;
     _queue_->flag = CMC_FLAG_OK;
 
-    CMC_CALLBACKS_CALL(_queue_, delete);
+    CMC_CALLBACKS_CALL(_queue_);
 
     return true;
 }
@@ -200,7 +199,7 @@ V CMC_(PFX, _peek)(struct SNAME *_queue_)
 
     _queue_->flag = CMC_FLAG_OK;
 
-    CMC_CALLBACKS_CALL(_queue_, read);
+    CMC_CALLBACKS_CALL(_queue_);
 
     return _queue_->buffer[_queue_->front];
 }
@@ -226,7 +225,7 @@ bool CMC_(PFX, _contains)(struct SNAME *_queue_, V value)
         i = (i + 1) % _queue_->capacity;
     }
 
-    CMC_CALLBACKS_CALL(_queue_, read);
+    CMC_CALLBACKS_CALL(_queue_);
 
     return result;
 }
@@ -317,7 +316,7 @@ success:
 
     _queue_->flag = CMC_FLAG_OK;
 
-    CMC_CALLBACKS_CALL(_queue_, resize);
+    CMC_CALLBACKS_CALL(_queue_);
 
     return true;
 }

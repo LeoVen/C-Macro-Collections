@@ -34,8 +34,7 @@ struct SNAME *CMC_(PFX, _new)(size_t n_bits)
     return CMC_(PFX, _new_custom)(n_bits, NULL, NULL);
 }
 
-struct SNAME *CMC_(PFX, _new_custom)(size_t n_bits, struct CMC_ALLOC_NODE_NAME *alloc,
-                                     struct CMC_CALLBACKS_NAME *callbacks)
+struct SNAME *CMC_(PFX, _new_custom)(size_t n_bits, CMC_ALLOC_TYPE *alloc, CMC_CALLBACK_TYPE callbacks)
 {
 #ifdef CMC_DEV
     CMC_DEV_FCALL;
@@ -81,8 +80,7 @@ struct SNAME CMC_(PFX, _init)(size_t n_bits)
     return CMC_(PFX, _init_custom)(n_bits, NULL, NULL);
 }
 
-struct SNAME CMC_(PFX, _init_custom)(size_t n_bits, struct CMC_ALLOC_NODE_NAME *alloc,
-                                     struct CMC_CALLBACKS_NAME *CMC_UNUSED(callbacks))
+struct SNAME CMC_(PFX, _init_custom)(size_t n_bits, CMC_ALLOC_TYPE *alloc, CMC_CALLBACK_TYPE callbacks)
 {
 #ifdef CMC_DEV
     CMC_DEV_FCALL;
@@ -132,8 +130,7 @@ void CMC_(PFX, _release)(struct SNAME _bitset_)
     free(_bitset_.buffer);
 }
 
-void CMC_(PFX, _customize)(struct SNAME *_bitset_, struct CMC_ALLOC_NODE_NAME *alloc,
-                           struct CMC_CALLBACKS_NAME *callbacks)
+void CMC_(PFX, _customize)(struct SNAME *_bitset_, CMC_ALLOC_TYPE *alloc, CMC_CALLBACK_TYPE callbacks)
 {
 #ifdef CMC_DEV
     CMC_DEV_FCALL;
@@ -169,7 +166,7 @@ bool CMC_(PFX, _set)(struct SNAME *_bitset_, size_t bit_index)
 
     _bitset_->flag = CMC_FLAG_OK;
 
-    CMC_CALLBACKS_CALL(_bitset_, create);
+    CMC_CALLBACKS_CALL(_bitset_);
 
     return true;
 }
@@ -220,7 +217,7 @@ bool CMC_(PFX, _set_range)(struct SNAME *_bitset_, size_t from, size_t to)
 
     _bitset_->flag = CMC_FLAG_OK;
 
-    CMC_CALLBACKS_CALL(_bitset_, create);
+    CMC_CALLBACKS_CALL(_bitset_);
 
     return true;
 }
@@ -243,7 +240,7 @@ bool CMC_(PFX, _clear)(struct SNAME *_bitset_, size_t bit_index)
 
     _bitset_->flag = CMC_FLAG_OK;
 
-    CMC_CALLBACKS_CALL(_bitset_, delete);
+    CMC_CALLBACKS_CALL(_bitset_);
 
     return true;
 }
@@ -294,7 +291,7 @@ bool CMC_(PFX, _clear_range)(struct SNAME *_bitset_, size_t from, size_t to)
 
     _bitset_->flag = CMC_FLAG_OK;
 
-    CMC_CALLBACKS_CALL(_bitset_, delete);
+    CMC_CALLBACKS_CALL(_bitset_);
 
     return true;
 }
@@ -317,7 +314,7 @@ bool CMC_(PFX, _flip)(struct SNAME *_bitset_, size_t bit_index)
 
     _bitset_->flag = CMC_FLAG_OK;
 
-    CMC_CALLBACKS_CALL(_bitset_, update);
+    CMC_CALLBACKS_CALL(_bitset_);
 
     return true;
 }
@@ -368,7 +365,7 @@ bool CMC_(PFX, _flip_range)(struct SNAME *_bitset_, size_t from, size_t to)
 
     _bitset_->flag = CMC_FLAG_OK;
 
-    CMC_CALLBACKS_CALL(_bitset_, update);
+    CMC_CALLBACKS_CALL(_bitset_);
 
     return true;
 }
@@ -408,7 +405,7 @@ bool CMC_(PFX, _set_all)(struct SNAME *_bitset_)
 
     _bitset_->flag = CMC_FLAG_OK;
 
-    CMC_CALLBACKS_CALL(_bitset_, create);
+    CMC_CALLBACKS_CALL(_bitset_);
 
     return true;
 }
@@ -424,7 +421,7 @@ bool CMC_(PFX, _clear_all)(struct SNAME *_bitset_)
 
     _bitset_->flag = CMC_FLAG_OK;
 
-    CMC_CALLBACKS_CALL(_bitset_, delete);
+    CMC_CALLBACKS_CALL(_bitset_);
 
     return true;
 }
@@ -440,7 +437,7 @@ bool CMC_(PFX, _flip_all)(struct SNAME *_bitset_)
 
     _bitset_->flag = CMC_FLAG_OK;
 
-    CMC_CALLBACKS_CALL(_bitset_, create);
+    CMC_CALLBACKS_CALL(_bitset_);
 
     return true;
 }
@@ -507,7 +504,7 @@ bool CMC_(PFX, _impl_resize)(struct SNAME *_bitset_, size_t n_bits, bool do_resi
 
     _bitset_->capacity = words;
 
-    CMC_CALLBACKS_CALL(_bitset_, resize);
+    CMC_CALLBACKS_CALL(_bitset_);
 
     _bitset_->flag = CMC_FLAG_OK;
 

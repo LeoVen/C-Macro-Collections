@@ -1,5 +1,5 @@
 CC=gcc
-CFLAGS=-Wall -Wextra -Werror -fprofile-arcs -ftest-coverage -ftime-report -g -O0
+CFLAGS=-Wall -Wextra -Werror -fprofile-arcs -ftest-coverage -ftime-report -g -O0 -DCMC_CALLBACKS
 INCLUDE=-I ../src
 OUTDIR=out
 

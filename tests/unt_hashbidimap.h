@@ -460,7 +460,7 @@ CMC_CREATE_UNIT(CMCHashBidiMap, true, {
         struct hashbidimap *map = hbm_new_custom(
             10000, 0.6, hbm_fkey, hbm_fval,
             &(struct cmc_alloc_node){ .malloc = malloc, .calloc = calloc, .realloc = realloc, .free = free },
-            &(struct cmc_callbacks){ 0 });
+            callbacks);
 
         cmc_assert_not_equals(ptr, NULL, map);
 
@@ -489,7 +489,7 @@ CMC_CREATE_UNIT(CMCHashBidiMap, true, {
         struct hashbidimap *map = hbm_new_custom(
             10000, 0.6, hbm_fkey, hbm_fval,
             &(struct cmc_alloc_node){ .malloc = malloc, .calloc = calloc, .realloc = realloc, .free = free },
-            &(struct cmc_callbacks){ 0 });
+            callbacks);
 
         cmc_assert_not_equals(ptr, NULL, map);
 
@@ -582,7 +582,7 @@ CMC_CREATE_UNIT(CMCHashBidiMap, true, {
         cmc_assert_equals(int32_t, CMC_FLAG_OK, hbm_flag(map));
 
         // customize
-        hbm_customize(map, &cmc_alloc_node_default, &(struct cmc_callbacks){ 0 });
+        hbm_customize(map, &cmc_alloc_node_default, callbacks);
         cmc_assert_equals(int32_t, CMC_FLAG_OK, hbm_flag(map));
 
         // Insert
@@ -708,99 +708,6 @@ CMC_CREATE_UNIT(CMCHashBidiMap, true, {
 
         hbm_free(map);
         hbm_free(map2);
-    });
-
-    CMC_CREATE_TEST(callbacks, {
-        struct hashbidimap *map = hbm_new_custom(100, 0.7, hbm_fkey, hbm_fval, NULL, callbacks);
-
-        cmc_assert_not_equals(ptr, NULL, map);
-        cmc_assert_equals(ptr, callbacks, map->callbacks);
-
-        total_create = 0;
-        total_read = 0;
-        total_update = 0;
-        total_delete = 0;
-        total_resize = 0;
-
-        cmc_assert(hbm_insert(map, 10, 10));
-        cmc_assert_equals(int32_t, 1, total_create);
-
-        cmc_assert(hbm_update_key(map, 10, 5));
-        cmc_assert_equals(int32_t, 1, total_update);
-
-        cmc_assert(hbm_update_val(map, 5, 5));
-        cmc_assert_equals(int32_t, 2, total_update);
-
-        cmc_assert(hbm_insert(map, 10, 10));
-        cmc_assert_equals(int32_t, 2, total_create);
-
-        cmc_assert(hbm_remove_by_key(map, 5, NULL, NULL));
-        cmc_assert_equals(int32_t, 1, total_delete);
-
-        cmc_assert(hbm_remove_by_val(map, 10, NULL, NULL));
-        cmc_assert_equals(int32_t, 2, total_delete);
-
-        cmc_assert(hbm_insert(map, 1, 2));
-        cmc_assert_equals(int32_t, 3, total_create);
-
-        cmc_assert_equals(size_t, 1, hbm_get_key(map, 2));
-        cmc_assert_equals(int32_t, 1, total_read);
-
-        cmc_assert_equals(size_t, 2, hbm_get_val(map, 1));
-        cmc_assert_equals(int32_t, 2, total_read);
-
-        cmc_assert(hbm_resize(map, 1000));
-        cmc_assert_equals(int32_t, 1, total_resize);
-
-        cmc_assert(hbm_resize(map, 200));
-        cmc_assert_equals(int32_t, 2, total_resize);
-
-        cmc_assert(hbm_contains_key(map, 1));
-        cmc_assert_equals(int32_t, 3, total_read);
-
-        cmc_assert(hbm_contains_val(map, 2));
-        cmc_assert_equals(int32_t, 4, total_read);
-
-        cmc_assert_equals(int32_t, 3, total_create);
-        cmc_assert_equals(int32_t, 4, total_read);
-        cmc_assert_equals(int32_t, 2, total_update);
-        cmc_assert_equals(int32_t, 2, total_delete);
-        cmc_assert_equals(int32_t, 2, total_resize);
-
-        hbm_customize(map, NULL, NULL);
-
-        cmc_assert_equals(ptr, NULL, map->callbacks);
-
-        hbm_clear(map);
-        cmc_assert(hbm_insert(map, 10, 10));
-        cmc_assert(hbm_update_key(map, 10, 5));
-        cmc_assert(hbm_update_val(map, 5, 5));
-        cmc_assert(hbm_insert(map, 10, 10));
-        cmc_assert(hbm_remove_by_key(map, 5, NULL, NULL));
-        cmc_assert(hbm_remove_by_val(map, 10, NULL, NULL));
-        cmc_assert(hbm_insert(map, 1, 2));
-        cmc_assert_equals(size_t, 1, hbm_get_key(map, 2));
-        cmc_assert_equals(size_t, 2, hbm_get_val(map, 1));
-        cmc_assert(hbm_resize(map, 1000));
-        cmc_assert(hbm_resize(map, 200));
-        cmc_assert(hbm_contains_key(map, 1));
-        cmc_assert(hbm_contains_val(map, 2));
-
-        cmc_assert_equals(int32_t, 3, total_create);
-        cmc_assert_equals(int32_t, 4, total_read);
-        cmc_assert_equals(int32_t, 2, total_update);
-        cmc_assert_equals(int32_t, 2, total_delete);
-        cmc_assert_equals(int32_t, 2, total_resize);
-
-        cmc_assert_equals(ptr, NULL, map->callbacks);
-
-        hbm_free(map);
-
-        total_create = 0;
-        total_read = 0;
-        total_update = 0;
-        total_delete = 0;
-        total_resize = 0;
     });
 });
 

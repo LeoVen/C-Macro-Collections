@@ -44,7 +44,6 @@
 #endif
 
 #include "core.h"
-
 /**
  * struct cmc_alloc_node
  *
@@ -52,6 +51,9 @@
  * functions. The cmc_alloc_node_default is the default heap allocator provided
  * by the standard library.
  */
+
+#define CMC_ALLOC_TYPE struct CMC_ALLOC_NODE_NAME
+
 static struct CMC_ALLOC_NODE_NAME
 {
     void *(*malloc)(size_t);

@@ -39,6 +39,8 @@
  * Macros for tracing and debugging data structures when CMC_DEV is enabled
  */
 
+#ifndef CMC_DEV_FCALL
 #define CMC_DEV_FCALL cmc_log_trace("fcall")
+#endif
 
 #endif /* CMC_COR_DEV_H */

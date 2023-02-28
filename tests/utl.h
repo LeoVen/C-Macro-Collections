@@ -129,43 +129,9 @@ int v_c_pri(size_t a, size_t b)
     return (a > b) - (a < b);
 }
 
-// callbacks
-
-int total_create = 0;
-int total_read = 0;
-int total_update = 0;
-int total_delete = 0;
-int total_resize = 0;
-
-void callback_create(void)
+void callbacks(CMC_UNUSED const char func_name[], CMC_UNUSED void *self)
 {
-    total_create++;
+    // EMPTY for now..
 }
-
-void callback_read(void)
-{
-    total_read++;
-}
-
-void callback_update(void)
-{
-    total_update++;
-}
-
-void callback_delete(void)
-{
-    total_delete++;
-}
-
-void callback_resize(void)
-{
-    total_resize++;
-}
-
-struct cmc_callbacks *callbacks = &(struct cmc_callbacks){ .create = callback_create,
-                                                           .read = callback_read,
-                                                           .update = callback_update,
-                                                           .delete = callback_delete,
-                                                           .resize = callback_resize };
 
 #endif /* CMC_TESTS_UTL */

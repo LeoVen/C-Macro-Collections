@@ -36,7 +36,7 @@ struct SNAME
     /* Flags indicating errors or success */
     int flag;
     /* Custom allocation functions */
-    struct CMC_ALLOC_NODE_NAME *alloc;
+    CMC_ALLOC_TYPE *alloc;
     /* Custom callback functions */
     CMC_CALLBACKS_DECL;
 };

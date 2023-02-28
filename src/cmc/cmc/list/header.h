@@ -42,18 +42,17 @@ struct CMC_DEF_FVAL(SNAME)
 /* Collection Allocation and Deallocation */
 #ifdef CMC_SAC
 struct SNAME *CMC_(PFX, _new)(struct CMC_DEF_FVAL(SNAME) * f_val);
-struct SNAME *CMC_(PFX, _new_custom)(struct CMC_DEF_FVAL(SNAME) * f_val, struct CMC_ALLOC_NODE_NAME *alloc,
-                                     struct CMC_CALLBACKS_NAME *callbacks);
+struct SNAME *CMC_(PFX, _new_custom)(struct CMC_DEF_FVAL(SNAME) * f_val, CMC_ALLOC_TYPE *alloc,
+                                     CMC_CALLBACK_TYPE callbacks);
 #else
 struct SNAME *CMC_(PFX, _new)(size_t capacity, struct CMC_DEF_FVAL(SNAME) * f_val);
-struct SNAME *CMC_(PFX, _new_custom)(size_t capacity, struct CMC_DEF_FVAL(SNAME) * f_val,
-                                     struct CMC_ALLOC_NODE_NAME *alloc, struct CMC_CALLBACKS_NAME *callbacks);
+struct SNAME *CMC_(PFX, _new_custom)(size_t capacity, struct CMC_DEF_FVAL(SNAME) * f_val, CMC_ALLOC_TYPE *alloc,
+                                     CMC_CALLBACK_TYPE callbacks);
 #endif
 void CMC_(PFX, _clear)(struct SNAME *_list_);
 void CMC_(PFX, _free)(struct SNAME *_list_);
 /* Customization of Allocation and Callbacks */
-void CMC_(PFX, _customize)(struct SNAME *_list_, struct CMC_ALLOC_NODE_NAME *alloc,
-                           struct CMC_CALLBACKS_NAME *callbacks);
+void CMC_(PFX, _customize)(struct SNAME *_list_, CMC_ALLOC_TYPE *alloc, CMC_CALLBACK_TYPE callbacks);
 /* Collection Input and Output */
 bool CMC_(PFX, _push_front)(struct SNAME *_list_, V value);
 bool CMC_(PFX, _push_at)(struct SNAME *_list_, V value, size_t index);

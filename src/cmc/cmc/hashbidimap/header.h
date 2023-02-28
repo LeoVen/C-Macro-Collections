@@ -60,13 +60,12 @@ struct CMC_DEF_FVAL(SNAME)
 struct SNAME *CMC_(PFX, _new)(size_t capacity, double load, struct CMC_DEF_FKEY(SNAME) * f_key,
                               struct CMC_DEF_FVAL(SNAME) * f_val);
 struct SNAME *CMC_(PFX, _new_custom)(size_t capacity, double load, struct CMC_DEF_FKEY(SNAME) * f_key,
-                                     struct CMC_DEF_FVAL(SNAME) * f_val, struct CMC_ALLOC_NODE_NAME *alloc,
-                                     struct CMC_CALLBACKS_NAME *callbacks);
+                                     struct CMC_DEF_FVAL(SNAME) * f_val, CMC_ALLOC_TYPE *alloc,
+                                     CMC_CALLBACK_TYPE callbacks);
 void CMC_(PFX, _clear)(struct SNAME *_map_);
 void CMC_(PFX, _free)(struct SNAME *_map_);
 /* Customization of Allocation and Callbacks */
-void CMC_(PFX, _customize)(struct SNAME *_map_, struct CMC_ALLOC_NODE_NAME *alloc,
-                           struct CMC_CALLBACKS_NAME *callbacks);
+void CMC_(PFX, _customize)(struct SNAME *_map_, CMC_ALLOC_TYPE *alloc, CMC_CALLBACK_TYPE callbacks);
 /* Collection Input and Output */
 bool CMC_(PFX, _insert)(struct SNAME *_map_, K key, V value);
 bool CMC_(PFX, _update_key)(struct SNAME *_map_, V val, K new_key);

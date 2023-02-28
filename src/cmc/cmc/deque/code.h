@@ -34,8 +34,8 @@ struct SNAME *CMC_(PFX, _new)(size_t capacity, struct CMC_DEF_FVAL(SNAME) * f_va
     return CMC_(PFX, _new_custom)(capacity, f_val, NULL, NULL);
 }
 
-struct SNAME *CMC_(PFX, _new_custom)(size_t capacity, struct CMC_DEF_FVAL(SNAME) * f_val,
-                                     struct CMC_ALLOC_NODE_NAME *alloc, struct CMC_CALLBACKS_NAME *callbacks)
+struct SNAME *CMC_(PFX, _new_custom)(size_t capacity, struct CMC_DEF_FVAL(SNAME) * f_val, CMC_ALLOC_TYPE *alloc,
+                                     CMC_CALLBACK_TYPE callbacks)
 {
 #ifdef CMC_DEV
     CMC_DEV_FCALL;
@@ -122,8 +122,7 @@ void CMC_(PFX, _free)(struct SNAME *_deque_)
     _deque_->alloc->free(_deque_);
 }
 
-void CMC_(PFX, _customize)(struct SNAME *_deque_, struct CMC_ALLOC_NODE_NAME *alloc,
-                           struct CMC_CALLBACKS_NAME *callbacks)
+void CMC_(PFX, _customize)(struct SNAME *_deque_, CMC_ALLOC_TYPE *alloc, CMC_CALLBACK_TYPE callbacks)
 {
 #ifdef CMC_DEV
     CMC_DEV_FCALL;
@@ -160,7 +159,7 @@ bool CMC_(PFX, _push_front)(struct SNAME *_deque_, V value)
     _deque_->count++;
     _deque_->flag = CMC_FLAG_OK;
 
-    CMC_CALLBACKS_CALL(_deque_, create);
+    CMC_CALLBACKS_CALL(_deque_);
 
     return true;
 }
@@ -184,7 +183,7 @@ bool CMC_(PFX, _push_back)(struct SNAME *_deque_, V value)
     _deque_->count++;
     _deque_->flag = CMC_FLAG_OK;
 
-    CMC_CALLBACKS_CALL(_deque_, create);
+    CMC_CALLBACKS_CALL(_deque_);
 
     return true;
 }
@@ -208,7 +207,7 @@ bool CMC_(PFX, _pop_front)(struct SNAME *_deque_)
     _deque_->count--;
     _deque_->flag = CMC_FLAG_OK;
 
-    CMC_CALLBACKS_CALL(_deque_, delete);
+    CMC_CALLBACKS_CALL(_deque_);
 
     return true;
 }
@@ -232,7 +231,7 @@ bool CMC_(PFX, _pop_back)(struct SNAME *_deque_)
     _deque_->count--;
     _deque_->flag = CMC_FLAG_OK;
 
-    CMC_CALLBACKS_CALL(_deque_, delete);
+    CMC_CALLBACKS_CALL(_deque_);
 
     return true;
 }
@@ -251,7 +250,7 @@ V CMC_(PFX, _front)(struct SNAME *_deque_)
 
     _deque_->flag = CMC_FLAG_OK;
 
-    CMC_CALLBACKS_CALL(_deque_, read);
+    CMC_CALLBACKS_CALL(_deque_);
 
     return _deque_->buffer[_deque_->front];
 }
@@ -270,7 +269,7 @@ V CMC_(PFX, _back)(struct SNAME *_deque_)
 
     _deque_->flag = CMC_FLAG_OK;
 
-    CMC_CALLBACKS_CALL(_deque_, read);
+    CMC_CALLBACKS_CALL(_deque_);
 
     return _deque_->buffer[(_deque_->back == 0) ? _deque_->capacity - 1 : _deque_->back - 1];
 }
@@ -296,7 +295,7 @@ bool CMC_(PFX, _contains)(struct SNAME *_deque_, V value)
         i = (i + 1) % _deque_->capacity;
     }
 
-    CMC_CALLBACKS_CALL(_deque_, read);
+    CMC_CALLBACKS_CALL(_deque_);
 
     return result;
 }
@@ -387,7 +386,7 @@ bool CMC_(PFX, _resize)(struct SNAME *_deque_, size_t capacity)
 
 success:
 
-    CMC_CALLBACKS_CALL(_deque_, resize);
+    CMC_CALLBACKS_CALL(_deque_);
 
     return true;
 }

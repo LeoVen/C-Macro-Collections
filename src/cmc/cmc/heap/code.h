@@ -36,7 +36,7 @@ struct SNAME *CMC_(PFX, _new)(size_t capacity, enum cmc_heap_order HO, struct CM
 }
 
 struct SNAME *CMC_(PFX, _new_custom)(size_t capacity, enum cmc_heap_order HO, struct CMC_DEF_FVAL(SNAME) * f_val,
-                                     struct CMC_ALLOC_NODE_NAME *alloc, struct CMC_CALLBACKS_NAME *callbacks)
+                                     CMC_ALLOC_TYPE *alloc, CMC_CALLBACK_TYPE callbacks)
 {
 #ifdef CMC_DEV
     CMC_DEV_FCALL;
@@ -118,8 +118,7 @@ void CMC_(PFX, _free)(struct SNAME *_heap_)
     _heap_->alloc->free(_heap_);
 }
 
-void CMC_(PFX, _customize)(struct SNAME *_heap_, struct CMC_ALLOC_NODE_NAME *alloc,
-                           struct CMC_CALLBACKS_NAME *callbacks)
+void CMC_(PFX, _customize)(struct SNAME *_heap_, CMC_ALLOC_TYPE *alloc, CMC_CALLBACK_TYPE callbacks)
 {
 #ifdef CMC_DEV
     CMC_DEV_FCALL;
@@ -158,7 +157,7 @@ bool CMC_(PFX, _insert)(struct SNAME *_heap_, V value)
 
     _heap_->flag = CMC_FLAG_OK;
 
-    CMC_CALLBACKS_CALL(_heap_, create);
+    CMC_CALLBACKS_CALL(_heap_);
 
     return true;
 }
@@ -184,7 +183,7 @@ bool CMC_(PFX, _remove)(struct SNAME *_heap_)
 
     _heap_->flag = CMC_FLAG_OK;
 
-    CMC_CALLBACKS_CALL(_heap_, delete);
+    CMC_CALLBACKS_CALL(_heap_);
 
     return true;
 }
@@ -203,7 +202,7 @@ V CMC_(PFX, _peek)(struct SNAME *_heap_)
 
     _heap_->flag = CMC_FLAG_OK;
 
-    CMC_CALLBACKS_CALL(_heap_, read);
+    CMC_CALLBACKS_CALL(_heap_);
 
     return _heap_->buffer[0];
 }
@@ -227,7 +226,7 @@ bool CMC_(PFX, _contains)(struct SNAME *_heap_, V value)
         }
     }
 
-    CMC_CALLBACKS_CALL(_heap_, read);
+    CMC_CALLBACKS_CALL(_heap_);
 
     return result;
 }
@@ -309,7 +308,7 @@ bool CMC_(PFX, _resize)(struct SNAME *_heap_, size_t capacity)
 
 success:
 
-    CMC_CALLBACKS_CALL(_heap_, resize);
+    CMC_CALLBACKS_CALL(_heap_);
 
     return true;
 }

@@ -287,7 +287,6 @@ CMC_CREATE_UNIT(CMCDeque, true, {
     });
 
     CMC_CREATE_TEST(PFX##_push_front(), {
-        total_create = 0;
         struct deque *d = d_new_custom(100, d_fval, NULL, callbacks);
 
         cmc_assert_not_equals(ptr, NULL, d);
@@ -296,7 +295,6 @@ CMC_CREATE_UNIT(CMCDeque, true, {
         cmc_assert(d_push_front(d, 10));
 
         cmc_assert_equals(size_t, 1, d_count(d));
-        cmc_assert_equals(int32_t, 1, total_create);
         cmc_assert_equals(int32_t, CMC_FLAG_OK, d_flag(d));
 
         d_customize(d, NULL, NULL);
@@ -328,13 +326,9 @@ CMC_CREATE_UNIT(CMCDeque, true, {
         cmc_assert_equals(size_t, 50005000, sum);
 
         d_free(d);
-
-        cmc_assert_equals(int32_t, 1, total_create);
-        total_create = 0;
     });
 
     CMC_CREATE_TEST(PFX##_push_back(), {
-        total_create = 0;
         struct deque *d = d_new_custom(100, d_fval, NULL, callbacks);
 
         cmc_assert_not_equals(ptr, NULL, d);
@@ -343,7 +337,6 @@ CMC_CREATE_UNIT(CMCDeque, true, {
         cmc_assert(d_push_front(d, 10));
 
         cmc_assert_equals(size_t, 1, d_count(d));
-        cmc_assert_equals(int32_t, 1, total_create);
         cmc_assert_equals(int32_t, CMC_FLAG_OK, d_flag(d));
 
         d_customize(d, NULL, NULL);
@@ -375,9 +368,6 @@ CMC_CREATE_UNIT(CMCDeque, true, {
         cmc_assert_equals(size_t, 50005000, sum);
 
         d_free(d);
-
-        cmc_assert_equals(int32_t, 1, total_create);
-        total_create = 0;
     });
 
     CMC_CREATE_TEST(PFX##_pop_front(), {
@@ -743,7 +733,6 @@ CMC_CREATE_UNIT(CMCDeque, true, {
     });
 
     CMC_CREATE_TEST(PFX##_resize(), {
-        total_resize = 0;
         struct deque *d = d_new_custom(100, d_fval, NULL, callbacks);
 
         cmc_assert_not_equals(ptr, NULL, d);
@@ -753,15 +742,11 @@ CMC_CREATE_UNIT(CMCDeque, true, {
         cmc_assert(d_resize(d, 100));
         cmc_assert_equals(size_t, 100, d_capacity(d));
 
-        cmc_assert_equals(int32_t, 1, total_resize);
-
         cmc_assert(d_resize(d, 200));
         cmc_assert_equals(size_t, 200, d_capacity(d));
 
         cmc_assert(d_resize(d, 100));
         cmc_assert_equals(size_t, 100, d_capacity(d));
-
-        cmc_assert_equals(int32_t, 3, total_resize);
 
         for (size_t i = 0; i < 150; i++)
         {
@@ -805,7 +790,6 @@ CMC_CREATE_UNIT(CMCDeque, true, {
         cmc_assert_equals(size_t, 11325, sum);
 
         d_free(d);
-        total_resize = 0;
     });
 
     CMC_CREATE_TEST(PFX##_copy_of(), {
@@ -1104,7 +1088,7 @@ CMC_CREATE_UNIT(CMCDeque, true, {
 
         // customize
         d->flag = CMC_FLAG_ERROR;
-        d_customize(d, &cmc_alloc_node_default, &(struct cmc_callbacks){ 0 });
+        d_customize(d, &cmc_alloc_node_default, callbacks);
         cmc_assert_equals(int32_t, CMC_FLAG_OK, d_flag(d));
 
         // push_front
@@ -1179,88 +1163,6 @@ CMC_CREATE_UNIT(CMCDeque, true, {
 
         d_free(d);
         d_free(d2);
-    });
-
-    CMC_CREATE_TEST(callbacks, {
-        struct deque *d = d_new_custom(100, d_fval, NULL, callbacks);
-
-        total_create = 0;
-        total_read = 0;
-        total_update = 0;
-        total_delete = 0;
-        total_resize = 0;
-
-        cmc_assert(d_push_front(d, 10));
-        cmc_assert_equals(int32_t, 1, total_create);
-
-        cmc_assert(d_push_back(d, 10));
-        cmc_assert_equals(int32_t, 2, total_create);
-
-        cmc_assert(d_pop_front(d));
-        cmc_assert_equals(int32_t, 1, total_delete);
-
-        cmc_assert(d_pop_back(d));
-        cmc_assert_equals(int32_t, 2, total_delete);
-
-        cmc_assert(d_push_front(d, 10));
-        cmc_assert(d_push_front(d, 5));
-        cmc_assert_equals(int32_t, 4, total_create);
-
-        cmc_assert_equals(size_t, 5, d_front(d));
-        cmc_assert_equals(int32_t, 1, total_read);
-
-        cmc_assert_equals(size_t, 10, d_back(d));
-        cmc_assert_equals(int32_t, 2, total_read);
-
-        cmc_assert(d_contains(d, 10));
-        cmc_assert(!d_contains(d, 1));
-        cmc_assert_equals(int32_t, 4, total_read);
-
-        cmc_assert(d_resize(d, 1000));
-        cmc_assert_equals(int32_t, 1, total_resize);
-
-        cmc_assert(d_resize(d, 10));
-        cmc_assert_equals(int32_t, 2, total_resize);
-
-        cmc_assert_equals(int32_t, 4, total_create);
-        cmc_assert_equals(int32_t, 4, total_read);
-        cmc_assert_equals(int32_t, 0, total_update);
-        cmc_assert_equals(int32_t, 2, total_delete);
-        cmc_assert_equals(int32_t, 2, total_resize);
-
-        d_customize(d, NULL, NULL);
-
-        cmc_assert_equals(ptr, NULL, d->callbacks);
-
-        d_clear(d);
-        cmc_assert(d_push_front(d, 10));
-        cmc_assert(d_push_back(d, 10));
-        cmc_assert(d_pop_front(d));
-        cmc_assert(d_pop_back(d));
-        cmc_assert(d_push_front(d, 10));
-        cmc_assert(d_push_front(d, 5));
-        cmc_assert_equals(size_t, 5, d_front(d));
-        cmc_assert_equals(size_t, 10, d_back(d));
-        cmc_assert(d_contains(d, 10));
-        cmc_assert(!d_contains(d, 1));
-        cmc_assert(d_resize(d, 1000));
-        cmc_assert(d_resize(d, 10));
-
-        cmc_assert_equals(int32_t, 4, total_create);
-        cmc_assert_equals(int32_t, 4, total_read);
-        cmc_assert_equals(int32_t, 0, total_update);
-        cmc_assert_equals(int32_t, 2, total_delete);
-        cmc_assert_equals(int32_t, 2, total_resize);
-
-        cmc_assert_equals(ptr, NULL, d->callbacks);
-
-        d_free(d);
-
-        total_create = 0;
-        total_read = 0;
-        total_update = 0;
-        total_delete = 0;
-        total_resize = 0;
     });
 });
 

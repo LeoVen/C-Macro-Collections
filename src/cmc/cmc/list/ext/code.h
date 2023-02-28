@@ -48,11 +48,11 @@ struct SNAME CMC_(PFX, _init)(size_t capacity, struct CMC_DEF_FVAL(SNAME) * f_va
 }
 
 #ifdef CMC_SAC
-struct SNAME CMC_(PFX, _init_custom)(struct CMC_DEF_FVAL(SNAME) * f_val, struct CMC_ALLOC_NODE_NAME *alloc,
-                                     struct CMC_CALLBACKS_NAME *callbacks)
+struct SNAME CMC_(PFX, _init_custom)(struct CMC_DEF_FVAL(SNAME) * f_val, CMC_ALLOC_TYPE *alloc,
+                                     CMC_CALLBACK_TYPE callbacks)
 #else
-struct SNAME CMC_(PFX, _init_custom)(size_t capacity, struct CMC_DEF_FVAL(SNAME) * f_val,
-                                     struct CMC_ALLOC_NODE_NAME *alloc, struct CMC_CALLBACKS_NAME *callbacks)
+struct SNAME CMC_(PFX, _init_custom)(size_t capacity, struct CMC_DEF_FVAL(SNAME) * f_val, CMC_ALLOC_TYPE *alloc,
+                                     CMC_CALLBACK_TYPE callbacks)
 #endif
 {
 #ifdef CMC_DEV
@@ -397,7 +397,7 @@ bool CMC_(PFX, _seq_push_front)(struct SNAME *_list_, V *values, size_t size)
     _list_->count += size;
     _list_->flag = CMC_FLAG_OK;
 
-    CMC_CALLBACKS_CALL(_list_, create);
+    CMC_CALLBACKS_CALL(_list_);
 
     return true;
 }
@@ -443,7 +443,7 @@ bool CMC_(PFX, _seq_push_at)(struct SNAME *_list_, V *values, size_t size, size_
     _list_->count += size;
     _list_->flag = CMC_FLAG_OK;
 
-    CMC_CALLBACKS_CALL(_list_, create);
+    CMC_CALLBACKS_CALL(_list_);
 
     return true;
 }
@@ -476,7 +476,7 @@ bool CMC_(PFX, _seq_push_back)(struct SNAME *_list_, V *values, size_t size)
     _list_->count += size;
     _list_->flag = CMC_FLAG_OK;
 
-    CMC_CALLBACKS_CALL(_list_, create);
+    CMC_CALLBACKS_CALL(_list_);
 
     return true;
 }
@@ -508,7 +508,7 @@ bool CMC_(PFX, _seq_pop_at)(struct SNAME *_list_, size_t from, size_t to)
     _list_->count -= to - from + 1;
     _list_->flag = CMC_FLAG_OK;
 
-    CMC_CALLBACKS_CALL(_list_, delete);
+    CMC_CALLBACKS_CALL(_list_);
 
     return true;
 }
@@ -556,7 +556,7 @@ struct SNAME *CMC_(PFX, _seq_sublist)(struct SNAME *_list_, size_t from, size_t 
 
     _list_->flag = CMC_FLAG_OK;
 
-    CMC_CALLBACKS_CALL(_list_, delete);
+    CMC_CALLBACKS_CALL(_list_);
 
     return result;
 }

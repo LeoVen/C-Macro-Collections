@@ -42,13 +42,12 @@ struct CMC_DEF_FVAL(SNAME)
 /* Collection Functions */
 /* Collection Allocation and Deallocation */
 struct SNAME *CMC_(PFX, _new)(struct CMC_DEF_FVAL(SNAME) * f_val);
-struct SNAME *CMC_(PFX, _new_custom)(struct CMC_DEF_FVAL(SNAME) * f_val, struct CMC_ALLOC_NODE_NAME *alloc,
-                                     struct CMC_CALLBACKS_NAME *callbacks);
+struct SNAME *CMC_(PFX, _new_custom)(struct CMC_DEF_FVAL(SNAME) * f_val, CMC_ALLOC_TYPE *alloc,
+                                     CMC_CALLBACK_TYPE callbacks);
 void CMC_(PFX, _clear)(struct SNAME *_set_);
 void CMC_(PFX, _free)(struct SNAME *_set_);
 /* Customization of Allocation and Callbacks */
-void CMC_(PFX, _customize)(struct SNAME *_set_, struct CMC_ALLOC_NODE_NAME *alloc,
-                           struct CMC_CALLBACKS_NAME *callbacks);
+void CMC_(PFX, _customize)(struct SNAME *_set_, CMC_ALLOC_TYPE *alloc, CMC_CALLBACK_TYPE callbacks);
 /* Collection Input and Output */
 bool CMC_(PFX, _insert)(struct SNAME *_set_, V value);
 bool CMC_(PFX, _remove)(struct SNAME *_set_, V value);

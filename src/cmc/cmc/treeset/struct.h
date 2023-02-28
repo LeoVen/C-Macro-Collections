@@ -38,7 +38,7 @@ struct SNAME
     struct CMC_DEF_FVAL(SNAME) * f_val;
 
     /* Custom allocation functions */
-    struct CMC_ALLOC_NODE_NAME *alloc;
+    CMC_ALLOC_TYPE *alloc;
 
     /* Custom callback functions */
     CMC_CALLBACKS_DECL;

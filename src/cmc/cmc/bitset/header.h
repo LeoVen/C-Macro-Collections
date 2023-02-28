@@ -24,15 +24,12 @@
 
 /* Collection Allocation and Deallocation */
 struct SNAME *CMC_(PFX, _new)(size_t n_bits);
-struct SNAME *CMC_(PFX, _new_custom)(size_t n_bits, struct CMC_ALLOC_NODE_NAME *alloc,
-                                     struct CMC_CALLBACKS_NAME *callbacks);
+struct SNAME *CMC_(PFX, _new_custom)(size_t n_bits, CMC_ALLOC_TYPE *alloc, CMC_CALLBACK_TYPE callbacks);
 struct SNAME CMC_(PFX, _init)(size_t n_bits);
-struct SNAME CMC_(PFX, _init_custom)(size_t n_bits, struct CMC_ALLOC_NODE_NAME *alloc,
-                                     struct CMC_CALLBACKS_NAME *callbacks);
+struct SNAME CMC_(PFX, _init_custom)(size_t n_bits, CMC_ALLOC_TYPE *alloc, CMC_CALLBACK_TYPE callbacks);
 void CMC_(PFX, _free)(struct SNAME *_bitset_);
 void CMC_(PFX, _release)(struct SNAME _bitset_);
-void CMC_(PFX, _customize)(struct SNAME *_bitset_, struct CMC_ALLOC_NODE_NAME *alloc,
-                           struct CMC_CALLBACKS_NAME *callbacks);
+void CMC_(PFX, _customize)(struct SNAME *_bitset_, CMC_ALLOC_TYPE *alloc, CMC_CALLBACK_TYPE callbacks);
 /* Collection Input and Output */
 bool CMC_(PFX, _set)(struct SNAME *_bitset_, size_t bit_index);
 bool CMC_(PFX, _set_range)(struct SNAME *_bitset_, size_t from, size_t to);

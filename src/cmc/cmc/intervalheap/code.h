@@ -37,8 +37,8 @@ struct SNAME *CMC_(PFX, _new)(size_t capacity, struct CMC_DEF_FVAL(SNAME) * f_va
     return CMC_(PFX, _new_custom)(capacity, f_val, NULL, NULL);
 }
 
-struct SNAME *CMC_(PFX, _new_custom)(size_t capacity, struct CMC_DEF_FVAL(SNAME) * f_val,
-                                     struct CMC_ALLOC_NODE_NAME *alloc, struct CMC_CALLBACKS_NAME *callbacks)
+struct SNAME *CMC_(PFX, _new_custom)(size_t capacity, struct CMC_DEF_FVAL(SNAME) * f_val, CMC_ALLOC_TYPE *alloc,
+                                     CMC_CALLBACK_TYPE callbacks)
 {
 #ifdef CMC_DEV
     CMC_DEV_FCALL;
@@ -121,8 +121,7 @@ void CMC_(PFX, _free)(struct SNAME *_heap_)
     _heap_->alloc->free(_heap_);
 }
 
-void CMC_(PFX, _customize)(struct SNAME *_heap_, struct CMC_ALLOC_NODE_NAME *alloc,
-                           struct CMC_CALLBACKS_NAME *callbacks)
+void CMC_(PFX, _customize)(struct SNAME *_heap_, CMC_ALLOC_TYPE *alloc, CMC_CALLBACK_TYPE callbacks)
 {
 #ifdef CMC_DEV
     CMC_DEV_FCALL;
@@ -195,7 +194,7 @@ bool CMC_(PFX, _insert)(struct SNAME *_heap_, V value)
         /* else no float up required */
     }
 
-    CMC_CALLBACKS_CALL(_heap_, create);
+    CMC_CALLBACKS_CALL(_heap_);
 
     return true;
 }
@@ -251,7 +250,7 @@ success:
 
     _heap_->flag = CMC_FLAG_OK;
 
-    CMC_CALLBACKS_CALL(_heap_, delete);
+    CMC_CALLBACKS_CALL(_heap_);
 
     return true;
 }
@@ -307,7 +306,7 @@ success:
 
     _heap_->flag = CMC_FLAG_OK;
 
-    CMC_CALLBACKS_CALL(_heap_, delete);
+    CMC_CALLBACKS_CALL(_heap_);
 
     return true;
 }
@@ -347,7 +346,7 @@ bool CMC_(PFX, _update_max)(struct SNAME *_heap_, V value)
 
     _heap_->flag = CMC_FLAG_OK;
 
-    CMC_CALLBACKS_CALL(_heap_, update);
+    CMC_CALLBACKS_CALL(_heap_);
 
     return true;
 }
@@ -387,7 +386,7 @@ bool CMC_(PFX, _update_min)(struct SNAME *_heap_, V value)
 
     _heap_->flag = CMC_FLAG_OK;
 
-    CMC_CALLBACKS_CALL(_heap_, update);
+    CMC_CALLBACKS_CALL(_heap_);
 
     return true;
 }
@@ -406,7 +405,7 @@ V CMC_(PFX, _max)(struct SNAME *_heap_)
 
     _heap_->flag = CMC_FLAG_OK;
 
-    CMC_CALLBACKS_CALL(_heap_, read);
+    CMC_CALLBACKS_CALL(_heap_);
 
     /* If there is only one element, then the maximum element is the */
     /* same as the one in the MinHeap */
@@ -430,7 +429,7 @@ V CMC_(PFX, _min)(struct SNAME *_heap_)
 
     _heap_->flag = CMC_FLAG_OK;
 
-    CMC_CALLBACKS_CALL(_heap_, read);
+    CMC_CALLBACKS_CALL(_heap_);
 
     return _heap_->buffer[0][0];
 }
@@ -454,7 +453,7 @@ bool CMC_(PFX, _contains)(struct SNAME *_heap_, V value)
         }
     }
 
-    CMC_CALLBACKS_CALL(_heap_, read);
+    CMC_CALLBACKS_CALL(_heap_);
 
     return result;
 }
@@ -549,7 +548,7 @@ success:
 
     _heap_->flag = CMC_FLAG_OK;
 
-    CMC_CALLBACKS_CALL(_heap_, resize);
+    CMC_CALLBACKS_CALL(_heap_);
 
     return true;
 }

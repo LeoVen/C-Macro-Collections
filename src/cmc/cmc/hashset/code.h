@@ -36,7 +36,7 @@ struct SNAME *CMC_(PFX, _new)(size_t capacity, double load, struct CMC_DEF_FVAL(
 }
 
 struct SNAME *CMC_(PFX, _new_custom)(size_t capacity, double load, struct CMC_DEF_FVAL(SNAME) * f_val,
-                                     struct CMC_ALLOC_NODE_NAME *alloc, struct CMC_CALLBACKS_NAME *callbacks)
+                                     CMC_ALLOC_TYPE *alloc, CMC_CALLBACK_TYPE callbacks)
 {
 #ifdef CMC_DEV
     CMC_DEV_FCALL;
@@ -131,7 +131,7 @@ void CMC_(PFX, _free)(struct SNAME *_set_)
     _set_->alloc->free(_set_);
 }
 
-void CMC_(PFX, _customize)(struct SNAME *_set_, struct CMC_ALLOC_NODE_NAME *alloc, struct CMC_CALLBACKS_NAME *callbacks)
+void CMC_(PFX, _customize)(struct SNAME *_set_, CMC_ALLOC_TYPE *alloc, CMC_CALLBACK_TYPE callbacks)
 {
 #ifdef CMC_DEV
     CMC_DEV_FCALL;
@@ -211,7 +211,7 @@ bool CMC_(PFX, _insert)(struct SNAME *_set_, V value)
     _set_->count++;
     _set_->flag = CMC_FLAG_OK;
 
-    CMC_CALLBACKS_CALL(_set_, create);
+    CMC_CALLBACKS_CALL(_set_);
 
     return true;
 }
@@ -243,7 +243,7 @@ bool CMC_(PFX, _remove)(struct SNAME *_set_, V value)
     _set_->count--;
     _set_->flag = CMC_FLAG_OK;
 
-    CMC_CALLBACKS_CALL(_set_, delete);
+    CMC_CALLBACKS_CALL(_set_);
 
     return true;
 }
@@ -284,7 +284,7 @@ bool CMC_(PFX, _max)(struct SNAME *_set_, V *value)
 
     _set_->flag = CMC_FLAG_OK;
 
-    CMC_CALLBACKS_CALL(_set_, read);
+    CMC_CALLBACKS_CALL(_set_);
 
     return true;
 }
@@ -325,7 +325,7 @@ bool CMC_(PFX, _min)(struct SNAME *_set_, V *value)
 
     _set_->flag = CMC_FLAG_OK;
 
-    CMC_CALLBACKS_CALL(_set_, read);
+    CMC_CALLBACKS_CALL(_set_);
 
     return true;
 }
@@ -340,7 +340,7 @@ bool CMC_(PFX, _contains)(struct SNAME *_set_, V value)
 
     bool result = CMC_(PFX, _impl_get_entry)(_set_, value) != NULL;
 
-    CMC_CALLBACKS_CALL(_set_, read);
+    CMC_CALLBACKS_CALL(_set_);
 
     return result;
 }
@@ -474,7 +474,7 @@ bool CMC_(PFX, _resize)(struct SNAME *_set_, size_t capacity)
 
 success:
 
-    CMC_CALLBACKS_CALL(_set_, resize);
+    CMC_CALLBACKS_CALL(_set_);
 
     return true;
 }

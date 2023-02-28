@@ -102,68 +102,6 @@ CMC_CREATE_UNIT(CMCTreeSet, true, {
         ts_free(set);
         ts_free(set2);
     });
-
-    CMC_CREATE_TEST(callbacks, {
-        struct treeset *set = ts_new_custom(ts_fval, NULL, callbacks);
-
-        cmc_assert_not_equals(ptr, NULL, set);
-
-        total_create = 0;
-        total_read = 0;
-        total_update = 0;
-        total_delete = 0;
-        total_resize = 0;
-
-        cmc_assert(ts_insert(set, 10));
-        cmc_assert_equals(int32_t, 1, total_create);
-
-        cmc_assert(ts_remove(set, 10));
-        cmc_assert_equals(int32_t, 1, total_delete);
-
-        cmc_assert(ts_insert(set, 1));
-        cmc_assert_equals(int32_t, 2, total_create);
-
-        cmc_assert(ts_max(set, NULL));
-        cmc_assert_equals(int32_t, 1, total_read);
-
-        cmc_assert(ts_min(set, NULL));
-        cmc_assert_equals(int32_t, 2, total_read);
-
-        cmc_assert(ts_contains(set, 1));
-        cmc_assert_equals(int32_t, 3, total_read);
-
-        cmc_assert_equals(int32_t, 2, total_create);
-        cmc_assert_equals(int32_t, 3, total_read);
-        cmc_assert_equals(int32_t, 0, total_update);
-        cmc_assert_equals(int32_t, 1, total_delete);
-        cmc_assert_equals(int32_t, 0, total_resize);
-
-        ts_customize(set, NULL, NULL);
-
-        ts_clear(set);
-        cmc_assert(ts_insert(set, 10));
-        cmc_assert(ts_remove(set, 10));
-        cmc_assert(ts_insert(set, 1));
-        cmc_assert(ts_max(set, NULL));
-        cmc_assert(ts_min(set, NULL));
-        cmc_assert(ts_contains(set, 1));
-
-        cmc_assert_equals(int32_t, 2, total_create);
-        cmc_assert_equals(int32_t, 3, total_read);
-        cmc_assert_equals(int32_t, 0, total_update);
-        cmc_assert_equals(int32_t, 1, total_delete);
-        cmc_assert_equals(int32_t, 0, total_resize);
-
-        cmc_assert_equals(ptr, NULL, set->callbacks);
-
-        total_create = 0;
-        total_read = 0;
-        total_update = 0;
-        total_delete = 0;
-        total_resize = 0;
-
-        ts_free(set);
-    });
 });
 
 CMC_CREATE_UNIT(CMCTreeSetIter, true, {

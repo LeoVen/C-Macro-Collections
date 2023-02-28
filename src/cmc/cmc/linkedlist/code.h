@@ -35,8 +35,8 @@ struct SNAME *CMC_(PFX, _new)(struct CMC_DEF_FVAL(SNAME) * f_val)
     return CMC_(PFX, _new_custom)(f_val, NULL, NULL);
 }
 
-struct SNAME *CMC_(PFX, _new_custom)(struct CMC_DEF_FVAL(SNAME) * f_val, struct CMC_ALLOC_NODE_NAME *alloc,
-                                     struct CMC_CALLBACKS_NAME *callbacks)
+struct SNAME *CMC_(PFX, _new_custom)(struct CMC_DEF_FVAL(SNAME) * f_val, CMC_ALLOC_TYPE *alloc,
+                                     CMC_CALLBACK_TYPE callbacks)
 {
 #ifdef CMC_DEV
     CMC_DEV_FCALL;
@@ -105,8 +105,7 @@ void CMC_(PFX, _free)(struct SNAME *_list_)
     _list_->alloc->free(_list_);
 }
 
-void CMC_(PFX, _customize)(struct SNAME *_list_, struct CMC_ALLOC_NODE_NAME *alloc,
-                           struct CMC_CALLBACKS_NAME *callbacks)
+void CMC_(PFX, _customize)(struct SNAME *_list_, CMC_ALLOC_TYPE *alloc, CMC_CALLBACK_TYPE callbacks)
 {
 #ifdef CMC_DEV
     CMC_DEV_FCALL;
@@ -150,7 +149,7 @@ bool CMC_(PFX, _push_front)(struct SNAME *_list_, V value)
     _list_->count++;
     _list_->flag = CMC_FLAG_OK;
 
-    CMC_CALLBACKS_CALL(_list_, create);
+    CMC_CALLBACKS_CALL(_list_);
 
     return true;
 }
@@ -191,7 +190,7 @@ bool CMC_(PFX, _push_at)(struct SNAME *_list_, V value, size_t index)
     _list_->count++;
     _list_->flag = CMC_FLAG_OK;
 
-    CMC_CALLBACKS_CALL(_list_, create);
+    CMC_CALLBACKS_CALL(_list_);
 
     return true;
 }
@@ -222,7 +221,7 @@ bool CMC_(PFX, _push_back)(struct SNAME *_list_, V value)
     _list_->count++;
     _list_->flag = CMC_FLAG_OK;
 
-    CMC_CALLBACKS_CALL(_list_, create);
+    CMC_CALLBACKS_CALL(_list_);
 
     return true;
 }
@@ -252,7 +251,7 @@ bool CMC_(PFX, _pop_front)(struct SNAME *_list_)
     _list_->count--;
     _list_->flag = CMC_FLAG_OK;
 
-    CMC_CALLBACKS_CALL(_list_, delete);
+    CMC_CALLBACKS_CALL(_list_);
 
     return true;
 }
@@ -297,7 +296,7 @@ bool CMC_(PFX, _pop_at)(struct SNAME *_list_, size_t index)
     _list_->count--;
     _list_->flag = CMC_FLAG_OK;
 
-    CMC_CALLBACKS_CALL(_list_, delete);
+    CMC_CALLBACKS_CALL(_list_);
 
     return true;
 }
@@ -327,7 +326,7 @@ bool CMC_(PFX, _pop_back)(struct SNAME *_list_)
     _list_->count--;
     _list_->flag = CMC_FLAG_OK;
 
-    CMC_CALLBACKS_CALL(_list_, delete);
+    CMC_CALLBACKS_CALL(_list_);
 
     return true;
 }
@@ -346,7 +345,7 @@ V CMC_(PFX, _front)(struct SNAME *_list_)
 
     _list_->flag = CMC_FLAG_OK;
 
-    CMC_CALLBACKS_CALL(_list_, read);
+    CMC_CALLBACKS_CALL(_list_);
 
     return _list_->head->value;
 }
@@ -374,7 +373,7 @@ V CMC_(PFX, _get)(struct SNAME *_list_, size_t index)
     if (scan == NULL)
         return (V){ 0 };
 
-    CMC_CALLBACKS_CALL(_list_, read);
+    CMC_CALLBACKS_CALL(_list_);
 
     return scan->value;
 }
@@ -402,7 +401,7 @@ V *CMC_(PFX, _get_ref)(struct SNAME *_list_, size_t index)
     if (scan == NULL)
         return NULL;
 
-    CMC_CALLBACKS_CALL(_list_, read);
+    CMC_CALLBACKS_CALL(_list_);
 
     return &(scan->value);
 }
@@ -421,7 +420,7 @@ V CMC_(PFX, _back)(struct SNAME *_list_)
 
     _list_->flag = CMC_FLAG_OK;
 
-    CMC_CALLBACKS_CALL(_list_, read);
+    CMC_CALLBACKS_CALL(_list_);
 
     return _list_->tail->value;
 }
@@ -449,7 +448,7 @@ bool CMC_(PFX, _contains)(struct SNAME *_list_, V value)
         scan = scan->next;
     }
 
-    CMC_CALLBACKS_CALL(_list_, read);
+    CMC_CALLBACKS_CALL(_list_);
 
     return result;
 }

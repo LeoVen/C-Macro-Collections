@@ -43,8 +43,8 @@ struct SNAME *CMC_(PFX, _new)(size_t capacity, double load, struct CMC_DEF_FKEY(
 }
 
 struct SNAME *CMC_(PFX, _new_custom)(size_t capacity, double load, struct CMC_DEF_FKEY(SNAME) * f_key,
-                                     struct CMC_DEF_FVAL(SNAME) * f_val, struct CMC_ALLOC_NODE_NAME *alloc,
-                                     struct CMC_CALLBACKS_NAME *callbacks)
+                                     struct CMC_DEF_FVAL(SNAME) * f_val, CMC_ALLOC_TYPE *alloc,
+                                     CMC_CALLBACK_TYPE callbacks)
 {
 #ifdef CMC_DEV
     CMC_DEV_FCALL;
@@ -134,7 +134,7 @@ void CMC_(PFX, _free)(struct SNAME *_map_)
     _map_->alloc->free(_map_);
 }
 
-void CMC_(PFX, _customize)(struct SNAME *_map_, struct CMC_ALLOC_NODE_NAME *alloc, struct CMC_CALLBACKS_NAME *callbacks)
+void CMC_(PFX, _customize)(struct SNAME *_map_, CMC_ALLOC_TYPE *alloc, CMC_CALLBACK_TYPE callbacks)
 {
 #ifdef CMC_DEV
     CMC_DEV_FCALL;
@@ -193,7 +193,7 @@ bool CMC_(PFX, _insert)(struct SNAME *_map_, K key, V value)
     _map_->count++;
     _map_->flag = CMC_FLAG_OK;
 
-    CMC_CALLBACKS_CALL(_map_, create);
+    CMC_CALLBACKS_CALL(_map_);
 
     return true;
 }
@@ -260,7 +260,7 @@ success:
 
     _map_->flag = CMC_FLAG_OK;
 
-    CMC_CALLBACKS_CALL(_map_, update);
+    CMC_CALLBACKS_CALL(_map_);
 
     return true;
 }
@@ -328,7 +328,7 @@ success:
 
     _map_->flag = CMC_FLAG_OK;
 
-    CMC_CALLBACKS_CALL(_map_, update);
+    CMC_CALLBACKS_CALL(_map_);
 
     return true;
 }
@@ -377,7 +377,7 @@ bool CMC_(PFX, _remove_by_key)(struct SNAME *_map_, K key, K *out_key, V *out_va
     _map_->count--;
     _map_->flag = CMC_FLAG_OK;
 
-    CMC_CALLBACKS_CALL(_map_, delete);
+    CMC_CALLBACKS_CALL(_map_);
 
     return true;
 }
@@ -426,7 +426,7 @@ bool CMC_(PFX, _remove_by_val)(struct SNAME *_map_, V val, K *out_key, V *out_va
     _map_->count--;
     _map_->flag = CMC_FLAG_OK;
 
-    CMC_CALLBACKS_CALL(_map_, delete);
+    CMC_CALLBACKS_CALL(_map_);
 
     return true;
 }
@@ -447,7 +447,7 @@ K CMC_(PFX, _get_key)(struct SNAME *_map_, V val)
 
     _map_->flag = CMC_FLAG_OK;
 
-    CMC_CALLBACKS_CALL(_map_, read);
+    CMC_CALLBACKS_CALL(_map_);
 
     return (*entry)->key;
 }
@@ -468,7 +468,7 @@ V CMC_(PFX, _get_val)(struct SNAME *_map_, K key)
 
     _map_->flag = CMC_FLAG_OK;
 
-    CMC_CALLBACKS_CALL(_map_, read);
+    CMC_CALLBACKS_CALL(_map_);
 
     return (*entry)->value;
 }
@@ -483,7 +483,7 @@ bool CMC_(PFX, _contains_key)(struct SNAME *_map_, K key)
 
     bool result = CMC_(PFX, _impl_get_entry_by_key)(_map_, key) != NULL;
 
-    CMC_CALLBACKS_CALL(_map_, read);
+    CMC_CALLBACKS_CALL(_map_);
 
     return result;
 }
@@ -498,7 +498,7 @@ bool CMC_(PFX, _contains_val)(struct SNAME *_map_, V val)
 
     bool result = CMC_(PFX, _impl_get_entry_by_val)(_map_, val) != NULL;
 
-    CMC_CALLBACKS_CALL(_map_, read);
+    CMC_CALLBACKS_CALL(_map_);
 
     return result;
 }
@@ -649,7 +649,7 @@ bool CMC_(PFX, _resize)(struct SNAME *_map_, size_t capacity)
 
 success:
 
-    CMC_CALLBACKS_CALL(_map_, resize);
+    CMC_CALLBACKS_CALL(_map_);
 
     return true;
 }
