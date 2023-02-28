@@ -1,7 +1,7 @@
 /**
  * Copyright (c) 2019 Leonardo Vencovsky
  *
- * This file is part of the C Macro Collections Libray.
+ * This file is part of the C Macro Collections Library.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
