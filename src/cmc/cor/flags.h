@@ -56,6 +56,7 @@ enum cmc_flags
     CMC_FLAG_THREAD    =  8, // Generic error regarding threads
     CMC_FLAG_MUTEX     =  9, // Generic error regarding mutexes
     CMC_FLAG_FULL      = 10, // When a collection that doesn't resize is full
+    CMC_FLAG_FTABLE    = 11, // When an ftable function is missing
 };
 // clang-format on
 
