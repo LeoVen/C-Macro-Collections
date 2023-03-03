@@ -61,9 +61,6 @@ struct SNAME *CMC_(PFX, _new_custom)(size_t capacity, struct CMC_DEF_FVAL(SNAME)
         return NULL;
 #endif
 
-    if (!f_val)
-        return NULL;
-
     if (!alloc)
         alloc = &cmc_alloc_node_default;
 
@@ -104,7 +101,7 @@ void CMC_(PFX, _clear)(struct SNAME *_list_)
     CMC_DEV_FCALL;
 #endif
 
-    if (_list_->f_val->free)
+    if (_list_->f_val && _list_->f_val->free)
     {
         for (size_t i = 0; i < _list_->count; i++)
             _list_->f_val->free(_list_->buffer[i]);
@@ -126,7 +123,7 @@ void CMC_(PFX, _free)(struct SNAME *_list_)
     CMC_DEV_FCALL;
 #endif
 
-    if (_list_->f_val->free)
+    if (_list_->f_val && _list_->f_val->free)
     {
         for (size_t i = 0; i < _list_->count; i++)
             _list_->f_val->free(_list_->buffer[i]);
@@ -418,6 +415,12 @@ size_t CMC_(PFX, _index_of)(struct SNAME *_list_, V value, bool from_start)
     CMC_DEV_FCALL;
 #endif
 
+    if (_list_->f_val == NULL || _list_->f_val->cmp == NULL)
+    {
+        _list_->flag = CMC_FLAG_FTABLE;
+        return 0;
+    }
+
     _list_->flag = CMC_FLAG_OK;
 
     size_t result = _list_->count;
@@ -426,7 +429,7 @@ size_t CMC_(PFX, _index_of)(struct SNAME *_list_, V value, bool from_start)
     {
         for (size_t i = 0; i < _list_->count; i++)
         {
-            if (_list_->f_val->cmp(_list_->buffer[i], value) == 0)
+            if (0 == _list_->f_val->cmp(_list_->buffer[i], value))
             {
                 result = i;
                 break;
@@ -437,7 +440,7 @@ size_t CMC_(PFX, _index_of)(struct SNAME *_list_, V value, bool from_start)
     {
         for (size_t i = _list_->count; i > 0; i--)
         {
-            if (_list_->f_val->cmp(_list_->buffer[i - 1], value) == 0)
+            if (0 == _list_->f_val->cmp(_list_->buffer[i - 1], value))
             {
                 result = i - 1;
                 break;
@@ -456,13 +459,19 @@ bool CMC_(PFX, _contains)(struct SNAME *_list_, V value)
     CMC_DEV_FCALL;
 #endif
 
+    if (_list_->f_val == NULL || _list_->f_val->cmp == NULL)
+    {
+        _list_->flag = CMC_FLAG_FTABLE;
+        return false;
+    }
+
     _list_->flag = CMC_FLAG_OK;
 
     bool result = false;
 
     for (size_t i = 0; i < _list_->count; i++)
     {
-        if (_list_->f_val->cmp(_list_->buffer[i], value) == 0)
+        if (0 == _list_->f_val->cmp(_list_->buffer[i], value))
         {
             result = true;
             break;
@@ -598,7 +607,7 @@ struct SNAME *CMC_(PFX, _copy_of)(struct SNAME *_list_)
 
     CMC_CALLBACKS_ASSIGN(result, _list_->callbacks);
 
-    if (_list_->f_val->cpy)
+    if (_list_->f_val && _list_->f_val->cpy)
     {
         for (size_t i = 0; i < _list_->count; i++)
             result->buffer[i] = _list_->f_val->cpy(_list_->buffer[i]);

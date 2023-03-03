@@ -134,4 +134,11 @@ void callbacks(CMC_UNUSED const char func_name[], CMC_UNUSED void *self)
     // EMPTY for now..
 }
 
+static struct CMC_ALLOC_NODE_NAME *custom_alloc = &(struct CMC_ALLOC_NODE_NAME){
+    .malloc = malloc,
+    .calloc = calloc,
+    .realloc = realloc,
+    .free = free,
+};
+
 #endif /* CMC_TESTS_UTL */

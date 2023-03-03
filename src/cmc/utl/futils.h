@@ -123,6 +123,11 @@ static inline int cmc_double_cmp(double x1, double x2)
     return (x1 > x2) - (x1 < x2);
 }
 
+static inline int cmc_double_long_cmp(long double x1, long double x2)
+{
+    return (x1 > x2) - (x1 < x2);
+}
+
 // String
 
 static inline int cmc_chr_cmp(char ch1, char ch2)
@@ -229,6 +234,11 @@ static inline bool cmc_float_str(FILE *file, float element)
 static inline bool cmc_double_str(FILE *file, double element)
 {
     return fprintf(file, "%lf", element) > 0;
+}
+
+static inline int cmc_double_long_str(FILE *file, long double element)
+{
+    return fprintf(file, "%LF", element);
 }
 
 // String

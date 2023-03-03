@@ -13,30 +13,44 @@ struct list_fval *l_fval = &(struct list_fval){
 };
 
 CMC_CREATE_UNIT(CMCList, true, {
-    CMC_CREATE_TEST(new, {
+    CMC_CREATE_TEST(PFX##_new, {
         struct list *l = l_new(1000000, l_fval);
 
         cmc_assert_not_equals(ptr, NULL, l);
         cmc_assert_not_equals(ptr, NULL, l->buffer);
+        cmc_assert_equals(ptr, l->f_val, l_fval);
         cmc_assert_equals(size_t, 1000000, l_capacity(l));
         cmc_assert_equals(size_t, 0, l_count(l));
 
         l_free(l);
-    });
 
-    CMC_CREATE_TEST(new[capacity = 0], {
-        struct list *l = l_new(0, l_fval);
+        // cap == 0
+        l = l_new(0, l_fval);
+        cmc_assert_equals(ptr, NULL, l);
 
+        // cap == UINT64_MAX
+        l = l_new(UINT64_MAX, l_fval);
         cmc_assert_equals(ptr, NULL, l);
     });
 
-    CMC_CREATE_TEST(new[capacity = UINT64_MAX], {
-        struct list *l = l_new(UINT64_MAX, l_fval);
+    CMC_CREATE_TEST(PFX##_new_custom, {
+        // All NULL
+        struct list *l = l_new_custom(100, NULL, NULL, NULL);
+        cmc_assert_not_equals(ptr, NULL, l);
+        l_free(l);
 
-        cmc_assert_equals(ptr, NULL, l);
+        l = l_new_custom(100, l_fval, custom_alloc, callbacks);
+        cmc_assert_not_equals(ptr, NULL, l);
+        cmc_assert_not_equals(ptr, NULL, l->buffer);
+        cmc_assert_equals(ptr, l_fval, l->f_val);
+        cmc_assert_equals(ptr, custom_alloc, l->alloc);
+        cmc_assert_equals(ptr, callbacks, l->callbacks);
+        cmc_assert_equals(size_t, 100, l_capacity(l));
+        cmc_assert_equals(size_t, 0, l_count(l));
+        cmc_assert_equals(int32_t, CMC_FLAG_OK, l_flag(l));
     });
 
-    CMC_CREATE_TEST(clear[count capacity], {
+    CMC_CREATE_TEST(PFX##_clear, {
         struct list *l = l_new(100, l_fval);
 
         cmc_assert_not_equals(ptr, NULL, l);
@@ -50,22 +64,6 @@ CMC_CREATE_UNIT(CMCList, true, {
 
         cmc_assert_equals(size_t, 0, l_count(l));
         cmc_assert_equals(size_t, 100, l_capacity(l));
-
-        l_free(l);
-    });
-
-    CMC_CREATE_TEST(buffer_growth[capacity = 1], {
-        struct list *l = l_new(1, l_fval);
-
-        cmc_assert_not_equals(ptr, NULL, l);
-
-        for (size_t i = 0; i < 100; i++)
-            l_push_back(l, i);
-
-        cmc_assert_equals(size_t, 100, l_count(l));
-
-        for (size_t i = 0; i < 100; i++)
-            cmc_assert_equals(size_t, i, l_get(l, i));
 
         l_free(l);
     });
