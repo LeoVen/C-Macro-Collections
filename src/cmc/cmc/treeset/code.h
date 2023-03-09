@@ -40,7 +40,7 @@ struct SNAME *CMC_(PFX, _new)(struct CMC_DEF_FVAL(SNAME) * f_val)
     return CMC_(PFX, _new_custom)(f_val, NULL, NULL);
 }
 
-struct SNAME *CMC_(PFX, _new_custom)(struct CMC_DEF_FVAL(SNAME) * f_val, CMC_ALLOC_TYPE *alloc,
+struct SNAME *CMC_(PFX, _new_custom)(struct CMC_DEF_FVAL(SNAME) * f_val, CMC_ALLOC_TYPE alloc,
                                      CMC_CALLBACK_TYPE callbacks)
 {
 #ifdef CMC_DEV
@@ -147,7 +147,7 @@ void CMC_(PFX, _free)(struct SNAME *_set_)
     _set_->alloc->free(_set_);
 }
 
-void CMC_(PFX, _customize)(struct SNAME *_set_, CMC_ALLOC_TYPE *alloc, CMC_CALLBACK_TYPE callbacks)
+void CMC_(PFX, _customize)(struct SNAME *_set_, CMC_ALLOC_TYPE alloc, CMC_CALLBACK_TYPE callbacks)
 {
 #ifdef CMC_DEV
     CMC_DEV_FCALL;

@@ -33,7 +33,7 @@
 struct SNAME CMC_(PFX, _init)(size_t capacity, double load, struct CMC_DEF_FKEY(SNAME) * f_key,
                               struct CMC_DEF_FVAL(SNAME) * f_val);
 struct SNAME CMC_(PFX, _init_custom)(size_t capacity, double load, struct CMC_DEF_FKEY(SNAME) * f_key,
-                                     struct CMC_DEF_FVAL(SNAME) * f_val, CMC_ALLOC_TYPE *alloc,
+                                     struct CMC_DEF_FVAL(SNAME) * f_val, CMC_ALLOC_TYPE alloc,
                                      CMC_CALLBACK_TYPE callbacks);
 void CMC_(PFX, _release)(struct SNAME _map_);
 

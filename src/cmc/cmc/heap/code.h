@@ -36,7 +36,7 @@ struct SNAME *CMC_(PFX, _new)(size_t capacity, enum cmc_heap_order HO, struct CM
 }
 
 struct SNAME *CMC_(PFX, _new_custom)(size_t capacity, enum cmc_heap_order HO, struct CMC_DEF_FVAL(SNAME) * f_val,
-                                     CMC_ALLOC_TYPE *alloc, CMC_CALLBACK_TYPE callbacks)
+                                     CMC_ALLOC_TYPE alloc, CMC_CALLBACK_TYPE callbacks)
 {
 #ifdef CMC_DEV
     CMC_DEV_FCALL;
@@ -118,7 +118,7 @@ void CMC_(PFX, _free)(struct SNAME *_heap_)
     _heap_->alloc->free(_heap_);
 }
 
-void CMC_(PFX, _customize)(struct SNAME *_heap_, CMC_ALLOC_TYPE *alloc, CMC_CALLBACK_TYPE callbacks)
+void CMC_(PFX, _customize)(struct SNAME *_heap_, CMC_ALLOC_TYPE alloc, CMC_CALLBACK_TYPE callbacks)
 {
 #ifdef CMC_DEV
     CMC_DEV_FCALL;

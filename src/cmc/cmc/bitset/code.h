@@ -34,7 +34,7 @@ struct SNAME *CMC_(PFX, _new)(size_t n_bits)
     return CMC_(PFX, _new_custom)(n_bits, NULL, NULL);
 }
 
-struct SNAME *CMC_(PFX, _new_custom)(size_t n_bits, CMC_ALLOC_TYPE *alloc, CMC_CALLBACK_TYPE callbacks)
+struct SNAME *CMC_(PFX, _new_custom)(size_t n_bits, CMC_ALLOC_TYPE alloc, CMC_CALLBACK_TYPE callbacks)
 {
 #ifdef CMC_DEV
     CMC_DEV_FCALL;
@@ -80,7 +80,7 @@ struct SNAME CMC_(PFX, _init)(size_t n_bits)
     return CMC_(PFX, _init_custom)(n_bits, NULL, NULL);
 }
 
-struct SNAME CMC_(PFX, _init_custom)(size_t n_bits, CMC_ALLOC_TYPE *alloc, CMC_CALLBACK_TYPE callbacks)
+struct SNAME CMC_(PFX, _init_custom)(size_t n_bits, CMC_ALLOC_TYPE alloc, CMC_CALLBACK_TYPE callbacks)
 {
 #ifdef CMC_DEV
     CMC_DEV_FCALL;
@@ -130,7 +130,7 @@ void CMC_(PFX, _release)(struct SNAME _bitset_)
     free(_bitset_.buffer);
 }
 
-void CMC_(PFX, _customize)(struct SNAME *_bitset_, CMC_ALLOC_TYPE *alloc, CMC_CALLBACK_TYPE callbacks)
+void CMC_(PFX, _customize)(struct SNAME *_bitset_, CMC_ALLOC_TYPE alloc, CMC_CALLBACK_TYPE callbacks)
 {
 #ifdef CMC_DEV
     CMC_DEV_FCALL;

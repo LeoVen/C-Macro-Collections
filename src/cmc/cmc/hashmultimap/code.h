@@ -39,7 +39,7 @@ struct SNAME *CMC_(PFX, _new)(size_t capacity, double load, struct CMC_DEF_FKEY(
 }
 
 struct SNAME *CMC_(PFX, _new_custom)(size_t capacity, double load, struct CMC_DEF_FKEY(SNAME) * f_key,
-                                     struct CMC_DEF_FVAL(SNAME) * f_val, CMC_ALLOC_TYPE *alloc,
+                                     struct CMC_DEF_FVAL(SNAME) * f_val, CMC_ALLOC_TYPE alloc,
                                      CMC_CALLBACK_TYPE callbacks)
 {
 #ifdef CMC_DEV
@@ -167,7 +167,7 @@ void CMC_(PFX, _free)(struct SNAME *_map_)
     _map_->alloc->free(_map_);
 }
 
-void CMC_(PFX, _customize)(struct SNAME *_map_, CMC_ALLOC_TYPE *alloc, CMC_CALLBACK_TYPE callbacks)
+void CMC_(PFX, _customize)(struct SNAME *_map_, CMC_ALLOC_TYPE alloc, CMC_CALLBACK_TYPE callbacks)
 {
 #ifdef CMC_DEV
     CMC_DEV_FCALL;

@@ -34,7 +34,7 @@ struct SNAME *CMC_(PFX, _new)(size_t capacity, struct CMC_DEF_FVAL(SNAME) * f_va
     return CMC_(PFX, _new_custom)(capacity, f_val, NULL, NULL);
 }
 
-struct SNAME *CMC_(PFX, _new_custom)(size_t capacity, struct CMC_DEF_FVAL(SNAME) * f_val, CMC_ALLOC_TYPE *alloc,
+struct SNAME *CMC_(PFX, _new_custom)(size_t capacity, struct CMC_DEF_FVAL(SNAME) * f_val, CMC_ALLOC_TYPE alloc,
                                      CMC_CALLBACK_TYPE callbacks)
 {
 #ifdef CMC_DEV
@@ -108,7 +108,7 @@ void CMC_(PFX, _free)(struct SNAME *_stack_)
     _stack_->alloc->free(_stack_);
 }
 
-void CMC_(PFX, _customize)(struct SNAME *_stack_, CMC_ALLOC_TYPE *alloc, CMC_CALLBACK_TYPE callbacks)
+void CMC_(PFX, _customize)(struct SNAME *_stack_, CMC_ALLOC_TYPE alloc, CMC_CALLBACK_TYPE callbacks)
 {
 #ifdef CMC_DEV
     CMC_DEV_FCALL;

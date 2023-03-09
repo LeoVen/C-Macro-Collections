@@ -42,12 +42,12 @@ struct CMC_DEF_FVAL(SNAME)
 /* Collection Functions */
 /* Collection Allocation and Deallocation */
 struct SNAME *CMC_(PFX, _new)(size_t capacity, struct CMC_DEF_FVAL(SNAME) * f_val);
-struct SNAME *CMC_(PFX, _new_custom)(size_t capacity, struct CMC_DEF_FVAL(SNAME) * f_val, CMC_ALLOC_TYPE *alloc,
+struct SNAME *CMC_(PFX, _new_custom)(size_t capacity, struct CMC_DEF_FVAL(SNAME) * f_val, CMC_ALLOC_TYPE alloc,
                                      CMC_CALLBACK_TYPE callbacks);
 void CMC_(PFX, _clear)(struct SNAME *_heap_);
 void CMC_(PFX, _free)(struct SNAME *_heap_);
 /* Customization of Allocation and Callbacks */
-void CMC_(PFX, _customize)(struct SNAME *_heap_, CMC_ALLOC_TYPE *alloc, CMC_CALLBACK_TYPE callbacks);
+void CMC_(PFX, _customize)(struct SNAME *_heap_, CMC_ALLOC_TYPE alloc, CMC_CALLBACK_TYPE callbacks);
 /* Collection Input and Output */
 bool CMC_(PFX, _insert)(struct SNAME *_heap_, V value);
 bool CMC_(PFX, _remove_max)(struct SNAME *_heap_);

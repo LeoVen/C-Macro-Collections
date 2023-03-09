@@ -52,7 +52,7 @@
  * by the standard library.
  */
 
-#define CMC_ALLOC_TYPE struct CMC_ALLOC_NODE_NAME
+#define CMC_ALLOC_TYPE struct CMC_ALLOC_NODE_NAME *
 
 static struct CMC_ALLOC_NODE_NAME
 {
