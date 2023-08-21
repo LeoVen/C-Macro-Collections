@@ -29,4 +29,4 @@ types:
 	$(CC) ./types.c $(INCLUDE) -Wall -Wextra -O3 -ftime-report -o ./$(OUTDIR)/$@.exe
 	./$(OUTDIR)/$@.exe
 
-.PHONY: main dev clean lcov types
+.PHONY: main dev single clean lcov types

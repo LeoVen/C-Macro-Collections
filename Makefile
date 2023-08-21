@@ -26,3 +26,5 @@ docbuild:
 
 docserve:
 	mdbook serve documentation
+
+.PHONY: tests tests_dev format bench docbuild docserve
