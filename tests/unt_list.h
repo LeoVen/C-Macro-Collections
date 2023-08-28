@@ -68,26 +68,44 @@ CMC_CREATE_UNIT(CMCList, true, {
         l_free(l);
     });
 
-    CMC_CREATE_TEST(push_front[count], {
+    CMC_CREATE_TEST(PFX##_push_front, {
         struct list *l = l_new(100, l_fval);
 
         cmc_assert_not_equals(ptr, NULL, l);
 
+        cmc_assert(l_push_front(l, 10));
+
+        cmc_assert_equals(size_t, l->buffer[0], 10);
+        cmc_assert_equals(size_t, l_count(l), 1);
+
+        cmc_assert(l_push_front(l, 11));
+        cmc_assert_equals(size_t, 11, l->buffer[0]);
+        cmc_assert_equals(size_t, 10, l->buffer[1]);
+        cmc_assert_equals(size_t, 2, l_count(l));
+
+        l_free(l);
+
+        l = l_new(100, l_fval);
+
+        cmc_assert_not_equals(ptr, NULL, l);
+
         for (size_t i = 0; i < 250; i++)
+        {
             cmc_assert(l_push_front(l, i));
+        }
 
         cmc_assert_equals(size_t, 250, l_count(l));
 
         l_free(l);
-    });
 
-    CMC_CREATE_TEST(push_front[capacity], {
-        struct list *l = l_new(100, l_fval);
+        l = l_new(100, l_fval);
 
         cmc_assert_not_equals(ptr, NULL, l);
 
         for (size_t i = 0; i < 250; i++)
+        {
             cmc_assert(l_push_front(l, i));
+        }
 
         cmc_assert_lesser_equals(size_t, l_capacity(l), l_count(l));
 
