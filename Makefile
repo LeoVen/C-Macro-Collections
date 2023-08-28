@@ -8,6 +8,7 @@ help:
 	@echo - bench: runs benchmarks
 	@echo - docbuild: builds documentation to ./docs
 	@echo - docserve: serves mdbook docs
+	@echo - install_dev_deps: install dev dependencies
 
 tests:
 	make -C ./tests
@@ -27,4 +28,7 @@ docbuild:
 docserve:
 	mdbook serve documentation
 
-.PHONY: tests tests_dev format bench docbuild docserve
+install_dev_deps:
+	sudo apt install gcc valgrind lcov clang-format
+
+.PHONY: tests tests_dev format bench docbuild docserve install_dev_deps
