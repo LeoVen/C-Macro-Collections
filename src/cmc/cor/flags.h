@@ -56,7 +56,7 @@ enum cmc_flags
     CMC_FLAG_THREAD    =  8, // Generic error regarding threads
     CMC_FLAG_MUTEX     =  9, // Generic error regarding mutexes
     CMC_FLAG_FULL      = 10, // When a collection that doesn't resize is full
-    CMC_FLAG_FTABLE    = 11, // When an ftable function is missing
+    CMC_FLAG_FTABLE    = 11, // When a required ftable function is missing
 };
 // clang-format on
 
@@ -65,7 +65,8 @@ enum cmc_flags
  *
  * Maps the error codes to their character representation.
  */
-CMC_UNUSED static const char *cmc_flags_to_str[11] = { "OK",        "ALLOC", "EMPTY",  "NOT_FOUND", "INVALID", "RANGE",
-                                                       "DUPLICATE", "ERROR", "THREAD", "MUTEX",     "FULL" };
+CMC_UNUSED static const char *cmc_flags_to_str[11] = {
+    "OK", "ALLOC", "EMPTY", "NOT_FOUND", "INVALID", "RANGE", "DUPLICATE", "ERROR", "THREAD", "MUTEX", "FULL", "FTABLE"
+};
 
 #endif /* CMC_COR_FLAGS_H */
