@@ -65,7 +65,7 @@ enum cmc_flags
  *
  * Maps the error codes to their character representation.
  */
-CMC_UNUSED static const char *cmc_flags_to_str[11] = {
+CMC_UNUSED static const char *cmc_flags_to_str[12] = {
     "OK", "ALLOC", "EMPTY", "NOT_FOUND", "INVALID", "RANGE", "DUPLICATE", "ERROR", "THREAD", "MUTEX", "FULL", "FTABLE"
 };
 

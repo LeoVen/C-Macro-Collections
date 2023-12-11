@@ -1,6 +1,6 @@
 CC=gcc
 CFLAGS=-Wall -Wextra -Werror -O3
-INCLUDE=-I ../src
+INCLUDE=-I ..
 
 ifndef FILE
 main:

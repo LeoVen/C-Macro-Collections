@@ -29,6 +29,7 @@ docserve:
 	mdbook serve documentation
 
 install_dev_deps:
-	sudo apt install gcc valgrind lcov clang-format
+	sudo apt install gcc make valgrind lcov clang-format hyperfine
+	cargo install mdbook
 
 .PHONY: tests tests_dev format bench docbuild docserve install_dev_deps

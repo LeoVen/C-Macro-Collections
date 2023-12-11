@@ -1,4 +1,4 @@
-INCLUDE=-I ../../../src
+INCLUDE=-I ../../..
 CFLAGS=-O3 -Wall -Wextra -Werror -DCOUNT=20000000 -DCMC_NO_CALLBACKS
 
 # Install hyperfine
@@ -15,4 +15,5 @@ build:
 	g++ unorderedmap.cpp $(INCLUDE) -o unorderedmap.exe $(CFLAGS)
 
 clean:
-	rm *.exe
+	rm *.exe -f
+	rm *.txt -f
