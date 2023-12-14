@@ -45,6 +45,11 @@ struct SNAME *CMC_(PFX, _new_custom)(size_t capacity, struct CMC_DEF_FVAL(SNAME)
                                      CMC_CALLBACK_TYPE callbacks);
 void CMC_(PFX, _clear)(struct SNAME *_deque_);
 void CMC_(PFX, _free)(struct SNAME *_deque_);
+/* Collection Allocation and Deallocation */
+struct SNAME CMC_(PFX, _init)(size_t capacity, struct CMC_DEF_FVAL(SNAME) * f_val);
+struct SNAME CMC_(PFX, _init_custom)(size_t capacity, struct CMC_DEF_FVAL(SNAME) * f_val, CMC_ALLOC_TYPE alloc,
+                                     CMC_CALLBACK_TYPE callbacks);
+void CMC_(PFX, _release)(struct SNAME _deque_);
 /* Customization of Allocation and Callbacks */
 void CMC_(PFX, _customize)(struct SNAME *_deque_, CMC_ALLOC_TYPE alloc, CMC_CALLBACK_TYPE callbacks);
 /* Collection Input and Output */
@@ -66,3 +71,45 @@ int CMC_(PFX, _flag)(struct SNAME *_deque_);
 bool CMC_(PFX, _resize)(struct SNAME *_deque_, size_t capacity);
 struct SNAME *CMC_(PFX, _copy_of)(struct SNAME *_deque_);
 bool CMC_(PFX, _equals)(struct SNAME *_deque1_, struct SNAME *_deque2_);
+
+/**
+ * ITER
+ *
+ * Deque bi-directional iterator.
+ */
+#ifdef CMC_EXT_ITER
+
+/* Iterator Initialization */
+struct CMC_DEF_ITER(SNAME) CMC_(PFX, _iter_start)(struct SNAME *target);
+struct CMC_DEF_ITER(SNAME) CMC_(PFX, _iter_end)(struct SNAME *target);
+/* Iterator State */
+bool CMC_(PFX, _iter_at_start)(struct CMC_DEF_ITER(SNAME) * iter);
+bool CMC_(PFX, _iter_at_end)(struct CMC_DEF_ITER(SNAME) * iter);
+/* Iterator Movement */
+bool CMC_(PFX, _iter_to_start)(struct CMC_DEF_ITER(SNAME) * iter);
+bool CMC_(PFX, _iter_to_end)(struct CMC_DEF_ITER(SNAME) * iter);
+bool CMC_(PFX, _iter_next)(struct CMC_DEF_ITER(SNAME) * iter);
+bool CMC_(PFX, _iter_prev)(struct CMC_DEF_ITER(SNAME) * iter);
+bool CMC_(PFX, _iter_advance)(struct CMC_DEF_ITER(SNAME) * iter, size_t steps);
+bool CMC_(PFX, _iter_rewind)(struct CMC_DEF_ITER(SNAME) * iter, size_t steps);
+bool CMC_(PFX, _iter_go_to)(struct CMC_DEF_ITER(SNAME) * iter, size_t index);
+/* Iterator Access */
+V CMC_(PFX, _iter_value)(struct CMC_DEF_ITER(SNAME) * iter);
+V *CMC_(PFX, _iter_rvalue)(struct CMC_DEF_ITER(SNAME) * iter);
+size_t CMC_(PFX, _iter_index)(struct CMC_DEF_ITER(SNAME) * iter);
+
+#endif /* CMC_EXT_ITER */
+
+/**
+ * STR
+ *
+ * Print helper functions.
+ */
+#ifdef CMC_EXT_STR
+
+/* Debug prints the struct to fptr */
+bool CMC_(PFX, _to_string)(struct SNAME *_deque_, FILE *fptr);
+/* Prints each item in the deque as an array */
+bool CMC_(PFX, _print)(struct SNAME *_deque_, FILE *fptr, const char *start, const char *separator, const char *end);
+
+#endif /* CMC_EXT_STR */

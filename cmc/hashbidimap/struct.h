@@ -67,3 +67,31 @@ struct CMC_DEF_ENTRY(SNAME)
     /* ref[1] is relative to V -> K */
     struct CMC_DEF_ENTRY(SNAME) * *ref[2];
 };
+
+/**
+ * ITER
+ *
+ * Hashbidimap bi-directional iterator.
+ */
+#ifdef CMC_EXT_ITER
+
+/* HashBidiMap Iterator */
+struct CMC_DEF_ITER(SNAME)
+{
+    /* Target hashbidimap */
+    struct SNAME *target;
+    /* Cursor's position (index) */
+    size_t cursor;
+    /* Keeps track of relative index to the iteration of elements */
+    size_t index;
+    /* The index of the first element */
+    size_t first;
+    /* The index of the last element */
+    size_t last;
+    /* If the iterator has reached the start of the iteration */
+    bool start;
+    /* If the iterator has reached the end of the iteration */
+    bool end;
+};
+
+#endif /* CMC_EXT_ITER */

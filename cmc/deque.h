@@ -65,28 +65,22 @@
  * PFX - functions prefix
  */
 
-/* Structs definition */
-#include "cmc/deque/struct.h"
+#if !defined(CMC_STRUCT) && !defined(CMC_HEADER) && !defined(CMC_CODE)
+#include "deque/struct.h"
+#include "deque/header.h"
+#include "deque/code.h"
+#endif
 
-/* Function declaration */
-#include "cmc/deque/header.h"
+#ifdef CMC_STRUCT
+#include "deque/struct.h"
+#endif /* CMC_STRUCT */
 
-/* Function implementation */
-#include "cmc/deque/code.h"
+#ifdef CMC_HEADER
+#include "deque/header.h"
+#endif /* CMC_HEADER */
 
-/**
- * Extensions
- *
- * INIT - Initializes the struct on the stack
- * ITER - Deque iterator
- * STR - Print helper functions
- */
-#define CMC_EXT_DEQUE_PARTS INIT, ITER, STR
-/**/
-#include "cmc/deque/ext/struct.h"
-/**/
-#include "cmc/deque/ext/header.h"
-/**/
-#include "cmc/deque/ext/code.h"
+#ifdef CMC_CODE
+#include "deque/code.h"
+#endif /* CMC_CODE */
 
 #include "cor/undef.h"

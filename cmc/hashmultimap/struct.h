@@ -57,3 +57,33 @@ struct CMC_DEF_ENTRY(SNAME)
     /* Previous entry on the linked list */
     struct CMC_DEF_ENTRY(SNAME) * prev;
 };
+
+/**
+ * ITER
+ *
+ * Hashmultimap bi-directional iterator.
+ */
+#ifdef CMC_EXT_ITER
+
+/* HashMultiMap Iterator */
+struct CMC_DEF_ITER(SNAME)
+{
+    /* Target hashmultimap */
+    struct SNAME *target;
+    /* Current entry */
+    struct CMC_DEF_ENTRY(SNAME) * curr_entry;
+    /* Cursor`s position (index) */
+    size_t cursor;
+    /* Keeps track of relative index to the iteration of elements */
+    size_t index;
+    /* The index of the first element */
+    size_t first;
+    /* The index of the last element */
+    size_t last;
+    /* If the iterator has reached the start of the iteration */
+    bool start;
+    /* If the iterator has reached the end of the iteration */
+    bool end;
+};
+
+#endif /* CMC_EXT_ITER */

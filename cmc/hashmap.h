@@ -55,28 +55,22 @@
  * PFX - functions prefix
  */
 
-/* Structs definition */
-#include "cmc/hashmap/struct.h"
+#if !defined(CMC_STRUCT) && !defined(CMC_HEADER) && !defined(CMC_CODE)
+#include "hashmap/struct.h"
+#include "hashmap/header.h"
+#include "hashmap/code.h"
+#endif
 
-/* Function declaration */
-#include "cmc/hashmap/header.h"
+#ifdef CMC_STRUCT
+#include "hashmap/struct.h"
+#endif /* CMC_STRUCT */
 
-/* Function implementation */
-#include "cmc/hashmap/code.h"
+#ifdef CMC_HEADER
+#include "hashmap/header.h"
+#endif /* CMC_HEADER */
 
-/**
- * Extensions
- *
- * INIT - Initializes the struct on the stack
- * ITER - hashmap iterator
- * STR - Print helper functions
- */
-#define CMC_EXT_HASHMAP_PARTS INIT, ITER, STR
-/**/
-#include "cmc/hashmap/ext/struct.h"
-/**/
-#include "cmc/hashmap/ext/header.h"
-/**/
-#include "cmc/hashmap/ext/code.h"
+#ifdef CMC_CODE
+#include "hashmap/code.h"
+#endif /* CMC_CODE */
 
 #include "cor/undef.h"

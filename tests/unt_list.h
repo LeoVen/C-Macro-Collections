@@ -48,6 +48,8 @@ CMC_CREATE_UNIT(CMCList, true, {
         cmc_assert_equals(size_t, 100, l_capacity(l));
         cmc_assert_equals(size_t, 0, l_count(l));
         cmc_assert_equals(int32_t, CMC_FLAG_OK, l_flag(l));
+
+        l_free(l);
     });
 
     CMC_CREATE_TEST(PFX##_clear, {

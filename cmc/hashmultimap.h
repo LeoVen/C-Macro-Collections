@@ -80,28 +80,22 @@
  * PFX - functions prefix
  */
 
-/* Structs definition */
-#include "cmc/hashmultimap/struct.h"
+#if !defined(CMC_STRUCT) && !defined(CMC_HEADER) && !defined(CMC_CODE)
+#include "hashmultimap/struct.h"
+#include "hashmultimap/header.h"
+#include "hashmultimap/code.h"
+#endif
 
-/* Function declaration */
-#include "cmc/hashmultimap/header.h"
+#ifdef CMC_STRUCT
+#include "hashmultimap/struct.h"
+#endif /* CMC_STRUCT */
 
-/* Function implementation */
-#include "cmc/hashmultimap/code.h"
+#ifdef CMC_HEADER
+#include "hashmultimap/header.h"
+#endif /* CMC_HEADER */
 
-/**
- * Extensions
- *
- * INIT - Initializes the struct on the stack
- * ITER - hashmultimap iterator
- * STR - Print helper functions
- */
-#define CMC_EXT_HASHMULTIMAP_PARTS INIT, ITER, STR
-/**/
-#include "cmc/hashmultimap/ext/struct.h"
-/**/
-#include "cmc/hashmultimap/ext/header.h"
-/**/
-#include "cmc/hashmultimap/ext/code.h"
+#ifdef CMC_CODE
+#include "hashmultimap/code.h"
+#endif /* CMC_CODE */
 
 #include "cor/undef.h"

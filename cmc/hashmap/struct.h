@@ -58,3 +58,31 @@ struct CMC_DEF_ENTRY(SNAME)
     /* The sate of this node (DELETED, EMPTY, FILLED) */
     enum cmc_entry_state state;
 };
+
+/**
+ * ITER
+ *
+ * Hashmap bi-directional iterator.
+ */
+#ifdef CMC_EXT_ITER
+
+/* HashMap Iterator */
+struct CMC_DEF_ITER(SNAME)
+{
+    /* Target hashmap */
+    struct SNAME *target;
+    /* Cursor's position (index) */
+    size_t cursor;
+    /* Keeps track of relative index to the iteration of elements */
+    size_t index;
+    /* The index of the first element */
+    size_t first;
+    /* The index of the last element */
+    size_t last;
+    /* If the iterator has reached the start of the iteration */
+    bool start;
+    /* If the iterator has reached the end of the iteration */
+    bool end;
+};
+
+#endif /* CMC_EXT_ITER */

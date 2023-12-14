@@ -62,28 +62,22 @@
  * PFX - functions prefix
  */
 
-/* Structs definition */
-#include "cmc/hashbidimap/struct.h"
+#if !defined(CMC_STRUCT) && !defined(CMC_HEADER) && !defined(CMC_CODE)
+#include "hashbidimap/struct.h"
+#include "hashbidimap/header.h"
+#include "hashbidimap/code.h"
+#endif
 
-/* Function declaration */
-#include "cmc/hashbidimap/header.h"
+#ifdef CMC_STRUCT
+#include "hashbidimap/struct.h"
+#endif /* CMC_STRUCT */
 
-/* Function implementation */
-#include "cmc/hashbidimap/code.h"
+#ifdef CMC_HEADER
+#include "hashbidimap/header.h"
+#endif /* CMC_HEADER */
 
-/**
- * Extensions
- *
- * INIT - Initializes the struct on the stack
- * ITER - Hashbidimap iterator
- * STR - Print helper functions
- */
-#define CMC_EXT_HASHBIDIMAP_PARTS INIT, ITER, STR
-/**/
-#include "cmc/hashbidimap/ext/struct.h"
-/**/
-#include "cmc/hashbidimap/ext/header.h"
-/**/
-#include "cmc/hashbidimap/ext/code.h"
+#ifdef CMC_CODE
+#include "hashbidimap/code.h"
+#endif /* CMC_CODE */
 
 #include "cor/undef.h"

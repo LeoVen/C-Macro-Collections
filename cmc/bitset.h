@@ -65,28 +65,22 @@
  * PFX - functions prefix
  */
 
-/* Structs definition */
-#include "cmc/bitset/struct.h"
+#if !defined(CMC_STRUCT) && !defined(CMC_HEADER) && !defined(CMC_CODE)
+#include "bitset/struct.h"
+#include "bitset/header.h"
+#include "bitset/code.h"
+#endif
 
-/* Function declaration */
-#include "cmc/bitset/header.h"
+#ifdef CMC_STRUCT
+#include "bitset/struct.h"
+#endif /* CMC_STRUCT */
 
-/* Function implementation */
-#include "cmc/bitset/code.h"
+#ifdef CMC_HEADER
+#include "bitset/header.h"
+#endif /* CMC_HEADER */
 
-/**
- * Extensions
- *
- * INIT - Initializes the struct on the stack
- * ITER - bitset iterator
- * STR - Print helper functions
- */
-#define CMC_EXT_BITSET_PARTS INIT, ITER, STR
-/**/
-#include "cmc/bitset/ext/struct.h"
-/**/
-#include "cmc/bitset/ext/header.h"
-/**/
-#include "cmc/bitset/ext/code.h"
+#ifdef CMC_CODE
+#include "bitset/code.h"
+#endif /* CMC_CODE */
 
 #include "cor/undef.h"

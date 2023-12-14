@@ -43,3 +43,27 @@ struct SNAME
     /* Custom callback functions */
     CMC_CALLBACKS_DECL;
 };
+
+/**
+ * ITER
+ *
+ * Deque bi-directional iterator.
+ */
+#ifdef CMC_EXT_ITER
+
+/* Deque Iterator */
+struct CMC_DEF_ITER(SNAME)
+{
+    /* Target deque */
+    struct SNAME *target;
+    /* Cursor's position (index) */
+    size_t cursor;
+    /* Keeps track of relative index to the iteration of elements */
+    size_t index;
+    /* If the iterator has reached the start of the iteration */
+    bool start;
+    /* If the iterator has reached the end of the iteration */
+    bool end;
+};
+
+#endif /* CMC_EXT_ITER */
