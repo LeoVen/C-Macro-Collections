@@ -29,7 +29,10 @@ docserve:
 	mdbook serve documentation
 
 install_dev_deps:
-	sudo apt install gcc make valgrind lcov clang-format hyperfine
+	sudo apt install gcc make valgrind lcov clang-format hyperfine clangd cmake
 	cargo install mdbook
+
+build_clangd:
+	cmake -S . -G "Unix Makefiles" -B cmake
 
 .PHONY: tests tests_dev format bench docbuild docserve install_dev_deps
